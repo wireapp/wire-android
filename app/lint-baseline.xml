@@ -8,18 +8,7 @@
         errorLine2="^">
         <location
             file="src/main/kotlin/com/wire/android/ui/common/AppExtensions.kt"
-            line="56"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeComposableModifier"
-        message="Using @Composable builder functions for modifiers is not recommended, as they cause unnecessary recompositions.You should use the Modifier.Node API instead, as it limits recomposition to just the modifier instance, rather than the whole function tree.See https://slackhq.github.io/compose-lints/rules/#avoid-modifier-extension-factory-functions for more information."
-        errorLine1="@Composable"
-        errorLine2="^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/AppExtensions.kt"
-            line="64"
+            line="76"
             column="1"/>
     </issue>
 
@@ -36,7 +25,7 @@
 
     <issue
         id="RestrictedApi"
-        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android`)"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android-reloaded`)"
         errorLine1="    val isAlreadyRunning = getWorkInfosForUniqueWork(MigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }"
         errorLine2="                                                                           ~~~~~">
         <location
@@ -47,7 +36,7 @@
 
     <issue
         id="RestrictedApi"
-        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android`)"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android-reloaded`)"
         errorLine1="        getWorkInfosForUniqueWork(SingleUserMigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }"
         errorLine2="                                                                  ~~~~~">
         <location
@@ -228,18 +217,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="659"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>Вы и еще 1 пользователь были добавлены к беседе&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ru/strings.xml"
-            line="666"
+            line="662"
             column="9"/>
     </issue>
 
@@ -257,11 +235,22 @@
     <issue
         id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>Вы и еще 1 пользователь были добавлены к беседе&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ru/strings.xml"
+            line="669"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>В беседу был добавлен 1 пользователь&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="672"
+            line="675"
             column="9"/>
     </issue>
 
@@ -272,7 +261,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="678"
+            line="681"
             column="9"/>
     </issue>
 
@@ -283,7 +272,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="684"
+            line="687"
             column="9"/>
     </issue>
 
@@ -294,7 +283,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="691"
+            line="694"
             column="9"/>
     </issue>
 
@@ -305,7 +294,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="697"
+            line="700"
             column="9"/>
     </issue>
 
@@ -338,7 +327,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1065"
+            line="1068"
             column="9"/>
     </issue>
 
@@ -349,7 +338,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1071"
+            line="1074"
             column="9"/>
     </issue>
 
@@ -470,7 +459,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1281"
+            line="1284"
             column="9"/>
     </issue>
 
@@ -481,7 +470,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1287"
+            line="1290"
             column="9"/>
     </issue>
 
@@ -492,7 +481,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1293"
+            line="1296"
             column="9"/>
     </issue>
 
@@ -503,7 +492,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1299"
+            line="1302"
             column="9"/>
     </issue>
 
@@ -514,7 +503,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1305"
+            line="1308"
             column="9"/>
     </issue>
 
@@ -525,7 +514,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1311"
+            line="1314"
             column="9"/>
     </issue>
 
@@ -536,7 +525,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1317"
+            line="1320"
             column="9"/>
     </issue>
 
@@ -547,7 +536,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1323"
+            line="1326"
             column="9"/>
     </issue>
 
@@ -558,7 +547,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1329"
+            line="1332"
             column="9"/>
     </issue>
 
@@ -569,19 +558,8 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="1335"
+            line="1338"
             column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeContentEmitterReturningValues"
-        message="Composable functions should either emit content into the composition or return a value, but not both.If a composable should offer additional control surfaces to its caller, those control surfaces or callbacks should be provided as parameters to the composable function by the caller.See https://slackhq.github.io/compose-lints/rules/#do-not-emit-content-and-return-a-result for more information."
-        errorLine1="@Composable"
-        errorLine2="^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/dialogs/CustomServerDialog.kt"
-            line="147"
-            column="1"/>
     </issue>
 
     <issue
@@ -592,171 +570,6 @@
         <location
             file="src/main/kotlin/com/wire/android/ui/home/settings/appsettings/AppSettingsScreen.kt"
             line="41"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun AppearanceScreenContent("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/appearance/AppearanceScreen.kt"
-            line="75"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ThemeOptionItem("
-        errorLine2="    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/appearance/AppearanceScreen.kt"
-            line="126"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun UploadInProgressAssetMessage() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/model/messagetypes/asset/AssetMessageTypes.kt"
-            line="158"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/model/messagetypes/asset/AssetMessageTypes.kt"
-            line="181"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/model/messagetypes/asset/AssetMessageTypes.kt"
-            line="216"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun WireBottomNavigationBar("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/BottomNavigation.kt"
-            line="53"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun BulletHoleImagePreview("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/imagepreview/BulletHoleImagePreview.kt"
-            line="64"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun CreateGuestLinkButton("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/Buttons.kt"
-            line="35"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun CopyLinkButton("
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/Buttons.kt"
-            line="55"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ShareLinkButton("
-        errorLine2="    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/Buttons.kt"
-            line="71"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun RevokeLinkButton("
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/Buttons.kt"
-            line="88"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun CallVideoPreview("
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/calling/common/CallVideoPreview.kt"
-            line="32"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun CallerDetails("
-        errorLine2="    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/calling/common/CallerDetails.kt"
-            line="64"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ChangeDisplayNameContent("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/account/displayname/ChangeDisplayNameScreen.kt"
-            line="100"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ChangeHandleContent("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/account/handle/ChangeHandleScreen.kt"
-            line="81"
             column="5"/>
     </issue>
 
@@ -774,66 +587,11 @@
     <issue
         id="ComposeModifierMissing"
         message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ConnectionLabel(connectionInfo: UILastMessageContent.Connection) {"
-        errorLine2="    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversationslist/common/ConnectionLabel.kt"
-            line="34"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun DropDownMentionsSuggestions("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/DropDownMentionsSuggestions.kt"
-            line="45"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun E2EISuccessDialog("
-        errorLine2="    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/E2EIDialogs.kt"
-            line="148"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
         errorLine1="fun EditSelfDeletingMessagesScreen("
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/home/conversations/details/editselfdeletingmessages/EditSelfDeletingMessagesScreen.kt"
-            line="65"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun SelectableSelfDeletingItem("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/editselfdeletingmessages/EditSelfDeletingMessagesScreen.kt"
-            line="136"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun EmptyMediaContentScreen("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/media/EmptyMediaContentScreen.kt"
-            line="41"
+            line="67"
             column="5"/>
     </issue>
 
@@ -845,677 +603,6 @@
         <location
             file="src/main/kotlin/com/wire/android/ui/home/conversations/search/EmptySearchQueryScreen.kt"
             line="48"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun EndToEndIdentityCertificateItem("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/settings/devices/EndToEndIdentityCertificateItem.kt"
-            line="54"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun GetE2eiCertificateButton("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/settings/devices/button/GetE2eiCertificateButton.kt"
-            line="32"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun GuestLinkActionButtons("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/GuestLinkActionButtons.kt"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun HighlightSubtitle("
-        errorLine2="    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/search/HighLightSubtTitle.kt"
-            line="34"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun HomeDrawer("
-        errorLine2="    ~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/drawer/HomeDrawer.kt"
-            line="57"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun DrawerItem(destination: HomeDestination, selected: Boolean, unreadCount: Int = 0, onItemClick: () -> Unit) {"
-        errorLine2="    ~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/drawer/HomeDrawer.kt"
-            line="114"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x2() {"
-        errorLine2="        ~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x4() {"
-        errorLine2="        ~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="35"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x8() {"
-        errorLine2="        ~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="40"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x12() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="45"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x16() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="50"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x24() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="55"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x32() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="60"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x48() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="65"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ImageMessageInProgress(width: Dp, height: Dp, isDownloading: Boolean, showText: Boolean = true) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/model/messagetypes/image/ImageMessageTypes.kt"
-            line="122"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/model/messagetypes/image/ImageMessageTypes.kt"
-            line="154"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun Label("
-        errorLine2="    ~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/textfield/Label.kt"
-            line="39"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun LegalHoldDeactivatedDialog(dialogDismissed: () -> Unit) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/legalhold/dialog/deactivated/LegalHoldDeactivatedDialog.kt"
-            line="35"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun LegalHoldStatusBar("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/legalhold/banner/LegalHoldStatusBar.kt"
-            line="48"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun LegalHoldSubjectBaseDialog("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/legalhold/dialog/subject/LegalHoldSubjectBaseDialog.kt"
-            line="35"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun LegalHoldSubjectConnectionFailedDialog(dialogDismissed: () -> Unit) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/legalhold/dialog/connectionfailed/LegalHoldSubjectConnectionFailedDialog.kt"
-            line="35"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun LibraryItem("
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/about/licenses/LicensesItem.kt"
-            line="82"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun LicensesContent("
-        errorLine2="    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/about/licenses/LicensesScreen.kt"
-            line="62"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun LocationMessageContent("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/model/messagetypes/location/LocationMessageType.kt"
-            line="56"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun LogoutOptionsDialog("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/userprofile/self/dialog/LogoutOptionsDialog.kt"
-            line="42"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: NodeData) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownBlockQuote.kt"
-            line="35"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode, nodeData: NodeData) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownCodeBlock.kt"
-            line="34"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MarkdownFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, nodeData: NodeData) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownCodeBlock.kt"
-            line="48"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MarkdownNodeBlockChildren("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownComposer.kt"
-            line="61"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData) {"
-        errorLine2="    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownHeading.kt"
-            line="30"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData: NodeData) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownList.kt"
-            line="32"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MarkdownOrderedList(orderedList: MarkdownNode.Block.ListBlock.Ordered, nodeData: NodeData) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownList.kt"
-            line="57"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MarkdownParagraph("
-        errorLine2="    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownParagraph.kt"
-            line="30"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MarkdownTable(tableBlock: MarkdownNode.Block.Table, nodeData: NodeData, onMentionsUpdate: (List&lt;DisplayMention>) -> Unit) {"
-        errorLine2="    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownTable.kt"
-            line="37"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MessageDetailsReactions("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/MessageDetailsReactions.kt"
-            line="35"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MessageDetailsReadReceipts("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/MessageDetailsReadReceipts.kt"
-            line="35"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MutedConversationBadge() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversationslist/common/MutedConversationBadge.kt"
-            line="45"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MyAccountContent("
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/account/MyAccountScreen.kt"
-            line="175"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun NetworkSettingsScreenContent("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/appsettings/networkSettings/NetworkSettingsScreen.kt"
-            line="59"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership: Membership) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/userprofile/other/OtherUserConnectionStatusInfo.kt"
-            line="43"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun OtherUserConnectionUnverifiedWarning("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/userprofile/other/OtherUserConnectionUnverifiedWarning.kt"
-            line="42"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun OtherUserProfileDetails("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/userprofile/other/OtherUserProfileDetails.kt"
-            line="42"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun OtherUserProfileGroup("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/userprofile/other/OtherUserProfileGroup.kt"
-            line="56"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun PasswordProtectedLinkBanner() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/PasswordProtectedLinkBanner.kt"
-            line="44"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun QuotedMessagePreview("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="168"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ReactionOption("
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/edit/ReactionOption.kt"
-            line="61"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun RemoveDeviceTopBar(elevation: Dp, onBackButtonClicked: () -> Unit) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/authentication/devices/remove/RemoveDeviceTopBar.kt"
-            line="38"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolean) {"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/authentication/verificationcode/ResendCodeText.kt"
-            line="37"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun SelectableMenuBottomSheetItem("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/bottomsheet/RichMenuBottomSheetItem.kt"
-            line="48"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun SearchAndMediaRow("
-        errorLine2="    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/SearchAndMediaRow.kt"
-            line="30"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun SearchConversationMessagesNoResultsScreen() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/SearchConversationMessagesNoResultsScreen.kt"
-            line="42"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun SearchFailureBox(@StringRes failureMessage: Int) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/search/widget/SearchFailureWidget.kt"
-            line="37"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun SettingUpWireScreenContent("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/SettingUpWireScreenContent.kt"
-            line="55"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun SettingsItem("
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/SettingsItem.kt"
-            line="62"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun SettingsOptionSwitch("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/SettingsOptionSwitch.kt"
-            line="33"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ShakeAnimation(offset: Dp = dimensions().spacing12x, duration: Int = 160, animateContent: @Composable (() -> Unit) -> Unit) {"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/ShakeAnimation.kt"
-            line="33"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ShowE2eiCertificateButton("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/settings/devices/button/ShowE2eiCertificateButton.kt"
-            line="35"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun UnderConstructionScreen(screenName: String) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/UnderConstructionScreen.kt"
-            line="44"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun UpdateE2eiCertificateButton("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/settings/devices/button/UpdateE2eiCertificateButton.kt"
-            line="32"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun UserBadge("
-        errorLine2="    ~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/UserBadge.kt"
-            line="46"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun VerificationCode("
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/authentication/verificationcode/VerificationCode.kt"
-            line="44"
             column="5"/>
     </issue>
 
@@ -1542,178 +629,13 @@
     </issue>
 
     <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun VerifyEmailContent("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/account/email/verifyEmail/VerifyEmailScreen.kt"
-            line="72"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x4() {"
-        errorLine2="        ~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x8() {"
-        errorLine2="        ~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
-            line="35"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x16() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
-            line="40"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x24() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
-            line="45"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="    fun x32() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
-            line="50"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun WireCheckIcon() {"
-        errorLine2="    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/WireCheckIcon.kt"
-            line="33"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun WireRadioButton("
-        errorLine2="    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/WireRadioButton.kt"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ZoomableImage(imageAsset: ImageAsset.Remote, contentDescription: String) {"
-        errorLine2="    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/gallery/ZoomableImage.kt"
-            line="38"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierReused"
-        message="Modifiers should only be used once and by the root level layout of a Composable. This is true even if appended to or with other modifiers e.g. modifier.fillMaxWidth().Use Modifier (with a capital &apos;M&apos;) to construct a new Modifier that you can pass to other composables.See https://slackhq.github.io/compose-lints/rules/#dont-re-use-modifiers for more information."
-        errorLine1="    QuotedMessageContent("
-        errorLine2="    ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="501"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierReused"
-        message="Modifiers should only be used once and by the root level layout of a Composable. This is true even if appended to or with other modifiers e.g. modifier.fillMaxWidth().Use Modifier (with a capital &apos;M&apos;) to construct a new Modifier that you can pass to other composables.See https://slackhq.github.io/compose-lints/rules/#dont-re-use-modifiers for more information."
-        errorLine1="            Icon("
-        errorLine2="            ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="512"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierReused"
-        message="Modifiers should only be used once and by the root level layout of a Composable. This is true even if appended to or with other modifiers e.g. modifier.fillMaxWidth().Use Modifier (with a capital &apos;M&apos;) to construct a new Modifier that you can pass to other composables.See https://slackhq.github.io/compose-lints/rules/#dont-re-use-modifiers for more information."
-        errorLine1="    QuotedMessageContent("
-        errorLine2="    ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="575"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierReused"
-        message="Modifiers should only be used once and by the root level layout of a Composable. This is true even if appended to or with other modifiers e.g. modifier.fillMaxWidth().Use Modifier (with a capital &apos;M&apos;) to construct a new Modifier that you can pass to other composables.See https://slackhq.github.io/compose-lints/rules/#dont-re-use-modifiers for more information."
-        errorLine1="            Icon("
-        errorLine2="            ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="583"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierReused"
-        message="Modifiers should only be used once and by the root level layout of a Composable. This is true even if appended to or with other modifiers e.g. modifier.fillMaxWidth().Use Modifier (with a capital &apos;M&apos;) to construct a new Modifier that you can pass to other composables.See https://slackhq.github.io/compose-lints/rules/#dont-re-use-modifiers for more information."
-        errorLine1="    QuotedMessageContent("
-        errorLine2="    ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="605"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierReused"
-        message="Modifiers should only be used once and by the root level layout of a Composable. This is true even if appended to or with other modifiers e.g. modifier.fillMaxWidth().Use Modifier (with a capital &apos;M&apos;) to construct a new Modifier that you can pass to other composables.See https://slackhq.github.io/compose-lints/rules/#dont-re-use-modifiers for more information."
-        errorLine1="            Icon("
-        errorLine2="            ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="611"
-            column="13"/>
-    </issue>
-
-    <issue
         id="ComposeModifierWithoutDefault"
         message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="fun Modifier.selectableBackground(isSelected: Boolean, onClick: () -> Unit): Modifier ="
+        errorLine1="fun Modifier.selectableBackground(isSelected: Boolean, onClick: () -> Unit): Modifier {"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/common/AppExtensions.kt"
-            line="57"
+            line="62"
             column="35"/>
     </issue>
 
@@ -1724,866 +646,8 @@
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/common/AppExtensions.kt"
-            line="66"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/calling/ongoing/fullscreen/DoubleTapToast.kt"
-            line="49"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/authentication/login/sso/LoginSSOScreen.kt"
-            line="155"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, onClick: () -> Unit) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/authentication/login/sso/LoginSSOScreen.kt"
-            line="169"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/MembersMentionList.kt"
-            line="39"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/MessageDetailsEmptyScreenText.kt"
-            line="48"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="381"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="496"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="572"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="602"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/RichTextOptions.kt"
-            line="86"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/RichTextOptions.kt"
-            line="107"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/RichTextOptions.kt"
-            line="127"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="private fun WelcomeFooter(modifier: Modifier, onPrivateAccountClick: () -> Unit) {"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/authentication/welcome/WelcomeScreen.kt"
-            line="340"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/WireDropDown.kt"
             line="78"
             column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeMultipleContentEmitters"
-        message="Composable functions should only be emitting content into the composition from one source at their top level.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#do-not-emit-multiple-pieces-of-content for more information."
-        errorLine1="@Composable"
-        errorLine2="^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/dialogs/CustomServerDialog.kt"
-            line="147"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingLowercase"
-        message="Composable functions that return a value should start with a lowercase letter.While useful and accepted outside of @Composable functions, this factory function convention has drawbacks that set inappropriate expectations for callers when used with @Composable functions.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun BottomNavigationBarHeight(): Dp {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/bottombar/BottomNavigationBarHeight.kt"
-            line="29"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun previewE2EIEnrollmentScreenContent() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/e2eiEnrollment/E2EIEnrollmentScreen.kt"
-            line="225"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun previewE2EIEnrollmentScreenContentWithSuccess() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/e2eiEnrollment/E2EIEnrollmentScreen.kt"
-            line="233"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun previewE2EIEnrollmentScreenContentWithError() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/e2eiEnrollment/E2EIEnrollmentScreen.kt"
-            line="241"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun previewAssetEmptyMediaContentScreen() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/media/EmptyMediaContentScreen.kt"
-            line="64"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun previewPictureEmptyMediaContentScreen() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/media/EmptyMediaContentScreen.kt"
-            line="74"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x2() {"
-        errorLine2="        ~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x4() {"
-        errorLine2="        ~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="35"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x8() {"
-        errorLine2="        ~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="40"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x12() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="45"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x16() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="50"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x24() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="55"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x32() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="60"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x48() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/HorizontalSpace.kt"
-            line="65"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="private fun &lt;T : DestinationSpec&lt;*>> handleNavResult("
-        errorLine2="                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/account/MyAccountScreen.kt"
-            line="116"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun previewSearchConversationMessagesEmptyScreen() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/SearchConversationMessagesEmptyScreen.kt"
-            line="82"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun previewSearchConversationMessagesNoResultsScreen() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/SearchConversationMessagesNoResultsScreen.kt"
-            line="62"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun previewFileRestrictionDialog() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/SettingsItem.kt"
-            line="230"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x4() {"
-        errorLine2="        ~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x8() {"
-        errorLine2="        ~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
-            line="35"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x16() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
-            line="40"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x24() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
-            line="45"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    fun x32() {"
-        errorLine2="        ~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
-            line="50"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [appUnlockWithBiometricsViewModel: AppUnlockWithBiometricsViewModel = hiltViewModel(), navigator: Navigator] but should be [navigator: Navigator, appUnlockWithBiometricsViewModel: AppUnlockWithBiometricsViewModel = hiltViewModel()].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun AppUnlockWithBiometricsScreen("
-        errorLine2="                                 ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/appLock/unlock/AppUnlockWithBiometricsScreen.kt"
-            line="52"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [lazyListState: LazyListState = rememberLazyListState(), state: AppearanceState, onThemeOptionChanged: (ThemeOption) -> Unit, onBackPressed: () -> Unit] but should be [state: AppearanceState, onThemeOptionChanged: (ThemeOption) -> Unit, lazyListState: LazyListState = rememberLazyListState(), onBackPressed: () -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun AppearanceScreenContent("
-        errorLine2="                           ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/appearance/AppearanceScreen.kt"
-            line="75"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [viewModel: ChangeDisplayNameViewModel = hiltViewModel(), navigator: Navigator, resultNavigator: ResultBackNavigator&lt;Boolean>] but should be [navigator: Navigator, resultNavigator: ResultBackNavigator&lt;Boolean>, viewModel: ChangeDisplayNameViewModel = hiltViewModel()].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun ChangeDisplayNameScreen("
-        errorLine2="                           ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/account/displayname/ChangeDisplayNameScreen.kt"
-            line="72"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [text: AnnotatedString, modifier: Modifier = Modifier, color: Color = Color.Unspecified, textDecoration: TextDecoration? = null, textAlign: TextAlign? = null, overflow: TextOverflow = TextOverflow.Clip, softWrap: Boolean = true, maxLines: Int = Int.MAX_VALUE, onTextLayout: (TextLayoutResult) -> Unit = {}, style: TextStyle = LocalTextStyle.current, onClick: (Int) -> Unit, onLongClick: (() -> Unit)? = null] but should be [text: AnnotatedString, onClick: (Int) -> Unit, modifier: Modifier = Modifier, color: Color = Color.Unspecified, textDecoration: TextDecoration? = null, textAlign: TextAlign? = null, overflow: TextOverflow = TextOverflow.Clip, softWrap: Boolean = true, maxLines: Int = Int.MAX_VALUE, onTextLayout: (TextLayoutResult) -> Unit = {}, style: TextStyle = LocalTextStyle.current, onLongClick: (() -> Unit)? = null].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun ClickableText("
-        errorLine2="                 ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/ClickableText.kt"
-            line="45"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [name: String, isLegalHold: Boolean = false, modifier: Modifier = Modifier, badges: @Composable () -> Unit = {}, searchQuery: String] but should be [name: String, searchQuery: String, modifier: Modifier = Modifier, isLegalHold: Boolean = false, badges: @Composable () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun ConversationTitle("
-        errorLine2="                     ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversationslist/common/ConversationTitle.kt"
-            line="37"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [onCopyClicked: () -> Unit, state: WireButtonState = WireButtonState.Default, modifier: Modifier = Modifier] but should be [onCopyClicked: () -> Unit, modifier: Modifier = Modifier, state: WireButtonState = WireButtonState.Default].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun CopyButton("
-        errorLine2="              ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/CopyButton.kt"
-            line="28"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [modifier: Modifier = Modifier, unreadMessageCount: Int] but should be [unreadMessageCount: Int, modifier: Modifier = Modifier].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun UnreadMessageEventBadge(modifier: Modifier = Modifier, unreadMessageCount: Int) {"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversationslist/common/EventBadge.kt"
-            line="157"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }), modifier: Modifier = Modifier&#xA;.fillMaxWidth()&#xA;.background(MaterialTheme.wireColorScheme.surface)&#xA;.clickable(clickable)&#xA;.defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight), subtitle: String? = null, label: String? = null, trailingOnText: String? = null, titleTrailingItem: (@Composable () -> Unit)? = null, footer: (@Composable () -> Unit)? = null, switchState: SwitchState = SwitchState.None, titleStyle: TextStyle = MaterialTheme.wireTypography.body02, arrowType: ArrowType = ArrowType.CENTER_ALIGNED] but should be [title: String, modifier: Modifier = Modifier&#xA;.fillMaxWidth()&#xA;.background(MaterialTheme.wireColorScheme.surface)&#xA;.clickable(clickable)&#xA;.defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight), clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }), subtitle: String? = null, label: String? = null, trailingOnText: String? = null, titleTrailingItem: (@Composable () -> Unit)? = null, footer: (@Composable () -> Unit)? = null, switchState: SwitchState = SwitchState.None, titleStyle: TextStyle = MaterialTheme.wireTypography.body02, arrowType: ArrowType = ArrowType.CENTER_ALIGNED].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun GroupConversationOptionsItem("
-        errorLine2="                                ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/options/GroupConversationOptionsItem.kt"
-            line="51"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [onClick: () -> Unit = {}, modifier: Modifier = Modifier, content: @Composable () -> Unit] but should be [modifier: Modifier = Modifier, onClick: () -> Unit = {}, content: @Composable () -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun LegalHoldBaseBanner("
-        errorLine2="                       ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/legalhold/banner/LegalHoldBaseBanner.kt"
-            line="37"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [onClick: () -> Unit = {}, modifier: Modifier = Modifier] but should be [modifier: Modifier = Modifier, onClick: () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun LegalHoldPendingBanner("
-        errorLine2="                          ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/legalhold/banner/LegalHoldPendingBanner.kt"
-            line="35"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [onClick: () -> Unit = {}, modifier: Modifier = Modifier] but should be [modifier: Modifier = Modifier, onClick: () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun LegalHoldSubjectBanner("
-        errorLine2="                          ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/legalhold/banner/LegalHoldSubjectBanner.kt"
-            line="33"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, customInfo: String? = null, withDefaultInfo: Boolean, cancelText: String, dialogDismissed: () -> Unit, action: Pair&lt;String, () -> Unit>? = null] but should be [title: String, withDefaultInfo: Boolean, cancelText: String, dialogDismissed: () -> Unit, customInfo: String? = null, action: Pair&lt;String, () -> Unit>? = null].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun LegalHoldSubjectBaseDialog("
-        errorLine2="                              ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/legalhold/dialog/subject/LegalHoldSubjectBaseDialog.kt"
-            line="35"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [libraries: List&lt;Library>, modifier: Modifier = Modifier, lazyListState: LazyListState = rememberLazyListState(), contentPadding: PaddingValues = PaddingValues(0.dp), onLibraryClick: (Library) -> Unit, header: (LazyListScope.() -> Unit)? = null] but should be [libraries: List&lt;Library>, onLibraryClick: (Library) -> Unit, modifier: Modifier = Modifier, lazyListState: LazyListState = rememberLazyListState(), contentPadding: PaddingValues = PaddingValues(0.dp), header: (LazyListScope.() -> Unit)? = null].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun WireLibraries("
-        errorLine2="                 ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/about/licenses/LicensesItem.kt"
-            line="44"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [inlines: List&lt;MarkdownNode.Inline>, maxLines: Int = 1, nodeData: NodeData] but should be [inlines: List&lt;MarkdownNode.Inline>, nodeData: NodeData, maxLines: Int = 1].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun MarkdownInline("
-        errorLine2="                  ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownInline.kt"
-            line="25"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [maxAccountsAllowed: Int = BuildConfig.MAX_ACCOUNTS, @PluralsRes title: Int = R.plurals.max_account_reached_dialog_title, @PluralsRes message: Int = R.plurals.max_account_reached_dialog_message, @StringRes buttonText: Int, dialogProperties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false), onConfirm: () -> Unit, onDismiss: () -> Unit] but should be [@StringRes buttonText: Int, onConfirm: () -> Unit, maxAccountsAllowed: Int = BuildConfig.MAX_ACCOUNTS, @PluralsRes title: Int = R.plurals.max_account_reached_dialog_title, @PluralsRes message: Int = R.plurals.max_account_reached_dialog_message, dialogProperties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false), onDismiss: () -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun MaxAccountAllowedDialogContent("
-        errorLine2="                                  ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/dialogs/MaxAccountsReachedDialog.kt"
-            line="57"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [showAuthor: Boolean = true, useSmallBottomPadding: Boolean = false, fullAvatarOuterPadding: Dp, modifier: Modifier = Modifier, leading: @Composable () -> Unit, content: @Composable () -> Unit] but should be [fullAvatarOuterPadding: Dp, leading: @Composable () -> Unit, modifier: Modifier = Modifier, showAuthor: Boolean = true, useSmallBottomPadding: Boolean = false, content: @Composable () -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun MessageItemTemplate("
-        errorLine2="                       ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageItemTemplate.kt"
-            line="33"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [status: MessageFlowStatus, isGroupConversation: Boolean = false, modifier: Modifier = Modifier] but should be [status: MessageFlowStatus, modifier: Modifier = Modifier, isGroupConversation: Boolean = false].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun MessageStatusIndicator("
-        errorLine2="                          ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageStatusIndicator.kt"
-            line="39"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [isMuted: Boolean, onMicrophoneButtonClicked: () -> Unit, size: Dp = dimensions().defaultCallingControlsSize, modifier: Modifier = Modifier] but should be [isMuted: Boolean, onMicrophoneButtonClicked: () -> Unit, modifier: Modifier = Modifier, size: Dp = dimensions().defaultCallingControlsSize].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun MicrophoneButton("
-        errorLine2="                    ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/calling/controlbuttons/MicrophoneButton.kt"
-            line="30"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [onButtonClicked: () -> Unit, state: WireButtonState = WireButtonState.Default, modifier: Modifier = Modifier] but should be [onButtonClicked: () -> Unit, modifier: Modifier = Modifier, state: WireButtonState = WireButtonState.Default].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun MoreOptionIcon("
-        errorLine2="                  ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/MoreOptionIcon.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [state: OtherUserProfileState, lazyListState: LazyListState = rememberLazyListState(), onRemoveFromConversation: (RemoveConversationMemberState) -> Unit, openChangeRoleBottomSheet: () -> Unit] but should be [state: OtherUserProfileState, onRemoveFromConversation: (RemoveConversationMemberState) -> Unit, lazyListState: LazyListState = rememberLazyListState(), openChangeRoleBottomSheet: () -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun OtherUserProfileGroup("
-        errorLine2="                         ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/userprofile/other/OtherUserProfileGroup.kt"
-            line="56"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [label: String, value: AnnotatedString, clickable: Clickable = Clickable(enabled = false) {}, isSelfAdmin: Boolean, isRoleEditable: Boolean, openChangeRoleBottomSheet: () -> Unit] but should be [label: String, value: AnnotatedString, isSelfAdmin: Boolean, isRoleEditable: Boolean, clickable: Clickable = Clickable(enabled = false) {}, openChangeRoleBottomSheet: () -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="private fun UserRoleInformation("
-        errorLine2="                               ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/userprofile/other/OtherUserProfileGroup.kt"
-            line="132"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false), modifier: Modifier = Modifier, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize), onDismiss: () -> Unit = {}] but should be [title: String, modifier: Modifier = Modifier, properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false), shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize), onDismiss: () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun ProgressDialog("
-        errorLine2="                  ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/dialogs/ProgressDialog.kt"
-            line="42"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [messageData: UIQuotedMessage.UIQuotedData, style: QuotedMessageStyle = COMPLETE, clickable: Clickable?, modifier: Modifier = Modifier, startContent: @Composable () -> Unit = {}] but should be [messageData: UIQuotedMessage.UIQuotedData, clickable: Clickable?, modifier: Modifier = Modifier, style: QuotedMessageStyle = COMPLETE, startContent: @Composable () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="internal fun QuotedMessage("
-        errorLine2="                          ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="97"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [senderName: UIText, originalDateDescription: UIText, style: QuotedMessageStyle, modifier: Modifier = Modifier, startContent: @Composable () -> Unit = {}, clickable: Clickable?] but should be [senderName: UIText, originalDateDescription: UIText, style: QuotedMessageStyle, clickable: Clickable?, modifier: Modifier = Modifier, startContent: @Composable () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="private fun QuotedDeleted("
-        errorLine2="                         ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="307"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [text: String, editedTimeDescription: UIText?, originalDateTimeDescription: UIText, senderName: UIText, modifier: Modifier = Modifier, startContent: @Composable () -> Unit = {}, style: QuotedMessageStyle, clickable: Clickable?] but should be [text: String, editedTimeDescription: UIText?, originalDateTimeDescription: UIText, senderName: UIText, style: QuotedMessageStyle, clickable: Clickable?, modifier: Modifier = Modifier, startContent: @Composable () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="private fun QuotedText("
-        errorLine2="                      ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="331"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [senderName: UIText, asset: ImageAsset.PrivateAsset, originalDateTimeText: UIText, startContent: @Composable () -> Unit = {}, style: QuotedMessageStyle, modifier: Modifier, clickable: Clickable?] but should be [senderName: UIText, asset: ImageAsset.PrivateAsset, originalDateTimeText: UIText, style: QuotedMessageStyle, modifier: Modifier, clickable: Clickable?, startContent: @Composable () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="private fun QuotedImage("
-        errorLine2="                       ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="375"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [modifier: Modifier = Modifier, asset: ImageAsset.PrivateAsset, clickable: Clickable? = null, content: @Composable () -> Unit] but should be [asset: ImageAsset.PrivateAsset, modifier: Modifier = Modifier, clickable: Clickable? = null, content: @Composable () -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="private fun AutosizeContainer("
-        errorLine2="                             ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="438"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [senderName: UIText, originalDateTimeText: UIText, assetName: String?, style: QuotedMessageStyle, startContent: @Composable () -> Unit = {}, modifier: Modifier, clickable: Clickable?] but should be [senderName: UIText, originalDateTimeText: UIText, assetName: String?, style: QuotedMessageStyle, modifier: Modifier, clickable: Clickable?, startContent: @Composable () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="private fun QuotedGenericAsset("
-        errorLine2="                              ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="566"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [senderName: UIText, originalDateTimeText: UIText, locationName: String, style: QuotedMessageStyle, startContent: @Composable () -> Unit = {}, modifier: Modifier, clickable: Clickable?] but should be [senderName: UIText, originalDateTimeText: UIText, locationName: String, style: QuotedMessageStyle, modifier: Modifier, clickable: Clickable?, startContent: @Composable () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="private fun QuotedLocation("
-        errorLine2="                          ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
-            line="596"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02, titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02, state: RichMenuItemState = RichMenuItemState.DEFAULT, color: Color? = null, modifier: Modifier = Modifier] but should be [title: String, modifier: Modifier = Modifier, titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02, titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02, state: RichMenuItemState = RichMenuItemState.DEFAULT, color: Color? = null].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun MenuItemHeading("
-        errorLine2="                   ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/bottomsheet/RichMenuBottomSheetItem.kt"
-            line="102"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [leadingIcon: @Composable () -> Unit = {}, title: @Composable () -> Unit = {}, titleStartPadding: Dp = dimensions().spacing8x, subtitle: @Composable () -> Unit = {}, actions: @Composable () -> Unit = {}, clickable: Clickable = Clickable(false) {}, modifier: Modifier = Modifier] but should be [modifier: Modifier = Modifier, leadingIcon: @Composable () -> Unit = {}, title: @Composable () -> Unit = {}, titleStartPadding: Dp = dimensions().spacing8x, subtitle: @Composable () -> Unit = {}, actions: @Composable () -> Unit = {}, clickable: Clickable = Clickable(false) {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun RowItemTemplate("
-        errorLine2="                   ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/RowItemTemplate.kt"
-            line="33"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [leadingIcon: @Composable () -> Unit, title: @Composable () -> Unit, subTitle: @Composable () -> Unit = {}, clickable: Clickable, trailingIcon: @Composable () -> Unit = { }, modifier: Modifier = Modifier] but should be [leadingIcon: @Composable () -> Unit, title: @Composable () -> Unit, clickable: Clickable, modifier: Modifier = Modifier, subTitle: @Composable () -> Unit = {}, trailingIcon: @Composable () -> Unit = { }].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun RowItemTemplate("
-        errorLine2="                   ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/RowItemTemplate.kt"
-            line="66"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [conversationId: ConversationId, viewModel: SecurityClassificationViewModel =&#xA;hiltViewModelScoped&lt;SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationArgs>(&#xA;    SecurityClassificationArgs.Conversation(id = conversationId)&#xA;), modifier: Modifier = Modifier] but should be [conversationId: ConversationId, modifier: Modifier = Modifier, viewModel: SecurityClassificationViewModel =&#xA;hiltViewModelScoped&lt;SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationArgs>(&#xA;    SecurityClassificationArgs.Conversation(id = conversationId)&#xA;)].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun SecurityClassificationBannerForConversation("
-        errorLine2="                                               ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/banner/SecurityClassificationBanner.kt"
-            line="52"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [userId: UserId, viewModel: SecurityClassificationViewModel =&#xA;hiltViewModelScoped&lt;SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationArgs>(&#xA;    SecurityClassificationArgs.User(id = userId)&#xA;), modifier: Modifier = Modifier] but should be [userId: UserId, modifier: Modifier = Modifier, viewModel: SecurityClassificationViewModel =&#xA;hiltViewModelScoped&lt;SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationArgs>(&#xA;    SecurityClassificationArgs.User(id = userId)&#xA;)].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun SecurityClassificationBannerForUser("
-        errorLine2="                                       ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/banner/SecurityClassificationBanner.kt"
-            line="67"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String? = null, text: String, @DrawableRes trailingIcon: Int? = null, switchState: SwitchState = SwitchState.None, onRowPressed: Clickable = Clickable(false), onIconPressed: Clickable? = null] but should be [text: String, title: String? = null, @DrawableRes trailingIcon: Int? = null, switchState: SwitchState = SwitchState.None, onRowPressed: Clickable = Clickable(false), onIconPressed: Clickable? = null].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun SettingsItem("
-        errorLine2="                ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/SettingsItem.kt"
-            line="62"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [isSpeakerOn: Boolean, onSpeakerButtonClicked: () -> Unit, size: Dp = dimensions().defaultCallingControlsSize, modifier: Modifier = Modifier] but should be [isSpeakerOn: Boolean, onSpeakerButtonClicked: () -> Unit, modifier: Modifier = Modifier, size: Dp = dimensions().defaultCallingControlsSize].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun SpeakerButton("
-        errorLine2="                 ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/calling/controlbuttons/SpeakerButton.kt"
-            line="30"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [isSelected: Boolean, @DrawableRes iconResId: Int, @StringRes contentDescription: Int, onClick: () -> Unit, size: Dp = dimensions().defaultCallingControlsSize, iconSize: Dp = dimensions().defaultCallingControlsIconSize, modifier: Modifier = Modifier] but should be [isSelected: Boolean, @DrawableRes iconResId: Int, @StringRes contentDescription: Int, onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = dimensions().defaultCallingControlsSize, iconSize: Dp = dimensions().defaultCallingControlsIconSize].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun WireCallControlButton("
-        errorLine2="                         ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/calling/controlbuttons/WireCallControlButton.kt"
-            line="36"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [items: List&lt;String>, defaultItemIndex: Int = -1, selectedItemIndex: Int = defaultItemIndex, label: String?, modifier: Modifier, autoUpdateSelection: Boolean = true, showDefaultTextIndicator: Boolean = true, leadingCompose: @Composable ((index: Int) -> Unit)? = null, onSelected: (selectedIndex: Int) -> Unit] but should be [items: List&lt;String>, label: String?, modifier: Modifier, defaultItemIndex: Int = -1, selectedItemIndex: Int = defaultItemIndex, autoUpdateSelection: Boolean = true, showDefaultTextIndicator: Boolean = true, leadingCompose: @Composable ((index: Int) -> Unit)? = null, onSelected: (selectedIndex: Int) -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="internal fun WireDropDown("
-        errorLine2="                         ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/WireDropDown.kt"
-            line="73"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [modifier: Modifier = Modifier, leadingCompose: @Composable ((index: Int) -> Unit)?, selectedIndex: Int, text: String, arrowRotation: Float] but should be [leadingCompose: @Composable ((index: Int) -> Unit)?, selectedIndex: Int, text: String, arrowRotation: Float, modifier: Modifier = Modifier].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="private fun SelectionField("
-        errorLine2="                          ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/WireDropDown.kt"
-            line="208"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [label: String, checked: Boolean, onCheckClicked: ((Boolean) -> Unit), maxLine: Int = Int.MAX_VALUE, overflow: TextOverflow = TextOverflow.Visible, horizontalArrangement: Arrangement.Horizontal = Arrangement.Start, contentPadding: PaddingValues = PaddingValues(dimensions().spacing0x), checkboxEnabled: Boolean = true, modifier: Modifier = Modifier] but should be [label: String, checked: Boolean, onCheckClicked: ((Boolean) -> Unit), modifier: Modifier = Modifier, maxLine: Int = Int.MAX_VALUE, overflow: TextOverflow = TextOverflow.Visible, horizontalArrangement: Arrangement.Horizontal = Arrangement.Start, contentPadding: PaddingValues = PaddingValues(dimensions().spacing0x), checkboxEnabled: Boolean = true].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun WireLabelledCheckbox("
-        errorLine2="                        ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/WireLabelledCheckbox.kt"
-            line="41"
-            column="25"/>
     </issue>
 
 </issues>

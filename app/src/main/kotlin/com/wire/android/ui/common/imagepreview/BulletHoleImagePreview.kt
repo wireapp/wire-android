@@ -63,10 +63,11 @@ private fun loadBitMap(imageUri: Uri): State<Bitmap?> {
 @Composable
 fun BulletHoleImagePreview(
     imageUri: Uri,
-    contentDescription: String
+    contentDescription: String,
+    modifier: Modifier = Modifier
 ) {
     ConstraintLayout(
-        Modifier
+        modifier
             .aspectRatio(1f)
             .height(dimensions().imagePreviewHeight)
     ) {

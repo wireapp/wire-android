@@ -55,13 +55,13 @@ fun MaxAccountsReachedDialog(
 
 @Composable
 fun MaxAccountAllowedDialogContent(
+    @StringRes buttonText: Int,
+    onConfirm: () -> Unit,
     maxAccountsAllowed: Int = BuildConfig.MAX_ACCOUNTS,
     @PluralsRes title: Int = R.plurals.max_account_reached_dialog_title,
     @PluralsRes message: Int = R.plurals.max_account_reached_dialog_message,
-    @StringRes buttonText: Int,
     dialogProperties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     WireDialog(
         title = pluralStringResource(title, maxAccountsAllowed, maxAccountsAllowed),

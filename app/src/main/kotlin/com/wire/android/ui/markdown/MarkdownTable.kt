@@ -34,7 +34,12 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun MarkdownTable(tableBlock: MarkdownNode.Block.Table, nodeData: NodeData, onMentionsUpdate: (List<DisplayMention>) -> Unit) {
+fun MarkdownTable(
+    tableBlock: MarkdownNode.Block.Table,
+    nodeData: NodeData,
+    onMentionsUpdate: (List<DisplayMention>) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val tableData = mutableListOf<List<RowData>>()
     tableBlock.children.forEach { child ->
         when (child) {
@@ -59,7 +64,7 @@ fun MarkdownTable(tableBlock: MarkdownNode.Block.Table, nodeData: NodeData, onMe
     }
 
     // Create a table
-    Column(modifier = Modifier.padding(bottom = dimensions().spacing8x)) {
+    Column(modifier = modifier.padding(bottom = dimensions().spacing8x)) {
         tableData.map { row ->
             Row(
                 modifier = Modifier

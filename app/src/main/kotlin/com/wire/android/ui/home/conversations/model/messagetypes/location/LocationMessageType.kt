@@ -57,10 +57,11 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun LocationMessageContent(
     locationName: String,
     locationUrl: String,
-    onLocationClick: Clickable
+    onLocationClick: Clickable,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .clickable(onLocationClick)
             .clickableDescriptions(onLocationClick)
             .padding(top = dimensions().spacing4x)

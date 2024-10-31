@@ -49,6 +49,7 @@ import io.github.esentsov.PackagePrivate
 @Composable
 fun SelectableMenuBottomSheetItem(
     title: String,
+    modifier: Modifier = Modifier,
     titleColor: Color? = null,
     titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02,
     titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02,
@@ -59,7 +60,7 @@ fun SelectableMenuBottomSheetItem(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .wrapContentHeight()
             .wrapContentWidth()
             .defaultMinSize(minHeight = dimensions().spacing48x)
@@ -94,7 +95,7 @@ fun SelectableMenuBottomSheetItem(
                     .padding(start = dimensions().spacing8x)
                     .align(Alignment.CenterVertically)
             ) {
-                WireCheckIcon(R.string.label_selected)
+                WireCheckIcon(contentDescription = R.string.label_selected)
             }
         }
     }
@@ -104,11 +105,11 @@ fun SelectableMenuBottomSheetItem(
 @Composable
 fun MenuItemHeading(
     title: String,
+    modifier: Modifier = Modifier,
     titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02,
     titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02,
     state: RichMenuItemState = RichMenuItemState.DEFAULT,
-    color: Color? = null,
-    modifier: Modifier = Modifier
+    color: Color? = null
 ) {
     Text(
         style = if (isSelectedItem(state)) titleStyleSelected else titleStyleUnselected,

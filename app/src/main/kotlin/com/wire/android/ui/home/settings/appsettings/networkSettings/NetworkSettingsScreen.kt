@@ -26,18 +26,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.settings.SwitchState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.isWebsocketEnabledByDefault
 
 @RootNavGraph
@@ -60,16 +61,19 @@ fun NetworkSettingsScreenContent(
     onBackPressed: () -> Unit,
     isWebSocketEnabled: Boolean,
     setWebSocketState: (Boolean) -> Unit,
-    backendName: String
-
+    backendName: String,
+    modifier: Modifier = Modifier
 ) {
-    WireScaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            onNavigationPressed = onBackPressed,
-            elevation = 0.dp,
-            title = stringResource(id = R.string.settings_network_settings_label)
-        )
-    }) { internalPadding ->
+    WireScaffold(
+        modifier = modifier,
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                onNavigationPressed = onBackPressed,
+                elevation = 0.dp,
+                title = stringResource(id = R.string.settings_network_settings_label)
+            )
+        }
+    ) { internalPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -104,9 +108,12 @@ fun NetworkSettingsScreenContent(
 }
 
 @Composable
-@Preview
-fun PreviewNetworkSettingsScreen() {
+@MultipleThemePreviews
+fun PreviewNetworkSettingsScreen() = WireTheme {
     NetworkSettingsScreenContent(
-        {}, true, {}, ""
+        onBackPressed = {},
+        isWebSocketEnabled = true,
+        setWebSocketState = {},
+        backendName = ""
     )
 }

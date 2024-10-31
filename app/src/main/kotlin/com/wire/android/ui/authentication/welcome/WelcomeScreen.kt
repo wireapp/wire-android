@@ -337,7 +337,7 @@ private fun CreateEnterpriseAccountButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun WelcomeFooter(modifier: Modifier, onPrivateAccountClick: () -> Unit) {
+private fun WelcomeFooter(onPrivateAccountClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(
             text = stringResource(R.string.welcome_footer_text),

@@ -74,10 +74,11 @@ fun CallerDetails(
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
-    onMinimiseScreen: () -> Unit
+    onMinimiseScreen: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(top = dimensions().spacing32x),
         verticalArrangement = Arrangement.Top,

@@ -83,7 +83,7 @@ fun RichTextOptions(
 
 @Composable
 private fun HeaderButton(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onRichTextHeaderButtonClicked: () -> Unit
 ) {
     WireSecondaryIconButton(
@@ -104,7 +104,7 @@ private fun HeaderButton(
 
 @Composable
 private fun BoldButton(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onRichTextBoldButtonClicked: () -> Unit
 ) {
     WireSecondaryIconButton(
@@ -124,8 +124,8 @@ private fun BoldButton(
 
 @Composable
 private fun ItalicButton(
-    modifier: Modifier,
-    onRichTextItalicButtonClicked: () -> Unit
+    onRichTextItalicButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     WireSecondaryIconButton(
         onButtonClicked = onRichTextItalicButtonClicked,

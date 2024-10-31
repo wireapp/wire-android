@@ -42,12 +42,12 @@ fun WireLabelledCheckbox(
     label: String,
     checked: Boolean,
     onCheckClicked: ((Boolean) -> Unit),
+    modifier: Modifier = Modifier,
     maxLine: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Visible,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     contentPadding: PaddingValues = PaddingValues(dimensions().spacing0x),
-    checkboxEnabled: Boolean = true,
-    modifier: Modifier = Modifier
+    checkboxEnabled: Boolean = true
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

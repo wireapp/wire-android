@@ -268,8 +268,8 @@ private fun SelfUserProfileContent(
                                     .padding(top = dimensions().spacing8x)
                             ) {
                                 when (state.legalHoldStatus) {
-                                    LegalHoldUIState.Active -> LegalHoldSubjectBanner(onLegalHoldLearnMoreClick)
-                                    LegalHoldUIState.Pending -> LegalHoldPendingBanner(onLegalHoldAcceptClick)
+                                    LegalHoldUIState.Active -> LegalHoldSubjectBanner(onClick = onLegalHoldLearnMoreClick)
+                                    LegalHoldUIState.Pending -> LegalHoldPendingBanner(onClick = onLegalHoldAcceptClick)
                                     LegalHoldUIState.None -> {
                                         /* no banner */
                                     }

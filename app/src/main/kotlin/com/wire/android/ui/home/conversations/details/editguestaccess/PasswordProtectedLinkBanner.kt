@@ -41,9 +41,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun PasswordProtectedLinkBanner() {
+fun PasswordProtectedLinkBanner(modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .padding(top = 16.dp, end = 16.dp, bottom = 16.dp)
             .height(IntrinsicSize.Min)
     ) {

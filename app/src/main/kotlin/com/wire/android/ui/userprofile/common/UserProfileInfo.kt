@@ -227,7 +227,11 @@ fun UserProfileInfo(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.wireColorScheme.labelText
                 )
-                UserBadge(membership, connection, topPadding = dimensions().spacing8x)
+                UserBadge(
+                    membership = membership,
+                    connectionState = connection,
+                    topPadding = dimensions().spacing8x
+                )
             }
 
             Column(

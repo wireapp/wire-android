@@ -141,10 +141,11 @@ fun EditSelfDeletingMessagesScreen(
 fun SelectableSelfDeletingItem(
     duration: SelfDeletionDuration,
     isSelected: Boolean,
-    onSelfDeletionDurationSelected: (SelfDeletionDuration) -> Unit
+    onSelfDeletionDurationSelected: (SelfDeletionDuration) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .selectableBackground(isSelected, onClick = { onSelfDeletionDurationSelected(duration) })
             .background(color = MaterialTheme.wireColorScheme.surface)
@@ -170,5 +171,5 @@ fun PreviewEditSelfDeletingMessagesScreen() {
 @Preview
 @Composable
 fun PreviewSelectableSelfDeletingItem() {
-    SelectableSelfDeletingItem(SelfDeletionDuration.FiveMinutes, true) { _ -> }
+    SelectableSelfDeletingItem(SelfDeletionDuration.FiveMinutes, true, { _ -> })
 }

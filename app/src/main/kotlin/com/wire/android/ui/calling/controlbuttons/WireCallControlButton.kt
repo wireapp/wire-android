@@ -38,9 +38,9 @@ fun WireCallControlButton(
     @DrawableRes iconResId: Int,
     @StringRes contentDescription: Int,
     onClick: () -> Unit,
-    size: Dp = dimensions().defaultCallingControlsSize,
-    iconSize: Dp = dimensions().defaultCallingControlsIconSize,
     modifier: Modifier = Modifier,
+    size: Dp = dimensions().defaultCallingControlsSize,
+    iconSize: Dp = dimensions().defaultCallingControlsIconSize
 ) {
     WireSecondaryIconButton(
         onButtonClicked = onClick,

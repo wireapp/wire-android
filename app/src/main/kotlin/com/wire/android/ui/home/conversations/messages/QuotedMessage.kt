@@ -97,9 +97,9 @@ enum class QuotedMessageStyle {
 @Composable
 internal fun QuotedMessage(
     messageData: UIQuotedMessage.UIQuotedData,
-    style: QuotedMessageStyle = COMPLETE,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
+    style: QuotedMessageStyle = COMPLETE,
     startContent: @Composable () -> Unit = {}
 ) {
     when (val quotedContent = messageData.quotedContent) {
@@ -168,9 +168,11 @@ internal fun QuotedMessage(
 @Composable
 fun QuotedMessagePreview(
     quotedMessageData: UIQuotedMessage.UIQuotedData,
-    onCancelReply: () -> Unit
+    onCancelReply: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     QuotedMessage(
+        modifier = modifier,
         messageData = quotedMessageData,
         clickable = null,
         style = PREVIEW
@@ -227,7 +229,13 @@ private fun QuotedMessageContent(
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .let {
-                if (clickable != null) it.clickable(clickable).clickableDescriptions(clickable) else it
+                if (clickable != null) {
+                    it
+                        .clickable(clickable)
+                        .clickableDescriptions(clickable)
+                } else {
+                    it
+                }
             }
     ) {
         Box(modifier = Modifier.padding(start = dimensions().spacing4x)) {
@@ -309,9 +317,9 @@ private fun QuotedDeleted(
     senderName: UIText,
     originalDateDescription: UIText,
     style: QuotedMessageStyle,
+    clickable: Clickable?,
     modifier: Modifier = Modifier,
-    startContent: @Composable () -> Unit = {},
-    clickable: Clickable?
+    startContent: @Composable () -> Unit = {}
 ) {
     QuotedMessageContent(
         senderName.asString(),
@@ -334,10 +342,10 @@ private fun QuotedText(
     editedTimeDescription: UIText?,
     originalDateTimeDescription: UIText,
     senderName: UIText,
-    modifier: Modifier = Modifier,
-    startContent: @Composable () -> Unit = {},
     style: QuotedMessageStyle,
-    clickable: Clickable?
+    clickable: Clickable?,
+    modifier: Modifier = Modifier,
+    startContent: @Composable () -> Unit = {}
 ) {
     QuotedMessageContent(
         senderName.asString(),
@@ -377,10 +385,10 @@ private fun QuotedImage(
     senderName: UIText,
     asset: ImageAsset.PrivateAsset,
     originalDateTimeText: UIText,
-    startContent: @Composable () -> Unit = {},
     style: QuotedMessageStyle,
-    modifier: Modifier,
-    clickable: Clickable?
+    clickable: Clickable?,
+    modifier: Modifier = Modifier,
+    startContent: @Composable () -> Unit = {}
 ) {
 
     if (style == PREVIEW) {
@@ -437,8 +445,8 @@ private fun QuotedImage(
 
 @Composable
 private fun AutosizeContainer(
-    modifier: Modifier = Modifier,
     asset: ImageAsset.PrivateAsset,
+    modifier: Modifier = Modifier,
     clickable: Clickable? = null,
     content: @Composable () -> Unit
 ) {
@@ -450,7 +458,13 @@ private fun AutosizeContainer(
             .fillMaxWidth()
             .padding(dimensions().spacing8x)
             .let {
-                if (clickable != null) it.clickable(clickable).clickableDescriptions(clickable) else it
+                if (clickable != null) {
+                    it
+                        .clickable(clickable)
+                        .clickableDescriptions(clickable)
+                } else {
+                    it
+                }
             }
     ) {
         val (leftSide, rightSide) = createRefs()
@@ -494,10 +508,10 @@ private fun AutosizeContainer(
 fun QuotedAudioMessage(
     senderName: UIText,
     originalDateTimeText: UIText,
-    modifier: Modifier,
     style: QuotedMessageStyle,
     startContent: @Composable () -> Unit,
-    clickable: Clickable?
+    clickable: Clickable?,
+    modifier: Modifier = Modifier
 ) {
     QuotedMessageContent(
         senderName = senderName.asString(),
@@ -513,7 +527,7 @@ fun QuotedAudioMessage(
             Icon(
                 painter = painterResource(R.drawable.ic_audio),
                 contentDescription = null,
-                modifier = modifier
+                modifier = Modifier
                     .padding(end = dimensions().spacing16x)
                     .size(dimensions().spacing24x),
                 tint = colorsScheme().secondaryText
@@ -569,26 +583,32 @@ private fun QuotedGenericAsset(
     originalDateTimeText: UIText,
     assetName: String?,
     style: QuotedMessageStyle,
-    startContent: @Composable () -> Unit = {},
-    modifier: Modifier,
-    clickable: Clickable?
+    clickable: Clickable?,
+    modifier: Modifier = Modifier,
+    startContent: @Composable () -> Unit = {}
 ) {
     QuotedMessageContent(
-        senderName = senderName.asString(), style = style, modifier = modifier, centerContent = {
+        senderName = senderName.asString(),
+        style = style,
+        modifier = modifier,
+        centerContent = {
             assetName?.let {
                 MainContentText(it)
             }
-        }, startContent = {
+        },
+        startContent = {
             startContent()
-        }, endContent = {
+        },
+        endContent = {
             Icon(
                 painter = painterResource(R.drawable.ic_file),
                 contentDescription = null,
-                modifier = modifier
+                modifier = Modifier
                     .size(dimensions().spacing24x),
                 tint = colorsScheme().secondaryText
             )
-        }, footerContent = { QuotedMessageOriginalDate(originalDateTimeText) },
+        },
+        footerContent = { QuotedMessageOriginalDate(originalDateTimeText) },
         clickable = clickable
     )
 }
@@ -599,24 +619,30 @@ private fun QuotedLocation(
     originalDateTimeText: UIText,
     locationName: String,
     style: QuotedMessageStyle,
-    startContent: @Composable () -> Unit = {},
-    modifier: Modifier,
-    clickable: Clickable?
+    clickable: Clickable?,
+    modifier: Modifier = Modifier,
+    startContent: @Composable () -> Unit = {}
 ) {
     QuotedMessageContent(
-        senderName = senderName.asString(), style = style, modifier = modifier, centerContent = {
+        senderName = senderName.asString(),
+        style = style,
+        modifier = modifier,
+        centerContent = {
             MainContentText(locationName)
-        }, startContent = {
+        },
+        startContent = {
             startContent()
-        }, endContent = {
+        },
+        endContent = {
             Icon(
                 painter = painterResource(R.drawable.ic_location),
                 contentDescription = null,
-                modifier = modifier
+                modifier = Modifier
                     .size(dimensions().spacing24x),
                 tint = colorsScheme().secondaryText
             )
-        }, footerContent = { QuotedMessageOriginalDate(originalDateTimeText) },
+        },
+        footerContent = { QuotedMessageOriginalDate(originalDateTimeText) },
         clickable = clickable
     )
 }

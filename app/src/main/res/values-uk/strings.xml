@@ -94,6 +94,7 @@
     <string name="content_description_copy">Скопіювати</string>
     <string name="content_description_edit">Редагувати</string>
     <string name="content_description_more_emojis">Більше емодзі</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -124,6 +125,7 @@
     <!-- Logout Wipe Data Dialog -->
     <!-- User Profile status dialog-->
     <!-- Conversations BottomSheet -->
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <!--Profile image-->
     <!--Conversation-->
@@ -169,6 +171,7 @@
     <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--create and restore backup-->
+    <!--    report bug-->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
@@ -193,4 +196,5 @@
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
+    <!--    Personal to team migration screen-->
 </resources>

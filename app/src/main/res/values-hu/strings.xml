@@ -113,7 +113,6 @@
     <string name="content_description_conversation_send_emoticon">Hangulatjel küldése gomb</string>
     <string name="content_description_conversation_send_gif">GIF küldése gomb</string>
     <string name="content_description_conversation_mention_someone">Valaki megemlítése</string>
-    <string name="content_description_new_conversation">Új beszélgetés indítása</string>
     <string name="content_description_back_button">Vissza gomb</string>
     <string name="content_description_send_button">Küldés</string>
     <string name="content_description_timed_message_button">Önmegsemmisítő üzenetek gomb</string>
@@ -175,6 +174,21 @@
     <string name="content_description_proteus_certificate_valid">Minden résztvevő ellenőrzött (Proteus)</string>
     <string name="content_description_jump_to_last_message">Ugrás a beszélgetés végére</string>
     <string name="content_description_location_icon">Hely elem</string>
+    <string name="content_description_conversation_details_more_btn">Beszélgetés beállításainak megnyitása</string>
+    <string name="content_description_conversation_details_options_tab_header">Beállítások</string>
+    <string name="content_description_conversation_details_participants_tab_header">Résztvevők</string>
+    <string name="content_description_conversation_details_close_btn">Beszélgetés részleteinek bezárása</string>
+    <string name="content_description_conversation_details_guests_action">vendég-hozzáférés kezelése</string>
+    <string name="content_description_conversation_details_self_deleting_action">önmegsemmisítés idejének kezelése</string>
+    <string name="content_description_edit_label">szerkeszt</string>
+    <string name="content_description_select_label">kiválaszt</string>
+    <string name="content_description_selected_label">kiválasztva</string>
+    <string name="content_description_toggle_setting_label">beállításkapcsoló</string>
+    <string name="content_description_edit_guests_option_back_btn">Vissza a beszélgetés részleteihez</string>
+    <string name="content_description_edit_self_delete_back_btn">Vissza a beszélgetés részleteihez</string>
+    <string name="content_description_open_user_profile_label">profil megnyitása</string>
+    <string name="content_description_open_notification_settings_label">értesítési beállítások megnyitása</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -518,7 +532,10 @@
     <string name="user_profile_qr_code_title">Profil megosztása</string>
     <string name="user_profile_qr_code_share_link">Profil megosztása linkkel</string>
     <string name="user_profile_qr_code_share_image_link">Megosztás QR-kóddal</string>
+    <string name="user_profile_create_team_card">Élvezze egy csapat előnyeit</string>
     <string name="user_profile_qr_code_description">Ossza meg profilját, hogy könnyedén kapcsolatba léphessen másokkal. A kommunikáció így is csak akkor kezdődik el, ha Ön elfogadja a kapcsolódási kérelmet.</string>
+    <string name="user_profile_create_team_card_button">Csapat létrehozása</string>
+    <string name="user_profile_create_team_description_card">Fedezzen fel különleges funkciókat ingyenesen, változatlan biztonságban.</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Eltávolítja a csoportból?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) ezután nem fog tudni üzenetet küldeni és fogadni ebben a beszélgetésben.</string>
@@ -549,6 +566,7 @@
     <string name="label_unblock">Tiltás feloldása</string>
     <string name="label_leave_group">Kilépés a csoportból</string>
     <string name="label_delete_group">Csoport törlése</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Minden</string>
     <string name="muting_option_all_allowed_text">Értesítsen ezen beszélgetéssel kapcsolatban mindenről (hang- és videóhívásokat is beleértve)</string>
@@ -1107,7 +1125,9 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="backup_dialog_choose_backup_file_option">Válasszon biztonsági másolatot</string>
     <string name="backup_label_enter_password">Adja meg a jelszót</string>
     <string name="backup_dialog_restore_backup_password_message">Ez a biztonsági másolat jelszóvédett.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"Válasszon e-mail szolgáltatót:\"</string>
+    <string name="send_bug_report_subject">Hibajelentés</string>
     <string name="backup_dialog_create_backup_save">Fájl mentése</string>
     <string name="backup_dialog_create_backup_share">Fájl megosztása</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">A biztonsági másolat nem kompatibilis</string>
@@ -1449,4 +1469,43 @@ Kérjük, próbálja meg újra.</string>
     <string name="call_feedback_dialog_label_excellent">Kiváló</string>
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Hibakeresési beállítások</string>
+    <!--    Personal to team migration screen-->
+    <string name="personal_to_team_migration_step_label">%1$d. lépés a 4-ből</string>
+    <string name="personal_to_team_migration_back_to_wire_button">Vissza a Wire-höz</string>
+    <string name="personal_to_team_migration_back_button_label">Vissza</string>
+    <string name="personal_to_team_migration_close_icon_content_description">Csapattá átalakulás folyamatának bezárása</string>
+    <string name="personal_to_team_migration_team_plan_step">Csapatfiók</string>
+    <string name="personal_to_team_migration_team_plan_description">Alakítsa át személyes fiókját csapatfiókká, hogy még többet hozhasson ki együttműködéséből.</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_label">Adminisztrátori konzol:</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_details">Csapattagok meghívása és a beállítások kezelése.</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_label">Együttműködés könnyedén:</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_details">Kommunikáljon vendégekkel és külsősökkel.</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_label">Nagyobb gyűlések:</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_details">Szervezzen videókonferenciákat akár 150 résztvevővel.</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_label">Elérhetőségi állapot:</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_details">Tudassa csapatával, hogy elérhető, elfoglalt vagy távol van.</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_label">Vállalati szintre lépés:</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_description">Jusson további funkciókhoz és kiemelt támogatáshoz.</string>
+    <string name="personal_to_team_migration_team_plan_learn_more_about_wire_plan">Tudjon meg többet a Wire csomagjairól</string>
+    <string name="personal_to_team_migration_team_name_step">Csapat neve</string>
+    <string name="personal_to_team_migration_team_name_description">Válasszon nevet csapatának. Bármikor megváltoztathatja.</string>
+    <string name="personal_to_team_migration_team_name_text_field_placeholder">Az Ön csapata</string>
+    <string name="personal_to_team_migration_confirmation_step">Megerősítés</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_first_item">Csapatot hoz létre, és átalakítja személyes fiókját csapatfiókká</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_second_item">Csapattulajdonosként meghívhat és eltávolíthat csapattagokat, és kezelheti a csapat beállításait</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_third_item">Ez a változtatás végleges és visszavonhatatlan</string>
+    <string name="personal_to_team_migration_confirmation_step_terms">Elfogadom az áttérés feltételeit, és megértettem, hogy ez a változás visszafordíthatatlan.</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">Elfogadom</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_label">A Wire felhasználási feltételei.</string>
+    <string name="personal_to_team_migration_confirmation_step_password_field_label">Személyes fiókjának jelszava</string>
+    <string name="personal_to_team_migration_confirmation_step_password_field_placeholder">Adja meg a jelszót</string>
+    <string name="personal_to_team_migration_done_step">Gratulálunk %1$s!</string>
+    <string name="personal_to_team_migration_done_step_now_team_member_label">Ön mostantól a(z) %1$s csapat tulajdonosa.</string>
+    <string name="personal_to_team_migration_done_step_go_to_team_label">Ugorjon a Csapatkezeléshez, hogy:</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_first_item">Hívja meg az első csapattagokat, és kezdjék meg a közös munkát</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_second_item">Testreszabja a csapat beállításait</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_title">Kilép mentés nélkül?</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_description">Ha kilép, az eddigi lépések eredményei elvesznek, és elölről kell kezdenie a csapat létrehozását.</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Csapat létrehozásának folytatása</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Kilépés mentés nélkül</string>
 </resources>

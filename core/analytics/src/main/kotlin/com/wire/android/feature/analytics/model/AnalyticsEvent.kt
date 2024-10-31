@@ -256,12 +256,12 @@ interface AnalyticsEvent {
             override val key: String = CLICKED_PERSONAL_MIGRATION_CTA_EVENT
 
             override fun toSegmentation(): Map<String, Any> {
-                val segmentations = mapOf<String, Boolean>()
+                val segmentations = mutableMapOf<String, Boolean>()
                 createTeamButtonClicked?.let {
-                    segmentations.plus(CLICKED_CREATE_TEAM to it)
+                    segmentations.put(CLICKED_CREATE_TEAM, it)
                 }
                 dismissCreateTeamButtonClicked?.let {
-                    segmentations.plus(CLICKED_DISMISS_CTA to it)
+                    segmentations.put(CLICKED_DISMISS_CTA, it)
                 }
                 return segmentations
             }
@@ -287,15 +287,15 @@ interface AnalyticsEvent {
             override val key: String = PERSONAL_TEAM_CREATION_FLOW_CANCELLED
 
             override fun toSegmentation(): Map<String, Any> {
-                val segmentations = mapOf<String, Any>()
+                val segmentations = mutableMapOf<String, Any>()
                 modalLeaveClicked?.let {
-                    segmentations.plus(MODAL_LEAVE_CLICKED to it)
+                    segmentations.put(MODAL_LEAVE_CLICKED, it)
                 }
                 modalContinueClicked?.let {
-                    segmentations.plus(MODAL_CONTINUE_CLICKED to it)
+                    segmentations.put(MODAL_CONTINUE_CLICKED, it)
                 }
                 teamName?.let {
-                    segmentations.plus(MODAL_TEAM_NAME to it)
+                    segmentations.put(MODAL_TEAM_NAME, it)
                 }
                 return segmentations
             }
@@ -309,15 +309,15 @@ interface AnalyticsEvent {
             override val key: String = PERSONAL_TEAM_CREATION_FLOW_COMPLETED
 
             override fun toSegmentation(): Map<String, Any> {
-                val segmentations = mapOf<String, Any>()
+                val segmentations = mutableMapOf<String, Any>()
                 teamName?.let {
-                    segmentations.plus(MODAL_TEAM_NAME to it)
+                    segmentations.put(MODAL_TEAM_NAME, it)
                 }
                 modalOpenTeamManagementButtonClicked?.let {
-                    segmentations.plus(MODAL_OPEN_TEAM_MANAGEMENT_CLICKED to it)
+                    segmentations.put(MODAL_OPEN_TEAM_MANAGEMENT_CLICKED, it)
                 }
                 backToWireButtonClicked?.let {
-                    segmentations.plus(MODAL_BACK_TO_WIRE_CLICKED to it)
+                    segmentations.put(MODAL_BACK_TO_WIRE_CLICKED, it)
                 }
                 return segmentations
             }

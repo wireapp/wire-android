@@ -220,8 +220,6 @@
     <string name="content_description_new_conversation_name_field">Type group name</string>
     <string name="content_description_new_conversation_options_heading">Conversation options</string>
     <string name="content_description_new_conversation_options_back_btn">Go back to new group creation</string>
-<<<<<<< HEAD
-=======
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
     <string name="content_description_self_profile_close">Close your profile</string>
     <string name="content_description_self_profile_heading">Your profile</string>
@@ -237,7 +235,6 @@
     <string name="content_description_login_email_field">enter your email or username</string>
     <string name="content_description_login_password_field">enter your password</string>
     <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
->>>>>>> 36e9320d2 (feat: Add Accessibility strings to YourProfile [WPB-9826] (#3568))
     <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>

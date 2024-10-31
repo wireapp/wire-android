@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,6 +26,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
@@ -51,9 +54,11 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
+    private val analyticsManager: AnonymousAnalyticsManager
 ) : SavedStateViewModel(savedStateHandle) {
 
+    @VisibleForTesting
     var homeState by mutableStateOf(HomeState())
         private set
 
@@ -135,5 +140,9 @@ class HomeViewModel @Inject constructor(
             globalDataStore.setWelcomeScreenPresented()
             homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
         }
+    }
+
+    fun sendOpenProfileEvent() {
+        analyticsManager.sendEvent(AnalyticsEvent.UserProfileOpened(homeState.shouldShowCreateTeamUnreadIndicator))
     }
 }

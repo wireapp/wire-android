@@ -58,7 +58,7 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.flowOf
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "CyclomaticComplexMethod")
 @Composable
 fun ConversationList(
     lazyPagingConversations: LazyPagingItems<ConversationFolderItem>,
@@ -105,10 +105,10 @@ fun ConversationList(
             ) {
                 when (val item = lazyPagingConversations[index]) {
                     is ConversationFolder -> when (item) {
-                            is ConversationFolder.Predefined ->  FolderHeader(context.getString(item.folderNameResId))
-                            is ConversationFolder.Custom ->  FolderHeader(item.folderName)
-                            is ConversationFolder.WithoutHeader -> {}
-                        }
+                        is ConversationFolder.Predefined -> FolderHeader(context.getString(item.folderNameResId))
+                        is ConversationFolder.Custom -> FolderHeader(item.folderName)
+                        is ConversationFolder.WithoutHeader -> {}
+                    }
 
                     is ConversationItem ->
                         ConversationItemFactory(

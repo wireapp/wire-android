@@ -178,7 +178,7 @@ fun ConversationsScreenContent(
             }
         }
 
-        when(val state = conversationListViewModel.conversationListState) {
+        when (val state = conversationListViewModel.conversationListState) {
             is ConversationListState.Paginated -> {
                 val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
                 var showLoading by remember { mutableStateOf(!initiallyLoaded) }
@@ -211,6 +211,7 @@ fun ConversationsScreenContent(
                     else -> emptyListContent()
                 }
             }
+
             is ConversationListState.NotPaginated -> {
                 when {
                     // when conversation list is not yet fetched, show loading indicator

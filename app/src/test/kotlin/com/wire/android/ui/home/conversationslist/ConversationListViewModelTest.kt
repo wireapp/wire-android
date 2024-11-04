@@ -20,7 +20,6 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.paging.PagingData
-import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -29,7 +28,6 @@ import com.wire.android.framework.TestConversationItem
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
-import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
@@ -55,10 +53,7 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 

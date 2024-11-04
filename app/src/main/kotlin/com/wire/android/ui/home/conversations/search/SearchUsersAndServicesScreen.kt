@@ -120,8 +120,7 @@ fun SearchUsersAndServicesScreen(
                             SearchPeopleScreenType.NEW_CONVERSATION -> NavigationIconType.Close()
                             SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> NavigationIconType.Back()
                         },
-                        onNavigationPressed = onClose,
-                        titleContentDescription = stringResource(id = R.string.content_description_add_participants_heading)
+                        onNavigationPressed = onClose
                     )
                 }
             }

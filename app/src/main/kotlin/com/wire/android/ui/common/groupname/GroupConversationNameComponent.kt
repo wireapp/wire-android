@@ -74,13 +74,10 @@ fun GroupNameScreen(
         WireScaffold(
             modifier = modifier,
             topBar = {
-                val titleContentDescription =
-                    if (mode == CREATION) stringResource(id = R.string.content_description_new_conversation_name_heading) else null
                 WireCenterAlignedTopAppBar(
                     elevation = scrollState.rememberTopBarElevationState().value,
                     onNavigationPressed = onBackPressed,
                     title = stringResource(id = if (mode == CREATION) R.string.new_group_title else R.string.group_name_title),
-                    titleContentDescription = titleContentDescription,
                     navigationIconType = NavigationIconType.Back(R.string.content_description_new_conversation_name_back_btn)
                 )
             }

@@ -138,7 +138,8 @@ class CommonTopAppBarViewModel @Inject constructor(
                                 else -> ConnectivityUIState.Call.Established(call.conversationId, call.isMuted)
                             }
                         }
-                    })
+                    }
+            )
         }
 
         return if (canDisplayConnectivityIssues) {

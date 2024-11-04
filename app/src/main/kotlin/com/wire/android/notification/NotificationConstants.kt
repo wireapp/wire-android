@@ -64,7 +64,7 @@ object NotificationConstants {
     fun getIncomingChannelId(userId: UserId): String = getChanelIdForUser(userId, INCOMING_CALL_CHANNEL_ID)
     fun getOutgoingChannelId(userId: UserId): String = getChanelIdForUser(userId, OUTGOING_CALL_CHANNEL_ID)
     fun getIncomingCallId(userIdString: String, conversationIdString: String): Int =
-        "$INCOMING_CALL_ID_PREFIX${userIdString}_${conversationIdString}".hashCode()
+        "$INCOMING_CALL_ID_PREFIX${userIdString}_$conversationIdString".hashCode()
 
     fun getIncomingCallTag(userIdString: String): String = "$INCOMING_CALL_TAG_PREFIX$userIdString"
 

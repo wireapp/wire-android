@@ -37,8 +37,10 @@ class CallNotificationDismissedReceiver : BroadcastReceiver() { // requires zero
     override fun onReceive(context: Context, intent: Intent) {
         val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
         val userIdString: String = intent.getStringExtra(EXTRA_USER_ID) ?: return
-        appLogger.i("CallNotificationDismissedReceiver: onReceive for user ${userIdString.obfuscateId()}" +
-                " and conversation ${conversationIdString.obfuscateId()}")
+        appLogger.i(
+            "CallNotificationDismissedReceiver: onReceive for user ${userIdString.obfuscateId()}" +
+                " and conversation ${conversationIdString.obfuscateId()}"
+        )
         callNotificationManager.reloadCallNotifications(CallNotificationIds(userIdString, conversationIdString))
     }
 

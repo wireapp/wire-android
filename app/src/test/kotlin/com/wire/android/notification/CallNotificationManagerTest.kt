@@ -74,7 +74,7 @@ class CallNotificationManagerTest {
             val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName)
             val id = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
             val tag = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
-            val reloadCallNotificationIds = CallNotificationIds(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
+            val reloadCallIds = CallNotificationIds(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
             val (arrangement, callNotificationManager) = Arrangement()
                 .withIncomingNotificationForUserAndCall(notification, callNotificationData)
                 .arrange()
@@ -83,7 +83,7 @@ class CallNotificationManagerTest {
             advanceUntilIdle()
             arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
             // when
-            callNotificationManager.reloadCallNotifications(reloadCallNotificationIds)
+            callNotificationManager.reloadCallNotifications(reloadCallIds)
             advanceUntilIdle()
             // then
             verify(exactly = 1) { arrangement.notificationManager.notify(tag, id, notification) } // should be shown again
@@ -291,10 +291,12 @@ class CallNotificationManagerTest {
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL2), TEST_USER_ID2, userName2)
             advanceUntilIdle()
             arrangement.clearRecordedCallsForNotificationManager() // clear calls recorded when initializing the state
-            arrangement.withActiveNotifications(listOf(
-                mockStatusBarNotification(id1, tag1),
-                mockStatusBarNotification(id2, tag2)
-            ))
+            arrangement.withActiveNotifications(
+                listOf(
+                    mockStatusBarNotification(id1, tag1),
+                    mockStatusBarNotification(id2, tag2)
+                )
+            )
 
             // when
             callNotificationManager.handleIncomingCalls(listOf(), TEST_USER_ID1, userName1)

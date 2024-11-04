@@ -124,9 +124,13 @@ class CallNotificationManager @Inject constructor(
 
     fun handleIncomingCalls(calls: List<Call>, userId: UserId, userName: String) {
         if (calls.isEmpty()) {
-            incomingCallsForUsers.update { it.filter { it.key != userId } }
+            incomingCallsForUsers.update {
+                it.minus(userId)
+            }
         } else {
-            incomingCallsForUsers.update { it.filter { it.key != userId } + (userId to IncomingCallsForUser(userId, userName, calls)) }
+            incomingCallsForUsers.update {
+                it.plus(userId to IncomingCallsForUser(userId, userName, calls))
+            }
         }
     }
 

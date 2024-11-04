@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -166,11 +165,12 @@ private fun CallsContent(
                 is ConnectivityUIState.Call.Established -> OngoingCallContent(
                     isMuted = call.isMuted,
                     modifier = Modifier
-                        .clickable(onClick = remember(call) {
-                            {
-                                onReturnToCallClick(call)
+                        .clickable(
+                            onClick = remember(call) {
+                                {
+                                    onReturnToCallClick(call)
+                                }
                             }
-                        }
                         )
                         .fillMaxWidth()
                         .heightIn(min = MaterialTheme.wireDimensions.ongoingCallLabelHeight)
@@ -179,11 +179,12 @@ private fun CallsContent(
                 is ConnectivityUIState.Call.Incoming -> IncomingCallContent(
                     callerName = call.callerName,
                     modifier = Modifier
-                        .clickable(onClick = remember(call) {
-                            {
-                                onReturnToIncomingCallClick(call)
+                        .clickable(
+                            onClick = remember(call) {
+                                {
+                                    onReturnToIncomingCallClick(call)
+                                }
                             }
-                        }
                         )
                         .fillMaxWidth()
                         .heightIn(min = MaterialTheme.wireDimensions.ongoingCallLabelHeight)
@@ -192,11 +193,12 @@ private fun CallsContent(
                 is ConnectivityUIState.Call.Outgoing -> OutgoingCallContent(
                     conversationName = call.conversationName,
                     modifier = Modifier
-                        .clickable(onClick = remember(call) {
-                            {
-                                onReturnToOutgoingCallClick(call)
+                        .clickable(
+                            onClick = remember(call) {
+                                {
+                                    onReturnToOutgoingCallClick(call)
+                                }
                             }
-                        }
                         )
                         .fillMaxWidth()
                         .heightIn(min = MaterialTheme.wireDimensions.ongoingCallLabelHeight)

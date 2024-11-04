@@ -83,6 +83,11 @@ object ImageUtil {
         }
         return byteArray
     }
+//
+//    fun removeMetaData(byteArray: ByteArray): ByteArray {
+//        val exifInterface = ExifInterface(byteArray.inputStream())
+//        exifInterface.saveAttributes()
+//    }
 
     // region Private
 

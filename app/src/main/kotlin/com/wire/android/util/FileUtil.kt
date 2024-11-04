@@ -216,6 +216,15 @@ suspend fun Uri.resampleImageAndCopyToTempPath(
     }
 }
 
+suspend fun Uri.removeMetadata(
+    context: Context,
+    tempCachePath: Path,
+    sizeClass: ImageSizeClass = Medium,
+    dispatcher: DispatcherProvider = DefaultDispatcherProvider()
+) {
+
+}
+
 private fun ByteArray.writeToFile(file: File): Long =
     try {
         file.setWritable(true)

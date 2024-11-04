@@ -45,6 +45,7 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.dropWhile
 
 /**
  * Class responsible for orchestrating the state of the message that the user is composing.
@@ -111,6 +112,7 @@ class MessageCompositionHolder(
 
     suspend fun handleMessageTextUpdates() {
         snapshotFlow { messageTextState.text to messageTextState.selection }
+            .dropWhile { (messageText, _) -> messageText.isEmpty() }
             .distinctUntilChanged()
             .collectLatest { (messageText, selection) ->
                 updateTypingEvent(messageText.toString())

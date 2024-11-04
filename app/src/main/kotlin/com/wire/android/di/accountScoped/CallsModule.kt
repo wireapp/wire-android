@@ -197,4 +197,9 @@ class CallsModule {
     @Provides
     fun provideIsEligibleToStartCall(callsScope: CallsScope) =
         callsScope.isEligibleToStartCall
+
+    @ViewModelScoped
+    @Provides
+    fun provideHasConferenceCallingActivatedUseCase(callsScope: CallsScope) =
+        callsScope.hasConferenceCallingActivatedUseCase
 }

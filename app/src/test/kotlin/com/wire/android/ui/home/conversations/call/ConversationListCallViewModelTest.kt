@@ -32,6 +32,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -85,6 +86,9 @@ class ConversationListCallViewModelTest {
     @MockK
     lateinit var observeDegradedConversationNotifiedUseCase: ObserveDegradedConversationNotifiedUseCase
 
+    @MockK
+    lateinit var getSelfUserUseCase: GetSelfUserUseCase
+
     private lateinit var conversationListCallViewModel: ConversationListCallViewModel
 
     @BeforeEach
@@ -110,7 +114,8 @@ class ConversationListCallViewModelTest {
             observeConversationDetails = observeConversationDetails,
             observeParticipantsForConversation = observeParticipantsForConversation,
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
-            observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase
+            observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
+            getSelf = getSelfUserUseCase
         )
     }
 

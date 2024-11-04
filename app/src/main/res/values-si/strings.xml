@@ -82,7 +82,6 @@
     <string name="label_retry">නැවත</string>
     <string name="label_draft">*කටුපිටපත*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">යෙදුමේ ලාංඡනය</string>
     <string name="content_description_reveal_password">මුරපදය පෙන්වන්න</string>
     <string name="content_description_hide_password">මුරපදය සඟවන්න</string>
     <string name="content_description_search_back">ආපසු සොයන්න නිරූපකය</string>

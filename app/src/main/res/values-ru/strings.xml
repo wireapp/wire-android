@@ -85,7 +85,6 @@
     <string name="label_retry">Повторить</string>
     <string name="label_draft">*Черновик*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Логотип приложения</string>
     <string name="content_description_reveal_password">Показать пароль</string>
     <string name="content_description_hide_password">Скрыть пароль</string>
     <string name="content_description_search_back">Значок возврата поиска</string>

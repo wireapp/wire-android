@@ -68,11 +68,15 @@ fun HomeTopBar(
                     onButtonClicked = { onOpenConversationFilter(navigationItem.currentFilter()) }
                 )
             }
+            val openLabel = stringResource(R.string.content_description_open_label)
             UserProfileAvatar(
                 avatarData = userAvatarData,
-                clickable = remember { Clickable(enabled = true) { onNavigateToSelfUserProfile() } },
+                clickable = remember {
+                    Clickable(enabled = true, onClickDescription = openLabel) { onNavigateToSelfUserProfile() }
+                },
                 type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = withLegalHoldIndicator),
-                shouldShowCreateTeamUnreadIndicator = shouldShowCreateTeamUnreadIndicator
+                shouldShowCreateTeamUnreadIndicator = shouldShowCreateTeamUnreadIndicator,
+                contentDescription = stringResource(R.string.content_description_home_profile_btn)
             )
         },
         elevation = elevation,

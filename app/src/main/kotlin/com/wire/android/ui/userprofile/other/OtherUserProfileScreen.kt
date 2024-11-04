@@ -396,10 +396,12 @@ private fun TopBarHeader(
     onNavigateBack: () -> Unit,
     openConversationBottomSheet: () -> Unit
 ) {
-    val navigationIconType = if (state.groupState == null) {
-        NavigationIconType.Close()
-    } else {
+    val navigationIconType = if (state.groupState != null) {
         NavigationIconType.Close(R.string.content_description_user_profile_close_btn)
+    } else if (state.connectionState == ConnectionState.PENDING || state.connectionState == ConnectionState.IGNORED) {
+        NavigationIconType.Close(R.string.content_description_connection_request_close_btn)
+    } else {
+        NavigationIconType.Close()
     }
 
     WireCenterAlignedTopAppBar(
@@ -409,8 +411,7 @@ private fun TopBarHeader(
             WireTopAppBarTitle(
                 title = stringResource(id = R.string.user_profile_title),
                 style = MaterialTheme.wireTypography.title01,
-                maxLines = 2,
-                contentDescription = stringResource(id = R.string.content_description_user_profile_heading)
+                maxLines = 2
             )
         },
         elevation = elevation,

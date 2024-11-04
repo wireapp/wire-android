@@ -92,7 +92,7 @@ class UserDataStore(private val context: Context, userId: UserId) {
     }
 
     fun isCreateTeamNoticeRead(): Flow<Boolean> = context.dataStore.data.map {
-        it[IS_CREATE_TEAM_NOTICE_READ] ?: true
+        it[IS_CREATE_TEAM_NOTICE_READ] ?: false
     }
 
     suspend fun setIsCreateTeamNoticeRead(isRead: Boolean) {

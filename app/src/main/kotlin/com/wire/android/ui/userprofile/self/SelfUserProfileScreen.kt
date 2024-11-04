@@ -135,9 +135,11 @@ fun SelfUserProfileScreen(
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
         onOtherAccountClick = { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) },
         onQrCodeClick = {
+            viewModelSelf.trackQrCodeClick()
             navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName)))
         },
         onCreateAccount = {
+            viewModelSelf.sendPersonalToTeamMigrationEvent()
             navigator.navigate(NavigationCommand(TeamMigrationScreenDestination))
         },
         isUserInCall = viewModelSelf::isUserInCall,

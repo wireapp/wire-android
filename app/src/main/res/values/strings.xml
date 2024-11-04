@@ -208,7 +208,6 @@
     <string name="content_description_select_label">select</string>
     <string name="content_description_unselect_label">unselect</string>
     <string name="content_description_selected_label">selected</string>
-    <string name="content_description_heading_suffix">%s, heading</string>
     <string name="content_description_toggle_setting_label">toggle setting</string>
     <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
     <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>

@@ -42,8 +42,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
@@ -103,18 +101,16 @@ private fun DeviceItemContent(
     shouldShowE2EIInfo: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val openDetailsDescription = stringResource(id = R.string.content_description_user_profile_open_device_btn)
-
     Row(
         verticalAlignment = Alignment.Top,
         modifier = modifier
-            .clickable(enabled = isWholeItemClickable) {
+            .clickable(
+                enabled = isWholeItemClickable,
+                onClickLabel = stringResource(id = R.string.content_description_user_profile_open_device_btn)
+            ) {
                 if (isWholeItemClickable) {
                     onClickAction?.invoke(device)
                 }
-            }
-            .semantics {
-                if (isWholeItemClickable) onClick(openDetailsDescription) { false }
             }
     ) {
         Row(

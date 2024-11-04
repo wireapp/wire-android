@@ -34,8 +34,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -44,7 +44,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.common.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -62,7 +61,7 @@ fun WireCenterAlignedTopAppBar(
     onNavigationPressed: () -> Unit = {},
     navigationIconType: NavigationIconType? = NavigationIconType.Back(),
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
-    titleContentDescription: String? = stringResource(id = R.string.content_description_heading_suffix, title),
+    titleContentDescription: String? = null,
     actions: @Composable RowScope.() -> Unit = {},
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
@@ -125,20 +124,14 @@ fun WireTopAppBarTitle(
     style: TextStyle,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
-    contentDescription: String? = stringResource(id = R.string.content_description_heading_suffix, title)
+    contentDescription: String? = null
 ) {
     // There's an ongoing issue about multiline text taking all width available instead of wrapping visible text.
     // https://issuetracker.google.com/issues/206039942
     // It's very noticeable on TopAppBar because due to that issue, the title is not centered, even if there are large enough empty spaces
     // on both sides and all lines of text are actually shorter and could fit at the center.
     // This workaround is based on this: https://stackoverflow.com/a/69947555, but instead of using SubcomposeLayout, we just measure text.
-    BoxWithConstraints(
-        modifier = modifier
-            .semantics {
-                contentDescription?.let { this.contentDescription = contentDescription }
-            }
-            .padding(horizontal = dimensions().spacing6x)
-    ) {
+    BoxWithConstraints(modifier = modifier.padding(horizontal = dimensions().spacing6x)) {
         val textMeasurer = rememberTextMeasurer()
         val textLayoutResult: TextLayoutResult = textMeasurer.measure(
             text = title,
@@ -158,7 +151,12 @@ fun WireTopAppBarTitle(
             }.toDp()
         }
         Text(
-            modifier = Modifier.width(width),
+            modifier = Modifier
+                .width(width)
+                .semantics {
+                    heading()
+                    contentDescription?.let { this.contentDescription = it }
+                },
             text = title,
             style = style,
             maxLines = maxLines,

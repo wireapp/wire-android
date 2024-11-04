@@ -44,7 +44,6 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
-import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
@@ -248,7 +247,6 @@ fun MediaAssetImage(
             )
             .wrapContentSize()
             .clickable(onImageClick)
-            .clickableDescriptions(onImageClick)
     ) {
         when {
             // Trying to upload the asset

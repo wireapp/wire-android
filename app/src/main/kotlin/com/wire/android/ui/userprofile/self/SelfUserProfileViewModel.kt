@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
@@ -42,7 +41,6 @@ import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
@@ -266,27 +264,6 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    // todo. cleanup unused code
-    fun tryToInitAddingAccount(onSucceeded: () -> Unit) {
-        viewModelScope.launch {
-            // the total number of accounts is otherAccounts + 1 for the current account
-            val canAddNewAccounts: Boolean = (userProfileState.otherAccounts.size + 1) < BuildConfig.MAX_ACCOUNTS
-
-            if (!canAddNewAccounts) {
-                userProfileState = userProfileState.copy(maxAccountsReached = true)
-                return@launch
-            }
-
-            val selfServerLinks: ServerConfig.Links =
-                when (val result = selfServerLinks()) {
-                    is SelfServerConfigUseCase.Result.Failure -> return@launch
-                    is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
-                }
-            authServerConfigProvider.updateAuthServer(selfServerLinks)
-            onSucceeded()
-        }
-    }
-
     fun dismissStatusDialog() {
         userProfileState = userProfileState.copy(statusDialogData = null)
     }
@@ -319,11 +296,6 @@ class SelfUserProfileViewModel @Inject constructor(
                 changeStatus(status)
             }
         }
-    }
-
-    // todo. cleanup unused code
-    fun onMaxAccountReachedDialogDismissed() {
-        userProfileState = userProfileState.copy(maxAccountsReached = false)
     }
 
     private fun setNotShowStatusRationaleAgainIfNeeded(status: UserAvailabilityStatus) {

@@ -32,7 +32,9 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.util.AvatarImageManager
+import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.toByteArray
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
@@ -104,8 +106,17 @@ class AvatarPickerViewModel @Inject constructor(
         }
     }
 
-    fun updatePickedAvatarUri(updatedUri: Uri) = viewModelScope.launch(dispatchers.main()) {
+    fun updatePickedAvatarUri(originalUri: Uri, updatedUri: Uri) = viewModelScope.launch {
+        sanitizeAvatarImage(originalUri, defaultAvatarPath)
         pictureState = PictureState.Picked(updatedUri)
+    }
+
+    /**
+     * Resamples the image and removes unnecessary metadata before uploading it.
+     * This to avoid uploading unnecessarily large images for profile pictures and sensitive metadata.
+     */
+    private suspend fun sanitizeAvatarImage(originalAvatarUri: Uri, avatarPath: Path) {
+        originalAvatarUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small)
     }
 
     fun uploadNewPickedAvatar(onComplete: (avatarAssetId: String?) -> Unit) {

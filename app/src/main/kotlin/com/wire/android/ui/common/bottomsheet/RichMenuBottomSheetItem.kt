@@ -39,7 +39,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.clickable
-import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.DEFAULT_WEIGHT
 import com.wire.android.ui.theme.wireColorScheme
@@ -65,7 +64,6 @@ fun SelectableMenuBottomSheetItem(
             .defaultMinSize(minHeight = dimensions().spacing48x)
             .let { if (isSelectedItem(state)) it.background(MaterialTheme.wireColorScheme.secondaryButtonSelected) else it }
             .clickable(onItemClick)
-            .clickableDescriptions(onItemClick)
             .padding(vertical = dimensions().spacing12x, horizontal = dimensions().spacing16x)
     ) {
         icon()

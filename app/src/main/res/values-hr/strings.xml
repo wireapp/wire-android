@@ -76,7 +76,6 @@
     <string name="label_and">i</string>
     <string name="label_retry">Pokušaj ponovo</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Logotip aplikacije</string>
     <string name="content_description_reveal_password">Prikaži lozinku</string>
     <string name="content_description_hide_password">Sakrij lozinku</string>
     <string name="content_description_search_back">Ikona za povratak</string>

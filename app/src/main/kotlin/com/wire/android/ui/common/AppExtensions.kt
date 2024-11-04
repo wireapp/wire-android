@@ -30,8 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
@@ -59,18 +59,27 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 @SuppressLint("ComposeComposableModifier")
 @Composable
-fun Modifier.selectableBackground(isSelected: Boolean, onClick: () -> Unit): Modifier {
+fun Modifier.selectableBackground(
+    isSelected: Boolean,
+    onClickDescription: String = stringResource(id = R.string.content_description_select_label),
+    onClick: () -> Unit
+): Modifier {
     val onItemClick = Clickable(
         enabled = !isSelected,
         onClick = onClick,
-        onClickDescription = stringResource(id = R.string.content_description_select_label)
+        onClickDescription = onClickDescription
     )
-    val selectedDescription = stringResource(id = R.string.content_description_selected_label)
 
     return this
         .clickable(onItemClick)
+<<<<<<< HEAD
         .clickableDescriptions(onItemClick)
         .semantics { stateDescription = if (isSelected) selectedDescription else "" }
+=======
+        .semantics {
+            if (isSelected) selected = true // So TalkBack ignores selection when it's not selected
+        }
+>>>>>>> b24fc1ca5 (feat Add Accessibility strings to WhatsNew #WPB-9835 (#3575))
 }
 
 @Composable

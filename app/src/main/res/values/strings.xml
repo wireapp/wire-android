@@ -87,7 +87,6 @@
     <string name="label_retry">Retry</string>
     <string name="label_draft">*Draft*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show password</string>
     <string name="content_description_hide_password">Hide password</string>
     <string name="content_description_search_back">Search back icon</string>
@@ -224,6 +223,26 @@
     <string name="content_description_new_conversation_options_heading">Conversation options, heading</string>
     <string name="content_description_new_conversation_options_back_btn">Go back to new group creation</string>
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
+<<<<<<< HEAD
+=======
+    <string name="content_description_self_profile_close">Close your profile</string>
+    <string name="content_description_self_profile_heading">Your profile</string>
+    <string name="content_description_self_profile_avatar">Your profile picture</string>
+    <string name="content_description_self_profile_profile_name">Profile name, %s</string>
+    <string name="content_description_self_profile_username">Username, %s</string>
+    <string name="content_description_self_profile_team">Team name, %s</string>
+    <string name="content_description_self_profile_change_status">change availability status</string>
+    <string name="content_description_self_profile_new_account_btn">Create a new team or personal account or log in</string>
+    <string name="content_description_change_picture_back_btn">Go back to your profile overview</string>
+    <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
+    <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
+    <string name="content_description_login_email_field">enter your email or username</string>
+    <string name="content_description_login_password_field">enter your password</string>
+    <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
+    <string name="content_description_whats_new_welcome_item">Welcome to Wire\'s New Android App, link to support page</string>
+    <string name="content_description_whats_new_all_releases_item">All Android release notes, link to release note overview</string>
+    <string name="content_description_whats_new_release_item">%1$s, %2$s, link to release details</string>
+>>>>>>> b24fc1ca5 (feat Add Accessibility strings to WhatsNew #WPB-9835 (#3575))
     <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>

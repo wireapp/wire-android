@@ -72,14 +72,9 @@ fun Modifier.selectableBackground(
 
     return this
         .clickable(onItemClick)
-<<<<<<< HEAD
-        .clickableDescriptions(onItemClick)
-        .semantics { stateDescription = if (isSelected) selectedDescription else "" }
-=======
         .semantics {
             if (isSelected) selected = true // So TalkBack ignores selection when it's not selected
         }
->>>>>>> b24fc1ca5 (feat Add Accessibility strings to WhatsNew #WPB-9835 (#3575))
 }
 
 @Composable

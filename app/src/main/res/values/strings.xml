@@ -223,8 +223,6 @@
     <string name="content_description_new_conversation_options_heading">Conversation options, heading</string>
     <string name="content_description_new_conversation_options_back_btn">Go back to new group creation</string>
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
-<<<<<<< HEAD
-=======
     <string name="content_description_self_profile_close">Close your profile</string>
     <string name="content_description_self_profile_heading">Your profile</string>
     <string name="content_description_self_profile_avatar">Your profile picture</string>
@@ -242,7 +240,6 @@
     <string name="content_description_whats_new_welcome_item">Welcome to Wire\'s New Android App, link to support page</string>
     <string name="content_description_whats_new_all_releases_item">All Android release notes, link to release note overview</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, link to release details</string>
->>>>>>> b24fc1ca5 (feat Add Accessibility strings to WhatsNew #WPB-9835 (#3575))
     <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>

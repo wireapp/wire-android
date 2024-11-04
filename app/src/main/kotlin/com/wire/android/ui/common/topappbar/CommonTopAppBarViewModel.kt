@@ -69,7 +69,7 @@ class CommonTopAppBarViewModel @Inject constructor(
         }
 
     @VisibleForTesting
-    internal suspend fun activeCallFlow(userId: UserId): Flow<Call?> =
+    internal suspend fun activeCallsFlow(userId: UserId): Flow<List<Call>> =
         coreLogic.sessionScope(userId) {
             combine(
                 calls.establishedCall(),
@@ -77,8 +77,6 @@ class CommonTopAppBarViewModel @Inject constructor(
                 calls.observeOutgoingCall(),
             ) { establishedCall, incomingCalls, outgoingCalls ->
                 establishedCall + incomingCalls + outgoingCalls
-            }.map { calls ->
-                calls.firstOrNull()
             }.distinctUntilChanged()
         }
 
@@ -95,11 +93,11 @@ class CommonTopAppBarViewModel @Inject constructor(
                         is CurrentSessionResult.Success -> {
                             val userId = it.accountInfo.userId
                             combine(
-                                activeCallFlow(userId),
+                                activeCallsFlow(userId),
                                 currentScreenFlow(),
                                 connectivityFlow(userId),
-                            ) { activeCall, currentScreen, connectivity ->
-                                mapToConnectivityUIState(currentScreen, connectivity, activeCall)
+                            ) { activeCalls, currentScreen, connectivity ->
+                                mapToConnectivityUIState(currentScreen, connectivity, activeCalls)
                             }
                         }
                     }
@@ -111,7 +109,7 @@ class CommonTopAppBarViewModel @Inject constructor(
                      * could be called when the screen is changed, so we delayed
                      * showing the banner until getting the correct calling values
                      */
-                    if (connectivityUIState is ConnectivityUIState.EstablishedCall) {
+                    if (connectivityUIState is ConnectivityUIState.Calls && connectivityUIState.hasOngoingCall) {
                         delay(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)
                     }
                     state = state.copy(connectivityState = connectivityUIState)
@@ -123,19 +121,24 @@ class CommonTopAppBarViewModel @Inject constructor(
     private fun mapToConnectivityUIState(
         currentScreen: CurrentScreen,
         connectivity: Connectivity,
-        activeCall: Call?
+        activeCalls: List<Call>,
     ): ConnectivityUIState {
 
         val canDisplayConnectivityIssues = currentScreen !is CurrentScreen.AuthRelated
 
-        if (activeCall != null) {
-            return if (activeCall.status == CallStatus.INCOMING) {
-                ConnectivityUIState.IncomingCall(activeCall.conversationId, activeCall.callerName)
-            } else if (activeCall.status == CallStatus.STARTED) {
-                ConnectivityUIState.OutgoingCall(activeCall.conversationId, activeCall.conversationName)
-            } else {
-                ConnectivityUIState.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
-            }
+        if (activeCalls.isNotEmpty()) {
+            return ConnectivityUIState.Calls(
+                calls = activeCalls.partition { it.status != CallStatus.INCOMING }
+                    .let { (outgoingAndEstablished, incoming) ->
+                        // outgoing and established first
+                        (outgoingAndEstablished + incoming).map { call ->
+                            when (call.status) {
+                                CallStatus.INCOMING -> ConnectivityUIState.Call.Incoming(call.conversationId, call.callerName)
+                                CallStatus.STARTED -> ConnectivityUIState.Call.Outgoing(call.conversationId, call.conversationName)
+                                else -> ConnectivityUIState.Call.Established(call.conversationId, call.isMuted)
+                            }
+                        }
+                    })
         }
 
         return if (canDisplayConnectivityIssues) {

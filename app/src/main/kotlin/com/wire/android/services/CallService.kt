@@ -37,7 +37,6 @@ import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.flatMapRight
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -47,6 +46,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -101,10 +101,9 @@ class CallService : Service() {
                     .flatMapLatest {
                         if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
                             val userId = it.accountInfo.userId
-                            val outgoingCallsFlow =
-                                coreLogic.getSessionScope(userId).calls.observeOutgoingCall()
-                            val establishedCallsFlow =
-                                coreLogic.getSessionScope(userId).calls.establishedCall()
+                            val userSessionScope = coreLogic.getSessionScope(userId)
+                            val outgoingCallsFlow = userSessionScope.calls.observeOutgoingCall()
+                            val establishedCallsFlow = userSessionScope.calls.establishedCall()
 
                             combine(
                                 outgoingCallsFlow,
@@ -112,7 +111,8 @@ class CallService : Service() {
                             ) { outgoingCalls, establishedCalls ->
                                 val calls = outgoingCalls + establishedCalls
                                 calls.firstOrNull()?.let { call ->
-                                    Either.Right(CallNotificationData(userId, call))
+                                    val userName = userSessionScope.users.getSelfUser().first().let { it.handle ?: it.name ?: ""  }
+                                    Either.Right(CallNotificationData(userId, call, userName))
                                 } ?: Either.Left("no calls")
                             }
                         } else {
@@ -120,9 +120,7 @@ class CallService : Service() {
                         }
                     }
                     .distinctUntilChanged()
-                    .flatMapRight { callData ->
-                        callNotificationManager.reloadIfNeeded(callData)
-                    }.debounce {
+                    .debounce {
                         if (it is Either.Left) ServicesManager.DEBOUNCE_TIME else 0L
                     }
                     .collectLatest {

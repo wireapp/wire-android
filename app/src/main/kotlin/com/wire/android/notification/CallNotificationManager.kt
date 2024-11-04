@@ -21,10 +21,12 @@ package com.wire.android.notification
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.content.Context
+import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.notification.NotificationConstants.INCOMING_CALL_ID_PREFIX
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
@@ -34,7 +36,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -42,9 +43,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
@@ -62,75 +63,117 @@ class CallNotificationManager @Inject constructor(
 
     private val notificationManager = NotificationManagerCompat.from(context)
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
-    private val incomingCallsForUsers = MutableStateFlow<Map<UserId, Call>>(mapOf())
+    private val incomingCallsForUsers = MutableStateFlow<Map<UserId, IncomingCallsForUser>>(mapOf())
     private val reloadCallNotification = MutableSharedFlow<CallNotificationIds>()
 
     init {
         scope.launch {
             incomingCallsForUsers
                 .debounce { if (it.isEmpty()) 0L else DEBOUNCE_TIME } // debounce to avoid showing and hiding notification too fast
-                .map { it.entries.firstOrNull()?.toCallNotificationData() }
+                .map {
+                    it.values.map {
+                        it.let { (userId, userName, calls) ->
+                            calls.map { call ->
+                                CallNotificationData(userId, call, userName)
+                            }
+                        }
+                    }.flatten()
+                }
+                .scan(emptyList<CallNotificationData>() to emptyList<CallNotificationData>()) { (previousCalls, _), currentCalls ->
+                    currentCalls to (currentCalls - previousCalls.toSet())
+                }
                 .distinctUntilChanged()
-                .reloadIfNeeded()
-                .collectLatest { incomingCallData ->
-                    if (incomingCallData == null) {
-                        hideIncomingCallNotification()
-                    } else {
-                        appLogger.i("$TAG: showing incoming call")
-                        showIncomingCallNotification(incomingCallData)
+                .flatMapLatest { (allCurrentCalls, newCalls) ->
+                    reloadCallNotification
+                        .map { (userIdString, conversationIdString) ->
+                            allCurrentCalls to allCurrentCalls.filter { // emit call that needs to be reloaded as newOrUpdated
+                                it.userId.toString() == userIdString && it.conversationId.toString() == conversationIdString
+                            }
+                        }
+                        .filter { (_, newCalls) -> newCalls.isNotEmpty() } // only emit if there is something to reload
+                        .onStart { emit(allCurrentCalls to newCalls) }
+                }
+                .collectLatest { (allCurrentCalls, newCalls) ->
+                    // remove outdated incoming call notifications
+                    hideOutdatedIncomingCallNotifications(allCurrentCalls)
+                    // show current incoming call notifications
+                    appLogger.i("$TAG: showing ${newCalls.size} new incoming calls (all incoming calls: ${allCurrentCalls.size})")
+                    newCalls.forEach { data ->
+                        showIncomingCallNotification(data)
                     }
                 }
         }
     }
 
-    fun reloadIfNeeded(data: CallNotificationData): Flow<CallNotificationData> = reloadCallNotification
-        .filter { reloadCallNotificationIds -> // check if the reload action is for the same call
-            reloadCallNotificationIds.userIdString == data.userId.toString()
-                    && reloadCallNotificationIds.conversationIdString == data.conversationId.toString()
+    @VisibleForTesting
+    internal fun hideOutdatedIncomingCallNotifications(currentIncomingCalls: List<CallNotificationData>) {
+        val activeNotifications = notificationManager.activeNotifications
+        val currentIncomingCallNotificationIds = currentIncomingCalls.map {
+            NotificationConstants.getIncomingCallId(it.userId.toString(), it.conversationId.toString())
         }
-        .map { data }
-        .onStart { emit(data) }
-
-    private fun Flow<CallNotificationData?>.reloadIfNeeded(): Flow<CallNotificationData?> = this.flatMapLatest { callEntry ->
-        callEntry?.let { reloadIfNeeded(it) } ?: flowOf(null)
+        activeNotifications.filter {
+            it.tag != null && it.tag.startsWith(INCOMING_CALL_ID_PREFIX) && !currentIncomingCallNotificationIds.contains(it.id)
+        }.forEach {
+            it.hideIncomingCallNotification()
+        }
     }
 
     fun reloadCallNotifications(reloadCallNotificationIds: CallNotificationIds) = scope.launch {
         reloadCallNotification.emit(reloadCallNotificationIds)
     }
 
-    fun handleIncomingCallNotifications(calls: List<Call>, userId: UserId) {
+    fun handleIncomingCalls(calls: List<Call>, userId: UserId, userName: String) {
         if (calls.isEmpty()) {
             incomingCallsForUsers.update { it.filter { it.key != userId } }
         } else {
-            incomingCallsForUsers.update { it.filter { it.key != userId } + (userId to calls.first()) }
+            incomingCallsForUsers.update { it.filter { it.key != userId } + (userId to IncomingCallsForUser(userId, userName, calls)) }
         }
     }
 
-    fun hideAllNotifications() {
-        hideIncomingCallNotification()
+    fun hideAllIncomingCallNotifications() {
+        notificationManager.activeNotifications.filter {
+            it.tag != null && it.tag.startsWith(INCOMING_CALL_ID_PREFIX)
+        }.forEach {
+            it.hideIncomingCallNotification()
+        }
     }
 
-    private fun hideIncomingCallNotification() {
+    fun hideAllIncomingCallNotificationsForUser(userId: UserId) {
+        notificationManager.activeNotifications.filter {
+            it.tag != null && it.tag == NotificationConstants.getIncomingCallTag(userId.toString())
+        }.forEach {
+            it.hideIncomingCallNotification()
+        }
+    }
+
+    fun hideIncomingCallNotification(userIdString: String, conversationIdString: String) {
+        notificationManager.activeNotifications.firstOrNull {
+            it.id == NotificationConstants.getIncomingCallId(userIdString, conversationIdString)
+        }?.hideIncomingCallNotification()
+    }
+
+    private fun StatusBarNotification.hideIncomingCallNotification() {
         appLogger.i("$TAG: hiding incoming call")
 
         // This delay is just so when the user receives two calling signals one straight after the other [INCOMING -> CANCEL]
-        // Due to the signals being one after the other we are creating a notification when we are trying to cancel it, it wasn't properly
-        // cancelling vibration as probably when we were cancelling, the vibration object was still being created and started and thus
-        // never stopped.
+        // Due to the signals being one after the other we are creating a notification when we are trying to cancel it, it wasn't
+        // properly cancelling vibration as probably when we were cancelling, the vibration object was still being created and started
+        // and thus never stopped.
         TimeUnit.MILLISECONDS.sleep(CANCEL_CALL_NOTIFICATION_DELAY)
-        notificationManager.cancel(NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal)
+        notificationManager.cancel(tag, id)
     }
 
     @SuppressLint("MissingPermission")
     @VisibleForTesting
     internal fun showIncomingCallNotification(data: CallNotificationData) {
-        appLogger.i("$TAG: showing incoming call notification for user ${data.userId.toLogString()}")
-        val notification = builder.getIncomingCallNotification(data)
-        notificationManager.notify(
-            NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal,
-            notification
+        appLogger.i(
+            "$TAG: showing incoming call notification for user ${data.userId.toLogString()}" +
+                    " and conversation ${data.conversationId.toLogString()}"
         )
+        val tag = NotificationConstants.getIncomingCallTag(data.userId.toString())
+        val id = NotificationConstants.getIncomingCallId(data.userId.toString(), data.conversationId.toString())
+        val notification = builder.getIncomingCallNotification(data)
+        notificationManager.notify(tag, id, notification)
     }
 
     // Notifications
@@ -141,10 +184,6 @@ class CallNotificationManager @Inject constructor(
 
         @VisibleForTesting
         internal const val DEBOUNCE_TIME = 200L
-
-        fun hideIncomingCallNotification(context: Context) {
-            NotificationManagerCompat.from(context).cancel(NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal)
-        }
     }
 }
 
@@ -164,6 +203,7 @@ class CallNotificationBuilder @Inject constructor(
             .setSmallIcon(R.drawable.notification_icon_small)
             .setContentTitle(data.conversationName)
             .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
+            .setSubText(data.userName)
             .setAutoCancel(false)
             .setOngoing(true)
             .setSilent(true)
@@ -188,6 +228,7 @@ class CallNotificationBuilder @Inject constructor(
             .setSmallIcon(R.drawable.notification_icon_small)
             .setContentTitle(title)
             .setContentText(content)
+            .setSubText(data.userName)
             .setAutoCancel(false)
             .setOngoing(true)
             .setVibrate(VIBRATE_PATTERN)
@@ -214,6 +255,7 @@ class CallNotificationBuilder @Inject constructor(
         return NotificationCompat.Builder(context, channelId)
             .setContentTitle(title)
             .setContentText(context.getString(R.string.notification_ongoing_call_content))
+            .setSubText(data.userName)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -275,10 +317,13 @@ class CallNotificationBuilder @Inject constructor(
     }
 }
 
+data class IncomingCallsForUser(val userId: UserId, val userName: String, val incomingCalls: List<Call>)
+
 data class CallNotificationIds(val userIdString: String, val conversationIdString: String)
 
 data class CallNotificationData(
     val userId: QualifiedID,
+    val userName: String,
     val conversationId: ConversationId,
     val conversationName: String?,
     val conversationType: Conversation.Type,
@@ -286,8 +331,9 @@ data class CallNotificationData(
     val callerTeamName: String?,
     val callStatus: CallStatus
 ) {
-    constructor(userId: UserId, call: Call) : this(
+    constructor(userId: UserId, call: Call, userName: String) : this(
         userId,
+        userName,
         call.conversationId,
         call.conversationName,
         call.conversationType,
@@ -296,5 +342,3 @@ data class CallNotificationData(
         call.status
     )
 }
-
-fun Map.Entry<UserId, Call>.toCallNotificationData() = CallNotificationData(userId = key, call = value)

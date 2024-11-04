@@ -27,10 +27,11 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -56,27 +57,24 @@ class DeclineIncomingCallReceiver : BroadcastReceiver() { // requires zero argum
     @ApplicationScope
     lateinit var coroutineScope: CoroutineScope
 
+    @Inject
+    lateinit var callNotificationManager: CallNotificationManager
+
     override fun onReceive(context: Context, intent: Intent) {
-        val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
-        appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: $conversationId")
+        val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
+        appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: ${conversationIdString.obfuscateId()}")
         coroutineScope.launch(Dispatchers.Default) {
-            val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
-            val sessionScope =
-                if (userId != null) {
-                    coreLogic.getSessionScope(userId)
-                } else {
-                    val currentSession = coreLogic.globalScope { session.currentSession() }
-                    if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.accountInfo.userId)
-                    } else {
-                        null
+            val userId: UserId? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
+                ?: coreLogic.globalScope {
+                    when (val currentSession = session.currentSession()) {
+                        is CurrentSessionResult.Success -> currentSession.accountInfo.userId
+                        else -> null
                     }
                 }
-
-            sessionScope?.let {
-                it.calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+            userId?.let {
+                coreLogic.getSessionScope(userId).calls.rejectCall(conversationIdString.toQualifiedID(qualifiedIdMapper))
+                callNotificationManager.hideIncomingCallNotification(userId.toString(), conversationIdString)
             }
-            CallNotificationManager.hideIncomingCallNotification(context)
         }
     }
 
@@ -84,7 +82,7 @@ class DeclineIncomingCallReceiver : BroadcastReceiver() { // requires zero argum
         private const val EXTRA_CONVERSATION_ID = "conversation_id_extra"
         private const val EXTRA_RECEIVER_USER_ID = "user_id_extra"
 
-        fun newIntent(context: Context, conversationId: String?, userId: String?): Intent =
+        fun newIntent(context: Context, conversationId: String, userId: String): Intent =
             Intent(context, DeclineIncomingCallReceiver::class.java).apply {
                 putExtra(EXTRA_CONVERSATION_ID, conversationId)
                 putExtra(EXTRA_RECEIVER_USER_ID, userId)

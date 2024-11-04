@@ -24,10 +24,24 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_SCORE_KEY
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_CREATE_TEAM
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_DISMISS_CTA
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_PERSONAL_MIGRATION_CTA_EVENT
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBUTED_LOCATION
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_TEAM
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MIGRATION_DOT_ACTIVE
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_BACK_TO_WIRE_CLICKED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_CONTINUE_CLICKED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_LEAVE_CLICKED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_OPEN_TEAM_MANAGEMENT_CLICKED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_TEAM_NAME
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_CANCELLED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_COMPLETED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_STARTED_EVENT
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.STEP_MODAL_CREATE_TEAM
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.USER_PROFILE_OPENED
 
 interface AnalyticsEvent {
     /**
@@ -221,6 +235,93 @@ interface AnalyticsEvent {
             }
         }
     }
+
+    data class UserProfileOpened(val isMigrationDotActive: Boolean) : AnalyticsEvent {
+        override val key: String = USER_PROFILE_OPENED
+
+        override fun toSegmentation(): Map<String, Any> {
+            return mapOf(
+                MIGRATION_DOT_ACTIVE to isMigrationDotActive
+            )
+        }
+    }
+
+    sealed interface PersonalTeamMigration : AnalyticsEvent {
+
+        data class ClickedPersonalTeamMigrationCta(
+            val createTeamButtonClicked: Boolean? = null,
+            val dismissCreateTeamButtonClicked: Boolean? = null
+        ) : AnalyticsEvent {
+            override val key: String = CLICKED_PERSONAL_MIGRATION_CTA_EVENT
+
+            override fun toSegmentation(): Map<String, Any> {
+                val segmentations = mutableMapOf<String, Boolean>()
+                createTeamButtonClicked?.let {
+                    segmentations.put(CLICKED_CREATE_TEAM, it)
+                }
+                dismissCreateTeamButtonClicked?.let {
+                    segmentations.put(CLICKED_DISMISS_CTA, it)
+                }
+                return segmentations
+            }
+        }
+
+        data class PersonalTeamCreationFlowStarted(
+            val step: Int
+        ) : AnalyticsEvent {
+            override val key: String = PERSONAL_TEAM_CREATION_FLOW_STARTED_EVENT
+
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    STEP_MODAL_CREATE_TEAM to step
+                )
+            }
+        }
+
+        data class PersonalTeamCreationFlowCanceled(
+            val teamName: String?,
+            val modalLeaveClicked: Boolean? = null,
+            val modalContinueClicked: Boolean? = null
+        ) : AnalyticsEvent {
+            override val key: String = PERSONAL_TEAM_CREATION_FLOW_CANCELLED
+
+            override fun toSegmentation(): Map<String, Any> {
+                val segmentations = mutableMapOf<String, Any>()
+                modalLeaveClicked?.let {
+                    segmentations.put(MODAL_LEAVE_CLICKED, it)
+                }
+                modalContinueClicked?.let {
+                    segmentations.put(MODAL_CONTINUE_CLICKED, it)
+                }
+                teamName?.let {
+                    segmentations.put(MODAL_TEAM_NAME, it)
+                }
+                return segmentations
+            }
+        }
+
+        data class PersonalTeamCreationFlowCompleted(
+            val teamName: String? = null,
+            val modalOpenTeamManagementButtonClicked: Boolean? = null,
+            val backToWireButtonClicked: Boolean? = null
+        ) : AnalyticsEvent {
+            override val key: String = PERSONAL_TEAM_CREATION_FLOW_COMPLETED
+
+            override fun toSegmentation(): Map<String, Any> {
+                val segmentations = mutableMapOf<String, Any>()
+                teamName?.let {
+                    segmentations.put(MODAL_TEAM_NAME, it)
+                }
+                modalOpenTeamManagementButtonClicked?.let {
+                    segmentations.put(MODAL_OPEN_TEAM_MANAGEMENT_CLICKED, it)
+                }
+                backToWireButtonClicked?.let {
+                    segmentations.put(MODAL_BACK_TO_WIRE_CLICKED, it)
+                }
+                return segmentations
+            }
+        }
+    }
 }
 
 object AnalyticsEventConstants {
@@ -281,4 +382,26 @@ object AnalyticsEventConstants {
     const val QR_CODE_SEGMENTATION_USER_TYPE = "user_type"
     const val QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL = "personal"
     const val QR_CODE_SEGMENTATION_USER_TYPE_TEAM = "team"
+
+    /**
+     * user profile
+     */
+    const val USER_PROFILE_OPENED = "ui.clicked-profile"
+
+    /**
+     * Personal to team migration
+     */
+    const val CLICKED_PERSONAL_MIGRATION_CTA_EVENT = "ui.clicked-personal-migration-cta"
+    const val PERSONAL_TEAM_CREATION_FLOW_STARTED_EVENT = "user.personal-team-creation-flow-started"
+    const val PERSONAL_TEAM_CREATION_FLOW_CANCELLED = "user.personal-team-creation-flow-cancelled"
+    const val PERSONAL_TEAM_CREATION_FLOW_COMPLETED = "user.personal-team-creation-flow-completed"
+    const val MIGRATION_DOT_ACTIVE = "migration_dot_active"
+    const val CLICKED_CREATE_TEAM = "clicked_create_team"
+    const val CLICKED_DISMISS_CTA = "clicked_dismiss_cta"
+    const val STEP_MODAL_CREATE_TEAM = "step_modalcreateteam"
+    const val MODAL_TEAM_NAME = "modal_team-name"
+    const val MODAL_CONTINUE_CLICKED = "modal_continue-clicked"
+    const val MODAL_LEAVE_CLICKED = "modal_leave-clicked"
+    const val MODAL_BACK_TO_WIRE_CLICKED = "modal_back-to-wire-clicked"
+    const val MODAL_OPEN_TEAM_MANAGEMENT_CLICKED = "modal_open-tm-clicked"
 }

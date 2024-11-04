@@ -139,6 +139,7 @@ fun SelfUserProfileScreen(
             navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName)))
         },
         onCreateAccount = {
+            viewModelSelf.sendPersonalToTeamMigrationEvent()
             navigator.navigate(NavigationCommand(TeamMigrationScreenDestination))
         },
         isUserInCall = viewModelSelf::isUserInCall,

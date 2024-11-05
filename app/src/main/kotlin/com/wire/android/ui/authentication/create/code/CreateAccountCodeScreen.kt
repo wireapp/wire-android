@@ -60,6 +60,7 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
@@ -143,7 +144,8 @@ private fun CodeContent(
                         style = MaterialTheme.wireTypography.body01
                     )
                 }
-            }
+            },
+            navigationIconType = NavigationIconType.Back(R.string.content_description_login_back_btn)
         )
     }) { internalPadding ->
         Column(

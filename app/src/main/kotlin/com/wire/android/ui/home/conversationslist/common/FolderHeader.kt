@@ -35,8 +35,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
@@ -74,8 +72,7 @@ fun CollapsingFolderHeader(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .semantics { onClick(expandDescription) { false } }
-            .clickable { onClicked(!expanded) }
+            .clickable(onClickLabel = expandDescription) { onClicked(!expanded) }
             .padding(horizontal = dimensions().spacing8x, vertical = dimensions().spacing16x)
     ) {
         Icon(

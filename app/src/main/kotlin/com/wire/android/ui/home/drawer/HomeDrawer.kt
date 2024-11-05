@@ -43,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.dimensions
@@ -122,11 +123,11 @@ fun DrawerItem(destination: HomeDestination, selected: Boolean, unreadCount: Int
             .fillMaxWidth()
             .height(40.dp)
             .background(backgroundColor)
-            .selectableBackground(selected) { onItemClick() },
+            .selectableBackground(selected, stringResource(R.string.content_description_open_label), onItemClick),
     ) {
         Image(
             painter = painterResource(id = destination.icon),
-            contentDescription = stringResource(destination.title),
+            contentDescription = null,
             colorFilter = ColorFilter.tint(contentColor),
             contentScale = ContentScale.Fit,
             modifier = Modifier.padding(start = dimensions().spacing16x, end = dimensions().spacing16x)

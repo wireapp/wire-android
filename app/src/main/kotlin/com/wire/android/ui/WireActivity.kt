@@ -40,9 +40,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
@@ -120,6 +123,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
@@ -220,7 +224,11 @@ class WireActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    Column(modifier = Modifier.statusBarsPadding()) {
+                    Column(
+                        modifier = Modifier
+                            .statusBarsPadding()
+                            .semantics { testTagsAsResourceId = true }
+                    ) {
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         CommonTopAppBar(
                             themeOption = viewModel.globalAppState.themeOption,

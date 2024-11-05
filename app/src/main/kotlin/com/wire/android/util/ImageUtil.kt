@@ -57,33 +57,62 @@ object ImageUtil {
         }
     }
 
+
     /**
      * Resamples, downscales and normalizes rotation of an image based on its intended [ImageSizeClass] use.
+     * Also takes care of removing metadata before resampling if needed.
      * Works on JPEGS Only.
      *
      * @param byteArray the ByteArray representing the image
      * @param sizeClass the indented size class use case
+     * @param shouldRemoveMetadata whether to remove metadata before resampling
      * @return ByteArray the resampled, downscaled and rotation normalized image or the original image if there was no need for downscaling
      */
-    fun resample(byteArray: ByteArray, sizeClass: ImageSizeClass): ByteArray {
+    fun resample(byteArray: ByteArray, sizeClass: ImageSizeClass, shouldRemoveMetadata: Boolean = false): ByteArray {
+        return if (shouldRemoveMetadata) {
+            removeMetadataAndResample(byteArray, sizeClass)
+        } else {
+            resample(byteArray, sizeClass)
+        }
+    }
+
+    private fun resample(byteArray: ByteArray, sizeClass: ImageSizeClass): ByteArray {
         val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
         val targetDimension = dimensionForSizeClass(sizeClass)
         if (shouldScale(bitmap, targetDimension)) {
             val exifInterface = ExifInterface(byteArray.inputStream())
-            val size = scaledSizeForBitmap(bitmap, targetDimension)
-            val resizedImage = Bitmap
-                .createScaledBitmap(bitmap, size.first.toInt(), size.second.toInt(), true)
-                .removeExifMetadata(exifInterface)
-                .rotateImageToNormalOrientation(exifInterface)
-            val output = ByteArrayOutputStream()
-            if (resizedImage.hasAlpha()) {
-                resizedImage.compress(Bitmap.CompressFormat.PNG, 0, output)
-            } else {
-                resizedImage.compress(Bitmap.CompressFormat.JPEG, compressionFactorForSizeClass(sizeClass), output)
-            }
-            return output.toByteArray()
+            return scaleBitmap(bitmap, targetDimension, exifInterface, sizeClass)
         }
         return byteArray
+    }
+
+    private fun removeMetadataAndResample(byteArray: ByteArray, sizeClass: ImageSizeClass): ByteArray {
+        val exifInterface = ExifInterface(byteArray.inputStream())
+        val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size).removeExifMetadata(exifInterface)
+        val targetDimension = dimensionForSizeClass(sizeClass)
+        if (shouldScale(bitmap, targetDimension)) {
+            return scaleBitmap(bitmap, targetDimension, exifInterface, sizeClass)
+        }
+        return byteArray
+    }
+
+    private fun scaleBitmap(
+        bitmap: Bitmap,
+        targetDimension: Float,
+        exifInterface: ExifInterface,
+        sizeClass: ImageSizeClass
+    ): ByteArray {
+        val size = scaledSizeForBitmap(bitmap, targetDimension)
+        val resizedImage = Bitmap
+            .createScaledBitmap(bitmap, size.first.toInt(), size.second.toInt(), true)
+            .rotateImageToNormalOrientation(exifInterface)
+        val output = ByteArrayOutputStream()
+        if (resizedImage.hasAlpha()) {
+            resizedImage.compress(Bitmap.CompressFormat.PNG, 0, output)
+        } else {
+            resizedImage.compress(Bitmap.CompressFormat.JPEG, compressionFactorForSizeClass(sizeClass), output)
+        }
+        return output.toByteArray()
     }
 
     // region Private

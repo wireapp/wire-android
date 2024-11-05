@@ -116,7 +116,12 @@ class AvatarPickerViewModel @Inject constructor(
      * This to avoid uploading unnecessarily large images for profile pictures and sensitive metadata.
      */
     private suspend fun sanitizeAvatarImage(originalAvatarUri: Uri, avatarPath: Path) {
-        originalAvatarUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small)
+        originalAvatarUri.resampleImageAndCopyToTempPath(
+            context = appContext,
+            tempCachePath = avatarPath,
+            sizeClass = ImageUtil.ImageSizeClass.Small,
+            shouldRemoveMetadata = true
+        )
     }
 
     fun uploadNewPickedAvatar(onComplete: (avatarAssetId: String?) -> Unit) {

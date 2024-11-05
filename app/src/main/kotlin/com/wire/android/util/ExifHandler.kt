@@ -66,6 +66,7 @@ object ExifHandler {
     }
 
     private val removableExifAttributes = arrayOf(
+        // ExifInterface.TAG_ORIENTATION // This is not removed as it's used to rotate the image
         ExifInterface.TAG_IMAGE_WIDTH,
         ExifInterface.TAG_IMAGE_LENGTH,
         ExifInterface.TAG_BITS_PER_SAMPLE,

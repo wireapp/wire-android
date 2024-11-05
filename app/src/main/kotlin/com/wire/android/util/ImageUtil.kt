@@ -57,7 +57,6 @@ object ImageUtil {
         }
     }
 
-
     /**
      * Resamples, downscales and normalizes rotation of an image based on its intended [ImageSizeClass] use.
      * Also takes care of removing metadata before resampling if needed.

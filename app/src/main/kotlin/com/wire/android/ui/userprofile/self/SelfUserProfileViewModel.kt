@@ -26,7 +26,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
@@ -59,7 +58,6 @@ import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
-import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -92,8 +90,6 @@ class SelfUserProfileViewModel @Inject constructor(
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val dispatchers: DispatcherProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val authServerConfigProvider: AuthServerConfigProvider,
-    private val selfServerLinks: SelfServerConfigUseCase,
     private val otherAccountMapper: OtherAccountMapper,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val accountSwitch: AccountSwitchUseCase,

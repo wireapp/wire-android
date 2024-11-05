@@ -298,11 +298,16 @@ private fun DefaultInitialsAvatar(
     modifier: Modifier = Modifier,
     contentDescription: String? = stringResource(R.string.content_description_user_avatar),
 ) {
+    val testTagModifier = if (contentDescription.isNullOrEmpty()) {
+        Modifier.testTag(stringResource(R.string.content_description_user_avatar))
+    } else {
+        Modifier
+    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .semantics { this.contentDescription = contentDescription ?: "" }
-            .testTag(stringResource(R.string.content_description_user_avatar))
+            .then(testTagModifier)
             .size(size)
             .clip(CircleShape)
             .background(

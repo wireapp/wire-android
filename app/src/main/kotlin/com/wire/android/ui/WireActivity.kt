@@ -207,6 +207,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("LongMethod")
     private fun setComposableContent(
         startDestination: Route,
         onComplete: () -> Unit

@@ -18,7 +18,7 @@ class ImageUtilTest {
         val originalImage = File(javaClass.getResource("/rich-exif-sample.jpg")!!.path)
 
         // when
-        val resampledImage = ImageUtil.resample(originalImage.readBytes(), ImageUtil.ImageSizeClass.Small, shouldRemoveMetadata = true)
+        val resampledImage = ImageUtil.resample(originalImage.readBytes(), ImageUtil.ImageSizeClass.Medium, shouldRemoveMetadata = true)
         val exif = ExifInterface(resampledImage.inputStream())
 
         // then

@@ -80,7 +80,7 @@ object ImageUtil {
         val targetDimension = dimensionForSizeClass(sizeClass)
         if (shouldScale(bitmap, targetDimension)) {
             val exifInterface = ExifInterface(byteArray.inputStream())
-            return scaleBitmap(bitmap, targetDimension, exifInterface, sizeClass)
+            return rewriteBitmap(scaleBitmap(bitmap, targetDimension, exifInterface), sizeClass)
         }
         return byteArray
     }
@@ -89,29 +89,35 @@ object ImageUtil {
         val exifInterface = ExifInterface(byteArray.inputStream())
         val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size).removeExifMetadata(exifInterface)
         val targetDimension = dimensionForSizeClass(sizeClass)
-        if (shouldScale(bitmap, targetDimension)) {
-            return scaleBitmap(bitmap, targetDimension, exifInterface, sizeClass)
+        return if (shouldScale(bitmap, targetDimension)) {
+            rewriteBitmap(scaleBitmap(bitmap, targetDimension, exifInterface), sizeClass)
+        } else {
+            rewriteBitmap(bitmap, sizeClass)
         }
-        return byteArray
+    }
+
+    private fun rewriteBitmap(
+        scaledBitmap: Bitmap,
+        sizeClass: ImageSizeClass
+    ): ByteArray {
+        val output = ByteArrayOutputStream()
+        if (scaledBitmap.hasAlpha()) {
+            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 0, output)
+        } else {
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, compressionFactorForSizeClass(sizeClass), output)
+        }
+        return output.toByteArray()
     }
 
     private fun scaleBitmap(
         bitmap: Bitmap,
         targetDimension: Float,
-        exifInterface: ExifInterface,
-        sizeClass: ImageSizeClass
-    ): ByteArray {
+        exifInterface: ExifInterface
+    ): Bitmap {
         val size = scaledSizeForBitmap(bitmap, targetDimension)
-        val resizedImage = Bitmap
+        return Bitmap
             .createScaledBitmap(bitmap, size.first.toInt(), size.second.toInt(), true)
             .rotateImageToNormalOrientation(exifInterface)
-        val output = ByteArrayOutputStream()
-        if (resizedImage.hasAlpha()) {
-            resizedImage.compress(Bitmap.CompressFormat.PNG, 0, output)
-        } else {
-            resizedImage.compress(Bitmap.CompressFormat.JPEG, compressionFactorForSizeClass(sizeClass), output)
-        }
-        return output.toByteArray()
     }
 
     // region Private

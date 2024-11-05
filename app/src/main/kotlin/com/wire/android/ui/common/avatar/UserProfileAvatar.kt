@@ -270,7 +270,8 @@ private fun UserAvatar(
             nameBasedAvatar = avatarData.nameBasedAvatar!!,
             type = type,
             size = size,
-            modifier = modifier
+            modifier = modifier,
+            contentDescription = contentDescription
         )
     } else {
         val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
@@ -290,12 +291,12 @@ private fun DefaultInitialsAvatar(
     type: UserProfileAvatarType,
     size: Dp,
     modifier: Modifier = Modifier,
+    contentDescription: String? = stringResource(R.string.content_description_user_avatar),
 ) {
-    val contentDescription = stringResource(R.string.content_description_user_avatar)
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .semantics { this.contentDescription = contentDescription }
+            .semantics { this.contentDescription = contentDescription ?: "" }
             .size(size)
             .clip(CircleShape)
             .background(

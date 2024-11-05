@@ -216,7 +216,7 @@ class AvatarPickerViewModelTest {
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success(avatarPath)
             coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockTargetUri
             coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockTargetUri
-            coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), any()) } returns 1L
+            coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), eq(true), any()) } returns 1L
             coEvery { any<Uri>().toByteArray(any(), any()) } returns ByteArray(5)
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")

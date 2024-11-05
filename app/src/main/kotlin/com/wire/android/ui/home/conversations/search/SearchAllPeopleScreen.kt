@@ -312,7 +312,7 @@ fun PreviewSearchAllPeopleScreen_InitialResults() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewSearchAllPeopleScreen_EmptyInitialResults() = WireTheme {
-    SearchAllPeopleScreen("", persistentListOf(), persistentListOf(), persistentSetOf(),false, false, { _, _ -> }, {})
+    SearchAllPeopleScreen("", persistentListOf(), persistentListOf(), persistentSetOf(), false, false, { _, _ -> }, {})
 }
 
 @PreviewMultipleThemes

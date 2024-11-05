@@ -337,8 +337,7 @@ private fun GroupConversationDetailsContent(
                     WireTopAppBarTitle(
                         title = stringResource(R.string.conversation_details_title),
                         style = MaterialTheme.wireTypography.title01,
-                        maxLines = 2,
-                        contentDescription = stringResource(id = R.string.content_description_conversation_details_header)
+                        maxLines = 2
                     )
                     VerificationInfo(conversationSheetContent)
                 },

@@ -84,6 +84,7 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
 import com.wire.android.ui.destinations.ConversationMediaScreenDestination
@@ -98,6 +99,7 @@ import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
@@ -193,7 +195,6 @@ fun OtherUserProfileScreen(
         },
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
         navigateBack = navigator::navigateBack,
-        navigationIconType = NavigationIconType.Close(),
         onConversationMediaClick = onConversationMediaClick,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
     )
@@ -222,7 +223,6 @@ fun OtherUserProfileScreen(
 fun OtherProfileScreenContent(
     scope: CoroutineScope,
     state: OtherUserProfileState,
-    navigationIconType: NavigationIconType,
     requestInProgress: Boolean,
     sheetState: WireModalSheetState<Unit>,
     openBottomSheet: () -> Unit,
@@ -299,7 +299,6 @@ fun OtherProfileScreenContent(
         topBarHeader = {
             TopBarHeader(
                 state = state,
-                navigationIconType = navigationIconType,
                 elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                 onNavigateBack = navigateBack,
                 openConversationBottomSheet = openConversationBottomSheet
@@ -393,19 +392,33 @@ fun OtherProfileScreenContent(
 @Composable
 private fun TopBarHeader(
     state: OtherUserProfileState,
-    navigationIconType: NavigationIconType,
     elevation: Dp,
     onNavigateBack: () -> Unit,
     openConversationBottomSheet: () -> Unit
 ) {
+    val navigationIconType = if (state.groupState != null) {
+        NavigationIconType.Close(R.string.content_description_user_profile_close_btn)
+    } else if (state.connectionState == ConnectionState.PENDING || state.connectionState == ConnectionState.IGNORED) {
+        NavigationIconType.Close(R.string.content_description_connection_request_close_btn)
+    } else {
+        NavigationIconType.Close()
+    }
+
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
         navigationIconType = navigationIconType,
-        title = stringResource(id = R.string.user_profile_title),
+        titleContent = {
+            WireTopAppBarTitle(
+                title = stringResource(id = R.string.user_profile_title),
+                style = MaterialTheme.wireTypography.title01,
+                maxLines = 2
+            )
+        },
         elevation = elevation,
         actions = {
             if (state.conversationSheetContent != null) {
                 MoreOptionIcon(
+                    contentDescription = R.string.content_description_user_profile_more_btn,
                     onButtonClicked = openConversationBottomSheet,
                     state = if (state.isMetadataEmpty()) WireButtonState.Disabled else WireButtonState.Default
                 )
@@ -610,7 +623,6 @@ fun PreviewOtherProfileScreenGroupMemberContent() {
                 connectionState = ConnectionState.ACCEPTED,
                 isUnderLegalHold = true,
             ),
-            navigationIconType = NavigationIconType.Back(),
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},
@@ -634,7 +646,6 @@ fun PreviewOtherProfileScreenContent() {
                 isUnderLegalHold = true,
                 groupState = null
             ),
-            navigationIconType = NavigationIconType.Back(),
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},
@@ -657,7 +668,6 @@ fun PreviewOtherProfileScreenContentNotConnected() {
                 connectionState = ConnectionState.CANCELLED,
                 isUnderLegalHold = true,
             ),
-            navigationIconType = NavigationIconType.Back(),
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},
@@ -682,7 +692,6 @@ fun PreviewOtherProfileScreenTempUser() {
                 isUnderLegalHold = true,
                 expiresAt = Instant.DISTANT_FUTURE
             ),
-            navigationIconType = NavigationIconType.Back(),
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},

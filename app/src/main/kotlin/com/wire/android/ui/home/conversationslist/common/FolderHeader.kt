@@ -66,17 +66,18 @@ fun CollapsingFolderHeader(
     arrowHorizontalPadding: Dp = dimensions().avatarClickablePadding,
 ) {
     val arrowRotation: Float by animateFloatAsState(if (expanded) 180f else 90f, label = "CollapsingArrowRotationAnimation")
+    val expandDescription = stringResource(
+        id = if (expanded) R.string.content_description_collapse_label else R.string.content_description_expand_label
+    )
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clickable {
-                onClicked(!expanded)
-            }
+            .clickable(onClickLabel = expandDescription) { onClicked(!expanded) }
             .padding(horizontal = dimensions().spacing8x, vertical = dimensions().spacing16x)
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_collapse),
-            contentDescription = stringResource(R.string.change),
+            contentDescription = null,
             tint = MaterialTheme.wireColorScheme.labelText,
             modifier = Modifier
                 .padding(horizontal = arrowHorizontalPadding)

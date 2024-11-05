@@ -48,6 +48,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -86,7 +88,8 @@ fun WireButton(
         horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    onClickDescription: String? = null
 ) {
     val border = when {
         borderWidth > 0.dp -> BorderStroke(width = borderWidth, color = colors.outlineColor(state).value)
@@ -118,7 +121,8 @@ fun WireButton(
                         val centerY = ((height - placeable.height) / 2f).roundToInt()
                         placeable.place(centerX, centerY)
                     }
-                },
+                }
+                .semantics { onClickDescription?.let { onClick(it) { false } } },
             enabled = state != WireButtonState.Disabled,
             interactionSource = interactionSource,
             elevation = elevation,

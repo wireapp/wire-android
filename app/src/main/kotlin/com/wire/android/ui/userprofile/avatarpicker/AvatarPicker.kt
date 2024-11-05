@@ -59,6 +59,7 @@ import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -200,25 +201,26 @@ private fun AvatarPickerContent(
                     {
                         MenuBottomSheetItem(
                             title = stringResource(R.string.profile_image_choose_from_gallery_menu_item),
-                            icon = {
+                            leading = {
                                 MenuItemIcon(
                                     id = R.drawable.ic_gallery,
                                     contentDescription = stringResource(R.string.content_description_choose_from_gallery)
                                 )
                             },
-                            action = { ArrowRightIcon() },
+                            trailing = { ArrowRightIcon() },
                             onItemClick = state::openGallery
                         )
-                    }, {
+                    },
+                    {
                         MenuBottomSheetItem(
                             title = stringResource(R.string.profile_image_take_a_picture_menu_item),
-                            icon = {
+                            leading = {
                                 MenuItemIcon(
                                     id = R.drawable.ic_camera,
                                     contentDescription = stringResource(R.string.content_description_take_a_picture)
                                 )
                             },
-                            action = { ArrowRightIcon() },
+                            trailing = { ArrowRightIcon() },
                             onItemClick = state::openCamera
                         )
                     }
@@ -281,6 +283,7 @@ private fun AvatarPickerActionButtons(
 private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
+        navigationIconType = NavigationIconType.Back(R.string.content_description_change_picture_back_btn),
         title = stringResource(R.string.profile_image_top_bar_label),
     )
 }

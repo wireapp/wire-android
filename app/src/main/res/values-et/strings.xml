@@ -59,7 +59,6 @@
     <string name="label_and">ja</string>
     <string name="label_retry">Proovi uuesti</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Rakenduse logo</string>
     <string name="content_description_reveal_password">Kuva parool</string>
     <string name="content_description_hide_password">Peida parool</string>
     <string name="content_description_search_back">Otsi tagasi ikoon</string>

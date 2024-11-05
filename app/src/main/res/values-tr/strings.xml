@@ -81,7 +81,6 @@
     <string name="label_retry">Yeniden Dene</string>
     <string name="label_draft">Taslaklar</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Uygulama Simgesi</string>
     <string name="content_description_reveal_password">Şifreyi göster</string>
     <string name="content_description_hide_password">Parolayı gizle</string>
     <string name="content_description_search_back">Geri arama simgesi</string>

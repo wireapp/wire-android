@@ -29,6 +29,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,6 +56,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
+import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -64,13 +66,18 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 )
 @Composable
 fun TeamMigrationTeamPlanStepScreen(
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    teamMigrationViewModel: TeamMigrationViewModel
 ) {
     TeamMigrationTeamPlanStepScreenContent(
         onContinueButtonClicked = {
             navigator.navigate(TeamMigrationTeamNameStepScreenDestination)
         }
     )
+
+    LaunchedEffect(Unit) {
+        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(1)
+    }
 }
 
 @Composable

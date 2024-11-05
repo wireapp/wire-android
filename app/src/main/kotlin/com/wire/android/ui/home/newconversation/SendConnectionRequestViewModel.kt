@@ -29,12 +29,20 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import javax.inject.Inject
 
-@HiltViewModel
-class SendConnectionRequestViewModel @Inject constructor(
-    private val sendConnectionRequest: SendConnectionRequestUseCase,
-) : ViewModel() {
+interface SendConnectionRequestViewModel {
+    fun addContact(userId: UserId): Deferred<Boolean>
+}
 
-    fun addContact(userId: UserId): Deferred<Boolean> =
+object SendConnectionRequestViewModelPreview : SendConnectionRequestViewModel {
+    override fun addContact(userId: UserId): Deferred<Boolean> = TODO()
+}
+
+@HiltViewModel
+class SendConnectionRequestViewModelImpl @Inject constructor(
+    private val sendConnectionRequest: SendConnectionRequestUseCase,
+) : ViewModel(), SendConnectionRequestViewModel {
+
+    override fun addContact(userId: UserId): Deferred<Boolean> =
         viewModelScope.async {
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Success -> {

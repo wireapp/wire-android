@@ -166,7 +166,6 @@ fun SearchUsersAndServicesScreen(
                                         onOpenUserProfile = onOpenUserProfile,
                                         onContactChecked = onContactChecked,
                                         isSearchActive = isSearchActive,
-                                        isLoading = false // TODO: update correctly
                                     )
                                 }
 
@@ -186,7 +185,6 @@ fun SearchUsersAndServicesScreen(
                         onContactChecked = onContactChecked,
                         onOpenUserProfile = onOpenUserProfile,
                         isSearchActive = isSearchActive,
-                        isLoading = false // TODO: update correctly
                     )
                 }
             }
@@ -230,7 +228,6 @@ enum class SearchPeopleScreenType {
 private fun SearchAllPeopleOrContactsScreen(
     searchQuery: String,
     contactsAddedToGroup: ImmutableSet<Contact>,
-    isLoading: Boolean,
     isSearchActive: Boolean,
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
@@ -243,8 +240,7 @@ private fun SearchAllPeopleOrContactsScreen(
 
     val lazyState = rememberLazyListState()
     SearchAllPeopleScreen(
-        searchQuery = searchQuery,
-        noneSearchSucceed = searchUserViewModel.state.noneSearchSucceeded,
+        searchQuery = searchUserViewModel.state.searchQuery,
         contactsSearchResult = searchUserViewModel.state.contactsResult,
         publicSearchResult = searchUserViewModel.state.publicResult,
         contactsAddedToGroup = contactsAddedToGroup,
@@ -252,6 +248,6 @@ private fun SearchAllPeopleOrContactsScreen(
         onOpenUserProfile = onOpenUserProfile,
         lazyListState = lazyState,
         isSearchActive = isSearchActive,
-        isLoading = isLoading
+        isLoading = searchUserViewModel.state.isLoading,
     )
 }

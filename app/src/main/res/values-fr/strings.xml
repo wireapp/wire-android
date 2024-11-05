@@ -78,7 +78,6 @@
     <string name="label_retry">Réessayer</string>
     <string name="label_draft">Brouillons</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Logo de l\'application</string>
     <string name="content_description_reveal_password">Afficher le mot de passe</string>
     <string name="content_description_hide_password">Cacher le mot de passe</string>
     <string name="content_description_search_back">Icône de retour de recherche</string>

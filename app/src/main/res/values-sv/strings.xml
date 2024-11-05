@@ -69,7 +69,6 @@
     <string name="label_retry">Försök igen</string>
     <string name="label_draft">*Utkast*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Appens logga</string>
     <string name="content_description_reveal_password">Visa lösenord</string>
     <string name="content_description_hide_password">Dölj lösenord</string>
     <string name="content_description_clear_content">Rensa bort innehåll</string>

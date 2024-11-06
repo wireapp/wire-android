@@ -133,7 +133,6 @@
     <string name="content_description_self_deleting_message_timer">Postavite mjerač za poruke koje se same brišu</string>
     <string name="content_description_calling_hang_up_call">Prekini poziv</string>
     <string name="content_description_calling_accept_call">Prihvati poziv</string>
-    <string name="content_description_calling_decline_call">Odbij poziv</string>
     <string name="content_description_calling_flip_camera_on">Prebaci na prednju kameru</string>
     <string name="content_description_calling_flip_camera_off">Prebaci na stražnju kameru</string>
     <string name="content_description_calling_participant_muted">Sudionik utišan</string>
@@ -501,8 +500,6 @@
     <string name="notification_action_reply">Odgovor</string>
     <string name="notification_receiver_name">Vi</string>
     <string name="label_type_a_message">Napiši poruku</string>
-    <string name="notification_action_decline_call">Odbij</string>
-    <string name="notification_action_hang_up_call">Poklopi</string>
     <string name="notification_ongoing_call_content">Poziv u tijeku…</string>
     <string name="notification_group_call_content">%s zove...</string>
     <string name="notification_call_default_caller_name">Netko</string>
@@ -515,7 +512,6 @@
     <string name="calling_button_label_join_call">Pridruži se</string>
     <string name="calling_hang_up_call">Prekini poziv</string>
     <string name="calling_accept_call">Prihvati poziv</string>
-    <string name="calling_decline_call">Odbij poziv</string>
     <string name="calling_label_ringing_call">Zvoni…</string>
     <string name="calling_ongoing_call_join_anyway">Svejedno se pridruži</string>
     <string name="calling_feature_unavailable_title_alert">Značajka nije dostupna</string>

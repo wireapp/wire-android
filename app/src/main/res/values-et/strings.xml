@@ -82,7 +82,6 @@
     <string name="content_description_ping_everyone">Pingi</string>
     <string name="content_description_calling_hang_up_call">Lõpeta kõne</string>
     <string name="content_description_calling_accept_call">Võta kõne vastu</string>
-    <string name="content_description_calling_decline_call">Keeldu kõnest</string>
     <string name="content_description_calling_flip_camera_on">Vali eesmine kaamera</string>
     <string name="content_description_calling_flip_camera_off">Vali tagumine kaamera</string>
     <string name="content_description_calling_participant_muted">Osaleja vaigistatud</string>
@@ -298,9 +297,6 @@
     <string name="notification_action_reply">Vasta</string>
     <string name="notification_receiver_name">Sina</string>
     <string name="label_type_a_message">Sisesta sõnum</string>
-    <string name="notification_action_open_call">Ava kõne</string>
-    <string name="notification_action_decline_call">Keeldu</string>
-    <string name="notification_action_hang_up_call">Lõpeta kõne</string>
     <string name="notification_incoming_call_content">Helistab…</string>
     <string name="notification_ongoing_call_content">Käimasolev kõne…</string>
     <string name="notification_group_call_content">%s helistab...</string>
@@ -317,7 +313,6 @@
     <string name="calling_button_label_join_call">Liitu</string>
     <string name="calling_hang_up_call">Lõpeta kõne</string>
     <string name="calling_accept_call">Võta kõne vastu</string>
-    <string name="calling_decline_call">Keeldu kõnest</string>
     <string name="calling_label_ringing_call">Heliseb…</string>
     <string name="calling_label_incoming_call">Helistab…</string>
     <string name="calling_label_default_caller_name">Sissetulev kõne</string>

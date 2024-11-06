@@ -75,10 +75,10 @@ class IncomingCallActionReceiver : BroadcastReceiver() {
                 }
 
             sessionScope?.let {
-                when(action) {
-                ACTION_DECLINE_CALL -> it.calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
-                ACTION_ANSWER_CALL -> it.calls.answerCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
-            }
+                when (action) {
+                    ACTION_DECLINE_CALL -> it.calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+                    ACTION_ANSWER_CALL -> it.calls.answerCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+                }
             }
             CallNotificationManager.hideIncomingCallNotification(context)
         }

@@ -136,7 +136,6 @@
     <string name="content_description_self_deleting_message_timer">Définir une minuterie pour les messages auto-supprimés</string>
     <string name="content_description_calling_hang_up_call">Raccrocher l\'appel</string>
     <string name="content_description_calling_accept_call">Prendre l\'appel </string>
-    <string name="content_description_calling_decline_call">Refuser l\'appel</string>
     <string name="content_description_calling_flip_camera_on">Utiliser la caméra avant</string>
     <string name="content_description_calling_flip_camera_off">Utiliser sur la caméra arrière</string>
     <string name="content_description_calling_participant_muted">Participant en sourdine</string>

@@ -138,7 +138,6 @@
     <string name="content_description_self_deleting_message_timer">Imposta il timer per l\'eliminazione automatica dei messaggi</string>
     <string name="content_description_calling_hang_up_call">Chiudi la chiamata</string>
     <string name="content_description_calling_accept_call">Accetta la chiamata</string>
-    <string name="content_description_calling_decline_call">Rifiuta la chiamata</string>
     <string name="content_description_calling_flip_camera_on">Passa alla fotocamera anteriore</string>
     <string name="content_description_calling_flip_camera_off">Passa alla fotocamera posteriore</string>
     <string name="content_description_calling_participant_muted">Partecipante mutato</string>
@@ -765,9 +764,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="notification_action_reply">Rispondi</string>
     <string name="notification_receiver_name">Tu</string>
     <string name="label_type_a_message">Scrivi un messaggio</string>
-    <string name="notification_action_open_call">Apri la chiamata</string>
-    <string name="notification_action_decline_call">Rifiuta</string>
-    <string name="notification_action_hang_up_call">Riaggancia</string>
     <string name="notification_incoming_call_content">Chiamata in arrivo...</string>
     <string name="notification_ongoing_call_content">Chiamata in corso...</string>
     <string name="notification_group_call_content">%s sta chiamando...</string>
@@ -784,7 +780,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="calling_button_label_join_call">Unisciti</string>
     <string name="calling_hang_up_call">Riaggancia la chiamata</string>
     <string name="calling_accept_call">Accetta la chiamata</string>
-    <string name="calling_decline_call">Rifiuta la chiamata</string>
     <string name="calling_label_ringing_call">In chiamata...</string>
     <string name="calling_label_incoming_call">Chiamata in arrivo...</string>
     <string name="calling_label_default_caller_name">Chiamata in entrata</string>

@@ -141,7 +141,6 @@
     <string name="content_description_self_deleting_message_timer">Időzítő beállítása az önmegsemmisítő üzenetekhez</string>
     <string name="content_description_calling_hang_up_call">Hívás befejezése</string>
     <string name="content_description_calling_accept_call">Hívás fogadása</string>
-    <string name="content_description_calling_decline_call">Hívás elutasítása</string>
     <string name="content_description_calling_flip_camera_on">Szelfikamerára váltás</string>
     <string name="content_description_calling_flip_camera_off">Hátlapi kamerára váltás</string>
     <string name="content_description_calling_participant_muted">A résztvevő némítva</string>
@@ -821,9 +820,6 @@
     <string name="notification_action_reply">Válasz</string>
     <string name="notification_receiver_name">Ön</string>
     <string name="label_type_a_message">Írjon üzenetet</string>
-    <string name="notification_action_open_call">Nyitott hívás</string>
-    <string name="notification_action_decline_call">Elutasítás</string>
-    <string name="notification_action_hang_up_call">Hívás befejezése</string>
     <string name="notification_incoming_call_content">Hívás…</string>
     <string name="notification_ongoing_call_content">Folyamatban lévő hívás…</string>
     <string name="notification_group_call_content">%s hívja...</string>
@@ -841,7 +837,6 @@
     <string name="calling_button_label_join_call">Csatlakozás</string>
     <string name="calling_hang_up_call">Hívás befejezése</string>
     <string name="calling_accept_call">Hívás fogadása</string>
-    <string name="calling_decline_call">Hívás elutasítása</string>
     <string name="calling_label_ringing_call">Kicseng…</string>
     <string name="calling_label_incoming_call">Hívás…</string>
     <string name="calling_label_incoming_call_someone_calling">hívja…</string>

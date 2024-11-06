@@ -129,7 +129,6 @@
     <string name="content_description_ping_everyone">Pingar todos</string>
     <string name="content_description_calling_hang_up_call">Desligar a chamada</string>
     <string name="content_description_calling_accept_call">Aceitar a chamada</string>
-    <string name="content_description_calling_decline_call">Recusar a chamada</string>
     <string name="content_description_calling_flip_camera_on">Mudar para a câmera frontal</string>
     <string name="content_description_calling_flip_camera_off">Mudar para a câmera traseira</string>
     <string name="content_description_calling_participant_muted">Participante mudo</string>
@@ -701,9 +700,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="notification_action_reply">Responder</string>
     <string name="notification_receiver_name">Você</string>
     <string name="label_type_a_message">Digite uma mensagem</string>
-    <string name="notification_action_open_call">Abrir Chamada</string>
-    <string name="notification_action_decline_call">Recusar</string>
-    <string name="notification_action_hang_up_call">Desligar</string>
     <string name="notification_incoming_call_content">Chamando…</string>
     <string name="notification_ongoing_call_content">Chamada em andamento…</string>
     <string name="notification_group_call_content">%s está chamando…</string>
@@ -720,7 +716,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="calling_button_label_join_call">Participar</string>
     <string name="calling_hang_up_call">Desligar chamada</string>
     <string name="calling_accept_call">Aceitar chamada</string>
-    <string name="calling_decline_call">Recusar chamada</string>
     <string name="calling_label_ringing_call">Chamando…</string>
     <string name="calling_label_incoming_call">Chamada recebida</string>
     <string name="calling_label_default_caller_name">Chamada Recebida</string>

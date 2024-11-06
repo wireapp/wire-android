@@ -108,7 +108,6 @@
     <string name="content_description_ping_everyone">Zaczep</string>
     <string name="content_description_calling_hang_up_call">Zako&#324;cz rozmow&#281;</string>
     <string name="content_description_calling_accept_call">Odbierz po&#322;&#261;czenie</string>
-    <string name="content_description_calling_decline_call">Odrzu&#263; po&#322;&#261;czenie</string>
     <string name="content_description_calling_flip_camera_on">Prze&#322;&#261;cz na przedni&#261; kamer&#281;</string>
     <string name="content_description_calling_flip_camera_off">Prze&#322;&#261;cz na tyln&#261; kamer&#281;</string>
     <string name="content_description_calling_participant_muted">Uczestnik wyciszony</string>
@@ -637,9 +636,6 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="notification_action_reply">Odpowiedz</string>
     <string name="notification_receiver_name">Ty</string>
     <string name="label_type_a_message">Napisz wiadomo&#347;&#263;</string>
-    <string name="notification_action_open_call">Otw&#243;rz po&#322;&#261;czenie</string>
-    <string name="notification_action_decline_call">Odrzu&#263;</string>
-    <string name="notification_action_hang_up_call">Zako&#324;cz</string>
     <string name="notification_incoming_call_content">Dzwoni...</string>
     <string name="notification_ongoing_call_content">Trwa po&#322;&#261;czenie...</string>
     <string name="notification_group_call_content">%s dzwoni...</string>
@@ -655,7 +651,6 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="calling_button_label_join_call">Do&#322;&#261;cz</string>
     <string name="calling_hang_up_call">Zako&#324;cz po&#322;&#261;czenie</string>
     <string name="calling_accept_call">Odbierz po&#322;&#261;czenie</string>
-    <string name="calling_decline_call">Odrzu&#263; po&#322;&#261;czenie</string>
     <string name="calling_label_ringing_call">Dzwoni...</string>
     <string name="calling_label_incoming_call">Przychodz&#261;ce po&#322;&#261;czenie...</string>
     <string name="calling_label_default_caller_name">Przychodz&#261;ce po&#322;&#261;czenie</string>

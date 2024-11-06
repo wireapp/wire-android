@@ -126,7 +126,6 @@
     <string name="content_description_file_message">Mensaje de archivo</string>
     <string name="content_description_calling_hang_up_call">Colgar llamada</string>
     <string name="content_description_calling_accept_call">Aceptar llamada</string>
-    <string name="content_description_calling_decline_call">Rechazar llamada</string>
     <string name="content_description_calling_flip_camera_on">Cambiar a c&#225;mara frontal</string>
     <string name="content_description_calling_flip_camera_off">Cambiar a c&#225;mara trasera</string>
     <string name="content_description_calling_participant_muted">Participante silenciado</string>
@@ -661,9 +660,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="notification_action_reply">Responder</string>
     <string name="notification_receiver_name">T&#250;</string>
     <string name="label_type_a_message">Escribe un mensaje</string>
-    <string name="notification_action_open_call">Abrir llamada</string>
-    <string name="notification_action_decline_call">Rechazar</string>
-    <string name="notification_action_hang_up_call">Colgar</string>
     <string name="notification_incoming_call_content">Llamando...</string>
     <string name="notification_ongoing_call_content">Llamada en curso...</string>
     <string name="notification_group_call_content">%s llama...</string>
@@ -680,7 +676,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="calling_button_label_join_call">Unirse</string>
     <string name="calling_hang_up_call">Colgar llamada</string>
     <string name="calling_accept_call">Aceptar llamada</string>
-    <string name="calling_decline_call">Rechazar llamada</string>
     <string name="calling_label_ringing_call">Sonando...</string>
     <string name="calling_label_incoming_call">Llamando...</string>
     <string name="calling_label_default_caller_name">Llamada entrante</string>

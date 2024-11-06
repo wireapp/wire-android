@@ -23,11 +23,16 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
@@ -52,6 +57,7 @@ import javax.inject.Inject
  * @see IncomingCallScreen
  * @see OutgoingCallScreen
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 class StartingCallActivity : CallActivity() {
     @Inject
@@ -90,6 +96,7 @@ class StartingCallActivity : CallActivity() {
                                     TransitionAnimationType.POP_UP.exitTransition
                                 )
                             },
+                            modifier = Modifier.semantics { testTagsAsResourceId = true },
                             label = currentScreenType.name
                         ) { screenType ->
                             conversationId?.let {

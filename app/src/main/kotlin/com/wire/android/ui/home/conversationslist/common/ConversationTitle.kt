@@ -36,10 +36,10 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun ConversationTitle(
     name: String,
-    isLegalHold: Boolean = false,
+    searchQuery: String,
     modifier: Modifier = Modifier,
-    badges: @Composable () -> Unit = {},
-    searchQuery: String
+    isLegalHold: Boolean = false,
+    badges: @Composable () -> Unit = {}
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -67,5 +67,5 @@ fun ConversationTitle(
 @Preview(widthDp = 200)
 @Composable
 fun PreviewConversationTitle() {
-    ConversationTitle("very very loooooooooooong name", true, searchQuery = "test")
+    ConversationTitle("very very loooooooooooong name", searchQuery = "test", isLegalHold = true)
 }

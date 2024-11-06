@@ -60,9 +60,10 @@ fun HomeDrawer(
     currentRoute: String?,
     navigateToHomeItem: (HomeDestination) -> Unit,
     onCloseDrawer: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(
                 start = MaterialTheme.wireDimensions.homeDrawerHorizontalPadding,
                 end = MaterialTheme.wireDimensions.homeDrawerHorizontalPadding,
@@ -112,12 +113,18 @@ fun HomeDrawer(
 }
 
 @Composable
-fun DrawerItem(destination: HomeDestination, selected: Boolean, unreadCount: Int = 0, onItemClick: () -> Unit) {
+fun DrawerItem(
+    destination: HomeDestination,
+    selected: Boolean,
+    onItemClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    unreadCount: Int = 0,
+) {
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .padding(bottom = 8.dp)
             .clip(RoundedCornerShape(12.dp))
             .fillMaxWidth()
@@ -153,8 +160,8 @@ fun PreviewSelectedArchivedItemWithUnreadCount() {
         DrawerItem(
             destination = HomeDestination.Archive,
             selected = true,
-            unreadCount = 100,
-            {}
+            onItemClick = {},
+            unreadCount = 100
         )
     }
 }
@@ -166,8 +173,8 @@ fun PreviewUnSelectedArchivedItemWithUnreadCount() {
         DrawerItem(
             destination = HomeDestination.Archive,
             selected = false,
-            unreadCount = 100,
-            {}
+            onItemClick = {},
+            unreadCount = 100
         )
     }
 }

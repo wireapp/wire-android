@@ -147,9 +147,11 @@ fun E2EISnoozeDialog(
 @Composable
 fun E2EISuccessDialog(
     openCertificateDetails: () -> Unit,
-    dismissDialog: () -> Unit
+    dismissDialog: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     WireDialog(
+        modifier = modifier,
         title = stringResource(id = R.string.end_to_end_identity_renew_success_dialog_title),
         onDismiss = dismissDialog,
         optionButton1Properties = WireDialogButtonProperties(
@@ -489,7 +491,7 @@ fun PreviewE2EIRenewErrorDialogWithGracePeriod() {
 @Composable
 fun PreviewE2EISuccessDialog() {
     WireTheme {
-        E2EISuccessDialog({ }) {}
+        E2EISuccessDialog({}, {})
     }
 }
 

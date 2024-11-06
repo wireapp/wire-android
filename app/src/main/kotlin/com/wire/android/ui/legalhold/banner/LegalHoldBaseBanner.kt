@@ -34,11 +34,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 
 @Composable
-fun LegalHoldBaseBanner(
-    onClick: () -> Unit = {},
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
+fun LegalHoldBaseBanner(modifier: Modifier = Modifier, onClick: () -> Unit = {}, content: @Composable () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),

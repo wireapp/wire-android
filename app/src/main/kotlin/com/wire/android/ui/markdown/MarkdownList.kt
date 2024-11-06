@@ -29,7 +29,7 @@ import com.wire.android.ui.markdown.MarkdownConstants.BULLET_MARK
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData: NodeData) {
+fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData: NodeData, modifier: Modifier = Modifier) {
     val bottom = if (bulletList.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
 
     val text = buildAnnotatedString {
@@ -38,7 +38,7 @@ fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData
         pop()
     }
 
-    Column(modifier = Modifier.padding(bottom = bottom)) {
+    Column(modifier = modifier.padding(bottom = bottom)) {
         bulletList.children.forEach { listItem ->
             Row {
                 MarkdownText(
@@ -54,10 +54,10 @@ fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData
 }
 
 @Composable
-fun MarkdownOrderedList(orderedList: MarkdownNode.Block.ListBlock.Ordered, nodeData: NodeData) {
+fun MarkdownOrderedList(orderedList: MarkdownNode.Block.ListBlock.Ordered, nodeData: NodeData, modifier: Modifier = Modifier) {
     val bottom = if (orderedList.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
 
-    Column(modifier = Modifier.padding(bottom = bottom)) {
+    Column(modifier = modifier.padding(bottom = bottom)) {
         orderedList.children.forEach { listItem ->
             val text = buildAnnotatedString {
                 pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())

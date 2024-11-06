@@ -35,7 +35,8 @@ import com.wire.android.ui.theme.wireDimensions
 fun CreateGuestLinkButton(
     enabled: Boolean,
     isLoading: Boolean,
-    onCreateLink: () -> Unit
+    onCreateLink: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     WireSecondaryButton(
         text = stringResource(id = R.string.guest_link_button_create_link),
@@ -44,7 +45,7 @@ fun CreateGuestLinkButton(
         loading = isLoading,
         state = if (!enabled) WireButtonState.Disabled
         else WireButtonState.Default,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(MaterialTheme.wireDimensions.spacing16x)
 
@@ -53,26 +54,31 @@ fun CreateGuestLinkButton(
 
 @Composable
 fun CopyLinkButton(
-    onCopy: () -> Unit
+    onCopy: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     WireSecondaryButton(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(
                 start = MaterialTheme.wireDimensions.spacing16x,
                 end = MaterialTheme.wireDimensions.spacing16x,
                 top = MaterialTheme.wireDimensions.spacing16x,
                 bottom = MaterialTheme.wireDimensions.spacing4x
-            ), text = stringResource(id = R.string.guest_link_button_copy_link), fillMaxWidth = true, onClick = onCopy
+            ),
+        text = stringResource(id = R.string.guest_link_button_copy_link),
+        fillMaxWidth = true,
+        onClick = onCopy
     )
 }
 
 @Composable
 fun ShareLinkButton(
-    onShare: () -> Unit
+    onShare: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     WireSecondaryButton(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(
                 start = MaterialTheme.wireDimensions.spacing16x,
@@ -80,17 +86,16 @@ fun ShareLinkButton(
                 top = MaterialTheme.wireDimensions.spacing4x,
                 bottom = MaterialTheme.wireDimensions.spacing4x
             ),
-        text = stringResource(id = R.string.guest_link_button_share_link), fillMaxWidth = true, onClick = onShare
+        text = stringResource(id = R.string.guest_link_button_share_link),
+        fillMaxWidth = true,
+        onClick = onShare
     )
 }
 
 @Composable
-fun RevokeLinkButton(
-    isLoading: Boolean = false,
-    onRevoke: () -> Unit
-) {
+fun RevokeLinkButton(onRevoke: () -> Unit, modifier: Modifier = Modifier, isLoading: Boolean = false) {
     WireSecondaryButton(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(
                 start = MaterialTheme.wireDimensions.spacing16x,
@@ -110,23 +115,23 @@ fun RevokeLinkButton(
 @Preview
 @Composable
 fun PreviewRevokeLinkButton() {
-    RevokeLinkButton(false) {}
+    RevokeLinkButton({}, isLoading = false)
 }
 
 @Preview
 @Composable
 fun PreviewCopyLinkButton() {
-    CopyLinkButton {}
+    CopyLinkButton({})
 }
 
 @Preview
 @Composable
 fun PreviewShareLinkButton() {
-    ShareLinkButton {}
+    ShareLinkButton({})
 }
 
 @Preview
 @Composable
 fun PreviewCreateLinkButton() {
-    CreateGuestLinkButton(true, false) {}
+    CreateGuestLinkButton(enabled = true, isLoading = false, onCreateLink = {})
 }

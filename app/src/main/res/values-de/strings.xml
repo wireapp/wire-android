@@ -100,7 +100,7 @@
     <string name="content_description_conversation_phone_icon">Audioanruf starten</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
-    <string name="content_description_new_conversation">Beginnen Sie eine neue Unterhaltung</string>
+    <string name="content_description_new_conversation">Nach Personen suchen oder eine neue Gruppe erstellen</string>
     <string name="content_description_send_button">Senden</string>
     <string name="content_description_timed_message_button">Selbstlöschende Nachrichten, Taste</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
@@ -137,6 +137,53 @@
     <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
     <string name="content_description_jump_to_last_message">Zum Ende der Unterhaltung scrollen</string>
+    <string name="content_description_conversation_details_more_btn">Unterhaltungsoptionen öffnen</string>
+    <string name="content_description_conversation_details_options_tab_header">Optionen</string>
+    <string name="content_description_conversation_details_participants_tab_header">Teilnehmer</string>
+    <string name="content_description_conversation_details_close_btn">Unterhaltungsdetails schließen</string>
+    <string name="content_description_conversation_details_guests_action">Gästezugang anpassen</string>
+    <string name="content_description_user_profile_more_btn">Unterhaltungsoptionen öffnen</string>
+    <string name="content_description_user_profile_close_btn">Zurück zu Unterhaltungsdetails</string>
+    <string name="content_description_user_profile_edit_role_btn">Rolle bearbeiten</string>
+    <string name="content_description_user_profile_copy_email_btn">E-Mail-Adresse kopieren</string>
+    <string name="content_description_user_profile_open_device_btn">Gerätedetails öffnen</string>
+    <string name="content_description_connection_request_close_btn">Ansicht Kontaktanfrage schließen</string>
+    <string name="content_description_search_text_in_conversation_btn">Textnachrichten suchen</string>
+    <string name="content_description_see_media_in_conversation_btn">Übersicht von Bildern und Dateien öffnen</string>
+    <string name="content_description_add_participants_close">Ansicht Teilnehmer hinzufügen schließen</string>
+    <string name="content_description_add_participants_search_field">Personen nach Namen oder Benutzernamen suchen</string>
+    <string name="content_description_add_participants_back_btn">Zurück zum Hinzufügen von Teilnehmern</string>
+    <string name="content_description_home_profile_btn">Ihr Profil</string>
+    <string name="content_description_open_label">Öffnen</string>
+    <string name="content_description_join_call_label">Anruf annehmen</string>
+    <string name="content_description_share_label">Teilen</string>
+    <string name="content_description_edit_label">bearbeiten</string>
+    <string name="content_description_select_label">auswählen</string>
+    <string name="content_description_selected_label">ausgewählt</string>
+    <string name="content_description_toggle_setting_label">umschalten</string>
+    <string name="content_description_edit_guests_option_back_btn">Zurück zu Unterhaltungsdetails</string>
+    <string name="content_description_edit_self_delete_back_btn">Zurück zu Unterhaltungsdetails</string>
+    <string name="content_description_open_user_profile_label">Profil öffnen</string>
+    <string name="content_description_open_conversation_label">Unterhaltung öffnen</string>
+    <string name="content_description_open_link_label">Link öffnen</string>
+    <string name="content_description_open_notification_settings_label">Benachrichtigungseinstellungen öffnen</string>
+    <string name="content_description_new_conversation_options_heading">Unterhaltungsoptionen</string>
+    <string name="content_description_pending_connection_badge">Ausstehende Genehmigung der Kontaktanfrage</string>
+    <string name="content_description_self_profile_close">Ihr Profil schließen</string>
+    <string name="content_description_self_profile_heading">Ihr Profil</string>
+    <string name="content_description_self_profile_avatar">Ihr Profilbild</string>
+    <string name="content_description_self_profile_profile_name">Profilname, %s</string>
+    <string name="content_description_self_profile_username">Benutzername, %s</string>
+    <string name="content_description_self_profile_team">Teamname, %s</string>
+    <string name="content_description_self_profile_change_status">Verfügbarkeitsstatus  ändern</string>
+    <string name="content_description_self_profile_new_account_btn">Erstellen Sie ein neues Team oder ein privates Konto oder melden Sie sich an</string>
+    <string name="content_description_change_picture_back_btn">Zurück zu Ihrer Profilübersicht</string>
+    <string name="content_description_welcome_screen_close_btn">Ansicht zur Team-Erstellung und Anmeldung schließen</string>
+    <string name="content_description_login_back_btn">Zurück zur Ansicht zur Team-Erstellung und Anmeldung</string>
+    <string name="content_description_login_email_field">Geben Sie Ihre E-Mail-Adresse oder Ihren Benutzernamen ein</string>
+    <string name="content_description_login_password_field">Geben Sie Ihr Passwort ein</string>
+    <string name="content_description_login_sso_code_field">Geben Sie Ihren SSO-Code oder Wire E-Mail-Adresse ein</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -481,7 +528,10 @@
     <string name="user_profile_qr_code_title">Profil teilen</string>
     <string name="user_profile_qr_code_share_link">Profil-Link teilen</string>
     <string name="user_profile_qr_code_share_image_link">QR-Code teilen</string>
+    <string name="user_profile_create_team_card">Nutzen Sie die Vorteile eines Teams</string>
     <string name="user_profile_qr_code_description">Teilen Sie Ihr Profil, um einfach mit anderen Personen in Kontakt zu treten. Sie müssen noch die Kontaktanfrage akzeptieren, bevor sie miteinander kommunizieren können.</string>
+    <string name="user_profile_create_team_card_button">Team erstellen</string>
+    <string name="user_profile_create_team_description_card">Entdecken Sie zusätzliche Funktionen kostenlos mit dem gleichen Maß an Sicherheit.</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Aus Gruppe entfernen?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) wird in dieser Unterhaltung keine Nachrichten senden oder empfangen können.</string>
@@ -512,6 +562,7 @@
     <string name="label_unblock">Freigeben</string>
     <string name="label_leave_group">Gruppe verlassen</string>
     <string name="label_delete_group">Gruppe löschen</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Alles</string>
     <string name="muting_option_all_allowed_text">Sie erhalten alle Benachrichtigungen für diese Unterhaltung, einschließlich Audio- und Videoanrufe</string>
@@ -1051,6 +1102,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="backup_dialog_choose_backup_file_option">Backup-Datei auswählen</string>
     <string name="backup_label_enter_password">Passwort eingeben</string>
     <string name="backup_dialog_restore_backup_password_message">Dieses Backup ist passwortgeschützt.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"E-Mail-Anbieter auswählen:\"</string>
     <string name="backup_dialog_create_backup_save">Datei speichern</string>
     <string name="backup_dialog_create_backup_share">Datei teilen</string>
@@ -1378,4 +1430,42 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="call_feedback_dialog_label_excellent">Sehr Gut</string>
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Einstellungen zur Fehlerbehebung</string>
+    <!--    Personal to team migration screen-->
+    <string name="personal_to_team_migration_step_label">Schritt %1$d von 4</string>
+    <string name="personal_to_team_migration_back_to_wire_button">Zurück zu Wire</string>
+    <string name="personal_to_team_migration_back_button_label">Zurück</string>
+    <string name="personal_to_team_migration_team_plan_step">Team-Konto</string>
+    <string name="personal_to_team_migration_team_plan_description">Übertragen Sie Ihr privates Benutzerkonto in ein Team-Konto, um besser zusammenzuarbeiten.</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_label">Admin-Konsole:</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_details">Laden Sie Team-Mitglieder ein und verwalten Sie Einstellungen.</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_label">Mühelose Zusammenarbeit:</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_details">Kommunizieren Sie mit Gästen und externen Partnern.</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_label">Größere Meetings:</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_details">Nehmen Sie an Videokonferenzen mit bis zu 150 Teilnehmern teil.</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_label">Verfügbarkeitsstatus:</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_details">Lassen Sie Ihr Team wissen, ob Sie verfügbar, beschäftigt oder abwesend sind.</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_label">Auf Enterprise upgraden:</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_description">Erhalten Sie zusätzliche Funktionen und Premium-Support.</string>
+    <string name="personal_to_team_migration_team_plan_learn_more_about_wire_plan">Erfahren Sie mehr über Wires Preise</string>
+    <string name="personal_to_team_migration_team_name_step">Team-Name</string>
+    <string name="personal_to_team_migration_team_name_description">Wählen Sie einen Namen für Ihr Team. Sie können ihn jederzeit ändern.</string>
+    <string name="personal_to_team_migration_team_name_text_field_placeholder">Ihr Team</string>
+    <string name="personal_to_team_migration_confirmation_step">Bestätigung</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_first_item">Sie erstellen ein Team und übertragen Ihr privates Benutzerkonto in ein Team-Konto</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_second_item">Als Team-Besitzer können Sie Team-Mitglieder einladen und entfernen sowie die Einstellungen verwalten</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_third_item">Diese Änderung ist dauerhaft und unwiderruflich</string>
+    <string name="personal_to_team_migration_confirmation_step_terms">Ich bin mit den Übertragungsbedingungen einverstanden und verstehe, dass diese Änderung unumkehrbar ist.</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">Ich akzeptiere</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_label">Wires Nutzungsbedingungen.</string>
+    <string name="personal_to_team_migration_confirmation_step_password_field_label">Passwort Ihres privaten Benutzerkontos</string>
+    <string name="personal_to_team_migration_confirmation_step_password_field_placeholder">Passwort eingeben</string>
+    <string name="personal_to_team_migration_done_step">Herzlichen Glückwunsch %1$s!</string>
+    <string name="personal_to_team_migration_done_step_now_team_member_label">Sie sind jetzt der Besitzer des Teams %1$s.</string>
+    <string name="personal_to_team_migration_done_step_go_to_team_label">Öffnen Sie Team-Management, um:</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_first_item">Ihre ersten Team-Mitglieder einzuladen und mit der Zusammenarbeit zu beginnen</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_second_item">Ihre Team-Einstellungen anzupassen</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_title">Schließen ohne zu speichern?</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_description">Wenn Sie jetzt aufhören, verlieren Sie Ihren Fortschritt und müssen die Team-Erstellung neu beginnen.</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Team-Erstellung fortsetzen</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Schließen ohne zu speichern</string>
 </resources>

@@ -234,7 +234,11 @@ class WireActivity : AppCompatActivity() {
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         WireTopAppBar(
                             themeOption = viewModel.globalAppState.themeOption,
+<<<<<<< HEAD
                             commonTopAppBarState = commonTopAppBarViewModel.state,
+=======
+                            commonTopAppBarState = commonTopAppBarViewModel.state
+>>>>>>> 71d18d1ad (feat: Try testTagsAsResourceId to improve UI tests: RC [WPB-9284] (#3594))
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
                             MainNavHost(

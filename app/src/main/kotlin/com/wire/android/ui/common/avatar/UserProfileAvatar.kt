@@ -265,17 +265,12 @@ private fun UserAvatar(
     modifier: Modifier = Modifier,
     contentDescription: String? = stringResource(R.string.content_description_user_avatar)
 ) {
-    val testTagModifier = if (contentDescription.isNullOrEmpty()) {
-        Modifier.testTag(stringResource(R.string.content_description_user_avatar))
-    } else {
-        Modifier
-    }
     if (avatarData.shouldPreferNameBasedAvatar()) {
         DefaultInitialsAvatar(
             nameBasedAvatar = avatarData.nameBasedAvatar!!,
             type = type,
             size = size,
-            modifier = modifier.then(testTagModifier),
+            modifier = modifier,
             contentDescription = contentDescription
         )
     } else {
@@ -284,7 +279,7 @@ private fun UserAvatar(
             painter = painter,
             contentDescription = contentDescription,
             contentScale = ContentScale.Crop,
-            modifier = modifier.then(testTagModifier),
+            modifier = modifier,
         )
     }
 }
@@ -298,16 +293,10 @@ private fun DefaultInitialsAvatar(
     modifier: Modifier = Modifier,
     contentDescription: String? = stringResource(R.string.content_description_user_avatar),
 ) {
-    val testTagModifier = if (contentDescription.isNullOrEmpty()) {
-        Modifier.testTag(stringResource(R.string.content_description_user_avatar))
-    } else {
-        Modifier
-    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .semantics { this.contentDescription = contentDescription ?: "" }
-            .then(testTagModifier)
             .size(size)
             .clip(CircleShape)
             .background(

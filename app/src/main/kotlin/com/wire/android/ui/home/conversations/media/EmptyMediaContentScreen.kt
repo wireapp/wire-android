@@ -39,9 +39,10 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun EmptyMediaContentScreen(
-    text: String
+    text: String,
+    modifier: Modifier = Modifier
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -61,7 +62,7 @@ fun EmptyMediaContentScreen(
 
 @PreviewMultipleThemes
 @Composable
-fun previewAssetEmptyMediaContentScreen() {
+fun PreviewAssetEmptyMediaContentScreen() {
     WireTheme {
         EmptyMediaContentScreen(
             text = stringResource(R.string.label_conversation_files_empty)
@@ -71,7 +72,7 @@ fun previewAssetEmptyMediaContentScreen() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewPictureEmptyMediaContentScreen() {
+fun PreviewPictureEmptyMediaContentScreen() {
     WireTheme {
         EmptyMediaContentScreen(
             text = stringResource(R.string.label_conversation_pictures_empty)

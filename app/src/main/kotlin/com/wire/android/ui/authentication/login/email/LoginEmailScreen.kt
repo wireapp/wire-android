@@ -239,6 +239,7 @@ private fun UserIdentifierInput(
             error != null -> WireTextFieldState.Error(error)
             else -> WireTextFieldState.Default
         },
+        semanticDescription = stringResource(R.string.content_description_login_email_field),
         keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = modifier.testTag("emailField"),
         testTag = "userIdentifierInput"
@@ -252,6 +253,7 @@ private fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Mo
         textState = passwordState,
         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboardController?.hide() },
+        semanticDescription = stringResource(R.string.content_description_login_password_field),
         modifier = modifier.testTag("passwordField"),
         autoFill = true,
         testTag = "PasswordInput"
@@ -273,7 +275,8 @@ private fun ForgotPasswordLabel(forgotPasswordUrl: String, modifier: Modifier = 
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = { openForgotPasswordPage(context, forgotPasswordUrl) }
+                    onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
+                    onClickLabel = stringResource(R.string.content_description_open_link_label)
                 )
                 .testTag("Forgot password?")
         )

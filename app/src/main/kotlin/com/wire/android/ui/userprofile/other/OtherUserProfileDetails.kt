@@ -42,13 +42,14 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun OtherUserProfileDetails(
     state: OtherUserProfileState,
+    modifier: Modifier = Modifier,
     otherUserProfileScreenState: OtherUserProfileScreenState = rememberOtherUserProfileScreenState(),
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         item(key = "user_details_domain") {
             UserDetailInformation(

@@ -31,10 +31,11 @@ fun MarkdownParagraph(
     paragraph: MarkdownNode.Block.Paragraph,
     nodeData: NodeData,
     clickable: Boolean,
-    onMentionsUpdate: (List<DisplayMention>) -> Unit
+    onMentionsUpdate: (List<DisplayMention>) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val padding = if (paragraph.isParentDocument) dimensions().spacing4x else dimensions().spacing0x
-    Box(modifier = Modifier.padding(bottom = padding)) {
+    Box(modifier = modifier.padding(bottom = padding)) {
         val annotatedString = buildAnnotatedString {
             pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
             val updatedMentions = inlineNodeChildren(paragraph.children, this, nodeData)

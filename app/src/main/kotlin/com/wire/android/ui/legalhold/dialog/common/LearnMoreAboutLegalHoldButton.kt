@@ -46,7 +46,8 @@ fun LearnMoreAboutLegalHoldButton(modifier: Modifier = Modifier) {
         modifier = modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null,
-            onClick = remember { { CustomTabsHelper.launchUrl(context, learnMoreUrl) } }
+            onClick = remember { { CustomTabsHelper.launchUrl(context, learnMoreUrl) } },
+            onClickLabel = stringResource(R.string.content_description_open_link_label)
         )
     )
 }

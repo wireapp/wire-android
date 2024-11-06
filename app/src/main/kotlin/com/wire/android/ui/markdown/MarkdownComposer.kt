@@ -20,6 +20,7 @@ package com.wire.android.ui.markdown
 import android.text.util.Linkify
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -50,9 +51,9 @@ fun MarkdownDocument(
     }
     if (filteredDocument != null) {
         MarkdownNodeBlockChildren(
-            (filteredDocument as MarkdownNode.Document).children,
-            nodeData,
-            clickable
+            children = (filteredDocument as MarkdownNode.Document).children,
+            nodeData = nodeData,
+            clickable = clickable
         )
     }
 }
@@ -61,12 +62,13 @@ fun MarkdownDocument(
 fun MarkdownNodeBlockChildren(
     children: List<MarkdownNode.Block>,
     nodeData: NodeData,
+    modifier: Modifier = Modifier,
     clickable: Boolean = true
 ) {
     var updateMentions = nodeData.mentions
     val updatedNodeData = nodeData.copy(mentions = updateMentions)
 
-    Column {
+    Column(modifier = modifier) {
         children.map { node ->
             when (node) {
                 is MarkdownNode.Block.BlockQuote -> MarkdownBlockQuote(node, updatedNodeData)
@@ -77,15 +79,21 @@ fun MarkdownNodeBlockChildren(
                 is MarkdownNode.Block.ListBlock.Bullet -> MarkdownBulletList(bulletList = node, nodeData = updatedNodeData)
 
                 is MarkdownNode.Block.Paragraph -> MarkdownParagraph(
-                    paragraph = node, nodeData = updatedNodeData,
-                    clickable
-                ) {
-                    updateMentions = it
-                }
+                    paragraph = node,
+                    nodeData = updatedNodeData,
+                    clickable = clickable,
+                    onMentionsUpdate = {
+                        updateMentions = it
+                    }
+                )
 
-                is MarkdownNode.Block.Table -> MarkdownTable(node, updatedNodeData) {
-                    updateMentions = it
-                }
+                is MarkdownNode.Block.Table -> MarkdownTable(
+                    tableBlock = node,
+                    nodeData = updatedNodeData,
+                    onMentionsUpdate = {
+                        updateMentions = it
+                    }
+                )
 
                 is MarkdownNode.Block.ThematicBreak -> MarkdownThematicBreak()
 

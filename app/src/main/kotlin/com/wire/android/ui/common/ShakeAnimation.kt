@@ -30,7 +30,12 @@ import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.launch
 
 @Composable
-fun ShakeAnimation(offset: Dp = dimensions().spacing12x, duration: Int = 160, animateContent: @Composable (() -> Unit) -> Unit) {
+fun ShakeAnimation(
+    modifier: Modifier = Modifier,
+    offset: Dp = dimensions().spacing12x,
+    duration: Int = 160,
+    animateContent: @Composable (() -> Unit) -> Unit
+) {
     val offsetX = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
     val animate: () -> Unit = {
@@ -47,5 +52,5 @@ fun ShakeAnimation(offset: Dp = dimensions().spacing12x, duration: Int = 160, an
             )
         }
     }
-    Box(modifier = Modifier.graphicsLayer { translationX = offsetX.value }) { animateContent(animate) }
+    Box(modifier = modifier.graphicsLayer { translationX = offsetX.value }) { animateContent(animate) }
 }

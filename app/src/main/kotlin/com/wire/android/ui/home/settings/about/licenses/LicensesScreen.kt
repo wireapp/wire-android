@@ -61,10 +61,11 @@ fun LicensesScreen(
 @Composable
 fun LicensesContent(
     internalPadding: PaddingValues,
-    libs: List<Library>
+    libs: List<Library>,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(internalPadding)
     ) {

@@ -20,14 +20,17 @@ package com.wire.android.ui.common
 
 import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.button.wireRadioButtonColors
 
 @Composable
 fun WireRadioButton(
     checked: Boolean,
-    onButtonChecked: (() -> Unit)
+    onButtonChecked: (() -> Unit),
+    modifier: Modifier = Modifier
 ) {
     RadioButton(
+        modifier = modifier,
         selected = checked,
         onClick = onButtonChecked,
         colors = wireRadioButtonColors()

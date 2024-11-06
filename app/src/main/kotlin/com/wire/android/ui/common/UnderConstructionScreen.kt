@@ -41,9 +41,9 @@ import androidx.compose.ui.unit.sp
 import com.wire.android.R
 
 @Composable
-fun UnderConstructionScreen(screenName: String) {
+fun UnderConstructionScreen(screenName: String, modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .wrapContentSize(Alignment.Center)
     ) {

@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -31,17 +32,19 @@ fun GuestLinkActionButtons(
     onCreateLink: () -> Unit,
     onRevokeLink: () -> Unit,
     onCopyLink: () -> Unit,
-    onShareLink: () -> Unit
+    onShareLink: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     if (link.isNullOrEmpty()) {
         CreateGuestLinkButton(
             enabled = !shouldDisableGenerateGuestLinkButton,
             isLoading = isGeneratingLink,
-            onCreateLink = onCreateLink
+            onCreateLink = onCreateLink,
+            modifier = modifier
         )
     } else {
-        Column {
+        Column(modifier = modifier) {
             CopyLinkButton(onCopyLink)
             ShareLinkButton(onShareLink)
             RevokeLinkButton(isLoading = isRevokingLink, onRevoke = onRevokeLink)

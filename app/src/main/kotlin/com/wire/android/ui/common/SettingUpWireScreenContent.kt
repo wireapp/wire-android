@@ -53,6 +53,7 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun SettingUpWireScreenContent(
+    modifier: Modifier = Modifier,
     @StringRes topBarTitleResId: Int = R.string.migration_title,
     @DrawableRes iconResId: Int = R.drawable.ic_migration,
     title: String? = null,
@@ -60,6 +61,7 @@ fun SettingUpWireScreenContent(
     type: SettingUpWireScreenType = SettingUpWireScreenType.Progress
 ) {
     WireScaffold(
+        modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,

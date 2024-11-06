@@ -155,9 +155,9 @@ internal fun MessageAsset(
 }
 
 @Composable
-fun UploadInProgressAssetMessage() {
+fun UploadInProgressAssetMessage(modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(MaterialTheme.wireDimensions.spacing72x),
         horizontalArrangement = Arrangement.Center,
@@ -178,8 +178,9 @@ fun UploadInProgressAssetMessage() {
 }
 
 @Composable
-fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
+fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String, modifier: Modifier = Modifier) {
     Card(
+        modifier = modifier,
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
         border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {
@@ -213,8 +214,9 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
 }
 
 @Composable
-fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
+fun RestrictedGenericFileMessage(fileName: String, fileSize: Long, modifier: Modifier = Modifier) {
     Card(
+        modifier = modifier,
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
         border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {

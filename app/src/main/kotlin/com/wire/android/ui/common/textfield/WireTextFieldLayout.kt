@@ -87,7 +87,13 @@ internal fun WireTextFieldLayout(
 ) {
     Column(modifier = modifier) {
         if (labelText != null) {
-            Label(labelText, labelMandatoryIcon, state, interactionSource, colors)
+            WireLabel(
+                labelText = labelText,
+                labelMandatoryIcon = labelMandatoryIcon,
+                state = state,
+                interactionSource = interactionSource,
+                colors = colors
+            )
         }
         innerBasicTextField.Build(
             decorator = { innerTextField ->

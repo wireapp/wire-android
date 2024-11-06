@@ -31,11 +31,11 @@ import com.wire.android.ui.common.dimensions
 
 @Composable
 fun MessageItemTemplate(
+    fullAvatarOuterPadding: Dp,
+    leading: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
-    fullAvatarOuterPadding: Dp,
-    modifier: Modifier = Modifier,
-    leading: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
     Row(

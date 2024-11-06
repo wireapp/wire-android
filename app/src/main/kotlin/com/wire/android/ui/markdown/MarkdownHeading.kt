@@ -27,7 +27,7 @@ import com.wire.android.ui.common.dimensions
 
 @Composable
 @Suppress("MagicNumber")
-fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData) {
+fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData, modifier: Modifier = Modifier) {
     val style: TextStyle = when (heading.level) {
         1 -> nodeData.typography.title01
         2 -> nodeData.typography.title01
@@ -40,7 +40,7 @@ fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData) {
 
     val padding = if (heading.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
 
-    Box(modifier = Modifier.padding(bottom = padding)) {
+    Box(modifier = modifier.padding(bottom = padding)) {
         val text = buildAnnotatedString {
             inlineNodeChildren(heading.children, this, nodeData)
         }

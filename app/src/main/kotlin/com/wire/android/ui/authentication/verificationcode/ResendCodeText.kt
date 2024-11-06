@@ -34,7 +34,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolean) {
+fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolean, modifier: Modifier = Modifier) {
     Text(
         text = stringResource(R.string.create_account_code_resend),
         style = MaterialTheme.wireTypography.body02.copy(
@@ -42,7 +42,7 @@ fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolean) {
             color = MaterialTheme.colorScheme.primary
         ),
         textAlign = TextAlign.Center,
-        modifier = Modifier
+        modifier = modifier
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,

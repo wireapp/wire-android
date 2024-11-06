@@ -26,18 +26,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.home.conversations.details.participants.folderWithElements
 import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData
 
 @Composable
 fun MessageDetailsReactions(
     reactionsData: MessageDetailsReactionsData,
+    onReactionsLearnMore: () -> Unit,
+    modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
-    onReactionsLearnMore: () -> Unit
 ) {
-    Column {
+    Column(modifier = modifier) {
         if (reactionsData.reactions.isEmpty()) {
             MessageDetailsEmptyScreenText(
                 onClick = onReactionsLearnMore,
@@ -65,7 +66,7 @@ fun MessageDetailsReactions(
     }
 }
 
-@Preview(showBackground = true)
+@MultipleThemePreviews
 @Composable
 fun PreviewMessageDetailsReactions() {
     MessageDetailsReactions(

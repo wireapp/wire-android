@@ -60,14 +60,16 @@ import com.wire.android.util.ui.UIText
 
 @Composable
 fun SettingsItem(
-    title: String? = null,
     text: String,
+    modifier: Modifier = Modifier,
+    title: String? = null,
     @DrawableRes trailingIcon: Int? = null,
     switchState: SwitchState = SwitchState.None,
     onRowPressed: Clickable = Clickable(false),
     onIconPressed: Clickable? = null
 ) {
     RowItemTemplate(
+        modifier = modifier,
         title = {
             if (!title.isNullOrBlank()) {
                 Text(
@@ -227,7 +229,7 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
 
 @PreviewMultipleThemes
 @Composable
-fun previewFileRestrictionDialog() {
+fun PreviewFileRestrictionDialog() {
     WireTheme {
         SettingsItem(
             title = "Some Setting",

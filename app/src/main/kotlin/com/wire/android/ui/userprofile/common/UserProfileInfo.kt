@@ -237,7 +237,11 @@ fun UserProfileInfo(
                     color = MaterialTheme.wireColorScheme.labelText,
                     modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = usernameDescription }
                 )
-                UserBadge(membership, connection, topPadding = dimensions().spacing8x)
+                UserBadge(
+                    membership = membership,
+                    connectionState = connection,
+                    topPadding = dimensions().spacing8x
+                )
             }
 
             Column(

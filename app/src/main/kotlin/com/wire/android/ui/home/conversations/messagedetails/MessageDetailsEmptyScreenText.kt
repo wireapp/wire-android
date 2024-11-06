@@ -45,9 +45,9 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun MessageDetailsEmptyScreenText(
     onClick: () -> Unit,
-    modifier: Modifier,
     text: String,
-    learnMoreText: String
+    learnMoreText: String,
+    modifier: Modifier = Modifier
 ) {
     Box(
         contentAlignment = Alignment.Center,

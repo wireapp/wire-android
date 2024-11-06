@@ -188,7 +188,9 @@ private fun MenuPopUp(
                 selectedIndex = selectedIndex,
                 text = selectionText,
                 arrowRotation = arrowRotation,
-                modifier = Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) { hidePopUp() },
+                modifier = Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) {
+                    hidePopUp()
+                },
             )
 
             List(items.size) { index ->

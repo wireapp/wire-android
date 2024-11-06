@@ -159,6 +159,7 @@ private fun SSOCodeInput(
     WireTextField(
         textState = ssoCodeState,
         labelText = stringResource(R.string.login_sso_code_label),
+        semanticDescription = stringResource(R.string.content_description_login_sso_code_field),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         modifier = modifier.testTag("ssoCodeField")

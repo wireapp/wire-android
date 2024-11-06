@@ -26,10 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.model.ItemActionType
@@ -63,7 +61,6 @@ fun InternalContactSearchResultItem(
     actionType: ItemActionType,
     modifier: Modifier = Modifier
 ) {
-    val selectedDescription = stringResource(id = R.string.content_description_selected_label)
     RowItemTemplate(
         leadingIcon = { UserProfileAvatar(avatarData) },
         titleStartPadding = dimensions().spacing0x,
@@ -112,7 +109,7 @@ fun InternalContactSearchResultItem(
         modifier = modifier
             .padding(start = dimensions().spacing8x)
             .semantics {
-                if (actionType.checkable && isSelected) stateDescription = selectedDescription
+                if (actionType.checkable && isSelected) selected = true
             }
     )
 }

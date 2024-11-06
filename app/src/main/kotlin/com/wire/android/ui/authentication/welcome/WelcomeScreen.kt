@@ -39,7 +39,6 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -59,6 +58,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
@@ -81,6 +81,7 @@ import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -135,7 +136,7 @@ private fun WelcomeContent(
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
                 title = "",
-                navigationIconType = NavigationIconType.Close(),
+                navigationIconType = NavigationIconType.Close(R.string.content_description_welcome_screen_close_btn),
                 onNavigationPressed = navigateBack
             )
         } else {
@@ -157,7 +158,7 @@ private fun WelcomeContent(
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
                 tint = MaterialTheme.colorScheme.onBackground,
-                contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo)
+                contentDescription = null
             )
 
             if (state.isOnPremises) {
@@ -297,7 +298,7 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
     ) {
         Image(
             painter = painterResource(id = pageIconResId),
-            contentDescription = "",
+            contentDescription = null,
             contentScale = ContentScale.Inside,
             modifier = Modifier
                 .weight(1f, true)
@@ -311,7 +312,9 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
             style = MaterialTheme.wireTypography.title01,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
+            modifier = Modifier
+                .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
+                .clearAndSetSemantics {}
         )
     }
 }
@@ -358,7 +361,8 @@ private fun WelcomeFooter(onPrivateAccountClick: () -> Unit, modifier: Modifier 
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = onPrivateAccountClick
+                    onClick = onPrivateAccountClick,
+                    onClickLabel = stringResource(R.string.content_description_open_link_label)
                 )
         )
 

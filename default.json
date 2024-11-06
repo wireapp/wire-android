@@ -56,7 +56,7 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": false,
-            "mls_support_enabled": false,
+            "mls_support_enabled": true,
             "encrypt_proteus_storage": true
         },
         "internal": {
@@ -125,3 +125,32 @@
     "limit_team_members_fetch_during_slow_sync": 2000,
     "should_display_release_notes": true
 }
+
+//{
+//    "accent_id": 0,
+//    "assets": [
+//        {
+//            "key": "3-1-99c718e2-4e48-41a5-99ec-cd5f84a78a25",
+//            "size": "preview",
+//            "type": "image"
+//        },
+//        {
+//            "key": "3-1-f090090b-6604-4edb-a04e-c5e49882e044",
+//            "size": "complete",
+//            "type": "image"
+//        }
+//    ],
+//    "handle": "wunsch578915",
+//    "id": "200e147f-c689-40fb-bbd9-3d317cb7d75d",
+//    "legalhold_status": "no_consent",
+//    "name": "Brain Wunsch",
+//    "picture": [],
+//    "qualified_id": {
+//        "domain": "bund-next-column-1.wire.link",
+//        "id": "200e147f-c689-40fb-bbd9-3d317cb7d75d"
+//    },
+//    "supported_protocols": [
+//        "proteus"
+//    ],
+//    "team": "8857bf1c-242c-4c8c-a200-92409056bf25"
+//}

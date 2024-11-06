@@ -37,7 +37,6 @@ import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.flatMapRight
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -120,9 +119,7 @@ class CallService : Service() {
                         }
                     }
                     .distinctUntilChanged()
-                    .flatMapRight { callData ->
-                        callNotificationManager.reloadIfNeeded(callData)
-                    }.debounce {
+                    .debounce {
                         if (it is Either.Left) ServicesManager.DEBOUNCE_TIME else 0L
                     }
                     .collectLatest {

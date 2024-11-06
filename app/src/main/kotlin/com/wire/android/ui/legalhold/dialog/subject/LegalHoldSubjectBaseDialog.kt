@@ -34,17 +34,19 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun LegalHoldSubjectBaseDialog(
     title: String,
-    customInfo: String? = null,
     withDefaultInfo: Boolean,
     cancelText: String,
     dialogDismissed: () -> Unit,
-    action: Pair<String, () -> Unit>? = null,
+    modifier: Modifier = Modifier,
+    customInfo: String? = null,
+    action: Pair<String, () -> Unit>? = null
 ) {
     val text = listOfNotNull(
         customInfo,
         if (withDefaultInfo) stringResource(id = R.string.legal_hold_subject_dialog_description) else null
     ).joinToString("\n\n")
     WireDialog(
+        modifier = modifier,
         title = title,
         text = text,
         onDismiss = dialogDismissed,
@@ -72,6 +74,13 @@ fun LegalHoldSubjectBaseDialog(
 @PreviewMultipleThemes
 fun PreviewLegalHoldSubjectBaseDialog() {
     WireTheme {
-        LegalHoldSubjectBaseDialog("username", null, true, "cancel", {}, Pair("send anyway", {}))
+        LegalHoldSubjectBaseDialog(
+            title = "username",
+            customInfo = null,
+            withDefaultInfo = true,
+            cancelText = "cancel",
+            dialogDismissed = {},
+            action = Pair("send anyway") {}
+        )
     }
 }

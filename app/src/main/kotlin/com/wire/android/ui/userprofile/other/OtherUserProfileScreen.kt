@@ -528,17 +528,17 @@ private fun Content(
                             when (val tabItem = tabItems[pageIndex]) {
                                 OtherUserProfileTabItem.DETAILS ->
                                     OtherUserProfileDetails(
-                                        state,
-                                        otherUserProfileScreenState,
-                                        lazyListStates[tabItem]!!
+                                        state = state,
+                                        otherUserProfileScreenState = otherUserProfileScreenState,
+                                        lazyListState = lazyListStates[tabItem]!!
                                     )
 
                                 OtherUserProfileTabItem.GROUP ->
                                     OtherUserProfileGroup(
-                                        state,
-                                        lazyListStates[tabItem]!!,
-                                        openRemoveConversationMemberDialog,
-                                        openChangeRoleBottomSheet
+                                        state = state,
+                                        onRemoveFromConversation = openRemoveConversationMemberDialog,
+                                        openChangeRoleBottomSheet = openChangeRoleBottomSheet,
+                                        lazyListState = lazyListStates[tabItem]!!,
                                     )
 
                                 OtherUserProfileTabItem.DEVICES -> {
@@ -556,10 +556,10 @@ private fun Content(
 
                 state.groupState != null -> {
                     OtherUserProfileGroup(
-                        state,
-                        lazyListStates[OtherUserProfileTabItem.DETAILS]!!,
-                        openRemoveConversationMemberDialog,
-                        openChangeRoleBottomSheet
+                        state = state,
+                        onRemoveFromConversation = openRemoveConversationMemberDialog,
+                        openChangeRoleBottomSheet = openChangeRoleBottomSheet,
+                        lazyListState = lazyListStates[OtherUserProfileTabItem.DETAILS]!!,
                     )
                 }
 

@@ -44,6 +44,7 @@ import com.wire.android.appLogger
 @Composable
 fun ClickableText(
     text: AnnotatedString,
+    onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
     textDecoration: TextDecoration? = null,
@@ -53,8 +54,7 @@ fun ClickableText(
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
-    onClick: (Int) -> Unit,
-    onLongClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 

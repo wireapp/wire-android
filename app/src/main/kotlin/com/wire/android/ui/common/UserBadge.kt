@@ -45,6 +45,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 @Composable
 fun UserBadge(
     membership: Membership,
+    modifier: Modifier = Modifier,
     connectionState: ConnectionState? = null,
     isDeleted: Boolean = false,
     startPadding: Dp = dimensions().spacing0x,
@@ -52,12 +53,12 @@ fun UserBadge(
 ) {
     if (connectionState == ConnectionState.BLOCKED) {
         Spacer(modifier = Modifier.width(startPadding))
-        BlockedLabel()
+        BlockedLabel(modifier = modifier)
     } else if (isDeleted) {
         Spacer(modifier = Modifier.width(startPadding))
-        DeletedLabel()
+        DeletedLabel(modifier = modifier)
     } else if (membership.hasLabel()) {
         Spacer(modifier = Modifier.width(startPadding))
-        MembershipQualifierLabel(membership, Modifier.padding(top = topPadding))
+        MembershipQualifierLabel(membership, modifier.padding(top = topPadding))
     }
 }

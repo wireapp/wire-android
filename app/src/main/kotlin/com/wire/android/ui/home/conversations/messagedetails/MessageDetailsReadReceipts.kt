@@ -34,10 +34,11 @@ import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetail
 @Composable
 fun MessageDetailsReadReceipts(
     readReceiptsData: MessageDetailsReadReceiptsData,
+    modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     onReadReceiptsLearnMore: () -> Unit
 ) {
-    Column {
+    Column(modifier = modifier) {
         if (readReceiptsData.readReceipts.isEmpty()) {
             MessageDetailsEmptyScreenText(
                 onClick = onReadReceiptsLearnMore,

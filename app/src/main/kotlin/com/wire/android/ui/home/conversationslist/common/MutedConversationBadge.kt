@@ -42,9 +42,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun MutedConversationBadge() {
+fun MutedConversationBadge(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .width(dimensions().spacing24x)
             .height(dimensions().spacing20x)
             .padding(PaddingValues(dimensions().spacing0x))

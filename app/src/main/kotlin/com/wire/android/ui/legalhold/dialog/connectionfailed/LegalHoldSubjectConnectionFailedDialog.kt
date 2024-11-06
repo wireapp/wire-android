@@ -32,8 +32,9 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun LegalHoldSubjectConnectionFailedDialog(dialogDismissed: () -> Unit) {
+fun LegalHoldSubjectConnectionFailedDialog(dialogDismissed: () -> Unit, modifier: Modifier = Modifier) {
     WireDialog(
+        modifier = modifier,
         title = stringResource(id = R.string.legal_hold_connection_failed_dialog_title),
         text = stringResource(id = R.string.legal_hold_connection_failed_dialog_description),
         onDismiss = dialogDismissed,
@@ -51,6 +52,6 @@ fun LegalHoldSubjectConnectionFailedDialog(dialogDismissed: () -> Unit) {
 @PreviewMultipleThemes
 fun PreviewLegalHoldSubjectConnectionFailedDialog() {
     WireTheme {
-        LegalHoldSubjectConnectionFailedDialog {}
+        LegalHoldSubjectConnectionFailedDialog({})
     }
 }

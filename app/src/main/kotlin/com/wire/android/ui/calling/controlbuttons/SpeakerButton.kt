@@ -30,8 +30,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun SpeakerButton(
     isSpeakerOn: Boolean,
     onSpeakerButtonClicked: () -> Unit,
-    size: Dp = dimensions().defaultCallingControlsSize,
     modifier: Modifier = Modifier,
+    size: Dp = dimensions().defaultCallingControlsSize
 ) {
     WireCallControlButton(
         isSelected = isSpeakerOn,

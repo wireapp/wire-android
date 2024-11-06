@@ -69,17 +69,6 @@
 
     <issue
         id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [text: String, minHeight: Dp = dimensions().badgeSmallMinSize.height, minWidth: Dp = dimensions().badgeSmallMinSize.height, contentPadding: PaddingValues = PaddingValues(horizontal = dimensions().spacing6x, vertical = dimensions().spacing2x), shape: Shape = RoundedCornerShape(dimensions().spacing6x), modifier: Modifier = Modifier] but should be [text: String, modifier: Modifier = Modifier, minHeight: Dp = dimensions().badgeSmallMinSize.height, minWidth: Dp = dimensions().badgeSmallMinSize.height, contentPadding: PaddingValues = PaddingValues(horizontal = dimensions().spacing6x, vertical = dimensions().spacing2x), shape: Shape = RoundedCornerShape(dimensions().spacing6x)].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun WireItemLabel("
-        errorLine2="                 ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/button/WireItemLabel.kt"
-            line="44"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
         message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [modifier: Modifier = Modifier, progressColor: Color] but should be [progressColor: Color, modifier: Modifier = Modifier].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
         errorLine1="fun WireLinearProgressIndicator(modifier: Modifier = Modifier, progressColor: Color) {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">

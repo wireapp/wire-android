@@ -25,7 +25,7 @@
 
     <issue
         id="RestrictedApi"
-        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android-reloaded`)"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android`)"
         errorLine1="    val isAlreadyRunning = getWorkInfosForUniqueWork(MigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }"
         errorLine2="                                                                           ~~~~~">
         <location
@@ -36,7 +36,7 @@
 
     <issue
         id="RestrictedApi"
-        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android-reloaded`)"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android`)"
         errorLine1="        getWorkInfosForUniqueWork(SingleUserMigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }"
         errorLine2="                                                                  ~~~~~">
         <location

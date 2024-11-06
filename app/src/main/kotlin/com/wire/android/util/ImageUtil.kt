@@ -25,8 +25,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
-import com.wire.android.util.ExifHandler.removeExifMetadata
-import com.wire.android.util.ExifHandler.rotateImageToNormalOrientation
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import okio.Path
 import okio.buffer

@@ -44,7 +44,6 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
-import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.home.settings.SettingsOptionSwitch
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.wireColorScheme
@@ -73,7 +72,6 @@ fun GroupConversationOptionsItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clickable(clickable)
-            .clickableDescriptions(clickable)
             .semantics { contentDescription?.let { this.contentDescription = contentDescription } }
             .padding(
                 top = MaterialTheme.wireDimensions.spacing12x,

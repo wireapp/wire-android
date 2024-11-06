@@ -83,7 +83,6 @@
     <string name="label_retry">Újra</string>
     <string name="label_draft">*Piszkozat*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">App logó</string>
     <string name="content_description_reveal_password">Jelszó megjelenítése</string>
     <string name="content_description_hide_password">Jelszó elrejtése</string>
     <string name="content_description_search_back">Keresés vissza ikon</string>

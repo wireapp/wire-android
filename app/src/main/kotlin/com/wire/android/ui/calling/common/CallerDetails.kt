@@ -74,10 +74,11 @@ fun CallerDetails(
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
-    onMinimiseScreen: () -> Unit
+    onMinimiseScreen: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(top = dimensions().spacing32x),
         verticalArrangement = Arrangement.Top,
@@ -142,17 +143,21 @@ fun CallerDetails(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            val isCallingLabel =
-                if (conversationTypeForCall == ConversationTypeForCall.Conference) {
-                    stringResource(R.string.calling_label_incoming_call_someone_calling)
+            val callingLabel =
+                if (groupCallerName != null) {
+                    if (conversationTypeForCall == ConversationTypeForCall.Conference) {
+                        stringResource(R.string.calling_label_incoming_call_someone_calling)
+                    } else {
+                        stringResource(R.string.calling_label_incoming_call)
+                    }
                 } else {
-                    stringResource(R.string.calling_label_incoming_call)
+                    stringResource(R.string.calling_label_ringing_call)
                 }
             Text(
                 modifier = Modifier.padding(
                     start = dimensions().spacing2x,
                 ),
-                text = isCallingLabel,
+                text = callingLabel,
                 color = colorsScheme().onBackground,
                 style = MaterialTheme.wireTypography.body01,
                 textAlign = TextAlign.Center,

@@ -411,10 +411,9 @@ private fun OngoingCallContent(
                         DoubleTapToast(
                             modifier = Modifier.align(Alignment.TopCenter),
                             enabled = shouldShowDoubleTapToast,
-                            text = stringResource(id = R.string.calling_ongoing_double_tap_for_full_screen)
-                        ) {
-                            hideDoubleTapToast()
-                        }
+                            text = stringResource(id = R.string.calling_ongoing_double_tap_for_full_screen),
+                            onTap = hideDoubleTapToast
+                        )
                     }
                     if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
                         FloatingSelfUserTile(

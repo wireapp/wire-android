@@ -62,9 +62,8 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.wire.android.R
-import com.wire.android.ui.common.textfield.Label
+import com.wire.android.ui.common.textfield.WireLabel
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -100,7 +99,12 @@ internal fun WireDropDown(
 
     Column(modifier) {
         label?.let {
-            Label(it, false, WireTextFieldState.Default, remember { MutableInteractionSource() }, wireTextFieldColors())
+            WireLabel(
+                labelText = it,
+                labelMandatoryIcon = false,
+                state = WireTextFieldState.Default,
+                interactionSource = remember { MutableInteractionSource() }
+            )
         }
 
         Column(
@@ -180,11 +184,13 @@ private fun MenuPopUp(
         ) {
 
             SelectionField(
-                Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) { hidePopUp() },
-                leadingCompose,
-                selectedIndex,
-                selectionText,
-                arrowRotation
+                leadingCompose = leadingCompose,
+                selectedIndex = selectedIndex,
+                text = selectionText,
+                arrowRotation = arrowRotation,
+                modifier = Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) {
+                    hidePopUp()
+                },
             )
 
             List(items.size) { index ->
@@ -209,11 +215,11 @@ private fun MenuPopUp(
 
 @Composable
 private fun SelectionField(
-    modifier: Modifier = Modifier,
     leadingCompose: @Composable ((index: Int) -> Unit)?,
     selectedIndex: Int,
     text: String,
-    arrowRotation: Float
+    arrowRotation: Float,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier
@@ -274,7 +280,7 @@ private fun DropdownItem(
         leadingIcon = leadingCompose,
         trailingIcon = {
             if (isSelected) {
-                WireCheckIcon(R.string.content_description_selected_label)
+                WireCheckIcon(contentDescription = R.string.content_description_selected_label)
             }
         },
         onClick = onClick,
@@ -302,7 +308,7 @@ private fun RowScope.LeadingIcon(convent: @Composable () -> Unit) {
 @Preview
 fun PreviewWireDropdownPreviewWithLabel() {
     WireDropDown(
-        items = ConversationOptions.Protocol.values().map { it.name },
+        items = ConversationOptions.Protocol.entries.map { it.name },
         defaultItemIndex = 0,
         selectedItemIndex = 0,
         label = "Protocol",

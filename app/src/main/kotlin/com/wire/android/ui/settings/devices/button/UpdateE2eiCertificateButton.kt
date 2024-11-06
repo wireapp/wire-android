@@ -32,7 +32,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun UpdateE2eiCertificateButton(
     enabled: Boolean,
     isLoading: Boolean,
-    onUpdateCertificateClicked: () -> Unit
+    onUpdateCertificateClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     WirePrimaryButton(
         text = stringResource(id = R.string.update_e2ei_certificat_button),
@@ -41,7 +42,7 @@ fun UpdateE2eiCertificateButton(
         loading = isLoading,
         state = if (!enabled) WireButtonState.Disabled
         else WireButtonState.Default,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = dimensions().spacing8x)
     )

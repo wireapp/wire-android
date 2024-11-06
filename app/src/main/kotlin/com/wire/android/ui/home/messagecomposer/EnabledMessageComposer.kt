@@ -66,7 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
-import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
+import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
@@ -104,7 +104,7 @@ fun EnabledMessageComposer(
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val navBarHeight = BottomNavigationBarHeight()
+    val navBarHeight = bottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
     val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)

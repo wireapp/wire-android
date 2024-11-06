@@ -32,8 +32,12 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun LegalHoldDeactivatedDialog(dialogDismissed: () -> Unit) {
+fun LegalHoldDeactivatedDialog(
+    dialogDismissed: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     WireDialog(
+        modifier = modifier,
         title = stringResource(id = R.string.legal_hold_deactivated_dialog_title),
         text = stringResource(id = R.string.legal_hold_deactivated_dialog_description),
         onDismiss = dialogDismissed,
@@ -49,8 +53,6 @@ fun LegalHoldDeactivatedDialog(dialogDismissed: () -> Unit) {
 
 @Composable
 @PreviewMultipleThemes
-fun PreviewLegalHoldDeactivatedDialog() {
-    WireTheme {
-        LegalHoldDeactivatedDialog {}
-    }
+fun PreviewLegalHoldDeactivatedDialog() = WireTheme {
+    LegalHoldDeactivatedDialog({})
 }

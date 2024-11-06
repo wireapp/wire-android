@@ -113,10 +113,11 @@ fun FullScreenTile(
                 modifier = Modifier
                     .align(Alignment.TopCenter),
                 enabled = shouldShowDoubleTapToast,
-                text = stringResource(id = R.string.calling_ongoing_double_tap_to_go_back)
-            ) {
-                shouldShowDoubleTapToast = false
-            }
+                text = stringResource(id = R.string.calling_ongoing_double_tap_to_go_back),
+                onTap = {
+                    shouldShowDoubleTapToast = false
+                }
+            )
         }
     }
 }

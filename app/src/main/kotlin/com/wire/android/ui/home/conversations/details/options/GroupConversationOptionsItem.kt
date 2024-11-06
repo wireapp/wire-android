@@ -101,7 +101,10 @@ fun GroupConversationOptionsItem(
                 if (titleTrailingItem != null) {
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
                 }
-                SettingsOptionSwitch(switchState, trailingOnText)
+                SettingsOptionSwitch(
+                    switchState = switchState,
+                    trailingOnText = trailingOnText
+                )
 
                 if (arrowType == ArrowType.TITLE_ALIGNED) {
                     ArrowRight()

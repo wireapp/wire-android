@@ -74,6 +74,7 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
+import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
@@ -231,34 +232,9 @@ class WireActivity : AppCompatActivity() {
                             .semantics { testTagsAsResourceId = true }
                     ) {
                         val navigator = rememberNavigator(this@WireActivity::finish)
-                        CommonTopAppBar(
+                        WireTopAppBar(
                             themeOption = viewModel.globalAppState.themeOption,
                             commonTopAppBarState = commonTopAppBarViewModel.state,
-                            onReturnToCallClick = { establishedCall ->
-                                getOngoingCallIntent(
-                                    this@WireActivity,
-                                    establishedCall.conversationId.toString()
-                                ).run {
-                                    startActivity(this)
-                                }
-                            },
-                            onReturnToIncomingCallClick = {
-                                getIncomingCallIntent(
-                                    this@WireActivity,
-                                    it.conversationId.toString(),
-                                    null
-                                ).run {
-                                    startActivity(this)
-                                }
-                            },
-                            onReturnToOutgoingCallClick = {
-                                getOutgoingCallIntent(
-                                    this@WireActivity,
-                                    it.conversationId.toString()
-                                ).run {
-                                    startActivity(this)
-                                }
-                            }
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
                             MainNavHost(
@@ -276,6 +252,42 @@ class WireActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    @Composable
+    private fun WireTopAppBar(
+        themeOption: ThemeOption,
+        commonTopAppBarState: CommonTopAppBarState
+    ) {
+        CommonTopAppBar(
+            themeOption = themeOption,
+            commonTopAppBarState = commonTopAppBarState,
+            onReturnToCallClick = { establishedCall ->
+                getOngoingCallIntent(
+                    this@WireActivity,
+                    establishedCall.conversationId.toString()
+                ).run {
+                    startActivity(this)
+                }
+            },
+            onReturnToIncomingCallClick = {
+                getIncomingCallIntent(
+                    this@WireActivity,
+                    it.conversationId.toString(),
+                    null
+                ).run {
+                    startActivity(this)
+                }
+            },
+            onReturnToOutgoingCallClick = {
+                getOutgoingCallIntent(
+                    this@WireActivity,
+                    it.conversationId.toString()
+                ).run {
+                    startActivity(this)
+                }
+            }
+        )
     }
 
     @Composable

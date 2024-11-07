@@ -24,9 +24,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,8 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -52,15 +47,13 @@ import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.textfield.DefaultPassword
-import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.destinations.TeamMigrationDoneStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
-import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
+import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
+import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -81,8 +74,7 @@ fun TeamMigrationConfirmationStepScreen(
         },
         onBackPressed = {
             navigator.popBackStack()
-        },
-        passwordTextState = teamMigrationViewModel.teamMigrationState.passwordTextState
+        }
     )
     LaunchedEffect(Unit) {
         teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(3)
@@ -91,7 +83,6 @@ fun TeamMigrationConfirmationStepScreen(
 
 @Composable
 private fun TeamMigrationConfirmationStepScreenContent(
-    passwordTextState: TextFieldState,
     modifier: Modifier = Modifier,
     onContinueButtonClicked: () -> Unit = { },
     onBackPressed: () -> Unit = { }
@@ -144,15 +135,6 @@ private fun TeamMigrationConfirmationStepScreenContent(
             )
             BulletList(messages)
 
-            PasswordInput(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = dimensions().spacing56x,
-                        bottom = dimensions().spacing56x
-                    ),
-                passwordState = passwordTextState,
-            )
             Row {
                 WireCheckbox(
                     checked = agreedToMigrationTerms.value,
@@ -173,8 +155,7 @@ private fun TeamMigrationConfirmationStepScreenContent(
                 WireTermsOfUseWithLink()
             }
         }
-        val isContinueButtonEnabled =
-            passwordTextState.text.isNotEmpty() && agreedToMigrationTerms.value && acceptedWireTermsOfUse.value
+        val isContinueButtonEnabled = agreedToMigrationTerms.value && acceptedWireTermsOfUse.value
         BottomLineButtons(
             isContinueButtonEnabled = isContinueButtonEnabled,
             onContinue = onContinueButtonClicked,
@@ -211,33 +192,10 @@ private fun RowScope.WireTermsOfUseWithLink() {
     )
 }
 
-@Composable
-private fun PasswordInput(
-    passwordState: TextFieldState,
-    modifier: Modifier = Modifier
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    WirePasswordTextField(
-        textState = passwordState,
-        labelText = stringResource(R.string.personal_to_team_migration_confirmation_step_password_field_label),
-        keyboardOptions = KeyboardOptions.DefaultPassword,
-        placeholderText = stringResource(R.string.personal_to_team_migration_confirmation_step_password_field_placeholder),
-        onKeyboardAction = {
-            keyboardController?.hide()
-        },
-        modifier = modifier
-            .testTag("passwordFieldTeamMigration"),
-        testTag = "passwordFieldTeamMigration"
-    )
-}
-
 @PreviewMultipleThemes
 @Composable
 private fun TeamMigrationConfirmationStepPreview() {
     WireTheme {
-        TeamMigrationConfirmationStepScreenContent(
-            passwordTextState = rememberTextFieldState()
-        )
+        TeamMigrationConfirmationStepScreenContent()
     }
 }

@@ -212,7 +212,7 @@ class BackupAndRestoreViewModel
             restoreFileValidation = RestoreFileValidation.ValidNonEncryptedBackup,
             backupRestoreProgress = BackupRestoreProgress.InProgress(PROGRESS_75)
         )
-        when (importBackup(importedBackupPath, null)) {
+        when (val result = importBackup(importedBackupPath, null)) {
             RestoreBackupResult.Success -> {
                 updateCreationProgress(PROGRESS_75)
                 delay(SMALL_DELAY)
@@ -221,10 +221,7 @@ class BackupAndRestoreViewModel
             }
 
             is RestoreBackupResult.Failure -> {
-                appLogger.e(
-                    "Error when restoring the db file. The format or version of the backup is not compatible with this " +
-                            "version of the app"
-                )
+                appLogger.e("Error when restoring the backup db file caused by: ${result.failure.cause}")
                 state = state.copy(
                     restoreFileValidation = RestoreFileValidation.IncompatibleBackup,
                     backupRestoreProgress = BackupRestoreProgress.Failed

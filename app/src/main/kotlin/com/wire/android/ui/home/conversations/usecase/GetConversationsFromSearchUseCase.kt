@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.home.conversations.usecase
 
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
@@ -26,16 +28,22 @@ import com.wire.android.mapper.toConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
+import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
+import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GetConversationsFromSearchUseCase @Inject constructor(
     private val useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase,
+    private val getFavoriteFolderUseCase: GetFavoriteFolderUseCase,
+    private val observeConversationsFromFromFolder: ObserveConversationsFromFolderUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
@@ -53,21 +61,43 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             initialLoadSize = INITIAL_LOAD_SIZE,
             enablePlaceholders = true,
         )
-        return useCase(
-            queryConfig = ConversationQueryConfig(
-                searchQuery = searchQuery,
-                fromArchive = fromArchive,
-                newActivitiesOnTop = newActivitiesOnTop,
-                onlyInteractionEnabled = onlyInteractionEnabled,
-                conversationFilter = conversationFilter,
-            ),
-            pagingConfig = pagingConfig,
-            startingOffset = 0L,
-        ).map { pagingData ->
-            pagingData.map {
-                it.toConversationItem(wireSessionImageLoader, userTypeMapper, searchQuery)
+        return when (conversationFilter) {
+            ConversationFilter.ALL,
+            ConversationFilter.GROUPS,
+            ConversationFilter.ONE_ON_ONE -> useCase(
+                queryConfig = ConversationQueryConfig(
+                    searchQuery = searchQuery,
+                    fromArchive = fromArchive,
+                    newActivitiesOnTop = newActivitiesOnTop,
+                    onlyInteractionEnabled = onlyInteractionEnabled,
+                    conversationFilter = conversationFilter,
+                ),
+                pagingConfig = pagingConfig,
+                startingOffset = 0L,
+            )
+
+            ConversationFilter.FAVORITES -> {
+                when (val result = getFavoriteFolderUseCase.invoke()) {
+                    GetFavoriteFolderUseCase.Result.Failure -> flowOf(emptyList())
+                    is GetFavoriteFolderUseCase.Result.Success ->
+                        observeConversationsFromFromFolder(result.folder.id)
+                }
+                    .map {
+                        PagingData.from(
+                            it, sourceLoadStates = LoadStates(
+                                prepend = LoadState.NotLoading(true),
+                                append = LoadState.NotLoading(true),
+                                refresh = LoadState.NotLoading(true),
+                            )
+                        )
+                    }
             }
-        }.flowOn(dispatchers.io())
+        }
+            .map { pagingData ->
+                pagingData.map {
+                    it.toConversationItem(wireSessionImageLoader, userTypeMapper, searchQuery)
+                }
+            }.flowOn(dispatchers.io())
     }
 
     private companion object {

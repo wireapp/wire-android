@@ -312,4 +312,15 @@ class ConversationModule {
     @Provides
     fun provideGetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase(conversationScope: ConversationScope) =
         conversationScope.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveConversationsFromFolderUseCase(conversationScope: ConversationScope) =
+        conversationScope.observeConversationsFromFolder
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetFavoriteFolderUseCase(conversationScope: ConversationScope) =
+        conversationScope.getFavoriteFolder
+
 }

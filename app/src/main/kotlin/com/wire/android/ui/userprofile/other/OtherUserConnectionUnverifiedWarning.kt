@@ -41,10 +41,11 @@ import com.wire.kalium.logic.data.user.ConnectionState
 @Composable
 fun OtherUserConnectionUnverifiedWarning(
     userName: String,
-    connectionStatus: ConnectionState
+    connectionStatus: ConnectionState,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        Modifier
+        modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(start = dimensions().spacing32x, end = dimensions().spacing32x)

@@ -26,6 +26,7 @@ import com.wire.android.mapper.toConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import kotlinx.coroutines.flow.Flow
@@ -44,6 +45,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         fromArchive: Boolean = false,
         newActivitiesOnTop: Boolean = false,
         onlyInteractionEnabled: Boolean = false,
+        conversationFilter: ConversationFilter = ConversationFilter.ALL
     ): Flow<PagingData<ConversationItem>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
@@ -56,7 +58,8 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                 searchQuery = searchQuery,
                 fromArchive = fromArchive,
                 newActivitiesOnTop = newActivitiesOnTop,
-                onlyInteractionEnabled = onlyInteractionEnabled
+                onlyInteractionEnabled = onlyInteractionEnabled,
+                conversationFilter = conversationFilter,
             ),
             pagingConfig = pagingConfig,
             startingOffset = 0L,

@@ -68,9 +68,18 @@ fun InputTransformation.maxLengthWithCallback(maxLength: Int, onIncorrectChanges
     this.then(MaxLengthFilterWithCallback(maxLength, onIncorrectChangesFound))
 
 class PatternFilterWithCallback(private val pattern: Pattern, private val onIncorrectChangesFound: () -> Unit) : InputTransformation {
+
     override fun TextFieldBuffer.transformInput() {
-        if (!pattern.matcher(asCharSequence()).matches()) {
-            revertAllChanges()
+        val newText = asCharSequence()
+        val currentText = originalText
+
+        if (newText.length < currentText.length) {
+            // We are deleting characters, no need to check the pattern
+            return
+        }
+
+        val matchesPattern = pattern.matcher(newText).matches()
+        if (!matchesPattern) {
             onIncorrectChangesFound()
         }
     }

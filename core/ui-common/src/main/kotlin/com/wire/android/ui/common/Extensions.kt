@@ -76,27 +76,12 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
         this.combinedClickable(
             enabled = clickable.enabled,
             onClick = onClick,
-            onLongClick = onLongClick
+            onLongClick = onLongClick,
+            onClickLabel = clickable.onClickDescription,
+            onLongClickLabel = clickable.onLongClickDescription
         )
     } else {
         // even though element is disabled we want to merge all inner elements into one for TalkBack
         this.semantics(mergeDescendants = true) { }
     }
 } ?: this
-
-@SuppressLint("ComposeComposableModifier", "ComposeModifierWithoutDefault")
-@Composable
-fun Modifier.clickableDescriptions(clickable: Clickable?) = if (clickable?.enabled == true) {
-    this.semantics {
-        clickable.onClickDescription?.let {
-            this@semantics.onClick(it) { true }
-        }
-        if (clickable.onLongClick != null) {
-            clickable.onLongClickDescription?.let {
-                this@semantics.onLongClick(it) { true }
-            }
-        }
-    }
-} else {
-    this
-}

@@ -43,11 +43,11 @@ import com.wire.android.util.EMPTY
 @Composable
 fun WireLibraries(
     libraries: List<Library>,
+    onLibraryClick: (Library) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    onLibraryClick: (Library) -> Unit,
-    header: (LazyListScope.() -> Unit)? = null,
+    header: (LazyListScope.() -> Unit)? = null
 ) {
 
     LazyColumn(
@@ -71,10 +71,11 @@ inline fun LazyListScope.libraryItems(
     items(libraries) { library ->
         LibraryItem(
             library.name,
-            library.owner
-        ) {
-            onLibraryClick.invoke(library)
-        }
+            library.owner,
+            onClick = {
+                onLibraryClick.invoke(library)
+            }
+        )
     }
 }
 
@@ -83,9 +84,10 @@ fun LibraryItem(
     libName: String,
     libAuthor: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     RowItemTemplate(
-        modifier = Modifier
+        modifier = modifier
             .wrapContentHeight()
             .padding(start = dimensions().spacing8x),
         title = {
@@ -123,6 +125,7 @@ fun LibraryItemPreview() {
                 " Mauris convallis arcu non tellus facilisis ullamcorper." +
                 " Morbi massa turpis, vulputate sit amet urna eget, scelerisque efficitur neque." +
                 " Nam rutrum, ante eu aliquam elementum, urna neque fermentum leo, vel commodo lectus purus et nulla." +
-                " In laoreet sem viverra orci pulvinar ultricies. Fusce porta ultrices ipsum eget convallis."
-    ) {}
+                " In laoreet sem viverra orci pulvinar ultricies. Fusce porta ultrices ipsum eget convallis.",
+        onClick = {}
+    )
 }

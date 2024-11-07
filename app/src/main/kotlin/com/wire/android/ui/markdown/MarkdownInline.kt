@@ -18,15 +18,12 @@
 package com.wire.android.ui.markdown
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
-fun MarkdownInline(
-    inlines: List<MarkdownNode.Inline>,
-    maxLines: Int = 1,
-    nodeData: NodeData
-) {
+fun MarkdownInline(inlines: List<MarkdownNode.Inline>, nodeData: NodeData, modifier: Modifier = Modifier, maxLines: Int = 1) {
     val annotatedString = buildAnnotatedString {
         pushStyle(nodeData.style.toSpanStyle())
         inlineNodeChildren(inlines, this, nodeData)
@@ -38,6 +35,7 @@ fun MarkdownInline(
         color = nodeData.color,
         clickable = false,
         maxLines = maxLines,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
     )
 }

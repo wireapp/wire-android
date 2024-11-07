@@ -34,9 +34,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun SearchFailureBox(@StringRes failureMessage: Int) {
+fun SearchFailureBox(@StringRes failureMessage: Int, modifier: Modifier = Modifier) {
     Box(
-        Modifier
+        modifier
             .fillMaxWidth()
             .height(224.dp)
     ) {

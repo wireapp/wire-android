@@ -106,7 +106,6 @@ class SelfQRCodeViewModel @Inject constructor(
         const val TEMP_SELF_QR_FILENAME = "temp_self_qr.jpg"
         const val BASE_USER_PROFILE_URL = "%s/user-profile/?id=%s"
 
-        // This URL, can be used when we have a direct link to user profile Milestone2
         const val DIRECT_BASE_USER_PROFILE_URL = "wire://user/%s/%s"
         const val QR_QUALITY_COMPRESSION = 80
     }

@@ -90,7 +90,11 @@ fun InputTransformation.forceLowercase(): InputTransformation =
 
 class ForceLowercaseTransformation : InputTransformation {
     override fun TextFieldBuffer.transformInput() {
-        replace(0, length, asCharSequence().toString().lowercase())
+        val currentText = asCharSequence().toString()
+        val lowercasedText = currentText.lowercase()
+        if (currentText != lowercasedText) {
+            replace(0, length, lowercasedText)
+        }
     }
 }
 

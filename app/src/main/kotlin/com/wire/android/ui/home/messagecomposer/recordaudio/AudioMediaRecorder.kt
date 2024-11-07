@@ -48,6 +48,7 @@ import okio.buffer
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.inject.Inject
@@ -151,7 +152,7 @@ class AudioMediaRecorder @Inject constructor(
         dataSizeBuffer.order(ByteOrder.LITTLE_ENDIAN)
         dataSizeBuffer.putInt(dataSize)
 
-        java.io.RandomAccessFile(file, "rw").use { randomAccessFile ->
+        RandomAccessFile(file, "rw").use { randomAccessFile ->
             // Update Chunk Size
             randomAccessFile.seek(CHUNK_SIZE_OFFSET.toLong())
             randomAccessFile.write(chunkSizeBuffer.array())
@@ -216,6 +217,7 @@ class AudioMediaRecorder @Inject constructor(
     suspend fun convertWavToMp4(inputFilePath: String): Boolean = withContext(Dispatchers.IO) {
         var codec: MediaCodec? = null
         var muxer: MediaMuxer? = null
+        var success = true
 
         try {
             FileInputStream(File(inputFilePath)).use { fileInputStream ->
@@ -318,17 +320,16 @@ class AudioMediaRecorder @Inject constructor(
                         }
                         if (retryCount >= MAX_RETRY_COUNT) {
                             appLogger.e("Reached maximum retries without receiving output from codec.")
-                            return@withContext false
+                            success = false
                         }
                     }
                 } ?: run {
                     appLogger.e("[RecordAudio] convertWavToMp4: mp4OutputPath is null")
-                    return@withContext false
+                    success = false
                 }
             }
         } catch (e: Exception) {
             appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
-            return@withContext false
         } finally {
             try {
                 muxer?.let { safeMuxer ->
@@ -337,7 +338,7 @@ class AudioMediaRecorder @Inject constructor(
                 }
             } catch (e: Exception) {
                 appLogger.e("Could not stop or release MediaMuxer: ${e.message}", throwable = e)
-                return@withContext false
+                success = false
             }
 
             try {
@@ -347,10 +348,10 @@ class AudioMediaRecorder @Inject constructor(
                 }
             } catch (e: Exception) {
                 appLogger.e("Could not stop or release MediaCodec: ${e.message}", throwable = e)
-                return@withContext false
+                success = false
             }
         }
-        return@withContext true
+        success
     }
 
     companion object {

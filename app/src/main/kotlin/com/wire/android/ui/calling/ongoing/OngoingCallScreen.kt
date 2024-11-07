@@ -107,9 +107,11 @@ import java.util.Locale
 fun OngoingCallScreen(
     conversationId: ConversationId,
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel<OngoingCallViewModel, OngoingCallViewModel.Factory>(
+        key = "ongoing_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+        key = "shared_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     )
 ) {

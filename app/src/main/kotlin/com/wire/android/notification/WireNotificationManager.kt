@@ -28,6 +28,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
+import com.wire.android.util.logIfEmptyUserName
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
@@ -349,9 +350,9 @@ class WireNotificationManager @Inject constructor(
                     } else {
                         userSessionScope.calls.getIncomingCalls()
                     }.map { calls ->
-                        userSessionScope.users.getSelfUser().first().let {
-                            it.handle ?: it.name ?: ""
-                        } to calls
+                        userSessionScope.users.getSelfUser().first()
+                            .also { it.logIfEmptyUserName() }
+                            .let { it.handle ?: it.name ?: "" } to calls
                     }
                 }
                 .collect { (userName, calls) ->
@@ -374,6 +375,7 @@ class WireNotificationManager @Inject constructor(
         val selfUserNameState = coreLogic.getSessionScope(userId)
             .users
             .getSelfUser()
+            .onEach { it.logIfEmptyUserName() }
             .map { it.handle ?: it.name ?: "" }
             .distinctUntilChanged()
             .stateIn(scope)

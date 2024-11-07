@@ -79,6 +79,7 @@ object NotificationConstants {
 
 // Notification IDs (has to be unique!)
 enum class NotificationIds {
+    @Suppress("unused")
     @Deprecated(
         message = "Do not use it, it's here just because we use .ordinal as ID and ID for the foreground service notification cannot be 0",
         level = DeprecationLevel.ERROR

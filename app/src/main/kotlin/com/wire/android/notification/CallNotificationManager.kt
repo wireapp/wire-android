@@ -71,11 +71,9 @@ class CallNotificationManager @Inject constructor(
             incomingCallsForUsers
                 .debounce { if (it.isEmpty()) 0L else DEBOUNCE_TIME } // debounce to avoid showing and hiding notification too fast
                 .map {
-                    it.values.map {
-                        it.let { (userId, userName, calls) ->
-                            calls.map { call ->
-                                CallNotificationData(userId, call, userName)
-                            }
+                    it.values.map { (userId, userName, calls) ->
+                        calls.map { call ->
+                            CallNotificationData(userId, call, userName)
                         }
                     }.flatten()
                 }
@@ -107,15 +105,10 @@ class CallNotificationManager @Inject constructor(
 
     @VisibleForTesting
     internal fun hideOutdatedIncomingCallNotifications(currentIncomingCalls: List<CallNotificationData>) {
-        val activeNotifications = notificationManager.activeNotifications
         val currentIncomingCallNotificationIds = currentIncomingCalls.map {
             NotificationConstants.getIncomingCallId(it.userId.toString(), it.conversationId.toString())
         }
-        activeNotifications.filter {
-            it.tag != null && it.tag.startsWith(INCOMING_CALL_ID_PREFIX) && !currentIncomingCallNotificationIds.contains(it.id)
-        }.forEach {
-            it.hideIncomingCallNotification()
-        }
+        hideIncomingCallNotifications { _, id -> !currentIncomingCallNotificationIds.contains(id) }
     }
 
     fun reloadCallNotifications(reloadCallNotificationIds: CallNotificationIds) = scope.launch {
@@ -134,27 +127,21 @@ class CallNotificationManager @Inject constructor(
         }
     }
 
-    fun hideAllIncomingCallNotifications() {
+    private fun hideIncomingCallNotifications(predicate: (tag: String, id: Int) -> Boolean) {
         notificationManager.activeNotifications.filter {
-            it.tag != null && it.tag.startsWith(INCOMING_CALL_ID_PREFIX)
+            it.tag?.startsWith(INCOMING_CALL_ID_PREFIX) == true && predicate(it.tag, it.id)
         }.forEach {
             it.hideIncomingCallNotification()
         }
     }
 
-    fun hideAllIncomingCallNotificationsForUser(userId: UserId) {
-        notificationManager.activeNotifications.filter {
-            it.tag != null && it.tag == NotificationConstants.getIncomingCallTag(userId.toString())
-        }.forEach {
-            it.hideIncomingCallNotification()
-        }
-    }
+    fun hideAllIncomingCallNotifications() = hideIncomingCallNotifications { _, _ -> true }
 
-    fun hideIncomingCallNotification(userIdString: String, conversationIdString: String) {
-        notificationManager.activeNotifications.firstOrNull {
-            it.id == NotificationConstants.getIncomingCallId(userIdString, conversationIdString)
-        }?.hideIncomingCallNotification()
-    }
+    fun hideAllIncomingCallNotificationsForUser(userId: UserId) =
+        hideIncomingCallNotifications { tag, _ -> tag == NotificationConstants.getIncomingCallTag(userId.toString()) }
+
+    fun hideIncomingCallNotification(userIdString: String, conversationIdString: String) =
+        hideIncomingCallNotifications { _, id -> id == NotificationConstants.getIncomingCallId(userIdString, conversationIdString) }
 
     private fun StatusBarNotification.hideIncomingCallNotification() {
         appLogger.i("$TAG: hiding incoming call")

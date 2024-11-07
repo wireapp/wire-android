@@ -32,6 +32,7 @@ import com.wire.android.notification.CallNotificationData
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationIds
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.logIfEmptyUserName
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -111,7 +112,9 @@ class CallService : Service() {
                             ) { outgoingCalls, establishedCalls ->
                                 val calls = outgoingCalls + establishedCalls
                                 calls.firstOrNull()?.let { call ->
-                                    val userName = userSessionScope.users.getSelfUser().first().let { it.handle ?: it.name ?: "" }
+                                    val userName = userSessionScope.users.getSelfUser().first()
+                                        .also { it.logIfEmptyUserName() }
+                                        .let { it.handle ?: it.name ?: "" }
                                     Either.Right(CallNotificationData(userId, call, userName))
                                 } ?: Either.Left("no calls")
                             }

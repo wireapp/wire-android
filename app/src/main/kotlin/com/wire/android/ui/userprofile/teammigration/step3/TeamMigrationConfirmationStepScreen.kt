@@ -135,7 +135,9 @@ private fun TeamMigrationConfirmationStepScreenContent(
             )
             BulletList(messages)
 
-            Row {
+            Row(
+                modifier = Modifier.padding(top = dimensions().spacing48x)
+            ) {
                 WireCheckbox(
                     checked = agreedToMigrationTerms.value,
                     onCheckedChange = { agreedToMigrationTerms.value = it }

@@ -60,9 +60,10 @@ fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface?): Bitmap {
 }
 
 private val removableExifAttributes = arrayOf(
-    // ExifInterface.TAG_ORIENTATION // This is not removed as it's used to rotate the image
-    ExifInterface.TAG_IMAGE_WIDTH,
-    ExifInterface.TAG_IMAGE_LENGTH,
+    // These 3, we don't remove as "might be" reused when resampling.
+    // ExifInterface.TAG_ORIENTATION
+    // ExifInterface.TAG_IMAGE_WIDTH,
+    // ExifInterface.TAG_IMAGE_LENGTH,
     ExifInterface.TAG_BITS_PER_SAMPLE,
     ExifInterface.TAG_COMPRESSION,
     ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION,

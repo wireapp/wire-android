@@ -41,13 +41,10 @@ import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
-<<<<<<< HEAD
 import com.wire.android.util.extension.folderWithElements
-=======
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
->>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -67,12 +64,7 @@ fun SearchAllServicesScreen(
         searchQuery = searchServicesViewModel.state.searchQuery,
         onServiceClicked = onServiceClicked,
         result = searchServicesViewModel.state.result,
-<<<<<<< HEAD
         lazyListState = lazyListState,
-        error = searchServicesViewModel.state.error,
-=======
-        lazyListState = lazyState,
->>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
         isLoading = searchServicesViewModel.state.isLoading
     )
 }
@@ -185,6 +177,7 @@ private fun previewService(index: Int) = Contact(
     id = index.toString(),
     domain = "wire.com",
     name = "Service nr $index",
+    handle = "service_$index",
     connectionState = ConnectionState.NOT_CONNECTED,
     membership = Membership.Service,
 )

@@ -179,4 +179,6 @@ private fun previewService(index: Int) = Contact(
     membership = Membership.Service,
 )
 
-private fun previewServiceList(count: Int): List<Contact> = buildList { repeat(count) { index -> add(previewService(index)) } }
+private fun previewServiceList(count: Int): List<Contact> = buildList {
+    repeat(count) { index -> add(previewService(index)) }
+}

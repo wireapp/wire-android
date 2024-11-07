@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.search
 
 import androidx.compose.animation.AnimatedContent
@@ -282,20 +284,50 @@ fun PreviewShowButton() {
 @PreviewMultipleThemes
 @Composable
 fun PreviewSearchAllPeopleScreen_Loading() = WireTheme {
-    SearchAllPeopleScreen("Search query", persistentListOf(), persistentListOf(), persistentSetOf(), true, false,  ItemActionType.CHECK, { _, _ -> }, {})
+    SearchAllPeopleScreen(
+        searchQuery = "",
+        contactsSearchResult = persistentListOf(),
+        publicSearchResult = persistentListOf(),
+        contactsAddedToGroup = persistentSetOf(),
+        isLoading = true,
+        isSearchActive = false,
+        actionType = ItemActionType.CHECK,
+        onChecked = { _, _ -> },
+        onOpenUserProfile = {}
+    )
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewSearchAllPeopleScreen_InitialResults() = WireTheme {
     val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true).toPersistentList()
-    SearchAllPeopleScreen("", contacts, persistentListOf(), persistentSetOf(), false, false, ItemActionType.CHECK, { _, _ -> }, {})
+    SearchAllPeopleScreen(
+        searchQuery = "",
+        contactsSearchResult = contacts,
+        publicSearchResult = persistentListOf(),
+        contactsAddedToGroup = persistentSetOf(),
+        isLoading = false,
+        isSearchActive = false,
+        actionType = ItemActionType.CHECK,
+        onChecked = { _, _ -> },
+        onOpenUserProfile = {}
+    )
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewSearchAllPeopleScreen_EmptyInitialResults() = WireTheme {
-    SearchAllPeopleScreen("", persistentListOf(), persistentListOf(), persistentSetOf(), false, false,  ItemActionType.CHECK, { _, _ -> }, {})
+    SearchAllPeopleScreen(
+        searchQuery = "",
+        contactsSearchResult = persistentListOf(),
+        publicSearchResult = persistentListOf(),
+        contactsAddedToGroup = persistentSetOf(),
+        isLoading = false,
+        isSearchActive = false,
+        actionType = ItemActionType.CHECK,
+        onChecked = { _, _ -> },
+        onOpenUserProfile = {}
+    )
 }
 
 @PreviewMultipleThemes
@@ -303,7 +335,17 @@ fun PreviewSearchAllPeopleScreen_EmptyInitialResults() = WireTheme {
 fun PreviewSearchAllPeopleScreen_SearchResults_TypeClick() = WireTheme {
     val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true).toPersistentList()
     val public = previewContactsList(count = 10, startIndex = 10, isContact = false).toPersistentList()
-    SearchAllPeopleScreen("Con", contacts, public, persistentSetOf(), false, true, ItemActionType.CLICK, { _, _ -> }, {})
+    SearchAllPeopleScreen(
+        searchQuery = "Con",
+        contactsSearchResult = contacts,
+        publicSearchResult = public,
+        contactsAddedToGroup = persistentSetOf(),
+        isLoading = false,
+        isSearchActive = true,
+        actionType = ItemActionType.CLICK,
+        onChecked = { _, _ -> },
+        onOpenUserProfile = {}
+    )
 }
 
 @PreviewMultipleThemes
@@ -312,13 +354,33 @@ fun PreviewSearchAllPeopleScreen_SearchResults_TypeCheck() = WireTheme {
     val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true).toPersistentList()
     val public = previewContactsList(count = 10, startIndex = 10, isContact = false).toPersistentList()
     val selectedContacts = contacts.filterIndexed { index, _ -> index % 3 == 0 }.toPersistentSet()
-    SearchAllPeopleScreen("Con", contacts, public, selectedContacts, false, true, ItemActionType.CHECK, { _, _ -> }, {})
+    SearchAllPeopleScreen(
+        searchQuery = "Con",
+        contactsSearchResult = contacts,
+        publicSearchResult = public,
+        contactsAddedToGroup = selectedContacts,
+        isLoading = false,
+        isSearchActive = true,
+        actionType = ItemActionType.CHECK,
+        onChecked = { _, _ -> },
+        onOpenUserProfile = {}
+    )
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewSearchAllPeopleScreen_EmptySearchResults() = WireTheme {
-    SearchAllPeopleScreen("Con", persistentListOf(), persistentListOf(), persistentSetOf(), false, true,  ItemActionType.CLICK, { _, _ -> }, {})
+    SearchAllPeopleScreen(
+        searchQuery = "Con",
+        contactsSearchResult = persistentListOf(),
+        publicSearchResult = persistentListOf(),
+        contactsAddedToGroup = persistentSetOf(),
+        isLoading = false,
+        isSearchActive = true,
+        actionType = ItemActionType.CLICK,
+        onChecked = { _, _ -> },
+        onOpenUserProfile = {}
+    )
 }
 
 private fun previewContact(index: Int, isContact: Boolean) = Contact(

@@ -50,8 +50,8 @@ import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 @WireDestination
 @Composable
 fun AppUnlockWithBiometricsScreen(
-    appUnlockWithBiometricsViewModel: AppUnlockWithBiometricsViewModel = hiltViewModel(),
-    navigator: Navigator
+    navigator: Navigator,
+    appUnlockWithBiometricsViewModel: AppUnlockWithBiometricsViewModel = hiltViewModel()
 ) {
     AppUnLockBackground()
 

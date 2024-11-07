@@ -26,7 +26,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 @Composable
-fun BottomNavigationBarHeight(): Dp {
+fun bottomNavigationBarHeight(): Dp {
     val insets = ViewCompat.getRootWindowInsets(LocalView.current)
     val density = LocalDensity.current
     val navigationBarHeight = remember(insets) {

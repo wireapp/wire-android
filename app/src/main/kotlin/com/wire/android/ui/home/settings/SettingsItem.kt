@@ -40,7 +40,6 @@ import com.wire.android.navigation.TermsOfUseScreenDestination
 import com.wire.android.navigation.WireWebsiteScreenDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
-import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.AboutThisAppScreenDestination
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
@@ -61,14 +60,16 @@ import com.wire.android.util.ui.UIText
 
 @Composable
 fun SettingsItem(
-    title: String? = null,
     text: String,
+    modifier: Modifier = Modifier,
+    title: String? = null,
     @DrawableRes trailingIcon: Int? = null,
     switchState: SwitchState = SwitchState.None,
     onRowPressed: Clickable = Clickable(false),
     onIconPressed: Clickable? = null
 ) {
     RowItemTemplate(
+        modifier = modifier,
         title = {
             if (!title.isNullOrBlank()) {
                 Text(
@@ -96,7 +97,6 @@ fun SettingsItem(
                         .defaultMinSize(dimensions().wireIconButtonSize)
                         .padding(end = dimensions().spacing8x)
                         .clickable(onIconPressed)
-                        .clickableDescriptions(onIconPressed)
                 )
             } ?: Icons.Filled.ChevronRight
         },
@@ -229,7 +229,7 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
 
 @PreviewMultipleThemes
 @Composable
-fun previewFileRestrictionDialog() {
+fun PreviewFileRestrictionDialog() {
     WireTheme {
         SettingsItem(
             title = "Some Setting",

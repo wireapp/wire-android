@@ -60,11 +60,12 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun ReactionOption(
     onReactionClick: (emoji: String) -> Unit,
+    modifier: Modifier = Modifier,
     emojiFontSize: TextUnit = 28.sp
 ) {
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
-        Column {
+        Column(modifier = modifier) {
             Row {
                 Spacer(modifier = Modifier.width(dimensions().spacing8x))
                 Text(

@@ -80,7 +80,6 @@
     <string name="label_and">と</string>
     <string name="label_retry">再試行</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">アプリのロゴ</string>
     <string name="content_description_reveal_password">パスワードを表示</string>
     <string name="content_description_hide_password">パスワードを非表示</string>
     <string name="content_description_search_back">検索に戻るアイコン</string>

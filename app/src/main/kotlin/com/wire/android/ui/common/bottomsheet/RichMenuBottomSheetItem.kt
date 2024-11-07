@@ -39,7 +39,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.clickable
-import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.DEFAULT_WEIGHT
 import com.wire.android.ui.theme.wireColorScheme
@@ -49,6 +48,7 @@ import io.github.esentsov.PackagePrivate
 @Composable
 fun SelectableMenuBottomSheetItem(
     title: String,
+    modifier: Modifier = Modifier,
     titleColor: Color? = null,
     titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02,
     titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02,
@@ -59,13 +59,12 @@ fun SelectableMenuBottomSheetItem(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .wrapContentHeight()
             .wrapContentWidth()
             .defaultMinSize(minHeight = dimensions().spacing48x)
             .let { if (isSelectedItem(state)) it.background(MaterialTheme.wireColorScheme.secondaryButtonSelected) else it }
             .clickable(onItemClick)
-            .clickableDescriptions(onItemClick)
             .padding(vertical = dimensions().spacing12x, horizontal = dimensions().spacing16x)
     ) {
         icon()
@@ -94,7 +93,7 @@ fun SelectableMenuBottomSheetItem(
                     .padding(start = dimensions().spacing8x)
                     .align(Alignment.CenterVertically)
             ) {
-                WireCheckIcon(R.string.label_selected)
+                WireCheckIcon(contentDescription = R.string.label_selected)
             }
         }
     }
@@ -104,11 +103,11 @@ fun SelectableMenuBottomSheetItem(
 @Composable
 fun MenuItemHeading(
     title: String,
+    modifier: Modifier = Modifier,
     titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02,
     titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02,
     state: RichMenuItemState = RichMenuItemState.DEFAULT,
-    color: Color? = null,
-    modifier: Modifier = Modifier
+    color: Color? = null
 ) {
     Text(
         style = if (isSelectedItem(state)) titleStyleSelected else titleStyleUnselected,

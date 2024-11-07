@@ -30,10 +30,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 
 @Composable
-fun LegalHoldSubjectBanner(
-    onClick: () -> Unit = {},
-    modifier: Modifier = Modifier,
-) {
+fun LegalHoldSubjectBanner(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     LegalHoldBaseBanner(onClick = onClick, modifier = modifier) {
         val resources = LocalContext.current.resources
         Text(

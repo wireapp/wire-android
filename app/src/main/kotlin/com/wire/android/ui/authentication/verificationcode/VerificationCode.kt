@@ -46,12 +46,13 @@ fun VerificationCode(
     codeState: TextFieldState,
     isLoading: Boolean,
     isCurrentCodeInvalid: Boolean,
-    onResendCode: () -> Unit
+    onResendCode: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
     ) {
 
         val state = if (isCurrentCodeInvalid) WireTextFieldState.Error(

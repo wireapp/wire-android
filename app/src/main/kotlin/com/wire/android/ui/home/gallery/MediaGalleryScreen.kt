@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -187,6 +188,7 @@ private fun MediaGalleryContent(
                     .background(colorsScheme().surface)
             ) {
                 ZoomableImage(
+                    modifier = Modifier.align(Alignment.Center),
                     imageAsset = imageAsset,
                     contentDescription = stringResource(R.string.content_description_image_message)
                 )

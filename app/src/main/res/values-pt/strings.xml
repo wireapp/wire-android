@@ -78,7 +78,6 @@
     <string name="label_retry">Tentar novamente</string>
     <string name="label_draft">*Rascunho*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Logo do aplicativo</string>
     <string name="content_description_reveal_password">Mostrar senha</string>
     <string name="content_description_hide_password">Ocultar senha</string>
     <string name="content_description_search_back">Ícone de busca</string>

@@ -73,19 +73,23 @@ fun AppearanceScreen(
 
 @Composable
 fun AppearanceScreenContent(
-    lazyListState: LazyListState = rememberLazyListState(),
     state: AppearanceState,
     onThemeOptionChanged: (ThemeOption) -> Unit,
     onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
-    WireScaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            onNavigationPressed = onBackPressed,
-            elevation = 0.dp,
-            title = stringResource(id = R.string.settings_appearance_label)
-        )
-    }) { internalPadding ->
+    WireScaffold(
+        modifier = modifier,
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                onNavigationPressed = onBackPressed,
+                elevation = 0.dp,
+                title = stringResource(id = R.string.settings_appearance_label)
+            )
+        }
+    ) { internalPadding ->
         LazyColumn(
             state = lazyListState,
             modifier = Modifier
@@ -126,11 +130,12 @@ private fun LazyListScope.folderWithElements(
 fun ThemeOptionItem(
     themeOption: ThemeOption,
     selectedOption: ThemeOption,
-    onItemClicked: (ThemeOption) -> Unit
+    onItemClicked: (ThemeOption) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val isSelected = themeOption == selectedOption
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(bottom = dimensions().spacing1x)
             .selectableBackground(isSelected, onClick = { onItemClicked(themeOption) })
@@ -162,5 +167,9 @@ fun ThemeOptionItem(
 @PreviewMultipleThemes
 @Composable
 fun PreviewSettingsScreen() {
-    AppearanceScreenContent(rememberLazyListState(), AppearanceState(), {}, {})
+    AppearanceScreenContent(
+        AppearanceState(),
+        {},
+        {},
+    )
 }

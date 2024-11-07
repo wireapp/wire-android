@@ -39,8 +39,8 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun SearchConversationMessagesNoResultsScreen() {
-    Box(modifier = Modifier.fillMaxSize()) {
+fun SearchConversationMessagesNoResultsScreen(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -59,7 +59,7 @@ fun SearchConversationMessagesNoResultsScreen() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewSearchConversationMessagesNoResultsScreen() {
+fun PreviewSearchConversationMessagesNoResultsScreen() {
     WireTheme {
         SearchConversationMessagesNoResultsScreen()
     }

@@ -186,29 +186,27 @@ fun ConversationProtocolDetails(
 ) {
     Column(modifier = modifier) {
         FolderHeader(name = stringResource(R.string.folder_label_protocol_details))
-        if (protocolInfo is Conversation.ProtocolInfo.MLS || BuildConfig.MLS_SUPPORT_ENABLED) {
+        if (protocolInfo is Conversation.ProtocolInfo.MLS) {
             ProtocolDetails(
                 label = UIText.StringResource(R.string.protocol),
                 text = UIText.DynamicString(protocolInfo.name())
             )
 
-            if (protocolInfo is Conversation.ProtocolInfo.MLS) {
+            ProtocolDetails(
+                label = UIText.StringResource(R.string.cipher_suite),
+                text = UIText.DynamicString(protocolInfo.cipherSuite.toString())
+            )
+
+            if (BuildConfig.PRIVATE_BUILD) {
                 ProtocolDetails(
-                    label = UIText.StringResource(R.string.cipher_suite),
-                    text = UIText.DynamicString(protocolInfo.cipherSuite.toString())
+                    label = UIText.StringResource(R.string.last_key_material_update_label),
+                    text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
                 )
 
-                if (BuildConfig.PRIVATE_BUILD) {
-                    ProtocolDetails(
-                        label = UIText.StringResource(R.string.last_key_material_update_label),
-                        text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
-                    )
-
-                    ProtocolDetails(
-                        label = UIText.StringResource(R.string.group_state_label),
-                        text = UIText.DynamicString(protocolInfo.groupState.name)
-                    )
-                }
+                ProtocolDetails(
+                    label = UIText.StringResource(R.string.group_state_label),
+                    text = UIText.DynamicString(protocolInfo.groupState.name)
+                )
             }
         }
     }

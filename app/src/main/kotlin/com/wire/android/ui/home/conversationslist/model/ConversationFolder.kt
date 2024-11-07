@@ -28,6 +28,7 @@ sealed class ConversationFolder : ConversationFolderItem {
         data object NewActivities : Predefined(R.string.conversation_label_new_activity)
     }
     data class Custom(val folderName: String) : ConversationFolder()
+    data object WithoutHeader : ConversationFolder()
 }
 
 sealed interface ConversationFolderItem

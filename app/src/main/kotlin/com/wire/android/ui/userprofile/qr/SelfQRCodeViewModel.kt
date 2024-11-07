@@ -92,13 +92,14 @@ class SelfQRCodeViewModel @Inject constructor(
         selfQRCodeState =
             when (val result = selfServerLinks()) {
                 is SelfServerConfigUseCase.Result.Failure -> selfQRCodeState.copy(hasError = true)
-                is SelfServerConfigUseCase.Result.Success -> generateSelfUserUrl(result.serverLinks.links.accounts)
+                is SelfServerConfigUseCase.Result.Success -> generateSelfUserUrls(result.serverLinks.links.accounts)
             }
     }
 
-    private fun generateSelfUserUrl(accountsUrl: String): SelfQRCodeState =
+    private fun generateSelfUserUrls(accountsUrl: String): SelfQRCodeState =
         selfQRCodeState.copy(
-            userProfileLink = String.format(BASE_USER_PROFILE_URL, accountsUrl, selfUserId.value),
+            userAccountProfileLink = String.format(BASE_USER_PROFILE_URL, accountsUrl, selfUserId.value),
+            userProfileLink = String.format(DIRECT_BASE_USER_PROFILE_URL, selfUserId.value)
         )
 
     companion object {

@@ -32,7 +32,6 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,20 +60,18 @@ class DeclineIncomingCallReceiver : BroadcastReceiver() { // requires zero argum
     lateinit var callNotificationManager: CallNotificationManager
 
     override fun onReceive(context: Context, intent: Intent) {
-        val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
+        val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: run {
+            appLogger.e("CallNotificationDismissReceiver: onReceive, conversation ID is missing")
+            return
+        }
         appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: ${conversationIdString.obfuscateId()}")
+        val userId: UserId = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper) ?: run {
+            appLogger.e("CallNotificationDismissReceiver: onReceive, user ID is missing")
+            return
+        }
         coroutineScope.launch(Dispatchers.Default) {
-            val userId: UserId? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
-                ?: coreLogic.globalScope {
-                    when (val currentSession = session.currentSession()) {
-                        is CurrentSessionResult.Success -> currentSession.accountInfo.userId
-                        else -> null
-                    }
-                }
-            userId?.let {
-                coreLogic.getSessionScope(userId).calls.rejectCall(conversationIdString.toQualifiedID(qualifiedIdMapper))
-                callNotificationManager.hideIncomingCallNotification(userId.toString(), conversationIdString)
-            }
+            coreLogic.getSessionScope(userId).calls.rejectCall(conversationIdString.toQualifiedID(qualifiedIdMapper))
+            callNotificationManager.hideIncomingCallNotification(userId.toString(), conversationIdString)
         }
     }
 

@@ -45,8 +45,12 @@ class SearchServicesViewModel @Inject constructor(
     private val contactMapper: ContactMapper,
     private val searchServicesByName: SearchServicesByNameUseCase,
 ) : ViewModel() {
+<<<<<<< HEAD
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
     var state: SearchServicesState by mutableStateOf(SearchServicesState())
+=======
+    var state: SearchServicesState by mutableStateOf(SearchServicesState(isLoading = true))
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
         private set
 
     init {
@@ -68,6 +72,7 @@ class SearchServicesViewModel @Inject constructor(
 
     private fun search(query: String) {
         viewModelScope.launch {
+<<<<<<< HEAD
             if (query.isEmpty()) {
                 getAllServices().first().also { services ->
                     state = state.copy(result = services.map(contactMapper::fromService).toImmutableList(), searchQuery = query)
@@ -76,14 +81,24 @@ class SearchServicesViewModel @Inject constructor(
                 searchServicesByName(query).first().also { services ->
                     state = state.copy(result = services.map(contactMapper::fromService).toImmutableList(), searchQuery = query)
                 }
+=======
+            val result = if (query.isEmpty()) {
+                getAllServices().first()
+            } else {
+                searchServicesByName(query).first()
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
             }
+            state = state.copy(isLoading = false, searchQuery = query, result = result.map(contactMapper::fromService).toImmutableList())
         }
     }
 }
 
 data class SearchServicesState(
     val result: ImmutableList<Contact> = persistentListOf(),
+<<<<<<< HEAD
     val searchQuery: String = String.EMPTY,
+=======
+    val searchQuery: String = "",
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
     val isLoading: Boolean = false,
-    val error: Boolean = false
 )

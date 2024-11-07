@@ -71,9 +71,13 @@ class SearchUserViewModel @Inject constructor(
         null
     }
 
+<<<<<<< HEAD
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
     private val selectedContactsFlow = MutableStateFlow<ImmutableSet<Contact>>(persistentSetOf())
     var state: SearchUserState by mutableStateOf(SearchUserState())
+=======
+    var state: SearchUserState by mutableStateOf(SearchUserState(isLoading = true))
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
         private set
 
     init {
@@ -165,20 +169,49 @@ class SearchUserViewModel @Inject constructor(
             searchTerm,
             excludingConversation = addMembersSearchNavArgs?.conversationId,
             customDomain = domain
+<<<<<<< HEAD
         )
+=======
+        ).also { userSearchEntities ->
+            state = state.copy(
+                isLoading = false,
+                searchQuery = searchTerm,
+                contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
+                publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()
+            )
+        }
+    }
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 
     private suspend fun searchByName(searchTerm: String, domain: String?): SearchUserResult =
         searchUserUseCase(
             searchTerm,
             excludingMembersOfConversation = addMembersSearchNavArgs?.conversationId,
             customDomain = domain
+<<<<<<< HEAD
         )
+=======
+        ).also { userSearchEntities ->
+            state = state.copy(
+                isLoading = false,
+                searchQuery = searchTerm,
+                contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
+                publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()
+            )
+        }
+    }
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 }
 
 data class SearchUserState(
     val contactsResult: ImmutableList<Contact> = persistentListOf(),
     val publicResult: ImmutableList<Contact> = persistentListOf(),
+<<<<<<< HEAD
     val selectedResult: ImmutableList<Contact> = persistentListOf(),
     val searchQuery: String = String.EMPTY,
     val isOtherDomainAllowed: Boolean = false
+=======
+    val searchQuery: String = "",
+    val isLoading: Boolean = false,
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 )

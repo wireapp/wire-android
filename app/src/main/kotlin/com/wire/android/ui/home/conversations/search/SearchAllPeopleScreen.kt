@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,22 +36,37 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+<<<<<<< HEAD
 import androidx.compose.ui.unit.dp
+=======
+import androidx.hilt.navigation.compose.hiltViewModel
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ItemActionType
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+<<<<<<< HEAD
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversationslist.model.Membership
+=======
+import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
+import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.newconversation.SendConnectionRequestViewModel
+import com.wire.android.ui.home.newconversation.SendConnectionRequestViewModelImpl
+import com.wire.android.ui.home.newconversation.SendConnectionRequestViewModelPreview
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.extension.FolderType
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
+<<<<<<< HEAD
 import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -60,6 +74,16 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
+=======
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.launch
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
@@ -82,6 +106,7 @@ fun SearchAllPeopleScreen(
     onPublicResultsExpansionChanged: (Boolean) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState()
 ) {
+<<<<<<< HEAD
     if (contactsSearchResult.isEmpty() && publicSearchResult.isEmpty()) {
         EmptySearchQueryScreen()
     } else {
@@ -90,10 +115,26 @@ fun SearchAllPeopleScreen(
             publicSearchResult = publicSearchResult,
             contactsSearchResult = contactsSearchResult,
             contactsSelectedSearchResult = contactsSelectedSearchResult,
+=======
+    val emptyResults = contactsSearchResult.isEmpty() && publicSearchResult.isEmpty()
+    when {
+        isLoading -> CenteredCircularProgressBarIndicator()
+
+        searchQuery.isBlank() && emptyResults -> EmptySearchQueryScreen()
+
+        searchQuery.isNotBlank() && emptyResults -> SearchFailureBox(R.string.label_no_results_found)
+
+        else -> SearchResult(
+            searchQuery = searchQuery,
+            publicSearchResult = publicSearchResult,
+            contactsSearchResult = contactsSearchResult,
+            contactsAddedToGroup = contactsAddedToGroup,
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
             onChecked = onChecked,
             onOpenUserProfile = onOpenUserProfile,
             lazyListState = lazyListState,
             isSearchActive = isSearchActive,
+<<<<<<< HEAD
             isLoading = isLoading,
             actionType = actionType,
             selectedContactResultsExpanded = selectedContactResultsExpanded,
@@ -102,6 +143,8 @@ fun SearchAllPeopleScreen(
             onContactResultsExpansionChanged = onContactResultsExpansionChanged,
             publicResultsExpanded = publicResultsExpanded,
             onPublicResultsExpansionChanged = onPublicResultsExpansionChanged,
+=======
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
         )
     }
 }
@@ -111,18 +154,27 @@ private fun SearchResult(
     searchQuery: String,
     contactsSearchResult: ImmutableList<Contact>,
     publicSearchResult: ImmutableList<Contact>,
+<<<<<<< HEAD
     contactsSelectedSearchResult: ImmutableList<Contact>,
     isLoading: Boolean,
+=======
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
     isSearchActive: Boolean,
     actionType: ItemActionType,
     onChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
+<<<<<<< HEAD
     selectedContactResultsExpanded: Boolean,
     onSelectedContactResultsExpansionChanged: (Boolean) -> Unit,
     contactResultsExpanded: Boolean,
     onContactResultsExpansionChanged: (Boolean) -> Unit,
     publicResultsExpanded: Boolean,
     onPublicResultsExpansionChanged: (Boolean) -> Unit,
+=======
+    sendConnectionRequestViewModel: SendConnectionRequestViewModel =
+        if (LocalInspectionMode.current) SendConnectionRequestViewModelPreview
+        else hiltViewModel<SendConnectionRequestViewModelImpl>(),
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
@@ -140,10 +192,16 @@ private fun SearchResult(
                     searchTitle = context.getString(R.string.label_selected) + " (${contactsSelectedSearchResult.size})",
                     searchQuery = searchQuery,
                     onChecked = onChecked,
+<<<<<<< HEAD
                     isLoading = isLoading,
                     contactSearchResult = contactsSelectedSearchResult.map { it to true }.toImmutableList(),
                     allItemsVisible = true, // for selected contacts we always show all items
                     showMoreOrLessButtonVisible = false,
+=======
+                    searchResult = contactsSearchResult,
+                    contactsAddedToGroup = contactsAddedToGroup,
+                    showAllItems = !isSearchActive || searchPeopleScreenState.contactsAllResultsCollapsed,
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllContactsResult,
                     onOpenUserProfile = onOpenUserProfile,
                     actionType = actionType,
@@ -173,10 +231,15 @@ private fun SearchResult(
                 externalSearchResults(
                     searchTitle = context.getString(R.string.label_public_wire),
                     searchQuery = searchQuery,
+<<<<<<< HEAD
                     contactSearchResult = publicSearchResult,
                     isLoading = isLoading,
                     allItemsVisible = searchPeopleScreenState.publicResultsCollapsed,
                     showMoreOrLessButtonVisible = isSearchActive,
+=======
+                    searchResult = publicSearchResult,
+                    showAllItems = searchPeopleScreenState.publicResultsCollapsed,
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllPublicResult,
                     onOpenUserProfile = onOpenUserProfile,
                     expanded = publicResultsExpanded,
@@ -194,6 +257,7 @@ private fun SearchResult(
 @Suppress("LongParameterList")
 private fun LazyListScope.internalSearchResults(
     searchTitle: String,
+<<<<<<< HEAD
     searchQuery: String,
     onChecked: (Boolean, Contact) -> Unit,
     actionType: ItemActionType,
@@ -269,6 +333,10 @@ private fun LazyListScope.internalSuccessItem(
     allItemsVisible: Boolean,
     showMoreOrLessButtonVisible: Boolean,
     actionType: ItemActionType,
+=======
+    showAllItems: Boolean,
+    contactsAddedToGroup: ImmutableSet<Contact>,
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
     onChecked: (Boolean, Contact) -> Unit,
     searchResult: ImmutableList<Pair<Contact, Boolean>>,
     searchQuery: String,
@@ -330,7 +398,7 @@ private fun LazyListScope.internalSuccessItem(
 }
 
 @Suppress("LongParameterList")
-private fun LazyListScope.externalSuccessItem(
+private fun LazyListScope.externalSearchResults(
     searchTitle: String,
     allItemsVisible: Boolean,
     showMoreOrLessButtonVisible: Boolean,
@@ -383,6 +451,7 @@ private fun LazyListScope.externalSuccessItem(
     }
 }
 
+<<<<<<< HEAD
 fun LazyListScope.inProgressItem() {
     item {
         Box(
@@ -400,6 +469,8 @@ fun LazyListScope.inProgressItem() {
     }
 }
 
+=======
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 @Composable
 private fun ShowButton(
     isShownAll: Boolean,
@@ -430,6 +501,7 @@ fun PreviewShowButton() {
 @PreviewMultipleThemes
 @Composable
 fun PreviewSearchAllPeopleScreen_Loading() = WireTheme {
+<<<<<<< HEAD
     SearchAllPeopleScreen(
         searchQuery = "Search query",
         contactsSearchResult = persistentListOf(),
@@ -441,10 +513,14 @@ fun PreviewSearchAllPeopleScreen_Loading() = WireTheme {
         onChecked = { _, _ -> },
         onOpenUserProfile = { },
     )
+=======
+    SearchAllPeopleScreen("Search query", persistentListOf(), persistentListOf(), persistentSetOf(), true, false, { _, _ -> }, {})
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 }
 
 @PreviewMultipleThemes
 @Composable
+<<<<<<< HEAD
 fun PreviewSearchAllPeopleScreen_EmptyList() = WireTheme {
     SearchAllPeopleScreen(
         searchQuery = "Search query",
@@ -457,10 +533,16 @@ fun PreviewSearchAllPeopleScreen_EmptyList() = WireTheme {
         onChecked = { _, _ -> },
         onOpenUserProfile = { },
     )
+=======
+fun PreviewSearchAllPeopleScreen_InitialResults() = WireTheme {
+    val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true).toPersistentList()
+    SearchAllPeopleScreen("", contacts, persistentListOf(), persistentSetOf(), false, false, { _, _ -> }, {})
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 }
 
 @PreviewMultipleThemes
 @Composable
+<<<<<<< HEAD
 fun PreviewSearchAllPeopleScreen_NoSearch() = WireTheme {
     val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true)
     SearchAllPeopleScreen(
@@ -474,10 +556,15 @@ fun PreviewSearchAllPeopleScreen_NoSearch() = WireTheme {
         onChecked = { _, _ -> },
         onOpenUserProfile = { },
     )
+=======
+fun PreviewSearchAllPeopleScreen_EmptyInitialResults() = WireTheme {
+    SearchAllPeopleScreen("", persistentListOf(), persistentListOf(), persistentSetOf(), false, false, { _, _ -> }, {})
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 }
 
 @PreviewMultipleThemes
 @Composable
+<<<<<<< HEAD
 fun PreviewSearchAllPeopleScreen_SearchResults_TypeClick() = WireTheme {
     val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true)
     val public = previewContactsList(count = 10, startIndex = 10, isContact = false)
@@ -492,10 +579,17 @@ fun PreviewSearchAllPeopleScreen_SearchResults_TypeClick() = WireTheme {
         onChecked = { _, _ -> },
         onOpenUserProfile = { },
     )
+=======
+fun PreviewSearchAllPeopleScreen_SearchResults() = WireTheme {
+    val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true).toPersistentList()
+    val public = previewContactsList(count = 10, startIndex = 10, isContact = false).toPersistentList()
+    SearchAllPeopleScreen("Con", contacts, public, persistentSetOf(), false, true, { _, _ -> }, {})
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 }
 
 @PreviewMultipleThemes
 @Composable
+<<<<<<< HEAD
 fun PreviewSearchAllPeopleScreen_SearchResults_TypeCheck() = WireTheme {
     val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true)
     val public = previewContactsList(count = 10, startIndex = 10, isContact = false)
@@ -512,17 +606,29 @@ fun PreviewSearchAllPeopleScreen_SearchResults_TypeCheck() = WireTheme {
         onOpenUserProfile = { },
         selectedContactResultsExpanded = true,
     )
+=======
+fun PreviewSearchAllPeopleScreen_EmptySearchResults() = WireTheme {
+    SearchAllPeopleScreen("Con", persistentListOf(), persistentListOf(), persistentSetOf(), false, true, { _, _ -> }, {})
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
 }
 
 private fun previewContact(index: Int, isContact: Boolean) = Contact(
     id = index.toString(),
     domain = "wire.com",
     name = "Contact nr $index",
+<<<<<<< HEAD
     handle = "contact_$index",
+=======
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))
     connectionState = if (isContact) ConnectionState.ACCEPTED else ConnectionState.NOT_CONNECTED,
     membership = Membership.Standard,
 )
 
+<<<<<<< HEAD
 private fun previewContactsList(count: Int, startIndex: Int = 0, isContact: Boolean): ImmutableList<Contact> = buildList {
     repeat(count) { index -> add(previewContact(startIndex + index, isContact)) }
 }.toPersistentList()
+=======
+private fun previewContactsList(count: Int, startIndex: Int = 0, isContact: Boolean): List<Contact> =
+    buildList { repeat(count) { index -> add(previewContact(startIndex + index, isContact)) } }
+>>>>>>> 0b3dc07e6 (fix: show proper empty user search screens [WPB-6257] (#3589))

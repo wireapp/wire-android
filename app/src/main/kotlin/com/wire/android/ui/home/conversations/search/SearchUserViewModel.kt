@@ -56,7 +56,7 @@ class SearchUserViewModel @Inject constructor(
         null
     }
 
-    var state: SearchUserState by mutableStateOf(SearchUserState())
+    var state: SearchUserState by mutableStateOf(SearchUserState(isLoading = true))
         private set
 
     fun search(query: String) = viewModelScope.launch {
@@ -82,6 +82,8 @@ class SearchUserViewModel @Inject constructor(
             customDomain = domain
         ).also { userSearchEntities ->
             state = state.copy(
+                isLoading = false,
+                searchQuery = searchTerm,
                 contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
                 publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()
             )
@@ -95,6 +97,8 @@ class SearchUserViewModel @Inject constructor(
             customDomain = domain
         ).also { userSearchEntities ->
             state = state.copy(
+                isLoading = false,
+                searchQuery = searchTerm,
                 contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
                 publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()
             )
@@ -105,6 +109,6 @@ class SearchUserViewModel @Inject constructor(
 data class SearchUserState(
     val contactsResult: ImmutableList<Contact> = persistentListOf(),
     val publicResult: ImmutableList<Contact> = persistentListOf(),
-    val includeServices: Boolean = false,
-    val noneSearchSucceeded: Boolean = false
+    val searchQuery: String = "",
+    val isLoading: Boolean = false,
 )

@@ -20,7 +20,6 @@ package com.wire.android.ui.home.conversations.search
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.ContactMapper
@@ -41,28 +40,23 @@ class SearchServicesViewModel @Inject constructor(
     private val contactMapper: ContactMapper,
     private val searchServicesByName: SearchServicesByNameUseCase,
 ) : ViewModel() {
-    var state: SearchServicesState by mutableStateOf(SearchServicesState())
+    var state: SearchServicesState by mutableStateOf(SearchServicesState(isLoading = true))
         private set
 
     fun search(query: String) {
         viewModelScope.launch {
-            if (query.isEmpty()) {
-                getAllServices().first().also { services ->
-                    state = state.copy(result = services.map(contactMapper::fromService).toImmutableList())
-                }
+            val result = if (query.isEmpty()) {
+                getAllServices().first()
             } else {
-                searchServicesByName(query).first().also { services ->
-                    state = state.copy(result = services.map(contactMapper::fromService).toImmutableList())
-                }
+                searchServicesByName(query).first()
             }
+            state = state.copy(isLoading = false, searchQuery = query, result = result.map(contactMapper::fromService).toImmutableList())
         }
     }
 }
 
 data class SearchServicesState(
     val result: ImmutableList<Contact> = persistentListOf(),
-    val searchQuery: TextFieldValue = TextFieldValue(),
-    val noneSearchSucceeded: Boolean = false,
+    val searchQuery: String = "",
     val isLoading: Boolean = false,
-    val error: Boolean = false
 )

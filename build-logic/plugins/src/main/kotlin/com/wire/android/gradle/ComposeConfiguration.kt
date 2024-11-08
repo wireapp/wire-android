@@ -18,7 +18,6 @@
 package com.wire.android.gradle
 
 import com.android.build.api.dsl.CommonExtension
-import findVersion
 import org.gradle.api.Project
 
 internal fun Project.configureCompose(

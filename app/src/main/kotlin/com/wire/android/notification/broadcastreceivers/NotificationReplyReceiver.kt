@@ -34,6 +34,7 @@ import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -63,11 +64,19 @@ class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argumen
             with(coreLogic.getSessionScope(qualifiedUserId)) {
                 // TODO better to move dispatcher logic into UseCase
                 CoroutineScope(coroutineContext + dispatcherProvider.io()).launch {
-                    messages.sendTextMessage(qualifiedConversationId, replyText)
-                        .fold(
-                            { updateNotification(context, conversationId, qualifiedUserId, null) },
-                            { updateNotification(context, conversationId, qualifiedUserId, replyText) }
+                    launch {
+                        messages.sendTextMessage(qualifiedConversationId, replyText)
+                            .fold(
+                                { updateNotification(context, conversationId, qualifiedUserId, null) },
+                                { updateNotification(context, conversationId, qualifiedUserId, replyText) }
+                            )
+                    }
+                    launch {
+                        conversations.updateConversationReadDateUseCase(
+                            qualifiedConversationId,
+                            Clock.System.now()
                         )
+                    }
                 }
             }
         }

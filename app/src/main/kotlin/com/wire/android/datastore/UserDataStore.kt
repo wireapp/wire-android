@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+@Suppress("TooManyFunctions")
 class UserDataStore(private val context: Context, userId: UserId) {
 
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "${PREFERENCES_NAME}_$userId")
@@ -90,6 +91,14 @@ class UserDataStore(private val context: Context, userId: UserId) {
         context.dataStore.edit { it[ANALYTICS_DIALOG_SEEN] = true }
     }
 
+    fun isCreateTeamNoticeRead(): Flow<Boolean> = context.dataStore.data.map {
+        it[IS_CREATE_TEAM_NOTICE_READ] ?: false
+    }
+
+    suspend fun setIsCreateTeamNoticeRead(isRead: Boolean) {
+        context.dataStore.edit { it[IS_CREATE_TEAM_NOTICE_READ] = isRead }
+    }
+
     companion object {
         private const val PREFERENCES_NAME = "user_data"
 
@@ -103,6 +112,7 @@ class UserDataStore(private val context: Context, userId: UserId) {
         private val LAST_BACKUP_DATE_INSTANT = longPreferencesKey("last_backup_date_instant")
         private val ANONYMOUS_ANALYTICS = booleanPreferencesKey("anonymous_analytics")
         private val ANALYTICS_DIALOG_SEEN = booleanPreferencesKey("analytics_dialog_seen")
+        private val IS_CREATE_TEAM_NOTICE_READ = booleanPreferencesKey("is_create_team_notice_read")
     }
 
 }

@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -55,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -65,7 +67,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.show
@@ -76,6 +78,7 @@ import com.wire.android.ui.common.error.ErrorIcon
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.remove.RemoveIcon
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
@@ -91,12 +94,15 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
 import com.wire.android.ui.home.conversationslist.common.ConversationList
-import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversationslist.common.previewConversationFolders
+import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.getActivity
@@ -104,11 +110,9 @@ import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AttachmentType
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import okio.Path.Companion.toPath
@@ -157,7 +161,7 @@ private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
                 onNavigationPressed = navigateBack,
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(),
                 title = stringResource(id = R.string.import_media_content_title),
             )
         },
@@ -258,7 +262,7 @@ fun ImportMediaRestrictedContent(
                 WireCenterAlignedTopAppBar(
                     elevation = dimensions().spacing0x,
                     onNavigationPressed = navigateBack,
-                    navigationIconType = NavigationIconType.Close,
+                    navigationIconType = NavigationIconType.Close(),
                     title = stringResource(id = R.string.import_media_content_title),
                     actions = {
                         UserProfileAvatar(
@@ -285,7 +289,7 @@ fun ImportMediaRegularContent(
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
     avatarAsset: ImageAsset.UserAvatarAsset?,
     searchQueryTextState: TextFieldState,
-    onConversationClicked: (conversationId: ConversationId) -> Unit,
+    onConversationClicked: (conversationItem: ConversationItem) -> Unit,
     checkRestrictionsAndSendImportedMedia: () -> Unit,
     onNewSelfDeletionTimerPicked: (selfDeletionDuration: SelfDeletionDuration) -> Unit,
     infoMessage: SharedFlow<SnackBarMessage>,
@@ -295,19 +299,29 @@ fun ImportMediaRegularContent(
 ) {
 
     val importMediaScreenState = rememberImportMediaScreenState()
+    val lazyListState = rememberLazyListState()
+    val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
 
     with(importMediaAuthenticatedState) {
         WireScaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
-                    elevation = dimensions().spacing0x,
+                    elevation = lazyListState.topBarElevation(maxAppBarElevation),
                     onNavigationPressed = navigateBack,
-                    navigationIconType = NavigationIconType.Close,
+                    navigationIconType = NavigationIconType.Close(),
                     title = stringResource(id = R.string.import_media_content_title),
                     actions = {
                         UserProfileAvatar(
                             avatarData = UserAvatarData(avatarAsset),
                             clickable = remember { Clickable(enabled = false) { } }
+                        )
+                    },
+                    bottomContent = {
+                        ImportMediaTopBarContent(
+                            state = importMediaAuthenticatedState,
+                            searchBarState = importMediaScreenState.searchBarState,
+                            searchQueryTextState = searchQueryTextState,
+                            onRemoveAsset = onRemoveAsset,
                         )
                     }
                 )
@@ -317,10 +331,8 @@ fun ImportMediaRegularContent(
                 ImportMediaContent(
                     state = this,
                     internalPadding = internalPadding,
-                    searchQueryTextState = searchQueryTextState,
                     onConversationClicked = onConversationClicked,
-                    searchBarState = importMediaScreenState.searchBarState,
-                    onRemoveAsset = onRemoveAsset
+                    lazyListState = lazyListState,
                 )
             },
             bottomBar = {
@@ -331,6 +343,9 @@ fun ImportMediaRegularContent(
                 )
             }
         )
+        BackHandler(enabled = importMediaScreenState.searchBarState.isSearchActive) {
+            importMediaScreenState.searchBarState.closeSearch()
+        }
         WireModalSheetLayout(
             sheetState = importMediaScreenState.bottomSheetState,
             sheetContent = {
@@ -364,7 +379,7 @@ fun ImportMediaLoggedOutContent(
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
                 onNavigationPressed = navigateBack,
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(),
                 title = stringResource(id = R.string.import_media_content_title),
             )
         },
@@ -457,25 +472,16 @@ private fun ImportMediaBottomBar(
 }
 
 @Composable
-private fun ImportMediaContent(
+fun ImportMediaTopBarContent(
     state: ImportMediaAuthenticatedState,
-    internalPadding: PaddingValues,
+    searchBarState: SearchBarState,
     searchQueryTextState: TextFieldState,
-    onConversationClicked: (conversationId: ConversationId) -> Unit,
     onRemoveAsset: (index: Int) -> Unit,
-    searchBarState: SearchBarState
+    modifier: Modifier = Modifier,
 ) {
-    val importedItemsList: PersistentList<ImportedMediaAsset> = state.importedAssets
-    val itemsToImport = importedItemsList.size
+    val isMultipleImport = state.importedAssets.size != 1
 
-    val isMultipleImport = itemsToImport != 1
-
-    Column(
-        modifier = Modifier
-            .padding(internalPadding)
-            .fillMaxSize()
-    ) {
-        val lazyListState = rememberLazyListState()
+    Column(modifier = modifier) {
         if (state.isImporting) {
             Box(
                 Modifier
@@ -497,14 +503,14 @@ private fun ImportMediaContent(
             ) {
                 AssetTilePreview(
                     modifier = Modifier.fillMaxHeight(),
-                    assetBundle = importedItemsList.first().assetBundle,
+                    assetBundle = state.importedAssets.first().assetBundle,
                     showOnlyExtension = false,
                     onClick = {}
                 )
             }
         } else {
             when (state.importedText.isNullOrBlank()) {
-                true -> ImportAssetsCarrousel(importedItemsList, onRemoveAsset)
+                true -> ImportAssetsCarrousel(state.importedAssets, onRemoveAsset)
                 false -> ImportText(state.importedText)
             }
         }
@@ -513,36 +519,44 @@ private fun ImportMediaContent(
             thickness = 1.dp,
             modifier = Modifier.padding(top = dimensions().spacing12x)
         )
-        Box(Modifier.padding(dimensions().spacing6x)) {
-            SearchTopBar(
-                isSearchActive = searchBarState.isSearchActive,
-                searchBarHint = stringResource(
-                    R.string.search_bar_conversations_hint,
-                    stringResource(id = R.string.conversations_screen_title).lowercase()
-                ),
-                searchQueryTextState = searchQueryTextState,
-                onActiveChanged = searchBarState::searchActiveChanged,
-            )
-        }
+        SearchTopBar(
+            isSearchActive = searchBarState.isSearchActive,
+            searchBarHint = stringResource(
+                R.string.search_bar_conversations_hint,
+                stringResource(id = R.string.conversations_screen_title).lowercase()
+            ),
+            searchQueryTextState = searchQueryTextState,
+            onActiveChanged = searchBarState::searchActiveChanged,
+        )
+    }
+}
+
+@Composable
+private fun ImportMediaContent(
+    state: ImportMediaAuthenticatedState,
+    internalPadding: PaddingValues,
+    onConversationClicked: (conversationItem: ConversationItem) -> Unit,
+    lazyListState: LazyListState = rememberLazyListState(),
+) {
+    Column(
+        modifier = Modifier
+            .padding(internalPadding)
+            .fillMaxSize()
+    ) {
+        val lazyPagingConversations = state.conversations.collectAsLazyPagingItems()
         ConversationList(
             modifier = Modifier.weight(1f),
             lazyListState = lazyListState,
-            conversationListItems = persistentMapOf(
-                ConversationFolder.WithoutHeader to state.shareableConversationListState.searchResult
-            ),
-            conversationsAddedToGroup = state.selectedConversationItem,
+            lazyPagingConversations = lazyPagingConversations,
+            selectedConversations = state.selectedConversationItem,
             isSelectableList = true,
             onConversationSelectedOnRadioGroup = onConversationClicked,
-            searchQuery = state.shareableConversationListState.searchQuery,
             onOpenConversation = onConversationClicked,
             onEditConversation = {},
             onOpenUserProfile = {},
             onJoinCall = {},
             onAudioPermissionPermanentlyDenied = {}
         )
-    }
-    BackHandler(enabled = searchBarState.isSearchActive) {
-        searchBarState.closeSearch()
     }
 }
 
@@ -656,6 +670,7 @@ fun PreviewImportMediaScreenRegular() {
     WireTheme {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(
+                conversations = previewConversationFoldersFlow(),
                 importedAssets = persistentListOf(
                     ImportedMediaAsset(
                         AssetBundle(
@@ -721,6 +736,7 @@ fun PreviewImportMediaTextScreenRegular() {
     WireTheme {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(
+                conversations = previewConversationFoldersFlow(list = previewConversationFolders(withFolders = false)),
                 importedAssets = persistentListOf(),
                 importedText = "This is a shared text message \n" +
                         "This is a second line with a veeeeeeeeeeeeeeeeeeeeeeeeeeery long shared text message"

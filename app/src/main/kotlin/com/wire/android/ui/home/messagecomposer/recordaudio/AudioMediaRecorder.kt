@@ -26,6 +26,7 @@ import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.media.MediaRecorder
+import android.os.ParcelFileDescriptor
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.fileDateTime
@@ -36,6 +37,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -218,15 +220,23 @@ class AudioMediaRecorder @Inject constructor(
         }
     }
 
-    @Suppress("LongMethod", "CyclomaticComplexMethod")
+    @Suppress("LongMethod", "CyclomaticComplexMethod", "TooGenericExceptionCaught")
     suspend fun convertWavToMp4(inputFilePath: String): Boolean = withContext(Dispatchers.IO) {
         var codec: MediaCodec? = null
         var muxer: MediaMuxer? = null
         var fileInputStream: FileInputStream? = null
+        var parcelFileDescriptor: ParcelFileDescriptor? = null
+        var success = true
 
         try {
             val inputFile = File(inputFilePath)
             fileInputStream = FileInputStream(inputFile)
+
+            val outputFile = mp4OutputPath?.toFile()
+            parcelFileDescriptor = ParcelFileDescriptor.open(
+                outputFile,
+                ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
+            )
 
             val mediaExtractor = MediaExtractor()
             mediaExtractor.setDataSource(inputFilePath)
@@ -244,12 +254,16 @@ class AudioMediaRecorder @Inject constructor(
             codec.start()
 
             val bufferInfo = MediaCodec.BufferInfo()
-            muxer = MediaMuxer(mp4OutputPath.toString(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            muxer = MediaMuxer(parcelFileDescriptor.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
             var trackIndex = -1
             var sawInputEOS = false
             var sawOutputEOS = false
 
-            while (!sawOutputEOS) {
+            var retryCount = 0
+            var presentationTimeUs = 0L
+            val bytesPerSample = (BITS_PER_SAMPLE / BITS_PER_BYTE) * AUDIO_CHANNELS
+
+            while (!sawOutputEOS && retryCount < MAX_RETRY_COUNT) {
                 if (!sawInputEOS) {
                     val inputBufferIndex = codec.dequeueInputBuffer(TIMEOUT_US)
                     if (inputBufferIndex >= 0) {
@@ -261,69 +275,96 @@ class AudioMediaRecorder @Inject constructor(
                             codec.queueInputBuffer(inputBufferIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
                             sawInputEOS = true
                         } else {
-                            val presentationTimeUs = System.nanoTime() / NANOSECONDS_IN_MICROSECOND
+                            val numSamples = sampleSize / bytesPerSample
+                            val bufferDurationUs = (numSamples * MICROSECONDS_PER_SECOND) / SAMPLING_RATE
                             codec.queueInputBuffer(inputBufferIndex, 0, sampleSize, presentationTimeUs, 0)
+
+                            presentationTimeUs += bufferDurationUs
                         }
                     }
                 }
 
                 val outputBufferIndex = codec.dequeueOutputBuffer(bufferInfo, TIMEOUT_US)
-                if (outputBufferIndex >= 0) {
-                    val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
 
-                    if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
-                        codec.releaseOutputBuffer(outputBufferIndex, false)
-                        continue
+                when {
+                    outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
+                        val newFormat = codec.outputFormat
+                        trackIndex = muxer.addTrack(newFormat)
+                        muxer.start()
+                        retryCount = 0
                     }
 
-                    if (bufferInfo.size != 0) {
-                        outputBuffer?.position(bufferInfo.offset)
-                        outputBuffer?.limit(bufferInfo.offset + bufferInfo.size)
+                    outputBufferIndex >= 0 -> {
+                        val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
 
-                        if (trackIndex == -1) {
-                            val newFormat = codec.outputFormat
-                            trackIndex = muxer.addTrack(newFormat)
-                            muxer.start()
+                        if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
+                            bufferInfo.size = 0
                         }
 
-                        muxer.writeSampleData(trackIndex, outputBuffer!!, bufferInfo)
+                        if (bufferInfo.size != 0 && outputBuffer != null) {
+                            outputBuffer.position(bufferInfo.offset)
+                            outputBuffer.limit(bufferInfo.offset + bufferInfo.size)
+
+                            if (trackIndex >= 0) {
+                                muxer.writeSampleData(trackIndex, outputBuffer, bufferInfo)
+                            } else {
+                                appLogger.e("Track index is not set. Skipping writeSampleData.")
+                            }
+                        }
+
+                        codec.releaseOutputBuffer(outputBufferIndex, false)
+                        retryCount = 0
+
+                        if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
+                            sawOutputEOS = true
+                        }
                     }
 
-                    codec.releaseOutputBuffer(outputBufferIndex, false)
-
-                    if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
-                        sawOutputEOS = true
+                    outputBufferIndex == MediaCodec.INFO_TRY_AGAIN_LATER -> {
+                        retryCount++
+                        delay(RETRY_DELAY_IN_MILLIS)
                     }
                 }
             }
-            true
-        } catch (e: IllegalStateException) {
+            if (retryCount >= MAX_RETRY_COUNT) {
+                appLogger.e("Reached maximum retries without receiving output from codec.")
+                success = false
+            }
+        } catch (e: Exception) {
             appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
-            false
-        } catch (e: IOException) {
-            appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
-            false
+            success = false
         } finally {
             try {
                 fileInputStream?.close()
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 appLogger.e("Could not close FileInputStream: ${e.message}", throwable = e)
+                success = false
             }
 
             try {
                 muxer?.stop()
                 muxer?.release()
-            } catch (e: IllegalStateException) {
+            } catch (e: Exception) {
                 appLogger.e("Could not stop or release MediaMuxer: ${e.message}", throwable = e)
+                success = false
             }
 
             try {
                 codec?.stop()
                 codec?.release()
-            } catch (e: IllegalStateException) {
+            } catch (e: Exception) {
                 appLogger.e("Could not stop or release MediaCodec: ${e.message}", throwable = e)
+                success = false
+            }
+
+            try {
+                parcelFileDescriptor?.close()
+            } catch (e: Exception) {
+                appLogger.e("Could not close ParcelFileDescriptor: ${e.message}", throwable = e)
+                success = false
             }
         }
+        success
     }
 
     companion object {
@@ -353,6 +394,8 @@ class AudioMediaRecorder @Inject constructor(
 
         private const val BIT_RATE = 64000
         private const val TIMEOUT_US: Long = 10000
-        const val NANOSECONDS_IN_MICROSECOND = 1000
+        const val MICROSECONDS_PER_SECOND = 1_000_000L
+        const val MAX_RETRY_COUNT = 100
+        const val RETRY_DELAY_IN_MILLIS = 100L
     }
 }

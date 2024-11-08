@@ -290,22 +290,27 @@ class SendMessageViewModel @Inject constructor(
                 attachmentBundle?.run {
                     when (assetType) {
                         AttachmentType.IMAGE -> {
-                            val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
-                                kaliumFileSystem,
-                                attachmentBundle.dataPath
-                            )
-                            sendAssetMessage(
-                                conversationId = conversationId,
-                                assetDataPath = dataPath,
-                                assetName = fileName,
-                                assetWidth = imgWidth,
-                                assetHeight = imgHeight,
-                                assetDataSize = dataSize,
-                                assetMimeType = mimeType,
-                                audioLengthInMs = 0L
-                            )
-                                .handleLegalHoldFailureAfterSendingMessage(conversationId)
-                                .handleAssetContributionEvent(assetType)
+                            if (kaliumFileSystem.exists(attachmentBundle.dataPath)) {
+                                val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
+                                    kaliumFileSystem,
+                                    attachmentBundle.dataPath
+                                )
+                                sendAssetMessage(
+                                    conversationId = conversationId,
+                                    assetDataPath = dataPath,
+                                    assetName = fileName,
+                                    assetWidth = imgWidth,
+                                    assetHeight = imgHeight,
+                                    assetDataSize = dataSize,
+                                    assetMimeType = mimeType,
+                                    audioLengthInMs = 0L
+                                )
+                                    .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                                    .handleAssetContributionEvent(assetType)
+                            } else {
+                                appLogger.e("There was a FileNotFoundException error while sending image asset")
+                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
+                            }
                         }
 
                         AttachmentType.VIDEO,
@@ -343,10 +348,10 @@ class SendMessageViewModel @Inject constructor(
     ) = also {
         onSuccess {
             val event = when (assetType) {
-                AttachmentType.IMAGE -> AnalyticsEvent.Contributed.Photo()
-                AttachmentType.VIDEO -> AnalyticsEvent.Contributed.Video()
-                AttachmentType.GENERIC_FILE -> AnalyticsEvent.Contributed.File()
-                AttachmentType.AUDIO -> AnalyticsEvent.Contributed.Audio()
+                AttachmentType.IMAGE -> AnalyticsEvent.Contributed.Photo
+                AttachmentType.VIDEO -> AnalyticsEvent.Contributed.Video
+                AttachmentType.GENERIC_FILE -> AnalyticsEvent.Contributed.File
+                AttachmentType.AUDIO -> AnalyticsEvent.Contributed.Audio
             }
             analyticsManager.sendEvent(event)
         }
@@ -360,10 +365,10 @@ class SendMessageViewModel @Inject constructor(
                 is ComposableMessageBundle.AudioMessageBundle,
                 is ComposableMessageBundle.AttachmentPickedBundle -> return@also
 
-                is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location()
-                is Ping -> AnalyticsEvent.Contributed.Ping()
+                is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location
+                is Ping -> AnalyticsEvent.Contributed.Ping
                 is ComposableMessageBundle.EditMessageBundle,
-                is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text()
+                is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text
             }
             analyticsManager.sendEvent(event)
         }

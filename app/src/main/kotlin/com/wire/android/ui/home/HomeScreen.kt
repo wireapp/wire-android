@@ -21,12 +21,13 @@ package com.wire.android.ui.home
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -37,7 +38,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -66,11 +66,15 @@ import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.currentFilter
 import com.wire.android.navigation.handleNavigation
+import com.wire.android.navigation.toDestination
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -83,10 +87,12 @@ import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
+import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent
 import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -160,7 +166,10 @@ fun HomeScreen(
         homeDrawerState = homeDrawerViewModel.drawerState,
         homeStateHolder = homeScreenState,
         onNewConversationClick = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
-        onSelfUserClick = remember(navigator) { { navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination)) } }
+        onSelfUserClick = {
+            homeViewModel.sendOpenProfileEvent()
+            navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+        }
     )
 
     BackHandler(homeScreenState.drawerState.isOpen) {
@@ -233,6 +242,8 @@ fun HomeContent(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val filterSheetState = rememberWireModalSheetState<ConversationFilter>()
+
     with(homeStateHolder) {
         fun openHomeDestination(item: HomeDestination) {
             item.direction.handleNavigation(
@@ -276,19 +287,23 @@ fun HomeContent(
             content = {
                 CollapsingTopBarScaffold(
                     snapOnFling = false,
-                    keepElevationWhenCollapsed = true,
-                    topBarHeader = { elevation ->
-                        Column(modifier = Modifier.animateContentSize()) {
-                            AnimatedVisibility(visible = !searchBarState.isSearchActive) {
-                                HomeTopBar(
-                                    userAvatarData = homeState.userAvatarData,
-                                    title = stringResource(currentNavigationItem.title),
-                                    elevation = elevation,
-                                    withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
-                                    onHamburgerMenuClick = ::openDrawer,
-                                    onNavigateToSelfUserProfile = onSelfUserClick
-                                )
-                            }
+                    topBarHeader = {
+                        AnimatedVisibility(
+                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                            visible = !searchBarState.isSearchActive,
+                            enter = fadeIn() + expandVertically(),
+                            exit = shrinkVertically() + fadeOut(),
+                        ) {
+                            HomeTopBar(
+                                navigationItem = currentNavigationItem,
+                                userAvatarData = homeState.userAvatarData,
+                                elevation = dimensions().spacing0x, // CollapsingTopBarScaffold manages applied elevation
+                                withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
+                                shouldShowCreateTeamUnreadIndicator = homeState.shouldShowCreateTeamUnreadIndicator,
+                                onHamburgerMenuClick = ::openDrawer,
+                                onNavigateToSelfUserProfile = onSelfUserClick,
+                                onOpenConversationFilter = { filterSheetState.show(it) }
+                            )
                         }
                     },
                     topBarCollapsing = {
@@ -301,7 +316,8 @@ fun HomeContent(
                             )
                         }
                     },
-                    isSwipeable = !searchBarState.isSearchActive,
+                    collapsingEnabled = !searchBarState.isSearchActive,
+                    contentLazyListState = homeStateHolder.currentLazyListState,
                     content = {
                         /**
                          * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
@@ -350,6 +366,18 @@ fun HomeContent(
                                 onClick = onNewConversationClick
                             )
                         }
+                    }
+                )
+            }
+        )
+        WireModalSheetLayout(
+            sheetState = filterSheetState,
+            sheetContent = {
+                ConversationFilterSheetContent(
+                    currentFilter = currentNavigationItem.currentFilter(),
+                    onChangeFilter = { filter ->
+                        filterSheetState.hide()
+                        openHomeDestination(filter.toDestination())
                     }
                 )
             }

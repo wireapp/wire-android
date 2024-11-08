@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversations.search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,6 +34,7 @@ import com.wire.android.util.QueryMatchExtractor
 @Composable
 fun HighlightSubtitle(
     subTitle: String,
+    modifier: Modifier = Modifier,
     searchQuery: String = String.EMPTY,
     prefix: String = "@"
 ) {
@@ -40,14 +42,14 @@ fun HighlightSubtitle(
         return
     }
 
-    val queryWithoutSuffix = searchQuery.removeQueryPrefix()
+    val subtitleWithPrefix = "$prefix$subTitle"
 
     val highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
-        matchText = queryWithoutSuffix,
-        text = subTitle
+        matchText = searchQuery,
+        text = subtitleWithPrefix
     )
 
-    if (queryWithoutSuffix != String.EMPTY && highlightIndexes.isNotEmpty()) {
+    if (searchQuery != String.EMPTY && highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
                 withStyle(
@@ -59,7 +61,7 @@ fun HighlightSubtitle(
                         fontStyle = MaterialTheme.wireTypography.subline01.fontStyle
                     )
                 ) {
-                    append("$prefix$subTitle")
+                    append(subtitleWithPrefix)
                 }
 
                 highlightIndexes
@@ -70,22 +72,24 @@ fun HighlightSubtitle(
                                     background = MaterialTheme.wireColorScheme.highlight,
                                     color = MaterialTheme.wireColorScheme.onHighlight,
                                 ),
-                                start = highLightIndex.startIndex + prefix.length,
-                                end = highLightIndex.endIndex + prefix.length
+                                start = highLightIndex.startIndex,
+                                end = highLightIndex.endIndex
                             )
                         }
                     }
             },
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = modifier
         )
     } else {
         Text(
-            text = "$prefix$subTitle",
+            text = subtitleWithPrefix,
             style = MaterialTheme.wireTypography.subline01,
             color = MaterialTheme.wireColorScheme.secondaryText,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = modifier
         )
     }
 }

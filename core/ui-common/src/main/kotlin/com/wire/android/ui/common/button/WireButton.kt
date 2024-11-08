@@ -33,8 +33,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,10 +48,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.Tint
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -62,10 +64,10 @@ import com.wire.android.ui.theme.wireTypography
 import java.lang.Integer.max
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WireButton(
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     loading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     leadingIconAlignment: IconAlignment = IconAlignment.Center,
@@ -87,7 +89,7 @@ fun WireButton(
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    modifier: Modifier = Modifier,
+    onClickDescription: String? = null
 ) {
     val border = when {
         borderWidth > 0.dp -> BorderStroke(width = borderWidth, color = colors.outlineColor(state).value)
@@ -101,7 +103,7 @@ fun WireButton(
         disabledContentColor = colors.rippleColor(state).value,
     )
     val onClickWithSyncObserver = rememberClickBlockAction(clickBlockParams, onClick)
-    CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides min(minClickableSize.width, minClickableSize.height)) {
         Button(
             onClick = onClickWithSyncObserver,
             modifier = modifier
@@ -119,7 +121,8 @@ fun WireButton(
                         val centerY = ((height - placeable.height) / 2f).roundToInt()
                         placeable.place(centerX, centerY)
                     }
-                },
+                }
+                .semantics { onClickDescription?.let { onClick(it) { false } } },
             enabled = state != WireButtonState.Disabled,
             interactionSource = interactionSource,
             elevation = elevation,

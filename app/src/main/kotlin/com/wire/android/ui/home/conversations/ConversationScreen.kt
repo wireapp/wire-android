@@ -80,20 +80,18 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
-import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -139,6 +137,7 @@ import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBack
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
+import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
@@ -236,6 +235,7 @@ fun ConversationScreen(
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         draftMessageComposition = messageDraftViewModel.state.value,
+        onClearDraft = messageDraftViewModel::clearDraft,
         onSaveDraft = messageComposerViewModel::saveDraft,
         onSearchMentionQueryChanged = messageComposerViewModel::searchMembersToMention,
         onTypingEvent = messageComposerViewModel::sendTypingEvent,
@@ -262,7 +262,7 @@ fun ConversationScreen(
     // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
-    val activity = LocalActivity.current
+    val context = LocalContext.current
 
     LaunchedEffect(conversationScreenState.isAnySheetVisible) {
         with(messageComposerStateHolder) {
@@ -291,6 +291,13 @@ fun ConversationScreen(
             )
         }
     }
+    // set message composer input to reply mode when quotedMessage is not null from MessageDraft
+    LaunchedEffect(messageDraftViewModel.state.value.quotedMessageId) {
+        val compositionState = messageDraftViewModel.state.value
+        if (compositionState.quotedMessage != null) {
+            messageComposerStateHolder.messageCompositionHolder.updateQuote(compositionState.quotedMessage)
+        }
+    }
 
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(
@@ -308,10 +315,10 @@ fun ConversationScreen(
                 onDismiss = ::dismissJoinCallAnywayDialog,
                 onConfirm = {
                     joinAnyway {
-                        getOngoingCallIntent(activity, it.toString()).run {
-                            activity.startActivity(this)
+                        getOngoingCallIntent(context, it.toString()).run {
+                            context.startActivity(this)
                         }
-                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
+                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                     }
                 }
             )
@@ -322,10 +329,10 @@ fun ConversationScreen(
         ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
             OngoingActiveCallDialog(onJoinAnyways = {
                 conversationListCallViewModel.endEstablishedCallIfAny {
-                    getOutgoingCallIntent(activity, conversationListCallViewModel.conversationId.toString()).run {
-                        activity.startActivity(this)
+                    getOutgoingCallIntent(context, conversationListCallViewModel.conversationId.toString()).run {
+                        context.startActivity(this)
                     }
-                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                 }
                 showDialog.value = ConversationScreenDialogType.NONE
             }, onDialogDismiss = {
@@ -349,13 +356,13 @@ fun ConversationScreen(
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
                         onOpenOutgoingCallScreen = {
-                            getOutgoingCallIntent(activity, it.toString()).run {
-                                activity.startActivity(this)
+                            getOutgoingCallIntent(context, it.toString()).run {
+                                context.startActivity(this)
                             }
                         },
                         onOpenOngoingCallScreen = {
-                            getOngoingCallIntent(activity, it.toString()).run {
-                                activity.startActivity(this)
+                            getOngoingCallIntent(context, it.toString()).run {
+                                context.startActivity(this)
                             }
                         }
                     )
@@ -395,13 +402,13 @@ fun ConversationScreen(
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
                         onOpenOutgoingCallScreen = {
-                            getOutgoingCallIntent(activity, it.toString()).run {
-                                activity.startActivity(this)
+                            getOutgoingCallIntent(context, it.toString()).run {
+                                context.startActivity(this)
                             }
                         },
                         onOpenOngoingCallScreen = {
-                            getOngoingCallIntent(activity, it.toString()).run {
-                                activity.startActivity(this)
+                            getOngoingCallIntent(context, it.toString()).run {
+                                context.startActivity(this)
                             }
                         }
                     )
@@ -480,22 +487,22 @@ fun ConversationScreen(
                 coroutineScope,
                 conversationInfoViewModel.conversationInfoViewState.conversationType,
                 onOpenOutgoingCallScreen = {
-                    getOutgoingCallIntent(activity, it.toString()).run {
-                        activity.startActivity(this)
+                    getOutgoingCallIntent(context, it.toString()).run {
+                        context.startActivity(this)
                     }
                 },
                 onOpenOngoingCallScreen = {
-                    getOngoingCallIntent(activity, it.toString()).run {
-                        activity.startActivity(this)
+                    getOngoingCallIntent(context, it.toString()).run {
+                        context.startActivity(this)
                     }
                 }
             )
         },
         onJoinCall = {
             conversationListCallViewModel.joinOngoingCall {
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
-                getOngoingCallIntent(activity, it.toString()).run {
-                    activity.startActivity(this)
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
+                getOngoingCallIntent(context, it.toString()).run {
+                    context.startActivity(this)
                 }
             }
         },
@@ -751,7 +758,7 @@ private fun startCallIfPossible(
                     } else {
                         conversationListCallViewModel.endEstablishedCallIfAny {
                             onOpenOutgoingCallScreen(conversationListCallViewModel.conversationId)
-                            AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated())
+                            AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
                         }
                         ConversationScreenDialogType.NONE
                     }
@@ -759,7 +766,7 @@ private fun startCallIfPossible(
 
                 ConferenceCallingResult.Disabled.Established -> {
                     onOpenOngoingCallScreen(conversationListCallViewModel.conversationId)
-                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                     ConversationScreenDialogType.NONE
                 }
 
@@ -1001,22 +1008,24 @@ private fun ConversationScreenContent(
                 audioMessagesState = audioMessagesState,
                 assetStatuses = assetStatuses,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
-                onAssetItemClicked = onAssetItemClicked,
-                onAudioItemClicked = onAudioItemClicked,
-                onChangeAudioPosition = onChangeAudioPosition,
-                onImageFullScreenMode = onImageFullScreenMode,
-                onOpenProfile = onOpenProfile,
-                onReactionClicked = onReactionClicked,
-                onResetSessionClicked = onResetSessionClicked,
+                clickActions = MessageClickActions.Content(
+                    onFullMessageLongClicked = onShowEditingOptions,
+                    onProfileClicked = onOpenProfile,
+                    onReactionClicked = onReactionClicked,
+                    onAssetClicked = onAssetItemClicked,
+                    onPlayAudioClicked = onAudioItemClicked,
+                    onAudioPositionChanged = onChangeAudioPosition,
+                    onImageClicked = onImageFullScreenMode,
+                    onLinkClicked = onLinkClick,
+                    onReplyClicked = onNavigateToReplyOriginalMessage,
+                    onResetSessionClicked = onResetSessionClicked,
+                    onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                    onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                ),
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                onShowEditingOption = onShowEditingOptions,
                 onSwipedToReply = onSwipedToReply,
                 conversationDetailsData = conversationDetailsData,
-                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                onLinkClick = onLinkClick,
                 selectedMessageId = selectedMessageId,
-                onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow
             )
@@ -1077,23 +1086,12 @@ fun MessageList(
     audioMessagesState: PersistentMap<String, AudioState>,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onUpdateConversationReadDate: (String) -> Unit,
-    onAssetItemClicked: (String) -> Unit,
-    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
-    onOpenProfile: (String) -> Unit,
-    onAudioItemClicked: (String) -> Unit,
-    onChangeAudioPosition: (String, Int) -> Unit,
-    onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onShowEditingOption: (UIMessage.Regular) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
-    onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
-    onFailedMessageCancelClicked: (String) -> Unit,
-    onLinkClick: (String) -> Unit,
     selectedMessageId: String?,
-    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
     interactionAvailability: InteractionAvailability,
+    clickActions: MessageClickActions.Content,
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { }
 ) {
@@ -1201,27 +1199,11 @@ fun MessageList(
                         useSmallBottomPadding = useSmallBottomPadding,
                         audioState = audioMessagesState[message.header.messageId],
                         assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
-                        onAudioClick = onAudioItemClicked,
-                        onChangeAudioPosition = onChangeAudioPosition,
-                        onLongClicked = onShowEditingOption,
+                        clickActions = clickActions,
                         swipableMessageConfiguration = swipableConfiguration,
-                        onAssetMessageClicked = onAssetItemClicked,
-                        onImageMessageClicked = onImageFullScreenMode,
-                        onOpenProfile = onOpenProfile,
-                        onReactionClicked = onReactionClicked,
-                        onResetSessionClicked = onResetSessionClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                        onLinkClick = onLinkClick,
-                        onReplyClickable = Clickable(
-                            enabled = true,
-                            onClick = {
-                                onNavigateToReplyOriginalMessage(message)
-                            }
-                        ),
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
-                        isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
+                        failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
                     )
 
                     val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1
@@ -1392,6 +1374,7 @@ fun PreviewConversationScreen() = WireTheme {
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         draftMessageComposition = messageCompositionState.value,
+        onClearDraft = {},
         onSaveDraft = {},
         onTypingEvent = {},
         onSearchMentionQueryChanged = {},

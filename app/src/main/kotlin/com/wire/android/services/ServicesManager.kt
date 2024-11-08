@@ -18,7 +18,6 @@
 
 package com.wire.android.services
 
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -34,7 +33,6 @@ import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.reflect.KClass
 
 /**
  * This is helper class that should be used for starting/stopping any services.
@@ -47,67 +45,70 @@ class ServicesManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
-    private val ongoingCallServiceEvents = MutableStateFlow(false)
+    private val callServiceEvents = MutableStateFlow(false)
 
     init {
         scope.launch {
-            ongoingCallServiceEvents
-                .debounce { if (!it) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
+            callServiceEvents
+                .debounce { if (it) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
                 .distinctUntilChanged()
                 .collectLatest { shouldBeStarted ->
                     if (!shouldBeStarted) {
-                        appLogger.i("ServicesManager: stopping OngoingCallService because there are no ongoing calls")
-                        when (OngoingCallService.serviceState.get()) {
-                            OngoingCallService.ServiceState.STARTED -> {
-                                // Instead of simply calling stopService(OngoingCallService::class), which can end up with a crash if it
+                        appLogger.i("ServicesManager: stopping CallService because there are no calls")
+                        when (CallService.serviceState.get()) {
+                            CallService.ServiceState.STARTED -> {
+                                // Instead of simply calling stopService(CallService::class), which can end up with a crash if it
                                 // happens before the service calls startForeground, we call the startService command with an empty data
                                 // or some specific argument that tells the service that it should stop itself right after startForeground.
                                 // This way, when this service is killed and recreated by the system, it will stop itself right after
                                 // recreating so it won't cause any problems.
-                                startService(OngoingCallService.newIntentToStop(context))
-                                appLogger.i("ServicesManager: OngoingCallService stopped by passing stop argument")
+                                startService(CallService.newIntentToStop(context))
+                                appLogger.i("ServicesManager: CallService stopped by passing stop argument")
                             }
 
-                            OngoingCallService.ServiceState.FOREGROUND -> {
+                            CallService.ServiceState.FOREGROUND -> {
                                 // we can just stop the service, because it's already in foreground
-                                context.stopService(OngoingCallService.newIntent(context))
-                                appLogger.i("ServicesManager: OngoingCallService stopped by calling stopService")
+                                context.stopService(CallService.newIntent(context))
+                                appLogger.i("ServicesManager: CallService stopped by calling stopService")
                             }
 
                             else -> {
-                                appLogger.i("ServicesManager: OngoingCallService not running, nothing to stop")
+                                appLogger.i("ServicesManager: CallService not running, nothing to stop")
                             }
                         }
                     } else {
-                        appLogger.i("ServicesManager: starting OngoingCallService")
-                        startService(OngoingCallService.newIntent(context))
+                        appLogger.i("ServicesManager: starting CallService")
+                        startService(CallService.newIntent(context))
                     }
                 }
         }
     }
 
-    // Ongoing call
-    fun startOngoingCallService() {
-        appLogger.i("ServicesManager: start OngoingCallService event")
+    fun startCallService() {
+        appLogger.i("ServicesManager: start CallService event")
         scope.launch {
-            ongoingCallServiceEvents.emit(true)
+            callServiceEvents.emit(true)
         }
     }
 
-    fun stopOngoingCallService() {
-        appLogger.i("ServicesManager: stop OngoingCallService event")
+    fun stopCallService() {
+        appLogger.i("ServicesManager: stop CallService event")
         scope.launch {
-            ongoingCallServiceEvents.emit(false)
+            callServiceEvents.emit(false)
         }
     }
 
     // Persistent WebSocket
     fun startPersistentWebSocketService() {
-        startService(PersistentWebSocketService.newIntent(context))
+        if (PersistentWebSocketService.isServiceStarted) {
+            appLogger.i("ServicesManager: PersistentWebsocketService already started, not starting again")
+        } else {
+            startService(PersistentWebSocketService.newIntent(context))
+        }
     }
 
     fun stopPersistentWebSocketService() {
-        stopService(PersistentWebSocketService::class)
+        stopService(PersistentWebSocketService.newIntent(context))
     }
 
     fun isPersistentWebSocketServiceRunning(): Boolean =
@@ -122,12 +123,13 @@ class ServicesManager @Inject constructor(
         }
     }
 
-    private fun stopService(serviceClass: KClass<out Service>) {
-        context.stopService(Intent(context, serviceClass.java))
+    private fun stopService(intent: Intent) {
+        appLogger.i("ServicesManager: stopping service for $intent")
+        context.stopService(intent)
     }
 
     companion object {
         @VisibleForTesting
-        internal const val DEBOUNCE_TIME = 200L
+        const val DEBOUNCE_TIME = 500L
     }
 }

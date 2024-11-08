@@ -36,6 +36,7 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
 import com.wire.android.feature.analytics.globalAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
+import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
@@ -147,11 +148,13 @@ class WireApplication : BaseApp() {
             override fun onActivityStarted(activity: Activity) {
                 globalAnalyticsManager.onStart(activity)
             }
+
             override fun onActivityResumed(activity: Activity) {}
             override fun onActivityPaused(activity: Activity) {}
             override fun onActivityStopped(activity: Activity) {
                 globalAnalyticsManager.onStop(activity)
             }
+
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
             override fun onActivityDestroyed(activity: Activity) {}
         })
@@ -223,13 +226,15 @@ class WireApplication : BaseApp() {
             dispatcher = Dispatchers.IO
         )
 
+        AnonymousAnalyticsManagerImpl.applicationOnCreate()
+
         // observe the app visibility state and send AppOpen event if the app goes from the background to the foreground
         globalAppScope.launch {
             currentScreenManager
                 .isAppVisibleFlow()
                 .filter { isVisible -> isVisible }
                 .collect {
-                    AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.AppOpen())
+                    AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.AppOpen)
                 }
         }
     }
@@ -238,7 +243,7 @@ class WireApplication : BaseApp() {
         appLogger.d(
             """
             > Device info: 
-                App version=${BuildConfig.VERSION_NAME} 
+                App version=${AppNameUtil.createAppName()} 
                 OS version=${Build.VERSION.SDK_INT}
                 Phone model=${Build.BRAND}/${Build.MODEL}
                 Commit hash=${applicationContext.getGitBuildId()}
@@ -275,7 +280,7 @@ class WireApplication : BaseApp() {
 
             companion object {
                 fun byLevel(value: Int) =
-                    values().firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
+                    entries.firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
             }
         }
 

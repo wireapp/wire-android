@@ -82,6 +82,6 @@ fun WireMenuModalSheetContent(
 ) {
     Column(modifier = modifier) {
         ModalSheetHeaderItem(header = header)
-        buildMenuSheetItems(items = menuItems)
+        BuildMenuSheetItems(items = menuItems)
     }
 }

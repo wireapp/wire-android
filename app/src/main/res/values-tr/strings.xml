@@ -81,7 +81,6 @@
     <string name="label_retry">Yeniden Dene</string>
     <string name="label_draft">Taslaklar</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Uygulama Simgesi</string>
     <string name="content_description_reveal_password">Şifreyi göster</string>
     <string name="content_description_hide_password">Parolayı gizle</string>
     <string name="content_description_search_back">Geri arama simgesi</string>
@@ -184,7 +183,6 @@
     <string name="app_settings_screen_title">Uygulama Ayarları</string>
     <string name="give_feedback_screen_title">Geri Bildirim Ver</string>
     <string name="report_bug_screen_title">Hata Bildir</string>
-    <string name="debug_settings_screen_title">Hata Ayıklama Günlüğü Ayarları</string>
     <string name="support_screen_title">Destek</string>
     <string name="backup_and_restore_screen_title">Konuşmaları Yedekle &amp; Geri yükle</string>
     <string name="search_bar_conversations_hint">Konuşmalarda ara</string>
@@ -300,4 +298,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Hata Ayıklama Günlüğü Ayarları</string>
 </resources>

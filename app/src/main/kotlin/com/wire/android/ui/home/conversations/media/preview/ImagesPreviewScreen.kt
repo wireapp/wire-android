@@ -145,7 +145,7 @@ private fun Content(
         topBar = {
             WireCenterAlignedTopAppBar(
                 title = previewState.conversationName,
-                navigationIconType = NavigationIconType.Back,
+                navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = onNavigationPressed,
             )
         },
@@ -198,6 +198,9 @@ private fun Content(
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                 HorizontalPager(
                     state = pagerState,
+                    key = { index: Int ->
+                        previewState.assetBundleList.getOrNull(index)?.assetBundle?.key ?: ""
+                    },
                     modifier = Modifier
                         .width(configuration.screenWidthDp.dp)
                         .fillMaxHeight(),

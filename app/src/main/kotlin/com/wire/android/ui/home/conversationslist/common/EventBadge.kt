@@ -149,12 +149,13 @@ fun ConnectRequestBadge(modifier: Modifier = Modifier) {
 fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
     WireItemLabel(
         text = stringResource(id = R.string.connection_pending_label),
+        contentDescription = stringResource(R.string.content_description_pending_connection_badge),
         modifier = modifier
     )
 }
 
 @Composable
-fun UnreadMessageEventBadge(modifier: Modifier = Modifier, unreadMessageCount: Int) {
+fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier = Modifier) {
     if (unreadMessageCount > 0) {
         NotificationBadgeContainer(
             modifier = modifier,

@@ -36,23 +36,24 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun WirePrimaryIconButton(
     onButtonClicked: () -> Unit,
-    loading: Boolean = false,
     @DrawableRes iconResource: Int,
     @StringRes contentDescription: Int,
+    modifier: Modifier = Modifier,
+    loading: Boolean = false,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
     minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     iconSize: Dp = dimensions().wireIconButtonSize,
     state: WireButtonState = WireButtonState.Default,
     colors: WireButtonColors = wirePrimaryButtonColors(),
-    clickBlockParams: ClickBlockParams = ClickBlockParams(),
-    modifier: Modifier = Modifier
+    clickBlockParams: ClickBlockParams = ClickBlockParams()
 ) {
     WirePrimaryButton(
         onClick = onButtonClicked,
@@ -80,15 +81,23 @@ fun WirePrimaryIconButton(
 @Preview
 @Composable
 fun PreviewWirePrimaryIconButton() {
-    WirePrimaryIconButton({}, false, com.google.android.material.R.drawable.m3_password_eye, 0)
+    WirePrimaryIconButton({}, loading = false, iconResource = R.drawable.ic_close, contentDescription = 0)
 }
 @Preview
 @Composable
 fun PreviewWirePrimaryIconButtonLoading() {
-    WirePrimaryIconButton({}, true, com.google.android.material.R.drawable.m3_password_eye, 0)
+    WirePrimaryIconButton({}, loading = true, iconResource = R.drawable.ic_close, contentDescription = 0)
 }
 @Preview
 @Composable
 fun PreviewWirePrimaryIconButtonRound() {
-    WirePrimaryIconButton({}, false, com.google.android.material.R.drawable.m3_password_eye, 0, CircleShape, DpSize(40.dp, 40.dp), DpSize(48.dp, 48.dp))
+    WirePrimaryIconButton(
+        {},
+        loading = false,
+        iconResource = R.drawable.ic_close,
+        contentDescription = 0,
+        shape = CircleShape,
+        minSize = DpSize(40.dp, 40.dp),
+        minClickableSize = DpSize(48.dp, 48.dp)
+    )
 }

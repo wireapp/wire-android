@@ -22,10 +22,12 @@ import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -105,57 +107,59 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.kalium.logic.data.asset.isSaved
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
 // TODO: a definite candidate for a refactor and cleanup
+@OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")
 @Composable
 fun RegularMessageItem(
+    clickActions: MessageClickActions,
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
     audioState: AudioState?,
-    onLongClicked: (UIMessage.Regular) -> Unit,
-    onAssetMessageClicked: (String) -> Unit,
-    onAudioClick: (String) -> Unit,
-    onChangeAudioPosition: (String, Int) -> Unit,
-    onImageMessageClicked: (UIMessage.Regular, Boolean) -> Unit,
-    onOpenProfile: (String) -> Unit,
-    onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     modifier: Modifier = Modifier,
     searchQuery: String = "",
     showAuthor: Boolean = true,
     assetStatus: AssetTransferStatus? = null,
     swipableMessageConfiguration: SwipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
-    onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
-    onFailedMessageCancelClicked: (String) -> Unit = {},
-    onLinkClick: (String) -> Unit = {},
-    isContentClickable: Boolean = false,
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
-    onReplyClickable: Clickable? = null,
-    isInteractionAvailable: Boolean = true,
+    failureInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
-    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable
+    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
 ): Unit = with(message) {
     @Composable
     fun messageContent() {
         MessageItemTemplate(
-            modifier = modifier,
+            modifier = modifier
+                .interceptCombinedClickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = LocalIndication.current,
+                    onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
+                        {
+                            onFullMessageClicked(message.header.messageId)
+                        }
+                    },
+                    onLongPress = when {
+                        message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
+                        else -> clickActions.onFullMessageLongClicked?.let {
+                            {
+                                it(message)
+                            }
+                        }
+                    },
+                ),
             showAuthor = showAuthor,
             useSmallBottomPadding = useSmallBottomPadding,
-            fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize,
+            fullAvatarOuterPadding = dimensions().avatarClickablePadding,
             leading = {
                 RegularMessageItemLeading(
                     header = header,
                     showAuthor = showAuthor,
                     userAvatarData = message.userAvatarData,
-                    isContentClickable = isContentClickable,
-                    onOpenProfile = onOpenProfile
+                    onOpenProfile = clickActions.onProfileClicked
                 )
             },
             content = {
@@ -166,7 +170,7 @@ fun RegularMessageItem(
                         Spacer(modifier = Modifier.height(dimensions().spacing4x))
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
-                        MessageExpireLabel(messageContent, assetStatus, selfDeletionTimerState.timeLeftFormatted)
+                        MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted)
 
                         // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
                         // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
@@ -184,42 +188,48 @@ fun RegularMessageItem(
                         MessageContentAndStatus(
                             message = message,
                             assetStatus = assetStatus,
-                            onAssetMessageClicked = onAssetMessageClicked,
-                            onLongClicked = onLongClicked,
-                            isContentClickable = isContentClickable,
-                            onImageMessageClicked = onImageMessageClicked,
+                            onAssetClicked = clickActions.onAssetClicked,
+                            onImageClicked = clickActions.onImageClicked,
                             searchQuery = searchQuery,
                             audioState = audioState,
-                            onAudioClick = onAudioClick,
-                            onChangeAudioPosition = onChangeAudioPosition,
-                            onOpenProfile = onOpenProfile,
-                            onLinkClick = onLinkClick,
+                            onAudioClicked = clickActions.onPlayAudioClicked,
+                            onAudioPositionChanged = clickActions.onAudioPositionChanged,
+                            onProfileClicked = clickActions.onProfileClicked,
+                            onLinkClicked = clickActions.onLinkClicked,
                             shouldDisplayMessageStatus = shouldDisplayMessageStatus,
                             conversationDetailsData = conversationDetailsData,
-                            onReplyClickable = onReplyClickable
+                            onReplyClicked = clickActions.onReplyClicked
 
                         )
                         if (shouldDisplayFooter) {
                             VerticalSpace.x4()
                             MessageFooter(
                                 messageFooter = messageFooter,
-                                onReactionClicked = onReactionClicked
+                                onReactionClicked = clickActions.onReactionClicked
                             )
                         }
                     } else {
                         MessageDecryptionFailure(
                             messageHeader = header,
                             decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
-                            onResetSessionClicked = onResetSessionClicked,
+                            onResetSessionClicked = clickActions.onResetSessionClicked,
                             conversationProtocol = conversationDetailsData.conversationProtocol
                         )
                     }
                     if (message.sendingFailed) {
                         MessageSendFailureWarning(
                             messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                            isInteractionAvailable = isInteractionAvailable,
-                            onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId, message.conversationId) } },
-                            onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
+                            isInteractionAvailable = failureInteractionAvailable,
+                            onRetryClick = remember(message) {
+                                {
+                                    clickActions.onFailedMessageRetryClicked(header.messageId, message.conversationId)
+                                }
+                            },
+                            onCancelClick = remember(message) {
+                                {
+                                    clickActions.onFailedMessageCancelClicked(header.messageId)
+                                }
+                            }
                         )
                     }
                 }
@@ -368,47 +378,31 @@ private fun ReplySwipeIcon(dragWidth: Float, density: Density, progress: Float) 
 private fun UIMessage.Regular.MessageContentAndStatus(
     message: UIMessage.Regular,
     assetStatus: AssetTransferStatus?,
-    onAssetMessageClicked: (String) -> Unit,
-    onLongClicked: (UIMessage.Regular) -> Unit,
-    isContentClickable: Boolean,
-    onImageMessageClicked: (UIMessage.Regular, Boolean) -> Unit,
     searchQuery: String,
     audioState: AudioState?,
-    onAudioClick: (String) -> Unit,
-    onChangeAudioPosition: (String, Int) -> Unit,
-    onOpenProfile: (String) -> Unit,
-    onLinkClick: (String) -> Unit,
+    onAssetClicked: (String) -> Unit,
+    onImageClicked: (UIMessage.Regular, Boolean) -> Unit,
+    onAudioClicked: (String) -> Unit,
+    onAudioPositionChanged: (String, Int) -> Unit,
+    onProfileClicked: (String) -> Unit,
+    onLinkClicked: (String) -> Unit,
+    onReplyClicked: (UIMessage.Regular) -> Unit,
     shouldDisplayMessageStatus: Boolean,
     conversationDetailsData: ConversationDetailsData,
-    onReplyClickable: Clickable?
 ) {
-    val currentOnAssetClicked = remember(message) {
+    val onAssetClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {
-            onAssetMessageClicked(header.messageId)
-        }, onLongClick = {
-            onLongClicked(message)
+            onAssetClicked(header.messageId)
         })
     }
-
-    val currentOnImageClick = remember(message) {
-        Clickable(enabled = isAvailable && !isContentClickable, onClick = {
-            onImageMessageClicked(
-                message,
-                source == MessageSource.Self
-            )
-        }, onLongClick = {
-            onLongClicked(message)
+    val onImageClickable = remember(message) {
+        Clickable(enabled = isAvailable, onClick = {
+            onImageClicked(message, source == MessageSource.Self)
         })
     }
-    val onLongClick: (() -> Unit)? = if (isContentClickable) {
-        null
-    } else {
-        remember(message) {
-            if (isAvailable) {
-                { onLongClicked(message) }
-            } else {
-                null
-            }
+    val onReplyClickable = remember(message) {
+        Clickable {
+            onReplyClicked(message)
         }
     }
     Row {
@@ -419,15 +413,13 @@ private fun UIMessage.Regular.MessageContentAndStatus(
                 searchQuery = searchQuery,
                 audioState = audioState,
                 assetStatus = assetStatus,
-                onAudioClick = onAudioClick,
-                onChangeAudioPosition = onChangeAudioPosition,
-                onAssetClick = currentOnAssetClicked,
-                onImageClick = currentOnImageClick,
-                onLongClick = onLongClick,
-                onOpenProfile = onOpenProfile,
-                onLinkClick = onLinkClick,
-                clickable = !isContentClickable,
-                onReplyClickable = onReplyClickable
+                onAudioClick = onAudioClicked,
+                onChangeAudioPosition = onAudioPositionChanged,
+                onAssetClick = onAssetClickable,
+                onImageClick = onImageClickable,
+                onOpenProfile = onProfileClicked,
+                onLinkClick = onLinkClicked,
+                onReplyClick = onReplyClickable,
             )
         }
         if (isMyMessage && shouldDisplayMessageStatus) {
@@ -473,50 +465,14 @@ fun EphemeralMessageExpiredLabel(
 }
 
 @Composable
-fun MessageExpireLabel(messageContent: UIMessageContent?, assetTransferStatus: AssetTransferStatus?, timeLeft: String) {
+fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
     when (messageContent) {
         is UIMessageContent.Location,
+        is UIMessageContent.AssetMessage,
+        is UIMessageContent.AudioAssetMessage,
+        is UIMessageContent.ImageMessage,
         is UIMessageContent.TextMessage -> {
             StatusBox(statusText = stringResource(R.string.self_deleting_message_time_left, timeLeft))
-        }
-
-        is UIMessageContent.AssetMessage -> {
-            StatusBox(
-                statusText = if (assetTransferStatus.isSaved()) {
-                    stringResource(
-                        R.string.self_deleting_message_time_left,
-                        timeLeft
-                    )
-                } else {
-                    stringResource(R.string.self_deleting_message_label, timeLeft)
-                }
-            )
-        }
-
-        is UIMessageContent.AudioAssetMessage -> {
-            StatusBox(
-                statusText = if (assetTransferStatus.isSaved()) {
-                    stringResource(
-                        R.string.self_deleting_message_time_left,
-                        timeLeft
-                    )
-                } else {
-                    stringResource(R.string.self_deleting_message_label, timeLeft)
-                }
-            )
-        }
-
-        is UIMessageContent.ImageMessage -> {
-            StatusBox(
-                statusText = if (assetTransferStatus.isSaved()) {
-                    stringResource(
-                        R.string.self_deleting_message_time_left,
-                        timeLeft
-                    )
-                } else {
-                    stringResource(R.string.self_deleting_message_label, timeLeft)
-                }
-            )
         }
 
         is UIMessageContent.Deleted -> {
@@ -638,9 +594,7 @@ private fun MessageContent(
     onChangeAudioPosition: (String, Int) -> Unit,
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
-    clickable: Boolean,
-    onLongClick: (() -> Unit)? = null,
-    onReplyClickable: Clickable? = null
+    onReplyClick: Clickable,
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
@@ -662,7 +616,7 @@ private fun MessageContent(
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
                             messageData = it,
-                            clickable = onReplyClickable
+                            clickable = onReplyClick
                         )
 
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
@@ -673,12 +627,10 @@ private fun MessageContent(
                     messageBody = messageContent.messageBody,
                     searchQuery = searchQuery,
                     isAvailable = !message.isPending && message.isAvailable,
-                    onLongClick = onLongClick,
                     onOpenProfile = onOpenProfile,
                     buttonList = null,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
-                    clickable = clickable
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -691,7 +643,7 @@ private fun MessageContent(
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
                             messageData = it,
-                            clickable = onReplyClickable
+                            clickable = onReplyClick
                         )
 
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
@@ -701,7 +653,6 @@ private fun MessageContent(
                 MessageBody(
                     messageBody = messageContent.messageBody,
                     isAvailable = !message.isPending && message.isAvailable,
-                    onLongClick = onLongClick,
                     onOpenProfile = onOpenProfile,
                     buttonList = messageContent.buttonList,
                     messageId = message.header.messageId,
@@ -768,7 +719,6 @@ private fun MessageContent(
                     onSliderPositionChange = { position ->
                         onChangeAudioPosition(message.header.messageId, position.toInt())
                     },
-                    onAudioMessageLongClick = onLongClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -784,7 +734,6 @@ private fun MessageContent(
                     onLocationClick = Clickable(
                         enabled = message.isAvailable,
                         onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
-                        onLongClick = onLongClick
                     )
                 )
                 PartialDeliveryInformation(deliveryStatus)

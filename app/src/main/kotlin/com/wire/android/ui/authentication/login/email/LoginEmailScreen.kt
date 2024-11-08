@@ -49,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
@@ -61,6 +60,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.rememberBottomBarElevationState
+import com.wire.android.ui.common.textfield.DefaultEmailNext
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WirePasswordTextField
@@ -224,10 +224,10 @@ private fun LoginEmailContent(
 
 @Composable
 private fun UserIdentifierInput(
-    modifier: Modifier,
     userIdentifierState: TextFieldState,
     error: String?,
     isEnabled: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     WireTextField(
         autoFillType = WireAutoFillType.Login,
@@ -239,19 +239,21 @@ private fun UserIdentifierInput(
             error != null -> WireTextFieldState.Error(error)
             else -> WireTextFieldState.Default
         },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+        semanticDescription = stringResource(R.string.content_description_login_email_field),
+        keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = modifier.testTag("emailField"),
         testTag = "userIdentifierInput"
     )
 }
 
 @Composable
-private fun PasswordInput(modifier: Modifier, passwordState: TextFieldState) {
+private fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,
         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboardController?.hide() },
+        semanticDescription = stringResource(R.string.content_description_login_password_field),
         modifier = modifier.testTag("passwordField"),
         autoFill = true,
         testTag = "PasswordInput"
@@ -259,7 +261,7 @@ private fun PasswordInput(modifier: Modifier, passwordState: TextFieldState) {
 }
 
 @Composable
-private fun ForgotPasswordLabel(modifier: Modifier, forgotPasswordUrl: String) {
+private fun ForgotPasswordLabel(forgotPasswordUrl: String, modifier: Modifier = Modifier) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
         Text(
@@ -273,7 +275,8 @@ private fun ForgotPasswordLabel(modifier: Modifier, forgotPasswordUrl: String) {
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = { openForgotPasswordPage(context, forgotPasswordUrl) }
+                    onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
+                    onClickLabel = stringResource(R.string.content_description_open_link_label)
                 )
                 .testTag("Forgot password?")
         )
@@ -287,7 +290,12 @@ private fun openForgotPasswordPage(context: Context, forgotPasswordUrl: String) 
 }
 
 @Composable
-private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, onClick: () -> Unit) {
+private fun LoginButton(
+    loading: Boolean,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
         val text = if (loading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)

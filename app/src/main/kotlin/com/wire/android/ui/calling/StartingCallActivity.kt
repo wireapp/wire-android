@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.calling
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -29,6 +28,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
@@ -53,6 +56,7 @@ import javax.inject.Inject
  * @see IncomingCallScreen
  * @see OutgoingCallScreen
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 class StartingCallActivity : CallActivity() {
     @Inject
@@ -91,6 +95,7 @@ class StartingCallActivity : CallActivity() {
                                     TransitionAnimationType.POP_UP.exitTransition
                                 )
                             },
+                            modifier = Modifier.semantics { testTagsAsResourceId = true },
                             label = currentScreenType.name
                         ) { screenType ->
                             conversationId?.let {
@@ -148,9 +153,9 @@ class StartingCallActivity : CallActivity() {
 }
 
 fun getOutgoingCallIntent(
-    activity: Activity,
+    context: Context,
     conversationId: String
-) = Intent(activity, StartingCallActivity::class.java).apply {
+) = Intent(context, StartingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Outgoing.name)

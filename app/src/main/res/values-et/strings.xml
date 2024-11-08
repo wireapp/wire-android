@@ -59,7 +59,6 @@
     <string name="label_and">ja</string>
     <string name="label_retry">Proovi uuesti</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Rakenduse logo</string>
     <string name="content_description_reveal_password">Kuva parool</string>
     <string name="content_description_hide_password">Peida parool</string>
     <string name="content_description_search_back">Otsi tagasi ikoon</string>
@@ -112,7 +111,6 @@
     <string name="app_settings_screen_title">Rakenduse seaded</string>
     <string name="give_feedback_screen_title">Anna tagasisidet</string>
     <string name="report_bug_screen_title">Teata veast</string>
-    <string name="debug_settings_screen_title">Silumise seaded</string>
     <string name="support_screen_title">Klienditugi</string>
     <string name="backup_and_restore_screen_title">Varunda ja taasta vestlusi</string>
     <string name="search_bar_conversations_hint">Otsi vestlusi</string>
@@ -322,7 +320,6 @@
     <string name="calling_decline_call">Keeldu kõnest</string>
     <string name="calling_label_ringing_call">Heliseb…</string>
     <string name="calling_label_incoming_call">Helistab…</string>
-    <string name="calling_label_incoming_call_someone_calling">%s helistab…</string>
     <string name="calling_label_default_caller_name">Sissetulev kõne</string>
     <string name="calling_label_constant_bit_rate">ÜHTLANE BITISAGEDUS</string>
     <string name="calling_minimize_view">Minimeeri vaade</string>
@@ -456,4 +453,7 @@
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Silumise seaded</string>
 </resources>

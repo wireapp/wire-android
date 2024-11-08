@@ -17,13 +17,11 @@
  */
 package com.wire.android.ui.userprofile.other
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import com.wire.android.ui.WireTestTheme
 import com.wire.android.ui.connection.CONNECTION_ACTION_BUTTONS_TEST_TAG
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.other.OtherUserStubs.provideState
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
@@ -40,7 +38,6 @@ class OtherUserProfileScreenTest {
             WireTestTheme {
                 ContentFooter(
                     state = provideState(withExpireAt = Instant.DISTANT_FUTURE.toEpochMilliseconds()),
-                    maxBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
                 )
             }
         }
@@ -54,7 +51,6 @@ class OtherUserProfileScreenTest {
             WireTestTheme {
                 ContentFooter(
                     state = provideState(withUserName = "", withFullName = ""),
-                    maxBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
                 )
             }
         }
@@ -68,7 +64,6 @@ class OtherUserProfileScreenTest {
             WireTestTheme {
                 ContentFooter(
                     state = provideState(withMembership = Membership.Service),
-                    maxBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
                 )
             }
         }

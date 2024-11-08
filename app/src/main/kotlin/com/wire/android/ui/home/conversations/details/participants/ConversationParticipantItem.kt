@@ -39,9 +39,8 @@ import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.ProtocolLabel
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
-import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.UserProfileAvatarType.WithIndicators
-import com.wire.android.ui.common.UserProfileAvatarType.WithoutIndicators
+import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.search.HighlightName
@@ -64,19 +63,21 @@ import kotlinx.datetime.plus
 @Composable
 fun ConversationParticipantItem(
     uiParticipant: UIParticipant,
-    searchQuery: String = String.EMPTY,
     clickable: Clickable,
+    modifier: Modifier = Modifier,
+    searchQuery: String = String.EMPTY,
     showRightArrow: Boolean = true
 ) {
     RowItemTemplate(
+        modifier = modifier,
         leadingIcon = {
             UserProfileAvatar(
                 avatarData = uiParticipant.avatarData,
                 modifier = Modifier.padding(
                     start = dimensions().spacing8x
                 ),
-                avatarBorderSize = dimensions().spacing2x,
-                type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithoutIndicators
+                contentDescription = null,
+                type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithIndicators.RegularUser()
             )
         },
         titleStartPadding = dimensions().spacing0x,
@@ -109,7 +110,7 @@ fun ConversationParticipantItem(
 
                 if (uiParticipant.isMLSVerified) MLSVerifiedIcon()
                 if (uiParticipant.isProteusVerified) ProteusVerifiedIcon()
-                if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                if (BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                     uiParticipant.supportedProtocolList.map {
                         ProtocolLabel(
                             protocolName = it.name,
@@ -136,7 +137,10 @@ fun ConversationParticipantItem(
                         .wrapContentWidth()
                         .padding(end = MaterialTheme.wireDimensions.spacing8x)
                 ) {
-                    ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+                    ArrowRightIcon(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        contentDescription = R.string.content_description_empty
+                    )
                 }
             }
         },

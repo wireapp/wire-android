@@ -155,9 +155,9 @@ internal fun MessageAsset(
 }
 
 @Composable
-fun UploadInProgressAssetMessage() {
+fun UploadInProgressAssetMessage(modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(MaterialTheme.wireDimensions.spacing72x),
         horizontalArrangement = Arrangement.Center,
@@ -178,8 +178,9 @@ fun UploadInProgressAssetMessage() {
 }
 
 @Composable
-fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
+fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String, modifier: Modifier = Modifier) {
     Card(
+        modifier = modifier,
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
         border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {
@@ -213,8 +214,9 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
 }
 
 @Composable
-fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
+fun RestrictedGenericFileMessage(fileName: String, fileSize: Long, modifier: Modifier = Modifier) {
     Card(
+        modifier = modifier,
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
         border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {
@@ -232,6 +234,7 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
             val (
                 name, icon, size, message
             ) = createRefs()
+
             Text(
                 text = assetName,
                 style = MaterialTheme.wireTypography.body02,
@@ -251,7 +254,6 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
                     .width(dimensions().spacing12x)
                     .constrainAs(icon) {
                         top.linkTo(name.bottom)
-                        bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                     },
                 painter = painterResource(
@@ -269,7 +271,8 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
                     .padding(start = dimensions().spacing4x)
                     .constrainAs(size) {
                         start.linkTo(icon.end)
-                        top.linkTo(name.bottom)
+                        top.linkTo(icon.top)
+                        bottom.linkTo(icon.bottom)
                     }
             )
 
@@ -278,9 +281,11 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
                 style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
-                modifier = Modifier.constrainAs(message) {
-                    end.linkTo(parent.end)
-                    top.linkTo(name.bottom)
+                modifier = Modifier
+                    .padding(top = dimensions().spacing4x)
+                    .constrainAs(message) {
+                    start.linkTo(parent.start)
+                    top.linkTo(icon.bottom)
                 }
             )
         }

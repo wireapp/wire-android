@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
@@ -43,7 +43,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun ServiceDetailsNotFoundScreen(
-    modifier: Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -56,6 +56,7 @@ fun ServiceDetailsNotFoundScreen(
         Box(contentAlignment = Alignment.Center) {
             UserProfileAvatar(
                 size = dimensions().avatarDefaultBigSize,
+                temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
                 avatarData = UserAvatarData(
                     asset = null,
                     connectionState = ConnectionState.ACCEPTED,

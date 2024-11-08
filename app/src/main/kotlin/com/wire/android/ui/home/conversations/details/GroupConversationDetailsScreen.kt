@@ -36,7 +36,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -86,7 +85,6 @@ import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
@@ -241,7 +239,11 @@ fun GroupConversationDetailsScreen(
         },
         isLoading = viewModel.requestInProgress,
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-        onConversationMediaClick = onConversationMediaClick
+        onConversationMediaClick = onConversationMediaClick,
+        isAbandonedOneOnOneConversation = viewModel.conversationSheetContent?.isAbandonedOneOnOneConversation(
+            viewModel.groupParticipantsState.data.allCount
+        ) ?: false
+
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -266,7 +268,7 @@ fun GroupConversationDetailsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GroupConversationDetailsContent(
     conversationSheetContent: ConversationSheetContent?,
@@ -281,6 +283,7 @@ private fun GroupConversationDetailsContent(
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
+    isAbandonedOneOnOneConversation: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit
 ) {
@@ -290,9 +293,7 @@ private fun GroupConversationDetailsContent(
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { GroupConversationDetailsTabItem.entries.size })
-    val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
-    val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
 
     val conversationSheetState = rememberConversationSheetState(conversationSheetContent)
 
@@ -331,7 +332,7 @@ private fun GroupConversationDetailsContent(
     CollapsingTopBarScaffold(
         topBarHeader = {
             WireCenterAlignedTopAppBar(
-                elevation = elevationState,
+                elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                 titleContent = {
                     WireTopAppBarTitle(
                         title = stringResource(R.string.conversation_details_title),
@@ -340,9 +341,14 @@ private fun GroupConversationDetailsContent(
                     )
                     VerificationInfo(conversationSheetContent)
                 },
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(R.string.content_description_conversation_details_close_btn),
                 onNavigationPressed = onBackPressed,
-                actions = { MoreOptionIcon(onButtonClicked = sheetState::show) }
+                actions = {
+                    MoreOptionIcon(
+                        contentDescription = R.string.content_description_conversation_details_more_btn,
+                        onButtonClicked = sheetState::show
+                    )
+                }
             )
         },
         topBarCollapsing = {
@@ -355,7 +361,8 @@ private fun GroupConversationDetailsContent(
                     onSearchConversationMessagesClick = onSearchConversationMessagesClick,
                     onConversationMediaClick = onConversationMediaClick,
                     isUnderLegalHold = it.isUnderLegalHold,
-                    onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } }
+                    onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
+                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
                 )
             }
         },
@@ -364,8 +371,6 @@ private fun GroupConversationDetailsContent(
                 tabs = GroupConversationDetailsTabItem.entries,
                 selectedTabIndex = currentTabState,
                 onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                divider = {} // no divider
             )
         },
         bottomBar = {
@@ -380,6 +385,7 @@ private fun GroupConversationDetailsContent(
                 modifier = Modifier.fillMaxWidth()
             ) { currentTabState ->
                 Surface(
+                    shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
                     color = MaterialTheme.wireColorScheme.background,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
@@ -389,7 +395,7 @@ private fun GroupConversationDetailsContent(
                         }
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> {
-                            if (groupParticipantsState.addParticipantsEnabled) {
+                            if (groupParticipantsState.addParticipantsEnabled && !isAbandonedOneOnOneConversation) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                                     WirePrimaryButton(
                                         text = stringResource(R.string.conversation_details_group_participants_add),
@@ -401,7 +407,8 @@ private fun GroupConversationDetailsContent(
                     }
                 }
             }
-        }
+        },
+        contentLazyListState = lazyListStates[currentTabState],
     ) {
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -604,7 +611,8 @@ fun PreviewGroupConversationDetails() {
             onEditSelfDeletingMessages = {},
             onEditGuestAccess = {},
             onSearchConversationMessagesClick = {},
-            onConversationMediaClick = {}
+            onConversationMediaClick = {},
+            isAbandonedOneOnOneConversation = false
         )
     }
 }

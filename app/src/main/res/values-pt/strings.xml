@@ -78,7 +78,6 @@
     <string name="label_retry">Tentar novamente</string>
     <string name="label_draft">*Rascunho*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Logo do aplicativo</string>
     <string name="content_description_reveal_password">Mostrar senha</string>
     <string name="content_description_hide_password">Ocultar senha</string>
     <string name="content_description_search_back">Ícone de busca</string>
@@ -170,7 +169,6 @@
     <string name="report_bug_screen_title">Reportar um bug</string>
     <string name="about_app_screen_title">Sobre o aplicativo</string>
     <string name="settings_privacy_policy_label">Política de Privacidade</string>
-    <string name="debug_settings_screen_title">Configurações de depuração</string>
     <string name="item_dependencies_title">Dependências:</string>
     <string name="support_screen_title">Suporte</string>
     <string name="backup_and_restore_screen_title">Fazer backup e restaurar conversas</string>
@@ -520,10 +518,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="label_edit">Editar</string>
     <string name="label_delete">Excluir</string>
     <string name="info_message_copied">Mensagem copiada</string>
-    <string name="conversation_banner_federated">Usuários federados</string>
-    <string name="conversation_banner_externals">externos</string>
-    <string name="conversation_banner_guests">convidados</string>
-    <string name="conversation_banner_services">serviços</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Usuários federados, externos, convidados e serviços estão presentes</string>
     <string name="conversation_banner_federated_externals_guests_present">Usuários federados, externos e convidados estão presentes</string>
     <string name="conversation_banner_federated_externals_services_present">Usuários federados, externos e serviços estão presentes</string>
@@ -645,11 +639,9 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="label_conversation_pictures_empty">Ninguém compartilhou fotos nesta conversa ainda 🥲</string>
     <string name="label_conversation_files_empty">Ninguém compartilhou arquivos nesta conversa ainda 🙀</string>
     <!-- Search Contact-->
-    <string name="label_contacts">CONTATOS</string>
     <string name="label_new_group">Novo Grupo</string>
     <string name="label_new_conversation">Nova Conversa</string>
     <string name="label_search_people">Procurar pessoas</string>
-    <string name="label_public_wire">WIRE PÚBLICO</string>
     <string name="label_search_people_instruction">Pesquise pessoas pelo seu nome de perfil ou @nome.de.usuario</string>
     <string name="label_learn_more_searching_user">Saiba mais</string>
     <string name="label_no_results_found">Não foi possível encontrar nenhum resultado. Por favor, tente novamente.</string>
@@ -731,7 +723,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="calling_decline_call">Recusar chamada</string>
     <string name="calling_label_ringing_call">Chamando…</string>
     <string name="calling_label_incoming_call">Chamada recebida</string>
-    <string name="calling_label_incoming_call_someone_calling">%s está chamando…</string>
     <string name="calling_label_default_caller_name">Chamada Recebida</string>
     <string name="calling_label_constant_bit_rate">TAXA DE BITS CONSTANTE</string>
     <string name="calling_minimize_view">Minimizar visualização</string>
@@ -1099,4 +1090,7 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Configurações de depuração</string>
 </resources>

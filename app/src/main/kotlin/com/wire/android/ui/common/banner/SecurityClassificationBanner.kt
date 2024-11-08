@@ -51,11 +51,11 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 @Composable
 fun SecurityClassificationBannerForConversation(
     conversationId: ConversationId,
+    modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
         hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationArgs>(
             SecurityClassificationArgs.Conversation(id = conversationId)
-        ),
-    modifier: Modifier = Modifier
+        )
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),
@@ -66,11 +66,11 @@ fun SecurityClassificationBannerForConversation(
 @Composable
 fun SecurityClassificationBannerForUser(
     userId: UserId,
+    modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
         hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationArgs>(
             SecurityClassificationArgs.User(id = userId)
-        ),
-    modifier: Modifier = Modifier
+        )
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),

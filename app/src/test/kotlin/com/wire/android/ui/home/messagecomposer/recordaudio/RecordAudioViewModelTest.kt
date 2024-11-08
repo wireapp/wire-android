@@ -32,6 +32,7 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -390,9 +391,7 @@ class RecordAudioViewModelTest {
             coEvery { generateAudioFileWithEffects(any(), any(), any()) } returns Unit
 
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
-                CurrentScreen.Conversation(
-                    id = DUMMY_CALL.conversationId
-                )
+                CurrentScreen.Conversation(id = DUMMY_CALL.conversationId)
             )
 
             coEvery { recordAudioMessagePlayer.audioMessageStateFlow } returns flowOf(
@@ -429,7 +428,7 @@ class RecordAudioViewModelTest {
                     domain = "conversationDomain"
                 ),
                 status = CallStatus.CLOSED,
-                callerId = "callerId@domain",
+                callerId = UserId("caller", "domain"),
                 participants = listOf(),
                 isMuted = true,
                 isCameraOn = false,

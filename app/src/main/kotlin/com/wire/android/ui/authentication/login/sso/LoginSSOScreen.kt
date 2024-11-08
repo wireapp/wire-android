@@ -47,7 +47,7 @@ import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.dialogs.CustomServerDialog
+import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
@@ -142,7 +142,7 @@ private fun LoginSSOContent(
     }
 
     if (loginSSOState.customServerDialogState != null) {
-        CustomServerDialog(
+        CustomServerDetailsDialog(
             serverLinks = loginSSOState.customServerDialogState.serverLinks,
             onDismiss = onCustomServerDialogDismiss,
             onConfirm = onCustomServerDialogConfirm
@@ -152,13 +152,14 @@ private fun LoginSSOContent(
 
 @Composable
 private fun SSOCodeInput(
-    modifier: Modifier,
     ssoCodeState: TextFieldState,
     error: String?,
+    modifier: Modifier = Modifier
 ) {
     WireTextField(
         textState = ssoCodeState,
         labelText = stringResource(R.string.login_sso_code_label),
+        semanticDescription = stringResource(R.string.content_description_login_sso_code_field),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         modifier = modifier.testTag("ssoCodeField")
@@ -166,7 +167,12 @@ private fun SSOCodeInput(
 }
 
 @Composable
-private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, onClick: () -> Unit) {
+private fun LoginButton(
+    loading: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
         val text = if (loading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)

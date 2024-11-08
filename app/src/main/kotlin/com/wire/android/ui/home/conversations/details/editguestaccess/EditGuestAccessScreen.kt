@@ -51,6 +51,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreatePasswordProtectedGuestLinkScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
@@ -101,10 +102,12 @@ fun EditGuestAccessScreen(
     WireScaffold(
         modifier = modifier,
         topBar = {
+            val title = stringResource(id = R.string.conversation_options_guests_label)
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
+                navigationIconType = NavigationIconType.Back(R.string.content_description_edit_guests_option_back_btn),
                 onNavigationPressed = navigator::navigateBack,
-                title = stringResource(id = R.string.conversation_options_guests_label)
+                title = title
             )
         }
     ) { internalPadding ->

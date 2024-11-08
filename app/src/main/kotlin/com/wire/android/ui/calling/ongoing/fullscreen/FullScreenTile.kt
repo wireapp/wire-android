@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.calling.CallState
+import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel.Companion.DOUBLE_TAP_TOAST_DISPLAY_TIME
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
@@ -47,11 +48,13 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.coroutines.delay
 
 @Composable
 fun FullScreenTile(
     callState: CallState,
+    participants: PersistentList<UICallParticipant>,
     selectedParticipant: SelectedParticipant,
     height: Dp,
     closeFullScreen: (offset: Offset) -> Unit,
@@ -67,7 +70,7 @@ fun FullScreenTile(
         onBackButtonClicked()
     }
 
-    callState.participants.find {
+    participants.find {
         it.id == selectedParticipant.userId && it.clientId == selectedParticipant.clientId
     }?.let {
         Box(modifier = modifier) {
@@ -110,10 +113,11 @@ fun FullScreenTile(
                 modifier = Modifier
                     .align(Alignment.TopCenter),
                 enabled = shouldShowDoubleTapToast,
-                text = stringResource(id = R.string.calling_ongoing_double_tap_to_go_back)
-            ) {
-                shouldShowDoubleTapToast = false
-            }
+                text = stringResource(id = R.string.calling_ongoing_double_tap_to_go_back),
+                onTap = {
+                    shouldShowDoubleTapToast = false
+                }
+            )
         }
     }
 }
@@ -125,7 +129,6 @@ fun PreviewFullScreenTile() = WireTheme {
     FullScreenTile(
         callState = CallState(
             conversationId = ConversationId("id", "domain"),
-            participants = participants,
         ),
         selectedParticipant = SelectedParticipant(
             userId = participants.first().id,
@@ -137,5 +140,6 @@ fun PreviewFullScreenTile() = WireTheme {
         onBackButtonClicked = {},
         setVideoPreview = {},
         clearVideoPreview = {},
+        participants = participants,
     )
 }

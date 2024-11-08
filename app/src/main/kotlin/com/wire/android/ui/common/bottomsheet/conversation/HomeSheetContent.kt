@@ -33,7 +33,7 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -96,14 +96,15 @@ internal fun ConversationMainSheetContent(
                 add {
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_mute,
-                                contentDescription = stringResource(R.string.content_description_muted_conversation),
+                                contentDescription = null,
                             )
                         },
-                        action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
-                        onItemClick = navigateToNotification
+                        trailing = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
+                        onItemClick = navigateToNotification,
+                        onItemClickDescription = stringResource(id = R.string.content_description_open_notification_settings_label)
                     )
                 }
             }
@@ -136,13 +137,10 @@ internal fun ConversationMainSheetContent(
 //            }
             add {
                 MenuBottomSheetItem(
-                    icon = {
+                    leading = {
                         MenuItemIcon(
                             id = R.drawable.ic_archive,
-                            contentDescription = stringResource(
-                                if (conversationSheetContent.isArchived) R.string.content_description_unarchive
-                                else R.string.content_description_move_to_archive
-                            ),
+                            contentDescription = null,
                         )
                     },
                     title = stringResource(
@@ -161,14 +159,15 @@ internal fun ConversationMainSheetContent(
                                 )
                             )
                         }
-                    })
+                    }
+                )
             }
             add {
                 MenuBottomSheetItem(
-                    icon = {
+                    leading = {
                         MenuItemIcon(
                             id = R.drawable.ic_erase,
-                            contentDescription = stringResource(R.string.content_description_clear_content),
+                            contentDescription = null,
                         )
                     },
                     title = stringResource(R.string.label_clear_content),
@@ -188,10 +187,10 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canBlockUser()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_block,
-                                contentDescription = stringResource(R.string.content_description_block_the_user),
+                                contentDescription = null,
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.error,
@@ -211,10 +210,10 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canUnblockUser()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_block,
-                                contentDescription = stringResource(R.string.content_description_unblock_the_user)
+                                contentDescription = null
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.onBackground,
@@ -233,10 +232,10 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canLeaveTheGroup()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_leave,
-                                contentDescription = stringResource(R.string.content_description_leave_the_group),
+                                contentDescription = null,
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.error,
@@ -255,10 +254,10 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canDeleteGroup()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_remove,
-                                contentDescription = stringResource(R.string.content_description_delete_the_group),
+                                contentDescription = null,
                             )
                         },
                         title = stringResource(R.string.label_delete_group),
@@ -293,6 +292,6 @@ fun NotificationsOptionsItemAction(
             modifier = Modifier.weight(weight = 1f, fill = false)
         )
         Spacer(modifier = Modifier.size(dimensions().spacing16x))
-        ArrowRightIcon()
+        ArrowRightIcon(contentDescription = R.string.content_description_empty)
     }
 }

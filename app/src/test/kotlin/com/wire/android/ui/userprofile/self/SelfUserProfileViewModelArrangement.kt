@@ -23,10 +23,10 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.TestTeam
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.OtherAccountMapper
-import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -51,44 +51,63 @@ import kotlinx.coroutines.flow.flowOf
 class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var userDataStore: UserDataStore
+
     @MockK
     lateinit var getSelf: GetSelfUserUseCase
+
     @MockK
     lateinit var getSelfTeam: GetUpdatedSelfTeamUseCase
+
     @MockK
     lateinit var observeValidAccounts: ObserveValidAccountsUseCase
+
     @MockK
     lateinit var updateStatus: UpdateSelfAvailabilityStatusUseCase
+
     @MockK
     lateinit var logout: LogoutUseCase
+
     @MockK
     lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase
+
     @MockK
     lateinit var dispatchers: DispatcherProvider
+
     @MockK
     lateinit var wireSessionImageLoader: WireSessionImageLoader
+
     @MockK
     lateinit var authServerConfigProvider: AuthServerConfigProvider
+
     @MockK
     lateinit var selfServerLinks: SelfServerConfigUseCase
+
     @MockK
     lateinit var otherAccountMapper: OtherAccountMapper
+
     @MockK
     lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+
     @MockK
     lateinit var accountSwitch: AccountSwitchUseCase
+
     @MockK
     lateinit var endCall: EndCallUseCase
+
     @MockK
     lateinit var isReadOnlyAccount: IsReadOnlyAccountUseCase
-    @MockK
-    lateinit var notificationChannelsManager: NotificationChannelsManager
+
     @MockK
     lateinit var notificationManager: WireNotificationManager
+
     @MockK
     lateinit var globalDataStore: GlobalDataStore
+
     @MockK
     lateinit var qualifiedIdMapper: QualifiedIdMapper
+
+    @MockK
+    lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
 
     private val viewModel by lazy {
         SelfUserProfileViewModel(
@@ -109,10 +128,10 @@ class SelfUserProfileViewModelArrangement {
             accountSwitch = accountSwitch,
             endCall = endCall,
             isReadOnlyAccount = isReadOnlyAccount,
-            notificationChannelsManager = notificationChannelsManager,
             notificationManager = notificationManager,
             globalDataStore = globalDataStore,
-            qualifiedIdMapper = qualifiedIdMapper
+            qualifiedIdMapper = qualifiedIdMapper,
+            anonymousAnalyticsManager = anonymousAnalyticsManager
         )
     }
 
@@ -126,8 +145,10 @@ class SelfUserProfileViewModelArrangement {
         coEvery { isReadOnlyAccount.invoke() } returns false
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
     }
+
     fun withLegalHoldStatus(result: LegalHoldStateForSelfUser) = apply {
         coEvery { observeLegalHoldStatusForSelfUser.invoke() } returns flowOf(result)
     }
+
     fun arrange() = this to viewModel
 }

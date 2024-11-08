@@ -64,23 +64,6 @@ class CallNotificationManagerTest {
         }
 
     @Test
-    fun `given no outgoing calls, when handling notifications, then hide outgoing call notification`() =
-        runTest(dispatcherProvider.main()) {
-            // given
-            val (arrangement, callNotificationManager) = Arrangement()
-                .arrange()
-            callNotificationManager.handleOutgoingCallNotifications(listOf(), TEST_USER_ID1)
-            advanceUntilIdle()
-            // then
-            verify(exactly = 0) {
-                arrangement.notificationManager.notify(NotificationIds.CALL_OUTGOING_NOTIFICATION_ID.ordinal, any())
-            }
-            verify(exactly = 1) {
-                arrangement.notificationManager.cancel(NotificationIds.CALL_OUTGOING_NOTIFICATION_ID.ordinal)
-            }
-        }
-
-    @Test
     fun `given an incoming call for one user, then show notification for that call`() =
         runTest(dispatcherProvider.main()) {
             // given
@@ -95,27 +78,6 @@ class CallNotificationManagerTest {
             // then
             verify(exactly = 1) { arrangement.notificationManager.notify(any(), notification) }
             verify(exactly = 0) { arrangement.notificationManager.cancel(any()) }
-        }
-
-    @Test
-    fun `given an outgoing call for one user, when handling notifications, then show notification for that call`() =
-        runTest(dispatcherProvider.main()) {
-            val notification = mockk<Notification>()
-            val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1)
-            val (arrangement, callNotificationManager) = Arrangement()
-                .withOutgoingNotificationForUserAndCall(notification, callNotificationData)
-                .arrange()
-
-            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
-            callNotificationManager.handleOutgoingCallNotifications(listOf(TEST_CALL1), TEST_USER_ID1)
-            advanceUntilIdle()
-
-            verify(exactly = 1) {
-                arrangement.notificationManager.notify(NotificationIds.CALL_OUTGOING_NOTIFICATION_ID.ordinal, notification)
-            }
-            verify(exactly = 0) {
-                arrangement.notificationManager.cancel(NotificationIds.CALL_OUTGOING_NOTIFICATION_ID.ordinal)
-            }
         }
 
     @Test
@@ -282,7 +244,7 @@ class CallNotificationManagerTest {
         ) = Call(
             conversationId = conversationId,
             status = status,
-            callerId = UserId("caller", "domain").toString(),
+            callerId = UserId("caller", "domain"),
             participants = listOf(),
             isMuted = true,
             isCameraOn = false,
@@ -301,6 +263,7 @@ class CallNotificationManagerTest {
             conversationType = call.conversationType,
             callerName = call.callerName,
             callerTeamName = call.callerTeamName,
+            callStatus = call.status
         )
     }
 }

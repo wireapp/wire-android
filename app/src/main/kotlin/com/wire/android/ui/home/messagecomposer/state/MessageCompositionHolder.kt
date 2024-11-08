@@ -54,6 +54,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 class MessageCompositionHolder(
     val messageComposition: MutableState<MessageComposition>,
     val messageTextState: TextFieldState,
+    val onClearDraft: () -> Unit,
     private val onSaveDraft: (MessageDraft) -> Unit,
     private val onSearchMentionQueryChanged: (String) -> Unit,
     private val onClearMentionSearchResult: () -> Unit,
@@ -61,6 +62,17 @@ class MessageCompositionHolder(
 ) {
     private companion object {
         const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
+    }
+
+    fun updateQuote(quotedMessage: UIQuotedMessage.UIQuotedData) {
+        messageComposition.update {
+            it.copy(
+                quotedMessage = quotedMessage,
+                quotedMessageId = quotedMessage.messageId,
+                editMessageId = null
+            )
+        }
+        onSaveDraft(messageComposition.value.toDraft(messageTextState.text.toString()))
     }
 
     fun setReply(message: UIMessage.Regular) {

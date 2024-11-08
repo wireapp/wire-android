@@ -1,0 +1,107 @@
+name: "Generate and Verify Screenshot Tests"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+
+jobs:
+  generate-screenshots:
+    runs-on: buildjet-8vcpu-ubuntu-2204
+
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Install Git LFS
+        run: |
+          git lfs install
+          git lfs fetch --all
+          git lfs checkout
+
+      - name: Setup GitHub Actions Bot for Git
+        uses: fregante/setup-git-user@v2
+
+      - name: Merge Develop into screenshot-tests
+        run: |
+          git checkout screenshot-tests
+          git merge origin/develop --no-edit
+          git push origin screenshot-tests
+
+      - name: Verify Screenshot Tests
+        run: ./gradlew validateInternalDebugScreenshotTest
+        continue-on-error: true # Ensure this task doesn't fail the build
+
+      - name: Copy test results to simplified directory
+        run: |
+          mkdir -p screenshotTest
+          cp -r app/build/reports/screenshotTest/preview/debug/internal/* screenshotTest/
+
+      - name: Zip Screenshot Test Reports
+        run: |
+          zip -r screenshot-test-report.zip screenshotTest/
+
+      - name: Upload Screenshot Test Report
+        id: upload_artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-test-report
+          path: screenshot-test-report.zip
+
+      - name: Clear changes before generating new screenshots
+        run: |
+          git reset --hard HEAD
+          git clean -fd        
+
+      - name: Update Screenshot Reference Images
+        run: ./gradlew updateInternalDebugScreenshotTest
+
+      - name: Create New Branch
+        id: create_branch
+        run: |
+          BRANCH_NAME="test/screenshots-update-$(date +%Y%m%d%H%M%S)"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          git checkout -b "$BRANCH_NAME"
+          git add .
+          git commit -m "test: update screenshot tests"
+          git push origin "$BRANCH_NAME"
+
+      - name: Create PR
+        env:
+          PR_TITLE: "test: Update Screenshot Tests [WPB-983]"
+          PR_BODY: "Automated PR to update screenshot tests with the latest reference images."
+          PR_BRANCH: ${{ env.BRANCH_NAME }}
+        run: |
+          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base screenshot-tests --head "$PR_BRANCH" --label "screenshot-test"
+          PR_NUMBER=$(gh pr view --json number -q .number)
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+
+      - name: Add comment with test report link
+        run: |
+          ARTIFACT_ID=${{ steps.upload_artifact.outputs.artifact-id }}
+          gh issue comment "${{ env.PR_NUMBER }}" --body "Screenshot test results have been generated. [Download the report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/$ARTIFACT_ID)"
+
+      - name: Cleanup Gradle Cache
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties

@@ -321,8 +321,6 @@ class MediaGalleryViewModelTest {
                 isProteusVerified = false
             ),
             userType = UserType.INTERNAL,
-            lastMessage = null,
-            unreadEventCount = emptyMap()
         )
 
     companion object {

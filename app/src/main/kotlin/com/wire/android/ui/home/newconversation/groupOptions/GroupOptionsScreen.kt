@@ -50,6 +50,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -119,7 +120,9 @@ fun GroupOptionScreenContent(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onBackPressed,
                 elevation = dimensions().spacing0x,
-                title = stringResource(id = R.string.new_group_title)
+                title = stringResource(id = R.string.new_group_title),
+                titleContentDescription = stringResource(id = R.string.content_description_new_conversation_options_heading),
+                navigationIconType = NavigationIconType.Back(R.string.content_description_new_conversation_options_back_btn)
             )
         }) { internalPadding ->
             GroupOptionsScreenMainContent(
@@ -172,7 +175,7 @@ private fun GroupOptionState.ReadReceiptsOptions(onReadReceiptChanged: (Boolean)
             isOnOffVisible = false,
             onCheckedChange = { onReadReceiptChanged.invoke(it) }),
         arrowType = ArrowType.NONE,
-        clickable = Clickable(enabled = false, onClick = {}, onLongClick = {}),
+        clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
@@ -190,13 +193,15 @@ private fun GroupOptionState.ReadReceiptsOptions(onReadReceiptChanged: (Boolean)
 
 @Composable
 private fun GroupOptionState.AllowServicesOptions(onAllowServicesChanged: (Boolean) -> Unit) {
+    if (!isAllowServicesPossible) return
+
     GroupConversationOptionsItem(
         title = stringResource(R.string.allow_services),
         switchState = SwitchState.Enabled(value = isAllowServicesEnabled,
             isOnOffVisible = false,
             onCheckedChange = { onAllowServicesChanged.invoke(it) }),
         arrowType = ArrowType.NONE,
-        clickable = Clickable(enabled = false, onClick = {}, onLongClick = {}),
+        clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
@@ -220,7 +225,7 @@ private fun GroupOptionState.AllowGuestsOptions(onAllowGuestChanged: (Boolean) -
             isOnOffVisible = false,
             onCheckedChange = { onAllowGuestChanged.invoke(it) }),
         arrowType = ArrowType.NONE,
-        clickable = Clickable(enabled = false, onClick = {}, onLongClick = {}),
+        clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
     )
 

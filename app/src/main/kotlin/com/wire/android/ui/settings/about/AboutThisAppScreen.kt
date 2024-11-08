@@ -35,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
@@ -85,7 +84,7 @@ private fun AboutThisAppContent(
             WireCenterAlignedTopAppBar(
                 title = stringResource(id = R.string.about_app_screen_title),
                 elevation = dimensions().spacing0x,
-                navigationIconType = NavigationIconType.Back,
+                navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = onBackPressed
             )
         }
@@ -159,12 +158,12 @@ private fun AboutThisAppContent(
             )
             SettingsItem(
                 title = stringResource(R.string.app_version),
-                text = BuildConfig.VERSION_NAME,
+                text = state.appName,
                 trailingIcon = R.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = {
-                        aboutThisAppContentState.copyToClipboard(BuildConfig.VERSION_NAME)
+                        aboutThisAppContentState.copyToClipboard(state.appName)
                     }
                 )
             )
@@ -210,7 +209,7 @@ data class AboutThisAppContentState(
 @Composable
 private fun PreviewAboutThisAppScreen() = WireTheme {
     AboutThisAppContent(
-        state = AboutThisAppState(commitish = "abcd-1234"),
+        state = AboutThisAppState(commitish = "abcd-1234", appName = "4.1.9-1234-beta"),
         onBackPressed = { },
         onItemClicked = { }
     )

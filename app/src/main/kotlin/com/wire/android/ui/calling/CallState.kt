@@ -18,14 +18,15 @@
 
 package com.wire.android.ui.calling
 
+import androidx.compose.runtime.Stable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 
+@Stable
 data class CallState(
     val conversationId: ConversationId,
     val conversationName: ConversationName? = null,
@@ -33,7 +34,6 @@ data class CallState(
     val accentId: Int = -1,
     val callStatus: CallStatus = CallStatus.CLOSED,
     val avatarAssetId: UserAvatarAsset? = null,
-    val participants: List<UICallParticipant> = listOf(),
     val isMuted: Boolean? = null,
     val isCameraOn: Boolean = false,
     val isOnFrontCamera: Boolean = true,

@@ -22,6 +22,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
@@ -31,9 +32,10 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
-fun ConnectionLabel(connectionInfo: UILastMessageContent.Connection) {
+fun ConnectionLabel(connectionInfo: UILastMessageContent.Connection, modifier: Modifier = Modifier) {
     if (connectionInfo.connectionState == ConnectionState.PENDING || connectionInfo.connectionState == ConnectionState.IGNORED) {
         Text(
+            modifier = modifier,
             text = getConnectionStringLabel(labelId = connectionInfo.connectionState.toMessageId()),
             style = MaterialTheme.wireTypography.subline01.copy(
                 color = MaterialTheme.wireColorScheme.secondaryText

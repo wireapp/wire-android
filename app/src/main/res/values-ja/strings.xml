@@ -80,7 +80,6 @@
     <string name="label_and">と</string>
     <string name="label_retry">再試行</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">アプリのロゴ</string>
     <string name="content_description_reveal_password">パスワードを表示</string>
     <string name="content_description_hide_password">パスワードを非表示</string>
     <string name="content_description_search_back">検索に戻るアイコン</string>
@@ -183,7 +182,6 @@
     <string name="app_settings_screen_title">アプリ設定</string>
     <string name="give_feedback_screen_title">フィードバックを送信</string>
     <string name="report_bug_screen_title">不具合の報告</string>
-    <string name="debug_settings_screen_title">デバッグ設定</string>
     <string name="support_screen_title">サポート</string>
     <string name="backup_and_restore_screen_title">会話のバックアップと復元</string>
     <string name="search_bar_conversations_hint">会話の検索</string>
@@ -381,4 +379,7 @@
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">デバッグ設定</string>
 </resources>

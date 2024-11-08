@@ -70,6 +70,7 @@ import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
@@ -174,7 +175,8 @@ private fun MainLoginContent(
                         )
                     }
                 },
-                onNavigationPressed = onBackPressed
+                onNavigationPressed = onBackPressed,
+                navigationIconType = NavigationIconType.Back(R.string.content_description_login_back_btn)
             ) {
                 WireTabRow(
                     tabs = LoginTabItem.values().toList(),
@@ -197,7 +199,6 @@ private fun MainLoginContent(
                         start = MaterialTheme.wireDimensions.spacing16x,
                         end = MaterialTheme.wireDimensions.spacing16x
                     ),
-                    divider = {} // no divider
                 )
             }
         },

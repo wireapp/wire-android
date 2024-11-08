@@ -36,7 +36,7 @@ fun MembersMentionList(
     membersToMention: List<Contact>,
     searchQuery: String,
     onMentionPicked: (Contact) -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     if (membersToMention.isNotEmpty()) {
         HorizontalDivider()

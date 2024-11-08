@@ -138,7 +138,7 @@ private fun E2EIEnrollmentScreenContent(
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(),
                 onNavigationPressed = onBackButtonClicked
             )
         },
@@ -222,7 +222,7 @@ private fun E2EIEnrollmentScreenContent(
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIEnrollmentScreenContent() {
+fun PreviewE2EIEnrollmentScreenContent() {
     WireTheme {
         E2EIEnrollmentScreenContent(E2EIEnrollmentState(), {}, {}, {}, {}, {}, {}, {}) { }
     }
@@ -230,7 +230,7 @@ fun previewE2EIEnrollmentScreenContent() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIEnrollmentScreenContentWithSuccess() {
+fun PreviewE2EIEnrollmentScreenContentWithSuccess() {
     WireTheme {
         E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollSuccess = true), {}, {}, {}, {}, {}, {}, {}) { }
     }
@@ -238,7 +238,7 @@ fun previewE2EIEnrollmentScreenContentWithSuccess() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIEnrollmentScreenContentWithError() {
+fun PreviewE2EIEnrollmentScreenContentWithError() {
     WireTheme {
         E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollError = true), {}, {}, {}, {}, {}, {}, {}) { }
     }

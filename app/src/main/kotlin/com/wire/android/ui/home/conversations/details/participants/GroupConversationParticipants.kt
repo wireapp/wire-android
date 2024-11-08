@@ -55,16 +55,17 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 fun GroupConversationParticipants(
     onProfilePressed: (UIParticipant) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
-    lazyListState: LazyListState = rememberLazyListState()
+    lazyListState: LazyListState,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    Column {
+    Column(modifier = modifier) {
         LazyColumn(
             state = lazyListState,
             modifier = Modifier.fillMaxSize()
         ) {
-            item(key = "participants_list_header") {
-                if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+            if (BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                item(key = "participants_list_header") {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -124,7 +125,13 @@ fun MLSProgressIndicator(
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationParticipants() = WireTheme {
-    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW)
+    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW, rememberLazyListState())
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupConversationParticipantsAdandonedOneOnOne() = WireTheme {
+    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW, rememberLazyListState())
 }
 
 @PreviewMultipleThemes

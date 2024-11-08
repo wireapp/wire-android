@@ -37,10 +37,10 @@ import androidx.paging.compose.itemKey
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
 import com.wire.android.ui.home.conversations.mock.mockAssetAudioMessage
@@ -66,7 +66,8 @@ fun FileAssetsContent(
     groupedAssetMessageList: Flow<PagingData<UIPagingItem>>,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
-    onAudioItemClicked: (messageId: String) -> Unit = {},
+    onPlayAudioItemClicked: (messageId: String) -> Unit = {},
+    onAudioItemPositionChanged: (String, Int) -> Unit = { _, _ -> },
     onAssetItemClicked: (messageId: String) -> Unit = {},
     onItemLongClicked: (messageId: String, isMyMessage: Boolean) -> Unit = { _, _ -> },
 ) {
@@ -77,7 +78,8 @@ fun FileAssetsContent(
             groupedAssetMessageList = lazyPagingMessages,
             audioMessagesState = audioMessagesState,
             assetStatuses = assetStatuses,
-            onAudioItemClicked = onAudioItemClicked,
+            onPlayAudioItemClicked = onPlayAudioItemClicked,
+            onAudioItemPositionChanged = onAudioItemPositionChanged,
             onAssetItemClicked = onAssetItemClicked,
             onItemLongClicked = onItemLongClicked,
         )
@@ -93,7 +95,8 @@ private fun AssetMessagesListContent(
     groupedAssetMessageList: LazyPagingItems<UIPagingItem>,
     audioMessagesState: PersistentMap<String, AudioState>,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
-    onAudioItemClicked: (messageId: String) -> Unit,
+    onPlayAudioItemClicked: (messageId: String) -> Unit,
+    onAudioItemPositionChanged: (String, Int) -> Unit,
     onAssetItemClicked: (messageId: String) -> Unit,
     onItemLongClicked: (messageId: String, isMyMessage: Boolean) -> Unit,
 ) {
@@ -136,21 +139,17 @@ private fun AssetMessagesListContent(
                                 conversationDetailsData = ConversationDetailsData.None(null),
                                 audioState = audioMessagesState[message.header.messageId],
                                 assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
-                                onLongClicked = remember { { onItemLongClicked(it.header.messageId, it.isMyMessage) } },
-                                onAssetMessageClicked = onAssetItemClicked,
-                                onAudioClick = onAudioItemClicked,
-                                onChangeAudioPosition = { _, _ -> },
-                                onImageMessageClicked = { _, _ -> },
-                                onOpenProfile = { _ -> },
-                                onReactionClicked = { _, _ -> },
-                                onResetSessionClicked = { _, _ -> },
+                                clickActions = MessageClickActions.Content(
+                                    onFullMessageLongClicked = remember { { onItemLongClicked(it.header.messageId, it.isMyMessage) } },
+                                    onAssetClicked = onAssetItemClicked,
+                                    onPlayAudioClicked = onPlayAudioItemClicked,
+                                    onAudioPositionChanged = onAudioItemPositionChanged,
+                                ),
                                 onSelfDeletingMessageRead = { },
-                                onLinkClick = { },
-                                defaultBackgroundColor = colorsScheme().backgroundVariant,
                                 shouldDisplayMessageStatus = false,
                                 shouldDisplayFooter = false,
-                                onReplyClickable = null,
-                                swipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable
+                                swipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
+                                failureInteractionAvailable = false,
                             )
                         }
 

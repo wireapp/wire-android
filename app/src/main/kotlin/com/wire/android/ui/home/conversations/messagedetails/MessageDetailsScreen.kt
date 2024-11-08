@@ -129,7 +129,7 @@ private fun MessageDetailsScreenContent(
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,
                 title = stringResource(R.string.message_details_title),
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(),
                 onNavigationPressed = onBackPressed
             ) {
                 WireTabRow(
@@ -137,7 +137,6 @@ private fun MessageDetailsScreenContent(
                     selectedTabIndex = currentTabState,
                     onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
                     modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                    divider = {} // no divider
                 )
             }
         },

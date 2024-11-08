@@ -22,16 +22,19 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
-import com.wire.android.ui.destinations.AllConversationScreenDestination
+import com.wire.android.ui.destinations.AllConversationsScreenDestination
 import com.wire.android.ui.destinations.ArchiveScreenDestination
+import com.wire.android.ui.destinations.FavoritesConversationsScreenDestination
+import com.wire.android.ui.destinations.GroupConversationsScreenDestination
+import com.wire.android.ui.destinations.OneOnOneConversationsScreenDestination
 import com.wire.android.ui.destinations.SettingsScreenDestination
 import com.wire.android.ui.destinations.VaultScreenDestination
 import com.wire.android.ui.destinations.WhatsNewScreenDestination
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @Suppress("LongParameterList")
 sealed class HomeDestination(
     @StringRes val title: Int,
-    @StringRes val tabName: Int = title,
     @DrawableRes val icon: Int,
     val isSearchable: Boolean = false,
     val withNewConversationFab: Boolean = false,
@@ -39,11 +42,34 @@ sealed class HomeDestination(
 ) {
     data object Conversations : HomeDestination(
         title = R.string.conversations_screen_title,
-        tabName = R.string.conversations_all_tab_title,
         icon = R.drawable.ic_conversation,
         isSearchable = true,
         withNewConversationFab = true,
-        direction = AllConversationScreenDestination
+        direction = AllConversationsScreenDestination
+    )
+
+    data object Favorites : HomeDestination(
+        title = R.string.label_filter_favorites,
+        icon = R.drawable.ic_conversation,
+        isSearchable = true,
+        withNewConversationFab = true,
+        direction = FavoritesConversationsScreenDestination
+    )
+
+    data object Group : HomeDestination(
+        title = R.string.label_filter_group,
+        icon = R.drawable.ic_conversation,
+        isSearchable = true,
+        withNewConversationFab = true,
+        direction = GroupConversationsScreenDestination
+    )
+
+    data object OneOnOne : HomeDestination(
+        title = R.string.label_filter_one_on_one,
+        icon = R.drawable.ic_conversation,
+        isSearchable = true,
+        withNewConversationFab = true,
+        direction = OneOnOneConversationsScreenDestination
     )
 
     data object Settings : HomeDestination(
@@ -83,7 +109,31 @@ sealed class HomeDestination(
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
         fun fromRoute(fullRoute: String): HomeDestination? =
             values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
+
         fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Settings, Vault, Archive, Support, WhatsNew)
+            arrayOf(Conversations, Favorites, Group, OneOnOne, Settings, Vault, Archive, Support, WhatsNew)
+    }
+}
+
+fun HomeDestination.currentFilter(): ConversationFilter {
+    return when (this) {
+        HomeDestination.Conversations -> ConversationFilter.ALL
+        HomeDestination.Favorites -> ConversationFilter.FAVORITES
+        HomeDestination.Group -> ConversationFilter.GROUPS
+        HomeDestination.OneOnOne -> ConversationFilter.ONE_ON_ONE
+        HomeDestination.Archive,
+        HomeDestination.Settings,
+        HomeDestination.Support,
+        HomeDestination.Vault,
+        HomeDestination.WhatsNew -> ConversationFilter.ALL
+    }
+}
+
+fun ConversationFilter.toDestination(): HomeDestination {
+    return when (this) {
+        ConversationFilter.ALL -> HomeDestination.Conversations
+        ConversationFilter.FAVORITES -> HomeDestination.Favorites
+        ConversationFilter.GROUPS -> HomeDestination.Group
+        ConversationFilter.ONE_ON_ONE -> HomeDestination.OneOnOne
     }
 }

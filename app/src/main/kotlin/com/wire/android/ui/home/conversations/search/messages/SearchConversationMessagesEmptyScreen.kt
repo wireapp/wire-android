@@ -43,9 +43,9 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun SearchConversationMessagesEmptyScreen() {
+fun SearchConversationMessagesEmptyScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -64,9 +64,9 @@ fun SearchConversationMessagesEmptyScreen() {
                 text = stringResource(R.string.label_learn_more),
                 style = MaterialTheme.wireTypography.body02.copy(
                     textDecoration = TextDecoration.Underline,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onBackground
                 ),
-                modifier = Modifier.clickable {
+                modifier = Modifier.clickable(onClickLabel = stringResource(R.string.content_description_open_link_label)) {
                     CustomTabsHelper.launchUrl(
                         context,
                         searchUrl
@@ -79,7 +79,7 @@ fun SearchConversationMessagesEmptyScreen() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewSearchConversationMessagesEmptyScreen() {
+fun PreviewSearchConversationMessagesEmptyScreen() {
     WireTheme {
         SearchConversationMessagesEmptyScreen()
     }

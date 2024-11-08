@@ -58,10 +58,11 @@ private fun SearchConversationMessagesButtonContent(
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_search),
-                contentDescription = stringResource(R.string.label_search_messages),
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(end = dimensions().spacing8x)
             )
-        }
+        },
+        onClickDescription = stringResource(id = R.string.content_description_search_text_in_conversation_btn)
     )
 }

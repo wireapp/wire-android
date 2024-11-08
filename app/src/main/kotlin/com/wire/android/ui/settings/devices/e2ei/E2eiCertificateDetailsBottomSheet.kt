@@ -77,7 +77,7 @@ private fun CreateCertificateSheetItem(
     MenuBottomSheetItem(
         title = title,
         onItemClick = onClicked,
-        icon = {
+        leading = {
             MenuItemIcon(
                 id = icon,
                 contentDescription = "",

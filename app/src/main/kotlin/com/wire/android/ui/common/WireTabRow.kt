@@ -35,6 +35,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -48,7 +51,12 @@ fun WireTabRow(
     onTabChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.background,
-    divider: @Composable () -> Unit = @Composable { HorizontalDivider() },
+    divider: @Composable () -> Unit = @Composable {
+        HorizontalDivider(
+            color = colorsScheme().outline,
+            thickness = dimensions().dividerThickness
+        )
+    },
     upperCaseTitles: Boolean = true
 ) {
     TabRow(
@@ -65,8 +73,10 @@ fun WireTabRow(
             val text = tabItem.title.asString().let {
                 if (upperCaseTitles) it.uppercase() else it
             }
+            val selectText = stringResource(id = com.wire.android.R.string.content_description_select_label)
 
             Tab(
+                modifier = Modifier.semantics { onClick(selectText) { false } },
                 enabled = true,
                 text = {
                     Text(

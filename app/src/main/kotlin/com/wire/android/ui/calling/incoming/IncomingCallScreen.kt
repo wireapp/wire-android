@@ -40,6 +40,7 @@ import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallState
+import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
@@ -246,9 +247,12 @@ private fun IncomingCallContent(
                 onVideoPreviewCreated = onVideoPreviewCreated,
                 onSelfClearVideoPreview = onSelfClearVideoPreview
             )
-            val isCallingString = if (callState.conversationTypeForCall == ConversationTypeForCall.Conference) {
-                stringResource(R.string.calling_label_incoming_call_someone_calling, callState.callerName ?: "")
-            } else stringResource(R.string.calling_label_incoming_call)
+
+            val groupCallerName = if (callState.conversationTypeForCall == ConversationTypeForCall.Conference) {
+                callState.callerName
+            } else {
+                null
+            }
 
             CallerDetails(
                 conversationId = callState.conversationId,
@@ -258,7 +262,7 @@ private fun IncomingCallContent(
                 avatarAssetId = callState.avatarAssetId,
                 conversationTypeForCall = callState.conversationTypeForCall,
                 membership = callState.membership,
-                callingLabel = isCallingString,
+                groupCallerName = groupCallerName,
                 protocolInfo = callState.protocolInfo,
                 mlsVerificationStatus = callState.mlsVerificationStatus,
                 proteusVerificationStatus = callState.proteusVerificationStatus,
@@ -284,9 +288,34 @@ fun AudioPermissionCheckFlow(
 
 @Preview
 @Composable
-fun PreviewIncomingCallScreen() {
+fun PreviewIncomingOneOnOneCallScreen() {
     IncomingCallContent(
-        callState = CallState(ConversationId("value", "domain")),
+        callState = CallState(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = ConversationName.Known("Jon Doe"),
+            conversationTypeForCall = ConversationTypeForCall.OneOnOne
+        ),
+        toggleMute = { },
+        toggleVideo = { },
+        declineCall = { },
+        acceptCall = { },
+        onVideoPreviewCreated = { },
+        onSelfClearVideoPreview = { },
+        onCameraPermissionPermanentlyDenied = { },
+        onMinimiseScreen = { }
+    )
+}
+
+@Preview
+@Composable
+fun PreviewIncomingGroupCallScreen() {
+    IncomingCallContent(
+        callState = CallState(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = ConversationName.Known("Fake group name"),
+            callerName = "Jon Doe",
+            conversationTypeForCall = ConversationTypeForCall.Conference
+        ),
         toggleMute = { },
         toggleVideo = { },
         declineCall = { },

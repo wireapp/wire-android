@@ -27,8 +27,9 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.validate
-import java.io.OutputStream
 
 class ViewModelScopedPreviewProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor =
@@ -42,26 +43,20 @@ internal class ViewModelScopedPreviewProcessor(private val codeGenerator: CodeGe
             .filterIsInstance<KSClassDeclaration>()
             .toList()
         if (!viewModelScopedPreviews.iterator().hasNext()) return emptyList()
-        viewModelScopedPreviews.forEach {
-            if (it.classKind != ClassKind.INTERFACE) {
-                throw IllegalArgumentException(
+        viewModelScopedPreviews.forEach { preview ->
+            require(preview.classKind == ClassKind.INTERFACE) {
                     "ViewModelScopedPreview can only be applied to interfaces, " +
-                            "but ${it.qualifiedName?.asString()} is a ${it.classKind}"
-                )
+                            "but ${preview.qualifiedName?.asString()} is a ${preview.classKind}"
             }
-            if (it.getAllFunctions().any { it.isAbstract }) {
-                throw IllegalArgumentException(
+            require(!preview.getAllFunctions().any(KSFunctionDeclaration::isAbstract)) {
                     "ViewModelScopedPreview can only be applied to interfaces with default implementations, " +
-                            "but ${it.qualifiedName?.asString()} is abstract"
-                )
+                            "but ${preview.qualifiedName?.asString()} is abstract"
             }
-            if (it.getAllProperties().any { it.isAbstract() }) {
-                throw IllegalArgumentException(
+            require(!preview.getAllProperties().any(KSPropertyDeclaration::isAbstract)) {
                     "ViewModelScopedPreview can only be applied to interfaces with default implementations, " +
-                            "but ${it.qualifiedName?.asString()} is abstract"
-                )
+                            "but ${preview.qualifiedName?.asString()} is abstract"
             }
-            createObjectFile(it)
+            createObjectFile(preview)
         }
         createListFile(viewModelScopedPreviews)
         return (viewModelScopedPreviews).filterNot { it.validate() }.toList()
@@ -76,9 +71,8 @@ internal class ViewModelScopedPreviewProcessor(private val codeGenerator: CodeGe
                 "import ${item.qualifiedName?.asString()}\n\n" +
                 "data object $name : ${item.simpleName.asString()}"
         val dependencies = Dependencies(aggregating = true, *listOfNotNull(item.containingFile).toTypedArray())
-        val file: OutputStream = codeGenerator.createNewFile(dependencies, packageName, name, "kt")
-        file.write(content.toByteArray())
-        file.close()
+        codeGenerator.createNewFile(dependencies, packageName, name, "kt")
+            .use { it.write(content.toByteArray()) }
     }
 
     private fun createListFile(items: List<KSClassDeclaration>) {
@@ -89,8 +83,7 @@ internal class ViewModelScopedPreviewProcessor(private val codeGenerator: CodeGe
                 items.joinToString("\n") { "import ${it.packageName.asString()}.${it.previewName()}" } + "\n\n" +
                 "val $name = listOf(\n\t" + items.joinToString(",\n\t") { it.previewName() } + "\n)"
         val dependencies = Dependencies(aggregating = true, *items.mapNotNull { it.containingFile }.toTypedArray())
-        val file: OutputStream = codeGenerator.createNewFile(dependencies, packageName, name, "kt")
-        file.write(content.toByteArray())
-        file.close()
+        codeGenerator.createNewFile(dependencies, packageName, name, "kt")
+        .use { it.write(content.toByteArray()) }
     }
 }

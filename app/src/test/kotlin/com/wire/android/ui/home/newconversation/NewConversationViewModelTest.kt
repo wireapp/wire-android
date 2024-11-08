@@ -24,21 +24,28 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.groupname.GroupMetadataState
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import io.mockk.coVerify
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.fail
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -128,10 +135,10 @@ class NewConversationViewModelTest {
         runTest {
             val (arrangement, viewModel) = NewConversationViewModelArrangement()
                 .withGetSelfUser(isTeamMember = true)
-                .withServicesEnabled(false)
-                .withGuestEnabled(true)
                 .arrange()
 
+            viewModel.onAllowServicesStatusChanged(false)
+            viewModel.onAllowGuestStatusChanged(true)
             viewModel.createGroup(arrangement.onGroupCreated)
             advanceUntilIdle()
 
@@ -158,32 +165,31 @@ class NewConversationViewModelTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withDefaultProtocol(SupportedProtocol.MLS)
             .withGetSelfUser(isTeamMember = true)
-            .withServicesEnabled(false)
-            .withGuestEnabled(true)
             .arrange()
 
         // when
         val result = viewModel.newGroupState.groupProtocol
+        val result2 = viewModel.groupOptionsState
 
         // then
-        assertEquals(
-            ConversationOptions.Protocol.MLS,
-            result
-        )
+        assertEquals(ConversationOptions.Protocol.MLS, result)
+        assertEquals(false, result2.isAllowServicesEnabled)
+        assertEquals(false, result2.isAllowServicesPossible)
     }
 
     @Test
     fun `given self is external team member, when creating group, then creating group should not be allowed`() = runTest {
-            // given
-            val (_, viewModel) = NewConversationViewModelArrangement()
-                .withGetSelfUser(isTeamMember = true, userType = UserType.EXTERNAL)
-                .arrange()
-            advanceUntilIdle()
-            // when
-            val result = viewModel.newGroupState.isGroupCreatingAllowed
-            // then
-            assertEquals(false, result)
-        }
+        // given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true, userType = UserType.EXTERNAL)
+            .arrange()
+        advanceUntilIdle()
+        // when
+        val result = viewModel.newGroupState.isGroupCreatingAllowed
+        // then
+        assertEquals(false, result)
+    }
+
     @Test
     fun `given self is internal team member, when creating group, then creating group should be allowed`() = runTest {
         // given
@@ -213,5 +219,75 @@ class NewConversationViewModelTest {
         viewModel.newGroupNameTextState.clearText()
         advanceUntilIdle()
         assertEquals(GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError, viewModel.newGroupState.error)
+    }
+
+    @Test
+    fun `given conversation is created, when guest are selected and guests are disabled, then set the correct state`() = runTest {
+
+        val usersSelected = persistentSetOf(
+            Contact(
+                "id",
+                "domain",
+                "name",
+                "handle",
+                UserAvatarData(),
+                label = "label",
+                connectionState = ConnectionState.ACCEPTED,
+                membership = Membership.Guest
+            )
+        )
+
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .arrange()
+
+        viewModel.newGroupState = viewModel.newGroupState.copy(
+            selectedUsers = usersSelected
+        )
+
+        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowGuestEnabled = false)
+
+        viewModel.createGroup { _ -> fail("group should not be created") }
+
+        assertTrue(viewModel.groupOptionsState.showAllowGuestsDialog)
+
+        coVerify(exactly = 0) {
+            arrangement.createGroupConversation(any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `given conversation is created, when federated users are selected and guests are disabled, then set the correct state`() = runTest {
+
+        val usersSelected = persistentSetOf(
+            Contact(
+                "id",
+                "domain",
+                "name",
+                "handle",
+                UserAvatarData(),
+                label = "label",
+                connectionState = ConnectionState.ACCEPTED,
+                membership = Membership.Federated
+            )
+        )
+
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .arrange()
+
+        viewModel.newGroupState = viewModel.newGroupState.copy(
+            selectedUsers = usersSelected
+        )
+
+        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowGuestEnabled = false)
+
+        viewModel.createGroup { _ -> fail("group should not be created") }
+
+        assertTrue(viewModel.groupOptionsState.showAllowGuestsDialog)
+
+        coVerify(exactly = 0) {
+            arrangement.createGroupConversation(any(), any(), any())
+        }
     }
 }

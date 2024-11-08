@@ -36,7 +36,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -70,9 +69,9 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @WireDestination
 @Composable
 fun ChangeDisplayNameScreen(
-    viewModel: ChangeDisplayNameViewModel = hiltViewModel(),
     navigator: Navigator,
-    resultNavigator: ResultBackNavigator<Boolean>
+    resultNavigator: ResultBackNavigator<Boolean>,
+    viewModel: ChangeDisplayNameViewModel = hiltViewModel()
 ) {
     with(viewModel) {
         ChangeDisplayNameContent(
@@ -95,23 +94,26 @@ fun ChangeDisplayNameScreen(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ChangeDisplayNameContent(
     textState: TextFieldState,
     state: DisplayNameState,
     onContinuePressed: () -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
     with(state) {
-        WireScaffold(topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = scrollState.rememberTopBarElevationState().value,
-                onNavigationPressed = onBackPressed,
-                title = stringResource(id = R.string.settings_myaccount_display_name_title)
-            )
-        }) { internalPadding ->
+        WireScaffold(
+            modifier = modifier,
+            topBar = {
+                WireCenterAlignedTopAppBar(
+                    elevation = scrollState.rememberTopBarElevationState().value,
+                    onNavigationPressed = onBackPressed,
+                    title = stringResource(id = R.string.settings_myaccount_display_name_title)
+                )
+            }
+        ) { internalPadding ->
             Column(
                 modifier = Modifier
                     .padding(internalPadding)

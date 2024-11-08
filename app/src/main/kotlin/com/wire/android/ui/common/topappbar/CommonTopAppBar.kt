@@ -36,6 +36,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,23 +49,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.network.NetworkState
 
 @Composable
 fun CommonTopAppBar(
+    themeOption: ThemeOption,
     commonTopAppBarState: CommonTopAppBarState,
     onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
     onReturnToIncomingCallClick: (ConnectivityUIState.IncomingCall) -> Unit,
-    onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit
+    onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column {
+    Column(modifier = modifier) {
         ConnectivityStatusBar(
+            themeOption = themeOption,
+            networkState = commonTopAppBarState.networkState,
             connectivityInfo = commonTopAppBarState.connectivityState,
             onReturnToCallClick = onReturnToCallClick,
             onReturnToIncomingCallClick = onReturnToIncomingCallClick,
@@ -75,30 +87,41 @@ fun getBackgroundColor(connectivityInfo: ConnectivityUIState): Color {
         is ConnectivityUIState.EstablishedCall,
         is ConnectivityUIState.IncomingCall,
         is ConnectivityUIState.OutgoingCall -> MaterialTheme.wireColorScheme.positive
-        ConnectivityUIState.Connecting, ConnectivityUIState.WaitingConnection -> MaterialTheme.wireColorScheme.primary
+
+        is ConnectivityUIState.WaitingConnection,
+        ConnectivityUIState.Connecting -> MaterialTheme.wireColorScheme.primary
+
         ConnectivityUIState.None -> MaterialTheme.wireColorScheme.background
     }
 }
 
 @Composable
 private fun ConnectivityStatusBar(
+    themeOption: ThemeOption,
     connectivityInfo: ConnectivityUIState,
+    networkState: NetworkState,
     onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
     onReturnToIncomingCallClick: (ConnectivityUIState.IncomingCall) -> Unit,
     onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit
 ) {
     val isVisible = connectivityInfo !is ConnectivityUIState.None
     val backgroundColor = getBackgroundColor(connectivityInfo)
-    if (!isVisible) {
-        clearStatusBarColor()
-    }
 
     if (isVisible) {
         val darkIcons = MaterialTheme.wireColorScheme.connectivityBarShouldUseDarkIcons
-        rememberSystemUiController().setStatusBarColor(
+        val systemUiController = rememberSystemUiController()
+        systemUiController.setStatusBarColor(
             color = backgroundColor,
             darkIcons = darkIcons
         )
+        LaunchedEffect(themeOption) {
+            systemUiController.setStatusBarColor(
+                color = backgroundColor,
+                darkIcons = darkIcons
+            )
+        }
+    } else {
+        ClearStatusBarColor()
     }
 
     val barModifier = Modifier
@@ -108,14 +131,23 @@ private fun ConnectivityStatusBar(
         .background(backgroundColor)
         .run {
             when (connectivityInfo) {
-                is ConnectivityUIState.EstablishedCall ->
-                    clickable(onClick = { onReturnToCallClick(connectivityInfo) })
+                is ConnectivityUIState.EstablishedCall -> clickable(onClick = {
+                    onReturnToCallClick(
+                        connectivityInfo
+                    )
+                })
 
-                is ConnectivityUIState.IncomingCall ->
-                    clickable(onClick = { onReturnToIncomingCallClick(connectivityInfo) })
+                is ConnectivityUIState.IncomingCall -> clickable(onClick = {
+                    onReturnToIncomingCallClick(
+                        connectivityInfo
+                    )
+                })
 
-                is ConnectivityUIState.OutgoingCall ->
-                    clickable(onClick = { onReturnToOutgoingCallClick(connectivityInfo) })
+                is ConnectivityUIState.OutgoingCall -> clickable(onClick = {
+                    onReturnToOutgoingCallClick(
+                        connectivityInfo
+                    )
+                })
 
                 else -> this
             }
@@ -147,15 +179,60 @@ private fun ConnectivityStatusBar(
                         MaterialTheme.wireColorScheme.onPrimary
                     )
 
-                ConnectivityUIState.WaitingConnection ->
-                    StatusLabel(
-                        R.string.connectivity_status_bar_waiting_for_network,
-                        MaterialTheme.wireColorScheme.onPrimary
-                    )
+                is ConnectivityUIState.WaitingConnection -> {
+                    val color = MaterialTheme.wireColorScheme.onPrimary
+                    val waitingStatus: @Composable () -> Unit = {
+                        StatusLabel(
+                            stringResource = R.string.connectivity_status_bar_waiting_for_network,
+                            color
+                        )
+                    }
+
+                    if (!BuildConfig.PRIVATE_BUILD) {
+                        waitingStatus()
+                        return@Column
+                    }
+
+                    WaitingStatusLabelInternal(connectivityInfo, networkState, waitingStatus)
+                }
 
                 ConnectivityUIState.None -> {}
             }
         }
+    }
+}
+
+@Composable
+private fun WaitingStatusLabelInternal(
+    connectivityInfo: ConnectivityUIState.WaitingConnection,
+    networkState: NetworkState,
+    waitingStatus: @Composable () -> Unit,
+) {
+    assert(BuildConfig.PRIVATE_BUILD) { "This composable should only be used in the internal versions" }
+
+    val cause = connectivityInfo.cause?.javaClass?.simpleName ?: "null"
+    val delay = connectivityInfo.retryDelay ?: "null"
+    var fontSize by remember { mutableStateOf(1f) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        waitingStatus()
+        Text(
+            text = "Cause: $cause Delay: $delay, Net: $networkState",
+            style = MaterialTheme.wireTypography.title03.copy(
+                fontSize = MaterialTheme.wireTypography.title03.fontSize * fontSize,
+                color = MaterialTheme.wireColorScheme.onPrimary,
+            ),
+            onTextLayout = {
+                // This is used to make sure the text fits in the available space
+                // so no needed information is cut off. It introduces a small delay in the text
+                // rendering but it is not important as this code is only used in the debug version
+                if (it.hasVisualOverflow) {
+                    fontSize *= 0.9f
+                }
+            },
+        )
     }
 }
 
@@ -198,10 +275,22 @@ private fun StatusLabel(
     stringResource: Int,
     color: Color = MaterialTheme.wireColorScheme.onPrimary
 ) {
+    StatusLabel(
+        string = stringResource(id = stringResource),
+        color = color,
+    )
+}
+
+@Composable
+private fun StatusLabel(
+    string: String,
+    color: Color = MaterialTheme.wireColorScheme.onPrimary
+) {
     Text(
-        text = stringResource(id = stringResource).uppercase(),
+        text = string.uppercase(),
         color = color,
         style = MaterialTheme.wireTypography.title03,
+        textAlign = TextAlign.Center,
     )
 }
 
@@ -214,16 +303,6 @@ private fun StatusLabelWithValue(
     val defaultCallerName = stringResource(R.string.username_unavailable_label)
     Text(
         text = stringResource(id = stringResource, callerName ?: defaultCallerName).uppercase(),
-        color = color,
-        style = MaterialTheme.wireTypography.title03,
-    )
-}
-
-@Composable
-fun StatusLabel(message: String, color: Color = MaterialTheme.wireColorScheme.onPrimary) {
-    Text(
-        text = message,
-        textAlign = TextAlign.Center,
         color = color,
         style = MaterialTheme.wireTypography.title03,
     )
@@ -261,7 +340,7 @@ private fun MicrophoneIcon(
 }
 
 @Composable
-private fun clearStatusBarColor() {
+private fun ClearStatusBarColor() {
     val backgroundColor = MaterialTheme.wireColorScheme.background
     val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
 
@@ -274,7 +353,7 @@ private fun clearStatusBarColor() {
 @Composable
 private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState) {
     WireTheme {
-        CommonTopAppBar(CommonTopAppBarState(connectivityUIState), {}, {}, {})
+        CommonTopAppBar(ThemeOption.SYSTEM, CommonTopAppBarState(connectivityUIState), {}, {}, {})
     }
 }
 
@@ -295,5 +374,30 @@ fun PreviewCommonTopAppBar_ConnectivityConnecting() =
 
 @PreviewMultipleThemes
 @Composable
+fun PreviewCommonTopAppBar_ConnectivityWaitingConnection() =
+    PreviewCommonTopAppBar(ConnectivityUIState.WaitingConnection(null, null))
+
+@PreviewMultipleThemes
+@Composable
 fun PreviewCommonTopAppBar_ConnectivityNone() =
     PreviewCommonTopAppBar(ConnectivityUIState.None)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityIncomingCall() =
+    PreviewCommonTopAppBar(
+        ConnectivityUIState.IncomingCall(
+            ConversationId("what", "ever"),
+            "callerName"
+        )
+    )
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityOutgoingCall() =
+    PreviewCommonTopAppBar(
+        ConnectivityUIState.OutgoingCall(
+            ConversationId("what", "ever"),
+            "conversationName"
+        )
+    )

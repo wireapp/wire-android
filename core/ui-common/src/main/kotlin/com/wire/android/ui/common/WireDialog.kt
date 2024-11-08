@@ -40,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -71,18 +73,19 @@ fun wireDialogPropertiesBuilder(
 fun WireDialog(
     title: String,
     text: String,
-    textSuffixLink: DialogTextSuffixLink? = null,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    textSuffixLink: DialogTextSuffixLink? = null,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
-    modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     centerContent: Boolean = false,
     titleLoading: Boolean = false,
+    dialogDescription: String = stringResource(R.string.content_description_alert),
     content: @Composable (() -> Unit)? = null
 ) {
     WireDialog(
@@ -109,6 +112,7 @@ fun WireDialog(
         },
         textSuffixLink = textSuffixLink,
         centerContent = centerContent,
+        dialogDescription = dialogDescription,
         content = content
     )
 }
@@ -116,19 +120,20 @@ fun WireDialog(
 @Composable
 fun WireDialog(
     title: String,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     text: AnnotatedString? = null,
     textSuffixLink: DialogTextSuffixLink? = null,
-    onDismiss: () -> Unit,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
-    modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     centerContent: Boolean = false,
     titleLoading: Boolean = false,
+    dialogDescription: String = stringResource(R.string.content_description_alert),
     content: @Composable (() -> Unit)? = null
 ) {
     Dialog(
@@ -140,7 +145,7 @@ fun WireDialog(
             optionButton2Properties = optionButton2Properties,
             dismissButtonProperties = dismissButtonProperties,
             buttonsHorizontalAlignment = buttonsHorizontalAlignment,
-            modifier = modifier,
+            modifier = modifier.semantics { paneTitle = dialogDescription },
             shape = shape,
             contentPadding = contentPadding,
             title = title,
@@ -156,6 +161,7 @@ fun WireDialog(
 @Composable
 fun WireDialogContent(
     title: String,
+    modifier: Modifier = Modifier,
     titleLoading: Boolean = false,
     text: AnnotatedString? = null,
     textSuffixLink: DialogTextSuffixLink? = null,
@@ -163,7 +169,6 @@ fun WireDialogContent(
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
-    modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     centerContent: Boolean = false,
@@ -276,13 +281,13 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
         Box(modifier = modifier) {
             when (type) {
                 WireDialogButtonType.Primary ->
-                    WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
+                    WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading)
 
                 WireDialogButtonType.Secondary ->
-                    WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
+                    WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading)
 
                 WireDialogButtonType.Tertiary ->
-                    WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
+                    WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading)
             }
         }
     }

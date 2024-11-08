@@ -18,6 +18,7 @@
   -->
 <resources>
     <string name="app_version">إصدار التطبيق</string>
+    <string name="build_variant_name">تحويلات البناء</string>
     <string name="label_new">جديد</string>
     <string name="label_login">تسجيل الدخول</string>
     <string name="label_ok">موافق</string>
@@ -144,4 +145,6 @@
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
 </resources>

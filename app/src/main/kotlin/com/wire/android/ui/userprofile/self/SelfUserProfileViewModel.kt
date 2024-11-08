@@ -33,9 +33,10 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
@@ -100,10 +101,10 @@ class SelfUserProfileViewModel @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase,
     private val endCall: EndCallUseCase,
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
-    private val notificationChannelsManager: NotificationChannelsManager,
     private val notificationManager: WireNotificationManager,
     private val globalDataStore: GlobalDataStore,
-    private val qualifiedIdMapper: QualifiedIdMapper
+    private val qualifiedIdMapper: QualifiedIdMapper,
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
@@ -117,6 +118,7 @@ class SelfUserProfileViewModel @Inject constructor(
             observeEstablishedCall()
             fetchIsReadOnlyAccount()
             observeLegalHoldStatus()
+            markCreateTeamNoticeAsRead()
         }
     }
 
@@ -131,6 +133,14 @@ class SelfUserProfileViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .flowOn(dispatchers.io())
                 .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        }
+    }
+
+    private fun markCreateTeamNoticeAsRead() {
+        viewModelScope.launch {
+            if (getSelf().first().teamId == null && !dataStore.isCreateTeamNoticeRead().first()) {
+                dataStore.setIsCreateTeamNoticeRead(true)
+            }
         }
     }
 
@@ -331,7 +341,19 @@ class SelfUserProfileViewModel @Inject constructor(
         userProfileState = userProfileState.copy(errorMessageCode = null)
     }
 
+    fun trackQrCodeClick() {
+        anonymousAnalyticsManager.sendEvent(AnalyticsEvent.QrCode.Click(!userProfileState.teamName.isNullOrBlank()))
+    }
+
+    fun sendPersonalToTeamMigrationEvent() {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
+                createTeamButtonClicked = true
+            )
+        )
+    }
+
     sealed class ErrorCodes {
-        object DownloadUserInfoError : ErrorCodes()
+        data object DownloadUserInfoError : ErrorCodes()
     }
 }

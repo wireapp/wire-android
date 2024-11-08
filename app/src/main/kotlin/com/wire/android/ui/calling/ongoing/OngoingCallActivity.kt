@@ -18,9 +18,9 @@
 package com.wire.android.ui.calling.ongoing
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.PictureInPictureParams
 import android.app.RemoteAction
+import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Bundle
@@ -31,6 +31,10 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.view.WindowCompat
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -56,6 +60,7 @@ import javax.inject.Inject
  *
  * @see OngoingCallScreen
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 class OngoingCallActivity : CallActivity() {
     @Inject
@@ -91,6 +96,7 @@ class OngoingCallActivity : CallActivity() {
                                     TransitionAnimationType.POP_UP.exitTransition
                                 )
                             },
+                            modifier = Modifier.semantics { testTagsAsResourceId = true },
                             label = TAG
                         ) { _ ->
                             OngoingCallScreen(
@@ -126,9 +132,9 @@ class OngoingCallActivity : CallActivity() {
 }
 
 fun getOngoingCallIntent(
-    activity: Activity,
+    context: Context,
     conversationId: String
-) = Intent(activity, OngoingCallActivity::class.java).apply {
+) = Intent(context, OngoingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
 }

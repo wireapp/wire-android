@@ -66,7 +66,15 @@ class NewConversationViewModel @Inject constructor(
         }
     )
 
-    var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
+    var groupOptionsState: GroupOptionState by mutableStateOf(
+        GroupOptionState().let {
+            val isMLS = newGroupState.groupProtocol == ConversationOptions.Protocol.MLS
+            it.copy(
+                isAllowServicesEnabled = !isMLS,
+                isAllowServicesPossible = !isMLS
+            )
+        }
+    )
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState())
 
     init {
@@ -87,8 +95,8 @@ class NewConversationViewModel @Inject constructor(
             newGroupNameTextState.textAsFlow()
                 .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
                 .collectLatest {
-                newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
-            }
+                    newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
+                }
         }
     }
 
@@ -152,7 +160,7 @@ class NewConversationViewModel @Inject constructor(
     private fun checkIfGuestAdded(): Boolean {
         if (groupOptionsState.isAllowGuestEnabled) return false
 
-        val isGuestSelected = newGroupState.selectedUsers.none {
+        val isGuestSelected = !newGroupState.selectedUsers.none {
             it.membership == Membership.Guest ||
                     it.membership == Membership.Federated
         }

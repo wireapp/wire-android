@@ -19,13 +19,15 @@
 package com.wire.android.ui.common.topappbar
 
 import androidx.compose.runtime.Stable
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlin.time.Duration
 
 @Stable
 sealed interface ConnectivityUIState {
     data object Connecting : ConnectivityUIState
 
-    data object WaitingConnection : ConnectivityUIState
+    data class WaitingConnection(val cause: CoreFailure?, val retryDelay: Duration?) : ConnectivityUIState
 
     data object None : ConnectivityUIState
 

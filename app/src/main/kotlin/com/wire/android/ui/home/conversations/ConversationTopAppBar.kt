@@ -49,7 +49,7 @@ import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.calling.controlbuttons.StartCallButton
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.LegalHoldIndicator
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
@@ -154,7 +154,10 @@ private fun ConversationScreenTopAppBarContent(
             }
         },
         navigationIcon = {
-            NavigationIconButton(NavigationIconType.Back, onBackButtonClick)
+            NavigationIconButton(
+                NavigationIconType.Back(R.string.content_description_conversation_back_btn),
+                onBackButtonClick
+            )
         },
         actions = {
             Row(

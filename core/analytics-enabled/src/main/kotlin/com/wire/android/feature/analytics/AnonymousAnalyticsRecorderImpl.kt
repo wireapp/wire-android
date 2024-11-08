@@ -18,6 +18,7 @@
 package com.wire.android.feature.analytics
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants
@@ -42,8 +43,12 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
         )
             .enableTemporaryDeviceIdMode() // Nothing is sent until a proper ID is placed
             .setLoggingEnabled(analyticsSettings.enableDebugLogging)
+        countlyConfig.apm.enableAppStartTimeTracking()
+        countlyConfig.apm.enableForegroundBackgroundTracking()
+        countlyConfig.setApplication(context.applicationContext as Application)
 
         Countly.sharedInstance().init(countlyConfig)
+        Countly.sharedInstance().consent().giveConsent(arrayOf("apm"))
 
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         val globalSegmentations = mapOf<String, Any>(
@@ -107,4 +112,18 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
     }
 
     override fun isAnalyticsInitialized(): Boolean = Countly.sharedInstance().isInitialized
+
+    override fun applicationOnCreate() {
+        if (isConfigured) return
+
+        Countly.applicationOnCreate()
+    }
+
+    override fun recordView(screen: String) {
+        Countly.sharedInstance().views().startAutoStoppedView(screen)
+    }
+
+    override fun stopView(screen: String) {
+        Countly.sharedInstance().views().stopViewWithName(screen)
+    }
 }

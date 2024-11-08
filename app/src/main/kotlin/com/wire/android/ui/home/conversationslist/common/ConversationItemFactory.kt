@@ -18,14 +18,20 @@
 
 package com.wire.android.ui.home.conversationslist.common
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
@@ -35,6 +41,7 @@ import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -43,6 +50,8 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.android.ui.markdown.MarkdownConstants
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -54,36 +63,42 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationItemFactory(
     conversation: ConversationItem,
-    searchQuery: String,
+    modifier: Modifier = Modifier,
     isSelectableItem: Boolean = false,
     isChecked: Boolean = false,
     onConversationSelectedOnRadioGroup: () -> Unit = {},
-    openConversation: (ConversationId) -> Unit = {},
+    openConversation: (ConversationItem) -> Unit = {},
     openMenu: (ConversationItem) -> Unit = {},
     openUserProfile: (UserId) -> Unit = {},
     joinCall: (ConversationId) -> Unit = {},
     onAudioPermissionPermanentlyDenied: () -> Unit = {}
 ) {
+    val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
+    val openUserProfileDescription = stringResource(R.string.content_description_open_user_profile_label)
+    val openConversationDescription = stringResource(R.string.content_description_open_conversation_label)
     val onConversationItemClick = remember(conversation) {
-        Clickable(
-            enabled = true,
-            onClick = {
-                when (val lastEvent = conversation.lastMessageContent) {
-                    is UILastMessageContent.Connection -> openUserProfile(lastEvent.userId)
-                    else -> openConversation(conversation.conversationId)
-                }
-            },
-            onLongClick = {
-                when (conversation.lastMessageContent) {
-                    is UILastMessageContent.Connection -> {}
-                    else -> openMenu(conversation)
-                }
-            }
-        )
+        when (val lastEvent = conversation.lastMessageContent) {
+            is UILastMessageContent.Connection -> Clickable(
+                enabled = true,
+                onClick = { openUserProfile(lastEvent.userId) },
+                onLongClick = null,
+                onClickDescription = openUserProfileDescription,
+                onLongClickDescription = null
+            )
+
+            else -> Clickable(
+                enabled = true,
+                onClick = { openConversation(conversation) },
+                onLongClick = { openMenu(conversation) },
+                onClickDescription = openConversationDescription,
+                onLongClickDescription = openConversationOptionDescription,
+            )
+        }
     }
+
     GeneralConversationItem(
+        modifier = modifier,
         conversation = conversation,
-        searchQuery = searchQuery,
         isSelectable = isSelectableItem,
         isChecked = isChecked,
         selectOnRadioGroup = onConversationSelectedOnRadioGroup,
@@ -116,12 +131,12 @@ fun ConversationItemFactory(
 @Suppress("ComplexMethod")
 @Composable
 private fun GeneralConversationItem(
-    searchQuery: String,
     conversation: ConversationItem,
     isChecked: Boolean,
     isSelectable: Boolean,
     onConversationItemClick: Clickable,
     onJoinCallClick: () -> Unit,
+    modifier: Modifier = Modifier,
     selectOnRadioGroup: () -> Unit = {},
     subTitle: @Composable () -> Unit = {},
     onAudioPermissionPermanentlyDenied: () -> Unit
@@ -130,6 +145,7 @@ private fun GeneralConversationItem(
         is ConversationItem.GroupConversation -> {
             with(conversation) {
                 RowItemTemplate(
+                    modifier = modifier,
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
@@ -176,6 +192,7 @@ private fun GeneralConversationItem(
         is ConversationItem.PrivateConversation -> {
             with(conversation) {
                 RowItemTemplate(
+                    modifier = modifier,
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
@@ -214,6 +231,7 @@ private fun GeneralConversationItem(
         is ConversationItem.ConnectionConversation -> {
             with(conversation) {
                 RowItemTemplate(
+                    modifier = modifier,
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = {
                         UserLabel(
@@ -235,9 +253,51 @@ private fun GeneralConversationItem(
     }
 }
 
-@Preview
 @Composable
-fun PreviewGroupConversationItemWithUnreadCount() {
+fun LoadingConversationItem(modifier: Modifier = Modifier) {
+    RowItemTemplate(
+        modifier = modifier,
+        leadingIcon = {
+            Box(
+                modifier = Modifier
+                    .padding(dimensions().avatarClickablePadding)
+                    .clip(CircleShape)
+                    .shimmerPlaceholder(visible = true)
+                    .border(dimensions().avatarBorderWidth, colorsScheme().outline)
+                    .size(dimensions().avatarDefaultSize)
+            )
+        },
+        title = {
+            Box(
+                modifier = Modifier
+                    .height(dimensions().spacing16x)
+                    .padding(vertical = dimensions().spacing1x)
+                    .shimmerPlaceholder(visible = true)
+                    .fillMaxWidth(0.75f)
+            )
+        },
+        subTitle = {
+            Box(
+                modifier = Modifier
+                    .padding(top = dimensions().spacing8x)
+                    .shimmerPlaceholder(visible = true)
+                    .fillMaxWidth(0.5f)
+                    .height(dimensions().spacing6x)
+            )
+        },
+        clickable = remember { Clickable(false) },
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewLoadingConversationItem() = WireTheme {
+    LoadingConversationItem()
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
     ConversationItemFactory(
         conversation = ConversationItem.GroupConversation(
             "groupName looooooooooooooooooooooooooooooooooooong",
@@ -253,16 +313,16 @@ fun PreviewGroupConversationItemWithUnreadCount() {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
+        modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewGroupConversationItemWithNoBadges() {
+fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
     ConversationItemFactory(
         conversation = ConversationItem.GroupConversation(
             "groupName looooooooooooooooooooooooooooooooooooong",
@@ -278,16 +338,16 @@ fun PreviewGroupConversationItemWithNoBadges() {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
+        modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewGroupConversationItemWithLastDeletedMessage() {
+fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
     ConversationItemFactory(
         conversation = ConversationItem.GroupConversation(
             "groupName looooooooooooooooooooooooooooooooooooong",
@@ -305,16 +365,16 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
+        modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() {
+fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireTheme {
     ConversationItemFactory(
         conversation = ConversationItem.GroupConversation(
             "groupName looooooooooooooooooooooooooooooooooooong",
@@ -330,16 +390,16 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
+        modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewGroupConversationItemWithOngoingCall() {
+fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
     ConversationItemFactory(
         conversation = ConversationItem.GroupConversation(
             "groupName looooooooooooooooooooooooooooooooooooong",
@@ -356,16 +416,16 @@ fun PreviewGroupConversationItemWithOngoingCall() {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
+        modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewConnectionConversationItemWithReceivedConnectionRequestBadge() {
+fun PreviewConnectionConversationItemWithReceivedConnectionRequestBadge() = WireTheme {
     ConversationItemFactory(
         conversation = ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(),
@@ -375,16 +435,16 @@ fun PreviewConnectionConversationItemWithReceivedConnectionRequestBadge() {
             badgeEventType = BadgeEventType.ReceivedConnectionRequest,
             conversationInfo = ConversationInfo("Name")
         ),
-        searchQuery = "",
+        modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewConnectionConversationItemWithSentConnectRequestBadge() {
+fun PreviewConnectionConversationItemWithSentConnectRequestBadge() = WireTheme {
     ConversationItemFactory(
         conversation = ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(),
@@ -394,16 +454,16 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadge() {
             badgeEventType = BadgeEventType.SentConnectRequest,
             conversationInfo = ConversationInfo("Name")
         ),
-        searchQuery = "",
+        modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewConnectionConversationItemWithSentConnectRequestBadgeWithUnknownSender() {
+fun PreviewConnectionConversationItemWithSentConnectRequestBadgeWithUnknownSender() = WireTheme {
     ConversationItemFactory(
         conversation = ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(),
@@ -413,16 +473,16 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadgeWithUnknownSende
             badgeEventType = BadgeEventType.SentConnectRequest,
             conversationInfo = ConversationInfo("", isSenderUnavailable = true)
         ),
-        searchQuery = "",
+        modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewPrivateConversationItemWithBlockedBadge() {
+fun PreviewPrivateConversationItemWithBlockedBadge() = WireTheme {
     ConversationItemFactory(
         conversation = ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(),
@@ -438,7 +498,7 @@ fun PreviewPrivateConversationItemWithBlockedBadge() {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
+        modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
         {}, {}, {}, {}, {}, {}

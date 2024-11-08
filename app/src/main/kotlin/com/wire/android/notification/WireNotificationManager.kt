@@ -28,6 +28,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
+import com.wire.android.util.logIfEmptyUserName
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
@@ -51,6 +52,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -249,7 +251,7 @@ class WireNotificationManager @Inject constructor(
             // and remove the notifications that were displayed previously
             appLogger.i("$TAG no Users -> hide all the notifications")
             messagesNotificationManager.hideAllNotifications()
-            callNotificationManager.hideAllNotifications()
+            callNotificationManager.hideAllIncomingCallNotifications()
             servicesManager.stopCallService()
 
             return
@@ -297,6 +299,7 @@ class WireNotificationManager @Inject constructor(
 
     private fun stopObservingForUser(userId: UserId, observingJobs: ObservingJobs) {
         messagesNotificationManager.hideAllNotificationsForUser(userId)
+        callNotificationManager.hideAllIncomingCallNotificationsForUser(userId)
         observingJobs.userJobs[userId]?.cancelAll()
         observingJobs.userJobs.remove(userId)
     }
@@ -336,20 +339,26 @@ class WireNotificationManager @Inject constructor(
     ) {
         appLogger.d("$TAG observe incoming calls")
 
-        coreLogic.getSessionScope(userId).observeE2EIRequired()
-            .map { it is E2EIRequiredResult.NoGracePeriod }
-            .distinctUntilChanged()
-            .flatMapLatest { isBlockedByE2EIRequired ->
-                if (isBlockedByE2EIRequired) {
-                    appLogger.d("$TAG calls were blocked as E2EI is required")
-                    flowOf(listOf())
-                } else {
-                    coreLogic.getSessionScope(userId).calls.getIncomingCalls()
+        coreLogic.getSessionScope(userId).let { userSessionScope ->
+            userSessionScope.observeE2EIRequired()
+                .map { it is E2EIRequiredResult.NoGracePeriod }
+                .distinctUntilChanged()
+                .flatMapLatest { isBlockedByE2EIRequired ->
+                    if (isBlockedByE2EIRequired) {
+                        appLogger.d("$TAG calls were blocked as E2EI is required")
+                        flowOf(listOf())
+                    } else {
+                        userSessionScope.calls.getIncomingCalls()
+                    }.map { calls ->
+                        userSessionScope.users.getSelfUser().first()
+                            .also { it.logIfEmptyUserName() }
+                            .let { it.handle ?: it.name ?: "" } to calls
+                    }
                 }
-            }
-            .collect { calls ->
-                callNotificationManager.handleIncomingCallNotifications(calls, userId)
-            }
+                .collect { (userName, calls) ->
+                    callNotificationManager.handleIncomingCalls(calls, userId, userName)
+                }
+        }
     }
 
     /**
@@ -366,6 +375,7 @@ class WireNotificationManager @Inject constructor(
         val selfUserNameState = coreLogic.getSessionScope(userId)
             .users
             .getSelfUser()
+            .onEach { it.logIfEmptyUserName() }
             .map { it.handle ?: it.name ?: "" }
             .distinctUntilChanged()
             .stateIn(scope)

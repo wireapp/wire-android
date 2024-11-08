@@ -162,7 +162,8 @@ fun UserProfileInfo(
                     withCrossfadeAnimation = true,
                     type = expiresAt?.let { UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt) }
                         ?: UserProfileAvatarType.WithoutIndicators,
-                    contentDescription = stringResource(R.string.content_description_self_profile_avatar)
+                    contentDescription = if (editableState is EditableState.IsEditable)
+                        stringResource(R.string.content_description_self_profile_avatar) else null
                 )
             }
             this@Column.AnimatedVisibility(visible = isLoading) {
@@ -237,7 +238,11 @@ fun UserProfileInfo(
                     color = MaterialTheme.wireColorScheme.labelText,
                     modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = usernameDescription }
                 )
-                UserBadge(membership, connection, topPadding = dimensions().spacing8x)
+                UserBadge(
+                    membership = membership,
+                    connectionState = connection,
+                    topPadding = dimensions().spacing8x
+                )
             }
 
             Column(

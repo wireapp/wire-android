@@ -64,9 +64,11 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun IncomingCallScreen(
     conversationId: ConversationId,
     incomingCallViewModel: IncomingCallViewModel = hiltViewModel<IncomingCallViewModel, IncomingCallViewModel.Factory>(
+        key = "incoming_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+        key = "shared_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
     onCallAccepted: () -> Unit

@@ -147,6 +147,11 @@ fun UserProfileInfo(
                 label = "UserProfileInfoAvatar"
             ) { (userAvatarData, showPlaceholderIfNoAsset) ->
                 val onAvatarClickDescription = stringResource(R.string.content_description_change_it_label)
+                val contentDescription = if (editableState is EditableState.IsEditable) {
+                    stringResource(R.string.content_description_self_profile_avatar)
+                } else {
+                    null
+                }
                 UserProfileAvatar(
                     size = dimensions().avatarDefaultBigSize,
                     temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
@@ -162,8 +167,7 @@ fun UserProfileInfo(
                     withCrossfadeAnimation = true,
                     type = expiresAt?.let { UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt) }
                         ?: UserProfileAvatarType.WithoutIndicators,
-                    contentDescription = if (editableState is EditableState.IsEditable)
-                        stringResource(R.string.content_description_self_profile_avatar) else null
+                    contentDescription = contentDescription
                 )
             }
             this@Column.AnimatedVisibility(visible = isLoading) {

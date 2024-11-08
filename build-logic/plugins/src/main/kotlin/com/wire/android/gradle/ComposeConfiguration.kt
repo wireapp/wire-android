@@ -27,8 +27,4 @@ internal fun Project.configureCompose(
     buildFeatures {
         compose = true
     }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = findVersion("compose.compiler").requiredVersion
-    }
 }

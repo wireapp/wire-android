@@ -281,11 +281,7 @@ private fun DropdownItem(
         leadingIcon = leadingCompose,
         trailingIcon = {
             if (isSelected) {
-<<<<<<< HEAD
-                WireCheckIcon(contentDescription = R.string.content_description_selected_label)
-=======
-                WireCheckIcon(R.string.content_description_empty)
->>>>>>> dded0b698 (fix: Accessibility strings issues #WPB-9827 (#3614))
+                WireCheckIcon(contentDescription = R.string.content_description_empty)
             }
         },
         onClick = onClick,

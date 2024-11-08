@@ -96,11 +96,7 @@ fun SelectableMenuBottomSheetItem(
                     .padding(start = dimensions().spacing8x)
                     .align(Alignment.CenterVertically)
             ) {
-<<<<<<< HEAD
-                WireCheckIcon(contentDescription = R.string.label_selected)
-=======
                 WireCheckIcon(contentDescription = R.string.content_description_empty)
->>>>>>> dded0b698 (fix: Accessibility strings issues #WPB-9827 (#3614))
             }
         }
     }

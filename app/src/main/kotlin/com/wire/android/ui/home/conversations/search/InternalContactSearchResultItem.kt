@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.model.ItemActionType
@@ -91,7 +92,7 @@ fun InternalContactSearchResultItem(
                         .wrapContentWidth()
                         .padding(end = dimensions().spacing4x)
                 ) {
-                    ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+                    ArrowRightIcon(Modifier.align(Alignment.TopEnd), R.string.content_description_empty)
                 }
             } else if (actionType.checkable) {
                 WireCheckbox(

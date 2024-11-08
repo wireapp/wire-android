@@ -20,6 +20,7 @@ package com.wire.android.util
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import androidx.exifinterface.media.ExifInterface
+import com.wire.android.appLogger
 
 /**
  * Used to remove unnecessary metadata from the image.
@@ -55,6 +56,7 @@ fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface?): Bitmap {
         this.recycle()
         rotated
     } catch (exception: Exception) {
+        appLogger.withTextTag("ExifHandler").w("Failed to rotate image to normal orientation", exception)
         this
     }
 }

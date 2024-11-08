@@ -21,6 +21,5 @@ import androidx.compose.foundation.text.input.TextFieldState
 
 data class TeamMigrationState(
     val teamNameTextState: TextFieldState = TextFieldState(),
-    val passwordTextState: TextFieldState = TextFieldState(),
     val shouldShowMigrationLeaveDialog: Boolean = false
 )

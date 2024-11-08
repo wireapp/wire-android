@@ -981,6 +981,8 @@
     <string name="connection_label_ignore">Ignore</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <string name="connection_label_user_not_found_warning_title">Wire can\'t find this person</string>
+    <string name="connection_label_user_not_found_warning_description">You may not have permission with this account or the person may not be on Wire.</string>
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
     <string name="missing_keypackage_dialog_body">You can\'t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>

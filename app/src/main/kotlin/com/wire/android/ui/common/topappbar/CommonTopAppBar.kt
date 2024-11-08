@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -64,9 +64,9 @@ import com.wire.kalium.network.NetworkState
 fun CommonTopAppBar(
     themeOption: ThemeOption,
     commonTopAppBarState: CommonTopAppBarState,
-    onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
-    onReturnToIncomingCallClick: (ConnectivityUIState.IncomingCall) -> Unit,
-    onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit,
+    onReturnToCallClick: (ConnectivityUIState.Call.Established) -> Unit,
+    onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
+    onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -84,9 +84,7 @@ fun CommonTopAppBar(
 @Composable
 fun getBackgroundColor(connectivityInfo: ConnectivityUIState): Color {
     return when (connectivityInfo) {
-        is ConnectivityUIState.EstablishedCall,
-        is ConnectivityUIState.IncomingCall,
-        is ConnectivityUIState.OutgoingCall -> MaterialTheme.wireColorScheme.positive
+        is ConnectivityUIState.Calls -> MaterialTheme.wireColorScheme.positive
 
         is ConnectivityUIState.WaitingConnection,
         ConnectivityUIState.Connecting -> MaterialTheme.wireColorScheme.primary
@@ -100,9 +98,9 @@ private fun ConnectivityStatusBar(
     themeOption: ThemeOption,
     connectivityInfo: ConnectivityUIState,
     networkState: NetworkState,
-    onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
-    onReturnToIncomingCallClick: (ConnectivityUIState.IncomingCall) -> Unit,
-    onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit
+    onReturnToCallClick: (ConnectivityUIState.Call.Established) -> Unit,
+    onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
+    onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
 ) {
     val isVisible = connectivityInfo !is ConnectivityUIState.None
     val backgroundColor = getBackgroundColor(connectivityInfo)
@@ -124,54 +122,28 @@ private fun ConnectivityStatusBar(
         ClearStatusBarColor()
     }
 
-    val barModifier = Modifier
-        .animateContentSize()
-        .fillMaxWidth()
-        .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
-        .background(backgroundColor)
-        .run {
-            when (connectivityInfo) {
-                is ConnectivityUIState.EstablishedCall -> clickable(onClick = {
-                    onReturnToCallClick(
-                        connectivityInfo
-                    )
-                })
-
-                is ConnectivityUIState.IncomingCall -> clickable(onClick = {
-                    onReturnToIncomingCallClick(
-                        connectivityInfo
-                    )
-                })
-
-                is ConnectivityUIState.OutgoingCall -> clickable(onClick = {
-                    onReturnToOutgoingCallClick(
-                        connectivityInfo
-                    )
-                })
-
-                else -> this
-            }
-        }
-
     AnimatedVisibility(
         visible = isVisible,
         enter = expandIn(initialSize = { fullSize -> IntSize(fullSize.width, 0) }),
         exit = shrinkOut(targetSize = { fullSize -> IntSize(fullSize.width, 0) })
     ) {
         Column(
-            modifier = barModifier,
+            modifier = Modifier
+                .animateContentSize()
+                .fillMaxWidth()
+                .heightIn(min = MaterialTheme.wireDimensions.ongoingCallLabelHeight)
+                .background(backgroundColor),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             when (connectivityInfo) {
-                is ConnectivityUIState.EstablishedCall ->
-                    OngoingCallContent(connectivityInfo.isMuted)
-
-                is ConnectivityUIState.IncomingCall ->
-                    IncomingCallContent(callerName = connectivityInfo.callerName)
-
-                is ConnectivityUIState.OutgoingCall ->
-                    OutgoingCallContent(conversationName = connectivityInfo.conversationName)
+                is ConnectivityUIState.Calls ->
+                    CallsContent(
+                        calls = connectivityInfo.calls,
+                        onReturnToCallClick = onReturnToCallClick,
+                        onReturnToIncomingCallClick = onReturnToIncomingCallClick,
+                        onReturnToOutgoingCallClick = onReturnToOutgoingCallClick
+                    )
 
                 ConnectivityUIState.Connecting ->
                     StatusLabel(
@@ -237,37 +209,119 @@ private fun WaitingStatusLabelInternal(
 }
 
 @Composable
-private fun OngoingCallContent(isMuted: Boolean) {
-    Row {
+private fun CallsContent(
+    calls: List<ConnectivityUIState.Call>,
+    onReturnToCallClick: (ConnectivityUIState.Call.Established) -> Unit,
+    onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
+    onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing12x)) {
+        calls.forEach { call ->
+            when (call) {
+                is ConnectivityUIState.Call.Established -> OngoingCallContent(
+                    isMuted = call.isMuted,
+                    modifier = Modifier
+                        .clickable(
+                            onClick = remember(call) {
+                                {
+                                    onReturnToCallClick(call)
+                                }
+                            }
+                        )
+                        .fillMaxWidth()
+                        .heightIn(min = MaterialTheme.wireDimensions.ongoingCallLabelHeight)
+                )
+
+                is ConnectivityUIState.Call.Incoming -> IncomingCallContent(
+                    callerName = call.callerName,
+                    modifier = Modifier
+                        .clickable(
+                            onClick = remember(call) {
+                                {
+                                    onReturnToIncomingCallClick(call)
+                                }
+                            }
+                        )
+                        .fillMaxWidth()
+                        .heightIn(min = MaterialTheme.wireDimensions.ongoingCallLabelHeight)
+                )
+
+                is ConnectivityUIState.Call.Outgoing -> OutgoingCallContent(
+                    conversationName = call.conversationName,
+                    modifier = Modifier
+                        .clickable(
+                            onClick = remember(call) {
+                                {
+                                    onReturnToOutgoingCallClick(call)
+                                }
+                            }
+                        )
+                        .fillMaxWidth()
+                        .heightIn(min = MaterialTheme.wireDimensions.ongoingCallLabelHeight)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun OngoingCallContent(isMuted: Boolean, modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier,
+    ) {
         MicrophoneIcon(isMuted, MaterialTheme.wireColorScheme.onPositive)
         CameraIcon(MaterialTheme.wireColorScheme.onPositive)
         StatusLabel(
-            R.string.connectivity_status_bar_return_to_call,
-            MaterialTheme.wireColorScheme.onPositive
+            stringResource = R.string.connectivity_status_bar_return_to_call,
+            color = MaterialTheme.wireColorScheme.onPositive,
         )
     }
 }
 
 @Composable
-private fun IncomingCallContent(callerName: String?) {
-    Row {
+private fun IncomingCallContent(callerName: String?, modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier,
+    ) {
         StatusLabelWithValue(
             stringResource = R.string.connectivity_status_bar_return_to_incoming_call,
-            callerName = callerName,
+            callerName = callerName ?: stringResource(R.string.username_unavailable_label),
             color = MaterialTheme.wireColorScheme.onPositive
         )
     }
 }
 
 @Composable
-private fun OutgoingCallContent(conversationName: String?) {
-    Row {
+private fun OutgoingCallContent(conversationName: String?, modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier,
+    ) {
         StatusLabelWithValue(
             stringResource = R.string.connectivity_status_bar_return_to_outgoing_call,
-            callerName = conversationName,
+            callerName = conversationName ?: stringResource(R.string.username_unavailable_label),
             color = MaterialTheme.wireColorScheme.onPositive
         )
     }
+}
+
+@Composable
+private fun StatusLabel(
+    string: String,
+    color: Color = MaterialTheme.wireColorScheme.onPrimary
+) {
+    Text(
+        text = string.uppercase(),
+        color = color,
+        style = MaterialTheme.wireTypography.title03,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing6x)
+    )
 }
 
 @Composable
@@ -282,19 +336,6 @@ private fun StatusLabel(
 }
 
 @Composable
-private fun StatusLabel(
-    string: String,
-    color: Color = MaterialTheme.wireColorScheme.onPrimary
-) {
-    Text(
-        text = string.uppercase(),
-        color = color,
-        style = MaterialTheme.wireTypography.title03,
-        textAlign = TextAlign.Center,
-    )
-}
-
-@Composable
 private fun StatusLabelWithValue(
     stringResource: Int,
     callerName: String?,
@@ -305,6 +346,7 @@ private fun StatusLabelWithValue(
         text = stringResource(id = stringResource, callerName ?: defaultCallerName).uppercase(),
         color = color,
         style = MaterialTheme.wireTypography.title03,
+        modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing6x)
     )
 }
 
@@ -351,19 +393,45 @@ private fun ClearStatusBarColor() {
 }
 
 @Composable
-private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState) {
-    WireTheme {
-        CommonTopAppBar(ThemeOption.SYSTEM, CommonTopAppBarState(connectivityUIState), {}, {}, {})
-    }
+private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState) = WireTheme {
+    CommonTopAppBar(ThemeOption.SYSTEM, CommonTopAppBarState(connectivityUIState), {}, {}, {})
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCommonTopAppBar_ConnectivityCallNotMuted() =
+fun PreviewCommonTopAppBar_ConnectivityEstablishedCallNotMuted() =
     PreviewCommonTopAppBar(
-        ConnectivityUIState.EstablishedCall(
-            ConversationId("what", "ever"),
-            false
+        ConnectivityUIState.Calls(listOf(ConnectivityUIState.Call.Established(ConversationId("what", "ever"), false)))
+    )
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityEstablishedCallAndIncomingCalls() =
+    PreviewCommonTopAppBar(
+        ConnectivityUIState.Calls(
+            listOf(
+                ConnectivityUIState.Call.Established(ConversationId("1", "1"), false),
+                ConnectivityUIState.Call.Incoming(ConversationId("2", "2"), "John Doe"),
+                ConnectivityUIState.Call.Incoming(ConversationId("3", "3"), "Adam Smith"),
+            )
+        )
+    )
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityIncomingCall() =
+    PreviewCommonTopAppBar(
+        ConnectivityUIState.Calls(
+            listOf(ConnectivityUIState.Call.Incoming(ConversationId("2", "2"), "John Doe"))
+        )
+    )
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityOutgoingCall() =
+    PreviewCommonTopAppBar(
+        ConnectivityUIState.Calls(
+            listOf(ConnectivityUIState.Call.Outgoing(ConversationId("2", "2"), "John Doe"))
         )
     )
 
@@ -381,23 +449,3 @@ fun PreviewCommonTopAppBar_ConnectivityWaitingConnection() =
 @Composable
 fun PreviewCommonTopAppBar_ConnectivityNone() =
     PreviewCommonTopAppBar(ConnectivityUIState.None)
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewCommonTopAppBar_ConnectivityIncomingCall() =
-    PreviewCommonTopAppBar(
-        ConnectivityUIState.IncomingCall(
-            ConversationId("what", "ever"),
-            "callerName"
-        )
-    )
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewCommonTopAppBar_ConnectivityOutgoingCall() =
-    PreviewCommonTopAppBar(
-        ConnectivityUIState.OutgoingCall(
-            ConversationId("what", "ever"),
-            "conversationName"
-        )
-    )

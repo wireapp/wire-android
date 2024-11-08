@@ -37,14 +37,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-<<<<<<< HEAD
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-=======
-import androidx.compose.runtime.remember
->>>>>>> d469e0a3a (fix: showing multiple calls at the same time [WPB-10430] (#3583))
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -88,18 +84,11 @@ fun CommonTopAppBar(
 @Composable
 fun getBackgroundColor(connectivityInfo: ConnectivityUIState): Color {
     return when (connectivityInfo) {
-<<<<<<< HEAD
-        is ConnectivityUIState.EstablishedCall,
-        is ConnectivityUIState.IncomingCall,
-        is ConnectivityUIState.OutgoingCall -> MaterialTheme.wireColorScheme.positive
+        is ConnectivityUIState.Calls -> MaterialTheme.wireColorScheme.positive
 
         is ConnectivityUIState.WaitingConnection,
         ConnectivityUIState.Connecting -> MaterialTheme.wireColorScheme.primary
 
-=======
-        is ConnectivityUIState.Calls -> MaterialTheme.wireColorScheme.positive
-        ConnectivityUIState.Connecting, ConnectivityUIState.WaitingConnection -> MaterialTheme.wireColorScheme.primary
->>>>>>> d469e0a3a (fix: showing multiple calls at the same time [WPB-10430] (#3583))
         ConnectivityUIState.None -> MaterialTheme.wireColorScheme.background
     }
 }
@@ -108,16 +97,10 @@ fun getBackgroundColor(connectivityInfo: ConnectivityUIState): Color {
 private fun ConnectivityStatusBar(
     themeOption: ThemeOption,
     connectivityInfo: ConnectivityUIState,
-<<<<<<< HEAD
     networkState: NetworkState,
-    onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
-    onReturnToIncomingCallClick: (ConnectivityUIState.IncomingCall) -> Unit,
-    onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit
-=======
     onReturnToCallClick: (ConnectivityUIState.Call.Established) -> Unit,
     onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
-    onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit
->>>>>>> d469e0a3a (fix: showing multiple calls at the same time [WPB-10430] (#3583))
+    onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
 ) {
     val isVisible = connectivityInfo !is ConnectivityUIState.None
     val backgroundColor = getBackgroundColor(connectivityInfo)
@@ -139,38 +122,6 @@ private fun ConnectivityStatusBar(
         ClearStatusBarColor()
     }
 
-<<<<<<< HEAD
-    val barModifier = Modifier
-        .animateContentSize()
-        .fillMaxWidth()
-        .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
-        .background(backgroundColor)
-        .run {
-            when (connectivityInfo) {
-                is ConnectivityUIState.EstablishedCall -> clickable(onClick = {
-                    onReturnToCallClick(
-                        connectivityInfo
-                    )
-                })
-
-                is ConnectivityUIState.IncomingCall -> clickable(onClick = {
-                    onReturnToIncomingCallClick(
-                        connectivityInfo
-                    )
-                })
-
-                is ConnectivityUIState.OutgoingCall -> clickable(onClick = {
-                    onReturnToOutgoingCallClick(
-                        connectivityInfo
-                    )
-                })
-
-                else -> this
-            }
-        }
-
-=======
->>>>>>> d469e0a3a (fix: showing multiple calls at the same time [WPB-10430] (#3583))
     AnimatedVisibility(
         visible = isVisible,
         enter = expandIn(initialSize = { fullSize -> IntSize(fullSize.width, 0) }),
@@ -224,7 +175,6 @@ private fun ConnectivityStatusBar(
 }
 
 @Composable
-<<<<<<< HEAD
 private fun WaitingStatusLabelInternal(
     connectivityInfo: ConnectivityUIState.WaitingConnection,
     networkState: NetworkState,
@@ -255,7 +205,10 @@ private fun WaitingStatusLabelInternal(
                 }
             },
         )
-=======
+    }
+}
+
+@Composable
 private fun CallsContent(
     calls: List<ConnectivityUIState.Call>,
     onReturnToCallClick: (ConnectivityUIState.Call.Established) -> Unit,
@@ -308,22 +261,16 @@ private fun CallsContent(
                 )
             }
         }
->>>>>>> d469e0a3a (fix: showing multiple calls at the same time [WPB-10430] (#3583))
     }
 }
 
 @Composable
-<<<<<<< HEAD
-private fun OngoingCallContent(isMuted: Boolean) {
-    Row {
-=======
 private fun OngoingCallContent(isMuted: Boolean, modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier,
     ) {
->>>>>>> d469e0a3a (fix: showing multiple calls at the same time [WPB-10430] (#3583))
         MicrophoneIcon(isMuted, MaterialTheme.wireColorScheme.onPositive)
         CameraIcon(MaterialTheme.wireColorScheme.onPositive)
         StatusLabel(
@@ -365,17 +312,6 @@ private fun OutgoingCallContent(conversationName: String?, modifier: Modifier = 
 
 @Composable
 private fun StatusLabel(
-    stringResource: Int,
-    color: Color = MaterialTheme.wireColorScheme.onPrimary
-) {
-    StatusLabel(
-        string = stringResource(id = stringResource),
-        color = color,
-    )
-}
-
-@Composable
-private fun StatusLabel(
     string: String,
     color: Color = MaterialTheme.wireColorScheme.onPrimary
 ) {
@@ -383,11 +319,19 @@ private fun StatusLabel(
         text = string.uppercase(),
         color = color,
         style = MaterialTheme.wireTypography.title03,
-<<<<<<< HEAD
         textAlign = TextAlign.Center,
-=======
         modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing6x)
->>>>>>> d469e0a3a (fix: showing multiple calls at the same time [WPB-10430] (#3583))
+    )
+}
+
+@Composable
+private fun StatusLabel(
+    stringResource: Int,
+    color: Color = MaterialTheme.wireColorScheme.onPrimary
+) {
+    StatusLabel(
+        string = stringResource(id = stringResource),
+        color = color,
     )
 }
 
@@ -455,15 +399,14 @@ private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState) = W
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCommonTopAppBar_ConnectivityEstablishedCallNotMuted() = WireTheme {
+fun PreviewCommonTopAppBar_ConnectivityEstablishedCallNotMuted() =
     PreviewCommonTopAppBar(
         ConnectivityUIState.Calls(listOf(ConnectivityUIState.Call.Established(ConversationId("what", "ever"), false)))
     )
-}
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCommonTopAppBar_ConnectivityEstablishedCallAndIncomingCalls() = WireTheme {
+fun PreviewCommonTopAppBar_ConnectivityEstablishedCallAndIncomingCalls() =
     PreviewCommonTopAppBar(
         ConnectivityUIState.Calls(
             listOf(
@@ -473,32 +416,13 @@ fun PreviewCommonTopAppBar_ConnectivityEstablishedCallAndIncomingCalls() = WireT
             )
         )
     )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewCommonTopAppBar_ConnectivityConnecting() = WireTheme {
-    PreviewCommonTopAppBar(ConnectivityUIState.Connecting)
-}
-
-@PreviewMultipleThemes
-@Composable
-<<<<<<< HEAD
-fun PreviewCommonTopAppBar_ConnectivityWaitingConnection() =
-    PreviewCommonTopAppBar(ConnectivityUIState.WaitingConnection(null, null))
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewCommonTopAppBar_ConnectivityNone() =
-    PreviewCommonTopAppBar(ConnectivityUIState.None)
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewCommonTopAppBar_ConnectivityIncomingCall() =
     PreviewCommonTopAppBar(
-        ConnectivityUIState.IncomingCall(
-            ConversationId("what", "ever"),
-            "callerName"
+        ConnectivityUIState.Calls(
+            listOf(ConnectivityUIState.Call.Incoming(ConversationId("2", "2"), "John Doe"))
         )
     )
 
@@ -506,13 +430,22 @@ fun PreviewCommonTopAppBar_ConnectivityIncomingCall() =
 @Composable
 fun PreviewCommonTopAppBar_ConnectivityOutgoingCall() =
     PreviewCommonTopAppBar(
-        ConnectivityUIState.OutgoingCall(
-            ConversationId("what", "ever"),
-            "conversationName"
+        ConnectivityUIState.Calls(
+            listOf(ConnectivityUIState.Call.Outgoing(ConversationId("2", "2"), "John Doe"))
         )
     )
-=======
-fun PreviewCommonTopAppBar_ConnectivityNone() = WireTheme {
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityConnecting() =
+    PreviewCommonTopAppBar(ConnectivityUIState.Connecting)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityWaitingConnection() =
+    PreviewCommonTopAppBar(ConnectivityUIState.WaitingConnection(null, null))
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityNone() =
     PreviewCommonTopAppBar(ConnectivityUIState.None)
-}
->>>>>>> d469e0a3a (fix: showing multiple calls at the same time [WPB-10430] (#3583))

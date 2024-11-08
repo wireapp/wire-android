@@ -129,32 +129,6 @@ class CommonTopAppBarViewModel @Inject constructor(
     ): ConnectivityUIState {
 
         val canDisplayConnectivityIssues = currentScreen !is CurrentScreen.AuthRelated
-
-<<<<<<< HEAD
-        if (activeCall != null) {
-            return when (activeCall.status) {
-                CallStatus.INCOMING -> {
-                    ConnectivityUIState.IncomingCall(
-                        activeCall.conversationId,
-                        activeCall.callerName
-                    )
-                }
-
-                CallStatus.STARTED -> {
-                    ConnectivityUIState.OutgoingCall(
-                        activeCall.conversationId,
-                        activeCall.conversationName
-                    )
-                }
-
-                else -> {
-                    ConnectivityUIState.EstablishedCall(
-                        activeCall.conversationId,
-                        activeCall.isMuted
-                    )
-                }
-            }
-=======
         if (activeCalls.isNotEmpty()) {
             return ConnectivityUIState.Calls(
                 calls = activeCalls.partition { it.status != CallStatus.INCOMING }
@@ -169,7 +143,6 @@ class CommonTopAppBarViewModel @Inject constructor(
                         }
                     }
             )
->>>>>>> d469e0a3a (fix: showing multiple calls at the same time [WPB-10430] (#3583))
         }
 
         return if (canDisplayConnectivityIssues) {

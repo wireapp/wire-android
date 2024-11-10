@@ -154,6 +154,10 @@ class DeepLinkProcessor @Inject constructor(
         } ?: return DeepLinkResult.Unknown
     }
 
+    /**
+     * Converts the string to a [QualifiedID] with the current user domain or default, to preserve retro compatibility.
+     * When implementing Milestone 2 this should be replaced with a new qualifiedIdMapper, implementing wire://user/domain/user-id
+     */
     private fun String.toDefaultQualifiedId(currentUserDomain: String?): QualifiedID {
         val domain = currentUserDomain ?: "wire.com"
         // TODO. This lowercase is important, since web/iOS is sending/handling this as uppercase!!

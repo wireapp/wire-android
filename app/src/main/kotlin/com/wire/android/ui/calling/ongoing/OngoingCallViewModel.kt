@@ -126,6 +126,7 @@ class OngoingCallViewModel @AssistedInject constructor(
                         val clients: List<CallClient> = it.map { uiParticipant ->
                             CallClient(uiParticipant.id.toString(), uiParticipant.clientId)
                         }
+                        // if fullscreen request high
                         requestVideoStreams(conversationId, clients)
                     }
                 }

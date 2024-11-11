@@ -23,4 +23,6 @@
     <string name="content_description_close_button">Кнопка закрыть</string>
     <string name="content_description_menu_button">Основное меню</string>
     <string name="content_description_drop_down_icon">Курсор вниз</string>
+    <string name="content_description_pending_connection_badge">ожидание подтверждения запроса</string>
+    <string name="content_description_alert">Оповещение</string>
 </resources>

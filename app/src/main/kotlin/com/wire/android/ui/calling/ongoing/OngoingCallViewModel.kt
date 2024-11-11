@@ -28,8 +28,10 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -62,6 +64,8 @@ class OngoingCallViewModel @AssistedInject constructor(
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
 
     var state by mutableStateOf(OngoingCallState())
+        private set
+    var selectedParticipant by mutableStateOf(SelectedParticipant())
         private set
 
     init {
@@ -124,12 +128,23 @@ class OngoingCallViewModel @AssistedInject constructor(
                 .also {
                     if (it.isNotEmpty()) {
                         val clients: List<CallClient> = it.map { uiParticipant ->
-                            CallClient(uiParticipant.id.toString(), uiParticipant.clientId)
+                            CallClient(
+                                userId = uiParticipant.id.toString(),
+                                clientId = uiParticipant.clientId,
+                                quality = mapQualityStream(uiParticipant)
+                            )
                         }
-                        // if fullscreen request high
                         requestVideoStreams(conversationId, clients)
                     }
                 }
+        }
+    }
+
+    private fun mapQualityStream(uiParticipant: UICallParticipant): CallQuality {
+        return if (uiParticipant.clientId == selectedParticipant.clientId) {
+            CallQuality.HIGH
+        } else {
+            CallQuality.LOW
         }
     }
 
@@ -170,6 +185,10 @@ class OngoingCallViewModel @AssistedInject constructor(
         viewModelScope.launch {
             globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
         }
+    }
+
+    fun onSelectedParticipant(selectedParticipant: SelectedParticipant) {
+        this.selectedParticipant = selectedParticipant
     }
 
     companion object {

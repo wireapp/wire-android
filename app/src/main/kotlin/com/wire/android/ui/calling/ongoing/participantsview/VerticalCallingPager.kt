@@ -123,6 +123,7 @@ fun VerticalCallingPager(
                         )
                     }
 
+                    // todo. trigger video stream when in fullscreen mode.
                     LaunchedEffect(
                         participantsWithCameraOn, // Request video stream when someone turns camera on/off
                         participantsWithScreenShareOn, // Request video stream when someone starts sharing screen

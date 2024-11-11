@@ -56,6 +56,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
@@ -274,12 +275,15 @@ private fun DropdownItem(
         leadingIcon = leadingCompose,
         trailingIcon = {
             if (isSelected) {
-                WireCheckIcon(R.string.content_description_selected_label)
+                WireCheckIcon(R.string.content_description_empty)
             }
         },
         onClick = onClick,
         modifier = Modifier
-            .semantics { onClick(selectLabel) { false } }
+            .semantics {
+                onClick(selectLabel) { false }
+                if (isSelected) selected = true
+            }
             .background(
                 color = if (isSelected) MaterialTheme.wireColorScheme.secondaryButtonSelected
                 else MaterialTheme.wireColorScheme.tertiaryButtonEnabled

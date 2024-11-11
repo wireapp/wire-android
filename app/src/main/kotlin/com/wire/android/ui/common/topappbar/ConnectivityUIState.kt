@@ -29,18 +29,24 @@ sealed interface ConnectivityUIState {
 
     data object None : ConnectivityUIState
 
-    data class EstablishedCall(
-        val conversationId: ConversationId,
-        val isMuted: Boolean
-    ) : ConnectivityUIState
+    data class Calls(val calls: List<Call>) : ConnectivityUIState {
+        val hasOngoingCall: Boolean = calls.any { it is Call.Established }
+    }
 
-    data class IncomingCall(
-        val conversationId: ConversationId,
-        val callerName: String?
-    ) : ConnectivityUIState
+    sealed interface Call {
+        data class Established(
+            val conversationId: ConversationId,
+            val isMuted: Boolean
+        ) : Call
 
-    data class OutgoingCall(
-        val conversationId: ConversationId,
-        val conversationName: String?
-    ) : ConnectivityUIState
+        data class Incoming(
+            val conversationId: ConversationId,
+            val callerName: String?
+        ) : Call
+
+        data class Outgoing(
+            val conversationId: ConversationId,
+            val conversationName: String?
+        ) : Call
+    }
 }

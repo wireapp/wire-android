@@ -33,17 +33,8 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-<<<<<<< HEAD
 fun SearchFailureBox(@StringRes failureMessage: Int, modifier: Modifier = Modifier) {
-    Box(
-        modifier
-            .fillMaxWidth()
-            .height(224.dp)
-    ) {
-=======
-fun SearchFailureBox(@StringRes failureMessage: Int) {
-    Box(Modifier.fillMaxSize()) {
->>>>>>> cba33119f (fix: show proper empty user search screens [WPB-6257] 🍒 (#3602))
+    Box(modifier.fillMaxSize()) {
         Text(
             stringResource(id = failureMessage),
             modifier = Modifier.align(Alignment.Center),

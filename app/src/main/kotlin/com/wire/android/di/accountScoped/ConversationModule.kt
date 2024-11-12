@@ -327,5 +327,4 @@ class ConversationModule {
     @Provides
     fun provideGetFavoriteFolderUseCase(conversationScope: ConversationScope) =
         conversationScope.getFavoriteFolder
-
 }

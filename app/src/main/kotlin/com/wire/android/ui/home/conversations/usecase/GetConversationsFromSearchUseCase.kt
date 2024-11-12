@@ -28,7 +28,6 @@ import com.wire.android.mapper.toConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
@@ -84,7 +83,8 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                 }
                     .map {
                         PagingData.from(
-                            it, sourceLoadStates = LoadStates(
+                            it,
+                            sourceLoadStates = LoadStates(
                                 prepend = LoadState.NotLoading(true),
                                 append = LoadState.NotLoading(true),
                                 refresh = LoadState.NotLoading(true),

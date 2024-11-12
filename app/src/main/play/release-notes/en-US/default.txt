@@ -1,15 +1,18 @@
 New:
-- Calling feedback
-- GIF from Keyboard
-- Picture in Picture mode - video call
+- Survey on call quality
+- Send a GIF from the keyboard
+- Call in a separate window
 - Compatibility with Android 15
-
-Fixes:
-- Active speaker non-indication
-- Not able to edit/modify email address
-- Performance and crash fixes
+- Confirmation before pinging in groups
+- Preparation for private to cloud federation
+- Preparation for MLS as the new standard protocol
 
 Improvements:
-- Confirmation dialog for ping message
-- Switch account in call from notification
+- Performance
+- Switch account from a notification during a call and the call remains
 - Video pausing while scrolling
+
+Fixes:
+- People could not see active speakers
+- People could not edit their email
+- Several crashes

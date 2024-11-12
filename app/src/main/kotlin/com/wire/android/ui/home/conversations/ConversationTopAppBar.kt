@@ -124,8 +124,11 @@ private fun ConversationScreenTopAppBarContent(
                     // spacing between navigation icon button and avatar according to the designs
                     .offset(x = -dimensions().spacing4x)
                     .clip(RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize))
-                    .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled && isInteractionEnabled)
-
+                    .clickable(
+                        onClick = onDropDownClick,
+                        enabled = isDropDownEnabled && isInteractionEnabled,
+                        onClickLabel = stringResource(R.string.content_description_conversation_open_details_label)
+                    )
             ) {
                 val conversationAvatar: ConversationAvatar = conversationInfoViewState.conversationAvatar
                 Avatar(conversationAvatar, conversationInfoViewState)
@@ -148,7 +151,7 @@ private fun ConversationScreenTopAppBarContent(
                 if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
-                        contentDescription = stringResource(R.string.content_description_drop_down_icon)
+                        contentDescription = null
                     )
                 }
             }

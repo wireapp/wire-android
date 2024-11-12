@@ -121,6 +121,7 @@ fun FullScreenTile(
             )
         }
 
+        // todo(ym): is this valid too for sharing screen?
         LaunchedEffect(selectedParticipant.userId) {
             requestVideoStreams(listOf(it))
         }

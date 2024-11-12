@@ -175,7 +175,7 @@ private fun SelfQRCodeContent(
                 VerticalSpace.x16()
                 Text(
                     modifier = Modifier.padding(horizontal = dimensions().spacing24x),
-                    text = state.userProfileLink,
+                    text = state.userAccountProfileLink,
                     style = MaterialTheme.wireTypography.subline01,
                     color = Color.Black,
                     textAlign = TextAlign.Center
@@ -190,7 +190,7 @@ private fun SelfQRCodeContent(
                 color = colorsScheme().secondaryText
             )
             Spacer(modifier = Modifier.weight(1f))
-            ShareLinkButton(state.userProfileLink)
+            ShareLinkButton(state.userAccountProfileLink)
             VerticalSpace.x8()
             ShareQRCodeButton {
                 coroutineScope.launch {

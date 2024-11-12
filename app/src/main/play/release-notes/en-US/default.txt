@@ -1,16 +1,18 @@
-New
-- Fresh design - completely rebuilt
-- Add Reactions to messages
-- Swipe left to reply
-- Scroll to end button
-- Navigate to original message from a reply
-- Accessible main navigation & updated conversation list with activity section
-- Improved conversation search
-- Easier 1:1 & group creation
-- Group chats have distinct colors
-- Call controls always accessible
-- Text field adjusts for longer messages
+New:
+- Survey on call quality
+- Send a GIF from the keyboard
+- Call in a separate window
+- Compatibility with Android 15
+- Confirmation before pinging in groups
+- Preparation for private to cloud federation
+- Preparation for MLS as the new standard protocol
 
-Improved
-- Reliable notifications
-- Better visual contrast (WCAG 2.1 AA)
+Improvements:
+- Performance
+- Switch account from a notification during a call and the call remains
+- Video pausing while scrolling
+
+Fixes:
+- People could not see active speakers
+- People could not edit their email
+- Several crashes

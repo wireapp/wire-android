@@ -172,7 +172,7 @@ fun EnabledMessageComposer(
                             membersToMention = messageComposerViewState.value.mentionSearchResult,
                             searchQuery = messageComposerViewState.value.mentionSearchQuery,
                             onMentionPicked = { pickedMention ->
-                                messageCompositionHolder.addMention(pickedMention)
+                                messageCompositionHolder.value.addMention(pickedMention)
                                 onClearMentionSearchResult()
                             },
                             modifier = Modifier.align(Alignment.BottomCenter)
@@ -205,14 +205,17 @@ fun EnabledMessageComposer(
                         ActiveMessageComposerInput(
                             conversationId = conversationId,
                             messageComposition = messageComposition.value,
-                            messageTextState = inputStateHolder.messageTextState,
+                            messageTextFieldValue = inputStateHolder.messageTextFieldValue,
+                            onValueChange = {
+                                inputStateHolder.messageTextFieldValue.value = it
+                            },
                             isTextExpanded = inputStateHolder.isTextExpanded,
                             inputType = messageCompositionInputStateHolder.inputType,
                             focusRequester = messageCompositionInputStateHolder.focusRequester,
                             onFocused = ::onInputFocused,
                             onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
                             onTextCollapse = messageCompositionInputStateHolder::collapseText,
-                            onCancelReply = messageCompositionHolder::clearReply,
+                            onCancelReply = messageCompositionHolder.value::clearReply,
                             onCancelEdit = ::cancelEdit,
                             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                             onSendButtonClicked = onSendButtonClicked,
@@ -274,7 +277,7 @@ fun EnabledMessageComposer(
                                 membersToMention = mentionSearchResult,
                                 searchQuery = messageComposerViewState.value.mentionSearchQuery,
                                 onMentionPicked = {
-                                    messageCompositionHolder.addMention(it)
+                                    messageCompositionHolder.value.addMention(it)
                                     onClearMentionSearchResult()
                                 }
                             )
@@ -289,9 +292,9 @@ fun EnabledMessageComposer(
                             attachmentsVisible = inputStateHolder.optionsVisible,
                             isEditing = messageCompositionInputStateHolder.inputType is InputType.Editing,
                             isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
-                            onMentionButtonClicked = messageCompositionHolder::startMention,
+                            onMentionButtonClicked = messageCompositionHolder.value::startMention,
                             onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
-                            onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
+                            onRichOptionButtonClicked = messageCompositionHolder.value::addOrRemoveMessageMarkdown,
                             onPingOptionClicked = onPingOptionClicked,
                             onAdditionalOptionsMenuClicked = {
                                 if (!hideRipple) {

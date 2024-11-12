@@ -15,11 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.userprofile.teammigration
+package com.wire.android.util
 
-import androidx.compose.foundation.text.input.TextFieldState
+import com.wire.android.appLogger
+import com.wire.kalium.logic.data.user.SelfUser
 
-data class TeamMigrationState(
-    val teamNameTextState: TextFieldState = TextFieldState(),
-    val shouldShowMigrationLeaveDialog: Boolean = false
-)
+fun SelfUser.logIfEmptyUserName() {
+    if (name.isNullOrBlank() && handle.isNullOrBlank()) {
+        appLogger.e("Name and handle is empty for self user with id ${id.toLogString()}")
+    }
+}

@@ -117,6 +117,7 @@
     <string name="content_description_conversation_send_gif">Send GIF button</string>
     <string name="content_description_conversation_mention_someone">Mention someone</string>
     <string name="content_description_conversation_back_btn">Go back to conversation list</string>
+    <string name="content_description_conversation_open_details_label">open conversation details</string>
     <string name="content_description_new_conversation">Search for people or create a new group</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
@@ -1604,8 +1605,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_confirmation_step_terms">I agree to the migration terms and understand that this change is irreversible.</string>
     <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">I accept</string>
     <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_label">Wire\’s Terms of Use.</string>
-    <string name="personal_to_team_migration_confirmation_step_password_field_label">Password of your personal account</string>
-    <string name="personal_to_team_migration_confirmation_step_password_field_placeholder">Enter password</string>
 
     <string name="personal_to_team_migration_done_step">Congratulations %1$s!</string>
     <string name="personal_to_team_migration_done_step_now_team_member_label">You\’re now the owner of the team %1$s.</string>

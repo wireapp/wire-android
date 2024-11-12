@@ -24,6 +24,7 @@ import android.content.Intent
 import com.wire.android.appLogger
 import com.wire.android.notification.CallNotificationIds
 import com.wire.android.notification.CallNotificationManager
+import com.wire.kalium.logger.obfuscateId
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -36,7 +37,10 @@ class CallNotificationDismissedReceiver : BroadcastReceiver() { // requires zero
     override fun onReceive(context: Context, intent: Intent) {
         val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
         val userIdString: String = intent.getStringExtra(EXTRA_USER_ID) ?: return
-        appLogger.i("CallNotificationDismissedReceiver: onReceive")
+        appLogger.i(
+            "CallNotificationDismissedReceiver: onReceive for user ${userIdString.obfuscateId()}" +
+                " and conversation ${conversationIdString.obfuscateId()}"
+        )
         callNotificationManager.reloadCallNotifications(CallNotificationIds(userIdString, conversationIdString))
     }
 

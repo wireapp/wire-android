@@ -90,6 +90,11 @@ class ConversationModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveConversationListDetailsWithEvents(conversationScope: ConversationScope) =
+        conversationScope.observeConversationListDetailsWithEvents
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveConversationUseCase(conversationScope: ConversationScope): GetOneToOneConversationUseCase =
         conversationScope.getOneToOneConversation
 

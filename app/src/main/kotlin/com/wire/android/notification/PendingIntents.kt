@@ -26,6 +26,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.util.Log
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.IncomingCallActionReceiver
@@ -129,7 +131,17 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
 }
 
 fun answerCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+    val notificationManager = NotificationManagerCompat.from(context)
+    val notification = notificationManager.activeNotifications
+    val isAlreadyHavingACall = notification.find {
+        it.notification.channelId.contains(NotificationConstants.INCOMING_CALL_CHANNEL_ID) ||
+        it.notification.channelId.contains(NotificationConstants.ONGOING_CALL_CHANNEL_ID)
+    } != null
+    val shouldAnswerCallFromNotificationButton = !isAlreadyHavingACall && (ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.RECORD_AUDIO
+    ) == PackageManager.PERMISSION_GRANTED)
+    if (shouldAnswerCallFromNotificationButton) {
         val intent = IncomingCallActionReceiver.newIntent(
             context = context,
             conversationId = conversationId,

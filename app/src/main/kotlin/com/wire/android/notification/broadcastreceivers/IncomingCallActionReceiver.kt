@@ -59,6 +59,7 @@ class IncomingCallActionReceiver : BroadcastReceiver() {
     @Inject
     lateinit var callNotificationManager: CallNotificationManager
 
+    @Suppress("ReturnCount")
     override fun onReceive(context: Context, intent: Intent) {
         val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: run {
             appLogger.e("CallNotificationDismissReceiver: onReceive, conversation ID is missing")
@@ -75,9 +76,11 @@ class IncomingCallActionReceiver : BroadcastReceiver() {
         }
 
         coroutineScope.launch(Dispatchers.Default) {
-            when (action) {
-                ACTION_DECLINE_CALL -> it.calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
-                ACTION_ANSWER_CALL -> it.calls.answerCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+            with(coreLogic.getSessionScope(userId)) {
+                when (action) {
+                    ACTION_DECLINE_CALL -> calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationIdString))
+                    ACTION_ANSWER_CALL -> calls.answerCall(qualifiedIdMapper.fromStringToQualifiedID(conversationIdString))
+                }
             }
             callNotificationManager.hideIncomingCallNotification(userId.toString(), conversationIdString)
         }

@@ -401,6 +401,7 @@ private fun OngoingCallContent(
                                 onSelectedParticipant(SelectedParticipant())
                                 shouldOpenFullScreen = !shouldOpenFullScreen
                             },
+                            requestVideoStreams = requestVideoStreams,
                             setVideoPreview = setVideoPreview,
                             clearVideoPreview = clearVideoPreview,
                             participants = participants

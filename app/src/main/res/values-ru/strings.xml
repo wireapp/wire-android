@@ -1615,7 +1615,7 @@
     <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_label">Условия использования Wire.</string>
     <string name="personal_to_team_migration_done_step">Поздравляем %1$s!</string>
     <string name="personal_to_team_migration_done_step_now_team_member_label">Вы теперь владелец команды %1$s.</string>
-    <string name="personal_to_team_migration_done_step_go_to_team_label">Перейдите к Управление командой:</string>
+    <string name="personal_to_team_migration_done_step_go_to_team_label">Перейдите к Управлению командой:</string>
     <string name="personal_to_team_migration_done_step_bullet_list_first_item">Пригласите первых членов своей команды и начните совместную работу</string>
     <string name="personal_to_team_migration_done_step_bullet_list_second_item">Настройте параметры своей команды</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_title">Выйти без сохранения?</string>

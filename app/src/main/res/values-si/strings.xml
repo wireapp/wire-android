@@ -111,7 +111,6 @@
     <string name="content_description_conversation_send_emoticon">චිත්තවේග යැවීමේ බොත්තම</string>
     <string name="content_description_conversation_send_gif">චලරූ යැවීමේ බොත්තම</string>
     <string name="content_description_conversation_mention_someone">යමෙක් සඳහන් කරන්න</string>
-    <string name="content_description_new_conversation">නව සංවාදයක් අරඹන්න</string>
     <string name="content_description_back_button">ආපසු බොත්තම</string>
     <string name="content_description_send_button">යවන්න</string>
     <string name="content_description_timed_message_button">ඉබේ මැකෙන පණිවිඩ බොත්තම</string>
@@ -172,6 +171,7 @@
     <string name="content_description_mls_certificate_valid">සියළුම සහභාගීන්ගේ උපාංගවල වලංගු MLS සහතිකයක් ඇත</string>
     <string name="content_description_proteus_certificate_valid">සියළුම සහභාගීන් සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
     <string name="content_description_location_icon">ස්ථානය අථකය</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -515,6 +515,7 @@
     <string name="label_unblock">අනවහිර</string>
     <string name="label_leave_group">සමූහය හැරයන්න</string>
     <string name="label_delete_group">සමූහය මකන්න</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">සියල්ල</string>
     <string name="muting_option_all_allowed_text">මෙම සංවාදයේ සියළුම දෑ පිළිබඳව දැනුම්දීම් ලබන්න (ශ්‍රව්‍ය සහ දෘශ්‍ය ඇමතුම් ඇතුළුව)</string>
@@ -1039,6 +1040,7 @@
     <string name="backup_dialog_choose_backup_file_option">උපස්ථ ගොනුව තෝරන්න</string>
     <string name="backup_label_enter_password">මුරපදය යොදන්න</string>
     <string name="backup_dialog_restore_backup_password_message">මෙම උපස්ථය මුරපදයකින් ආරක්‍ෂිතයි.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"වි-තැපැල් ප්‍රතිපාදක තෝරන්න:\"</string>
     <string name="backup_dialog_create_backup_save">ගොනුව සුරකින්න</string>
     <string name="backup_dialog_create_backup_share">ගොනුව බෙදාගන්න</string>
@@ -1343,4 +1345,5 @@
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">නිදොස්කරණ සැකසුම්</string>
+    <!--    Personal to team migration screen-->
 </resources>

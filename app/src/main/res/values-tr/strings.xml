@@ -46,7 +46,9 @@
     <string name="label_message_edit_sent_remotely_failure">%s\'in arka ucuna ulaşılamadığı için düzenlenen mesaj gönderilemedi.</string>
     <string name="label_message_receive_failure">İndirme Hatası</string>
     <string name="label_message_decryption_failure_message">Mesajın şifresi çözülemedi.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">Mesajın şifresi çözülemedi (Hata %s).</string>
     <string name="label_message_decryption_failure_informative_message">Yeni şifreleme anahtarları oluşturmak için oturumu sıfırlamayı deneyin.</string>
+    <string name="label_system_message_self_user_knock">%s senden bahsetti</string>
     <string name="label_system_message_other_user_knock">%s pingledi</string>
     <string name="label_message_partial_delivery_participants_count">%1$d katılımcı mesajınızı alamadı.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s mesajınızı alamayacak.</string>
@@ -110,7 +112,6 @@
     <string name="content_description_conversation_send_emoticon">İfade gönder düğmesi</string>
     <string name="content_description_conversation_send_gif">GIF gönder düğmesi</string>
     <string name="content_description_conversation_mention_someone">Birinden bahset</string>
-    <string name="content_description_new_conversation">Yeni bir konuşma başlat</string>
     <string name="content_description_back_button">Geri tuşu</string>
     <string name="content_description_send_button">Gönder</string>
     <string name="content_description_timed_message_button">Kendini yok eden iletiler, düğme</string>
@@ -171,6 +172,12 @@
     <string name="content_description_mls_certificate_valid">Tüm katılımcıların tüm cihazları geçerli bir MLS sertifikasına sahiptir</string>
     <string name="content_description_proteus_certificate_valid">Tüm katılımcıların tamamı doğrulanmıştır (Proteus)</string>
     <string name="content_description_location_icon">Konum öğesi</string>
+    <string name="content_description_conversation_details_options_tab_header">Seçenekler</string>
+    <string name="content_description_user_profile_edit_role_btn">Rolü düzenle</string>
+    <string name="content_description_user_profile_copy_email_btn">Email\'i kopyala</string>
+    <string name="content_description_user_profile_open_device_btn">cihaz detaylarını aç</string>
+    <string name="content_description_select_label">seç</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -183,12 +190,17 @@
     <string name="app_settings_screen_title">Uygulama Ayarları</string>
     <string name="give_feedback_screen_title">Geri Bildirim Ver</string>
     <string name="report_bug_screen_title">Hata Bildir</string>
+    <string name="about_app_screen_title">Bu uygulama hakkında</string>
+    <string name="settings_terms_of_use_label">Yasal</string>
+    <string name="settings_wire_website_label">Wire Web Sitesi</string>
+    <string name="label_copyright">Telif Hakkı</string>
     <string name="support_screen_title">Destek</string>
     <string name="backup_and_restore_screen_title">Konuşmaları Yedekle &amp; Geri yükle</string>
     <string name="search_bar_conversations_hint">Konuşmalarda ara</string>
     <string name="search_no_results">Eşleşme bulunamadı</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neler yeni</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Wire\'ın yeni Android uygulamasına hoşgeldin!</string>
     <string name="whats_new_release_notes_group_title">Sürüm notları</string>
     <string name="whats_new_android_release_notes_label">Android Sürüm Notları</string>
     <!-- Settings -->
@@ -207,8 +219,14 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="welcome_footer_link">Ücretsiz olarak özel bir hesap oluşturun</string>
     <string name="welcome_button_create_personal_account">Kişisel Hesap Oluşturun</string>
     <string name="welcome_screen_carousel_item_message_1">En güvenli işbirliği platformu Wire\'a hoş geldiniz!</string>
+    <string name="welcome_screen_carousel_item_message_5">Wire bağımsız olarak denetlenir ve ISO, CCPA, GDPR, SOX ile uyumludur</string>
+    <string name="welcome_button_create_team">Bir ekip oluşturun</string>
+    <string name="welcome_migration_dialog_continue">Wire\'ı kullanmaya başlayın</string>
     <!-- API Versioning Dialogs -->
+    <string name="api_versioning_server_version_not_supported_title">Sunucu versiyonu desteklenmiyor</string>
+    <string name="api_versioning_server_version_not_supported_message">Wire sunucunuzun güncellenmesi gerekiyor. Lütfen sistem yöneticinizi bilgilendirin.</string>
     <!-- Migration -->
+    <string name="migration_message">Uygulamayı sizin için ayarlarken lütfen bekleyin</string>
     <!-- Login -->
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
@@ -223,6 +241,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="conversation_details_options_tab">SEÇENEKLER</string>
     <string name="conversation_details_participants_tab">KATILIMCILAR</string>
     <string name="conversation_details_participants_count">katılımcılar %s</string>
+    <string name="conversation_details_group_participants_title">\n**Lütfen yinede önemli bilgi paylaşırken dikkatli olun.**</string>
     <string name="conversation_options_self_deleting_messages_description">Bu açık olduğunda, bu gruptaki tüm mesajlar belirli bir süre sonra kaybolacaktır.</string>
     <string name="conversation_options_guests_label">Misafirler</string>
     <string name="conversation_options_services_label">Servisler</string>
@@ -234,16 +253,21 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
     <!-- User Profile -->
+    <string name="user_profile_details_tab">Detaylar</string>
+    <string name="user_profile_devices_tab">Cihazlar</string>
     <!-- Remove Conversation Member Dialog -->
     <!-- Logout Wipe Data Dialog -->
     <!-- User Profile status dialog-->
     <!-- Conversations BottomSheet -->
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <!--Profile image-->
     <!--Conversation-->
     <!-- System messages -->
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_started_sensitive_information">Wire\'daki iletişim her zaman uçtan uca şifrelenir. Bu görüşmede gönderdiğiniz ve aldığınız her şeye yalnızca siz ve diğer grup katılımcıları erişebilir.</string>
     <!-- Last messages -->
+    <string name="last_message_other_user_joined_conversation">sohbete katıldı.</string>
     <!-- Unread Events -->
     <!--Typing Indicator-->
     <!-- Search Messages -->
@@ -254,10 +278,16 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Animation label -->
+    <string name="label_open_conversation">Sohbeti aç</string>
     <!-- Notifications -->
+    <string name="label_type_a_message">Bir mesaj yazın</string>
     <!-- Calling-->
     <!-- Connectivity Status Bar -->
     <!-- Connections -->
+    <string name="connection_label_cancel_request">İsteği iptal et</string>
+    <string name="connection_label_member_not_belongs_to_team">Bu kullanıcı sizin ekibinize ait değil. Eğer sizin bağlanma isteğinizi kabul ederse, bir kişi olarak kullanılabilir</string>
+    <string name="connection_request_sent">Bağlantı isteği gönderildi</string>
+    <string name="connection_label_send_unverified_warning">Bağlanmadan önce %s\'nin kimliği hakkında bilgi edinin.</string>
     <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <!--sso dialog-->
@@ -268,6 +298,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--Settings -->
     <!--Settings, Appearance -->
     <!--Settings, My Account -->
+    <string name="settings_myaccount_domain">Alan Adı</string>
     <!--Settings, My Account > Display name -->
     <!--Privacy Settings -->
     <!--Privacy Settings, App lock -->
@@ -275,6 +306,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--create and restore backup-->
+    <!--    report bug-->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
@@ -284,6 +316,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- visit link -->
     <!-- invalid link -->
     <!-- guest room link -->
+    <string name="revoke_guest__room_link_dialog_text">Yeni kişiler bu bağlantı ile katılamayacaklardır. Mevcut kişilerin erişimi devam edecektir.</string>
     <!-- New Device dialog -->
     <!-- Asset limits error messages -->
     <!-- Expiring messages -->
@@ -301,4 +334,5 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Hata Ayıklama Günlüğü Ayarları</string>
+    <!--    Personal to team migration screen-->
 </resources>

@@ -99,7 +99,6 @@
     <string name="content_description_conversation_send_emoticon">Botón Enviar Emoticon</string>
     <string name="content_description_conversation_send_gif">Botón de enviar GIF</string>
     <string name="content_description_conversation_mention_someone">Mencionar a alguien</string>
-    <string name="content_description_new_conversation">Iniciar una nueva conversación</string>
     <string name="content_description_back_button">Botón atrás</string>
     <string name="content_description_send_button">Enviar</string>
     <string name="content_description_timed_message_button">Mensaje con autoborrado, botón</string>
@@ -147,6 +146,7 @@
     <string name="content_description_more_emojis">M&#225;s emojis</string>
     <string name="content_description_self_deletion_selector_button">Cambiar modo de autoborrado, botón</string>
     <string name="content_description_location_icon">Compartir ubicación</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -459,6 +459,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_unblock">Desbloquear</string>
     <string name="label_leave_group">Dejar conversaci&#243;n en grupo</string>
     <string name="label_delete_group">Eliminar grupo</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Todo</string>
     <string name="muting_option_all_allowed_text">Recibir notificaciones para esta conversaci&#243;n sobre todo (incluidas las llamadas de audio y video).</string>
@@ -842,6 +843,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="backup_dialog_choose_backup_file_option">Seleccionar archivo de copia de seguridad</string>
     <string name="backup_label_enter_password">Ingresa una contrase&#241;a</string>
     <string name="backup_dialog_restore_backup_password_message">Esta copia de seguridad est&#225; protegida por contrase&#241;a.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">Selecciona un proveedor de correo electr&#243;nico:</string>
     <string name="backup_dialog_create_backup_save">Guardar archivo</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Copia de seguridad incompatible</string>
@@ -1022,4 +1024,5 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Configuraci&#243;n de depuraci&#243;n</string>
+    <!--    Personal to team migration screen-->
 </resources>

@@ -80,7 +80,6 @@
     <string name="content_description_conversation_send_emoticon">Wy&#347;lij emotikon&#281;</string>
     <string name="content_description_conversation_send_gif">Wy&#347;lij GIF</string>
     <string name="content_description_conversation_mention_someone">Wspomnij kogo&#347;</string>
-    <string name="content_description_new_conversation">Rozpocznij now&#261; rozmow&#281;</string>
     <string name="content_description_back_button">Przycisk powrotu</string>
     <string name="content_description_send_button">Wy&#347;lij</string>
     <string name="content_description_timed_message_button">Samodeletuj&#261;ce wiadomo&#347;ci, przycisk</string>
@@ -127,6 +126,7 @@
     <string name="content_description_calling_call_unmuted">Po&#322;&#261;czenie nie wyciszone</string>
     <string name="content_description_calling_call_paused_camera">Kamera zatrzymana</string>
     <string name="content_description_more_emojis">Wi&#281;cej emotikon&#243;w</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -432,6 +432,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_unblock">Odblokuj</string>
     <string name="label_leave_group">Opu&#347;&#263; grup&#281;</string>
     <string name="label_delete_group">Usu&#324; grup&#281;</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Wszystko</string>
     <string name="muting_option_all_allowed_text">Otrzymuj powiadomienia z tej rozmowy o wszystkim (&#322;&#261;cznie z po&#322;&#261;czeniami audio i wideo)</string>
@@ -806,6 +807,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="backup_dialog_choose_backup_file_option">Wybierz plik kopii zapasowej</string>
     <string name="backup_label_enter_password">Wprowad&#378; has&#322;o</string>
     <string name="backup_dialog_restore_backup_password_message">Ta kopia zapasowa jest chroniona has&#322;em.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">Wybierz dostawc&#281; poczty elektronicznej:</string>
     <string name="backup_dialog_create_backup_save">Zapisz plik</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Niekompatybilna kopia zapasowa</string>
@@ -896,4 +898,5 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Ustawienia debugowania</string>
+    <!--    Personal to team migration screen-->
 </resources>

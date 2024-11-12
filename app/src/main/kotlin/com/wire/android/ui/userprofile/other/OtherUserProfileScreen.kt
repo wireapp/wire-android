@@ -16,8 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.wire.android.ui.userprofile.other
 
 import android.annotation.SuppressLint
@@ -37,7 +35,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -79,6 +76,7 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
+import com.wire.android.ui.common.dialogs.UserNotFoundDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -215,6 +213,10 @@ fun OtherUserProfileScreen(
             viewModel.state.userName,
             legalHoldSubjectDialogState::dismiss
         )
+    }
+
+    if (viewModel.state.errorLoadingUser != null) {
+        UserNotFoundDialog(onActionButtonClicked = navigator::navigateBack)
     }
 }
 
@@ -612,7 +614,6 @@ enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @PreviewMultipleThemes
 fun PreviewOtherProfileScreenGroupMemberContent() {
@@ -634,7 +635,6 @@ fun PreviewOtherProfileScreenGroupMemberContent() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @PreviewMultipleThemes
 fun PreviewOtherProfileScreenContent() {
@@ -657,7 +657,6 @@ fun PreviewOtherProfileScreenContent() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @PreviewMultipleThemes
 fun PreviewOtherProfileScreenContentNotConnected() {
@@ -679,7 +678,6 @@ fun PreviewOtherProfileScreenContentNotConnected() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @PreviewMultipleThemes
 fun PreviewOtherProfileScreenTempUser() {

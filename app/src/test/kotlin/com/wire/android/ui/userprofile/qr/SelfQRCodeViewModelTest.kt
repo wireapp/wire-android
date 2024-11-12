@@ -34,8 +34,13 @@ class SelfQRCodeViewModelTest {
 
         // when - then
         assertEquals(
-            expected = "${ServerConfig.STAGING.accounts}/user-profile/?id=${TestUser.SELF_USER.id.value}",
+            expected = "wire://user/${TestUser.SELF_USER.id.domain}/${TestUser.SELF_USER.id.value}",
             actual = viewModel.selfQRCodeState.userProfileLink,
+        )
+
+        assertEquals(
+            expected = "${ServerConfig.STAGING.accounts}/user-profile/?id=${TestUser.SELF_USER.id.value}",
+            actual = viewModel.selfQRCodeState.userAccountProfileLink,
         )
     }
 

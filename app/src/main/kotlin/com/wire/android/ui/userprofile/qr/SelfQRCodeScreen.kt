@@ -188,7 +188,7 @@ private fun SelfQRCodeContent(
                 VerticalSpace.x16()
                 Text(
                     modifier = Modifier.padding(horizontal = dimensions().spacing24x),
-                    text = state.userProfileLink,
+                    text = state.userAccountProfileLink,
                     style = MaterialTheme.wireTypography.subline01,
                     color = Color.Black,
                     textAlign = TextAlign.Center
@@ -203,7 +203,11 @@ private fun SelfQRCodeContent(
                 color = colorsScheme().secondaryText
             )
             Spacer(modifier = Modifier.weight(1f))
+<<<<<<< HEAD
             ShareLinkButton(state.userProfileLink, trackAnalyticsEvent)
+=======
+            ShareLinkButton(state.userAccountProfileLink)
+>>>>>>> 8cb199b6b (feat: enabling QR codes for users (WPB-12115) (#3616))
             VerticalSpace.x8()
             ShareQRCodeButton {
                 trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.ShareQrCode)

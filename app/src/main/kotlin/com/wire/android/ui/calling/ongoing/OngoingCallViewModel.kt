@@ -131,7 +131,7 @@ class OngoingCallViewModel @AssistedInject constructor(
                             CallClient(
                                 userId = uiParticipant.id.toString(),
                                 clientId = uiParticipant.clientId,
-                                quality = mapQualityStream(uiParticipant)
+                                callQuality = mapQualityStream(uiParticipant)
                             )
                         }
                         requestVideoStreams(conversationId, clients)

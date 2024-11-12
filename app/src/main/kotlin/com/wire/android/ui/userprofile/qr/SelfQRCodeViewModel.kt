@@ -92,21 +92,21 @@ class SelfQRCodeViewModel @Inject constructor(
         selfQRCodeState =
             when (val result = selfServerLinks()) {
                 is SelfServerConfigUseCase.Result.Failure -> selfQRCodeState.copy(hasError = true)
-                is SelfServerConfigUseCase.Result.Success -> generateSelfUserUrl(result.serverLinks.links.accounts)
+                is SelfServerConfigUseCase.Result.Success -> generateSelfUserUrls(result.serverLinks.links.accounts)
             }
     }
 
-    private fun generateSelfUserUrl(accountsUrl: String): SelfQRCodeState =
+    private fun generateSelfUserUrls(accountsUrl: String): SelfQRCodeState =
         selfQRCodeState.copy(
-            userProfileLink = String.format(BASE_USER_PROFILE_URL, accountsUrl, selfUserId.value),
+            userAccountProfileLink = String.format(BASE_USER_PROFILE_URL, accountsUrl, selfUserId.value),
+            userProfileLink = String.format(DIRECT_BASE_USER_PROFILE_URL, selfUserId.domain, selfUserId.value)
         )
 
     companion object {
         const val TEMP_SELF_QR_FILENAME = "temp_self_qr.jpg"
         const val BASE_USER_PROFILE_URL = "%s/user-profile/?id=%s"
 
-        // This URL, can be used when we have a direct link to user profile Milestone2
-        const val DIRECT_BASE_USER_PROFILE_URL = "wire://user/%s"
+        const val DIRECT_BASE_USER_PROFILE_URL = "wire://user/%s/%s"
         const val QR_QUALITY_COMPRESSION = 80
     }
 }

@@ -28,6 +28,8 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
+import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
+import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -86,6 +88,12 @@ class GetConversationsFromSearchUseCaseTest {
         lateinit var useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 
         @MockK
+        lateinit var getFavoriteFolderUseCase: GetFavoriteFolderUseCase
+
+        @MockK
+        lateinit var observeConversationsFromFolderUseCase: ObserveConversationsFromFolderUseCase
+
+        @MockK
         lateinit var wireSessionImageLoader: WireSessionImageLoader
 
         @MockK
@@ -110,6 +118,13 @@ class GetConversationsFromSearchUseCaseTest {
             } returns flowOf(PagingData.from(conversations))
         }
 
-        fun arrange() = this to GetConversationsFromSearchUseCase(useCase, wireSessionImageLoader, userTypeMapper, dispatcherProvider)
+        fun arrange() = this to GetConversationsFromSearchUseCase(
+            useCase,
+            getFavoriteFolderUseCase,
+            observeConversationsFromFolderUseCase,
+            wireSessionImageLoader,
+            userTypeMapper,
+            dispatcherProvider
+        )
     }
 }

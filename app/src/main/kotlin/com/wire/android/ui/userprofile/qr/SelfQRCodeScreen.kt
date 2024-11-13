@@ -20,6 +20,7 @@ package com.wire.android.ui.userprofile.qr
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -58,6 +59,7 @@ import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeView
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
@@ -90,6 +92,7 @@ fun SelfQRCodeScreen(
     SelfQRCodeContent(
         viewModel.selfQRCodeState,
         viewModel::shareQRAsset,
+        viewModel::trackAnalyticsEvent,
         navigator::navigateBack
     )
 }
@@ -98,16 +101,26 @@ fun SelfQRCodeScreen(
 private fun SelfQRCodeContent(
     state: SelfQRCodeState,
     shareQRAssetClick: suspend (Bitmap) -> Uri,
+    trackAnalyticsEvent: (AnalyticsEvent.QrCode.Modal) -> Unit,
     onBackClick: () -> Unit = {}
 ) {
     val coroutineScope = rememberCoroutineScope()
     val graphicsLayer = rememberGraphicsLayer()
     val context = LocalContext.current
+
+    BackHandler {
+        trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.Back)
+        onBackClick()
+    }
+
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 title = stringResource(id = R.string.user_profile_qr_code_title),
-                onNavigationPressed = onBackClick,
+                onNavigationPressed = {
+                    trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.Back)
+                    onBackClick()
+                },
                 elevation = 0.dp
             )
         }
@@ -175,7 +188,7 @@ private fun SelfQRCodeContent(
                 VerticalSpace.x16()
                 Text(
                     modifier = Modifier.padding(horizontal = dimensions().spacing24x),
-                    text = state.userProfileLink,
+                    text = state.userAccountProfileLink,
                     style = MaterialTheme.wireTypography.subline01,
                     color = Color.Black,
                     textAlign = TextAlign.Center
@@ -190,9 +203,10 @@ private fun SelfQRCodeContent(
                 color = colorsScheme().secondaryText
             )
             Spacer(modifier = Modifier.weight(1f))
-            ShareLinkButton(state.userProfileLink)
+            ShareLinkButton(state.userProfileLink, trackAnalyticsEvent)
             VerticalSpace.x8()
             ShareQRCodeButton {
+                trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.ShareQrCode)
                 coroutineScope.launch {
                     val bitmap = graphicsLayer.toImageBitmap()
                     val qrUri = shareQRAssetClick(bitmap.asAndroidBitmap())
@@ -219,7 +233,10 @@ fun ShareQRCodeButton(shareQRAssetClick: () -> Unit) {
 }
 
 @Composable
-private fun ShareLinkButton(selfProfileUrl: String) {
+private fun ShareLinkButton(
+    selfProfileUrl: String,
+    trackAnalyticsEvent: (AnalyticsEvent.QrCode.Modal) -> Unit
+) {
     val context = LocalContext.current
     WirePrimaryButton(
         modifier =
@@ -229,7 +246,10 @@ private fun ShareLinkButton(selfProfileUrl: String) {
             .padding(horizontal = dimensions().spacing16x)
             .testTag("Share link"),
         text = stringResource(R.string.user_profile_qr_code_share_link),
-        onClick = { context.shareLinkToProfile(selfProfileUrl) }
+        onClick = {
+            trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.ShareProfileLink)
+            context.shareLinkToProfile(selfProfileUrl)
+        }
     )
 }
 
@@ -245,7 +265,8 @@ fun PreviewSelfQRCodeContent() {
                 handle = "userid",
                 userProfileLink = "https://account.wire.com/user-profile/?id=aaaaaaa-222-3333-4444-55555555"
             ),
-            { "".toUri() }
+            { "".toUri() },
+            { }
         )
     }
 }

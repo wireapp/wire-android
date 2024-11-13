@@ -31,13 +31,13 @@ import com.wire.android.ui.theme.DEFAULT_WEIGHT
 
 @Composable
 fun RowItemTemplate(
+    modifier: Modifier = Modifier,
     leadingIcon: @Composable () -> Unit = {},
     title: @Composable () -> Unit = {},
     titleStartPadding: Dp = dimensions().spacing8x,
     subtitle: @Composable () -> Unit = {},
     actions: @Composable () -> Unit = {},
-    clickable: Clickable = Clickable(false) {},
-    modifier: Modifier = Modifier
+    clickable: Clickable = Clickable(false) {}
 ) {
     RowItem(
         clickable = clickable,
@@ -66,10 +66,10 @@ fun RowItemTemplate(
 fun RowItemTemplate(
     leadingIcon: @Composable () -> Unit,
     title: @Composable () -> Unit,
-    subTitle: @Composable () -> Unit = {},
     clickable: Clickable,
-    trailingIcon: @Composable () -> Unit = { },
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    subTitle: @Composable () -> Unit = {},
+    trailingIcon: @Composable () -> Unit = { }
 ) {
     RowItem(
         clickable = clickable,

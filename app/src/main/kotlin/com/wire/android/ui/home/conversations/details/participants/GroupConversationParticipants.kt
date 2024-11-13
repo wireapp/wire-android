@@ -64,7 +64,7 @@ fun GroupConversationParticipants(
             state = lazyListState,
             modifier = Modifier.fillMaxSize()
         ) {
-            if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+            if (BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                 item(key = "participants_list_header") {
                     Column(
                         modifier = Modifier

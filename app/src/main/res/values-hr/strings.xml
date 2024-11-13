@@ -76,7 +76,6 @@
     <string name="label_and">i</string>
     <string name="label_retry">Pokušaj ponovo</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Logotip aplikacije</string>
     <string name="content_description_reveal_password">Prikaži lozinku</string>
     <string name="content_description_hide_password">Sakrij lozinku</string>
     <string name="content_description_search_back">Ikona za povratak</string>
@@ -105,7 +104,6 @@
     <string name="content_description_conversation_send_emoticon">Pošalji emoji</string>
     <string name="content_description_conversation_send_gif">Gumb za slanje GIF-a</string>
     <string name="content_description_conversation_mention_someone">Obavijesti nekoga</string>
-    <string name="content_description_new_conversation">Započni novi razgovor</string>
     <string name="content_description_back_button">Tipka natrag</string>
     <string name="content_description_send_button">Pošalji</string>
     <string name="content_description_timed_message_button">Samobrisanje poruka, gumb</string>
@@ -165,6 +163,7 @@
     <string name="content_description_record_audio_button_send">Pošalji glasovnu poruku</string>
     <string name="content_description_mls_certificate_valid">Svi uređaji svih sudionika posjeduju valjani MLS certifikat</string>
     <string name="content_description_proteus_certificate_valid">Svi sudionici su verificirani (Proteus)</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -444,6 +443,7 @@
     <string name="label_unblock">Odblokiraj</string>
     <string name="label_leave_group">Napusti grupu</string>
     <string name="label_delete_group">Obriši Grupu</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Sve</string>
     <string name="muting_option_all_muted_title">Ništa</string>
@@ -569,6 +569,7 @@
     <string name="backup_dialog_create_backup_set_password_title">Postavi lozinku</string>
     <string name="backup_dialog_create_backup_now">Izradi sigurnosnu kopiju sada</string>
     <string name="backup_dialog_create_error_subtitle">Sigurnosna kopija nije uspješno kreirana. Molimo pokušajte ponovno ili kontaktirajte Wire podršku.</string>
+    <!--    report bug-->
     <string name="backup_dialog_restore_incompatible_version_error_message">Ova sigurnosna kopija je izrađena od novije ili starije verzije Wirea i kao takva nemože se obnovit ovdje.</string>
     <string name="group_label">grupa</string>
     <!-- Update App dialog -->
@@ -604,4 +605,5 @@
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Postavke za uklanjanje pogrešaka</string>
+    <!--    Personal to team migration screen-->
 </resources>

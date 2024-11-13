@@ -48,36 +48,48 @@ internal fun MutingOptionsSheetContent(
         ),
         menuItems = listOf(
             {
+                val state = if (mutingConversationState == MutedConversationStatus.AllAllowed) RichMenuItemState.SELECTED
+                else RichMenuItemState.DEFAULT
                 SelectableMenuBottomSheetItem(
                     title = stringResource(id = R.string.muting_option_all_allowed_title),
                     subLine = stringResource(id = R.string.muting_option_all_allowed_text),
-                    onItemClick = Clickable(onClickDescription = stringResource(id = R.string.content_description_select_label)) {
+                    onItemClick = Clickable(
+                        enabled = state == RichMenuItemState.DEFAULT,
+                        onClickDescription = stringResource(id = R.string.content_description_select_label)
+                    ) {
                         onMuteConversation(MutedConversationStatus.AllAllowed)
                     },
-                    state = if (mutingConversationState == MutedConversationStatus.AllAllowed) RichMenuItemState.SELECTED
-                    else RichMenuItemState.DEFAULT
+                    state = state
                 )
             },
             {
+                val state = if (mutingConversationState == MutedConversationStatus.OnlyMentionsAndRepliesAllowed) RichMenuItemState.SELECTED
+                else RichMenuItemState.DEFAULT
                 SelectableMenuBottomSheetItem(
                     title = stringResource(id = R.string.muting_option_only_mentions_title),
                     subLine = stringResource(id = R.string.muting_option_only_mentions_text),
-                    onItemClick = Clickable(onClickDescription = stringResource(id = R.string.content_description_select_label)) {
+                    onItemClick = Clickable(
+                        enabled = state == RichMenuItemState.DEFAULT,
+                        onClickDescription = stringResource(id = R.string.content_description_select_label)
+                    ) {
                         onMuteConversation(MutedConversationStatus.OnlyMentionsAndRepliesAllowed)
                     },
-                    state = if (mutingConversationState == MutedConversationStatus.OnlyMentionsAndRepliesAllowed)
-                        RichMenuItemState.SELECTED else RichMenuItemState.DEFAULT
+                    state = state
                 )
             },
             {
+                val state = if (mutingConversationState == MutedConversationStatus.AllMuted) RichMenuItemState.SELECTED
+                else RichMenuItemState.DEFAULT
                 SelectableMenuBottomSheetItem(
                     title = stringResource(id = R.string.muting_option_all_muted_title),
                     subLine = stringResource(id = R.string.muting_option_all_muted_text),
-                    onItemClick = Clickable(onClickDescription = stringResource(id = R.string.content_description_select_label)) {
+                    onItemClick = Clickable(
+                        enabled = state == RichMenuItemState.DEFAULT,
+                        onClickDescription = stringResource(id = R.string.content_description_select_label)
+                    ) {
                         onMuteConversation(MutedConversationStatus.AllMuted)
                     },
-                    state = if (mutingConversationState == MutedConversationStatus.AllMuted) RichMenuItemState.SELECTED
-                    else RichMenuItemState.DEFAULT
+                    state = state
                 )
             }
         )

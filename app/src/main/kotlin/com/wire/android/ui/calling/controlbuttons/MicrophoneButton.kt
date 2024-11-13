@@ -30,8 +30,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun MicrophoneButton(
     isMuted: Boolean,
     onMicrophoneButtonClicked: () -> Unit,
-    size: Dp = dimensions().defaultCallingControlsSize,
     modifier: Modifier = Modifier,
+    size: Dp = dimensions().defaultCallingControlsSize
 ) {
     WireCallControlButton(
         isSelected = !isMuted,

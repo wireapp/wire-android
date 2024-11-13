@@ -67,7 +67,7 @@ coil = "2.7.0"
 commonmark = "0.22.0"
 
 # Countly
-countly = "24.4.0"
+countly = "24.7.4"
 
 # RSS
 rss-parser = "6.0.7"
@@ -104,7 +104,7 @@ junit5 = "5.11.0"
 kluent = "1.73"
 mockk = "1.13.10"
 okio = "3.9.0"
-turbine = "1.1.0"
+turbine = "1.2.0"
 robolectric = "4.12.1"
 hamcrest = "2.2"
 

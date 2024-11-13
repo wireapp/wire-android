@@ -23,16 +23,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.notification.WireNotificationManager
@@ -40,7 +40,6 @@ import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
@@ -59,7 +58,6 @@ import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
-import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -92,8 +90,6 @@ class SelfUserProfileViewModel @Inject constructor(
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val dispatchers: DispatcherProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val authServerConfigProvider: AuthServerConfigProvider,
-    private val selfServerLinks: SelfServerConfigUseCase,
     private val otherAccountMapper: OtherAccountMapper,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
@@ -101,7 +97,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
     private val notificationManager: WireNotificationManager,
     private val globalDataStore: GlobalDataStore,
-    private val qualifiedIdMapper: QualifiedIdMapper
+    private val qualifiedIdMapper: QualifiedIdMapper,
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
@@ -263,27 +260,6 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    // todo. cleanup unused code
-    fun tryToInitAddingAccount(onSucceeded: () -> Unit) {
-        viewModelScope.launch {
-            // the total number of accounts is otherAccounts + 1 for the current account
-            val canAddNewAccounts: Boolean = (userProfileState.otherAccounts.size + 1) < BuildConfig.MAX_ACCOUNTS
-
-            if (!canAddNewAccounts) {
-                userProfileState = userProfileState.copy(maxAccountsReached = true)
-                return@launch
-            }
-
-            val selfServerLinks: ServerConfig.Links =
-                when (val result = selfServerLinks()) {
-                    is SelfServerConfigUseCase.Result.Failure -> return@launch
-                    is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
-                }
-            authServerConfigProvider.updateAuthServer(selfServerLinks)
-            onSucceeded()
-        }
-    }
-
     fun dismissStatusDialog() {
         userProfileState = userProfileState.copy(statusDialogData = null)
     }
@@ -318,11 +294,6 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    // todo. cleanup unused code
-    fun onMaxAccountReachedDialogDismissed() {
-        userProfileState = userProfileState.copy(maxAccountsReached = false)
-    }
-
     private fun setNotShowStatusRationaleAgainIfNeeded(status: UserAvailabilityStatus) {
         userProfileState.statusDialogData.let { dialogState ->
             if (dialogState?.isCheckBoxChecked == true) {
@@ -338,7 +309,19 @@ class SelfUserProfileViewModel @Inject constructor(
         userProfileState = userProfileState.copy(errorMessageCode = null)
     }
 
+    fun trackQrCodeClick() {
+        anonymousAnalyticsManager.sendEvent(AnalyticsEvent.QrCode.Click(!userProfileState.teamName.isNullOrBlank()))
+    }
+
+    fun sendPersonalToTeamMigrationEvent() {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
+                createTeamButtonClicked = true
+            )
+        )
+    }
+
     sealed class ErrorCodes {
-        object DownloadUserInfoError : ErrorCodes()
+        data object DownloadUserInfoError : ErrorCodes()
     }
 }

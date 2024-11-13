@@ -33,6 +33,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -44,7 +45,6 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
-import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
@@ -195,29 +195,41 @@ fun MessageImage(
                 onLongClick = onImageClick.onLongClick,
             )
     ) {
+        val alignCenterModifier = Modifier.align(Alignment.Center)
         // TODO Kubaz make progress in box, but then remember to not load image with isIncompleteImage
         when {
             // Trying to upload the asset
             transferStatus == UPLOAD_IN_PROGRESS || transferStatus == DOWNLOAD_IN_PROGRESS -> {
                 ImageMessageInProgress(
-                    imgParams.normalizedWidth, imgParams.normalizedHeight,
-                    transferStatus == DOWNLOAD_IN_PROGRESS
+                    width = imgParams.normalizedWidth,
+                    height = imgParams.normalizedHeight,
+                    isDownloading = transferStatus == DOWNLOAD_IN_PROGRESS,
+                    modifier = alignCenterModifier
                 )
             }
 
             transferStatus == NOT_FOUND -> {
                 ImageMessageFailed(
-                    imgParams.normalizedWidth, imgParams.normalizedHeight,
-                    true
+                    width = imgParams.normalizedWidth,
+                    height = imgParams.normalizedHeight,
+                    isDownloadFailure = true,
+                    modifier = alignCenterModifier
                 )
             }
 
-            asset != null -> DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
+            asset != null -> DisplayableImageMessage(
+                imageData = asset,
+                width = imgParams.normalizedWidth,
+                height = imgParams.normalizedHeight,
+                modifier = alignCenterModifier
+            )
             // Show error placeholder
             transferStatus == FAILED_UPLOAD || transferStatus == FAILED_DOWNLOAD -> {
                 ImageMessageFailed(
-                    imgParams.normalizedWidth, imgParams.normalizedHeight,
-                    transferStatus == FAILED_DOWNLOAD
+                    width = imgParams.normalizedWidth,
+                    height = imgParams.normalizedHeight,
+                    isDownloadFailure = transferStatus == FAILED_DOWNLOAD,
+                    modifier = alignCenterModifier
                 )
             }
         }
@@ -248,7 +260,6 @@ fun MediaAssetImage(
             )
             .wrapContentSize()
             .clickable(onImageClick)
-            .clickableDescriptions(onImageClick)
     ) {
         when {
             // Trying to upload the asset
@@ -257,7 +268,8 @@ fun MediaAssetImage(
                     width = width,
                     height = height,
                     isDownloading = true,
-                    showText = false
+                    showText = false,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
 

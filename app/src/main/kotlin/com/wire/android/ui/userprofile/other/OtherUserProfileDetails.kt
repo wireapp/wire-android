@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.userprofile.other
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,19 +42,21 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun OtherUserProfileDetails(
     state: OtherUserProfileState,
+    modifier: Modifier = Modifier,
     otherUserProfileScreenState: OtherUserProfileScreenState = rememberOtherUserProfileScreenState(),
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         item(key = "user_details_domain") {
             UserDetailInformation(
                 title = stringResource(R.string.settings_myaccount_domain),
                 value = state.userId.domain,
-                onCopy = null
+                onCopy = null,
+                copyBtnContentDescription = null
             )
         }
         if (state.email.isNotEmpty()) {
@@ -61,7 +64,8 @@ fun OtherUserProfileDetails(
                 UserDetailInformation(
                     title = stringResource(R.string.email_label),
                     value = state.email,
-                    onCopy = { otherUserProfileScreenState.copy(it, context) }
+                    onCopy = { otherUserProfileScreenState.copy(it, context) },
+                    copyBtnContentDescription = R.string.content_description_user_profile_copy_email_btn
                 )
             }
         }
@@ -70,7 +74,8 @@ fun OtherUserProfileDetails(
                 UserDetailInformation(
                     title = stringResource(R.string.phone_label),
                     value = state.phone,
-                    onCopy = { otherUserProfileScreenState.copy(it, context) }
+                    onCopy = { otherUserProfileScreenState.copy(it, context) },
+                    copyBtnContentDescription = R.string.content_description_user_profile_copy_phone_btn
                 )
             }
         }
@@ -81,7 +86,8 @@ fun OtherUserProfileDetails(
 private fun UserDetailInformation(
     title: String,
     value: String,
-    onCopy: ((String) -> Unit)?
+    onCopy: ((String) -> Unit)?,
+    @StringRes copyBtnContentDescription: Int?
 ) {
     RowItemTemplate(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
@@ -99,7 +105,14 @@ private fun UserDetailInformation(
                 text = value
             )
         },
-        actions = { onCopy?.let { CopyButton(onCopyClicked = { onCopy(value) }) } },
+        actions = {
+            onCopy?.let {
+                CopyButton(
+                    onCopyClicked = { onCopy(value) },
+                    contentDescription = copyBtnContentDescription ?: R.string.content_description_copy
+                )
+            }
+        },
         clickable = Clickable(enabled = false) {}
     )
 }

@@ -59,7 +59,6 @@
     <string name="label_and">ja</string>
     <string name="label_retry">Proovi uuesti</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Rakenduse logo</string>
     <string name="content_description_reveal_password">Kuva parool</string>
     <string name="content_description_hide_password">Peida parool</string>
     <string name="content_description_search_back">Otsi tagasi ikoon</string>
@@ -103,6 +102,7 @@
     <string name="content_description_calling_call_unmuted">Kõne vaigistus tühistatud</string>
     <string name="content_description_calling_call_paused_camera">Kaamera pausil</string>
     <string name="content_description_more_emojis">Rohkem emojisid</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -206,6 +206,7 @@
     <!-- User Profile status dialog-->
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Teavitused</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Kõik</string>
     <string name="muting_option_all_muted_title">Puuduvad</string>
@@ -372,6 +373,7 @@
     <string name="label_reactions">Reaktsioonid</string>
     <string name="label_more_comming_soon">(varsti tuleb juurde)</string>
     <!--create and restore backup-->
+    <!--    report bug-->
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Uuenda</string>
     <string name="cancel_login_button_label">Tühista</string>
@@ -457,4 +459,5 @@
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Silumise seaded</string>
+    <!--    Personal to team migration screen-->
 </resources>

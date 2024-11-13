@@ -21,11 +21,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class TeamMigrationViewModel @Inject constructor() : ViewModel() {
+class TeamMigrationViewModel @Inject constructor(
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager
+) : ViewModel() {
 
     var teamMigrationState by mutableStateOf(TeamMigrationState())
         private set
@@ -36,5 +40,45 @@ class TeamMigrationViewModel @Inject constructor() : ViewModel() {
 
     fun hideMigrationLeaveDialog() {
         teamMigrationState = teamMigrationState.copy(shouldShowMigrationLeaveDialog = false)
+    }
+
+    fun sendPersonalToTeamMigrationDismissed() {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
+                dismissCreateTeamButtonClicked = true
+            )
+        )
+    }
+
+    fun sendPersonalTeamCreationFlowStartedEvent(step: Int) {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(step)
+        )
+    }
+
+    fun sendPersonalTeamCreationFlowCanceledEvent(
+        modalLeaveClicked: Boolean? = null,
+        modalContinueClicked: Boolean? = null
+    ) {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
+                teamName = teamMigrationState.teamNameTextState.text.toString(),
+                modalLeaveClicked = modalLeaveClicked,
+                modalContinueClicked = modalContinueClicked
+            )
+        )
+    }
+
+    fun sendPersonalTeamCreationFlowCompletedEvent(
+        modalOpenTeamManagementButtonClicked: Boolean? = null,
+        backToWireButtonClicked: Boolean? = null
+    ) {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
+                teamName = teamMigrationState.teamNameTextState.text.toString(),
+                modalOpenTeamManagementButtonClicked = modalOpenTeamManagementButtonClicked,
+                backToWireButtonClicked = backToWireButtonClicked
+            )
+        )
     }
 }

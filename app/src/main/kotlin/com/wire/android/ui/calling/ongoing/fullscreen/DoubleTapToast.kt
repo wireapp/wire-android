@@ -37,6 +37,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 
 private enum class Visibility {
@@ -46,10 +47,10 @@ private enum class Visibility {
 
 @Composable
 fun DoubleTapToast(
-    modifier: Modifier,
     enabled: Boolean,
     text: String,
-    onTap: () -> Unit
+    onTap: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val transition = updateTransition(
         if (enabled) Visibility.VISIBLE else Visibility.GONE,
@@ -90,10 +91,11 @@ fun DoubleTapToast(
 
 @Preview
 @Composable
-fun PreviewDoubleTapToast() {
+fun PreviewDoubleTapToast() = WireTheme {
     DoubleTapToast(
-        modifier = Modifier,
         enabled = true,
-        text = "Double tap to go back"
-    ) { }
+        text = "Double tap to go back",
+        onTap = {},
+        modifier = Modifier,
+    )
 }

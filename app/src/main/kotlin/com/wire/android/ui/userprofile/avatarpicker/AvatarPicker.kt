@@ -18,8 +18,6 @@
 
 package com.wire.android.ui.userprofile.avatarpicker
 
-import android.content.Context
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,10 +31,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -59,18 +55,12 @@ import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
-import com.wire.android.util.ImageUtil
-import com.wire.android.util.resampleImageAndCopyToTempPath
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okio.Path
 
 @RootNavGraph
 @WireDestination
@@ -83,18 +73,15 @@ fun AvatarPickerScreen(
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
-    val context = LocalContext.current
-
     val targetAvatarPath = viewModel.defaultAvatarPath
     val targetAvatarUri = viewModel.temporaryAvatarUri
 
-    val scope = rememberCoroutineScope()
     val state = rememberAvatarPickerState(
         onImageSelected = { originalUri ->
-            onNewAvatarPicked(originalUri, targetAvatarPath, scope, context, viewModel)
+            viewModel.updatePickedAvatarUri(originalUri, targetAvatarPath.toFile().toUri())
         },
         onPictureTaken = {
-            onNewAvatarPicked(targetAvatarUri, targetAvatarPath, scope, context, viewModel)
+            viewModel.updatePickedAvatarUri(targetAvatarUri, targetAvatarPath.toFile().toUri())
         },
         targetPictureFileUri = targetAvatarUri,
         onGalleryPermissionPermanentlyDenied = {
@@ -138,19 +125,6 @@ fun AvatarPickerScreen(
         dialogState = permissionPermanentlyDeniedDialogState,
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
-}
-
-// TODO: Mateusz: I think we should refactor this, it takes some values from the ViewModel, part of the logic is executed inside 
-// the UI, part of the logic is exectued inside the ViewModel, I see no reasons to handle the logic inside the UI
-// personally it was a confusing part for me to read when investing the bugs, unless there is a valid reason to move the logic to the UI
-// that I am not aware of ?
-fun onNewAvatarPicked(originalUri: Uri, targetAvatarPath: Path, scope: CoroutineScope, context: Context, viewModel: AvatarPickerViewModel) {
-    scope.launch {
-        sanitizeAvatarImage(originalUri, targetAvatarPath, context)
-        withContext(Dispatchers.Main) {
-            viewModel.updatePickedAvatarUri(targetAvatarPath.toFile().toUri())
-        }
-    }
 }
 
 @Composable
@@ -200,25 +174,26 @@ private fun AvatarPickerContent(
                     {
                         MenuBottomSheetItem(
                             title = stringResource(R.string.profile_image_choose_from_gallery_menu_item),
-                            icon = {
+                            leading = {
                                 MenuItemIcon(
                                     id = R.drawable.ic_gallery,
                                     contentDescription = stringResource(R.string.content_description_choose_from_gallery)
                                 )
                             },
-                            action = { ArrowRightIcon() },
+                            trailing = { ArrowRightIcon() },
                             onItemClick = state::openGallery
                         )
-                    }, {
+                    },
+                    {
                         MenuBottomSheetItem(
                             title = stringResource(R.string.profile_image_take_a_picture_menu_item),
-                            icon = {
+                            leading = {
                                 MenuItemIcon(
                                     id = R.drawable.ic_camera,
                                     contentDescription = stringResource(R.string.content_description_take_a_picture)
                                 )
                             },
-                            action = { ArrowRightIcon() },
+                            trailing = { ArrowRightIcon() },
                             onItemClick = state::openCamera
                         )
                     }
@@ -281,10 +256,7 @@ private fun AvatarPickerActionButtons(
 private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
+        navigationIconType = NavigationIconType.Back(R.string.content_description_change_picture_back_btn),
         title = stringResource(R.string.profile_image_top_bar_label),
     )
-}
-
-private suspend fun sanitizeAvatarImage(originalAvatarUri: Uri, avatarPath: Path, appContext: Context) {
-    originalAvatarUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small)
 }

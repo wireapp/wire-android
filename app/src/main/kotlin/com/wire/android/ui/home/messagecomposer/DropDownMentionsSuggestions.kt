@@ -47,7 +47,8 @@ fun DropDownMentionsSuggestions(
     currentSelectedLineIndex: Int,
     cursorCoordinateY: Float,
     membersToMention: List<Contact>,
-    onMentionPicked: (Contact) -> Unit
+    onMentionPicked: (Contact) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
@@ -67,9 +68,10 @@ fun DropDownMentionsSuggestions(
         return@remember calculateMaxHeight(defaultMaxHeightDropdownMenu, itemHeights, density, membersToMention)
     }
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .offset { IntOffset(0, coordinateY) }
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .offset { IntOffset(0, coordinateY) }
     ) {
         DropdownMenu(
             properties = PopupProperties(focusable = false),

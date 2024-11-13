@@ -48,6 +48,7 @@ import okio.buffer
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.inject.Inject
@@ -121,19 +122,21 @@ class AudioMediaRecorder @Inject constructor(
         val blockAlign = channels * (bitsPerSample / BITS_PER_BYTE)
 
         // We use buffer() to correctly write the string values.
-        bufferedSink.writeUtf8(CHUNK_ID_RIFF) // Chunk ID
-        bufferedSink.writeIntLe(PLACEHOLDER_SIZE) // Placeholder for Chunk Size (will be updated later)
-        bufferedSink.writeUtf8(FORMAT_WAVE) // Format
-        bufferedSink.writeUtf8(SUBCHUNK1_ID_FMT) // Subchunk1 ID
-        bufferedSink.writeIntLe(SUBCHUNK1_SIZE_PCM) // Subchunk1 Size (PCM)
-        bufferedSink.writeShortLe(AUDIO_FORMAT_PCM) // Audio Format (PCM)
-        bufferedSink.writeShortLe(channels) // Number of Channels
-        bufferedSink.writeIntLe(sampleRate) // Sample Rate
-        bufferedSink.writeIntLe(byteRate) // Byte Rate
-        bufferedSink.writeShortLe(blockAlign) // Block Align
-        bufferedSink.writeShortLe(bitsPerSample) // Bits Per Sample
-        bufferedSink.writeUtf8(SUBCHUNK2_ID_DATA) // Subchunk2 ID
-        bufferedSink.writeIntLe(PLACEHOLDER_SIZE) // Placeholder for Subchunk2 Size (will be updated later)
+        with(bufferedSink) {
+            writeUtf8(CHUNK_ID_RIFF) // Chunk ID
+            writeIntLe(PLACEHOLDER_SIZE) // Placeholder for Chunk Size (will be updated later)
+            writeUtf8(FORMAT_WAVE) // Format
+            writeUtf8(SUBCHUNK1_ID_FMT) // Subchunk1 ID
+            writeIntLe(SUBCHUNK1_SIZE_PCM) // Subchunk1 Size (PCM)
+            writeShortLe(AUDIO_FORMAT_PCM) // Audio Format (PCM)
+            writeShortLe(channels) // Number of Channels
+            writeIntLe(sampleRate) // Sample Rate
+            writeIntLe(byteRate) // Byte Rate
+            writeShortLe(blockAlign) // Block Align
+            writeShortLe(bitsPerSample) // Bits Per Sample
+            writeUtf8(SUBCHUNK2_ID_DATA) // Subchunk2 ID
+            writeIntLe(PLACEHOLDER_SIZE) // Placeholder for Subchunk2 Size (will be updated later)
+        }
     }
 
     private fun updateWavHeader(filePath: Path) {
@@ -149,17 +152,14 @@ class AudioMediaRecorder @Inject constructor(
         dataSizeBuffer.order(ByteOrder.LITTLE_ENDIAN)
         dataSizeBuffer.putInt(dataSize)
 
-        val randomAccessFile = java.io.RandomAccessFile(file, "rw")
-
-        // Update Chunk Size
-        randomAccessFile.seek(CHUNK_SIZE_OFFSET.toLong())
-        randomAccessFile.write(chunkSizeBuffer.array())
-
-        // Update Subchunk2 Size
-        randomAccessFile.seek(SUBCHUNK2_SIZE_OFFSET.toLong())
-        randomAccessFile.write(dataSizeBuffer.array())
-
-        randomAccessFile.close()
+        RandomAccessFile(file, "rw").use { randomAccessFile ->
+            // Update Chunk Size
+            randomAccessFile.seek(CHUNK_SIZE_OFFSET.toLong())
+            randomAccessFile.write(chunkSizeBuffer.array())
+            // Update Subchunk2 Size
+            randomAccessFile.seek(SUBCHUNK2_SIZE_OFFSET.toLong())
+            randomAccessFile.write(dataSizeBuffer.array())
+        }
 
         appLogger.i("Updated WAV Header: Chunk Size = ${fileSize - CHUNK_ID_SIZE}, Data Size = $dataSize")
     }
@@ -175,48 +175,41 @@ class AudioMediaRecorder @Inject constructor(
         audioRecorder = null
     }
 
+    @Suppress("NestedBlockDepth")
     private fun writeAudioDataToFile() {
         val data = ByteArray(BUFFER_SIZE)
-        var sink: okio.Sink? = null
 
         try {
-            sink = kaliumFileSystem.sink(originalOutputPath!!)
-            val bufferedSink = sink.buffer()
+            kaliumFileSystem.sink(originalOutputPath!!).use { sink ->
+                sink.buffer()
+                    .use {
+                        writeWavHeader(it, SAMPLING_RATE, AUDIO_CHANNELS, BITS_PER_SAMPLE)
+                        while (isRecording) {
+                            val read = audioRecorder?.read(data, 0, BUFFER_SIZE) ?: 0
+                            if (read > 0) {
+                                it.write(data, 0, read)
+                            }
 
-            // Write WAV header
-            writeWavHeader(bufferedSink, SAMPLING_RATE, AUDIO_CHANNELS, BITS_PER_SAMPLE)
-
-            while (isRecording) {
-                val read = audioRecorder?.read(data, 0, BUFFER_SIZE) ?: 0
-                if (read > 0) {
-                    bufferedSink.write(data, 0, read)
-                }
-
-                // Check if the file size exceeds the limit
-                val currentSize = originalOutputPath!!.toFile().length()
-                if (currentSize > (assetLimitInMB * SIZE_OF_1MB)) {
-                    isRecording = false
-                    scope.launch {
-                        _maxFileSizeReached.emit(
-                            RecordAudioDialogState.MaxFileSizeReached(
-                                maxSize = assetLimitInMB / SIZE_OF_1MB
-                            )
-                        )
+                            // Check if the file size exceeds the limit
+                            val currentSize = originalOutputPath!!.toFile().length()
+                            if (currentSize > (assetLimitInMB * SIZE_OF_1MB)) {
+                                isRecording = false
+                                scope.launch {
+                                    _maxFileSizeReached.emit(
+                                        RecordAudioDialogState.MaxFileSizeReached(
+                                            maxSize = assetLimitInMB / SIZE_OF_1MB
+                                        )
+                                    )
+                                }
+                                break
+                            }
+                        }
+                        updateWavHeader(originalOutputPath!!)
                     }
-                    break
-                }
             }
-
-            // Close buffer to ensure all data is written
-            bufferedSink.close()
-
-            // Update WAV header with final file size
-            updateWavHeader(originalOutputPath!!)
         } catch (e: IOException) {
             e.printStackTrace()
             appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${e.message}")
-        } finally {
-            sink?.close()
         }
     }
 
@@ -224,143 +217,137 @@ class AudioMediaRecorder @Inject constructor(
     suspend fun convertWavToMp4(inputFilePath: String): Boolean = withContext(Dispatchers.IO) {
         var codec: MediaCodec? = null
         var muxer: MediaMuxer? = null
-        var fileInputStream: FileInputStream? = null
-        var parcelFileDescriptor: ParcelFileDescriptor? = null
         var success = true
 
         try {
-            val inputFile = File(inputFilePath)
-            fileInputStream = FileInputStream(inputFile)
+            FileInputStream(File(inputFilePath)).use { fileInputStream ->
+                mp4OutputPath?.toFile()?.let { outputFile ->
+                    ParcelFileDescriptor.open(
+                        outputFile,
+                        ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
+                    ).use { parcelFileDescriptor ->
 
-            val outputFile = mp4OutputPath?.toFile()
-            parcelFileDescriptor = ParcelFileDescriptor.open(
-                outputFile,
-                ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
-            )
+                        val mediaExtractor = MediaExtractor()
+                        mediaExtractor.setDataSource(inputFilePath)
 
-            val mediaExtractor = MediaExtractor()
-            mediaExtractor.setDataSource(inputFilePath)
+                        val format = MediaFormat.createAudioFormat(
+                            MediaFormat.MIMETYPE_AUDIO_AAC,
+                            SAMPLING_RATE,
+                            AUDIO_CHANNELS
+                        )
+                        format.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE)
+                        format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC)
 
-            val format = MediaFormat.createAudioFormat(
-                MediaFormat.MIMETYPE_AUDIO_AAC,
-                SAMPLING_RATE,
-                AUDIO_CHANNELS
-            )
-            format.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE)
-            format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC)
+                        codec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC)
+                        val mediaCodec = codec!!
+                        mediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+                        mediaCodec.start()
 
-            codec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC)
-            codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
-            codec.start()
+                        val bufferInfo = MediaCodec.BufferInfo()
+                        muxer = MediaMuxer(parcelFileDescriptor.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+                        val mediaMuxer = muxer!!
 
-            val bufferInfo = MediaCodec.BufferInfo()
-            muxer = MediaMuxer(parcelFileDescriptor.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
-            var trackIndex = -1
-            var sawInputEOS = false
-            var sawOutputEOS = false
+                        var trackIndex = -1
+                        var sawInputEOS = false
+                        var sawOutputEOS = false
 
-            var retryCount = 0
-            var presentationTimeUs = 0L
-            val bytesPerSample = (BITS_PER_SAMPLE / BITS_PER_BYTE) * AUDIO_CHANNELS
+                        var retryCount = 0
+                        var presentationTimeUs = 0L
+                        val bytesPerSample = (BITS_PER_SAMPLE / BITS_PER_BYTE) * AUDIO_CHANNELS
 
-            while (!sawOutputEOS && retryCount < MAX_RETRY_COUNT) {
-                if (!sawInputEOS) {
-                    val inputBufferIndex = codec.dequeueInputBuffer(TIMEOUT_US)
-                    if (inputBufferIndex >= 0) {
-                        val inputBuffer = codec.getInputBuffer(inputBufferIndex)
-                        inputBuffer?.clear()
+                        while (!sawOutputEOS && retryCount < MAX_RETRY_COUNT) {
+                            if (!sawInputEOS) {
+                                val inputBufferIndex = mediaCodec.dequeueInputBuffer(TIMEOUT_US)
+                                if (inputBufferIndex >= 0) {
+                                    val inputBuffer = mediaCodec.getInputBuffer(inputBufferIndex)
+                                    inputBuffer?.clear()
 
-                        val sampleSize = fileInputStream.channel.read(inputBuffer!!)
-                        if (sampleSize < 0) {
-                            codec.queueInputBuffer(inputBufferIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
-                            sawInputEOS = true
-                        } else {
-                            val numSamples = sampleSize / bytesPerSample
-                            val bufferDurationUs = (numSamples * MICROSECONDS_PER_SECOND) / SAMPLING_RATE
-                            codec.queueInputBuffer(inputBufferIndex, 0, sampleSize, presentationTimeUs, 0)
+                                    val sampleSize = fileInputStream.channel.read(inputBuffer!!)
+                                    if (sampleSize < 0) {
+                                        mediaCodec.queueInputBuffer(inputBufferIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                                        sawInputEOS = true
+                                    } else {
+                                        val numSamples = sampleSize / bytesPerSample
+                                        val bufferDurationUs = (numSamples * MICROSECONDS_PER_SECOND) / SAMPLING_RATE
+                                        mediaCodec.queueInputBuffer(inputBufferIndex, 0, sampleSize, presentationTimeUs, 0)
 
-                            presentationTimeUs += bufferDurationUs
-                        }
-                    }
-                }
+                                        presentationTimeUs += bufferDurationUs
+                                    }
+                                }
+                            }
 
-                val outputBufferIndex = codec.dequeueOutputBuffer(bufferInfo, TIMEOUT_US)
+                            val outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_US)
 
-                when {
-                    outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
-                        val newFormat = codec.outputFormat
-                        trackIndex = muxer.addTrack(newFormat)
-                        muxer.start()
-                        retryCount = 0
-                    }
+                            when {
+                                outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
+                                    val newFormat = mediaCodec.outputFormat
+                                    trackIndex = mediaMuxer.addTrack(newFormat)
+                                    mediaMuxer.start()
+                                    retryCount = 0
+                                }
 
-                    outputBufferIndex >= 0 -> {
-                        val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
+                                outputBufferIndex >= 0 -> {
+                                    val outputBuffer = mediaCodec.getOutputBuffer(outputBufferIndex)
 
-                        if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
-                            bufferInfo.size = 0
-                        }
+                                    if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
+                                        bufferInfo.size = 0
+                                    }
 
-                        if (bufferInfo.size != 0 && outputBuffer != null) {
-                            outputBuffer.position(bufferInfo.offset)
-                            outputBuffer.limit(bufferInfo.offset + bufferInfo.size)
+                                    if (bufferInfo.size != 0 && outputBuffer != null) {
+                                        outputBuffer.position(bufferInfo.offset)
+                                        outputBuffer.limit(bufferInfo.offset + bufferInfo.size)
 
-                            if (trackIndex >= 0) {
-                                muxer.writeSampleData(trackIndex, outputBuffer, bufferInfo)
-                            } else {
-                                appLogger.e("Track index is not set. Skipping writeSampleData.")
+                                        if (trackIndex >= 0) {
+                                            mediaMuxer.writeSampleData(trackIndex, outputBuffer, bufferInfo)
+                                        } else {
+                                            appLogger.e("Track index is not set. Skipping writeSampleData.")
+                                        }
+                                    }
+
+                                    mediaCodec.releaseOutputBuffer(outputBufferIndex, false)
+                                    retryCount = 0
+
+                                    if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
+                                        sawOutputEOS = true
+                                    }
+                                }
+
+                                outputBufferIndex == MediaCodec.INFO_TRY_AGAIN_LATER -> {
+                                    retryCount++
+                                    delay(RETRY_DELAY_IN_MILLIS)
+                                }
                             }
                         }
-
-                        codec.releaseOutputBuffer(outputBufferIndex, false)
-                        retryCount = 0
-
-                        if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
-                            sawOutputEOS = true
+                        if (retryCount >= MAX_RETRY_COUNT) {
+                            appLogger.e("Reached maximum retries without receiving output from codec.")
+                            success = false
                         }
                     }
-
-                    outputBufferIndex == MediaCodec.INFO_TRY_AGAIN_LATER -> {
-                        retryCount++
-                        delay(RETRY_DELAY_IN_MILLIS)
-                    }
+                } ?: run {
+                    appLogger.e("[RecordAudio] convertWavToMp4: mp4OutputPath is null")
+                    success = false
                 }
-            }
-            if (retryCount >= MAX_RETRY_COUNT) {
-                appLogger.e("Reached maximum retries without receiving output from codec.")
-                success = false
             }
         } catch (e: Exception) {
             appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
-            success = false
         } finally {
             try {
-                fileInputStream?.close()
-            } catch (e: Exception) {
-                appLogger.e("Could not close FileInputStream: ${e.message}", throwable = e)
-                success = false
-            }
-
-            try {
-                muxer?.stop()
-                muxer?.release()
+                muxer?.let { safeMuxer ->
+                    safeMuxer.stop()
+                    safeMuxer.release()
+                }
             } catch (e: Exception) {
                 appLogger.e("Could not stop or release MediaMuxer: ${e.message}", throwable = e)
                 success = false
             }
 
             try {
-                codec?.stop()
-                codec?.release()
+                codec?.let { safeCodec ->
+                    safeCodec.stop()
+                    safeCodec.release()
+                }
             } catch (e: Exception) {
                 appLogger.e("Could not stop or release MediaCodec: ${e.message}", throwable = e)
-                success = false
-            }
-
-            try {
-                parcelFileDescriptor?.close()
-            } catch (e: Exception) {
-                appLogger.e("Could not close ParcelFileDescriptor: ${e.message}", throwable = e)
                 success = false
             }
         }

@@ -55,14 +55,15 @@ import com.wire.kalium.logic.data.conversation.Conversation.Member
 @Composable
 fun OtherUserProfileGroup(
     state: OtherUserProfileState,
-    lazyListState: LazyListState = rememberLazyListState(),
     onRemoveFromConversation: (RemoveConversationMemberState) -> Unit,
-    openChangeRoleBottomSheet: () -> Unit
+    openChangeRoleBottomSheet: () -> Unit,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         item(key = "user_group_name") {
             UserGroupDetailsInformation(
@@ -132,9 +133,9 @@ private fun UserGroupDetailsInformation(
 private fun UserRoleInformation(
     label: String,
     value: AnnotatedString,
-    clickable: Clickable = Clickable(enabled = false) {},
     isSelfAdmin: Boolean,
     isRoleEditable: Boolean,
+    clickable: Clickable = Clickable(enabled = false) {},
     openChangeRoleBottomSheet: () -> Unit
 ) {
     RowItemTemplate(
@@ -167,7 +168,7 @@ fun EditButton(onEditClicked: () -> Unit, modifier: Modifier = Modifier) {
     WireSecondaryIconButton(
         onButtonClicked = onEditClicked,
         iconResource = R.drawable.ic_edit,
-        contentDescription = R.string.content_description_edit,
+        contentDescription = R.string.content_description_user_profile_edit_role_btn,
         modifier = modifier
     )
 }
@@ -182,7 +183,7 @@ val Member.Role.name
 @Composable
 @Preview
 fun PreviewOtherUserProfileGroup() {
-    OtherUserProfileGroup(OtherUserProfileState.PREVIEW, rememberLazyListState(), {}) {}
+    OtherUserProfileGroup(OtherUserProfileState.PREVIEW, {}, {})
 }
 
 @Composable

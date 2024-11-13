@@ -66,7 +66,7 @@ fun SearchConversationMessagesEmptyScreen(modifier: Modifier = Modifier) {
                     textDecoration = TextDecoration.Underline,
                     color = MaterialTheme.colorScheme.onBackground
                 ),
-                modifier = Modifier.clickable {
+                modifier = Modifier.clickable(onClickLabel = stringResource(R.string.content_description_open_link_label)) {
                     CustomTabsHelper.launchUrl(
                         context,
                         searchUrl
@@ -79,7 +79,7 @@ fun SearchConversationMessagesEmptyScreen(modifier: Modifier = Modifier) {
 
 @PreviewMultipleThemes
 @Composable
-fun previewSearchConversationMessagesEmptyScreen() {
+fun PreviewSearchConversationMessagesEmptyScreen() {
     WireTheme {
         SearchConversationMessagesEmptyScreen()
     }

@@ -85,7 +85,6 @@
     <string name="label_retry">Повторить</string>
     <string name="label_draft">*Черновик*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Логотип приложения</string>
     <string name="content_description_reveal_password">Показать пароль</string>
     <string name="content_description_hide_password">Скрыть пароль</string>
     <string name="content_description_search_back">Значок возврата поиска</string>
@@ -115,7 +114,9 @@
     <string name="content_description_conversation_send_emoticon">Кнопка отправки смайлика</string>
     <string name="content_description_conversation_send_gif">Кнопка отправки GIF</string>
     <string name="content_description_conversation_mention_someone">Упомянуть кого-нибудь</string>
-    <string name="content_description_new_conversation">Начать новую беседу</string>
+    <string name="content_description_conversation_back_btn">Вернуться к списку бесед</string>
+    <string name="content_description_conversation_open_details_label">открыть информацию о беседе</string>
+    <string name="content_description_new_conversation">Поиск друзей или создание новой группы</string>
     <string name="content_description_back_button">Кнопка назад</string>
     <string name="content_description_send_button">Отправить</string>
     <string name="content_description_timed_message_button">Самоудаляющиеся сообщения, кнопка</string>
@@ -177,6 +178,68 @@
     <string name="content_description_proteus_certificate_valid">Все участники верифицированы (Proteus)</string>
     <string name="content_description_jump_to_last_message">Перейти к концу беседы</string>
     <string name="content_description_location_icon">Элемент местоположения</string>
+    <string name="content_description_conversation_details_more_btn">Открыть параметры беседы</string>
+    <string name="content_description_conversation_details_options_tab_header">Настройки</string>
+    <string name="content_description_conversation_details_participants_tab_header">Участники</string>
+    <string name="content_description_conversation_details_close_btn">Закрыть информацию о беседе</string>
+    <string name="content_description_conversation_details_guests_action">настройка гостевого доступа</string>
+    <string name="content_description_conversation_details_self_deleting_action">настройка времени самоудаления</string>
+    <string name="content_description_user_profile_more_btn">Открыть параметры беседы</string>
+    <string name="content_description_user_profile_close_btn">Вернуться к сведениям о беседе</string>
+    <string name="content_description_user_profile_edit_role_btn">Изменить роль</string>
+    <string name="content_description_user_profile_copy_phone_btn">Скопировать телефон</string>
+    <string name="content_description_user_profile_copy_email_btn">Скопировать email</string>
+    <string name="content_description_user_profile_open_device_btn">открыть информацию об устройстве</string>
+    <string name="content_description_connection_request_close_btn">Закрыть просмотр запроса на добавление</string>
+    <string name="content_description_search_text_in_conversation_btn">Поиск текстовых сообщений</string>
+    <string name="content_description_see_media_in_conversation_btn">Открыть обзор изображений и файлов</string>
+    <string name="content_description_add_participants_close">Закрыть вид добавления участников</string>
+    <string name="content_description_add_participants_search_field">Поиск по имени или псевдониму</string>
+    <string name="content_description_add_participants_back_btn">Вернуться к просмотру добавления участников</string>
+    <string name="content_description_home_profile_btn">Ваш профиль</string>
+    <string name="content_description_open_label">открыть</string>
+    <string name="content_description_join_call_label">присоединиться к вызову</string>
+    <string name="content_description_share_label">поделиться</string>
+    <string name="content_description_collapse_label">свернуть</string>
+    <string name="content_description_expand_label">развернуть</string>
+    <string name="content_description_edit_label">редактировать</string>
+    <string name="content_description_select_label">выбрать</string>
+    <string name="content_description_unselect_label">отменить выбор</string>
+    <string name="content_description_selected_label">выбрано</string>
+    <string name="content_description_toggle_setting_label">переключить настройку</string>
+    <string name="content_description_edit_guests_option_back_btn">Вернуться к сведениям о беседе</string>
+    <string name="content_description_edit_self_delete_back_btn">Вернуться к сведениям о беседе</string>
+    <string name="content_description_open_user_profile_label">открыть профиль</string>
+    <string name="content_description_open_conversation_label">открыть беседу</string>
+    <string name="content_description_open_service_label">открыть сервис</string>
+    <string name="content_description_change_it_label">изменить</string>
+    <string name="content_description_open_link_label">открыть ссылку</string>
+    <string name="content_description_alert">Оповещение</string>
+    <string name="content_description_close_dropdown">закрыть раскрывающийся список</string>
+    <string name="content_description_open_notification_settings_label">открыть настройки уведомлений</string>
+    <string name="content_description_new_conversation_name_back_btn">Вернуться к новому виду бесед</string>
+    <string name="content_description_new_conversation_name_field">Введите имя группы</string>
+    <string name="content_description_new_conversation_options_heading">Настройки беседы</string>
+    <string name="content_description_new_conversation_options_back_btn">Вернуться к созданию новой группы</string>
+    <string name="content_description_pending_connection_badge">ожидание подтверждения запроса</string>
+    <string name="content_description_self_profile_close">Закрыть профиль</string>
+    <string name="content_description_self_profile_heading">Ваш профиль</string>
+    <string name="content_description_self_profile_avatar">Ваше изображение профиля</string>
+    <string name="content_description_self_profile_profile_name">Название профиля, %s</string>
+    <string name="content_description_self_profile_username">Псевдоним, %s</string>
+    <string name="content_description_self_profile_team">Название команды, %s</string>
+    <string name="content_description_self_profile_change_status">изменить статус доступности</string>
+    <string name="content_description_self_profile_new_account_btn">Создать новую команду или личный аккаунт или авторизоваться</string>
+    <string name="content_description_change_picture_back_btn">Вернуться к обзору вашего профиля</string>
+    <string name="content_description_welcome_screen_close_btn">Закрыть просмотр создания новой команды и авторизации</string>
+    <string name="content_description_login_back_btn">Вернуться к просмотру создания новой команды и авторизации</string>
+    <string name="content_description_login_email_field">введите свой email или псевдоним</string>
+    <string name="content_description_login_password_field">введите свой пароль</string>
+    <string name="content_description_login_sso_code_field">введите свой код SSO или Wire email</string>
+    <string name="content_description_whats_new_welcome_item">Добро пожаловать в новое приложение Wire для Android, ссылка на страницу поддержки</string>
+    <string name="content_description_whats_new_all_releases_item">Все заметки о выпуске для Android, ссылка на обзор заметок о выпуске</string>
+    <string name="content_description_whats_new_release_item">%1$s, %2$s, ссылка на подробности о релизе</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -556,6 +619,12 @@
     <string name="label_unblock">Разблокировать</string>
     <string name="label_leave_group">Покинуть группу</string>
     <string name="label_delete_group">Удалить группу</string>
+    <!-- Conversation filter BottomSheet -->
+    <string name="label_filter_conversations">Отфильтровать беседы</string>
+    <string name="label_filter_all">Все беседы</string>
+    <string name="label_filter_favorites">Избранное</string>
+    <string name="label_filter_group">Группы</string>
+    <string name="label_filter_one_on_one">Беседы 1:1</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Все</string>
     <string name="muting_option_all_allowed_text">Получать уведомления в этой беседе обо всем (включая аудио- и видеозвонки)</string>
@@ -1117,6 +1186,10 @@
     <string name="label_key_packages_count">Количество ключевых пакетов</string>
     <string name="label_mls_client_id">ID клиента MLS</string>
     <string name="conversation_empty_list_description">Свяжитесь с друзьями или создайте новую группу, чтобы начать совместную работу!</string>
+    <string name="favorites_empty_list_description">Отметьте свои любимые беседы, и вы найдете их здесь</string>
+    <string name="group_empty_list_description">Вы еще не участвуете ни в одной групповой беседе.\nНачните новую!</string>
+    <string name="one_on_one_empty_list_description">У вас пока нет контактов.\nИщите друзей в %1$s и общайтесь.</string>
+    <string name="favorites_empty_list_how_to_label">Как помечать беседы как избранные</string>
     <string name="conversation_empty_list_title">Добро пожаловать 👋</string>
     <string name="label_no_conversation_found">Беседы не найдены.</string>
     <string name="label_connect_with_new_users">Общайтесь с новыми пользователями или начните новую беседу</string>
@@ -1148,7 +1221,9 @@
     <string name="backup_dialog_choose_backup_file_option">Выберите резервную копию</string>
     <string name="backup_label_enter_password">Введите пароль</string>
     <string name="backup_dialog_restore_backup_password_message">Эта резервная копия защищена паролем.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"Выберите поставщика почты:\"</string>
+    <string name="send_bug_report_subject">Отчет об ошибке</string>
     <string name="backup_dialog_create_backup_save">Сохранить файл</string>
     <string name="backup_dialog_create_backup_share">Поделиться файлом</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Несовместимая резервная копия</string>
@@ -1510,4 +1585,41 @@
     <string name="call_feedback_dialog_label_excellent">Прекрасно</string>
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Параметры отладки</string>
+    <!--    Personal to team migration screen-->
+    <string name="personal_to_team_migration_step_label">Шаг %1$d из 4</string>
+    <string name="personal_to_team_migration_back_to_wire_button">Вернуться в Wire</string>
+    <string name="personal_to_team_migration_back_button_label">Назад</string>
+    <string name="personal_to_team_migration_close_icon_content_description">Закрыть процесс миграции команды</string>
+    <string name="personal_to_team_migration_team_plan_step">Аккаунт команды</string>
+    <string name="personal_to_team_migration_team_plan_description">Трансформируйте свой персональный аккаунт в командный, чтобы получить больше пользы от совместной работы.</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_label">Консоль администратора:</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_details">Пригласите членов команды и управляйте настройками.</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_label">Эффективная совместная работа:</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_details">Общайтесь с гостями и внешними участниками.</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_label">Большие встречи:</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_details">Присоединяйтесь к видеоконференциям с числом участников до 150 человек.</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_label">Статус доступности:</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_details">Сообщите своей команде, если вы свободны, заняты или находитесь в отъезде.</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_label">Перейти на Enterprise:</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_description">Получите дополнительные возможности и премиум-поддержку.</string>
+    <string name="personal_to_team_migration_team_plan_learn_more_about_wire_plan">Узнайте больше о тарифах Wire</string>
+    <string name="personal_to_team_migration_team_name_step">Название команды</string>
+    <string name="personal_to_team_migration_team_name_description">Выберите название для своей команды. Вы можете изменить его в любое время.</string>
+    <string name="personal_to_team_migration_team_name_text_field_placeholder">Ваша команда</string>
+    <string name="personal_to_team_migration_confirmation_step">Подтверждение</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_first_item">Вы создаете команду и преобразуете свой персональный аккаунт в командный</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_second_item">Как владелец команды вы можете приглашать и удалять членов команды, а также управлять ее настройками</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_third_item">Это изменение является постоянным и необратимым</string>
+    <string name="personal_to_team_migration_confirmation_step_terms">Я согласен с условиями миграции и понимаю, что это изменение необратимо.</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">Я принимаю</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_label">Условия использования Wire.</string>
+    <string name="personal_to_team_migration_done_step">Поздравляем %1$s!</string>
+    <string name="personal_to_team_migration_done_step_now_team_member_label">Вы теперь владелец команды %1$s.</string>
+    <string name="personal_to_team_migration_done_step_go_to_team_label">Перейдите к Управлению командой:</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_first_item">Пригласите первых членов своей команды и начните совместную работу</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_second_item">Настройте параметры своей команды</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_title">Выйти без сохранения?</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_description">Если вы выйдете, информация не сохранится и вам придется заново создавать команду.</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Продолжить создание команды</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Выйти без сохранения</string>
 </resources>

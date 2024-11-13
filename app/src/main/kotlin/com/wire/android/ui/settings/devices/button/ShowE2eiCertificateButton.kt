@@ -35,10 +35,11 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun ShowE2eiCertificateButton(
     enabled: Boolean,
     isLoading: Boolean,
-    onShowCertificateClicked: () -> Unit
+    onShowCertificateClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     WireSecondaryButton(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(
                 top = dimensions().spacing8x,

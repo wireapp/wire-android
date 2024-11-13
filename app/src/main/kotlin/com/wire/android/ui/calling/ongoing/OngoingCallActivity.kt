@@ -30,7 +30,14 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.view.WindowCompat
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -56,10 +63,26 @@ import javax.inject.Inject
  *
  * @see OngoingCallScreen
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 class OngoingCallActivity : CallActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
+
+    var conversationId: String? by mutableStateOf(null)
+    var userId: String? by mutableStateOf(null)
+
+    private fun handleNewIntent(intent: Intent) {
+        conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
+        userId = intent.extras?.getString(EXTRA_USER_ID)
+        switchAccountIfNeeded(userId)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNewIntent(intent)
+        setIntent(intent)
+    }
 
     @SuppressLint("UnusedContentLambdaTargetStateParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,9 +92,7 @@ class OngoingCallActivity : CallActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        val conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
-        val userId = intent.extras?.getString(EXTRA_USER_ID)
-        switchAccountIfNeeded(userId)
+        handleNewIntent(intent)
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()
@@ -91,6 +112,7 @@ class OngoingCallActivity : CallActivity() {
                                     TransitionAnimationType.POP_UP.exitTransition
                                 )
                             },
+                            modifier = Modifier.semantics { testTagsAsResourceId = true },
                             label = TAG
                         ) { _ ->
                             OngoingCallScreen(

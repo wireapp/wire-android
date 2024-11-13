@@ -26,7 +26,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 @Composable
 fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
     MenuBottomSheetItem(
-        icon = {
+        leading = {
             MenuItemIcon(
                 id = R.drawable.ic_share_file,
                 contentDescription = stringResource(R.string.content_description_share_the_file),

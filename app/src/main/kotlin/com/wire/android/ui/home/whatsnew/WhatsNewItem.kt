@@ -30,6 +30,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -51,6 +53,7 @@ fun WhatsNewItem(
     title: String? = null,
     boldTitle: Boolean = false,
     text: String? = null,
+    contentDescription: String = "${title ?: ""} ${text ?: ""}",
     @DrawableRes trailingIcon: Int? = null,
     onRowPressed: Clickable = Clickable(false),
     isLoading: Boolean = false,
@@ -84,7 +87,7 @@ fun WhatsNewItem(
             trailingIcon?.let {
                 Icon(
                     painter = painterResource(id = trailingIcon),
-                    contentDescription = "",
+                    contentDescription = null,
                     tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                     modifier = Modifier
                         .defaultMinSize(dimensions().wireIconButtonSize)
@@ -94,7 +97,9 @@ fun WhatsNewItem(
             } ?: Icons.Filled.ChevronRight
         },
         clickable = onRowPressed,
-        modifier = modifier.padding(vertical = dimensions().spacing4x)
+        modifier = modifier
+            .padding(vertical = dimensions().spacing4x)
+            .clearAndSetSemantics { this.contentDescription = contentDescription }
     )
 }
 

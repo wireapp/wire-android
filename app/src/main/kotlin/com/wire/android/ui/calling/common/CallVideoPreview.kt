@@ -32,10 +32,11 @@ import com.waz.avs.CameraPreviewBuilder
 fun CallVideoPreview(
     isCameraOn: Boolean,
     onVideoPreviewCreated: (view: View) -> Unit,
-    onSelfClearVideoPreview: () -> Unit
+    onSelfClearVideoPreview: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     if (isCameraOn) {
-        Box {
+        Box(modifier) {
             val context = LocalContext.current
             AndroidView(
                 modifier = Modifier.fillMaxSize(),

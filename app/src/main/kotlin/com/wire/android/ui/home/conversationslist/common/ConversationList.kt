@@ -25,6 +25,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,7 +51,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -55,7 +59,7 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.flowOf
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "CyclomaticComplexMethod")
 @Composable
 fun ConversationList(
     lazyPagingConversations: LazyPagingItems<ConversationFolderItem>,
@@ -71,6 +75,15 @@ fun ConversationList(
     onAudioPermissionPermanentlyDenied: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    var listScrollState by remember { mutableStateOf(false to 0) }
+    LaunchedEffect(listScrollState) {
+        val (isAtTheTop, _) = listScrollState
+        if (isAtTheTop) {
+            lazyListState.animateScrollToItem(
+                index = 0
+            )
+        }
+    }
 
     LazyColumn(
         state = lazyListState,
@@ -125,7 +138,8 @@ fun ConversationList(
             }
         }
         Snapshot.withoutReadObservation {
-            keepOnTopWhenNotScrolled(lazyListState)
+            val isAtTheTop = lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0
+            listScrollState = isAtTheTop to lazyPagingConversations.itemCount
         }
     }
 }

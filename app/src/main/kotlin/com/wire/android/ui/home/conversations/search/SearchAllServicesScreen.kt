@@ -39,9 +39,15 @@ import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 
 @Composable
 fun SearchAllServicesScreen(
@@ -59,7 +65,6 @@ fun SearchAllServicesScreen(
         onServiceClicked = onServiceClicked,
         result = searchServicesViewModel.state.result,
         lazyListState = lazyListState,
-        error = searchServicesViewModel.state.error,
         isLoading = searchServicesViewModel.state.isLoading
     )
 }
@@ -69,27 +74,23 @@ private fun SearchAllServicesContent(
     searchQuery: String,
     result: ImmutableList<Contact>,
     isLoading: Boolean,
-    error: Boolean,
     onServiceClicked: (Contact) -> Unit,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     when {
         isLoading -> CenteredCircularProgressBarIndicator()
-        error -> SearchFailureBox(failureMessage = R.string.label_general_error)
 
         // TODO(user experience): what to do when user team has no services?
-        result.isEmpty() -> {
-            EmptySearchQueryScreen()
-        }
+        searchQuery.isBlank() && result.isEmpty() -> EmptySearchQueryScreen()
 
-        else -> {
-            SuccessServicesList(
-                searchQuery = searchQuery,
-                onServiceClicked = onServiceClicked,
-                services = result,
-                lazyListState = lazyListState
-            )
-        }
+        searchQuery.isNotBlank() && result.isEmpty() -> SearchFailureBox(R.string.label_no_results_found)
+
+        else -> SuccessServicesList(
+            searchQuery = searchQuery,
+            onServiceClicked = onServiceClicked,
+            services = result,
+            lazyListState = lazyListState
+        )
     }
 }
 
@@ -140,4 +141,47 @@ private fun SuccessServicesList(
             }
         }
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSearchAllServicesScreen_Loading() = WireTheme {
+    SearchAllServicesContent("", persistentListOf(), true, {})
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSearchAllServicesScreen_InitialResults() = WireTheme {
+    SearchAllServicesContent("", previewServiceList(count = 10).toPersistentList(), false, {})
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSearchAllServicesScreen_EmptyInitialResults() = WireTheme {
+    SearchAllServicesContent("", persistentListOf(), false, {})
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSearchAllServicesScreen_SearchResults() = WireTheme {
+    SearchAllServicesContent("Serv", previewServiceList(count = 10).toPersistentList(), false, {})
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSearchAllServicesScreen_EmptySearchResults() = WireTheme {
+    SearchAllServicesContent("Serv", persistentListOf(), false, {})
+}
+
+private fun previewService(index: Int) = Contact(
+    id = index.toString(),
+    domain = "wire.com",
+    name = "Service nr $index",
+    handle = "service_$index",
+    connectionState = ConnectionState.NOT_CONNECTED,
+    membership = Membership.Service,
+)
+
+private fun previewServiceList(count: Int): List<Contact> = buildList {
+    repeat(count) { index -> add(previewService(index)) }
 }

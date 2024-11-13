@@ -33,6 +33,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
@@ -65,6 +67,7 @@ fun SelectableMenuBottomSheetItem(
             .defaultMinSize(minHeight = dimensions().spacing48x)
             .let { if (isSelectedItem(state)) it.background(MaterialTheme.wireColorScheme.secondaryButtonSelected) else it }
             .clickable(onItemClick)
+            .semantics { if (isSelectedItem(state)) selected = true }
             .padding(vertical = dimensions().spacing12x, horizontal = dimensions().spacing16x)
     ) {
         icon()
@@ -93,7 +96,7 @@ fun SelectableMenuBottomSheetItem(
                     .padding(start = dimensions().spacing8x)
                     .align(Alignment.CenterVertically)
             ) {
-                WireCheckIcon(contentDescription = R.string.label_selected)
+                WireCheckIcon(contentDescription = R.string.content_description_empty)
             }
         }
     }

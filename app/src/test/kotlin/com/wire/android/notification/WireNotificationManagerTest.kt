@@ -113,7 +113,7 @@ class WireNotificationManagerTest {
                 userName = TestUser.SELF_USER.handle!!
             )
         }
-        verify(exactly = 0) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
+        verify(exactly = 0) { arrangement.callNotificationManager.handleIncomingCalls(any(), any(), any()) }
     }
 
     // todo: check later with boris!
@@ -142,47 +142,47 @@ class WireNotificationManagerTest {
             advanceUntilIdle()
 
             verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-            verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
+            verify(exactly = 1) { arrangement.callNotificationManager.hideAllIncomingCallNotifications() }
         }
 
     @Test
     fun givenSomeIncomingCall_whenObserving_thenCallHandleIncomingCallNotifications() = runTestWithCancellation(dispatcherProvider.main()) {
-        val userId = provideUserId("user1")
+        val user = TestUser.SELF_USER
         val incomingCalls = listOf(provideCall())
         val (arrangement, manager) = Arrangement()
-            .withSpecificUserSession(userId = userId, incomingCalls = incomingCalls)
+            .withSpecificUserSession(userId = user.id, incomingCalls = incomingCalls)
             .withMessageNotifications(listOf())
             .withCurrentScreen(CurrentScreen.SomeOther())
-            .withCurrentUserSession(CurrentSessionResult.Success(AccountInfo.Valid(userId)))
+            .withCurrentUserSession(CurrentSessionResult.Success(AccountInfo.Valid(user.id)))
             .arrange()
 
-        manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
+        manager.observeNotificationsAndCallsWhileRunning(listOf(user.id), this)
         runCurrent()
 
         verify(exactly = 1) {
-            arrangement.callNotificationManager.handleIncomingCallNotifications(incomingCalls, userId)
+            arrangement.callNotificationManager.handleIncomingCalls(incomingCalls, user.id, user.handle!!)
         }
     }
 
     @Test
     fun givenSomeIncomingCall_whenCurrentUserIsDifferentFromCallReceiver_thenCallHandleIncomingCallNotifications() =
         runTestWithCancellation(dispatcherProvider.main()) {
-            val user1 = provideUserId("user1")
-            val user2 = provideUserId("user2")
+            val user1 = TestUser.SELF_USER.copy(id = provideUserId("user1"))
+            val user2 = TestUser.SELF_USER.copy(id = provideUserId("user2"))
             val incomingCalls = listOf(provideCall())
             val (arrangement, manager) = Arrangement()
-                .withSpecificUserSession(userId = user1, incomingCalls = listOf())
-                .withSpecificUserSession(userId = user2, incomingCalls = incomingCalls)
+                .withSpecificUserSession(userId = user1.id, incomingCalls = listOf())
+                .withSpecificUserSession(userId = user2.id, incomingCalls = incomingCalls)
                 .withMessageNotifications(listOf())
                 .withCurrentScreen(CurrentScreen.SomeOther())
-                .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(user1.value)))
+                .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(user1.id.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(user1, user2), this)
+            manager.observeNotificationsAndCallsWhileRunning(listOf(user1.id, user2.id), this)
             runCurrent()
 
             verify(exactly = 1) {
-                arrangement.callNotificationManager.handleIncomingCallNotifications(incomingCalls, user2)
+                arrangement.callNotificationManager.handleIncomingCalls(incomingCalls, user2.id, user2.handle!!)
             }
         }
 
@@ -209,7 +209,7 @@ class WireNotificationManagerTest {
                     newNotifications = any(), userId = any(), userName = TestUser.SELF_USER.handle!!
                 )
             }
-            verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
+            verify(exactly = 1) { arrangement.callNotificationManager.hideAllIncomingCallNotifications() }
         }
 
     @Test
@@ -236,7 +236,7 @@ class WireNotificationManagerTest {
                     any(), any(), TestUser.SELF_USER.handle!!
                 )
             }
-            verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
+            verify(exactly = 1) { arrangement.callNotificationManager.hideAllIncomingCallNotifications() }
         }
 
     @Test
@@ -1131,7 +1131,7 @@ class WireNotificationManagerTest {
             coEvery { callsScope.getIncomingCalls } returns getIncomingCallsUseCase
             coEvery { callsScope.establishedCall } returns establishedCall
             coEvery { callsScope.observeOutgoingCall } returns observeOutgoingCall
-            coEvery { callNotificationManager.handleIncomingCallNotifications(any(), any()) } returns Unit
+            coEvery { callNotificationManager.handleIncomingCalls(any(), any(), any()) } returns Unit
             coEvery { callNotificationManager.builder.getNotificationTitle(any()) } returns "Test title"
             coEvery { messageScope.getNotifications } returns getNotificationsUseCase
             coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified

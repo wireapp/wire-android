@@ -104,7 +104,7 @@ junit5 = "5.11.0"
 kluent = "1.73"
 mockk = "1.13.10"
 okio = "3.9.0"
-turbine = "1.1.0"
+turbine = "1.2.0"
 robolectric = "4.12.1"
 hamcrest = "2.2"
 

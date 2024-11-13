@@ -25,7 +25,6 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.util.EMPTY
-import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
@@ -148,31 +147,18 @@ class DeepLinkProcessor @Inject constructor(
         }
     }
 
-    /**
-     * TODO(Rewrite)
-     * Wait for definitions of Deeplink processing RFC (https://wearezeta.atlassian.net/wiki/x/AgAsWg)
-     *
-     * REF: WPB-10532
-     */
     private fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean, accountInfo: AccountInfo.Valid): DeepLinkResult {
-        return if (FeatureVisibilityFlags.QRCodeEnabled) {
-            // TODO: Wait for definitions of Deeplink processing RFC (https://wearezeta.atlassian.net/wiki/x/AgAsWg)
-            // TODO: define format of deeplink wire://user/domain/user-id
-            uri.lastPathSegment?.toDefaultQualifiedId(accountInfo.userId.domain)?.let {
-                DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
-            }
-            DeepLinkResult.Unknown
-        } else {
-            DeepLinkResult.Unknown
-        }
+        // todo. handle with domain case, before lastPathSegment. format of deeplink wire://user/domain/user-id
+        return uri.lastPathSegment?.toDefaultQualifiedId(accountInfo.userId.domain)?.let {
+            DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
+        } ?: return DeepLinkResult.Unknown
     }
 
     /**
-     * TODO(Rewrite)
-     * Wait for definitions of Deeplink processing RFC (https://wearezeta.atlassian.net/wiki/x/AgAsWg)
-     * i.e. Define format of deeplink wire://user/domain/user-id
+     * Converts the string to a [QualifiedID] with the current user domain or default, to preserve retro compatibility.
+     * When implementing Milestone 2 this should be replaced with a new qualifiedIdMapper, implementing wire://user/domain/user-id
      *
-     * REF: WPB-10532
+     * - new mapper should follow "domain/user-id" parsing.
      */
     private fun String.toDefaultQualifiedId(currentUserDomain: String?): QualifiedID {
         val domain = currentUserDomain ?: "wire.com"

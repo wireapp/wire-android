@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.destinations.TeamMigrationDoneStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
@@ -56,6 +58,7 @@ import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.CoreFailure
 
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
@@ -66,19 +69,41 @@ fun TeamMigrationConfirmationStepScreen(
     navigator: DestinationsNavigator,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
+    val failureState = remember { mutableStateOf<CoreFailure?>(null) }
 
     TeamMigrationConfirmationStepScreenContent(
         onContinueButtonClicked = {
-            // TODO: call the API to migrate the user to the team, if successful navigate to next screen
-            navigator.navigate(TeamMigrationDoneStepScreenDestination)
+            teamMigrationViewModel.postTeamMigration(
+                onSuccess = { _, _ ->
+                    navigator.navigate(TeamMigrationDoneStepScreenDestination)
+                },
+                onFailure = { failure ->
+                    failureState.value = failure
+                }
+            )
         },
         onBackPressed = {
             navigator.popBackStack()
         }
     )
+
+    handleErrors(failureState)
+
     LaunchedEffect(Unit) {
         teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(3)
     }
+}
+
+@Composable
+private fun handleErrors(failureState: MutableState<CoreFailure?>) {
+    val failure = failureState.value ?: return
+    // TODO handle error WPB-14281
+    CoreFailureErrorDialog(
+        coreFailure = failure,
+        onDialogDismiss = {
+            failureState.value = null
+        }
+    )
 }
 
 @Composable

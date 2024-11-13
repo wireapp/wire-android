@@ -21,14 +21,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.feature.team.migration.MigrateFromPersonalToTeamResult
+import com.wire.kalium.logic.feature.team.migration.MigrateFromPersonalToTeamUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class TeamMigrationViewModel @Inject constructor(
-    private val anonymousAnalyticsManager: AnonymousAnalyticsManager
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
+    private val teamMigrationUseCase: MigrateFromPersonalToTeamUseCase
 ) : ViewModel() {
 
     var teamMigrationState by mutableStateOf(TeamMigrationState())
@@ -80,5 +86,26 @@ class TeamMigrationViewModel @Inject constructor(
                 backToWireButtonClicked = backToWireButtonClicked
             )
         )
+    }
+
+    fun postTeamMigration(
+        onSuccess: (teamId: String, teamName: String) -> Unit,
+        onFailure: (failure: CoreFailure) -> Unit
+    ) {
+        viewModelScope.launch {
+            teamMigrationUseCase.invoke(
+                teamMigrationState.teamNameTextState.text.toString(),
+            ).let { result ->
+                when (result) {
+                    is MigrateFromPersonalToTeamResult.Success -> {
+                        onSuccess(result.teamId, result.teamName)
+                    }
+
+                    is MigrateFromPersonalToTeamResult.Error -> {
+                        onFailure(result.failure)
+                    }
+                }
+            }
+        }
     }
 }

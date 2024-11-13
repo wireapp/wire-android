@@ -19,6 +19,7 @@ package com.wire.android.ui.userprofile.teammigration
 
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.kalium.logic.feature.team.migration.MigrateFromPersonalToTeamUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
@@ -162,12 +163,16 @@ class TeamMigrationViewModelTest {
         @MockK
         lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
 
+        @MockK
+        lateinit var teamMigrationUseCase: MigrateFromPersonalToTeamUseCase
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
         fun arrange() = this to TeamMigrationViewModel(
-            anonymousAnalyticsManager = anonymousAnalyticsManager
+            anonymousAnalyticsManager = anonymousAnalyticsManager,
+            teamMigrationUseCase = teamMigrationUseCase,
         )
     }
 }

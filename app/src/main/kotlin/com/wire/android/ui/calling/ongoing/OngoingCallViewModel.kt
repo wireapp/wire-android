@@ -131,7 +131,7 @@ class OngoingCallViewModel @AssistedInject constructor(
                             CallClient(
                                 userId = uiParticipant.id.toString(),
                                 clientId = uiParticipant.clientId,
-                                callQuality = mapQualityStream(uiParticipant)
+                                quality = mapQualityStream(uiParticipant)
                             )
                         }
                         requestVideoStreams(conversationId, clients)
@@ -153,7 +153,7 @@ class OngoingCallViewModel @AssistedInject constructor(
         doubleTapIndicatorCountDownTimer =
             object : CountDownTimer(DOUBLE_TAP_TOAST_DISPLAY_TIME, COUNT_DOWN_INTERVAL) {
                 override fun onTick(p0: Long) {
-                    appLogger.i("startDoubleTapToastDisplayCountDown: $p0")
+                    appLogger.d("$TAG - startDoubleTapToastDisplayCountDown: $p0")
                 }
 
                 override fun onFinish() {
@@ -188,6 +188,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     }
 
     fun onSelectedParticipant(selectedParticipant: SelectedParticipant) {
+        appLogger.d("$TAG - Selected participant: ${selectedParticipant.toLogString()}")
         this.selectedParticipant = selectedParticipant
     }
 
@@ -195,6 +196,7 @@ class OngoingCallViewModel @AssistedInject constructor(
         const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L
         const val COUNT_DOWN_INTERVAL = 1000L
         const val DELAY_TO_SHOW_DOUBLE_TAP_TOAST = 500L
+        const val TAG = "OngoingCallViewModel"
     }
 
     @AssistedFactory

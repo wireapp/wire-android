@@ -42,7 +42,6 @@ import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationSuccess
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ChangeGroupRoleError
-import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.LoadUserInformationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.MutingOperationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.RemoveConversationMemberError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.UnblockingUserOperationError
@@ -70,8 +69,8 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -189,8 +188,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 .collect { (userResult, groupInfo, oneToOneConversation) ->
                     when (userResult) {
                         is GetUserInfoResult.Failure -> {
-                            appLogger.d("Couldn't not find the user with provided id: $userId")
-                            closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
+                            appLogger.e("Couldn't not find the user with provided id: ${userId.toLogString()}")
+                            updateUserInfoStateForError()
                         }
 
                         is GetUserInfoResult.Success -> {
@@ -368,6 +367,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         } else {
             closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleted)
         }
+    }
+
+    private fun updateUserInfoStateForError() {
+        state = state.copy(
+            isDataLoading = false,
+            isAvatarLoading = false,
+            errorLoadingUser = ErrorLoadingUser.USER_NOT_FOUND
+        )
     }
 
     private fun updateUserInfoState(

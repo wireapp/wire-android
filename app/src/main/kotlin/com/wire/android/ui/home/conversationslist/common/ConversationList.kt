@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -49,13 +50,16 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.flowOf
 
@@ -95,6 +99,7 @@ fun ConversationList(
                 when (it) {
                     is ConversationFolder.Predefined -> "folder_predefined_${context.getString(it.folderNameResId)}"
                     is ConversationFolder.Custom -> "folder_custom_${it.folderName}"
+                    is ConversationFolder.WithoutHeader -> "folder_without_header"
                     is ConversationItem -> it.conversationId.toString()
                 }
             },
@@ -113,12 +118,11 @@ fun ConversationList(
                     }
             ) {
                 when (val item = lazyPagingConversations[index]) {
-                    is ConversationFolder -> FolderHeader(
-                        name = when (item) {
-                            is ConversationFolder.Predefined -> context.getString(item.folderNameResId)
-                            is ConversationFolder.Custom -> item.folderName
-                        },
-                    )
+                    is ConversationFolder -> when (item) {
+                        is ConversationFolder.Predefined -> FolderHeader(context.getString(item.folderNameResId))
+                        is ConversationFolder.Custom -> FolderHeader(item.folderName)
+                        is ConversationFolder.WithoutHeader -> {}
+                    }
 
                     is ConversationItem ->
                         ConversationItemFactory(
@@ -141,6 +145,59 @@ fun ConversationList(
             val isAtTheTop = lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0
             listScrollState = isAtTheTop to lazyPagingConversations.itemCount
         }
+    }
+}
+
+@Deprecated("This is old version without pagination")
+@Suppress("LongParameterList")
+@Composable
+fun ConversationList(
+    conversationListItems: ImmutableMap<ConversationFolder, List<ConversationItem>>,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
+    isSelectableList: Boolean = false,
+    selectedConversations: List<ConversationItem> = emptyList(),
+    onOpenConversation: (ConversationItem) -> Unit = {},
+    onEditConversation: (ConversationItem) -> Unit = {},
+    onOpenUserProfile: (UserId) -> Unit = {},
+    onJoinCall: (ConversationId) -> Unit = {},
+    onConversationSelectedOnRadioGroup: (ConversationId) -> Unit = {},
+    onAudioPermissionPermanentlyDenied: () -> Unit = {}
+) {
+    val context = LocalContext.current
+
+    LazyColumn(
+        state = lazyListState,
+        modifier = modifier.fillMaxSize()
+    ) {
+        conversationListItems.forEach { (conversationFolder, conversationList) ->
+            folderWithElements(
+                header = when (conversationFolder) {
+                    is ConversationFolder.Predefined -> context.getString(conversationFolder.folderNameResId)
+                    is ConversationFolder.Custom -> conversationFolder.folderName
+                    is ConversationFolder.WithoutHeader -> null
+                },
+                items = conversationList.associateBy {
+                    it.conversationId.toString()
+                }
+            ) { generalConversation ->
+                ConversationItemFactory(
+                    conversation = generalConversation,
+                    isSelectableItem = isSelectableList,
+                    isChecked = selectedConversations.contains(generalConversation),
+                    onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(generalConversation.conversationId) },
+                    openConversation = onOpenConversation,
+                    openMenu = onEditConversation,
+                    openUserProfile = onOpenUserProfile,
+                    joinCall = onJoinCall,
+                    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+                )
+            }
+        }
+    }
+
+    SideEffect {
+        keepOnTopWhenNotScrolled(lazyListState)
     }
 }
 

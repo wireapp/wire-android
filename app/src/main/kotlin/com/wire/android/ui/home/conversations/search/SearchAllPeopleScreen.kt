@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,16 +36,15 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ItemActionType
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
+import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
@@ -82,10 +80,15 @@ fun SearchAllPeopleScreen(
     onPublicResultsExpansionChanged: (Boolean) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState()
 ) {
-    if (contactsSearchResult.isEmpty() && publicSearchResult.isEmpty()) {
-        EmptySearchQueryScreen()
-    } else {
-        SearchResult(
+    val emptyResults = contactsSearchResult.isEmpty() && publicSearchResult.isEmpty()
+    when {
+        isLoading -> CenteredCircularProgressBarIndicator()
+
+        searchQuery.isBlank() && emptyResults -> EmptySearchQueryScreen()
+
+        searchQuery.isNotBlank() && emptyResults -> SearchFailureBox(R.string.label_no_results_found)
+
+        else -> SearchResult(
             searchQuery = searchQuery,
             publicSearchResult = publicSearchResult,
             contactsSearchResult = contactsSearchResult,
@@ -94,7 +97,6 @@ fun SearchAllPeopleScreen(
             onOpenUserProfile = onOpenUserProfile,
             lazyListState = lazyListState,
             isSearchActive = isSearchActive,
-            isLoading = isLoading,
             actionType = actionType,
             selectedContactResultsExpanded = selectedContactResultsExpanded,
             onSelectedContactResultsExpansionChanged = onSelectedContactResultsExpansionChanged,
@@ -112,7 +114,6 @@ private fun SearchResult(
     contactsSearchResult: ImmutableList<Contact>,
     publicSearchResult: ImmutableList<Contact>,
     contactsSelectedSearchResult: ImmutableList<Contact>,
-    isLoading: Boolean,
     isSearchActive: Boolean,
     actionType: ItemActionType,
     onChecked: (Boolean, Contact) -> Unit,
@@ -140,8 +141,7 @@ private fun SearchResult(
                     searchTitle = context.getString(R.string.label_selected) + " (${contactsSelectedSearchResult.size})",
                     searchQuery = searchQuery,
                     onChecked = onChecked,
-                    isLoading = isLoading,
-                    contactSearchResult = contactsSelectedSearchResult.map { it to true }.toImmutableList(),
+                    searchResult = contactsSelectedSearchResult.map { it to true }.toImmutableList(),
                     allItemsVisible = true, // for selected contacts we always show all items
                     showMoreOrLessButtonVisible = false,
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllContactsResult,
@@ -157,8 +157,7 @@ private fun SearchResult(
                     searchTitle = context.getString(R.string.label_contacts),
                     searchQuery = searchQuery,
                     onChecked = onChecked,
-                    isLoading = isLoading,
-                    contactSearchResult = contactsSearchResult.map { it to false }.toImmutableList(),
+                    searchResult = contactsSearchResult.map { it to false }.toImmutableList(),
                     allItemsVisible = !isSearchActive || searchPeopleScreenState.contactsAllResultsCollapsed,
                     showMoreOrLessButtonVisible = isSearchActive,
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllContactsResult,
@@ -173,8 +172,7 @@ private fun SearchResult(
                 externalSearchResults(
                     searchTitle = context.getString(R.string.label_public_wire),
                     searchQuery = searchQuery,
-                    contactSearchResult = publicSearchResult,
-                    isLoading = isLoading,
+                    searchResult = publicSearchResult,
                     allItemsVisible = searchPeopleScreenState.publicResultsCollapsed,
                     showMoreOrLessButtonVisible = isSearchActive,
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllPublicResult,
@@ -193,78 +191,6 @@ private fun SearchResult(
 
 @Suppress("LongParameterList")
 private fun LazyListScope.internalSearchResults(
-    searchTitle: String,
-    searchQuery: String,
-    onChecked: (Boolean, Contact) -> Unit,
-    actionType: ItemActionType,
-    isLoading: Boolean,
-    contactSearchResult: ImmutableList<Pair<Contact, Boolean>>,
-    allItemsVisible: Boolean,
-    showMoreOrLessButtonVisible: Boolean,
-    onShowAllButtonClicked: () -> Unit,
-    onOpenUserProfile: (Contact) -> Unit,
-    expanded: Boolean,
-    onExpansionChanged: (Boolean) -> Unit,
-) {
-    when {
-        isLoading -> {
-            inProgressItem()
-        }
-
-        else -> {
-            internalSuccessItem(
-                searchTitle = searchTitle,
-                allItemsVisible = allItemsVisible,
-                showMoreOrLessButtonVisible = showMoreOrLessButtonVisible,
-                onChecked = onChecked,
-                searchResult = contactSearchResult,
-                searchQuery = searchQuery,
-                onShowAllButtonClicked = onShowAllButtonClicked,
-                onOpenUserProfile = onOpenUserProfile,
-                actionType = actionType,
-                expanded = expanded,
-                onExpansionChanged = onExpansionChanged,
-            )
-        }
-    }
-}
-
-@Suppress("LongParameterList")
-private fun LazyListScope.externalSearchResults(
-    searchTitle: String,
-    searchQuery: String,
-    contactSearchResult: ImmutableList<Contact>,
-    isLoading: Boolean,
-    allItemsVisible: Boolean,
-    showMoreOrLessButtonVisible: Boolean,
-    onShowAllButtonClicked: () -> Unit,
-    onOpenUserProfile: (Contact) -> Unit,
-    expanded: Boolean,
-    onExpansionChanged: (Boolean) -> Unit,
-) {
-    when {
-        isLoading -> {
-            inProgressItem()
-        }
-
-        else -> {
-            externalSuccessItem(
-                searchTitle = searchTitle,
-                allItemsVisible = allItemsVisible,
-                showMoreOrLessButtonVisible = showMoreOrLessButtonVisible,
-                searchResult = contactSearchResult,
-                searchQuery = searchQuery,
-                onShowAllButtonClicked = onShowAllButtonClicked,
-                onOpenUserProfile = onOpenUserProfile,
-                expanded = expanded,
-                onExpansionChanged = onExpansionChanged,
-            )
-        }
-    }
-}
-
-@Suppress("LongParameterList")
-private fun LazyListScope.internalSuccessItem(
     searchTitle: String,
     allItemsVisible: Boolean,
     showMoreOrLessButtonVisible: Boolean,
@@ -330,7 +256,7 @@ private fun LazyListScope.internalSuccessItem(
 }
 
 @Suppress("LongParameterList")
-private fun LazyListScope.externalSuccessItem(
+private fun LazyListScope.externalSearchResults(
     searchTitle: String,
     allItemsVisible: Boolean,
     showMoreOrLessButtonVisible: Boolean,
@@ -383,23 +309,6 @@ private fun LazyListScope.externalSuccessItem(
     }
 }
 
-fun LazyListScope.inProgressItem() {
-    item {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(224.dp)
-        ) {
-            WireCircularProgressIndicator(
-                progressColor = Color.Black,
-                modifier = Modifier.align(
-                    Alignment.Center
-                )
-            )
-        }
-    }
-}
-
 @Composable
 private fun ShowButton(
     isShownAll: Boolean,
@@ -445,10 +354,11 @@ fun PreviewSearchAllPeopleScreen_Loading() = WireTheme {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewSearchAllPeopleScreen_EmptyList() = WireTheme {
+fun PreviewSearchAllPeopleScreen_InitialResults() = WireTheme {
+    val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true)
     SearchAllPeopleScreen(
-        searchQuery = "Search query",
-        contactsSearchResult = persistentListOf(),
+        searchQuery = "",
+        contactsSearchResult = contacts,
         publicSearchResult = persistentListOf(),
         contactsSelectedSearchResult = persistentListOf(),
         isLoading = false,
@@ -461,11 +371,10 @@ fun PreviewSearchAllPeopleScreen_EmptyList() = WireTheme {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewSearchAllPeopleScreen_NoSearch() = WireTheme {
-    val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true)
+fun PreviewSearchAllPeopleScreen_EmptyInitialResults() = WireTheme {
     SearchAllPeopleScreen(
         searchQuery = "",
-        contactsSearchResult = contacts,
+        contactsSearchResult = persistentListOf(),
         publicSearchResult = persistentListOf(),
         contactsSelectedSearchResult = persistentListOf(),
         isLoading = false,
@@ -510,6 +419,23 @@ fun PreviewSearchAllPeopleScreen_SearchResults_TypeCheck() = WireTheme {
         actionType = ItemActionType.CHECK,
         onChecked = { _, _ -> },
         onOpenUserProfile = { },
+        selectedContactResultsExpanded = true,
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSearchAllPeopleScreen_EmptySearchResults() = WireTheme {
+    SearchAllPeopleScreen(
+        searchQuery = "Con",
+        contactsSearchResult = persistentListOf(),
+        publicSearchResult = persistentListOf(),
+        contactsSelectedSearchResult = persistentListOf(),
+        isLoading = false,
+        isSearchActive = true,
+        actionType = ItemActionType.CLICK,
+        onChecked = { _, _ -> },
+        onOpenUserProfile = {},
         selectedContactResultsExpanded = true,
     )
 }

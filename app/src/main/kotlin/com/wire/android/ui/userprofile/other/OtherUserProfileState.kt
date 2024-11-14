@@ -54,7 +54,8 @@ data class OtherUserProfileState(
     val isUnderLegalHold: Boolean = false,
     val isConversationStarted: Boolean = false,
     val expiresAt: Instant? = null,
-    val accentId: Int = -1
+    val accentId: Int = -1,
+    val errorLoadingUser: ErrorLoadingUser? = null
 ) {
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {
@@ -96,3 +97,8 @@ data class OtherUserProfileGroupState(
     val isSelfAdmin: Boolean,
     val conversationId: ConversationId
 )
+
+enum class ErrorLoadingUser {
+    UNKNOWN, // We might want to expand other errors here as dialogs, ie: federation fallback.
+    USER_NOT_FOUND,
+}

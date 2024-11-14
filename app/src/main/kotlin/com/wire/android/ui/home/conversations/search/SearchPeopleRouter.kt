@@ -155,7 +155,6 @@ fun SearchUsersAndServicesScreen(
                                         onOpenUserProfile = onOpenUserProfile,
                                         onContactChecked = onContactChecked,
                                         isSearchActive = isSearchActive,
-                                        isLoading = false, // TODO: update correctly
                                         actionType = actionType,
                                     )
                                 }
@@ -176,7 +175,6 @@ fun SearchUsersAndServicesScreen(
                         onContactChecked = onContactChecked,
                         onOpenUserProfile = onOpenUserProfile,
                         isSearchActive = isSearchActive,
-                        isLoading = false, // TODO: update correctly
                         actionType = actionType,
                     )
                 }
@@ -236,7 +234,6 @@ enum class SearchPeopleScreenType {
 private fun SearchAllPeopleOrContactsScreen(
     searchQuery: String,
     contactsAddedToGroup: ImmutableSet<Contact>,
-    isLoading: Boolean,
     isSearchActive: Boolean,
     actionType: ItemActionType,
     onOpenUserProfile: (Contact) -> Unit,
@@ -258,7 +255,7 @@ private fun SearchAllPeopleOrContactsScreen(
         onOpenUserProfile = onOpenUserProfile,
         lazyListState = lazyState,
         isSearchActive = isSearchActive,
-        isLoading = isLoading,
+        isLoading = searchUserViewModel.state.isLoading,
         actionType = actionType,
     )
 }

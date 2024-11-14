@@ -61,7 +61,7 @@ class SearchUserViewModel @Inject constructor(
     }
 
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
-    var state: SearchUserState by mutableStateOf(SearchUserState())
+    var state: SearchUserState by mutableStateOf(SearchUserState(isLoading = true))
         private set
 
     init {
@@ -99,6 +99,7 @@ class SearchUserViewModel @Inject constructor(
             customDomain = domain
         ).also { userSearchEntities ->
             state = state.copy(
+                isLoading = false,
                 contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
                 publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList(),
                 searchQuery = searchTerm
@@ -113,6 +114,7 @@ class SearchUserViewModel @Inject constructor(
             customDomain = domain
         ).also { userSearchEntities ->
             state = state.copy(
+                isLoading = false,
                 contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
                 publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList(),
                 searchQuery = searchTerm
@@ -125,4 +127,5 @@ data class SearchUserState(
     val contactsResult: ImmutableList<Contact> = persistentListOf(),
     val publicResult: ImmutableList<Contact> = persistentListOf(),
     val searchQuery: String = String.EMPTY,
+    val isLoading: Boolean = false,
 )

@@ -33,6 +33,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireDestination
@@ -62,7 +63,7 @@ fun SettingsScreen(
 
     val context = LocalContext.current
     SettingsScreenContent(
-        lazyListState = homeStateHolder.currentLazyListState,
+        lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Settings),
         settingsState = viewModel.state,
         onItemClicked = remember {
             {

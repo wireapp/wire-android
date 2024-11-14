@@ -40,12 +40,18 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
             context,
             analyticsSettings.countlyAppKey,
             analyticsSettings.countlyServerUrl
-        )
-            .enableTemporaryDeviceIdMode() // Nothing is sent until a proper ID is placed
-            .setLoggingEnabled(analyticsSettings.enableDebugLogging)
-        countlyConfig.apm.enableAppStartTimeTracking()
-        countlyConfig.apm.enableForegroundBackgroundTracking()
-        countlyConfig.setApplication(context.applicationContext as Application)
+        ).apply {
+            setApplication(context.applicationContext as Application)
+            enableTemporaryDeviceIdMode() // Nothing is sent until a proper ID is placed
+            setLoggingEnabled(analyticsSettings.enableDebugLogging)
+            crashes.apply {
+                enableCrashReporting()
+            }
+            apm.apply {
+                enableAppStartTimeTracking()
+                enableForegroundBackgroundTracking()
+            }
+        }
 
         Countly.sharedInstance().init(countlyConfig)
         Countly.sharedInstance().consent().giveConsent(arrayOf("apm"))

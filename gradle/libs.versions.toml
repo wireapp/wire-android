@@ -76,7 +76,7 @@ rss-parser = "6.0.7"
 dataDog = "1.19.3"
 
 # Lint
-lint-compose = "1.3.1"
+lint-compose = "1.4.2"
 
 #OAuth
 openIdAppAuth = "0.11.1"

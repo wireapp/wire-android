@@ -44,8 +44,7 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.MAIN,
-<<<<<<< HEAD
-            lazyListState = currentLazyListState,
+            lazyListState = lazyListStateFor(HomeDestination.Conversations),
             emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.ALL) }
         )
     }
@@ -60,7 +59,7 @@ fun FavoritesConversationsScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.FAVORITES,
-            lazyListState = currentLazyListState,
+            lazyListState = lazyListStateFor(HomeDestination.Favorites),
             emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.FAVORITES) }
         )
     }
@@ -75,7 +74,7 @@ fun GroupConversationsScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.GROUPS,
-            lazyListState = currentLazyListState,
+            lazyListState = lazyListStateFor(HomeDestination.Group),
             emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.GROUPS) }
         )
     }
@@ -90,12 +89,8 @@ fun OneOnOneConversationsScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.ONE_ON_ONE,
-            lazyListState = currentLazyListState,
+            lazyListState = lazyListStateFor(HomeDestination.OneOnOne),
             emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.ONE_ON_ONE, domain = it) }
-=======
-            lazyListState = lazyListStateFor(HomeDestination.Conversations),
-            emptyListContent = { AllConversationsEmptyContent() }
->>>>>>> 3a0040700 (fix: blank lists or flickering on Home Destinations - wrong lazyListStates [WPB-14276] (#3627))
         )
     }
 }

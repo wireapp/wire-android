@@ -90,7 +90,6 @@ class TeamMigrationViewModel @Inject constructor(
 
     fun postTeamMigration(
         onSuccess: (teamId: String, teamName: String) -> Unit,
-        onFailure: (failure: CoreFailure) -> Unit
     ) {
         viewModelScope.launch {
             teamMigrationUseCase.invoke(
@@ -102,10 +101,18 @@ class TeamMigrationViewModel @Inject constructor(
                     }
 
                     is MigrateFromPersonalToTeamResult.Error -> {
-                        onFailure(result.failure)
+                        onMigrationFailure(result.failure)
                     }
                 }
             }
         }
+    }
+
+    fun failureHandled() {
+        teamMigrationState = teamMigrationState.copy(migrationFailure = null)
+    }
+
+    private fun onMigrationFailure(failure: CoreFailure) {
+        teamMigrationState = teamMigrationState.copy(migrationFailure = failure)
     }
 }

@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -53,12 +52,12 @@ import com.wire.android.ui.destinations.TeamMigrationDoneStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
+import com.wire.android.ui.userprofile.teammigration.TeamMigrationState
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.CoreFailure
 
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
@@ -69,7 +68,7 @@ fun TeamMigrationConfirmationStepScreen(
     navigator: DestinationsNavigator,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
-    val failureState = remember { mutableStateOf<CoreFailure?>(null) }
+    val state = remember { teamMigrationViewModel.teamMigrationState }
 
     TeamMigrationConfirmationStepScreenContent(
         onContinueButtonClicked = {
@@ -77,9 +76,6 @@ fun TeamMigrationConfirmationStepScreen(
                 onSuccess = { _, _ ->
                     navigator.navigate(TeamMigrationDoneStepScreenDestination)
                 },
-                onFailure = { failure ->
-                    failureState.value = failure
-                }
             )
         },
         onBackPressed = {
@@ -87,7 +83,7 @@ fun TeamMigrationConfirmationStepScreen(
         }
     )
 
-    handleErrors(failureState)
+    handleErrors(state, teamMigrationViewModel)
 
     LaunchedEffect(Unit) {
         teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(3)
@@ -95,13 +91,16 @@ fun TeamMigrationConfirmationStepScreen(
 }
 
 @Composable
-private fun handleErrors(failureState: MutableState<CoreFailure?>) {
-    val failure = failureState.value ?: return
+private fun handleErrors(
+    teamMigrationState: TeamMigrationState,
+    teamMigrationViewModel: TeamMigrationViewModel
+) {
+    val failure = teamMigrationState.migrationFailure ?: return
     // TODO handle error WPB-14281
     CoreFailureErrorDialog(
         coreFailure = failure,
         onDialogDismiss = {
-            failureState.value = null
+            teamMigrationViewModel.failureHandled()
         }
     )
 }

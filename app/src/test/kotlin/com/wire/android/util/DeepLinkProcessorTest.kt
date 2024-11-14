@@ -244,6 +244,20 @@ class DeepLinkProcessorTest {
         assertEquals(DeepLinkResult.SharingIntent, result)
     }
 
+    @Test
+    fun `given an other profile deeplink from QR code, returns Conversation with conversationId`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withOtherUserProfileQRDeepLink(userIdToOpen = OTHER_USER_ID, userId = CURRENT_USER_ID)
+            .withCurrentSessionSuccess(CURRENT_USER_ID)
+            .arrange()
+        val conversationResult = deepLinkProcessor(arrangement.uri, false)
+        assertInstanceOf(DeepLinkResult.OpenOtherUserProfile::class.java, conversationResult)
+        assertEquals(
+            DeepLinkResult.OpenOtherUserProfile(UserId("other_user", "domain"), false),
+            conversationResult
+        )
+    }
+
     class Arrangement {
 
         @MockK
@@ -315,6 +329,12 @@ class DeepLinkProcessorTest {
         fun withOtherUserProfileDeepLink(userIdToOpen: UserId = OTHER_USER_ID, userId: UserId = CURRENT_USER_ID) = apply {
             coEvery { uri.host } returns DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST
             coEvery { uri.lastPathSegment } returns userIdToOpen.toString()
+            coEvery { uri.getQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM) } returns userId.toString()
+        }
+
+        fun withOtherUserProfileQRDeepLink(userIdToOpen: UserId = OTHER_USER_ID, userId: UserId = CURRENT_USER_ID) = apply {
+            coEvery { uri.host } returns DeepLinkProcessor.OPEN_USER_PROFILE_DEEPLINK_HOST
+            coEvery { uri.lastPathSegment } returns userIdToOpen.value
             coEvery { uri.getQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM) } returns userId.toString()
         }
 

@@ -25,9 +25,12 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -45,6 +48,7 @@ class ConversationAudioMessagePlayerTest {
         val (arrangement, conversationAudioMessagePlayer) = Arrangement()
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withSuccessFullAssetFetch()
+            .withCurrentSession()
             .arrange()
 
         val testAudioMessageId = "some-dummy-message-id"
@@ -95,6 +99,7 @@ class ConversationAudioMessagePlayerTest {
     fun givenTheSuccessFullAssetFetch_whenPlayingTheSameMessageIdTwiceSequentially_thenEmitStatesAsExpected() = runTest {
         val (arrangement, conversationAudioMessagePlayer) = Arrangement()
             .withSuccessFullAssetFetch()
+            .withCurrentSession()
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withMediaPlayerPlaying()
             .arrange()
@@ -161,6 +166,7 @@ class ConversationAudioMessagePlayerTest {
         runTest {
             val (arrangement, conversationAudioMessagePlayer) = Arrangement()
                 .withSuccessFullAssetFetch()
+                .withCurrentSession()
                 .withAudioMediaPlayerReturningTotalTime(1000)
                 .arrange()
 
@@ -242,6 +248,7 @@ class ConversationAudioMessagePlayerTest {
         runTest {
             val (arrangement, conversationAudioMessagePlayer) = Arrangement()
                 .withSuccessFullAssetFetch()
+                .withCurrentSession()
                 .withAudioMediaPlayerReturningTotalTime(1000)
                 .arrange()
 
@@ -366,6 +373,7 @@ class ConversationAudioMessagePlayerTest {
         runTest {
             val (arrangement, conversationAudioMessagePlayer) = Arrangement()
                 .withSuccessFullAssetFetch()
+                .withCurrentSession()
                 .withAudioMediaPlayerReturningTotalTime(1000)
                 .withMediaPlayerPlaying()
                 .arrange()
@@ -454,7 +462,7 @@ class Arrangement {
     lateinit var context: Context
 
     @MockK
-    lateinit var getMessageAssetUseCase: GetMessageAssetUseCase
+    lateinit var coreLogic: CoreLogic
 
     @MockK
     lateinit var mediaPlayer: MediaPlayer
@@ -463,7 +471,7 @@ class Arrangement {
         ConversationAudioMessagePlayer(
             context,
             mediaPlayer,
-            getMessageAssetUseCase,
+            coreLogic,
         )
     }
 
@@ -471,8 +479,16 @@ class Arrangement {
         MockKAnnotations.init(this, relaxed = true)
     }
 
+    fun withCurrentSession() = apply {
+        coEvery { coreLogic.getGlobalScope().session.currentSession.invoke() } returns CurrentSessionResult.Success(
+            AccountInfo.Valid(UserId("some-user-value", "some.user.domain"))
+        )
+    }
+
     fun withSuccessFullAssetFetch() = apply {
-        coEvery { getMessageAssetUseCase.invoke(any(), any()) } returns CompletableDeferred(
+        coEvery {
+            coreLogic.getSessionScope(any()).messages.getAssetMessage.invoke(any<ConversationId>(), any<String>())
+        } returns CompletableDeferred(
             MessageAssetResult.Success(
                 decodedAssetPath = FakeKaliumFileSystem().selfUserAvatarPath(),
                 assetSize = 0,

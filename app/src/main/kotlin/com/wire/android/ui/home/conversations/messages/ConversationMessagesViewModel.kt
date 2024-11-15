@@ -434,11 +434,6 @@ class ConversationMessagesViewModel @Inject constructor(
             }
         }
 
-    override fun onCleared() {
-        super.onCleared()
-        conversationAudioMessagePlayer.close()
-    }
-
     private companion object {
         const val DEFAULT_ASSET_NAME = "Wire File"
         const val CURRENT_TIME_REFRESH_WINDOW_IN_MILLIS: Long = 60_000

@@ -232,9 +232,7 @@ class ConversationAudioMessagePlayer
                             )
                             audioMediaPlayer.prepare()
 
-                            if (position != null) {
-                                audioMediaPlayer.seekTo(position)
-                            }
+                            if (position != null) audioMediaPlayer.seekTo(position)
 
                             audioMediaPlayer.start()
 

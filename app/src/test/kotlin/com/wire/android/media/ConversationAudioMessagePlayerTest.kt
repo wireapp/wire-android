@@ -54,6 +54,8 @@ class ConversationAudioMessagePlayerTest {
         val testAudioMessageId = "some-dummy-message-id"
 
         conversationAudioMessagePlayer.observableAudioMessagesState.test {
+            // skip first emit from onStart
+            awaitItem()
             conversationAudioMessagePlayer.playAudio(
                 ConversationId("some-dummy-value", "some.dummy.domain"),
                 testAudioMessageId
@@ -107,6 +109,8 @@ class ConversationAudioMessagePlayerTest {
         val testAudioMessageId = "some-dummy-message-id"
 
         conversationAudioMessagePlayer.observableAudioMessagesState.test {
+            // skip first emit from onStart
+            awaitItem()
             // playing first time
             conversationAudioMessagePlayer.playAudio(
                 ConversationId("some-dummy-value", "some.dummy.domain"),
@@ -174,6 +178,8 @@ class ConversationAudioMessagePlayerTest {
             val secondAudioMessageId = "some-dummy-message-id2"
 
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
+                // skip first emit from onStart
+                awaitItem()
                 // playing first audio message
                 conversationAudioMessagePlayer.playAudio(
                     ConversationId("some-dummy-value", "some.dummy.domain"),
@@ -256,6 +262,8 @@ class ConversationAudioMessagePlayerTest {
             val secondAudioMessageId = "some-dummy-message-id2"
 
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
+                // skip first emit from onStart
+                awaitItem()
                 // playing first audio message
                 conversationAudioMessagePlayer.playAudio(
                     ConversationId("some-dummy-value", "some.dummy.domain"),
@@ -381,6 +389,8 @@ class ConversationAudioMessagePlayerTest {
             val testAudioMessageId = "some-dummy-message-id"
 
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
+                // skip first emit from onStart
+                awaitItem()
                 // playing first time
                 conversationAudioMessagePlayer.playAudio(
                     ConversationId("some-dummy-value", "some.dummy.domain"),

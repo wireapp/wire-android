@@ -209,6 +209,7 @@ fun EnabledMessageComposer(
                             onValueChange = {
                                 inputStateHolder.messageTextFieldValue.value = it
                             },
+                            mentions = (messageComposition.value.selectedMentions),
                             isTextExpanded = inputStateHolder.isTextExpanded,
                             inputType = messageCompositionInputStateHolder.inputType,
                             focusRequester = messageCompositionInputStateHolder.focusRequester,

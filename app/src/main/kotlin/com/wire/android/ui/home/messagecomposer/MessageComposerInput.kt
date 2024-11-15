@@ -68,6 +68,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
+import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModel
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
@@ -87,6 +88,7 @@ fun ActiveMessageComposerInput(
     messageComposition: MessageComposition,
     messageTextFieldValue: State<TextFieldValue>,
     onValueChange: (TextFieldValue) -> Unit,
+    mentions: List<UIMention>,
     isTextExpanded: Boolean,
     inputType: InputType,
     focusRequester: FocusRequester,
@@ -131,6 +133,7 @@ fun ActiveMessageComposerInput(
             conversationId = conversationId,
             messageTextFieldValue = messageTextFieldValue,
             onValueChange = onValueChange,
+            mentions = mentions,
             isTextExpanded = isTextExpanded,
             inputType = inputType,
             focusRequester = focusRequester,
@@ -169,6 +172,7 @@ private fun InputContent(
     conversationId: ConversationId,
     messageTextFieldValue: State<TextFieldValue>,
     onValueChange: (TextFieldValue) -> Unit,
+    mentions: List<UIMention>,
     isTextExpanded: Boolean,
     inputType: InputType,
     focusRequester: FocusRequester,
@@ -213,6 +217,7 @@ private fun InputContent(
             colors = inputType.inputTextColor(isSelfDeleting = viewModel.state().duration != null),
             messageTextFieldValue = messageTextFieldValue,
             onValueChange = onValueChange,
+            mentions = mentions,
             placeHolderText = viewModel.state().duration?.let { stringResource(id = R.string.self_deleting_message_label) }
                 ?: inputType.labelText(),
             onFocused = onFocused,
@@ -269,6 +274,7 @@ private fun InputContent(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun MessageComposerTextInput(
+    mentions: List<UIMention>,
     isTextExpanded: Boolean,
     focusRequester: FocusRequester,
     colors: WireTextFieldColors,
@@ -293,6 +299,7 @@ private fun MessageComposerTextInput(
     WireTextField(
         textFieldValue = messageTextFieldValue,
         onValueChange = onValueChange,
+        mentions = mentions,
         colors = colors,
         textStyle = MaterialTheme.wireTypography.body01,
         // Add an extra space so that the cursor is placed one space before "Type a message"
@@ -359,6 +366,7 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
     ActiveMessageComposerInput(
         conversationId = ConversationId("conversationId", "domain"),
         messageComposition = MessageComposition(ConversationId("conversationId", "domain")),
+        mentions = emptyList(),
         messageTextFieldValue = remember { mutableStateOf(TextFieldValue()) },
         onValueChange = {},
         isTextExpanded = isTextExpanded,

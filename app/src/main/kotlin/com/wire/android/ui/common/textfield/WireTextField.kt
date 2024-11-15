@@ -52,16 +52,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -168,11 +170,40 @@ internal fun WireTextField(
     )
 }
 
+private fun handleMentionDeletion(
+    oldText: String,
+    newText: String,
+    oldSelection: TextRange,
+    mentions: List<UIMention>
+): String {
+    if (oldText == newText) {
+        // No change in text, only cursor movement, return as is
+        return oldText
+    }
+    for (mention in mentions) {
+        // Find the start position of the mention in the text
+        val mentionStart = oldText.indexOf(mention.handler)
+
+        // If mentionStart is -1, it means the mention is no longer present in the text, skip it
+        if (mentionStart == -1) continue
+
+        val mentionEnd = mentionStart + mention.length
+
+        // Check if the selection (i.e., user's cursor position) is inside the mention's range
+        if (oldSelection.start in mentionStart + 1..mentionEnd && oldSelection.end in mentionStart..mentionEnd) {
+            // If the user is deleting inside the mention, remove the entire mention
+            return oldText.removeRange(mentionStart, mentionEnd)
+        }
+    }
+    return newText
+}
+
 @Composable
 internal fun WireTextField(
     textFieldValue: State<TextFieldValue>,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
+    mentions: List<UIMention> = emptyList(),
     placeholderText: String? = null,
     labelText: String? = null,
     labelMandatoryIcon: Boolean = false,
@@ -220,7 +251,12 @@ internal fun WireTextField(
         innerBasicTextField = { _, textFieldModifier, decoratorBox ->
             BasicTextField(
                 value = textFieldValue.value,
-                onValueChange = onValueChange,
+                onValueChange = { newText ->
+                    val mentionsByName = mentions.map { it.handler }
+                    val updatedText =
+                        MentionDeletionHandler.handle(textFieldValue.value.text, newText.text, textFieldValue.value.selection, mentionsByName)
+                    onValueChange(TextFieldValue(updatedText, newText.selection))
+                },
                 textStyle = textStyle.copy(
                     color = colors.textColor(state = state).value,
                     textDirection = TextDirection.ContentOrLtr
@@ -241,7 +277,7 @@ internal fun WireTextField(
                     onSelectedLineIndexChanged,
                     onLineBottomYCoordinateChanged
                 ),
-                visualTransformation = VisualTransformation.None
+                visualTransformation = MentionVisualTransformation(colorsScheme().primary, mentions),
             )
         }
     )

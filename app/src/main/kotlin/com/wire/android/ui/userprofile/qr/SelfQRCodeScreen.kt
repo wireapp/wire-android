@@ -188,7 +188,7 @@ private fun SelfQRCodeContent(
                 VerticalSpace.x16()
                 Text(
                     modifier = Modifier.padding(horizontal = dimensions().spacing24x),
-                    text = state.userProfileLink,
+                    text = state.userAccountProfileLink,
                     style = MaterialTheme.wireTypography.subline01,
                     color = Color.Black,
                     textAlign = TextAlign.Center

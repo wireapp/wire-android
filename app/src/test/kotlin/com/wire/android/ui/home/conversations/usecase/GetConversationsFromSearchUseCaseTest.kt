@@ -26,7 +26,10 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
+import com.wire.kalium.logic.data.conversation.ConversationFilter
+import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
+import com.wire.kalium.logic.data.conversation.FolderType
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
@@ -82,6 +85,37 @@ class GetConversationsFromSearchUseCaseTest {
         }
     }
 
+    @Test
+    fun givenFavoritesFilter_whenGettingConversations_thenObserveConversationsFromFolder() = runTest(dispatcherProvider.main()) {
+        // Given
+        val favoriteFolderId = "folder_id"
+        val folderResult = GetFavoriteFolderUseCase.Result.Success(
+            folder = ConversationFolder(id = favoriteFolderId, name = "", FolderType.FAVORITE)
+        )
+        val conversationsList = listOf(
+            ConversationDetailsWithEvents(TestConversationDetails.CONVERSATION_ONE_ONE)
+        )
+
+        val (arrangement, useCase) = Arrangement()
+            .withFavoriteFolderResult(folderResult)
+            .withFolderConversationsResult(conversationsList)
+            .arrange()
+
+        // When
+        useCase(
+            searchQuery = "",
+            fromArchive = false,
+            newActivitiesOnTop = false,
+            onlyInteractionEnabled = false,
+            conversationFilter = ConversationFilter.FAVORITES
+        ).asSnapshot()
+
+        // Then
+        coVerify(exactly = 1) { arrangement.getFavoriteFolderUseCase.invoke() }
+        coVerify(exactly = 1) { arrangement.observeConversationsFromFolderUseCase.invoke(favoriteFolderId) }
+        coVerify(exactly = 0) { arrangement.useCase(any(), any(), any()) }
+    }
+
     inner class Arrangement {
 
         @MockK
@@ -116,6 +150,16 @@ class GetConversationsFromSearchUseCaseTest {
             coEvery {
                 useCase.invoke(any(), any(), any())
             } returns flowOf(PagingData.from(conversations))
+        }
+
+        fun withFavoriteFolderResult(result: GetFavoriteFolderUseCase.Result) = apply {
+            coEvery { getFavoriteFolderUseCase.invoke() } returns result
+        }
+
+        fun withFolderConversationsResult(conversations: List<ConversationDetailsWithEvents>) = apply {
+            coEvery {
+                observeConversationsFromFolderUseCase.invoke(any())
+            } returns flowOf(conversations)
         }
 
         fun arrange() = this to GetConversationsFromSearchUseCase(

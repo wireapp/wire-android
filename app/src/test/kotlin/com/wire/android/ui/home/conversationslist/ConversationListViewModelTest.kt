@@ -37,6 +37,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -277,7 +278,7 @@ class ConversationListViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withConversationsPaginated(listOf(TestConversationItem.CONNECTION, TestConversationItem.PRIVATE, TestConversationItem.GROUP))
             withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Disabled)
-            coEvery { observeConversationListDetailsWithEventsUseCase.invoke(false) } returns flowOf(
+            coEvery { observeConversationListDetailsWithEventsUseCase.invoke(false, ConversationFilter.ALL) } returns flowOf(
                 listOf(
                     TestConversationDetails.CONNECTION,
                     TestConversationDetails.CONVERSATION_ONE_ONE,

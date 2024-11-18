@@ -23,4 +23,6 @@
     <string name="content_description_close_button">Bezárás gomb</string>
     <string name="content_description_menu_button">Menü gomb</string>
     <string name="content_description_drop_down_icon">Lefelé nyíló ikon</string>
+    <string name="content_description_pending_connection_badge">kapcsolatkérelem jóváhagyása függőben</string>
+    <string name="content_description_alert">Riasztás</string>
 </resources>

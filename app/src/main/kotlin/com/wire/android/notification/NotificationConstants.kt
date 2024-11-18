@@ -23,7 +23,7 @@ import com.wire.kalium.logic.data.user.UserId
 // TODO: The names need to be localisable
 object NotificationConstants {
 
-    private const val INCOMING_CALL_CHANNEL_ID = "com.wire.android.notification_incoming_call_channel"
+    const val INCOMING_CALL_CHANNEL_ID = "com.wire.android.notification_incoming_call_channel"
     private const val OUTGOING_CALL_CHANNEL_ID = "com.wire.android.notification_outgoing_call_channel"
     const val INCOMING_CALL_CHANNEL_NAME = "Incoming calls"
     const val OUTGOING_CALL_CHANNEL_NAME = "Outgoing call"
@@ -52,6 +52,9 @@ object NotificationConstants {
     // MessagesSummaryNotification ID depends on User, use fun getMessagesSummaryId(userId: UserId) to get it
     private const val MESSAGE_SUMMARY_ID_STRING = "wire_messages_summary_notification"
 
+    private const val INCOMING_CALL_TAG_PREFIX = "wire_incoming_call_tag_"
+    const val INCOMING_CALL_ID_PREFIX = "wire_incoming_call_"
+
     fun getConversationNotificationId(conversationIdString: String, userIdString: String) = (conversationIdString + userIdString).hashCode()
     fun getMessagesGroupKey(userId: UserId?): String = "$MESSAGE_GROUP_KEY_PREFIX${userId?.toString() ?: ""}"
     fun getMessagesSummaryId(userId: UserId): Int = "$MESSAGE_SUMMARY_ID_STRING$userId".hashCode()
@@ -60,6 +63,10 @@ object NotificationConstants {
     fun getPingsChannelId(userId: UserId): String = getChanelIdForUser(userId, PING_CHANNEL_ID)
     fun getIncomingChannelId(userId: UserId): String = getChanelIdForUser(userId, INCOMING_CALL_CHANNEL_ID)
     fun getOutgoingChannelId(userId: UserId): String = getChanelIdForUser(userId, OUTGOING_CALL_CHANNEL_ID)
+    fun getIncomingCallId(userIdString: String, conversationIdString: String): Int =
+        "$INCOMING_CALL_ID_PREFIX${userIdString}_$conversationIdString".hashCode()
+
+    fun getIncomingCallTag(userIdString: String): String = "$INCOMING_CALL_TAG_PREFIX$userIdString"
 
     /**
      * @return NotificationChannelId [String] specific for user, use it to post a notifications.
@@ -72,7 +79,12 @@ object NotificationConstants {
 
 // Notification IDs (has to be unique!)
 enum class NotificationIds {
-    CALL_INCOMING_NOTIFICATION_ID,
+    @Suppress("unused")
+    @Deprecated(
+        message = "Do not use it, it's here just because we use .ordinal as ID and ID for the foreground service notification cannot be 0",
+        level = DeprecationLevel.ERROR
+    )
+    ZERO_ID,
     CALL_OUTGOING_ONGOING_NOTIFICATION_ID,
     PERSISTENT_NOTIFICATION_ID,
     MESSAGE_SYNC_NOTIFICATION_ID,

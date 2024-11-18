@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireDestination
@@ -51,7 +52,7 @@ fun WhatsNewScreen(
     val context = LocalContext.current
     WhatsNewScreenContent(
         state = whatsNewViewModel.state,
-        lazyListState = homeStateHolder.currentLazyListState,
+        lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.WhatsNew),
         onItemClicked = remember {
             {
                 it.direction.handleNavigation(

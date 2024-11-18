@@ -19,6 +19,7 @@ package com.wire.android.notification
 
 import android.app.Notification
 import android.content.Context
+import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.notification.CallNotificationManager.Companion.DEBOUNCE_TIME
@@ -47,20 +48,21 @@ class CallNotificationManagerTest {
     val dispatcherProvider = TestDispatcherProvider()
 
     @Test
-    fun `given no incoming calls, then hide notification`() =
+    fun `given no incoming calls but when there is still active incoming call notification, then hide that notification`() =
         runTest(dispatcherProvider.main()) {
             // given
+            val id = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
+            val tag = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val userName = "user name"
             val (arrangement, callNotificationManager) = Arrangement()
+                .withActiveNotifications(listOf(mockStatusBarNotification(id, tag)))
                 .arrange()
-            callNotificationManager.handleIncomingCallNotifications(listOf(), TEST_USER_ID1)
+            // when
+            callNotificationManager.handleIncomingCalls(listOf(), TEST_USER_ID1, userName)
             advanceUntilIdle()
             // then
-            verify(exactly = 0) {
-                arrangement.notificationManager.notify(NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal, any())
-            }
-            verify(exactly = 1) {
-                arrangement.notificationManager.cancel(NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal)
-            }
+            verify(exactly = 0) { arrangement.notificationManager.notify(any(), any(), any()) }
+            verify(exactly = 1) { arrangement.notificationManager.cancel(tag, id) }
         }
 
     @Test
@@ -68,88 +70,217 @@ class CallNotificationManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val notification = mockk<Notification>()
-            val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1)
+            val userName = "user name"
+            val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName)
+            val tag = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val id = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
             val (arrangement, callNotificationManager) = Arrangement()
                 .withIncomingNotificationForUserAndCall(notification, callNotificationData)
                 .arrange()
             arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
-            callNotificationManager.handleIncomingCallNotifications(listOf(TEST_CALL1), TEST_USER_ID1)
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
             advanceUntilIdle()
             // then
-            verify(exactly = 1) { arrangement.notificationManager.notify(any(), notification) }
-            verify(exactly = 0) { arrangement.notificationManager.cancel(any()) }
+            verify(exactly = 1) { arrangement.notificationManager.notify(tag, id, notification) }
         }
 
     @Test
-    fun `given incoming calls for two users, then show notification for the first call`() =
+    fun `given an incoming call for one user, when call is updated, then update notification for that call`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val notification = mockk<Notification>()
+            val userName = "user name"
+            val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName)
+            val updatedCall = TEST_CALL1.copy(conversationName = "new name")
+            val updatedCallNotificationData = provideCallNotificationData(TEST_USER_ID1, updatedCall, userName)
+            val tag = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val id = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
+            val (arrangement, callNotificationManager) = Arrangement()
+                .withIncomingNotificationForUserAndCall(notification, callNotificationData)
+                .withIncomingNotificationForUserAndCall(notification, updatedCallNotificationData)
+                .arrange()
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
+            advanceUntilIdle()
+            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            // when
+            callNotificationManager.handleIncomingCalls(listOf(updatedCall), TEST_USER_ID1, userName) // updated call
+            advanceUntilIdle()
+            // then
+            verify(exactly = 1) { arrangement.notificationManager.notify(tag, id, notification) } // should be updated
+        }
+
+    @Test
+    fun `given an incoming call for one user, when call is not updated, then do not update notification for that call`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val notification = mockk<Notification>()
+            val userName = "user name"
+            val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName)
+            val tag = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val id = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
+            val (arrangement, callNotificationManager) = Arrangement()
+                .withIncomingNotificationForUserAndCall(notification, callNotificationData)
+                .arrange()
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
+            advanceUntilIdle()
+            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            // when
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName) // same call
+            advanceUntilIdle()
+            // then
+            verify(exactly = 0) { arrangement.notificationManager.notify(tag, id, notification) } // should not be updated
+        }
+
+    @Test
+    fun `given an incoming call for one same user, when another incoming call appears, then add notification only for this new call`() =
         runTest(dispatcherProvider.main()) {
             // given
             val notification1 = mockk<Notification>()
             val notification2 = mockk<Notification>()
-            val callNotificationData1 = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1)
-            val callNotificationData2 = provideCallNotificationData(TEST_USER_ID2, TEST_CALL2)
+            val userName1 = "user name 1"
+            val callNotificationData1 = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName1)
+            val callNotificationData2 = provideCallNotificationData(TEST_USER_ID1, TEST_CALL2, userName1)
+            val tag1 = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val tag2 = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val id1 = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
+            val id2 = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL2.conversationId.toString())
+            val (arrangement, callNotificationManager) = Arrangement()
+                .withIncomingNotificationForUserAndCall(notification1, callNotificationData1)
+                .withIncomingNotificationForUserAndCall(notification2, callNotificationData2)
+                .arrange()
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName1)
+            advanceUntilIdle()
+            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            // when
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1, TEST_CALL2), TEST_USER_ID1, userName1)
+            advanceUntilIdle()
+            // then
+            verify(exactly = 0) { arrangement.notificationManager.notify(tag1, id1, notification1) } // already shown previously
+            verify(exactly = 1) { arrangement.notificationManager.notify(tag2, id2, notification2) } // should be added now
+        }
+
+    @Test
+    fun `given incoming calls for two users, then show notification for the both calls`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val notification1 = mockk<Notification>()
+            val notification2 = mockk<Notification>()
+            val userName1 = "user name 1"
+            val userName2 = "user name 2"
+            val callNotificationData1 = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName1)
+            val callNotificationData2 = provideCallNotificationData(TEST_USER_ID2, TEST_CALL2, userName2)
+            val tag1 = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val tag2 = NotificationConstants.getIncomingCallTag(TEST_USER_ID2.toString())
+            val id1 = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
+            val id2 = NotificationConstants.getIncomingCallId(TEST_USER_ID2.toString(), TEST_CALL2.conversationId.toString())
             val (arrangement, callNotificationManager) = Arrangement()
                 .withIncomingNotificationForUserAndCall(notification1, callNotificationData1)
                 .withIncomingNotificationForUserAndCall(notification2, callNotificationData2)
                 .arrange()
             arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
-            callNotificationManager.handleIncomingCallNotifications(listOf(TEST_CALL1), TEST_USER_ID1)
-            callNotificationManager.handleIncomingCallNotifications(listOf(TEST_CALL2), TEST_USER_ID2)
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName1)
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL2), TEST_USER_ID2, userName2)
             advanceUntilIdle()
             // then
-            verify(exactly = 1) { arrangement.notificationManager.notify(any(), notification1) }
-            verify(exactly = 0) { arrangement.notificationManager.notify(any(), notification2) }
-            verify(exactly = 0) { arrangement.notificationManager.cancel(any()) }
+            verify(exactly = 1) { arrangement.notificationManager.notify(tag1, id1, notification1) }
+            verify(exactly = 1) { arrangement.notificationManager.notify(tag2, id2, notification2) }
+            verify(exactly = 0) { arrangement.notificationManager.cancel(any(), any()) }
         }
 
     @Test
-    fun `given incoming calls for two users, when one call ends, then show notification for another call`() =
+    fun `given two incoming calls for the same user, then show notification for the both calls`() =
         runTest(dispatcherProvider.main()) {
             // given
             val notification1 = mockk<Notification>()
             val notification2 = mockk<Notification>()
-            val callNotificationData1 = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1)
-            val callNotificationData2 = provideCallNotificationData(TEST_USER_ID2, TEST_CALL2)
+            val userName1 = "user name 1"
+            val callNotificationData1 = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName1)
+            val callNotificationData2 = provideCallNotificationData(TEST_USER_ID1, TEST_CALL2, userName1)
+            val tag1 = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val tag2 = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val id1 = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
+            val id2 = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL2.conversationId.toString())
             val (arrangement, callNotificationManager) = Arrangement()
                 .withIncomingNotificationForUserAndCall(notification1, callNotificationData1)
                 .withIncomingNotificationForUserAndCall(notification2, callNotificationData2)
                 .arrange()
-            callNotificationManager.handleIncomingCallNotifications(listOf(TEST_CALL1), TEST_USER_ID1)
-            callNotificationManager.handleIncomingCallNotifications(listOf(TEST_CALL2), TEST_USER_ID2)
-            advanceUntilIdle()
-            arrangement.clearRecordedCallsForNotificationManager() // clear calls recorded when initializing the state
-            // when
-            callNotificationManager.handleIncomingCallNotifications(listOf(), TEST_USER_ID1)
+            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1, TEST_CALL2), TEST_USER_ID1, userName1)
             advanceUntilIdle()
             // then
-            verify(exactly = 0) { arrangement.notificationManager.notify(any(), notification1) }
-            verify(exactly = 1) { arrangement.notificationManager.notify(any(), notification2) }
+            verify(exactly = 1) { arrangement.notificationManager.notify(tag1, id1, notification1) }
+            verify(exactly = 1) { arrangement.notificationManager.notify(tag2, id2, notification2) }
             verify(exactly = 0) { arrangement.notificationManager.cancel(any()) }
         }
 
     @Test
-    fun `given incoming calls for two users, when both call ends, then hide notification`() =
+    fun `given incoming calls for two users, when one call ends, then do not cancel notification for another call`() =
         runTest(dispatcherProvider.main()) {
             // given
             val notification1 = mockk<Notification>()
             val notification2 = mockk<Notification>()
-            val callNotificationData1 = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1)
-            val callNotificationData2 = provideCallNotificationData(TEST_USER_ID2, TEST_CALL2)
+            val userName1 = "user name 1"
+            val userName2 = "user name 2"
+            val callNotificationData1 = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName1)
+            val callNotificationData2 = provideCallNotificationData(TEST_USER_ID2, TEST_CALL2, userName2)
+            val tag1 = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val tag2 = NotificationConstants.getIncomingCallTag(TEST_USER_ID2.toString())
+            val id1 = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
+            val id2 = NotificationConstants.getIncomingCallId(TEST_USER_ID2.toString(), TEST_CALL2.conversationId.toString())
             val (arrangement, callNotificationManager) = Arrangement()
                 .withIncomingNotificationForUserAndCall(notification1, callNotificationData1)
                 .withIncomingNotificationForUserAndCall(notification2, callNotificationData2)
                 .arrange()
-            callNotificationManager.handleIncomingCallNotifications(listOf(TEST_CALL1), TEST_USER_ID1)
-            callNotificationManager.handleIncomingCallNotifications(listOf(TEST_CALL2), TEST_USER_ID2)
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName1)
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL2), TEST_USER_ID2, userName2)
+            arrangement.withActiveNotifications(listOf(mockStatusBarNotification(id1, tag1), mockStatusBarNotification(id2, tag2)))
             advanceUntilIdle()
             arrangement.clearRecordedCallsForNotificationManager() // clear calls recorded when initializing the state
             // when
-            callNotificationManager.handleIncomingCallNotifications(listOf(), TEST_USER_ID1)
-            callNotificationManager.handleIncomingCallNotifications(listOf(), TEST_USER_ID2)
+            callNotificationManager.handleIncomingCalls(listOf(), TEST_USER_ID1, userName1) // first call is ended
+            advanceUntilIdle()
             // then
-            verify(exactly = 0) { arrangement.notificationManager.notify(any(), notification1) }
-            verify(exactly = 0) { arrangement.notificationManager.notify(any(), notification2) }
-            verify(exactly = 1) { arrangement.notificationManager.cancel(any()) }
+            verify(exactly = 1) { arrangement.notificationManager.cancel(tag1, id1) }
+            verify(exactly = 0) { arrangement.notificationManager.cancel(tag2, id2) }
+        }
+
+    @Test
+    fun `given incoming calls for two users, when both call ends, then hide all notifications`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val notification1 = mockk<Notification>()
+            val notification2 = mockk<Notification>()
+            val userName1 = "user name 1"
+            val userName2 = "user name 2"
+            val callNotificationData1 = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName1)
+            val callNotificationData2 = provideCallNotificationData(TEST_USER_ID2, TEST_CALL2, userName2)
+            val tag1 = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val tag2 = NotificationConstants.getIncomingCallTag(TEST_USER_ID2.toString())
+            val id1 = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
+            val id2 = NotificationConstants.getIncomingCallId(TEST_USER_ID2.toString(), TEST_CALL2.conversationId.toString())
+            val (arrangement, callNotificationManager) = Arrangement()
+                .withIncomingNotificationForUserAndCall(notification1, callNotificationData1)
+                .withIncomingNotificationForUserAndCall(notification2, callNotificationData2)
+                .arrange()
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName1)
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL2), TEST_USER_ID2, userName2)
+            advanceUntilIdle()
+            arrangement.clearRecordedCallsForNotificationManager() // clear calls recorded when initializing the state
+            arrangement.withActiveNotifications(
+                listOf(
+                    mockStatusBarNotification(id1, tag1),
+                    mockStatusBarNotification(id2, tag2)
+                )
+            )
+
+            // when
+            callNotificationManager.handleIncomingCalls(listOf(), TEST_USER_ID1, userName1)
+            callNotificationManager.handleIncomingCalls(listOf(), TEST_USER_ID2, userName2)
+            // then
+            verify(exactly = 0) { arrangement.notificationManager.notify(tag1, id1, notification1) }
+            verify(exactly = 0) { arrangement.notificationManager.notify(tag2, id2, notification2) }
+            verify(exactly = 1) { arrangement.notificationManager.cancel(tag1, id1) }
+            verify(exactly = 1) { arrangement.notificationManager.cancel(tag2, id2) }
         }
 
     @Test
@@ -157,36 +288,42 @@ class CallNotificationManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val notification = mockk<Notification>()
-            val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1)
+            val userName = "user name"
+            val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName)
+            val tag = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val id = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
             val (arrangement, callNotificationManager) = Arrangement()
                 .withIncomingNotificationForUserAndCall(notification, callNotificationData)
                 .arrange()
             // when
-            callNotificationManager.handleIncomingCallNotifications(listOf(TEST_CALL1), TEST_USER_ID1)
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
             advanceTimeBy((DEBOUNCE_TIME - 50).milliseconds)
-            callNotificationManager.handleIncomingCallNotifications(listOf(), TEST_USER_ID1)
+            callNotificationManager.handleIncomingCalls(listOf(), TEST_USER_ID1, userName)
             // then
-            verify(exactly = 0) { arrangement.notificationManager.notify(any(), notification) }
-            verify(exactly = 1) { arrangement.notificationManager.cancel(NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal) }
+            verify(exactly = 0) { arrangement.notificationManager.notify(tag, id, notification) }
         }
 
     @Test
     fun `given incoming call, when end call comes some time after start, then first show notification and then hide`() =
         runTest(dispatcherProvider.main()) {
             // given
+            val userName = "user name"
+            val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName)
+            val tag = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
+            val id = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
             val notification = mockk<Notification>()
-            val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1)
             val (arrangement, callNotificationManager) = Arrangement()
                 .withIncomingNotificationForUserAndCall(notification, callNotificationData)
                 .arrange()
             arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
             // when
-            callNotificationManager.handleIncomingCallNotifications(listOf(TEST_CALL1), TEST_USER_ID1)
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
             advanceTimeBy((DEBOUNCE_TIME + 50).milliseconds)
-            callNotificationManager.handleIncomingCallNotifications(listOf(), TEST_USER_ID1)
+            arrangement.withActiveNotifications(listOf(mockStatusBarNotification(id, tag)))
+            callNotificationManager.handleIncomingCalls(listOf(), TEST_USER_ID1, userName)
             // then
-            verify(exactly = 1) { arrangement.notificationManager.notify(any(), notification) }
-            verify(exactly = 1) { arrangement.notificationManager.cancel(any()) }
+            verify(exactly = 1) { arrangement.notificationManager.notify(tag, id, notification) }
+            verify(exactly = 1) { arrangement.notificationManager.cancel(tag, id) }
         }
 
     private inner class Arrangement {
@@ -200,13 +337,11 @@ class CallNotificationManagerTest {
         @MockK
         lateinit var callNotificationBuilder: CallNotificationBuilder
 
-        private var callNotificationManager: CallNotificationManager
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkStatic(NotificationManagerCompat::from)
             every { NotificationManagerCompat.from(any()) } returns notificationManager
-            callNotificationManager = CallNotificationManager(context, dispatcherProvider, callNotificationBuilder)
+            withActiveNotifications(emptyList())
         }
 
         fun clearRecordedCallsForNotificationManager() {
@@ -223,11 +358,12 @@ class CallNotificationManagerTest {
         fun withIncomingNotificationForUserAndCall(notification: Notification, forCallNotificationData: CallNotificationData) = apply {
             every { callNotificationBuilder.getIncomingCallNotification(eq(forCallNotificationData)) } returns notification
         }
-        fun withOutgoingNotificationForUserAndCall(notification: Notification, forCallNotificationData: CallNotificationData) = apply {
-            every { callNotificationBuilder.getOutgoingCallNotification(eq(forCallNotificationData)) } returns notification
+
+        fun withActiveNotifications(list: List<StatusBarNotification>) = apply {
+            every { notificationManager.activeNotifications } returns list
         }
 
-        fun arrange() = this to callNotificationManager
+        fun arrange() = this to CallNotificationManager(context, dispatcherProvider, callNotificationBuilder)
     }
 
     companion object {
@@ -256,8 +392,9 @@ class CallNotificationManagerTest {
             callerTeamName = "team_1"
         )
 
-        private fun provideCallNotificationData(userId: UserId, call: Call) = CallNotificationData(
+        private fun provideCallNotificationData(userId: UserId, call: Call, userName: String) = CallNotificationData(
             userId = userId,
+            userName = userName,
             conversationId = call.conversationId,
             conversationName = call.conversationName,
             conversationType = call.conversationType,
@@ -265,5 +402,12 @@ class CallNotificationManagerTest {
             callerTeamName = call.callerTeamName,
             callStatus = call.status
         )
+
+        fun mockStatusBarNotification(id: Int, tag: String): StatusBarNotification {
+            val statusBarNotification = mockk<StatusBarNotification>()
+            every { statusBarNotification.id } returns id
+            every { statusBarNotification.tag } returns tag
+            return statusBarNotification
+        }
     }
 }

@@ -101,7 +101,6 @@
     <string name="content_description_conversation_send_emoticon">Enviar Emoticon</string>
     <string name="content_description_conversation_send_gif">Enviar GIF</string>
     <string name="content_description_conversation_mention_someone">Mencionar alguém</string>
-    <string name="content_description_new_conversation">Iniciar uma nova conversa</string>
     <string name="content_description_back_button">Botão Voltar</string>
     <string name="content_description_send_button">Enviar</string>
     <string name="content_description_timed_message_button">Mensagens autodestrutivas, botão</string>
@@ -129,7 +128,6 @@
     <string name="content_description_ping_everyone">Pingar todos</string>
     <string name="content_description_calling_hang_up_call">Desligar a chamada</string>
     <string name="content_description_calling_accept_call">Aceitar a chamada</string>
-    <string name="content_description_calling_decline_call">Recusar a chamada</string>
     <string name="content_description_calling_flip_camera_on">Mudar para a câmera frontal</string>
     <string name="content_description_calling_flip_camera_off">Mudar para a câmera traseira</string>
     <string name="content_description_calling_participant_muted">Participante mudo</string>
@@ -155,6 +153,7 @@
     <string name="content_description_record_audio_button_stop">Parar Gravação de Áudio</string>
     <string name="content_description_record_audio_button_send">Enviar Mensagem de Áudio</string>
     <string name="content_description_mls_certificate_valid">Todos os dispositivos de todos os participantes têm um certificado MLS válido</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -498,6 +497,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="label_unblock">Desbloquear</string>
     <string name="label_leave_group">Sair do Grupo</string>
     <string name="label_delete_group">Excluir Grupo</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Tudo</string>
     <string name="muting_option_all_allowed_text">Receber notificações para esta conversa sobre tudo (incluindo chamadas de áudio e vídeo)</string>
@@ -701,9 +701,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="notification_action_reply">Responder</string>
     <string name="notification_receiver_name">Você</string>
     <string name="label_type_a_message">Digite uma mensagem</string>
-    <string name="notification_action_open_call">Abrir Chamada</string>
-    <string name="notification_action_decline_call">Recusar</string>
-    <string name="notification_action_hang_up_call">Desligar</string>
     <string name="notification_incoming_call_content">Chamando…</string>
     <string name="notification_ongoing_call_content">Chamada em andamento…</string>
     <string name="notification_group_call_content">%s está chamando…</string>
@@ -720,7 +717,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="calling_button_label_join_call">Participar</string>
     <string name="calling_hang_up_call">Desligar chamada</string>
     <string name="calling_accept_call">Aceitar chamada</string>
-    <string name="calling_decline_call">Recusar chamada</string>
     <string name="calling_label_ringing_call">Chamando…</string>
     <string name="calling_label_incoming_call">Chamada recebida</string>
     <string name="calling_label_default_caller_name">Chamada Recebida</string>
@@ -908,6 +904,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="backup_dialog_choose_backup_file_option">Escolha o arquivo de backup</string>
     <string name="backup_label_enter_password">Insira a senha</string>
     <string name="backup_dialog_restore_backup_password_message">Este backup está protegido por senha.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">Selecione um provedor de e-mail:</string>
     <string name="backup_dialog_create_backup_save">Salvar arquivo</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Backup incompatível</string>
@@ -1093,4 +1090,5 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Configurações de depuração</string>
+    <!--    Personal to team migration screen-->
 </resources>

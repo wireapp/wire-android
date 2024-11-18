@@ -117,6 +117,7 @@
     <string name="content_description_conversation_send_gif">Send GIF button</string>
     <string name="content_description_conversation_mention_someone">Mention someone</string>
     <string name="content_description_conversation_back_btn">Go back to conversation list</string>
+    <string name="content_description_conversation_open_details_label">open conversation details</string>
     <string name="content_description_new_conversation">Search for people or create a new group</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
@@ -146,7 +147,6 @@
     <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
     <string name="content_description_calling_hang_up_call">Hang up call</string>
     <string name="content_description_calling_accept_call">Accept call</string>
-    <string name="content_description_calling_decline_call">Decline call</string>
     <string name="content_description_calling_flip_camera_on">Flip to front camera</string>
     <string name="content_description_calling_flip_camera_off">Flip to back camera</string>
     <string name="content_description_calling_participant_muted">Participant muted</string>
@@ -926,9 +926,6 @@
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>
-    <string name="notification_action_open_call">Open Call</string>
-    <string name="notification_action_decline_call">Decline</string>
-    <string name="notification_action_hang_up_call">Hang Up</string>
     <string name="notification_incoming_call_content">Calling…</string>
     <string name="notification_ongoing_call_content">Ongoing call…</string>
     <string name="notification_group_call_content">%s calling...</string>
@@ -946,7 +943,6 @@
     <string name="calling_button_label_join_call">Join</string>
     <string name="calling_hang_up_call">Hang up call</string>
     <string name="calling_accept_call">Accept call</string>
-    <string name="calling_decline_call">Decline call</string>
     <string name="calling_label_ringing_call">Ringing…</string>
     <string name="calling_label_incoming_call">Calling…</string>
     <string name="calling_label_incoming_call_someone_calling">is calling…</string>
@@ -994,6 +990,8 @@
     <string name="connection_label_ignore">Ignore</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <string name="connection_label_user_not_found_warning_title">Wire can\'t find this person</string>
+    <string name="connection_label_user_not_found_warning_description">You may not have permission with this account or the person may not be on Wire.</string>
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
     <string name="missing_keypackage_dialog_body">You can\'t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>

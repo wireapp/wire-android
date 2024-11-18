@@ -20,6 +20,7 @@ package com.wire.android.ui.home.archive
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.rememberNavigator
@@ -42,7 +43,7 @@ fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.ARCHIVE,
-            lazyListState = currentLazyListState,
+            lazyListState = lazyListStateFor(HomeDestination.Archive),
             emptyListContent = { ArchiveEmptyContent() }
         )
     }

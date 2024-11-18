@@ -114,7 +114,6 @@
     <string name="content_description_ping_everyone">Pinga</string>
     <string name="content_description_calling_hang_up_call">Lägg på samtalet</string>
     <string name="content_description_calling_accept_call">Acceptera samtal</string>
-    <string name="content_description_calling_decline_call">Neka samtal</string>
     <string name="content_description_calling_flip_camera_on">Byt till den främre kameran</string>
     <string name="content_description_calling_flip_camera_off">Byt till den bakre kameran</string>
     <string name="content_description_calling_participant_muted">Deltagaren tystades ner</string>

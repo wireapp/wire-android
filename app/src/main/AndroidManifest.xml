@@ -308,13 +308,10 @@
             android:name=".notification.broadcastreceivers.NotificationReplyReceiver"
             android:exported="false" />
         <receiver
-            android:name=".notification.broadcastreceivers.DeclineIncomingCallReceiver"
+            android:name=".notification.broadcastreceivers.IncomingCallActionReceiver"
             android:exported="false" />
         <receiver
             android:name=".notification.broadcastreceivers.EndOngoingCallReceiver"
-            android:exported="false" />
-        <receiver
-            android:name=".notification.broadcastreceivers.CallNotificationDismissedReceiver"
             android:exported="false" />
 
         <service

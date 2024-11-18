@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversationslist.all
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.rememberNavigator
@@ -43,7 +44,7 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.MAIN,
-            lazyListState = currentLazyListState,
+            lazyListState = lazyListStateFor(HomeDestination.Conversations),
             emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.ALL) }
         )
     }
@@ -58,7 +59,7 @@ fun FavoritesConversationsScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.FAVORITES,
-            lazyListState = currentLazyListState,
+            lazyListState = lazyListStateFor(HomeDestination.Favorites),
             emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.FAVORITES) }
         )
     }
@@ -73,7 +74,7 @@ fun GroupConversationsScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.GROUPS,
-            lazyListState = currentLazyListState,
+            lazyListState = lazyListStateFor(HomeDestination.Group),
             emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.GROUPS) }
         )
     }
@@ -88,7 +89,7 @@ fun OneOnOneConversationsScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.ONE_ON_ONE,
-            lazyListState = currentLazyListState,
+            lazyListState = lazyListStateFor(HomeDestination.OneOnOne),
             emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.ONE_ON_ONE, domain = it) }
         )
     }

@@ -218,7 +218,8 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                     .distinctUntilChanged()
                     .flatMapLatest { searchQuery: String ->
                         observeConversationListDetailsWithEvents(
-                            fromArchive = conversationsSource == ConversationsSource.ARCHIVE
+                            fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
+                            conversationFilter = conversationsSource.toFilter()
                         ).map {
                             it.map { conversationDetails ->
                                 conversationDetails.toConversationItem(
@@ -230,15 +231,11 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                         }
                     }
                     .map { (conversationItems, searchQuery) ->
-                        val filteredConversationItems = filterConversation(
-                            conversationDetails = conversationItems,
-                            filter = conversationsSource.toFilter()
-                        )
                         if (searchQuery.isEmpty()) {
-                            filteredConversationItems.withFolders(source = conversationsSource).toImmutableMap()
+                            conversationItems.withFolders(source = conversationsSource).toImmutableMap()
                         } else {
                             searchConversation(
-                                conversationDetails = filteredConversationItems,
+                                conversationDetails = conversationItems,
                                 searchQuery = searchQuery
                             ).withFolders(source = conversationsSource).toImmutableMap()
                         }
@@ -503,15 +500,5 @@ private fun searchConversation(conversationDetails: List<ConversationItem>, sear
             is ConversationItem.ConnectionConversation -> details.conversationInfo.name.contains(searchQuery, true)
             is ConversationItem.GroupConversation -> details.groupName.contains(searchQuery, true)
             is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(searchQuery, true)
-        }
-    }
-
-private fun filterConversation(conversationDetails: List<ConversationItem>, filter: ConversationFilter): List<ConversationItem> =
-    conversationDetails.filter { details ->
-        when (filter) {
-            ConversationFilter.ALL -> true
-            ConversationFilter.FAVORITES -> false
-            ConversationFilter.GROUPS -> details is ConversationItem.GroupConversation
-            ConversationFilter.ONE_ON_ONE -> details is ConversationItem.PrivateConversation
         }
     }

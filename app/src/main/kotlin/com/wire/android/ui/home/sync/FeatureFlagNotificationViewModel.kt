@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
@@ -48,10 +49,14 @@ import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -161,23 +166,20 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             }
     }
 
-    private suspend fun setTeamAppLockFeatureFlag(userId: UserId) {
-        coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver()
-            .distinctUntilChanged()
-            .collectLatest { appLockConfig ->
-                appLockConfig?.isStatusChanged?.let { isStatusChanged ->
-                    val shouldBlockApp = if (isStatusChanged) {
-                        true
-                    } else {
-                        (!isUserAppLockSet() && appLockConfig.isEnforced)
-                    }
-
-                    featureFlagState = featureFlagState.copy(
-                        isTeamAppLockEnabled = appLockConfig.isEnforced,
-                        shouldShowTeamAppLockDialog = shouldBlockApp
-                    )
-                }
+    private fun setTeamAppLockFeatureFlag(userId: UserId) {
+        combine(
+            coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver().distinctUntilChanged(),
+            isUserAppLockSet()
+        ) { appLockConfig, isUserAppLockSet ->
+            Logger.i(TAG) { "AppLockConfig: $appLockConfig, isUserAppLockSet: $isUserAppLockSet" }
+            appLockConfig?.isStatusChanged?.let { isStatusChanged ->
+                val shouldBlockApp = isStatusChanged || (!isUserAppLockSet && appLockConfig.isEnforced)
+                featureFlagState = featureFlagState.copy(
+                    isTeamAppLockEnabled = appLockConfig.isEnforced,
+                    shouldShowTeamAppLockDialog = shouldBlockApp
+                )
             }
+        }.launchIn(viewModelScope)
     }
 
     private suspend fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
@@ -295,7 +297,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    fun isUserAppLockSet() = globalDataStore.isAppLockPasscodeSet()
+    fun isUserAppLockSet(): Flow<Boolean> = globalDataStore.isAppLockPasscodeSet().distinctUntilChanged()
 
     fun enrollE2EICertificate() {
         featureFlagState = featureFlagState.copy(isE2EILoading = true, startGettingE2EICertificate = true)

@@ -118,7 +118,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -374,19 +376,19 @@ class WireActivity : AppCompatActivity() {
                     onConfirm = {
                         featureFlagNotificationViewModel.dismissTeamAppLockDialog()
                         if (isTeamAppLockEnabled) {
-                            val isUserAppLockSet =
-                                featureFlagNotificationViewModel.isUserAppLockSet()
-                            // No need to setup another app lock if the user already has one
-                            if (!isUserAppLockSet) {
-                                Intent(this@WireActivity, AppLockActivity::class.java)
-                                    .apply {
-                                        putExtra(AppLockActivity.SET_TEAM_APP_LOCK, true)
-                                    }.also {
-                                        startActivity(it)
+                            featureFlagNotificationViewModel.isUserAppLockSet()
+                                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                                .onEach { isUserAppLockSet ->
+                                    // No need to setup another app lock if the user already has one
+                                    when (isUserAppLockSet) {
+                                        true -> featureFlagNotificationViewModel.markTeamAppLockStatusAsNot()
+                                        false -> startActivity(
+                                            Intent(this@WireActivity, AppLockActivity::class.java).apply {
+                                                putExtra(AppLockActivity.SET_TEAM_APP_LOCK, true)
+                                            }
+                                        )
                                     }
-                            } else {
-                                featureFlagNotificationViewModel.markTeamAppLockStatusAsNot()
-                            }
+                                }.launchIn(lifecycleScope)
                         } else {
                             with(featureFlagNotificationViewModel) {
                                 markTeamAppLockStatusAsNot()

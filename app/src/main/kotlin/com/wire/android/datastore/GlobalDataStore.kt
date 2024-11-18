@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -198,10 +197,10 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
             it.contains(APP_LOCK_PASSCODE)
         }
 
-    fun isAppLockPasscodeSet(): Boolean = runBlocking {
-        context.dataStore.data.map {
+    fun isAppLockPasscodeSet(): Flow<Boolean> {
+        return context.dataStore.data.map {
             it.contains(APP_LOCK_PASSCODE)
-        }.first()
+        }
     }
 
     suspend fun clearAppLockPasscode() {

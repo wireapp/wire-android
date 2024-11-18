@@ -139,7 +139,6 @@
     <string name="content_description_self_deleting_message_timer">පණිවිඩ ඉබේ මැකීමට කාලය සකසන්න</string>
     <string name="content_description_calling_hang_up_call">ඇමතුම තබන්න</string>
     <string name="content_description_calling_accept_call">ඇමතුම පිළිගන්න</string>
-    <string name="content_description_calling_decline_call">ඇමතුම නවතන්න</string>
     <string name="content_description_calling_flip_camera_on">ඉදිරිපස රූගතයට පෙරළන්න</string>
     <string name="content_description_calling_flip_camera_off">පසුපස රූගතයට පෙරළන්න</string>
     <string name="content_description_calling_participant_muted">සහභාගියා නිහඬ කළා</string>
@@ -772,9 +771,6 @@
     <string name="notification_action_reply">පිළිතුර</string>
     <string name="notification_receiver_name">ඔබ</string>
     <string name="label_type_a_message">පණිවිඩයක් ලියන්න</string>
-    <string name="notification_action_open_call">ඇමතුම අරින්න</string>
-    <string name="notification_action_decline_call">ප්‍රතික්‍ෂේප</string>
-    <string name="notification_action_hang_up_call">තබන්න</string>
     <string name="notification_incoming_call_content">අමතමින්…</string>
     <string name="notification_ongoing_call_content">පවතින ඇමතුම…</string>
     <string name="notification_group_call_content">%s අමතමින්...</string>
@@ -792,7 +788,6 @@
     <string name="calling_button_label_join_call">එක්වන්න</string>
     <string name="calling_hang_up_call">ඇමතුම තබන්න</string>
     <string name="calling_accept_call">ඇමතුම පිළිගන්න</string>
-    <string name="calling_decline_call">ඇමතුම නවතන්න</string>
     <string name="calling_label_ringing_call">නාද වෙමින්…</string>
     <string name="calling_label_incoming_call">අමතමින්…</string>
     <string name="calling_label_default_caller_name">ලැබෙන ඇමතුම</string>

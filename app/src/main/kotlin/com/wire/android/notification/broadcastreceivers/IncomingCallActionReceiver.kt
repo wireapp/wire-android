@@ -27,11 +27,11 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DeclineIncomingCallReceiver : BroadcastReceiver() { // requires zero argument constructor
+class IncomingCallActionReceiver : BroadcastReceiver() {
 
     @Inject
     @KaliumCoreLogic
@@ -56,38 +56,54 @@ class DeclineIncomingCallReceiver : BroadcastReceiver() { // requires zero argum
     @ApplicationScope
     lateinit var coroutineScope: CoroutineScope
 
-    override fun onReceive(context: Context, intent: Intent) {
-        val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
-        appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: $conversationId")
-        coroutineScope.launch(Dispatchers.Default) {
-            val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
-            val sessionScope =
-                if (userId != null) {
-                    coreLogic.getSessionScope(userId)
-                } else {
-                    val currentSession = coreLogic.globalScope { session.currentSession() }
-                    if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.accountInfo.userId)
-                    } else {
-                        null
-                    }
-                }
+    @Inject
+    lateinit var callNotificationManager: CallNotificationManager
 
-            sessionScope?.let {
-                it.calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+    @Suppress("ReturnCount")
+    override fun onReceive(context: Context, intent: Intent) {
+        val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: run {
+            appLogger.e("CallNotificationDismissReceiver: onReceive, conversation ID is missing")
+            return
+        }
+        appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: ${conversationIdString.obfuscateId()}")
+        val userId: UserId = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper) ?: run {
+            appLogger.e("CallNotificationDismissReceiver: onReceive, user ID is missing")
+            return
+        }
+        val action: String = intent.getStringExtra(EXTRA_ACTION) ?: run {
+            appLogger.e("CallNotificationDismissReceiver: onReceive, action is missing")
+            return
+        }
+
+        coroutineScope.launch(Dispatchers.Default) {
+            with(coreLogic.getSessionScope(userId)) {
+                when (action) {
+                    ACTION_DECLINE_CALL -> calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationIdString))
+                    ACTION_ANSWER_CALL -> calls.answerCall(qualifiedIdMapper.fromStringToQualifiedID(conversationIdString))
+                }
             }
-            CallNotificationManager.hideIncomingCallNotification(context)
+            callNotificationManager.hideIncomingCallNotification(userId.toString(), conversationIdString)
         }
     }
 
     companion object {
         private const val EXTRA_CONVERSATION_ID = "conversation_id_extra"
         private const val EXTRA_RECEIVER_USER_ID = "user_id_extra"
+        private const val EXTRA_ACTION = "action_extra"
 
-        fun newIntent(context: Context, conversationId: String?, userId: String?): Intent =
-            Intent(context, DeclineIncomingCallReceiver::class.java).apply {
+        const val ACTION_DECLINE_CALL = "action_decline_call"
+        const val ACTION_ANSWER_CALL = "action_answer_call"
+
+        fun newIntent(
+            context: Context,
+            conversationId: String,
+            userId: String,
+            action: String
+        ): Intent =
+            Intent(context, IncomingCallActionReceiver::class.java).apply {
                 putExtra(EXTRA_CONVERSATION_ID, conversationId)
                 putExtra(EXTRA_RECEIVER_USER_ID, userId)
+                putExtra(EXTRA_ACTION, action)
             }
     }
 }

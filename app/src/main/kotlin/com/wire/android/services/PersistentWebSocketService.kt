@@ -129,6 +129,7 @@ class PersistentWebSocketService : Service() {
             .setSmallIcon(R.drawable.websocket_notification_icon_small)
             .setContentIntent(openAppPendingIntent(this))
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setAutoCancel(false)
             .setOngoing(true)
             .build()

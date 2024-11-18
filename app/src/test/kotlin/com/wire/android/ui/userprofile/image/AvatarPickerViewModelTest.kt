@@ -145,7 +145,7 @@ class AvatarPickerViewModelTest {
             .withSuccessfulInitialAvatarLoad()
             .arrange()
 
-        avatarPickerViewModel.updatePickedAvatarUri(arrangement.mockUri)
+        avatarPickerViewModel.updatePickedAvatarUri(arrangement.mockOriginalUri, arrangement.mockTargetUri)
         assertInstanceOf(AvatarPickerViewModel.PictureState.Picked::class.java, avatarPickerViewModel.pictureState)
         avatarPickerViewModel.loadInitialAvatarState()
         assertInstanceOf(AvatarPickerViewModel.PictureState.Initial::class.java, avatarPickerViewModel.pictureState)
@@ -157,7 +157,7 @@ class AvatarPickerViewModelTest {
             .withNoInitialAvatar()
             .arrange()
 
-        avatarPickerViewModel.updatePickedAvatarUri(arrangement.mockUri)
+        avatarPickerViewModel.updatePickedAvatarUri(arrangement.mockOriginalUri, arrangement.mockTargetUri)
         assertInstanceOf(AvatarPickerViewModel.PictureState.Picked::class.java, avatarPickerViewModel.pictureState)
         avatarPickerViewModel.loadInitialAvatarState()
         assertInstanceOf(AvatarPickerViewModel.PictureState.Empty::class.java, avatarPickerViewModel.pictureState)
@@ -195,7 +195,8 @@ class AvatarPickerViewModelTest {
             )
         }
 
-        val mockUri = mockk<Uri>()
+        val mockTargetUri = mockk<Uri>()
+        val mockOriginalUri = mockk<Uri>()
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -206,16 +207,16 @@ class AvatarPickerViewModelTest {
             mockkStatic(Uri::class)
             mockkStatic(Uri::resampleImageAndCopyToTempPath)
             mockkStatic(Uri::toByteArray)
-            every { Uri.parse(any()) } returns mockUri
+            every { Uri.parse(any()) } returns mockTargetUri
             val fakeAvatarData = "some-dummy-avatar".toByteArray()
             val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
             fakeKaliumFileSystem.sink(avatarPath).buffer().use {
                 it.write(fakeAvatarData)
             }
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success(avatarPath)
-            coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
-            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockUri
-            coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), any()) } returns 1L
+            coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockTargetUri
+            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockTargetUri
+            coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), eq(true), any()) } returns 1L
             coEvery { any<Uri>().toByteArray(any(), any()) } returns ByteArray(5)
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
@@ -226,7 +227,7 @@ class AvatarPickerViewModelTest {
         fun withFailedInitialAvatarLoad(): Arrangement {
             val avatarAssetId = "avatar-value@avatar-domain"
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Failure(Unknown(RuntimeException("some error")), false)
-            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockUri
+            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockTargetUri
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
 
@@ -234,7 +235,7 @@ class AvatarPickerViewModelTest {
         }
 
         fun withNoInitialAvatar(): Arrangement {
-            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockUri
+            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockTargetUri
             every { userDataStore.avatarAssetId } returns flow { emit(null) }
 
             return this

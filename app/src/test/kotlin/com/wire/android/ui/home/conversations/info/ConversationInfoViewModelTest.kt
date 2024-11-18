@@ -47,7 +47,6 @@ class ConversationInfoViewModelTest {
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
-            .withSelfUser()
             .withMentionedUserId(TestUser.SELF_USER.id)
             .arrange()
         // When
@@ -62,7 +61,6 @@ class ConversationInfoViewModelTest {
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
-            .withSelfUser()
             .withMentionedUserId(TestUser.OTHER_USER.id)
             .arrange()
         // When
@@ -79,7 +77,6 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(
                 conversationDetails = oneToOneConversationDetails
             )
-            .withSelfUser()
             .arrange()
         launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
@@ -101,7 +98,6 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(
                 conversationDetails = oneToOneConversationDetails
             )
-            .withSelfUser()
             .arrange()
         launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
@@ -117,7 +113,6 @@ class ConversationInfoViewModelTest {
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
-            .withSelfUser()
             .arrange()
         launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
@@ -140,7 +135,6 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(
                 conversationDetails = firstConversationDetails
             )
-            .withSelfUser()
             .arrange()
         launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
@@ -169,7 +163,6 @@ class ConversationInfoViewModelTest {
         runTest {
             // Given
             val (_, viewModel) = ConversationInfoViewModelArrangement()
-                .withSelfUser()
                 .arrange()
 
             // When - Then
@@ -185,7 +178,6 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(
                 conversationDetails = oneToOneConversationDetails
             )
-            .withSelfUser()
             .arrange()
         launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
@@ -202,7 +194,6 @@ class ConversationInfoViewModelTest {
         val otherUserAvatar = conversationDetails.otherUser.previewPicture
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = conversationDetails)
-            .withSelfUser()
             .arrange()
         launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
@@ -220,7 +211,6 @@ class ConversationInfoViewModelTest {
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
-            .withSelfUser()
             .arrange()
 
         // then
@@ -244,7 +234,6 @@ class ConversationInfoViewModelTest {
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
-            .withSelfUser()
             .arrange()
 
         // then
@@ -268,7 +257,6 @@ class ConversationInfoViewModelTest {
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
-            .withSelfUser()
             .arrange()
 
         // then
@@ -290,7 +278,6 @@ class ConversationInfoViewModelTest {
     fun `given Failure while getting an MLS conversation's verification status, then mlsVerificationStatus is null`() = runTest {
         // Given
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withSelfUser()
             .arrange()
 
         // then
@@ -309,7 +296,6 @@ class ConversationInfoViewModelTest {
         // Given
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailFailure(StorageFailure.DataNotFound)
-            .withSelfUser()
             .arrange()
         launch { viewModel.observeConversationDetails(arrangement.onNotFound) }.run {
             advanceUntilIdle()

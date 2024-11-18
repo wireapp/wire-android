@@ -15,16 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.userprofile.qr
+package com.wire.android.util
 
-import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.appLogger
+import com.wire.kalium.logic.data.user.SelfUser
 
-data class SelfQRCodeState(
-    val userId: UserId,
-    val avatarAsset: UserAvatarAsset? = null,
-    val handle: String = "",
-    val userProfileLink: String = "",
-    val userAccountProfileLink: String = "",
-    val hasError: Boolean = false
-)
+fun SelfUser.logIfEmptyUserName() {
+    if (name.isNullOrBlank() && handle.isNullOrBlank()) {
+        appLogger.e("Name and handle is empty for self user with id ${id.toLogString()}")
+    }
+}

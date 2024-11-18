@@ -107,7 +107,6 @@
     <string name="content_description_conversation_send_emoticon">Bouton d\'envoi d\'une émoticône</string>
     <string name="content_description_conversation_send_gif">Bouton d\'envoi d\'un GIF</string>
     <string name="content_description_conversation_mention_someone">Mentionner quelqu\'un</string>
-    <string name="content_description_new_conversation">Démarrer une nouvelle conversation</string>
     <string name="content_description_back_button">Bouton de retour en arrière</string>
     <string name="content_description_send_button">Envoyer</string>
     <string name="content_description_timed_message_button">Bouton messages auto-supprimés</string>
@@ -136,7 +135,6 @@
     <string name="content_description_self_deleting_message_timer">Définir une minuterie pour les messages auto-supprimés</string>
     <string name="content_description_calling_hang_up_call">Raccrocher l\'appel</string>
     <string name="content_description_calling_accept_call">Prendre l\'appel </string>
-    <string name="content_description_calling_decline_call">Refuser l\'appel</string>
     <string name="content_description_calling_flip_camera_on">Utiliser la caméra avant</string>
     <string name="content_description_calling_flip_camera_off">Utiliser sur la caméra arrière</string>
     <string name="content_description_calling_participant_muted">Participant en sourdine</string>
@@ -168,6 +166,7 @@
     <string name="content_description_mls_certificate_valid">Tous les appareils de tous les participants ont un certificat MLS valide</string>
     <string name="content_description_proteus_certificate_valid">Tous les participants sont vérifiés (Proteus)</string>
     <string name="content_description_location_icon">Élément de l\'emplacement</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -516,6 +515,7 @@
     <string name="label_unblock">Débloquer</string>
     <string name="label_leave_group">Quitter le groupe</string>
     <string name="label_delete_group">Supprimer le groupe</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Toutes</string>
     <string name="muting_option_all_allowed_text">Recevoir des notifications pour cette conversation sur tout (inclus les appels audio et vidéo)</string>
@@ -566,6 +566,7 @@
     <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--create and restore backup-->
+    <!--    report bug-->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
@@ -591,4 +592,5 @@
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Paramètres de débogage</string>
+    <!--    Personal to team migration screen-->
 </resources>

@@ -28,6 +28,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
@@ -62,6 +63,23 @@ class StartingCallActivity : CallActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
+    var conversationId: String? by mutableStateOf(null)
+    var userId: String? by mutableStateOf(null)
+    var screenType: StartingCallScreenType? by mutableStateOf(null)
+
+    private fun handleNewIntent(intent: Intent) {
+        conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
+        userId = intent.extras?.getString(EXTRA_USER_ID)
+        screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)?.let { StartingCallScreenType.byName(it) }
+        switchAccountIfNeeded(userId)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNewIntent(intent)
+        setIntent(intent)
+    }
+
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,10 +89,7 @@ class StartingCallActivity : CallActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        val conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
-        val screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)
-        val userId = intent.extras?.getString(EXTRA_USER_ID)
-        switchAccountIfNeeded(userId)
+        handleNewIntent(intent)
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()
@@ -86,8 +101,7 @@ class StartingCallActivity : CallActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    val currentCallScreenType by remember { mutableStateOf(StartingCallScreenType.byName(screenType)) }
-                    currentCallScreenType?.let { currentScreenType ->
+                    screenType?.let { currentScreenType ->
                         AnimatedContent(
                             targetState = currentScreenType,
                             transitionSpec = {
@@ -102,10 +116,7 @@ class StartingCallActivity : CallActivity() {
                                 when (screenType) {
                                     StartingCallScreenType.Outgoing -> {
                                         OutgoingCallScreen(
-                                            conversationId =
-                                            qualifiedIdMapper.fromStringToQualifiedID(
-                                                it
-                                            )
+                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(it)
                                         ) {
                                             getOngoingCallIntent(this@StartingCallActivity, it).run {
                                                 this@StartingCallActivity.startActivity(this)
@@ -114,15 +125,16 @@ class StartingCallActivity : CallActivity() {
                                         }
                                     }
 
-                                    StartingCallScreenType.Incoming ->
+                                    StartingCallScreenType.Incoming -> {
                                         IncomingCallScreen(
-                                            qualifiedIdMapper.fromStringToQualifiedID(it)
+                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(it)
                                         ) {
                                             this@StartingCallActivity.startActivity(
                                                 getOngoingCallIntent(this@StartingCallActivity, it)
                                             )
                                             this@StartingCallActivity.finishAndRemoveTask()
                                         }
+                                    }
                                 }
                             }
                         }

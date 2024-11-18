@@ -120,7 +120,6 @@
     <string name="content_description_self_deleting_message_timer">Timer für selbstlöschende Nachrichten festlegen</string>
     <string name="content_description_calling_hang_up_call">Auflegen</string>
     <string name="content_description_calling_accept_call">Anruf annehmen</string>
-    <string name="content_description_calling_decline_call">Anruf ablehnen</string>
     <string name="content_description_calling_flip_camera_on">Frontkamera verwenden</string>
     <string name="content_description_calling_flip_camera_off">Kamera auf der Rückseite verwenden</string>
     <string name="content_description_calling_mute_call">Anruf stummschalten</string>
@@ -826,9 +825,6 @@
     <string name="notification_action_reply">Antworten</string>
     <string name="notification_receiver_name">Sie</string>
     <string name="label_type_a_message">Eine Nachricht schreiben</string>
-    <string name="notification_action_open_call">Anruf öffnen</string>
-    <string name="notification_action_decline_call">Ablehnen</string>
-    <string name="notification_action_hang_up_call">Auflegen</string>
     <string name="notification_incoming_call_content">Ruft an…</string>
     <string name="notification_ongoing_call_content">Aktiver Anruf…</string>
     <string name="notification_group_call_content">%s ruft an...</string>
@@ -845,7 +841,6 @@
     <string name="calling_button_label_join_call">Beitreten</string>
     <string name="calling_hang_up_call">Auflegen</string>
     <string name="calling_accept_call">Anruf annehmen</string>
-    <string name="calling_decline_call">Anruf ablehnen</string>
     <string name="calling_label_ringing_call">Klingeln…</string>
     <string name="calling_label_incoming_call">Ruft an…</string>
     <string name="calling_label_incoming_call_someone_calling">ruft an…</string>

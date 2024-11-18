@@ -52,7 +52,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -170,34 +169,6 @@ internal fun WireTextField(
     )
 }
 
-private fun handleMentionDeletion(
-    oldText: String,
-    newText: String,
-    oldSelection: TextRange,
-    mentions: List<UIMention>
-): String {
-    if (oldText == newText) {
-        // No change in text, only cursor movement, return as is
-        return oldText
-    }
-    for (mention in mentions) {
-        // Find the start position of the mention in the text
-        val mentionStart = oldText.indexOf(mention.handler)
-
-        // If mentionStart is -1, it means the mention is no longer present in the text, skip it
-        if (mentionStart == -1) continue
-
-        val mentionEnd = mentionStart + mention.length
-
-        // Check if the selection (i.e., user's cursor position) is inside the mention's range
-        if (oldSelection.start in mentionStart + 1..mentionEnd && oldSelection.end in mentionStart..mentionEnd) {
-            // If the user is deleting inside the mention, remove the entire mention
-            return oldText.removeRange(mentionStart, mentionEnd)
-        }
-    }
-    return newText
-}
-
 @Composable
 internal fun WireTextField(
     textFieldValue: State<TextFieldValue>,
@@ -254,7 +225,12 @@ internal fun WireTextField(
                 onValueChange = { newText ->
                     val mentionsByName = mentions.map { it.handler }
                     val updatedText =
-                        MentionDeletionHandler.handle(textFieldValue.value.text, newText.text, textFieldValue.value.selection, mentionsByName)
+                        MentionDeletionHandler.handle(
+                            textFieldValue.value.text,
+                            newText.text,
+                            textFieldValue.value.selection,
+                            mentionsByName
+                        )
                     onValueChange(TextFieldValue(updatedText, newText.selection))
                 },
                 textStyle = textStyle.copy(

@@ -53,11 +53,10 @@ fun rememberMessageComposerStateHolder(
         mutableStateOf(draftMessageComposition)
     }
 
-    val messageTextFieldValue = remember { mutableStateOf(TextFieldValue())  }
+    val messageTextFieldValue = remember { mutableStateOf(TextFieldValue()) }
 
     LaunchedEffect(draftMessageComposition.draftText) {
         if (draftMessageComposition.draftText.isNotBlank()) {
-//            messageTextState.setTextAndPlaceCursorAtEnd(draftMessageComposition.draftText)
             messageTextFieldValue.value = messageTextFieldValue.value.copy(
                 text = draftMessageComposition.draftText,
                 selection = TextRange(draftMessageComposition.draftText.length) // Place cursor at the end of the new text

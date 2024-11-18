@@ -49,9 +49,12 @@ class MentionVisualTransformation(
             // Append the remaining text after the last mention
             append(text.subSequence(lastIndex, text.length))
         }
-        return TransformedText(styledText, offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int = offset
-            override fun transformedToOriginal(offset: Int): Int = offset
-        })
+        return TransformedText(
+            text = styledText,
+            offsetMapping = object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int = offset
+                override fun transformedToOriginal(offset: Int): Int = offset
+            }
+        )
     }
 }

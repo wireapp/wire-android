@@ -69,7 +69,8 @@ class MessageCompositionInputStateHolder(
             )
 
             is CompositionState.Editing -> InputType.Editing(
-                isEditButtonEnabled = messageTextFieldValue.value.text != state.originalMessageText && messageTextFieldValue.value.text.isNotMarkdownBlank()
+                isEditButtonEnabled = messageTextFieldValue.value.text != state.originalMessageText &&
+                        messageTextFieldValue.value.text.isNotMarkdownBlank()
             )
         }
     }

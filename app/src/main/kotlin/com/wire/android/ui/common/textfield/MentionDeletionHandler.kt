@@ -20,6 +20,7 @@ package com.wire.android.ui.common.textfield
 import androidx.compose.ui.text.TextRange
 
 object MentionDeletionHandler {
+    @Suppress("ReturnCount")
     fun handle(
         oldText: String,
         newText: String,

@@ -21,9 +21,9 @@ GitHub account.
 
 When opening a pull request, please make sure to follow the next guidelines:
 
-- Maker sure to fill in the pull request template to the fullest extent possible, this will help us
+- Make sure to fill in the pull request template to the fullest extent possible, this will help us
   understand faster the changes proposed.
-- Maker sure to run the tests and linters before submitting the pull request.
+- Make sure to run the tests and linters before submitting the pull request.
 - Add the necessary tests for the changes you are proposing, this will help us ensure that the
   changes are working as expected.
 

@@ -73,7 +73,7 @@ class SearchUserViewModel @Inject constructor(
 
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
     private val selectedContactsFlow = MutableStateFlow<ImmutableSet<Contact>>(persistentSetOf())
-    var state: SearchUserState by mutableStateOf(SearchUserState())
+    var state: SearchUserState by mutableStateOf(SearchUserState(isLoading = true))
         private set
 
     init {
@@ -114,7 +114,8 @@ class SearchUserViewModel @Inject constructor(
                         contactsResult = newState.contactsResult,
                         publicResult = newState.publicResult,
                         selectedResult = newState.selectedResult,
-                        searchQuery = newState.searchQuery
+                        searchQuery = newState.searchQuery,
+                        isLoading = false,
                     )
                 }
         }
@@ -180,5 +181,6 @@ data class SearchUserState(
     val publicResult: ImmutableList<Contact> = persistentListOf(),
     val selectedResult: ImmutableList<Contact> = persistentListOf(),
     val searchQuery: String = String.EMPTY,
-    val isOtherDomainAllowed: Boolean = false
+    val isOtherDomainAllowed: Boolean = false,
+    val isLoading: Boolean = false,
 )

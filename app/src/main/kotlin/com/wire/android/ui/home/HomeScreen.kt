@@ -317,7 +317,7 @@ fun HomeContent(
                         }
                     },
                     collapsingEnabled = !searchBarState.isSearchActive,
-                    contentLazyListState = homeStateHolder.currentLazyListState,
+                    contentLazyListState = homeStateHolder.lazyListStateFor(currentNavigationItem),
                     content = {
                         /**
                          * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.

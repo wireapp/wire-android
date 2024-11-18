@@ -252,7 +252,6 @@ class MessageCompositionInputStateHolderTest {
         }
 
         fun withText(text: String) = apply {
-//            textFieldState.setTextAndPlaceCursorAtEnd(text)
             textFieldValue.value = textFieldValue.value.copy(
                 text = text,
                 selection = TextRange(text.length)

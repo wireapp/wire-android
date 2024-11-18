@@ -145,7 +145,6 @@
     <string name="content_description_self_deleting_message_timer">Установите таймер для самоудаления сообщений</string>
     <string name="content_description_calling_hang_up_call">Завершить вызов</string>
     <string name="content_description_calling_accept_call">Принять вызов</string>
-    <string name="content_description_calling_decline_call">Отклонить вызов</string>
     <string name="content_description_calling_flip_camera_on">Переключиться на фронтальную камеру</string>
     <string name="content_description_calling_flip_camera_off">Переключиться на основную камеру</string>
     <string name="content_description_calling_participant_muted">Звук участника отключен</string>
@@ -929,9 +928,6 @@
     <string name="notification_action_reply">Ответить</string>
     <string name="notification_receiver_name">Вы</string>
     <string name="label_type_a_message">Введите сообщение</string>
-    <string name="notification_action_open_call">Открыть вызов</string>
-    <string name="notification_action_decline_call">Отклонить</string>
-    <string name="notification_action_hang_up_call">Завершить вызов</string>
     <string name="notification_incoming_call_content">Вызов…</string>
     <string name="notification_ongoing_call_content">Исходящий вызов…</string>
     <string name="notification_group_call_content">%s вызывает...</string>
@@ -949,7 +945,6 @@
     <string name="calling_button_label_join_call">Присоединиться</string>
     <string name="calling_hang_up_call">Завершить вызов</string>
     <string name="calling_accept_call">Принять вызов</string>
-    <string name="calling_decline_call">Отклонить вызов</string>
     <string name="calling_label_ringing_call">Вызываем…</string>
     <string name="calling_label_incoming_call">Вызов…</string>
     <string name="calling_label_incoming_call_someone_calling">звонит…</string>

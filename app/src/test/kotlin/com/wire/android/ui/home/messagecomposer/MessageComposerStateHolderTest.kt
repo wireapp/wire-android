@@ -135,12 +135,12 @@ class MessageComposerStateHolderTest {
             mentions = listOf()
         )
 
-        state.messageCompositionHolder.value.messageTextFieldValue = mutableStateOf(
+        state.messageCompositionHolder.value.messageTextFieldValue.value =
             messageTextFieldValue.value.copy(
                 text = messageTextFieldValue.value.text + "some text",
                 selection = TextRange(messageTextFieldValue.value.text.length + "some text".length)
             )
-        )
+
         assertInstanceOf(InputType.Editing::class.java, messageCompositionInputStateHolder.inputType).also {
             assertEquals(true, it.isEditButtonEnabled)
         }
@@ -154,7 +154,7 @@ class MessageComposerStateHolderTest {
             state.toReply(mockMessageWithText)
 
             // then
-            assertEquals(String.EMPTY, messageCompositionHolder.value.messageTextFieldValue.value.toString())
+            assertEquals(String.EMPTY, messageCompositionHolder.value.messageTextFieldValue.value.text)
             assertInstanceOf(InputType.Composing::class.java, messageCompositionInputStateHolder.inputType)
         }
 
@@ -170,7 +170,7 @@ class MessageComposerStateHolderTest {
         state.toReply(mockMessageWithText)
 
         // then
-        assertEquals(currentText, messageCompositionHolder.value.messageTextFieldValue.toString())
+        assertEquals(currentText, messageCompositionHolder.value.messageTextFieldValue.value.text)
     }
 
     @Test

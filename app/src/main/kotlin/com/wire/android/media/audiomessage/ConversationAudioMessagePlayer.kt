@@ -65,6 +65,7 @@ class ConversationAudioMessagePlayerProvider
     fun onCleared() {
         usageCount--
         if (usageCount <= 0) {
+            player?.close()
             player = null
         }
     }
@@ -81,7 +82,6 @@ internal constructor(
     }
 
     init {
-        println("cyka init")
         audioMediaPlayer.setOnCompletionListener {
             if (currentAudioMessageId != null) {
                 audioMessageStateUpdate.tryEmit(
@@ -107,7 +107,6 @@ internal constructor(
     private val mediaPlayerPosition = flow {
         delay(UPDATE_POSITION_INTERVAL_IN_MS)
         while (true) {
-            println("cyka tik-tak....")
             if (audioMediaPlayer.isPlaying) {
                 emit(currentAudioMessageId to audioMediaPlayer.currentPosition)
             }
@@ -334,6 +333,6 @@ internal constructor(
     }
 
     internal fun close() {
-        audioMediaPlayer.release()
+        audioMediaPlayer.reset()
     }
 }

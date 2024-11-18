@@ -42,8 +42,36 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ConversationAudioMessagePlayer
+class ConversationAudioMessagePlayerProvider
 @Inject constructor(
+    private val context: Context,
+    private val audioMediaPlayer: MediaPlayer,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
+) {
+    private var player: ConversationAudioMessagePlayer? = null
+    private var usageCount: Int = 0
+
+    @Synchronized
+    fun provide(): ConversationAudioMessagePlayer {
+        if (player == null) {
+            player = ConversationAudioMessagePlayer(context, audioMediaPlayer, coreLogic)
+        }
+        usageCount++
+
+        return player!!
+    }
+
+    @Synchronized
+    fun onCleared() {
+        usageCount--
+        if (usageCount <= 0) {
+            player = null
+        }
+    }
+}
+
+class ConversationAudioMessagePlayer
+internal constructor(
     private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
@@ -53,6 +81,7 @@ class ConversationAudioMessagePlayer
     }
 
     init {
+        println("cyka init")
         audioMediaPlayer.setOnCompletionListener {
             if (currentAudioMessageId != null) {
                 audioMessageStateUpdate.tryEmit(
@@ -78,6 +107,7 @@ class ConversationAudioMessagePlayer
     private val mediaPlayerPosition = flow {
         delay(UPDATE_POSITION_INTERVAL_IN_MS)
         while (true) {
+            println("cyka tik-tak....")
             if (audioMediaPlayer.isPlaying) {
                 emit(currentAudioMessageId to audioMediaPlayer.currentPosition)
             }
@@ -301,5 +331,9 @@ class ConversationAudioMessagePlayer
         audioMessageStateUpdate.emit(
             AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(messageId, AudioMediaPlayingState.Stopped)
         )
+    }
+
+    internal fun close() {
+        audioMediaPlayer.release()
     }
 }

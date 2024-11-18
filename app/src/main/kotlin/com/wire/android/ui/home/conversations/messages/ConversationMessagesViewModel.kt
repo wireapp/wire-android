@@ -26,7 +26,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayerProvider
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -98,7 +98,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
-    private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer,
+    private val conversationAudioMessagePlayerProvider: ConversationAudioMessagePlayerProvider,
     private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase,
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
@@ -108,6 +108,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
+    private val conversationAudioMessagePlayer = conversationAudioMessagePlayerProvider.provide()
 
     var conversationViewState by mutableStateOf(
         ConversationMessagesViewState(
@@ -433,6 +434,11 @@ class ConversationMessagesViewModel @Inject constructor(
                 )
             }
         }
+
+    override fun onCleared() {
+        super.onCleared()
+        conversationAudioMessagePlayerProvider.onCleared()
+    }
 
     private companion object {
         const val DEFAULT_ASSET_NAME = "Wire File"

@@ -21,7 +21,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.TestTeam
@@ -40,7 +39,6 @@ import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
-import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
@@ -75,12 +73,6 @@ class SelfUserProfileViewModelArrangement {
 
     @MockK
     lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-    @MockK
-    lateinit var authServerConfigProvider: AuthServerConfigProvider
-
-    @MockK
-    lateinit var selfServerLinks: SelfServerConfigUseCase
 
     @MockK
     lateinit var otherAccountMapper: OtherAccountMapper
@@ -121,8 +113,6 @@ class SelfUserProfileViewModelArrangement {
             observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
             dispatchers = TestDispatcherProvider(),
             wireSessionImageLoader = wireSessionImageLoader,
-            authServerConfigProvider = authServerConfigProvider,
-            selfServerLinks = selfServerLinks,
             otherAccountMapper = otherAccountMapper,
             observeEstablishedCalls = observeEstablishedCalls,
             accountSwitch = accountSwitch,

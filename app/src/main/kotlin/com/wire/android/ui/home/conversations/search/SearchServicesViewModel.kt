@@ -46,7 +46,7 @@ class SearchServicesViewModel @Inject constructor(
     private val searchServicesByName: SearchServicesByNameUseCase,
 ) : ViewModel() {
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
-    var state: SearchServicesState by mutableStateOf(SearchServicesState())
+    var state: SearchServicesState by mutableStateOf(SearchServicesState(isLoading = true))
         private set
 
     init {
@@ -68,15 +68,12 @@ class SearchServicesViewModel @Inject constructor(
 
     private fun search(query: String) {
         viewModelScope.launch {
-            if (query.isEmpty()) {
-                getAllServices().first().also { services ->
-                    state = state.copy(result = services.map(contactMapper::fromService).toImmutableList(), searchQuery = query)
-                }
+            val result = if (query.isEmpty()) {
+                getAllServices().first()
             } else {
-                searchServicesByName(query).first().also { services ->
-                    state = state.copy(result = services.map(contactMapper::fromService).toImmutableList(), searchQuery = query)
-                }
+                searchServicesByName(query).first()
             }
+            state = state.copy(isLoading = false, searchQuery = query, result = result.map(contactMapper::fromService).toImmutableList())
         }
     }
 }
@@ -85,5 +82,4 @@ data class SearchServicesState(
     val result: ImmutableList<Contact> = persistentListOf(),
     val searchQuery: String = String.EMPTY,
     val isLoading: Boolean = false,
-    val error: Boolean = false
 )

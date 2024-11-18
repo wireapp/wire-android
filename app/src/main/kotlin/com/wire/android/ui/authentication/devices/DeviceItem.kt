@@ -64,6 +64,8 @@ import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
+const val DEVICE_ITEM_TEST_TAG = "device_item"
+
 @Composable
 fun DeviceItem(
     device: Device,
@@ -104,6 +106,7 @@ private fun DeviceItemContent(
     Row(
         verticalAlignment = Alignment.Top,
         modifier = modifier
+            .testTag(DEVICE_ITEM_TEST_TAG)
             .clickable(
                 enabled = isWholeItemClickable,
                 onClickLabel = stringResource(id = R.string.content_description_user_profile_open_device_btn)

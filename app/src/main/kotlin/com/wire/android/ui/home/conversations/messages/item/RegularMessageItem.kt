@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -106,6 +107,7 @@ import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import kotlin.math.absoluteValue
 import kotlin.math.min
@@ -761,6 +763,29 @@ private fun PartialDeliveryInformation(deliveryStatus: DeliveryStatusContent) {
 private fun MessageStatusLabel(messageStatus: MessageStatus) {
     messageStatus.badgeText?.let {
         StatusBox(it.asString())
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun LongMessageFooterPreview() {
+    Box(modifier = Modifier.width(200.dp)) {
+        MessageFooter(
+            messageFooter = MessageFooter(
+                messageId = "messageId",
+                reactions = mapOf(
+                    "👍" to 1,
+                    "👎" to 2,
+                    "👏" to 3,
+                    "🤔" to 4,
+                    "🤷" to 5,
+                    "🤦" to 6,
+                    "🤢" to 7
+                ),
+                ownReactions = setOf("👍"),
+            ),
+            onReactionClicked = { _, _ -> }
+        )
     }
 }
 

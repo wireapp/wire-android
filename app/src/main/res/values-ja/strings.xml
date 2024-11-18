@@ -137,7 +137,6 @@
     <string name="content_description_self_deleting_message_timer">自動削除メッセージのタイマーを設定します</string>
     <string name="content_description_calling_hang_up_call">通話を切る</string>
     <string name="content_description_calling_accept_call">通話に出る</string>
-    <string name="content_description_calling_decline_call">通話拒否</string>
     <string name="content_description_calling_flip_camera_on">フロントカメラに切り替える</string>
     <string name="content_description_calling_flip_camera_off">背面カメラに切り替える</string>
     <string name="content_description_calling_participant_muted">ミュートした参加者</string>

@@ -992,6 +992,8 @@
     <string name="connection_label_ignore">Игнорировать</string>
     <string name="connection_label_send_unverified_warning">Перед добавлением убедитесь в личности %s.</string>
     <string name="connection_label_received_unverified_warning">Прежде чем принять запрос на добавление, верифицируйте личность собеседника.</string>
+    <string name="connection_label_user_not_found_warning_title">Wire не может найти этого человека</string>
+    <string name="connection_label_user_not_found_warning_description">Возможно, у вас нет разрешения на использование этой учетной записи, либо этот человек отсутствует в Wire.</string>
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Невозможно начать беседу</string>
     <string name="missing_keypackage_dialog_body">Вы не можете начать беседу с %1$s прямо сейчас. %1$s следует сначала открыть Wire или авторизоваться. Пожалуйста, повторите попытку позже.</string>

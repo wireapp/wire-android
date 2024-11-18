@@ -95,4 +95,5 @@ jobs:
           serviceAccountJson: service_account.json
           packageName: com.wire.internal
           releaseFiles: app/build/outputs/bundle/internalCompat/*.aab
-          track: alpha
+          track: production
+          status: completed

@@ -100,6 +100,7 @@
     <string name="content_description_conversation_phone_icon">Audioanruf starten</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
+    <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>
     <string name="content_description_conversation_open_details_label">Unterhaltungsdetails öffnen</string>
     <string name="content_description_new_conversation">Nach Personen suchen oder eine neue Gruppe erstellen</string>
     <string name="content_description_send_button">Senden</string>
@@ -117,10 +118,10 @@
     <string name="content_description_edit_the_message">Nachricht bearbeiten</string>
     <string name="content_description_more_options">Weitere Optionen</string>
     <string name="content_description_add_contact">Kontakt hinzufügen</string>
+    <string name="content_description_ping_everyone">Ping</string>
     <string name="content_description_self_deleting_message_timer">Timer für selbstlöschende Nachrichten festlegen</string>
     <string name="content_description_calling_hang_up_call">Auflegen</string>
     <string name="content_description_calling_accept_call">Anruf annehmen</string>
-    <string name="content_description_calling_decline_call">Anruf ablehnen</string>
     <string name="content_description_calling_flip_camera_on">Frontkamera verwenden</string>
     <string name="content_description_calling_flip_camera_off">Kamera auf der Rückseite verwenden</string>
     <string name="content_description_calling_mute_call">Anruf stummschalten</string>
@@ -143,6 +144,7 @@
     <string name="content_description_conversation_details_participants_tab_header">Teilnehmer</string>
     <string name="content_description_conversation_details_close_btn">Unterhaltungsdetails schließen</string>
     <string name="content_description_conversation_details_guests_action">Gästezugang anpassen</string>
+    <string name="content_description_conversation_details_self_deleting_action">Timer anpassen</string>
     <string name="content_description_user_profile_more_btn">Unterhaltungsoptionen öffnen</string>
     <string name="content_description_user_profile_close_btn">Zurück zu Unterhaltungsdetails</string>
     <string name="content_description_user_profile_edit_role_btn">Rolle bearbeiten</string>
@@ -158,6 +160,7 @@
     <string name="content_description_open_label">Öffnen</string>
     <string name="content_description_join_call_label">Anruf annehmen</string>
     <string name="content_description_share_label">Teilen</string>
+    <string name="content_description_expand_label">ausklappen</string>
     <string name="content_description_edit_label">bearbeiten</string>
     <string name="content_description_select_label">auswählen</string>
     <string name="content_description_selected_label">ausgewählt</string>
@@ -168,7 +171,9 @@
     <string name="content_description_open_conversation_label">Unterhaltung öffnen</string>
     <string name="content_description_open_link_label">Link öffnen</string>
     <string name="content_description_open_notification_settings_label">Benachrichtigungseinstellungen öffnen</string>
+    <string name="content_description_new_conversation_name_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
     <string name="content_description_new_conversation_options_heading">Unterhaltungsoptionen</string>
+    <string name="content_description_new_conversation_options_back_btn">Zurück zur neuen Gruppenerstellung</string>
     <string name="content_description_pending_connection_badge">Ausstehende Genehmigung der Kontaktanfrage</string>
     <string name="content_description_self_profile_close">Ihr Profil schließen</string>
     <string name="content_description_self_profile_heading">Ihr Profil</string>
@@ -564,6 +569,8 @@
     <string name="label_leave_group">Gruppe verlassen</string>
     <string name="label_delete_group">Gruppe löschen</string>
     <!-- Conversation filter BottomSheet -->
+    <string name="label_filter_group">Gruppen</string>
+    <string name="label_filter_one_on_one">1:1 Unterhaltungen</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Alles</string>
     <string name="muting_option_all_allowed_text">Sie erhalten alle Benachrichtigungen für diese Unterhaltung, einschließlich Audio- und Videoanrufe</string>
@@ -826,9 +833,6 @@
     <string name="notification_action_reply">Antworten</string>
     <string name="notification_receiver_name">Sie</string>
     <string name="label_type_a_message">Eine Nachricht schreiben</string>
-    <string name="notification_action_open_call">Anruf öffnen</string>
-    <string name="notification_action_decline_call">Ablehnen</string>
-    <string name="notification_action_hang_up_call">Auflegen</string>
     <string name="notification_incoming_call_content">Ruft an…</string>
     <string name="notification_ongoing_call_content">Aktiver Anruf…</string>
     <string name="notification_group_call_content">%s ruft an...</string>
@@ -845,7 +849,6 @@
     <string name="calling_button_label_join_call">Beitreten</string>
     <string name="calling_hang_up_call">Auflegen</string>
     <string name="calling_accept_call">Anruf annehmen</string>
-    <string name="calling_decline_call">Anruf ablehnen</string>
     <string name="calling_label_ringing_call">Klingeln…</string>
     <string name="calling_label_incoming_call">Ruft an…</string>
     <string name="calling_label_incoming_call_someone_calling">ruft an…</string>
@@ -893,6 +896,8 @@
     <string name="connection_label_ignore">Ignorieren</string>
     <string name="connection_label_send_unverified_warning">Verschaffen Sie sich Gewissheit über die Identität von %s, bevor Sie den Kontakt hinzufügen.</string>
     <string name="connection_label_received_unverified_warning">Bitte überprüfen Sie die Identität der Person, bevor Sie die Kontaktanfrage annehmen.</string>
+    <string name="connection_label_user_not_found_warning_title">Wire kann diese Person nicht finden</string>
+    <string name="connection_label_user_not_found_warning_description">Entweder fehlt die Berechtigung für dieses Benutzerkonto oder die Person nutzt Wire nicht.</string>
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Unterhaltung kann nicht beginnen</string>
     <string name="missing_keypackage_dialog_body">Sie können die Unterhaltung mit %1$s im Moment nicht beginnen. %1$s muss Wire zuerst öffnen oder sich neu anmelden. Bitte versuchen Sie es später noch einmal.</string>

@@ -140,7 +140,6 @@
     <string name="content_description_self_deleting_message_timer">Kendi kendini silen mesajlar için zamanlayıcı ayarlama</string>
     <string name="content_description_calling_hang_up_call">Aramayı kapat</string>
     <string name="content_description_calling_accept_call">Aramayı kabul et</string>
-    <string name="content_description_calling_decline_call">Aramayı reddet</string>
     <string name="content_description_calling_flip_camera_on">Ön kameraya geç</string>
     <string name="content_description_calling_flip_camera_off">Arka kameraya geç</string>
     <string name="content_description_calling_participant_muted">Katılımcı sessiz</string>

@@ -67,7 +67,7 @@ interface OtherUserProfileFooterEventsHandler {
 interface OtherUserProfileBottomSheetEventsHandler {
     fun onChangeMemberRole(role: Conversation.Member.Role)
     fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus)
-    fun onAddConversationToFavourites(conversationId: ConversationId? = null)
+    fun onChangeFavoriteState(conversationId: ConversationId? = null, isFavorite: Boolean)
     fun onMoveConversationToFolder(conversationId: ConversationId? = null)
     fun onMoveConversationToArchive(dialogState: DialogState)
     fun onClearConversationContent(dialogState: DialogState)
@@ -77,7 +77,7 @@ interface OtherUserProfileBottomSheetEventsHandler {
         val PREVIEW = object : OtherUserProfileBottomSheetEventsHandler {
             override fun onChangeMemberRole(role: Conversation.Member.Role) {}
             override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {}
-            override fun onAddConversationToFavourites(conversationId: ConversationId?) {}
+            override fun onChangeFavoriteState(conversationId: ConversationId?, isFavorite: Boolean) {}
             override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
             override fun onMoveConversationToArchive(dialogState: DialogState) {}
             override fun onClearConversationContent(dialogState: DialogState) {}

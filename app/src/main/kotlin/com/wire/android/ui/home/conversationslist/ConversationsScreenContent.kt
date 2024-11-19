@@ -304,7 +304,7 @@ fun ConversationsScreenContent(
                             mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
                         )
                     },
-                    addConversationToFavourites = conversationListViewModel::addConversationToFavourites,
+                    changeFavoriteState = conversationListViewModel::changeConversationFavoriteState,
                     moveConversationToFolder = conversationListViewModel::moveConversationToFolder,
                     updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
                     clearConversationContent = clearContentDialogState::show,

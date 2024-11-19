@@ -51,13 +51,14 @@ import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResour
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
 // TODO(profile): enable when implemented
-//    addConversationToFavourites: () -> Unit,
+    changeFavoriteState: (conversationId: ConversationId, isFavorite: Boolean) -> Unit,
 //    moveConversationToFolder: () -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
@@ -108,21 +109,38 @@ internal fun ConversationMainSheetContent(
                     )
                 }
             }
+
+            if (conversationSheetContent.canAddToFavourite() && !conversationSheetContent.isArchived)
+                conversationSheetContent.isFavorite?.let { isFavorite ->
+                    if (isFavorite) {
+                        add {
+                            MenuBottomSheetItem(
+                                title = stringResource(R.string.label_remove_from_favourites),
+                                leading = {
+                                    MenuItemIcon(
+                                        id = R.drawable.ic_favourite,
+                                        contentDescription = stringResource(R.string.content_description_remove_from_favourites),
+                                    )
+                                },
+                                onItemClick = { changeFavoriteState(conversationSheetContent.conversationId, true) }
+                            )
+                        }
+                    } else {
+                        add {
+                            MenuBottomSheetItem(
+                                title = stringResource(R.string.label_add_to_favourites),
+                                leading = {
+                                    MenuItemIcon(
+                                        id = R.drawable.ic_favourite,
+                                        contentDescription = stringResource(R.string.content_description_add_to_favourite),
+                                    )
+                                },
+                                onItemClick = { changeFavoriteState(conversationSheetContent.conversationId, false) }
+                            )
+                        }
+                    }
+                }
 // TODO(profile): enable when implemented
-//
-//            if (conversationSheetContent.canAddToFavourite())
-//                add {
-//                    MenuBottomSheetItem(
-//                        title = stringResource(R.string.label_add_to_favourites),
-//                        icon = {
-//                            MenuItemIcon(
-//                                id = R.drawable.ic_favourite,
-//                                contentDescription = stringResource(R.string.content_description_add_to_favourite),
-//                            )
-//                        },
-//                        onItemClick = addConversationToFavourites
-//                    )
-//                }
 //            add {
 //                MenuBottomSheetItem(
 //                    icon = {

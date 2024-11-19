@@ -50,7 +50,7 @@ fun OtherUserProfileBottomSheetContent(
                         mutedConversationStatus
                     )
                 },
-                addConversationToFavourites = eventsHandler::onAddConversationToFavourites,
+                changeFavoriteState = eventsHandler::onChangeFavoriteState,
                 moveConversationToFolder = eventsHandler::onMoveConversationToFolder,
                 updateConversationArchiveStatus = {
                     if (!it.isArchived) {

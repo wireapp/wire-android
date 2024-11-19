@@ -27,7 +27,7 @@ import com.wire.kalium.util.DateTimeUtil
 @Suppress("TooManyFunctions")
 interface GroupConversationDetailsBottomSheetEventsHandler {
     fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus, onMessage: (UIText) -> Unit)
-    fun onAddConversationToFavourites(conversationId: ConversationId? = null)
+    fun changeFavoriteState(conversationId: ConversationId, isFavorite: Boolean)
     fun onMoveConversationToFolder(conversationId: ConversationId? = null)
     fun updateConversationArchiveStatus(
         dialogState: DialogState,
@@ -47,7 +47,7 @@ interface GroupConversationDetailsBottomSheetEventsHandler {
             ) {
             }
 
-            override fun onAddConversationToFavourites(conversationId: ConversationId?) {}
+            override fun changeFavoriteState(conversationId: ConversationId, isFavorite: Boolean) {}
             override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
             override fun updateConversationArchiveStatus(
                 dialogState: DialogState,

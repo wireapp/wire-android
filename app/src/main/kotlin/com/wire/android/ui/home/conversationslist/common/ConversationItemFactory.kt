@@ -311,7 +311,8 @@ fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
             teamId = null,
             isArchived = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isFavorite = false
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -336,7 +337,8 @@ fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
             teamId = null,
             isArchived = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isFavorite = false
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -363,7 +365,8 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
             teamId = null,
             isArchived = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isFavorite = false
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -388,7 +391,8 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireThem
             teamId = null,
             isArchived = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isFavorite = false
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -414,7 +418,8 @@ fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
             hasOnGoingCall = true,
             isArchived = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isFavorite = false
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -496,7 +501,8 @@ fun PreviewPrivateConversationItemWithBlockedBadge() = WireTheme {
             userId = UserId("value", "domain"),
             isArchived = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isFavorite = false
         ),
         modifier = Modifier,
         isSelectableItem = false,

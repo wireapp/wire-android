@@ -461,7 +461,7 @@ private fun GroupConversationDetailsContent(
                         )
                     }
                 },
-                addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
+                changeFavoriteState = bottomSheetEventsHandler::changeFavoriteState,
                 moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
                 updateConversationArchiveStatus = {
                     // Only show the confirmation dialog if the conversation is not archived
@@ -597,7 +597,8 @@ fun PreviewGroupConversationDetails() {
                 ),
                 mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                 isUnderLegalHold = false,
-                proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
+                proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+                isFavorite = false
             ),
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},

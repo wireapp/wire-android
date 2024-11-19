@@ -97,6 +97,7 @@
     <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_open_asset_icon">Open icon</string>
     <string name="content_description_add_to_favourite">Add to Favorites</string>
+    <string name="content_description_remove_from_favourites">Remove from Favorites</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
     <string name="content_description_unarchive">Unarchive</string>
@@ -637,6 +638,7 @@
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Add to Favorites</string>
+    <string name="label_remove_from_favourites">Remove from Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_unarchive">Unarchive</string>

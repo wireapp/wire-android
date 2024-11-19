@@ -35,9 +35,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -49,6 +53,7 @@ fun ReactionPill(
     count: Int,
     isOwn: Boolean,
     modifier: Modifier = Modifier,
+    userWireButton: Boolean = false,
     onTap: () -> Unit
 ) {
 
@@ -73,36 +78,85 @@ fun ReactionPill(
     CompositionLocalProvider(
         LocalMinimumInteractiveComponentSize provides Dp.Unspecified
     ) {
-        OutlinedButton(
-            onClick = onTap,
-            border = BorderStroke(borderStrokeWidth, strokeColor),
-            shape = RoundedCornerShape(borderRadius),
-            colors = ButtonDefaults.outlinedButtonColors(containerColor = backgroundColor),
-            contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x),
-            modifier = modifier.defaultMinSize(minWidth = minDimension, minHeight = minDimension)
-        ) {
-            Text(
-                emoji,
-                style = TextStyle(fontSize = reactionFontSize)
+        if (userWireButton) {
+            WireSecondaryButton(
+                onClick = onTap,
+                shape = RoundedCornerShape(borderRadius),
+                contentPadding = PaddingValues(
+                    horizontal = dimensions().spacing8x,
+                    vertical = dimensions().spacing4x
+                ),
+                colors = wireSecondaryButtonColors().copy(
+                    enabled = backgroundColor,
+                    enabledOutline = strokeColor,
+                ),
+                fillMaxWidth = false,
+                minClickableSize = DpSize(minDimension, minDimension),
+                borderWidth = borderStrokeWidth,
+                minSize = DpSize(minDimension, minDimension),
+                leadingIcon = {
+                    Text(
+                        emoji,
+                        style = TextStyle(fontSize = reactionFontSize)
+                    )
+                    Spacer(modifier = Modifier.width(dimensions().spacing4x))
+                    Text(
+                        count.toString(),
+                        style = MaterialTheme.wireTypography.label02,
+                        color = textColor
+                    )
+                },
             )
-            Spacer(modifier = Modifier.width(dimensions().spacing4x))
-            Text(
-                count.toString(),
-                style = MaterialTheme.wireTypography.label02,
-                color = textColor
-            )
+        } else {
+            OutlinedButton(
+                onClick = onTap,
+                border = BorderStroke(borderStrokeWidth, strokeColor),
+                shape = RoundedCornerShape(borderRadius),
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = backgroundColor),
+                contentPadding = PaddingValues(
+                    horizontal = dimensions().spacing8x,
+                    vertical = dimensions().spacing4x
+                ),
+                modifier = modifier.defaultMinSize(
+                    minWidth = minDimension,
+                    minHeight = minDimension
+                )
+            ) {
+                Text(
+                    emoji,
+                    style = TextStyle(fontSize = reactionFontSize)
+                )
+                Spacer(modifier = Modifier.width(dimensions().spacing4x))
+                Text(
+                    count.toString(),
+                    style = MaterialTheme.wireTypography.label02,
+                    color = textColor
+                )
+            }
         }
     }
 }
 
 @PreviewMultipleThemes
 @Composable
-fun ReactionPillPreview() {
+fun ReactionPillPreview() = WireTheme {
     ReactionPill(
         emoji = "👍",
         count = 5,
         isOwn = false,
         onTap = {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun ReactionPillWirePreview() = WireTheme {
+    ReactionPill(
+        emoji = "👍",
+        count = 5,
+        isOwn = false,
+        onTap = {},
+        userWireButton = true,
     )
 }
 

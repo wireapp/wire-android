@@ -313,7 +313,8 @@ private fun MessageFooter(
                         isOwn = messageFooter.ownReactions.contains(reaction),
                         onTap = {
                             onReactionClicked(messageFooter.messageId, reaction)
-                        }
+                        },
+                        userWireButton = true,
                     )
                 }
         }

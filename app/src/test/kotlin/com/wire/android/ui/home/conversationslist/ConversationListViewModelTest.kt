@@ -154,7 +154,7 @@ class ConversationListViewModelTest {
                 .filterIsInstance<ConversationItem>()
                 .forEach {
                     // Then
-                    assertEquals(false, it.showLegalHoldIndicator) // self user is under legal hold so hide LH indicators next to conversations
+                    assertEquals(false, it.showLegalHoldIndicator) // self user is under LH so hide LH indicators next to conversations
                 }
         }
 

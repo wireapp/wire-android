@@ -73,7 +73,7 @@ fun TeamMigrationConfirmationStepScreen(
     TeamMigrationConfirmationStepScreenContent(
         onContinueButtonClicked = {
             teamMigrationViewModel.postTeamMigration(
-                onSuccess = { _, _ ->
+                onSuccess = {
                     navigator.navigate(TeamMigrationDoneStepScreenDestination)
                 },
             )
@@ -83,7 +83,7 @@ fun TeamMigrationConfirmationStepScreen(
         }
     )
 
-    handleErrors(state, teamMigrationViewModel)
+    HandleErrors(state, teamMigrationViewModel::failureHandled)
 
     LaunchedEffect(Unit) {
         teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(3)
@@ -91,16 +91,16 @@ fun TeamMigrationConfirmationStepScreen(
 }
 
 @Composable
-private fun handleErrors(
+private fun HandleErrors(
     teamMigrationState: TeamMigrationState,
-    teamMigrationViewModel: TeamMigrationViewModel
+    onFailureHandled: () -> Unit
 ) {
     val failure = teamMigrationState.migrationFailure ?: return
     // TODO handle error WPB-14281
     CoreFailureErrorDialog(
         coreFailure = failure,
         onDialogDismiss = {
-            teamMigrationViewModel.failureHandled()
+            onFailureHandled()
         }
     )
 }

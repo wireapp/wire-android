@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.userprofile.teammigration
 
+import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,8 +26,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.feature.team.migration.MigrateFromPersonalToTeamResult
-import com.wire.kalium.logic.feature.team.migration.MigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -88,16 +89,15 @@ class TeamMigrationViewModel @Inject constructor(
         )
     }
 
-    fun postTeamMigration(
-        onSuccess: (teamId: String, teamName: String) -> Unit,
-    ) {
+    fun postTeamMigration(onSuccess: () -> Unit) {
         viewModelScope.launch {
             teamMigrationUseCase.invoke(
                 teamMigrationState.teamNameTextState.text.toString(),
             ).let { result ->
                 when (result) {
                     is MigrateFromPersonalToTeamResult.Success -> {
-                        onSuccess(result.teamId, result.teamName)
+                        teamMigrationState.teamNameTextState.setTextAndSelectAll(result.teamName)
+                        onSuccess()
                     }
 
                     is MigrateFromPersonalToTeamResult.Error -> {

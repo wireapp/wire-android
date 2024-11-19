@@ -60,6 +60,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.theme.Accent
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -353,7 +354,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
 
 @PreviewMultipleThemes
 @Composable
-fun LongMessageFooterPreview() {
+fun LongMessageFooterPreview() = WireTheme {
     Box(modifier = Modifier.width(200.dp)) {
         MessageFooter(
             messageFooter = MessageFooter(

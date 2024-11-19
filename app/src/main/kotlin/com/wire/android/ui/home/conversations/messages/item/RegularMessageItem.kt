@@ -513,7 +513,7 @@ private fun MessageAuthorRow(messageHeader: MessageHeader) {
                     startPadding = dimensions().spacing6x,
                     isDeleted = isSenderDeleted
                 )
-                if (isLegalHold) {
+                if (showLegalHoldIndicator) {
                     LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                 }
             }

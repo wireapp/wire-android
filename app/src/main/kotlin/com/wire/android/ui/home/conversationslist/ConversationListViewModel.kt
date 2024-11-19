@@ -456,9 +456,9 @@ private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(selfUserLega
     // the indication is shown in the header of the conversation list for self user in that case and it's enough
     when (selfUserLegalHoldStatus) {
         is LegalHoldStateForSelfUser.Enabled -> when (this) {
-            is ConversationItem.ConnectionConversation -> this.copy(isLegalHold = false)
-            is ConversationItem.GroupConversation -> this.copy(isLegalHold = false)
-            is ConversationItem.PrivateConversation -> this.copy(isLegalHold = false)
+            is ConversationItem.ConnectionConversation -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.GroupConversation -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.PrivateConversation -> this.copy(showLegalHoldIndicator = false)
         }
 
         else -> this

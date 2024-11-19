@@ -136,12 +136,12 @@ class ConversationListViewModelTest {
         runTest(dispatcherProvider.main()) {
             // Given
             val conversations = listOf(
-                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", ""), isLegalHold = true),
-                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_2", ""), isLegalHold = false),
-                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", ""), isLegalHold = true),
-                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_2", ""), isLegalHold = false),
-                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", ""), isLegalHold = true),
-                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_2", ""), isLegalHold = false),
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_2", ""), showLegalHoldIndicator = false),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_2", ""), showLegalHoldIndicator = false),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_2", ""), showLegalHoldIndicator = false),
             ).associateBy { it.conversationId }
             val (_, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
                 .withConversationsPaginated(conversations.values.toList())
@@ -154,7 +154,7 @@ class ConversationListViewModelTest {
                 .filterIsInstance<ConversationItem>()
                 .forEach {
                     // Then
-                    assertEquals(false, it.isLegalHold) // self user is under legal hold so hide LH indicators next to conversations
+                    assertEquals(false, it.showLegalHoldIndicator) // self user is under legal hold so hide LH indicators next to conversations
                 }
         }
 
@@ -163,12 +163,12 @@ class ConversationListViewModelTest {
         runTest(dispatcherProvider.main()) {
             // Given
             val conversations = listOf(
-                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", ""), isLegalHold = true),
-                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_2", ""), isLegalHold = false),
-                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", ""), isLegalHold = true),
-                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_2", ""), isLegalHold = false),
-                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", ""), isLegalHold = true),
-                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_2", ""), isLegalHold = false),
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_2", ""), showLegalHoldIndicator = false),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_2", ""), showLegalHoldIndicator = false),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_2", ""), showLegalHoldIndicator = false),
             ).associateBy { it.conversationId }
             val (_, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
                 .withConversationsPaginated(conversations.values.toList())
@@ -181,8 +181,8 @@ class ConversationListViewModelTest {
                 .filterIsInstance<ConversationItem>()
                 .forEach {
                     // Then
-                    val expected = conversations[it.conversationId]!!.isLegalHold // show indicator when conversation is under LH
-                    assertEquals(expected, it.isLegalHold)
+                    val expected = conversations[it.conversationId]!!.showLegalHoldIndicator // show indicator when conversation is under LH
+                    assertEquals(expected, it.showLegalHoldIndicator)
                 }
         }
 

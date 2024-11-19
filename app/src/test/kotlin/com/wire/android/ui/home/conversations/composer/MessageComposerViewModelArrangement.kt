@@ -225,7 +225,7 @@ internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUs
         every { it.header } returns mockk<MessageHeader>().also {
             every { it.messageId } returns id
             every { it.username } returns UIText.DynamicString(userName)
-            every { it.isLegalHold } returns false
+            every { it.showLegalHoldIndicator } returns false
             every { it.messageTime } returns MessageTime(Instant.DISTANT_PAST)
             every { it.messageStatus } returns MessageStatus(
                 flowStatus = MessageFlowStatus.Sent,

@@ -145,7 +145,7 @@ object TestMessage {
     val UI_MESSAGE_HEADER = MessageHeader(
         username = UIText.DynamicString("username"),
         membership = Membership.Guest,
-        isLegalHold = true,
+        showLegalHoldIndicator = true,
         messageTime = MessageTime(Instant.parse("2022-03-30T15:36:00.000Z")),
         messageStatus = MessageStatus(
             flowStatus = MessageFlowStatus.Sent,

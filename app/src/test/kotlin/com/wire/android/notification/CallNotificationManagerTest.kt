@@ -66,31 +66,6 @@ class CallNotificationManagerTest {
         }
 
     @Test
-    fun `given incoming call, when call notification needs to be reloaded, then show that notification again`() =
-        runTest(dispatcherProvider.main()) {
-            // given
-            val notification = mockk<Notification>()
-            val userName = "user name"
-            val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1, userName)
-            val id = NotificationConstants.getIncomingCallId(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
-            val tag = NotificationConstants.getIncomingCallTag(TEST_USER_ID1.toString())
-            val reloadCallIds = CallNotificationIds(TEST_USER_ID1.toString(), TEST_CALL1.conversationId.toString())
-            val (arrangement, callNotificationManager) = Arrangement()
-                .withIncomingNotificationForUserAndCall(notification, callNotificationData)
-                .arrange()
-            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
-            arrangement.withActiveNotifications(listOf(mockStatusBarNotification(id, tag)))
-            advanceUntilIdle()
-            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
-            // when
-            callNotificationManager.reloadCallNotifications(reloadCallIds)
-            advanceUntilIdle()
-            // then
-            verify(exactly = 1) { arrangement.notificationManager.notify(tag, id, notification) } // should be shown again
-            verify(exactly = 0) { arrangement.notificationManager.cancel(tag, id) }
-        }
-
-    @Test
     fun `given an incoming call for one user, then show notification for that call`() =
         runTest(dispatcherProvider.main()) {
             // given

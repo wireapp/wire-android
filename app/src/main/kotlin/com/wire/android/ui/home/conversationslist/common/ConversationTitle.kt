@@ -38,7 +38,7 @@ fun ConversationTitle(
     name: String,
     searchQuery: String,
     modifier: Modifier = Modifier,
-    isLegalHold: Boolean = false,
+    showLegalHoldIndicator: Boolean = false,
     badges: @Composable () -> Unit = {}
 ) {
     Row(
@@ -57,7 +57,7 @@ fun ConversationTitle(
             HighlightName(name = name, searchQuery = searchQuery)
         }
         badges()
-        if (isLegalHold) {
+        if (showLegalHoldIndicator) {
             Spacer(modifier = Modifier.width(6.dp))
             LegalHoldIndicator()
         }
@@ -67,5 +67,5 @@ fun ConversationTitle(
 @Preview(widthDp = 200)
 @Composable
 fun PreviewConversationTitle() {
-    ConversationTitle("very very loooooooooooong name", searchQuery = "test", isLegalHold = true)
+    ConversationTitle("very very loooooooooooong name", searchQuery = "test", showLegalHoldIndicator = true)
 }

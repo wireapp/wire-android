@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
+import androidx.paging.map
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
@@ -64,6 +65,8 @@ import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMet
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
@@ -78,6 +81,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
@@ -121,6 +125,7 @@ class ConversationListViewModelPreview(
 @HiltViewModel(assistedFactory = ConversationListViewModelImpl.Factory::class)
 class ConversationListViewModelImpl @AssistedInject constructor(
     @Assisted val conversationsSource: ConversationsSource,
+    @Assisted private val usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
     dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
@@ -133,6 +138,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
+    private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     @CurrentAccount val currentAccount: UserId,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
@@ -140,7 +146,10 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(conversationsSource: ConversationsSource): ConversationListViewModelImpl
+        fun create(
+            conversationsSource: ConversationsSource,
+            usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
+        ): ConversationListViewModelImpl
     }
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
@@ -173,7 +182,11 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 conversationFilter = conversationsSource.toFilter(),
                 onlyInteractionEnabled = false,
                 newActivitiesOnTop = containsNewActivitiesSection,
-            ).map {
+            ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
+                conversations.map {
+                    it.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
+                }
+            }.map {
                 it.insertSeparators { before, after ->
                     when {
                         // do not add separators if the list shouldn't show conversations grouped into different folders
@@ -200,7 +213,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private var notPaginatedConversationListState by mutableStateOf(ConversationListState.NotPaginated())
     override val conversationListState: ConversationListState
-        get() = if (BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED) {
+        get() = if (usePagination) {
             ConversationListState.Paginated(
                 conversations = conversationsPaginatedFlow,
                 domain = currentAccount.domain
@@ -210,7 +223,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         }
 
     init {
-        if (!BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED) {
+        if (!usePagination) {
             viewModelScope.launch {
                 searchQueryFlow
                     .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
@@ -220,13 +233,13 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                         observeConversationListDetailsWithEvents(
                             fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
                             conversationFilter = conversationsSource.toFilter()
-                        ).map {
-                            it.map { conversationDetails ->
+                        ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
+                            conversations.map { conversationDetails ->
                                 conversationDetails.toConversationItem(
                                     wireSessionImageLoader = wireSessionImageLoader,
                                     userTypeMapper = userTypeMapper,
                                     searchQuery = searchQuery,
-                                )
+                                ).hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
                             } to searchQuery
                         }
                     }
@@ -437,6 +450,19 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
     ConversationsSource.FAVORITES -> ConversationFilter.FAVORITES
     ConversationsSource.ONE_ON_ONE -> ConversationFilter.ONE_ON_ONE
 }
+
+private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus: LegalHoldStateForSelfUser) =
+    // if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
+    // the indication is shown in the header of the conversation list for self user in that case and it's enough
+    when (selfUserLegalHoldStatus) {
+        is LegalHoldStateForSelfUser.Enabled -> when (this) {
+            is ConversationItem.ConnectionConversation -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.GroupConversation -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.PrivateConversation -> this.copy(showLegalHoldIndicator = false)
+        }
+
+        else -> this
+    }
 
 @Suppress("ComplexMethod")
 private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map<ConversationFolder, List<ConversationItem>> {

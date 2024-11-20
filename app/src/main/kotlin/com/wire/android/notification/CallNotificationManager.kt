@@ -23,7 +23,9 @@ import android.app.Notification
 import android.content.Context
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.CallStyle
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.Person
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.notification.NotificationConstants.INCOMING_CALL_ID_PREFIX
@@ -36,15 +38,11 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -64,7 +62,6 @@ class CallNotificationManager @Inject constructor(
     private val notificationManager = NotificationManagerCompat.from(context)
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val incomingCallsForUsers = MutableStateFlow<Map<UserId, IncomingCallsForUser>>(mapOf())
-    private val reloadCallNotification = MutableSharedFlow<CallNotificationIds>()
 
     init {
         scope.launch {
@@ -81,16 +78,6 @@ class CallNotificationManager @Inject constructor(
                     currentCalls to (currentCalls - previousCalls.toSet())
                 }
                 .distinctUntilChanged()
-                .flatMapLatest { (allCurrentCalls, newCalls) ->
-                    reloadCallNotification
-                        .map { (userIdString, conversationIdString) ->
-                            allCurrentCalls to allCurrentCalls.filter { // emit call that needs to be reloaded as newOrUpdated
-                                it.userId.toString() == userIdString && it.conversationId.toString() == conversationIdString
-                            }
-                        }
-                        .filter { (_, newCalls) -> newCalls.isNotEmpty() } // only emit if there is something to reload
-                        .onStart { emit(allCurrentCalls to newCalls) }
-                }
                 .collectLatest { (allCurrentCalls, newCalls) ->
                     // remove outdated incoming call notifications
                     hideOutdatedIncomingCallNotifications(allCurrentCalls)
@@ -109,10 +96,6 @@ class CallNotificationManager @Inject constructor(
             NotificationConstants.getIncomingCallId(it.userId.toString(), it.conversationId.toString())
         }
         hideIncomingCallNotifications { _, id -> !currentIncomingCallNotificationIds.contains(id) }
-    }
-
-    fun reloadCallNotifications(reloadCallNotificationIds: CallNotificationIds) = scope.launch {
-        reloadCallNotification.emit(reloadCallNotificationIds)
     }
 
     fun handleIncomingCalls(calls: List<Call>, userId: UserId, userName: String) {
@@ -167,8 +150,6 @@ class CallNotificationManager @Inject constructor(
         notificationManager.notify(tag, id, notification)
     }
 
-    // Notifications
-
     companion object {
         private const val TAG = "CallNotificationManager"
         private const val CANCEL_CALL_NOTIFICATION_DELAY = 300L
@@ -187,9 +168,11 @@ class CallNotificationBuilder @Inject constructor(
         val userIdString = data.userId.toString()
         val conversationIdString = data.conversationId.toString()
         val channelId = NotificationConstants.getOutgoingChannelId(data.userId)
+        val person = Person.Builder().setName(data.conversationName).build()
 
-        return NotificationCompat.Builder(context, channelId)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        val notificationBuilder = NotificationCompat.Builder(context, channelId)
+        return notificationBuilder
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setSmallIcon(R.drawable.notification_icon_small)
             .setContentTitle(data.conversationName)
@@ -198,11 +181,16 @@ class CallNotificationBuilder @Inject constructor(
             .setAutoCancel(false)
             .setOngoing(true)
             .setSilent(true)
+            .setStyle(
+                CallStyle.forOngoingCall(
+                    person,
+                    endOngoingCallPendingIntent(context, conversationIdString, userIdString)
+                )
+            )
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
             .setFullScreenIntent(outgoingCallPendingIntent(context, conversationIdString), true)
             .setContentIntent(outgoingCallPendingIntent(context, conversationIdString))
-            .setDeleteIntent(callNotificationDismissedPendingIntent(context, userIdString, conversationIdString))
             .build()
     }
 
@@ -212,6 +200,7 @@ class CallNotificationBuilder @Inject constructor(
         val title = getNotificationTitle(data)
         val content = getNotificationBody(data)
         val channelId = NotificationConstants.getIncomingChannelId(data.userId)
+        val person = Person.Builder().setName(title).build()
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -222,13 +211,17 @@ class CallNotificationBuilder @Inject constructor(
             .setSubText(data.userName)
             .setAutoCancel(false)
             .setOngoing(true)
+            .setStyle(
+                CallStyle.forIncomingCall(
+                    person,
+                    declineCallPendingIntent(context, conversationIdString, userIdString),
+                    answerCallPendingIntent(context, conversationIdString, userIdString)
+                )
+            )
             .setVibrate(VIBRATE_PATTERN)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .addAction(getDeclineCallAction(context, conversationIdString, userIdString))
-            .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
             .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString), true)
             .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString))
-            .setDeleteIntent(callNotificationDismissedPendingIntent(context, userIdString, conversationIdString))
             .build()
 
         // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.
@@ -242,6 +235,7 @@ class CallNotificationBuilder @Inject constructor(
         val conversationIdString = data.conversationId.toString()
         val userIdString = data.userId.toString()
         val title = getNotificationTitle(data)
+        val person = Person.Builder().setName(title).build()
 
         return NotificationCompat.Builder(context, channelId)
             .setContentTitle(title)
@@ -254,11 +248,15 @@ class CallNotificationBuilder @Inject constructor(
             .setAutoCancel(true)
             .setOngoing(true)
             .setUsesChronometer(true)
-            .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
-            .addAction(getOpenOngoingCallAction(context, conversationIdString))
+            .setStyle(
+                CallStyle.forOngoingCall(
+                    person,
+                    endOngoingCallPendingIntent(context, conversationIdString, userIdString)
+                )
+            )
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setFullScreenIntent(openOngoingCallPendingIntent(context, conversationIdString), true)
             .setContentIntent(openOngoingCallPendingIntent(context, conversationIdString))
-            .setDeleteIntent(callNotificationDismissedPendingIntent(context, userIdString, conversationIdString))
             .build()
     }
 

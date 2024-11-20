@@ -39,6 +39,7 @@ data class SelfUserProfileState(
     val isAvatarLoading: Boolean = false,
     val maxAccountsReached: Boolean = false, // todo. cleanup unused code
     val isReadOnlyAccount: Boolean = true,
+    val isAbleToMigrateToTeamAccount: Boolean = false,
     val isLoggingOut: Boolean = false,
     val legalHoldStatus: LegalHoldUIState = LegalHoldUIState.None,
     val accentId: Int = -1

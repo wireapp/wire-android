@@ -234,7 +234,7 @@ private fun SelfUserProfileContent(
                         .fillMaxHeight()
                         .scrollable(state = scrollState, orientation = Orientation.Vertical)
                 ) {
-                    if (state.teamName == null) {
+                    if (state.isAbleToMigrateToTeamAccount) {
                         stickyHeader {
                             Column(
                                 modifier = Modifier

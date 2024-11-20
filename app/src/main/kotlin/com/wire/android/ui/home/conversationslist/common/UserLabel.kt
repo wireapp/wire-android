@@ -39,7 +39,7 @@ fun UserLabel(
     with(userInfoLabel) {
         ConversationTitle(
             name = if (unavailable) stringResource(id = R.string.username_unavailable_label) else labelName,
-            isLegalHold = isLegalHold,
+            showLegalHoldIndicator = showLegalHoldIndicator,
             modifier = modifier,
             badges = {
                 if (membership.hasLabel()) {
@@ -54,7 +54,7 @@ fun UserLabel(
 
 data class UserInfoLabel(
     val labelName: String,
-    val isLegalHold: Boolean,
+    val showLegalHoldIndicator: Boolean,
     val membership: Membership,
     val unavailable: Boolean = false,
     val proteusVerificationStatus: Conversation.VerificationStatus? = null,

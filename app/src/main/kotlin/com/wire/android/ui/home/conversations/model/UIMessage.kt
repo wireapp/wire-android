@@ -127,7 +127,7 @@ sealed interface UIMessage {
 data class MessageHeader(
     val username: UIText,
     val membership: Membership,
-    val isLegalHold: Boolean,
+    val showLegalHoldIndicator: Boolean,
     val messageTime: MessageTime,
     val messageStatus: MessageStatus,
     val messageId: String,

@@ -295,7 +295,7 @@ fun ConversationScreen(
     LaunchedEffect(messageDraftViewModel.state.value.quotedMessageId) {
         val compositionState = messageDraftViewModel.state.value
         if (compositionState.quotedMessage != null) {
-            messageComposerStateHolder.messageCompositionHolder.updateQuote(compositionState.quotedMessage)
+            messageComposerStateHolder.messageCompositionHolder.value.updateQuote(compositionState.quotedMessage)
         }
     }
 

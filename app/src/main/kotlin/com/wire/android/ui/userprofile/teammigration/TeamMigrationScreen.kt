@@ -22,6 +22,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -82,6 +84,7 @@ fun TeamMigrationScreen(
     Column(
         modifier = modifier
             .padding(top = dimensions().spacing32x)
+            .navigationBarsPadding()
             .clip(
                 shape = RoundedCornerShape(
                     dimensions().corner16x,

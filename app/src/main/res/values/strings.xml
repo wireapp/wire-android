@@ -198,6 +198,7 @@
     <string name="content_description_add_participants_search_field">Search people by name or username</string>
     <string name="content_description_add_participants_back_btn">Go back to add participants view</string>
     <string name="content_description_home_profile_btn">Your profile</string>
+    <string name="content_description_home_profile_btn_with_notification">Your profile, one unread hint.</string>
     <string name="content_description_open_label">open</string>
     <string name="content_description_join_call_label">join a call</string>
     <string name="content_description_share_label">share</string>
@@ -1575,6 +1576,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>
     <string name="personal_to_team_migration_back_to_wire_button">Back to Wire</string>
     <string name="personal_to_team_migration_back_button_label">Back</string>
+    <string name="personal_to_team_migration_back_button_team_name_content_description">Go back to team account overview</string>
+    <string name="personal_to_team_migration_back_button_confirmation_content_description">Go back to team name view</string>
     <string name="personal_to_team_migration_close_icon_content_description">Close team migration flow</string>
 
     <string name="personal_to_team_migration_team_plan_step">Team Account</string>

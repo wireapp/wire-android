@@ -161,6 +161,7 @@ private fun TeamMigrationConfirmationStepScreenContent(
         BottomLineButtons(
             isContinueButtonEnabled = isContinueButtonEnabled,
             onContinue = onContinueButtonClicked,
+            backButtonContentDescription = stringResource(R.string.personal_to_team_migration_back_button_confirmation_content_description),
             onBack = onBackPressed
         )
     }

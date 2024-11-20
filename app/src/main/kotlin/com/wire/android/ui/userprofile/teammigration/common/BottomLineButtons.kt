@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -41,6 +43,7 @@ fun BottomLineButtons(
     isContinueButtonEnabled: Boolean,
     modifier: Modifier = Modifier,
     isBackButtonVisible: Boolean = true,
+    backButtonContentDescription: String = stringResource(R.string.personal_to_team_migration_back_button_label),
     onBack: () -> Unit = { },
     onContinue: () -> Unit = { }
 ) {
@@ -60,7 +63,9 @@ fun BottomLineButtons(
     ) {
         if (isBackButtonVisible) {
             WireSecondaryButton(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(true) { contentDescription = backButtonContentDescription },
                 text = stringResource(R.string.personal_to_team_migration_back_button_label),
                 onClick = onBack
             )

@@ -25,6 +25,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import ly.count.android.sdk.Countly
 import ly.count.android.sdk.CountlyConfig
+import ly.count.android.sdk.UtilsInternalLimits
 
 class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
 
@@ -73,8 +74,13 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
         Countly.sharedInstance().onStop()
     }
 
+    /**
+     * We need to change our segmentation map to [MutableMap] because
+     * Countly is doing additional operations on it.
+     * See [UtilsInternalLimits.removeUnsupportedDataTypes]
+     */
     override fun sendEvent(event: AnalyticsEvent) {
-        Countly.sharedInstance().events().recordEvent(event.key, event.toSegmentation())
+        Countly.sharedInstance().events().recordEvent(event.key, event.toSegmentation().toMutableMap())
     }
 
     override fun halt() {

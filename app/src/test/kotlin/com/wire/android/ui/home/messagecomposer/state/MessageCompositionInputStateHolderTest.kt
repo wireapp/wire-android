@@ -20,10 +20,11 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -233,14 +234,14 @@ class MessageCompositionInputStateHolderTest {
 
     class Arrangement {
 
-        private val textFieldState = TextFieldState()
+        private val textFieldValue = mutableStateOf(TextFieldValue())
 
         val softwareKeyboardController = mockk<SoftwareKeyboardController>()
 
         private val focusRequester = mockk<FocusRequester>()
 
         private val state by lazy {
-            MessageCompositionInputStateHolder(textFieldState, softwareKeyboardController, focusRequester)
+            MessageCompositionInputStateHolder(textFieldValue, softwareKeyboardController, focusRequester)
         }
 
         init {
@@ -251,7 +252,10 @@ class MessageCompositionInputStateHolderTest {
         }
 
         fun withText(text: String) = apply {
-            textFieldState.setTextAndPlaceCursorAtEnd(text)
+            textFieldValue.value = textFieldValue.value.copy(
+                text = text,
+                selection = TextRange(text.length)
+            )
         }
 
         fun arrange() = state to this

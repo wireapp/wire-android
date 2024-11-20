@@ -111,7 +111,6 @@ import kotlin.math.absoluteValue
 import kotlin.math.min
 
 // TODO: a definite candidate for a refactor and cleanup
-@OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")
 @Composable
 fun RegularMessageItem(

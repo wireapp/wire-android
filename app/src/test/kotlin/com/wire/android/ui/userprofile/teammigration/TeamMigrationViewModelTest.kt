@@ -19,7 +19,7 @@ package com.wire.android.ui.userprofile.teammigration
 
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.kalium.logic.feature.team.migration.MigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify

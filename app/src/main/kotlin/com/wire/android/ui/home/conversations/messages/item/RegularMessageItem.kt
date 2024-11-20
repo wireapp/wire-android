@@ -132,7 +132,10 @@ fun RegularMessageItem(
                         // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
                         // timer to expire to permanently delete the message, in the meantime we show the EphemeralMessageExpiredLabel
                         if (isDeleted) {
-                            EphemeralMessageExpiredLabel(message.isMyMessage, conversationDetailsData)
+                            EphemeralMessageExpiredLabel(
+                                message.isMyMessage,
+                                conversationDetailsData
+                            )
                         }
                     } else {
                         MessageStatusLabel(messageStatus = message.header.messageStatus)
@@ -178,7 +181,10 @@ fun RegularMessageItem(
                             isInteractionAvailable = failureInteractionAvailable,
                             onRetryClick = remember(message) {
                                 {
-                                    clickActions.onFailedMessageRetryClicked(header.messageId, message.conversationId)
+                                    clickActions.onFailedMessageRetryClicked(
+                                        header.messageId,
+                                        message.conversationId
+                                    )
                                 }
                             },
                             onCancelClick = remember(message) {
@@ -193,7 +199,8 @@ fun RegularMessageItem(
         )
     }
     if (swipableMessageConfiguration is SwipableMessageConfiguration.SwipableToReply && isReplyable) {
-        val onSwipe = remember(message) { { swipableMessageConfiguration.onSwipedToReply(message) } }
+        val onSwipe =
+            remember(message) { { swipableMessageConfiguration.onSwipedToReply(message) } }
         SwipableToReplyBox(onSwipedToReply = onSwipe) {
             messageContent()
         }
@@ -237,7 +244,12 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
         is UIMessageContent.AudioAssetMessage,
         is UIMessageContent.ImageMessage,
         is UIMessageContent.TextMessage -> {
-            StatusBox(statusText = stringResource(R.string.self_deleting_message_time_left, timeLeft))
+            StatusBox(
+                statusText = stringResource(
+                    R.string.self_deleting_message_time_left,
+                    timeLeft
+                )
+            )
         }
 
         is UIMessageContent.Deleted -> {
@@ -314,7 +326,6 @@ private fun MessageFooter(
                         onTap = {
                             onReactionClicked(messageFooter.messageId, reaction)
                         },
-                        userWireButton = true,
                     )
                 }
         }
@@ -339,7 +350,10 @@ private fun Username(username: String, accent: Accent, modifier: Modifier = Modi
     Text(
         text = username,
         style = MaterialTheme.wireTypography.body02,
-        color = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(accent, MaterialTheme.wireColorScheme.onBackground),
+        color = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
+            accent,
+            MaterialTheme.wireColorScheme.onBackground
+        ),
         modifier = modifier,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis

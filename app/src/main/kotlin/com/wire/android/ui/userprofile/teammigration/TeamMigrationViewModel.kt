@@ -35,7 +35,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TeamMigrationViewModel @Inject constructor(
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
-    private val teamMigrationUseCase: MigrateFromPersonalToTeamUseCase
+    private val migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase
 ) : ViewModel() {
 
     var teamMigrationState by mutableStateOf(TeamMigrationState())
@@ -89,9 +89,9 @@ class TeamMigrationViewModel @Inject constructor(
         )
     }
 
-    fun postTeamMigration(onSuccess: () -> Unit) {
+    fun migrateFromPersonalToTeamAccount(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            teamMigrationUseCase.invoke(
+            migrateFromPersonalToTeam.invoke(
                 teamMigrationState.teamNameTextState.text.toString(),
             ).let { result ->
                 when (result) {

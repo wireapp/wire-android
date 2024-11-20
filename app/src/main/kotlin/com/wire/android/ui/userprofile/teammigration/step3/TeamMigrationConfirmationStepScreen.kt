@@ -72,7 +72,7 @@ fun TeamMigrationConfirmationStepScreen(
 
     TeamMigrationConfirmationStepScreenContent(
         onContinueButtonClicked = {
-            teamMigrationViewModel.postTeamMigration(
+            teamMigrationViewModel.migrateFromPersonalToTeamAccount(
                 onSuccess = {
                     navigator.navigate(TeamMigrationDoneStepScreenDestination)
                 },

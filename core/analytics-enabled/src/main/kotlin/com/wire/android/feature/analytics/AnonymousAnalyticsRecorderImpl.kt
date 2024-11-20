@@ -70,7 +70,7 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
 
     /**
      * We need to change our segmentation map to [MutableMap] because
-     * Cauntly is doing additional operations on it.
+     * Countly is doing additional operations on it.
      * See [UtilsInternalLimits.removeUnsupportedDataTypes]
      */
     override fun sendEvent(event: AnalyticsEvent) {

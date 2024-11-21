@@ -27,12 +27,10 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -63,11 +61,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDropDown
-import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserStatusIndicator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -86,8 +81,6 @@ import com.wire.android.ui.destinations.MyAccountScreenDestination
 import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
 import com.wire.android.ui.destinations.TeamMigrationScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
-import com.wire.android.ui.home.conversations.search.HighlightName
-import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.legalhold.banner.LegalHoldPendingBanner
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
@@ -308,8 +301,13 @@ private fun SelfUserProfileContent(
                             CurrentSelfUserStatus(
                                 userStatus = status,
                                 onStatusClicked = onStatusClicked,
-                                onAccountDetailsClick = onAccountDetailsClick,
                             )
+                        }
+                    }
+                    stickyHeader {
+                        VerticalSpace.x8()
+                        Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)) {
+                            AccountDetailButton(onAccountDetailsClick = onAccountDetailsClick)
                         }
                     }
                     if (state.otherAccounts.isNotEmpty()) {
@@ -409,7 +407,6 @@ private fun SelfUserProfileTopBar(
 private fun CurrentSelfUserStatus(
     userStatus: UserAvailabilityStatus,
     onStatusClicked: (UserAvailabilityStatus) -> Unit,
-    onAccountDetailsClick: () -> Unit,
 ) {
     val items = listOf(
         UserAvailabilityStatus.AVAILABLE,
@@ -440,18 +437,7 @@ private fun CurrentSelfUserStatus(
         ) { selectedIndex ->
             onStatusClicked(items[selectedIndex])
         }
-
-        VerticalSpace.x8()
-
-        Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)) {
-            AccountDetailButton(onAccountDetailsClick = onAccountDetailsClick)
-        }
     }
-}
-
-@Composable
-private fun OtherAccountsHeader() {
-    FolderHeader(stringResource(id = R.string.user_profile_other_accs))
 }
 
 @Composable
@@ -500,46 +486,6 @@ private fun AccountDetailButton(
             )
         },
         onClick = onAccountDetailsClick,
-    )
-}
-
-@Composable
-private fun OtherAccountItem(
-    account: OtherAccount,
-    clickable: Clickable = Clickable(enabled = true) {},
-) {
-    RowItemTemplate(
-        leadingIcon = { UserProfileAvatar(account.avatarData) },
-        titleStartPadding = dimensions().spacing0x,
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                HighlightName(
-                    name = account.fullName,
-                    modifier = Modifier.weight(weight = 1f, fill = false),
-                    searchQuery = ""
-                )
-            }
-        },
-        subtitle = {
-            val subTitle = buildString {
-                append(account.handle ?: "")
-                if (account.id.domain.isNotBlank()) {
-                    append("@${account.id.domain}")
-                }
-            }
-            HighlightSubtitle(subTitle = subTitle)
-        },
-        actions = {
-            Box(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(end = MaterialTheme.wireDimensions.spacing8x)
-            ) {
-                ArrowRightIcon(Modifier.align(Alignment.TopEnd), R.string.content_description_empty)
-            }
-        },
-        clickable = clickable,
-        modifier = Modifier.padding(start = dimensions().spacing8x)
     )
 }
 
@@ -626,7 +572,6 @@ fun PreviewCurrentSelfUserStatus() {
         CurrentSelfUserStatus(
             UserAvailabilityStatus.AVAILABLE,
             onStatusClicked = {},
-            onAccountDetailsClick = {}
         )
     }
 }

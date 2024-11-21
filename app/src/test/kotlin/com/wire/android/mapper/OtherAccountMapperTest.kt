@@ -25,11 +25,9 @@ import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class OtherAccountMapperTest {
 
     @Test
@@ -41,24 +39,23 @@ class OtherAccountMapperTest {
             testSelfUser(1) to null
         )
         // When
-        val results = data.map { (selfUser, team) -> mapper.toOtherAccount(selfUser, team) }
+        val results = data.map { (selfUser, _) -> mapper.toOtherAccount(selfUser) }
         // Then
         results.forEachIndexed { index, result ->
-            val (selfUser, team) = data[index]
-            assert(compareResult(arrangement.wireSessionImageLoader, selfUser, team, result))
+            val (selfUser, _) = data[index]
+            assert(compareResult(arrangement.wireSessionImageLoader, selfUser, result))
         }
     }
 
     private fun compareResult(
         wireSessionImageLoader: WireSessionImageLoader,
         selfUser: SelfUser,
-        team: Team?,
         otherAccount: OtherAccount
     ): Boolean =
         selfUser.id == otherAccount.id
             && selfUser.name == otherAccount.fullName
             && selfUser.avatar(wireSessionImageLoader, selfUser.connectionStatus) == otherAccount.avatarData
-            && team?.name == otherAccount.teamName
+            && selfUser.handle == otherAccount.handle
 
     private class Arrangement {
 

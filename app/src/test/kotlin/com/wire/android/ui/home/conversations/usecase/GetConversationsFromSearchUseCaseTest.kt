@@ -22,6 +22,7 @@ import androidx.paging.testing.asSnapshot
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversationDetails
+import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -33,6 +34,7 @@ import com.wire.kalium.logic.data.conversation.FolderType
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -73,6 +75,7 @@ class GetConversationsFromSearchUseCaseTest {
         )
         val (arrangement, useCase) = Arrangement()
             .withPaginatedResult(conversationsList)
+            .withSelfUser()
             .arrange()
         // When
         val result = with(arrangement.queryConfig) {
@@ -99,6 +102,7 @@ class GetConversationsFromSearchUseCaseTest {
         val (arrangement, useCase) = Arrangement()
             .withFavoriteFolderResult(folderResult)
             .withFolderConversationsResult(conversationsList)
+            .withSelfUser()
             .arrange()
 
         // When
@@ -133,6 +137,9 @@ class GetConversationsFromSearchUseCaseTest {
         @MockK
         lateinit var userTypeMapper: UserTypeMapper
 
+        @MockK
+        lateinit var observeSelfUser: GetSelfUserUseCase
+
         val queryConfig = ConversationQueryConfig(
             searchQuery = "search",
             fromArchive = false,
@@ -162,13 +169,18 @@ class GetConversationsFromSearchUseCaseTest {
             } returns flowOf(conversations)
         }
 
+        fun withSelfUser() = apply {
+            coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
+        }
+
         fun arrange() = this to GetConversationsFromSearchUseCase(
             useCase,
             getFavoriteFolderUseCase,
             observeConversationsFromFolderUseCase,
             wireSessionImageLoader,
             userTypeMapper,
-            dispatcherProvider
+            dispatcherProvider,
+            observeSelfUser
         )
     }
 }

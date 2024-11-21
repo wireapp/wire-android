@@ -48,7 +48,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
-    private val observeSelfUserUseCase: GetSelfUserUseCase
+    private val observeSelfUser: GetSelfUserUseCase
 ) {
     suspend operator fun invoke(
         searchQuery: String = "",
@@ -102,7 +102,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                         wireSessionImageLoader = wireSessionImageLoader,
                         userTypeMapper = userTypeMapper,
                         searchQuery = searchQuery,
-                        selfUserTeamId = observeSelfUserUseCase().firstOrNull()?.teamId
+                        selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
                     )
                 }
             }.flowOn(dispatchers.io())

@@ -144,7 +144,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     @CurrentAccount val currentAccount: UserId,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
-    private val observeSelfUserUseCase: GetSelfUserUseCase
+    private val observeSelfUser: GetSelfUserUseCase
 ) : ConversationListViewModel, ViewModel() {
 
     @AssistedFactory
@@ -242,7 +242,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                                     wireSessionImageLoader = wireSessionImageLoader,
                                     userTypeMapper = userTypeMapper,
                                     searchQuery = searchQuery,
-                                    selfUserTeamId = observeSelfUserUseCase().firstOrNull()?.teamId
+                                    selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
                                 ).hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
                             } to searchQuery
                         }
@@ -456,7 +456,7 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
 }
 
 private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus: LegalHoldStateForSelfUser) =
-    // if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
+// if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
     // the indication is shown in the header of the conversation list for self user in that case and it's enough
     when (selfUserLegalHoldStatus) {
         is LegalHoldStateForSelfUser.Enabled -> when (this) {

@@ -456,7 +456,7 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
 }
 
 private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus: LegalHoldStateForSelfUser) =
-// if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
+    // if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
     // the indication is shown in the header of the conversation list for self user in that case and it's enough
     when (selfUserLegalHoldStatus) {
         is LegalHoldStateForSelfUser.Enabled -> when (this) {

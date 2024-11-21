@@ -22,7 +22,6 @@ import android.annotation.SuppressLint
 import com.wire.android.migration.util.getStringOrNull
 import com.wire.android.migration.util.orNullIfNegative
 import kotlinx.coroutines.withContext
-import java.sql.SQLException
 import kotlin.coroutines.CoroutineContext
 
 class ScalaAccountsDAO(
@@ -32,8 +31,7 @@ class ScalaAccountsDAO(
 
     @SuppressLint("Recycle")
     suspend fun activeAccounts(): List<ScalaActiveAccountsEntity> = withContext(queryContext) {
-        val cursor = db.rawQuery("SELECT * from $ACTIVE_ACCOUNTS_TABLE_NAME", null)
-        try {
+        db.rawQuery("SELECT * from $ACTIVE_ACCOUNTS_TABLE_NAME", null).use { cursor ->
             val domainIndex: Int? = cursor.getColumnIndex(COLUMN_DOMAIN).orNullIfNegative()
             val idIndex: Int = cursor.getColumnIndex(COLUMN_ID)
             val teamIdIndex: Int = cursor.getColumnIndex(COLUMN_TEAM_ID)
@@ -43,29 +41,20 @@ class ScalaAccountsDAO(
             val ssoIdIndex: Int = cursor.getColumnIndex(COLUMN_SSO_ID)
 
             return@withContext if (cursor.moveToFirst()) {
-                // accu is a list of all the accounts we have found so far
-                val accumulator = mutableListOf<ScalaActiveAccountsEntity>()
-                do {
-                    accumulator += ScalaActiveAccountsEntity(
-                        id = cursor.getString(idIndex),
-                        domain = domainIndex?.let { cursor.getStringOrNull(domainIndex) },
-                        teamId = cursor.getStringOrNull(teamIdIndex),
-                        refreshToken = cursor.getString(refreshTokenIndex),
-                        accessToken = ScalaAccessTokenEntity.fromString(cursor.getStringOrNull(accessTokenIndex)),
-                        pushToken = cursor.getStringOrNull(pushTokenIndex),
-                        ssoId = ScalaSsoIdEntity.fromString(cursor.getStringOrNull(ssoIdIndex))
-                    )
-                } while (cursor.moveToNext())
-                accumulator
-            } else {
-                // cursor.moveToFirst() will return false if the cursor is empty
-                emptyList()
-            }
-        } catch (e: SQLException) {
-            // TODO: handle error with Either ?
-            throw e
-        } finally {
-            cursor.close()
+                generateSequence { if (cursor.moveToNext()) cursor else null }
+                    .fold(mutableListOf<ScalaActiveAccountsEntity>()) { accumulator, _ ->
+                        accumulator += ScalaActiveAccountsEntity(
+                            id = cursor.getString(idIndex),
+                            domain = domainIndex?.let { cursor.getStringOrNull(domainIndex) },
+                            teamId = cursor.getStringOrNull(teamIdIndex),
+                            refreshToken = cursor.getString(refreshTokenIndex),
+                            accessToken = ScalaAccessTokenEntity.fromString(cursor.getStringOrNull(accessTokenIndex)),
+                            pushToken = cursor.getStringOrNull(pushTokenIndex),
+                            ssoId = ScalaSsoIdEntity.fromString(cursor.getStringOrNull(ssoIdIndex))
+                        )
+                        accumulator
+                    }
+            } else emptyList()
         }
     }
 
@@ -80,3 +69,4 @@ class ScalaAccountsDAO(
         const val COLUMN_SSO_ID = "sso_id"
     }
 }
+

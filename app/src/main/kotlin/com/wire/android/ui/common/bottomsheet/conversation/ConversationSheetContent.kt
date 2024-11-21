@@ -37,7 +37,7 @@ import com.wire.kalium.logic.data.user.UserId
 fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
     onMutingConversationStatusChange: () -> Unit,
-    changeFavoriteState: (conversationId: ConversationId, isFavorite: Boolean) -> Unit,
+    changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
     moveConversationToFolder: () -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
@@ -148,8 +148,8 @@ data class ConversationSheetContent(
         conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.BLOCKED
 
     fun canAddToFavourite(): Boolean = isFavorite != null &&
-        ((conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
-                || conversationTypeDetail is ConversationTypeDetail.Group)
+            ((conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
+                    || conversationTypeDetail is ConversationTypeDetail.Group)
 
     fun isAbandonedOneOnOneConversation(participantsCount: Int): Boolean = title.isEmpty() && participantsCount == 1
 }

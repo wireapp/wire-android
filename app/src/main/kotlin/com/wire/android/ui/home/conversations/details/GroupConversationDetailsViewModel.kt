@@ -56,8 +56,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
-import com.wire.kalium.logic.feature.conversation.folder.AddConversationToFavoritesUseCase
-import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -102,8 +100,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
-    private val addConversationToFavorites: AddConversationToFavoritesUseCase,
-    private val removeConversationFromFavorites: RemoveConversationFromFavoritesUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata
@@ -376,16 +372,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
             onMessage(UIText.StringResource(R.string.group_content_delete_failure))
         } else {
             onMessage(UIText.StringResource(R.string.group_content_deleted))
-        }
-    }
-
-    override fun changeFavoriteState(conversationId: ConversationId, isFavorite: Boolean) {
-        viewModelScope.launch {
-            if (isFavorite) {
-                removeConversationFromFavorites(conversationId)
-            } else {
-                addConversationToFavorites(conversationId)
-            }
         }
     }
 

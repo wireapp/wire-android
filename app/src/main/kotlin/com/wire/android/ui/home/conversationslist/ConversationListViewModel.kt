@@ -64,8 +64,6 @@ import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMet
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.conversation.folder.AddConversationToFavoritesUseCase
-import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
@@ -108,7 +106,6 @@ interface ConversationListViewModel {
     fun leaveGroup(leaveGroupState: GroupDialogState) {}
     fun clearConversationContent(dialogState: DialogState) {}
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
-    fun changeConversationFavoriteState(conversationId: ConversationId, isFavorite: Boolean) {}
     fun moveConversationToFolder() {}
     fun searchQueryChanged(searchQuery: String) {}
 }
@@ -135,8 +132,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
-    private val addConversationToFavorites: AddConversationToFavoritesUseCase,
-    private val removeConversationFromFavorites: RemoveConversationFromFavoritesUseCase,
     @CurrentAccount val currentAccount: UserId,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
@@ -355,16 +350,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 )
             }
             _requestInProgress = false
-        }
-    }
-
-    override fun changeConversationFavoriteState(conversationId: ConversationId, isFavorite: Boolean) {
-        viewModelScope.launch {
-            if(isFavorite) {
-                removeConversationFromFavorites(conversationId)
-            } else {
-                addConversationToFavorites(conversationId)
-            }
         }
     }
 

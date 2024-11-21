@@ -51,14 +51,15 @@ import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResour
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 
+// items cannot be simplified
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
 // TODO(profile): enable when implemented
-    changeFavoriteState: (conversationId: ConversationId, isFavorite: Boolean) -> Unit,
+    changeFavoriteState: (dialogState: GroupDialogState, addToFavorite: Boolean) -> Unit,
 //    moveConversationToFolder: () -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
@@ -110,7 +111,7 @@ internal fun ConversationMainSheetContent(
                 }
             }
 
-            if (conversationSheetContent.canAddToFavourite() && !conversationSheetContent.isArchived)
+            if (conversationSheetContent.canAddToFavourite() && !conversationSheetContent.isArchived) {
                 conversationSheetContent.isFavorite?.let { isFavorite ->
                     if (isFavorite) {
                         add {
@@ -122,7 +123,15 @@ internal fun ConversationMainSheetContent(
                                         contentDescription = stringResource(R.string.content_description_remove_from_favourites),
                                     )
                                 },
-                                onItemClick = { changeFavoriteState(conversationSheetContent.conversationId, true) }
+                                onItemClick = {
+                                    changeFavoriteState(
+                                        GroupDialogState(
+                                            conversationSheetContent.conversationId,
+                                            conversationSheetContent.title
+                                        ),
+                                        false
+                                    )
+                                }
                             )
                         }
                     } else {
@@ -135,11 +144,20 @@ internal fun ConversationMainSheetContent(
                                         contentDescription = stringResource(R.string.content_description_add_to_favourite),
                                     )
                                 },
-                                onItemClick = { changeFavoriteState(conversationSheetContent.conversationId, false) }
+                                onItemClick = {
+                                    changeFavoriteState(
+                                        GroupDialogState(
+                                            conversationSheetContent.conversationId,
+                                            conversationSheetContent.title
+                                        ),
+                                        true
+                                    )
+                                }
                             )
                         }
                     }
                 }
+            }
 // TODO(profile): enable when implemented
 //            add {
 //                MenuBottomSheetItem(

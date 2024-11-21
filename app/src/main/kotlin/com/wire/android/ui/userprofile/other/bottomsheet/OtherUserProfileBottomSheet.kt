@@ -24,6 +24,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationS
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.home.conversationslist.model.DialogState
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.userprofile.other.OtherUserProfileBottomSheetEventsHandler
 
 @Composable
@@ -34,6 +35,7 @@ fun OtherUserProfileBottomSheetContent(
     archivingStatusState: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
+    changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
     closeBottomSheet: () -> Unit,
     getBottomSheetVisibility: () -> Boolean
 ) {
@@ -50,7 +52,7 @@ fun OtherUserProfileBottomSheetContent(
                         mutedConversationStatus
                     )
                 },
-                changeFavoriteState = eventsHandler::onChangeFavoriteState,
+                changeFavoriteState = changeFavoriteState,
                 moveConversationToFolder = eventsHandler::onMoveConversationToFolder,
                 updateConversationArchiveStatus = {
                     if (!it.isArchived) {

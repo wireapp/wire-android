@@ -69,8 +69,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.conversation.folder.AddConversationToFavoritesUseCase
-import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -109,8 +107,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase,
     private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
     private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
-    private val addConversationToFavorites: AddConversationToFavoritesUseCase,
-    private val removeConversationFromFavorites: RemoveConversationFromFavoritesUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
@@ -308,19 +304,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
             }
             requestInProgress = false
-        }
-    }
-
-    @Suppress("EmptyFunctionBlock")
-    override fun onChangeFavoriteState(conversationId: ConversationId?, isFavorite: Boolean) {
-        conversationId?.let {
-            viewModelScope.launch {
-                if (isFavorite) {
-                    removeConversationFromFavorites(conversationId)
-                } else {
-                    addConversationToFavorites(conversationId)
-                }
-            }
         }
     }
 

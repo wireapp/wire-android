@@ -337,5 +337,4 @@ class ConversationModule {
     @Provides
     fun provideRemoveConversationFromFavoritesUseCase(conversationScope: ConversationScope) =
         conversationScope.removeConversationFromFavorites
-
 }

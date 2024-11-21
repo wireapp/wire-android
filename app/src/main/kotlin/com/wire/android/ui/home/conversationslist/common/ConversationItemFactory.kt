@@ -159,7 +159,7 @@ private fun GeneralConversationItem(
                     title = {
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
-                            isLegalHold = conversation.isLegalHold,
+                            showLegalHoldIndicator = conversation.showLegalHoldIndicator,
                             searchQuery = searchQuery
                         )
                     },

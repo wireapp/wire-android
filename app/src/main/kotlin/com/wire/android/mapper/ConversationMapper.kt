@@ -34,6 +34,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -43,6 +44,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
     wireSessionImageLoader: WireSessionImageLoader,
     userTypeMapper: UserTypeMapper,
     searchQuery: String,
+    selfUserTeamId: TeamId?
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
     is Group -> {
         ConversationItem.GroupConversation(
@@ -56,7 +58,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
                 unreadEventCount = unreadEventCount
             ),
             hasOnGoingCall = conversationDetails.hasOngoingCall && conversationDetails.isSelfUserMember,
-            isSelfUserCreator = conversationDetails.isSelfUserCreator,
+            isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,
             selfMemberRole = conversationDetails.selfRole,

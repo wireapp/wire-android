@@ -100,7 +100,7 @@ sealed class ConversationOptionNavigation {
 }
 
 sealed class ConversationTypeDetail {
-    data class Group(val conversationId: ConversationId, val isCreator: Boolean) : ConversationTypeDetail()
+    data class Group(val conversationId: ConversationId, val isFromTheSameTeam: Boolean) : ConversationTypeDetail()
     data class Private(
         val avatarAsset: UserAvatarAsset?,
         val userId: UserId,
@@ -134,10 +134,11 @@ data class ConversationSheetContent(
             && (conversationTypeDetail.blockingState != BlockingState.BLOCKED))
             || conversationTypeDetail is ConversationTypeDetail.Group)
 
-    fun canDeleteGroup(): Boolean =
-        conversationTypeDetail is ConversationTypeDetail.Group &&
+    fun canDeleteGroup(): Boolean {
+       return conversationTypeDetail is ConversationTypeDetail.Group &&
                 selfRole == Conversation.Member.Role.Admin &&
-                conversationTypeDetail.isCreator && isTeamConversation
+                conversationTypeDetail.isFromTheSameTeam && isTeamConversation
+    }
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
 

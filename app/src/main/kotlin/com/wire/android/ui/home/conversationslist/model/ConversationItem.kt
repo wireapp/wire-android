@@ -48,8 +48,8 @@ sealed class ConversationItem : ConversationFolderItem {
     data class GroupConversation(
         val groupName: String,
         val hasOnGoingCall: Boolean = false,
-        val isSelfUserCreator: Boolean = false,
         val selfMemberRole: Conversation.Member.Role?,
+        val isFromTheSameTeam: Boolean,
         val isSelfUserMember: Boolean = true,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,

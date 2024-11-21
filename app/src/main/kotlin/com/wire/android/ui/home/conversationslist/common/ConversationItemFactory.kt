@@ -310,6 +310,7 @@ fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
             selfMemberRole = null,
             teamId = null,
             isArchived = false,
+            isFromTheSameTeam = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
@@ -335,6 +336,7 @@ fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
             selfMemberRole = null,
             teamId = null,
             isArchived = false,
+            isFromTheSameTeam = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
@@ -362,6 +364,7 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
             selfMemberRole = null,
             teamId = null,
             isArchived = false,
+            isFromTheSameTeam = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
@@ -387,6 +390,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireThem
             selfMemberRole = null,
             teamId = null,
             isArchived = false,
+            isFromTheSameTeam = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
@@ -413,6 +417,7 @@ fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
             teamId = null,
             hasOnGoingCall = true,
             isArchived = false,
+            isFromTheSameTeam = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),

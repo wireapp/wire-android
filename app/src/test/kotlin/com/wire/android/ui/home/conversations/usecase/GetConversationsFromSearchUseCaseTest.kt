@@ -24,6 +24,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
@@ -44,6 +45,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -119,6 +121,52 @@ class GetConversationsFromSearchUseCaseTest {
         coVerify(exactly = 1) { arrangement.observeConversationsFromFolderUseCase.invoke(favoriteFolderId) }
         coVerify(exactly = 0) { arrangement.useCase(any(), any(), any()) }
     }
+
+    @Test
+    fun givenGroupConversation_whenConversationFromTheSameTeam_thenReturnDataWithProperlySameTeamSet() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversationsList = listOf(
+                ConversationDetailsWithEvents(
+                    TestConversationDetails.GROUP.copy(
+                        conversation = TestConversationDetails.GROUP.conversation.copy(
+                            teamId = TestUser.SELF_USER.teamId
+                        )
+                    )
+                )
+            )
+            val (arrangement, useCase) = Arrangement()
+                .withPaginatedResult(conversationsList)
+                .withSelfUser()
+                .arrange()
+            // When
+            val result = with(arrangement.queryConfig) {
+                useCase(searchQuery, fromArchive, newActivitiesOnTop, onlyInteractionEnabled).asSnapshot()
+            }
+            // Then
+            val conversation = result.first()
+            assertInstanceOf<ConversationItem.GroupConversation>(conversation)
+            assertEquals(true, conversation.isFromTheSameTeam)
+        }
+
+    @Test
+    fun givenGroupConversation_whenConversationNotFromTheSameTeam_thenReturnDataWithProperlySameTeamSet() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversationsList = listOf(ConversationDetailsWithEvents(TestConversationDetails.GROUP))
+            val (arrangement, useCase) = Arrangement()
+                .withPaginatedResult(conversationsList)
+                .withSelfUser()
+                .arrange()
+            // When
+            val result = with(arrangement.queryConfig) {
+                useCase(searchQuery, fromArchive, newActivitiesOnTop, onlyInteractionEnabled).asSnapshot()
+            }
+            // Then
+            val conversation = result.first()
+            assertInstanceOf<ConversationItem.GroupConversation>(conversation)
+            assertEquals(false, conversation.isFromTheSameTeam)
+        }
 
     inner class Arrangement {
 

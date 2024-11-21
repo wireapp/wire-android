@@ -111,7 +111,6 @@ import kotlin.math.absoluteValue
 import kotlin.math.min
 
 // TODO: a definite candidate for a refactor and cleanup
-@OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")
 @Composable
 fun RegularMessageItem(
@@ -513,7 +512,7 @@ private fun MessageAuthorRow(messageHeader: MessageHeader) {
                     startPadding = dimensions().spacing6x,
                     isDeleted = isSenderDeleted
                 )
-                if (isLegalHold) {
+                if (showLegalHoldIndicator) {
                     LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                 }
             }

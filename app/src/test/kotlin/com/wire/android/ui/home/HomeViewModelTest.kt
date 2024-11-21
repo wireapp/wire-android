@@ -31,7 +31,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
-import com.wire.kalium.logic.feature.personaltoteamaccount.IsPersonalToTeamAccountSupportedByBackendUseCase
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -145,7 +145,7 @@ class HomeViewModelTest {
         lateinit var analyticsManager: AnonymousAnalyticsManager
 
         @MockK
-        lateinit var isPersonalToTeamAccountSupportedByBackend: IsPersonalToTeamAccountSupportedByBackendUseCase
+        lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
         private val viewModel by lazy {
             HomeViewModel(
@@ -158,22 +158,22 @@ class HomeViewModelTest {
                 wireSessionImageLoader = wireSessionImageLoader,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser,
                 analyticsManager = analyticsManager,
-                isPersonalToTeamAccountSupportedByBackend = isPersonalToTeamAccountSupportedByBackend
+                isPersonalToTeamAccountSupportedByBackend = canMigrateFromPersonalToTeam
             )
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withGetSelf(flowOf(TestUser.SELF_USER))
-            withIsPersonalToTeamAccountSupportedByBackendReturning(true)
+            withCanMigrateFromPersonalToTeamReturning(true)
         }
 
         fun withGetSelf(result: Flow<SelfUser>) = apply {
             coEvery { getSelf.invoke() } returns result
         }
 
-        fun withIsPersonalToTeamAccountSupportedByBackendReturning(result: Boolean) = apply {
-            coEvery { isPersonalToTeamAccountSupportedByBackend.invoke() } returns result
+        private fun withCanMigrateFromPersonalToTeamReturning(result: Boolean) = apply {
+            coEvery { canMigrateFromPersonalToTeam.invoke() } returns result
         }
 
         fun withLegalHoldStatus(result: Flow<LegalHoldStateForSelfUser>) = apply {

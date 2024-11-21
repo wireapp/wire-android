@@ -35,7 +35,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
-import com.wire.kalium.logic.feature.personaltoteamaccount.IsPersonalToTeamAccountSupportedByBackendUseCase
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -103,7 +103,7 @@ class SelfUserProfileViewModelArrangement {
     lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
 
     @MockK
-    lateinit var isPersonalToTeamAccountSupportedByBackend: IsPersonalToTeamAccountSupportedByBackendUseCase
+    lateinit var isPersonalToTeamAccountSupportedByBackend: CanMigrateFromPersonalToTeamUseCase
 
     private val viewModel by lazy {
         SelfUserProfileViewModel(

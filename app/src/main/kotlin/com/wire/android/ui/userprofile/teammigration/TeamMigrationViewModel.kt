@@ -96,7 +96,6 @@ class TeamMigrationViewModel @Inject constructor(
             ).let { result ->
                 when (result) {
                     is MigrateFromPersonalToTeamResult.Success -> {
-                        teamMigrationState.teamNameTextState.setTextAndSelectAll(result.teamName)
                         onSuccess()
                     }
 

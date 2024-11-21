@@ -34,6 +34,7 @@ import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
+import com.wire.kalium.logic.feature.client.GetFailedToMigrateClientIdUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
@@ -53,7 +54,8 @@ class RemoveDeviceViewModel @Inject constructor(
     private val deleteClientUseCase: DeleteClientUseCase,
     private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
-    private val userDataStore: UserDataStore
+    private val userDataStore: UserDataStore,
+    private val getFailedToMigrateClientId: GetFailedToMigrateClientIdUseCase,
 ) : ViewModel() {
 
     val passwordTextState: TextFieldState = TextFieldState()
@@ -84,10 +86,14 @@ class RemoveDeviceViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isLoadingClientsList = true)
             val selfClientsResult = fetchSelfClientsFromRemote()
+            val failedToMigrateClientId = getFailedToMigrateClientId()
             state = if (selfClientsResult is SelfClientsResult.Success) {
                 state.copy(
                     isLoadingClientsList = false,
-                    deviceList = selfClientsResult.clients.filter { it.type == ClientType.Permanent }.map { Device(it) },
+                    deviceList = selfClientsResult.clients
+                        .filter {
+                            it.type == ClientType.Permanent && it.id != failedToMigrateClientId
+                        }.map { Device(it) },
                     removeDeviceDialogState = RemoveDeviceDialogState.Hidden
                 )
             } else {

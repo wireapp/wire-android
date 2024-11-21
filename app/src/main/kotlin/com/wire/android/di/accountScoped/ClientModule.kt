@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
+import com.wire.kalium.logic.feature.client.GetFailedToMigrateClientIdUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
@@ -108,4 +109,9 @@ class ClientModule {
     @Provides
     fun provideNeedsToRegisterClientUseCase(clientScope: ClientScope): NeedsToRegisterClientUseCase =
         clientScope.needsToRegisterClient
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetFailedToMigrateClientIdUseCase(clientScope: ClientScope): GetFailedToMigrateClientIdUseCase =
+        clientScope.getFailedToMigrateClientId
 }

@@ -17,15 +17,26 @@
  */
 package com.wire.android.ui.userprofile.teammigration
 
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(CoroutineTestExtension::class)
 class TeamMigrationViewModelTest {
 
     @Test
@@ -157,17 +168,75 @@ class TeamMigrationViewModelTest {
             }
         }
 
+    @Test
+    fun `given team name, when migrateFromPersonalToTeamAccount return success, then call use case and onSuccess`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withMigrateFromPersonalToTeamSuccess()
+                .arrange()
+
+            val onSuccess = mockk<() -> Unit>(relaxed = true)
+
+            viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+
+            coVerify(exactly = 1) {
+                arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)
+            }
+            verify(exactly = 1) { onSuccess() }
+        }
+
+    @Test
+    fun `given team name, when migrateFromPersonalToTeamAccount return failure, then call use case and handle the failure`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withMigrateFromPersonalToTeamError()
+                .arrange()
+
+            val onSuccess = {}
+
+            viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+
+            coVerify(exactly = 1) {
+                arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)
+            }
+            Assertions.assertNotNull(viewModel.teamMigrationState.migrationFailure)
+            viewModel.failureHandled()
+            Assertions.assertNull(viewModel.teamMigrationState.migrationFailure)
+        }
+
     private class Arrangement {
 
         @MockK
         lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
+
+        @MockK
+        lateinit var migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
         fun arrange() = this to TeamMigrationViewModel(
-            anonymousAnalyticsManager = anonymousAnalyticsManager
-        )
+            anonymousAnalyticsManager = anonymousAnalyticsManager,
+            migrateFromPersonalToTeam = migrateFromPersonalToTeam,
+        ).also { viewModel ->
+            viewModel.teamMigrationState.teamNameTextState.setTextAndPlaceCursorAtEnd(TEAM_NAME)
+        }
+
+        fun withMigrateFromPersonalToTeamSuccess() = apply {
+            coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Success(
+                TEAM_NAME
+            )
+        }
+
+        fun withMigrateFromPersonalToTeamError() = apply {
+            coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Error(
+                NetworkFailure.NoNetworkConnection(null)
+            )
+        }
+
+        companion object {
+            const val TEAM_NAME = "teamName"
+        }
     }
 }

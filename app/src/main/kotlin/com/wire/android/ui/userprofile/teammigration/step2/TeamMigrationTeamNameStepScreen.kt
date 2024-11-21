@@ -44,10 +44,12 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.destinations.TeamMigrationConfirmationStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
+import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.util.ui.PreviewMultipleThemes
+
+const val TEAM_MIGRATION_TEAM_NAME_STEP = 2
 
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
@@ -68,7 +70,8 @@ fun TeamMigrationTeamNameStepScreen(
         teamNameTextFieldState = teamMigrationViewModel.teamMigrationState.teamNameTextState
     )
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(2)
+        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(TEAM_MIGRATION_TEAM_NAME_STEP)
+        teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_TEAM_NAME_STEP)
     }
 }
 

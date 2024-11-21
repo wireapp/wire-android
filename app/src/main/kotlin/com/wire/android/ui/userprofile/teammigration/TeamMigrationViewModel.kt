@@ -56,6 +56,10 @@ class TeamMigrationViewModel @Inject constructor(
         )
     }
 
+    fun setCurrentStep(step: Int) {
+        teamMigrationState = teamMigrationState.copy(currentStep = step)
+    }
+
     fun sendPersonalTeamCreationFlowCanceledEvent(
         modalLeaveClicked: Boolean? = null,
         modalContinueClicked: Boolean? = null

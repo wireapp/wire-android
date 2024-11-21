@@ -57,6 +57,8 @@ import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
+const val TEAM_MIGRATION_CONFIRMATION_STEP = 3
+
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
     style = SlideNavigationAnimation::class
@@ -77,7 +79,8 @@ fun TeamMigrationConfirmationStepScreen(
         }
     )
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(3)
+        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(TEAM_MIGRATION_CONFIRMATION_STEP)
+        teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_CONFIRMATION_STEP)
     }
 }
 

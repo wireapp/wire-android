@@ -42,6 +42,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
@@ -189,13 +191,21 @@ private fun ColumnScope.DeviceItemTexts(
             .fillMaxWidth()
             .shimmerPlaceholder(visible = placeholder)
     ) {
+        val deviceName = device.name.asString()
+        val semantic = if (shouldShowVerifyLabel && !shouldShowE2EIInfo && !(device.isVerifiedProteus && !isCurrentClient)) {
+            val notVerifiedLabel = stringResource(R.string.label_client_unverified)
+            Modifier.clearAndSetSemantics { contentDescription = "$deviceName, $notVerifiedLabel" }
+        } else {
+            Modifier
+        }
         Text(
             style = MaterialTheme.wireTypography.body02,
             color = MaterialTheme.wireColorScheme.onBackground,
-            text = device.name.asString(),
+            text = deviceName,
             modifier = Modifier
                 .wrapContentWidth()
                 .shimmerPlaceholder(visible = placeholder)
+                .then(semantic)
         )
         if (shouldShowVerifyLabel) {
             if (shouldShowE2EIInfo) {

@@ -52,7 +52,8 @@ fun LogoutOptionsDialog(
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = dialogState::dismiss,
                 text = stringResource(id = R.string.label_cancel),
-                state = WireButtonState.Default
+                state = WireButtonState.Default,
+                description = stringResource(R.string.dialog_logout_wipe_data_cancel_description)
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = remember(state) { { logout(state.shouldWipeData).also { dialogState.dismiss() } } },

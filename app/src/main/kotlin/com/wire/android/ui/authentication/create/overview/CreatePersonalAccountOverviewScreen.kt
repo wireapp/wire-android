@@ -109,7 +109,8 @@ fun CreateTeamAccountOverviewScreen(
                 contentText = stringResource(id = overviewResources.overviewContentTextResId),
                 contentIconResId = overviewResources.overviewContentIconResId,
                 learnMoreText = stringResource(id = overviewResources.overviewLearnMoreTextResId),
-                learnMoreUrl = viewModel.learnMoreUrl()
+                learnMoreUrl = viewModel.learnMoreUrl(),
+                isContentTextSemanticAccessible = true
             )
         )
     }
@@ -193,7 +194,12 @@ private fun OverviewTexts(
             text = overviewParams.contentText,
             style = MaterialTheme.wireTypography.body02,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().clearAndSetSemantics {}
+            modifier = Modifier
+                .fillMaxWidth()
+                .run {
+                    if (overviewParams.isContentTextSemanticAccessible) this
+                    else this.clearAndSetSemantics {}
+                }
         )
         Text(
             text = overviewParams.learnMoreText,

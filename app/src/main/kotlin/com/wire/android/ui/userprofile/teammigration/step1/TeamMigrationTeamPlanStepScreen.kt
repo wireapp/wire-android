@@ -235,7 +235,7 @@ private fun AdvantageRow(
             )
         }
         Divider(
-            color = colorsScheme().dividerNew
+            color = colorsScheme().outline
         )
     }
 }

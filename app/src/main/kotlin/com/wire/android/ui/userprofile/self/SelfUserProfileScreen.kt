@@ -343,7 +343,7 @@ private fun SelfUserProfileContent(
                     }
                 }
 
-                Divider(color = MaterialTheme.wireColorScheme.dividerNew)
+                Divider(color = MaterialTheme.wireColorScheme.outline)
 
                 Box(modifier = Modifier.padding(dimensions().spacing16x)) {
                     NewTeamButton(onAddAccountClick, isUserInCall, context)

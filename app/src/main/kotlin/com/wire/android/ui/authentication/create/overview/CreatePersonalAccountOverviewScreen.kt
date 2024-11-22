@@ -197,8 +197,11 @@ private fun OverviewTexts(
             modifier = Modifier
                 .fillMaxWidth()
                 .run {
-                    if (overviewParams.isContentTextSemanticAccessible) this
-                    else this.clearAndSetSemantics {}
+                    if (overviewParams.isContentTextSemanticAccessible) {
+                        this
+                    } else {
+                        clearAndSetSemantics {}
+                    }
                 }
         )
         Text(

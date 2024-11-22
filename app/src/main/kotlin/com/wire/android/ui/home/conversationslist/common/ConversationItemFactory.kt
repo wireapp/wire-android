@@ -76,13 +76,13 @@ fun ConversationItemFactory(
 ) {
     val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
     val openUserProfileDescription = stringResource(R.string.content_description_open_user_profile_label)
-    val acceptOrIgnoreConnectionDescription = stringResource(R.string.content_description_accept_or_ignore_connection_label)
+    val acceptOrIgnoreDescription = stringResource(R.string.content_description_accept_or_ignore_connection_label)
     val openConversationDescription = stringResource(R.string.content_description_open_conversation_label)
     val onConversationItemClick = remember(conversation) {
         when (val lastEvent = conversation.lastMessageContent) {
             is UILastMessageContent.Connection -> {
                 val onClickDescription = if (conversation.badgeEventType == BadgeEventType.ReceivedConnectionRequest) {
-                    acceptOrIgnoreConnectionDescription
+                    acceptOrIgnoreDescription
                 } else {
                     openUserProfileDescription
                 }

@@ -192,7 +192,8 @@ private fun ColumnScope.DeviceItemTexts(
             .shimmerPlaceholder(visible = placeholder)
     ) {
         val deviceName = device.name.asString()
-        val semantic = if (shouldShowVerifyLabel && !shouldShowE2EIInfo && !(device.isVerifiedProteus && !isCurrentClient)) {
+        val shouldAddNotVerifiedLabel = shouldShowVerifyLabel && !shouldShowE2EIInfo && !(device.isVerifiedProteus && !isCurrentClient)
+        val semantic = if (shouldAddNotVerifiedLabel) {
             val notVerifiedLabel = stringResource(R.string.label_client_unverified)
             Modifier.clearAndSetSemantics { contentDescription = "$deviceName, $notVerifiedLabel" }
         } else {
@@ -233,6 +234,16 @@ private fun ColumnScope.DeviceItemTexts(
 
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
 
+    MLSDetails(device, placeholder)
+
+    ProteusDetails(device, placeholder)
+}
+
+@Composable
+private fun MLSDetails(
+    device: Device,
+    placeholder: Boolean
+) {
     device.mlsClientIdentity?.let { identity ->
         Text(
             style = MaterialTheme.wireTypography.subline01,
@@ -248,7 +259,13 @@ private fun ColumnScope.DeviceItemTexts(
                 .shimmerPlaceholder(visible = placeholder)
         )
     }
+}
 
+@Composable
+private fun ProteusDetails(
+    device: Device,
+    placeholder: Boolean
+) {
     val proteusDetails: String = if (!device.registrationTime.isNullOrBlank()) {
         if (device.lastActiveInWholeWeeks != null) {
             stringResource(

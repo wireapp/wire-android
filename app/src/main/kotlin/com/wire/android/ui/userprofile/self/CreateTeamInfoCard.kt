@@ -36,6 +36,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -47,9 +48,9 @@ fun CreateTeamInfoCard(
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = colorsScheme().createTeamInfoCardBackgroundColor
+            containerColor = colorsScheme().secondaryButtonSelected
         ),
-        border = BorderStroke(dimensions().spacing1x, colorsScheme().createTeamInfoCardBorderColor),
+        border = BorderStroke(dimensions().spacing1x, colorsScheme().secondaryButtonSelectedOutline),
     ) {
         Row(
             modifier = Modifier.padding(
@@ -96,6 +97,6 @@ fun CreateTeamInfoCard(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCreateTeamInfoCard() {
+fun PreviewCreateTeamInfoCard() = WireTheme {
     CreateTeamInfoCard({ })
 }

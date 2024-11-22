@@ -93,7 +93,7 @@ private fun ImageAssetGrid(
     BoxWithConstraints(
         modifier
             .fillMaxSize()
-            .background(color = colorsScheme().backgroundVariant)
+            .background(color = colorsScheme().surfaceContainerLow)
     ) {
         val screenWidth = maxWidth
         val horizontalPadding = dimensions().spacing12x

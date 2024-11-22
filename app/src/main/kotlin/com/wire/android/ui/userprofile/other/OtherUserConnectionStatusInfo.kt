@@ -61,7 +61,7 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership:
                 Text(
                     text = stringResource(it),
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.wireColorScheme.labelText,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
                     style = MaterialTheme.wireTypography.body01
                 )
                 VerticalSpace.x24()

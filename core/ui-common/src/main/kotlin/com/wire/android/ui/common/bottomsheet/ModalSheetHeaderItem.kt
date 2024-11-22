@@ -45,7 +45,7 @@ fun ModalSheetHeaderItem(header: MenuModalSheetHeader = MenuModalSheetHeader.Gon
         }
 
         is MenuModalSheetHeader.Visible -> {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(

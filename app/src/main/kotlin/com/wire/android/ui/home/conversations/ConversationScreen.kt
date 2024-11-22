@@ -1136,7 +1136,7 @@ fun MessageList(
         contentAlignment = Alignment.BottomEnd,
         modifier = modifier
             .fillMaxSize()
-            .background(color = colorsScheme().backgroundVariant),
+            .background(color = colorsScheme().surfaceContainerLow),
         content = {
             LazyColumn(
                 state = lazyListState,
@@ -1333,8 +1333,8 @@ fun JumpToLastMessageButton(
     ) {
         SmallFloatingActionButton(
             onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
-            containerColor = MaterialTheme.wireColorScheme.scrollToBottomButtonColor,
-            contentColor = MaterialTheme.wireColorScheme.onScrollToBottomButtonColor,
+            containerColor = MaterialTheme.wireColorScheme.secondaryText,
+            contentColor = MaterialTheme.wireColorScheme.primaryButtonEnabled,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(dimensions().spacing0x),
             modifier = Modifier

@@ -64,7 +64,7 @@ fun ReactionOption(
     emojiFontSize: TextUnit = 28.sp
 ) {
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
-    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
         Column(modifier = modifier) {
             Row {
                 Spacer(modifier = Modifier.width(dimensions().spacing8x))

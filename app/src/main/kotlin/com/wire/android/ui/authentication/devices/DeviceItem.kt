@@ -226,7 +226,7 @@ private fun ColumnScope.DeviceItemTexts(
     device.mlsClientIdentity?.let { identity ->
         Text(
             style = MaterialTheme.wireTypography.subline01,
-            color = MaterialTheme.wireColorScheme.labelText,
+            color = MaterialTheme.wireColorScheme.secondaryText,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             text = stringResource(
@@ -262,7 +262,7 @@ private fun ColumnScope.DeviceItemTexts(
     }
     Text(
         style = MaterialTheme.wireTypography.subline01,
-        color = MaterialTheme.wireColorScheme.labelText,
+        color = MaterialTheme.wireColorScheme.secondaryText,
         text = proteusDetails,
         minLines = 2,
         modifier = Modifier

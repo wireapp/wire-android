@@ -128,7 +128,7 @@ fun MenuItemSubLine(
 ) {
     Text(
         style = MaterialTheme.wireTypography.subline01,
-        color = MaterialTheme.wireColorScheme.labelText,
+        color = MaterialTheme.wireColorScheme.secondaryText,
         text = subLine,
         modifier = modifier.fillMaxWidth()
     )

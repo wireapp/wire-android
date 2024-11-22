@@ -223,7 +223,7 @@ private fun AdvantageRow(
             Icon(
                 painter = painterResource(id = R.drawable.ic_check),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = colorsScheme().positive,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
             Text(
@@ -235,7 +235,7 @@ private fun AdvantageRow(
             )
         }
         Divider(
-            color = colorsScheme().dividerPersonalToTeamMigration
+            color = colorsScheme().outline
         )
     }
 }

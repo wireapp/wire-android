@@ -71,11 +71,12 @@ fun TeamMigrationScreen(
     }
 
     val isRunInPreview = LocalInspectionMode.current
-
+    // TODO: after updating material3 to 1.4.0, we can replace it by bottom sheet with `sheetGestureEnabled = false`
+    //  so that it can't be dragged down and the scrim looks way better than now and covers also status bar properly
     if (!isRunInPreview) {
         val activity = LocalActivity.current
         activity.window.setBackgroundDrawable(
-            ColorDrawable(colorsScheme().windowPersonalToTeamMigration.toArgb())
+            ColorDrawable(colorsScheme().scrim.toArgb())
         )
     }
 

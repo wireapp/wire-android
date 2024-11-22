@@ -115,6 +115,10 @@ android {
         getByName("androidTest") {
             java.srcDirs("src/androidTest/kotlin")
         }
+        create("screenshotTest") {
+            java.srcDirs("src/screenshotTest/kotlin")
+            res.srcDirs("src/main/res")
+        }
     }
 }
 

@@ -292,9 +292,9 @@ internal fun Modifier.customizeMessageBackground(
     isDeleted: Boolean,
     isSelectedMessage: Boolean,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
-    errorBackgroundColor: Color = colorsScheme().messageErrorBackgroundColor,
+    errorBackgroundColor: Color = colorsScheme().errorVariant,
     highlightBackgroundColor: Color = colorsScheme().primaryVariant,
-    defaultBackgroundColor: Color = colorsScheme().backgroundVariant,
+    defaultBackgroundColor: Color = colorsScheme().surfaceContainerLow,
 ): Modifier {
     val backgroundColorAnimation = remember { Animatable(defaultBackgroundColor) }
 

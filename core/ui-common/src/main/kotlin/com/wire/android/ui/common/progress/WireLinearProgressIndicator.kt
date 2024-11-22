@@ -18,15 +18,38 @@
 
 package com.wire.android.ui.common.progress
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.PreviewMultipleThemes
 
 @Composable
-fun WireLinearProgressIndicator(modifier: Modifier = Modifier, progressColor: Color) {
+fun WireLinearProgressIndicator(
+    progress: () -> Float,
+    modifier: Modifier = Modifier,
+) {
     LinearProgressIndicator(
-        color = progressColor,
-        modifier = modifier
+        progress = progress,
+        color = colorsScheme().primary,
+        trackColor = colorsScheme().primaryVariant,
+        modifier = modifier,
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireLinearProgressIndicator() = WireTheme {
+    Box(modifier = Modifier
+        .background(colorsScheme().surface)
+        .padding(dimensions().spacing16x)
+    ) {
+        WireLinearProgressIndicator(progress = { 0.5f })
+    }
 }

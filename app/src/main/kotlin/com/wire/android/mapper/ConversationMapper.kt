@@ -49,7 +49,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            isLegalHold = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
@@ -83,7 +83,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             ),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            isLegalHold = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parsePrivateConversationEventType(
                 conversationDetails.otherUser.connectionStatus,

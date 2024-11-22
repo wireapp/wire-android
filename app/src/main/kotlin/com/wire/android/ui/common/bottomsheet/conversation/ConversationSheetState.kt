@@ -78,7 +78,7 @@ fun rememberConversationSheetState(
                     protocol = Conversation.ProtocolInfo.Proteus,
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-                    isUnderLegalHold = isLegalHold
+                    isUnderLegalHold = showLegalHoldIndicator
                 )
             }
         }
@@ -102,7 +102,7 @@ fun rememberConversationSheetState(
                     protocol = Conversation.ProtocolInfo.Proteus,
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-                    isUnderLegalHold = isLegalHold
+                    isUnderLegalHold = showLegalHoldIndicator
                 )
             }
         }
@@ -122,7 +122,7 @@ fun rememberConversationSheetState(
                     protocol = Conversation.ProtocolInfo.Proteus,
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-                    isUnderLegalHold = isLegalHold
+                    isUnderLegalHold = showLegalHoldIndicator
                 )
             }
         }

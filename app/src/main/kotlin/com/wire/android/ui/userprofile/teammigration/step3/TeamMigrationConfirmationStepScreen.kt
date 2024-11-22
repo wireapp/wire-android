@@ -47,10 +47,12 @@ import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.destinations.TeamMigrationDoneStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
+import com.wire.android.ui.userprofile.teammigration.TeamMigrationState
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.common.BulletList
@@ -66,19 +68,41 @@ fun TeamMigrationConfirmationStepScreen(
     navigator: DestinationsNavigator,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
+    val state = remember { teamMigrationViewModel.teamMigrationState }
 
     TeamMigrationConfirmationStepScreenContent(
         onContinueButtonClicked = {
-            // TODO: call the API to migrate the user to the team, if successful navigate to next screen
-            navigator.navigate(TeamMigrationDoneStepScreenDestination)
+            teamMigrationViewModel.migrateFromPersonalToTeamAccount(
+                onSuccess = {
+                    navigator.navigate(TeamMigrationDoneStepScreenDestination)
+                },
+            )
         },
         onBackPressed = {
             navigator.popBackStack()
         }
     )
+
+    HandleErrors(state, teamMigrationViewModel::failureHandled)
+
     LaunchedEffect(Unit) {
         teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(3)
     }
+}
+
+@Composable
+private fun HandleErrors(
+    teamMigrationState: TeamMigrationState,
+    onFailureHandled: () -> Unit
+) {
+    val failure = teamMigrationState.migrationFailure ?: return
+    // TODO handle error WPB-14281
+    CoreFailureErrorDialog(
+        coreFailure = failure,
+        onDialogDismiss = {
+            onFailureHandled()
+        }
+    )
 }
 
 @Composable

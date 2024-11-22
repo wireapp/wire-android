@@ -69,7 +69,7 @@ fun CodeTextField(
         maxHorizontalSpacing = maxHorizontalSpacing,
         horizontalAlignment = horizontalAlignment,
         modifier = modifier,
-        innerBasicTextField = { decorator, textFieldModifier ->
+        innerBasicTextField = { decorator, textFieldModifier, _ ->
             BasicTextField(
                 state = textState,
                 textStyle = textStyle,

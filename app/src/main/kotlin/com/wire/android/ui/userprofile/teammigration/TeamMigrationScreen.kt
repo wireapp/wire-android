@@ -97,7 +97,7 @@ fun TeamMigrationScreen(
             .fillMaxSize()
             .background(color = colorsScheme().surface)
     ) {
-        val closeIconContentDescription = when(teamMigrationViewModel.teamMigrationState.currentStep) {
+        val closeIconContentDescription = when (teamMigrationViewModel.teamMigrationState.currentStep) {
             TEAM_MIGRATION_TEAM_PLAN_STEP -> stringResource(R.string.personal_to_team_migration_close_team_account_content_description)
             TEAM_MIGRATION_TEAM_NAME_STEP -> stringResource(R.string.personal_to_team_migration_close_team_name_content_description)
             TEAM_MIGRATION_CONFIRMATION_STEP -> stringResource(R.string.personal_to_team_migration_close_confirmation_content_description)

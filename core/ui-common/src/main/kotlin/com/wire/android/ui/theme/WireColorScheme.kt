@@ -25,6 +25,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import io.github.esentsov.PackagePrivate
 
+@Suppress("LongParameterList")
 @Immutable
 class WireColorScheme(
     val useDarkSystemBarIcons: Boolean,

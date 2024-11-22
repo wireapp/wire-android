@@ -45,7 +45,8 @@ fun WireLinearProgressIndicator(
 @PreviewMultipleThemes
 @Composable
 fun PreviewWireLinearProgressIndicator() = WireTheme {
-    Box(modifier = Modifier
+    Box(
+        modifier = Modifier
         .background(colorsScheme().surface)
         .padding(dimensions().spacing16x)
     ) {

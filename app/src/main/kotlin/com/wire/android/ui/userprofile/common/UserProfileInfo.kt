@@ -218,8 +218,7 @@ fun UserProfileInfo(
                 maxLines = 2,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.wireTypography.title02,
-                color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground
-                else MaterialTheme.wireColorScheme.secondaryText,
+                color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.secondaryText,
                 inlineContent = inlineContent
             )
 

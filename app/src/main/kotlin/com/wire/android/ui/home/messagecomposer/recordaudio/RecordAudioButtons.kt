@@ -106,7 +106,7 @@ fun RecordAudioButtonRecording(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val initialSeconds = if(LocalInspectionMode.current) 1 else 0
+    val initialSeconds = if (LocalInspectionMode.current) 1 else 0
     var seconds by remember {
         mutableStateOf(initialSeconds)
     }

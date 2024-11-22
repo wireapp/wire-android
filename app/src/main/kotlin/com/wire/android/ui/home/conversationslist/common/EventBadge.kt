@@ -48,7 +48,7 @@ import com.wire.android.ui.theme.wireTypography
 fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) {
     when (eventType) {
         BadgeEventType.MissedCall -> MissedCallBadge(modifier)
-        BadgeEventType.UnreadMention -> UnreadMentionBackgroundInverted(modifier)
+        BadgeEventType.UnreadMention -> UnreadMentionBadge(modifier)
         is BadgeEventType.UnreadMessage -> UnreadMessageEventBadge(unreadMessageCount = eventType.unreadMessageCount)
         BadgeEventType.UnreadReply -> UnreadReplyBadge(modifier)
         BadgeEventType.ReceivedConnectionRequest -> ConnectRequestBadge(modifier)
@@ -62,7 +62,7 @@ fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) 
 
 @Composable
 private fun MissedCallBadge(modifier: Modifier = Modifier) {
-    NotificationBackgroundInvertedContainer(
+    NotificationBadgeContainer(
         modifier = modifier
             .width(dimensions().spacing24x)
             .height(dimensions().spacing20x),
@@ -78,8 +78,8 @@ private fun MissedCallBadge(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun UnreadMentionBackgroundInverted(modifier: Modifier = Modifier) {
-    NotificationBackgroundInvertedContainer(
+private fun UnreadMentionBadge(modifier: Modifier = Modifier) {
+    NotificationBadgeContainer(
         modifier = modifier
             .width(dimensions().spacing24x)
             .height(dimensions().spacing20x),
@@ -96,7 +96,7 @@ private fun UnreadMentionBackgroundInverted(modifier: Modifier = Modifier) {
 
 @Composable
 private fun UnreadReplyBadge(modifier: Modifier = Modifier) {
-    NotificationBackgroundInvertedContainer(
+    NotificationBadgeContainer(
         modifier = modifier
             .width(dimensions().spacing24x)
             .height(dimensions().spacing20x),
@@ -113,7 +113,7 @@ private fun UnreadReplyBadge(modifier: Modifier = Modifier) {
 
 @Composable
 fun UnreadKnockBadge(modifier: Modifier = Modifier) {
-    NotificationBackgroundInvertedContainer(
+    NotificationBadgeContainer(
         modifier = modifier
             .width(dimensions().spacing24x)
             .height(dimensions().spacing20x),
@@ -130,7 +130,7 @@ fun UnreadKnockBadge(modifier: Modifier = Modifier) {
 
 @Composable
 fun ConnectRequestBadge(modifier: Modifier = Modifier) {
-    NotificationBackgroundInvertedContainer(
+    NotificationBadgeContainer(
         modifier = modifier
             .width(dimensions().spacing24x)
             .height(dimensions().spacing20x),
@@ -157,7 +157,7 @@ fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
 @Composable
 fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier = Modifier) {
     if (unreadMessageCount > 0) {
-        NotificationBackgroundInvertedContainer(
+        NotificationBadgeContainer(
             modifier = modifier,
             notificationIcon = {
                 Text(
@@ -176,7 +176,7 @@ fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier = Modifi
 }
 
 @Composable
-private fun NotificationBackgroundInvertedContainer(notificationIcon: @Composable () -> Unit, modifier: Modifier = Modifier) {
+private fun NotificationBadgeContainer(notificationIcon: @Composable () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .background(

@@ -53,12 +53,10 @@ class ConversationAudioMessagePlayerProvider
 
     @Synchronized
     fun provide(): ConversationAudioMessagePlayer {
-        if (player == null) {
-            player = ConversationAudioMessagePlayer(context, audioMediaPlayer, coreLogic)
-        }
+        val player = player ?: ConversationAudioMessagePlayer(context, audioMediaPlayer, coreLogic).also { player = it }
         usageCount++
 
-        return player!!
+        return player
     }
 
     @Synchronized

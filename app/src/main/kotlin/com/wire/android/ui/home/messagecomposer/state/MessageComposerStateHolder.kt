@@ -18,8 +18,6 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -29,6 +27,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
@@ -52,26 +52,33 @@ fun rememberMessageComposerStateHolder(
     val messageComposition = remember(draftMessageComposition) {
         mutableStateOf(draftMessageComposition)
     }
-    val messageTextState = rememberTextFieldState()
+
+    val messageTextFieldValue = remember { mutableStateOf(TextFieldValue()) }
+
     LaunchedEffect(draftMessageComposition.draftText) {
         if (draftMessageComposition.draftText.isNotBlank()) {
-            messageTextState.setTextAndPlaceCursorAtEnd(draftMessageComposition.draftText)
+            messageTextFieldValue.value = messageTextFieldValue.value.copy(
+                text = draftMessageComposition.draftText,
+                selection = TextRange(draftMessageComposition.draftText.length) // Place cursor at the end of the new text
+            )
         }
     }
 
     val messageCompositionHolder = remember {
-        MessageCompositionHolder(
-            messageComposition = messageComposition,
-            messageTextState = messageTextState,
-            onClearDraft = onClearDraft,
-            onSaveDraft = onSaveDraft,
-            onSearchMentionQueryChanged = onSearchMentionQueryChanged,
-            onClearMentionSearchResult = onClearMentionSearchResult,
-            onTypingEvent = onTypingEvent,
+        mutableStateOf(
+            MessageCompositionHolder(
+                messageComposition = messageComposition,
+                messageTextFieldValue = messageTextFieldValue,
+                onClearDraft = onClearDraft,
+                onSaveDraft = onSaveDraft,
+                onSearchMentionQueryChanged = onSearchMentionQueryChanged,
+                onClearMentionSearchResult = onClearMentionSearchResult,
+                onTypingEvent = onTypingEvent,
+            )
         )
     }
     LaunchedEffect(Unit) {
-        messageCompositionHolder.handleMessageTextUpdates()
+        messageCompositionHolder.value.handleMessageTextUpdates()
     }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember {
@@ -80,14 +87,14 @@ fun rememberMessageComposerStateHolder(
 
     val messageCompositionInputStateHolder = rememberSaveable(
         saver = MessageCompositionInputStateHolder.saver(
-            messageTextState = messageTextState,
+            messageTextFieldValue = messageTextFieldValue,
             keyboardController = keyboardController,
             focusRequester = focusRequester,
             density = density
         )
     ) {
         MessageCompositionInputStateHolder(
-            messageTextState = messageTextState,
+            messageTextFieldValue = messageTextFieldValue,
             keyboardController = keyboardController,
             focusRequester = focusRequester
         )
@@ -116,18 +123,18 @@ fun rememberMessageComposerStateHolder(
 class MessageComposerStateHolder(
     val messageComposerViewState: State<MessageComposerViewState>,
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
-    val messageCompositionHolder: MessageCompositionHolder,
+    val messageCompositionHolder: State<MessageCompositionHolder>,
     val additionalOptionStateHolder: AdditionalOptionStateHolder,
 ) {
-    val messageComposition = messageCompositionHolder.messageComposition
+    val messageComposition = messageCompositionHolder.value.messageComposition
 
     fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
-        messageCompositionHolder.setEditText(messageId, editMessageText, mentions)
+        messageCompositionHolder.value.setEditText(messageId, editMessageText, mentions)
         messageCompositionInputStateHolder.toEdit(editMessageText)
     }
 
     fun toReply(message: UIMessage.Regular) {
-        messageCompositionHolder.setReply(message)
+        messageCompositionHolder.value.setReply(message)
         messageCompositionInputStateHolder.toComposing()
     }
 
@@ -146,7 +153,7 @@ class MessageComposerStateHolder(
 
     fun cancelEdit() {
         messageCompositionInputStateHolder.toComposing()
-        messageCompositionHolder.clearMessage()
+        messageCompositionHolder.value.clearMessage()
     }
 
     fun showAttachments(showOptions: Boolean) {
@@ -154,6 +161,6 @@ class MessageComposerStateHolder(
     }
 
     fun clearMessage() {
-        messageCompositionHolder.clearMessage()
+        messageCompositionHolder.value.clearMessage()
     }
 }

@@ -200,6 +200,6 @@ class CallsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideHasConferenceCallingActivatedUseCase(callsScope: CallsScope) =
-        callsScope.hasConferenceCallingActivatedUseCase
+    fun provideObserveConferenceCallingEnabledUseCase(callsScope: CallsScope) =
+        callsScope.observeConferenceCallingEnabled
 }

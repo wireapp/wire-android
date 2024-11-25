@@ -15,22 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.common.bottomsheet.folder
 
-package com.wire.android.model
+import com.wire.android.di.ScopedArgs
+import kotlinx.serialization.Serializable
 
-import com.wire.android.util.ui.UIText
-
-/**
- * Interface for passing messages from view models to snackBar
- */
-interface SnackBarMessage {
-    val uiText: UIText
-    val actionLabel: UIText? get() = null
+@Serializable
+object ChangeConversationFavoriteStateArgs : ScopedArgs {
+    override val key = "ConnectionActionButtonArgsKey"
 }
-
-data class DefaultSnackBarMessage(
-    override val uiText: UIText,
-    override val actionLabel: UIText? = null
-) : SnackBarMessage
-
-fun UIText.asSnackBarMessage(actionLabel: UIText? = null): SnackBarMessage = DefaultSnackBarMessage(this, actionLabel)

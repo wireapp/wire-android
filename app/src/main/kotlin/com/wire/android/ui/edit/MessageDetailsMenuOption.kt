@@ -28,7 +28,7 @@ fun MessageDetailsMenuOption(
     onMessageDetailsClick: () -> Unit
 ) {
     MenuBottomSheetItem(
-        icon = {
+        leading = {
             MenuItemIcon(
                 id = R.drawable.ic_info,
                 contentDescription = stringResource(R.string.content_description_open_message_details),

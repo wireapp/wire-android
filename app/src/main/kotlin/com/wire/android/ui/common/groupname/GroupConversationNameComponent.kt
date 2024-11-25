@@ -51,6 +51,7 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -76,7 +77,8 @@ fun GroupNameScreen(
                 WireCenterAlignedTopAppBar(
                     elevation = scrollState.rememberTopBarElevationState().value,
                     onNavigationPressed = onBackPressed,
-                    title = stringResource(id = if (mode == CREATION) R.string.new_group_title else R.string.group_name_title)
+                    title = stringResource(id = if (mode == CREATION) R.string.new_group_title else R.string.group_name_title),
+                    navigationIconType = NavigationIconType.Back(R.string.content_description_new_conversation_name_back_btn)
                 )
             }
         ) { internalPadding ->
@@ -116,6 +118,7 @@ fun GroupNameScreen(
                                 state = computeGroupMetadataState(error),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                                 onKeyboardAction = { keyboardController?.hide() },
+                                semanticDescription = stringResource(id = R.string.content_description_new_conversation_name_field),
                                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                             )
                         }

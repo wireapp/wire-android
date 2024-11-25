@@ -26,17 +26,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun MembersMentionList(
     membersToMention: List<Contact>,
     searchQuery: String,
     onMentionPicked: (Contact) -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     if (membersToMention.isNotEmpty()) {
         HorizontalDivider()
@@ -64,5 +67,37 @@ fun MembersMentionList(
                 }
             }
         }
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun MembersMentionListPreview() {
+    WireTheme {
+        MembersMentionList(
+            membersToMention = listOf(
+                Contact(
+                    id = "1",
+                    domain = "domain",
+                    name = "Marko Alonso",
+                    handle = "john.doe",
+                    label = "label",
+                    membership = Membership.Admin,
+                    connectionState = ConnectionState.ACCEPTED
+                ),
+                Contact(
+                    id = "2",
+                    domain = "domain",
+                    name = "John Doe",
+                    handle = "john.doe",
+                    label = "label",
+                    membership = Membership.Admin,
+                    connectionState = ConnectionState.ACCEPTED
+                )
+            ),
+            searchQuery = "John",
+            onMentionPicked = {},
+            modifier = Modifier
+        )
     }
 }

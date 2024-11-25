@@ -26,7 +26,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 @Composable
 fun ReplyMessageOption(onReplyItemClick: () -> Unit) {
     MenuBottomSheetItem(
-        icon = {
+        leading = {
             MenuItemIcon(
                 id = R.drawable.ic_reply,
                 contentDescription = stringResource(R.string.content_description_reply_to_messge),

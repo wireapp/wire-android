@@ -48,9 +48,11 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun LegalHoldStatusBar(
     legalHoldState: LegalHoldUIState,
     onPendingClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val isVisible = legalHoldState !is LegalHoldUIState.None
     AnimatedVisibility(
+        modifier = modifier,
         visible = isVisible,
         enter = expandIn(initialSize = { fullSize -> IntSize(fullSize.width, 0) }),
         exit = shrinkOut(targetSize = { fullSize -> IntSize(fullSize.width, 0) })
@@ -113,7 +115,7 @@ private fun LegalHoldActiveContent() {
 @PreviewMultipleThemes
 fun PreviewLegalHoldStatusBarActive() {
     WireTheme {
-        LegalHoldStatusBar(legalHoldState = LegalHoldUIState.Active) {}
+        LegalHoldStatusBar(legalHoldState = LegalHoldUIState.Active, {})
     }
 }
 
@@ -121,7 +123,7 @@ fun PreviewLegalHoldStatusBarActive() {
 @PreviewMultipleThemes
 fun PreviewLegalHoldStatusBarPending() {
     WireTheme {
-        LegalHoldStatusBar(legalHoldState = LegalHoldUIState.Pending) {}
+        LegalHoldStatusBar(legalHoldState = LegalHoldUIState.Pending, {})
     }
 }
 
@@ -129,6 +131,6 @@ fun PreviewLegalHoldStatusBarPending() {
 @PreviewMultipleThemes
 fun PreviewLegalHoldStatusBarNone() {
     WireTheme {
-        LegalHoldStatusBar(legalHoldState = LegalHoldUIState.None) {}
+        LegalHoldStatusBar(legalHoldState = LegalHoldUIState.None, {})
     }
 }

@@ -18,9 +18,10 @@
 package com.wire.android.ui.userprofile.teammigration
 
 import androidx.compose.foundation.text.input.TextFieldState
+import com.wire.kalium.logic.CoreFailure
 
 data class TeamMigrationState(
     val teamNameTextState: TextFieldState = TextFieldState(),
-    val passwordTextState: TextFieldState = TextFieldState(),
-    val shouldShowMigrationLeaveDialog: Boolean = false
+    val shouldShowMigrationLeaveDialog: Boolean = false,
+    val migrationFailure: CoreFailure? = null,
 )

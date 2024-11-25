@@ -17,15 +17,26 @@
  */
 package com.wire.android.ui.userprofile.teammigration
 
+import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class TeamMigrationViewModel @Inject constructor() : ViewModel() {
+class TeamMigrationViewModel @Inject constructor(
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
+    private val migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase
+) : ViewModel() {
 
     var teamMigrationState by mutableStateOf(TeamMigrationState())
         private set
@@ -36,5 +47,72 @@ class TeamMigrationViewModel @Inject constructor() : ViewModel() {
 
     fun hideMigrationLeaveDialog() {
         teamMigrationState = teamMigrationState.copy(shouldShowMigrationLeaveDialog = false)
+    }
+
+    fun sendPersonalToTeamMigrationDismissed() {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
+                dismissCreateTeamButtonClicked = true
+            )
+        )
+    }
+
+    fun sendPersonalTeamCreationFlowStartedEvent(step: Int) {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(step)
+        )
+    }
+
+    fun sendPersonalTeamCreationFlowCanceledEvent(
+        modalLeaveClicked: Boolean? = null,
+        modalContinueClicked: Boolean? = null
+    ) {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
+                teamName = teamMigrationState.teamNameTextState.text.toString(),
+                modalLeaveClicked = modalLeaveClicked,
+                modalContinueClicked = modalContinueClicked
+            )
+        )
+    }
+
+    fun sendPersonalTeamCreationFlowCompletedEvent(
+        modalOpenTeamManagementButtonClicked: Boolean? = null,
+        backToWireButtonClicked: Boolean? = null
+    ) {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
+                teamName = teamMigrationState.teamNameTextState.text.toString(),
+                modalOpenTeamManagementButtonClicked = modalOpenTeamManagementButtonClicked,
+                backToWireButtonClicked = backToWireButtonClicked
+            )
+        )
+    }
+
+    fun migrateFromPersonalToTeamAccount(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            migrateFromPersonalToTeam.invoke(
+                teamMigrationState.teamNameTextState.text.toString(),
+            ).let { result ->
+                when (result) {
+                    is MigrateFromPersonalToTeamResult.Success -> {
+                        teamMigrationState.teamNameTextState.setTextAndSelectAll(result.teamName)
+                        onSuccess()
+                    }
+
+                    is MigrateFromPersonalToTeamResult.Error -> {
+                        onMigrationFailure(result.failure)
+                    }
+                }
+            }
+        }
+    }
+
+    fun failureHandled() {
+        teamMigrationState = teamMigrationState.copy(migrationFailure = null)
+    }
+
+    private fun onMigrationFailure(failure: CoreFailure) {
+        teamMigrationState = teamMigrationState.copy(migrationFailure = failure)
     }
 }

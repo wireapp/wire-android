@@ -110,7 +110,7 @@ fun ConversationParticipantItem(
 
                 if (uiParticipant.isMLSVerified) MLSVerifiedIcon()
                 if (uiParticipant.isProteusVerified) ProteusVerifiedIcon()
-                if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                if (BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                     uiParticipant.supportedProtocolList.map {
                         ProtocolLabel(
                             protocolName = it.name,

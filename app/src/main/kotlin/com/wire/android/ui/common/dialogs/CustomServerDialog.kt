@@ -149,18 +149,20 @@ private fun CustomServerPropertyInfo(
     title: String,
     value: String
 ) {
-    Text(
-        text = title,
-        style = MaterialTheme.wireTypography.body01,
-        color = colorsScheme().onBackground,
-    )
-    VerticalSpace.x4()
-    Text(
-        text = value,
-        style = MaterialTheme.wireTypography.body02,
-        color = colorsScheme().onBackground,
-    )
-    VerticalSpace.x16()
+    Column {
+        Text(
+            text = title,
+            style = MaterialTheme.wireTypography.body01,
+            color = colorsScheme().onBackground,
+        )
+        VerticalSpace.x4()
+        Text(
+            text = value,
+            style = MaterialTheme.wireTypography.body02,
+            color = colorsScheme().onBackground,
+        )
+        VerticalSpace.x16()
+    }
 }
 
 sealed class CustomServerDialogState

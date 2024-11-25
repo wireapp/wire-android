@@ -60,6 +60,7 @@ fun FullScreenTile(
     closeFullScreen: (offset: Offset) -> Unit,
     onBackButtonClicked: () -> Unit,
     setVideoPreview: (View) -> Unit,
+    requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     clearVideoPreview: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
@@ -113,10 +114,15 @@ fun FullScreenTile(
                 modifier = Modifier
                     .align(Alignment.TopCenter),
                 enabled = shouldShowDoubleTapToast,
-                text = stringResource(id = R.string.calling_ongoing_double_tap_to_go_back)
-            ) {
-                shouldShowDoubleTapToast = false
-            }
+                text = stringResource(id = R.string.calling_ongoing_double_tap_to_go_back),
+                onTap = {
+                    shouldShowDoubleTapToast = false
+                }
+            )
+        }
+
+        LaunchedEffect(selectedParticipant.userId) {
+            requestVideoStreams(listOf(it))
         }
     }
 }
@@ -138,6 +144,7 @@ fun PreviewFullScreenTile() = WireTheme {
         closeFullScreen = {},
         onBackButtonClicked = {},
         setVideoPreview = {},
+        requestVideoStreams = {},
         clearVideoPreview = {},
         participants = participants,
     )

@@ -19,15 +19,25 @@
 
 package com.wire.android.ui.home.conversationslist
 
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestConversationItem
+import com.wire.android.framework.TestUser
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -38,9 +48,12 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import io.mockk.MockKAnnotations
@@ -51,6 +64,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -64,18 +78,18 @@ class ConversationListViewModelTest {
     @Test
     fun `given initial empty search query, when collecting conversations, then call use case with proper params`() =
         runTest(dispatcherProvider.main()) {
-            // Given
-            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
+        // Given
+        val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
 
-            // When
-            conversationListViewModel.conversationListState.foldersWithConversations.test {
-                // Then
-                coVerify(exactly = 1) {
-                    arrangement.getConversationsPaginated("", false, true, false)
-                }
-                cancelAndIgnoreRemainingEvents()
+        // When
+        (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.getConversationsPaginated("", false, true, false)
             }
+            cancelAndIgnoreRemainingEvents()
         }
+    }
 
     @Test
     fun `given updated non-empty search query, when collecting conversations, then call use case with proper params`() =
@@ -85,7 +99,7 @@ class ConversationListViewModelTest {
         val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
 
         // When
-        conversationListViewModel.conversationListState.foldersWithConversations.test {
+        (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
             conversationListViewModel.searchQueryChanged(searchQueryText)
             advanceUntilIdle()
 
@@ -105,7 +119,7 @@ class ConversationListViewModelTest {
         val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.ARCHIVE).arrange()
 
         // When
-        conversationListViewModel.conversationListState.foldersWithConversations.test {
+        (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
             conversationListViewModel.searchQueryChanged(searchQueryText)
             advanceUntilIdle()
 
@@ -116,6 +130,61 @@ class ConversationListViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun `given self user is under legal hold, when collecting conversations, then hide LH indicators`() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversations = listOf(
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_2", ""), showLegalHoldIndicator = false),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_2", ""), showLegalHoldIndicator = false),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_2", ""), showLegalHoldIndicator = false),
+            ).associateBy { it.conversationId }
+            val (_, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
+                .withConversationsPaginated(conversations.values.toList())
+                .withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Enabled)
+                .arrange()
+            advanceUntilIdle()
+
+            // When
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.asSnapshot()
+                .filterIsInstance<ConversationItem>()
+                .forEach {
+                    // Then
+                    assertEquals(false, it.showLegalHoldIndicator) // self user is under LH so hide LH indicators next to conversations
+                }
+        }
+
+    @Test
+    fun `given self user is not under legal hold, when collecting conversations, then show LH indicator when conversation is under LH`() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversations = listOf(
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_2", ""), showLegalHoldIndicator = false),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_2", ""), showLegalHoldIndicator = false),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", ""), showLegalHoldIndicator = true),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_2", ""), showLegalHoldIndicator = false),
+            ).associateBy { it.conversationId }
+            val (_, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
+                .withConversationsPaginated(conversations.values.toList())
+                .withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Disabled)
+                .arrange()
+            advanceUntilIdle()
+
+            // When
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.asSnapshot()
+                .filterIsInstance<ConversationItem>()
+                .forEach {
+                    // Then
+                    val expected = conversations[it.conversationId]!!.showLegalHoldIndicator // show indicator when conversation is under LH
+                    assertEquals(expected, it.showLegalHoldIndicator)
+                }
+        }
 
     @Test
     fun `given a valid conversation muting state, when calling muteConversation, then should call with call the UseCase`() =
@@ -195,12 +264,30 @@ class ConversationListViewModelTest {
         @MockK
         private lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
 
+        @MockK
+        private lateinit var observeConversationListDetailsWithEventsUseCase:
+                ObserveConversationListDetailsWithEventsUseCase
+
+        @MockK
+        private lateinit var observeLegalHoldStateForSelfUserUseCase: ObserveLegalHoldStateForSelfUserUseCase
+
+        @MockK
+        private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery {
-                getConversationsPaginated.invoke(any(), any(), any(), any())
-            } returns flowOf(
-                PagingData.from(listOf(TestConversationItem.CONNECTION, TestConversationItem.PRIVATE, TestConversationItem.GROUP))
+            withConversationsPaginated(listOf(TestConversationItem.CONNECTION, TestConversationItem.PRIVATE, TestConversationItem.GROUP))
+            withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Disabled)
+            coEvery { observeConversationListDetailsWithEventsUseCase.invoke(false, ConversationFilter.ALL) } returns flowOf(
+                listOf(
+                    TestConversationDetails.CONNECTION,
+                    TestConversationDetails.CONVERSATION_ONE_ONE,
+                    TestConversationDetails.GROUP
+                ).map {
+                    ConversationDetailsWithEvents(
+                        conversationDetails = it
+                    )
+                }
             )
             mockUri()
         }
@@ -219,6 +306,25 @@ class ConversationListViewModelTest {
             coEvery { unblockUser(any()) } returns UnblockUserResult.Success
         }
 
+        fun withConversationsPaginated(items: List<ConversationItem>) = apply {
+            coEvery {
+                getConversationsPaginated.invoke(any(), any(), any(), any())
+            } returns flowOf(
+                PagingData.from(
+                    data = items,
+                    sourceLoadStates = LoadStates(
+                        prepend = LoadState.NotLoading(true),
+                        append = LoadState.NotLoading(true),
+                        refresh = LoadState.NotLoading(true),
+                    ),
+                )
+            )
+        }
+
+        fun withSelfUserLegalHoldState(LegalHoldStateForSelfUser: LegalHoldStateForSelfUser) = apply {
+            coEvery { observeLegalHoldStateForSelfUserUseCase() } returns flowOf(LegalHoldStateForSelfUser)
+        }
+
         fun arrange() = this to ConversationListViewModelImpl(
             conversationsSource = conversationsSource,
             dispatcher = dispatcherProvider,
@@ -232,6 +338,12 @@ class ConversationListViewModelTest {
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
             updateConversationArchivedStatus = updateConversationArchivedStatus,
+            currentAccount = TestUser.SELF_USER_ID,
+            observeConversationListDetailsWithEvents = observeConversationListDetailsWithEventsUseCase,
+            observeLegalHoldStateForSelfUser = observeLegalHoldStateForSelfUserUseCase,
+            userTypeMapper = UserTypeMapper(),
+            wireSessionImageLoader = wireSessionImageLoader,
+            usePagination = true,
         )
     }
 

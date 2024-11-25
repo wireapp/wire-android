@@ -27,7 +27,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 @Composable
 fun OpenAssetExternallyOption(onOpenClick: () -> Unit) =
     MenuBottomSheetItem(
-        icon = {
+        leading = {
             MenuItemIcon(
                 id = R.drawable.ic_view,
                 contentDescription = stringResource(R.string.content_description_open_asset_icon),

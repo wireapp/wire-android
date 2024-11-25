@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -99,6 +98,7 @@ fun TeamMigrationScreen(
                 if (navController.currentDestination?.route == NavGraphs.personalToTeamMigration.destinations.last().route) {
                     navigator.navigateBack()
                 } else {
+                    teamMigrationViewModel.sendPersonalToTeamMigrationDismissed()
                     teamMigrationViewModel.showMigrationLeaveDialog()
                 }
             }
@@ -116,10 +116,7 @@ fun TeamMigrationScreen(
             dependenciesContainerBuilder = {
                 dependency(navigator)
                 dependency(NavGraphs.personalToTeamMigration) {
-                    val parentEntry = remember(navBackStackEntry) {
-                        navController.getBackStackEntry(NavGraphs.personalToTeamMigration.route)
-                    }
-                    hiltViewModel<TeamMigrationViewModel>(parentEntry)
+                    teamMigrationViewModel
                 }
             }
         )
@@ -128,10 +125,16 @@ fun TeamMigrationScreen(
     if (teamMigrationViewModel.teamMigrationState.shouldShowMigrationLeaveDialog) {
         ConfirmMigrationLeaveDialog(
             onContinue = {
+                teamMigrationViewModel.sendPersonalTeamCreationFlowCanceledEvent(
+                    modalContinueClicked = true
+                )
                 teamMigrationViewModel.hideMigrationLeaveDialog()
             }
         ) {
             teamMigrationViewModel.hideMigrationLeaveDialog()
+            teamMigrationViewModel.sendPersonalTeamCreationFlowCanceledEvent(
+                modalLeaveClicked = true
+            )
             navigator.navigateBack()
         }
     }

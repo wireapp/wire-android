@@ -67,7 +67,6 @@
     <string name="label_and">і</string>
     <string name="label_retry">Повторити</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Логотип додатка</string>
     <string name="content_description_reveal_password">Показати пароль</string>
     <string name="content_description_hide_password">Приховати пароль</string>
     <string name="content_description_clear_content">Видалити вміст</string>
@@ -94,6 +93,7 @@
     <string name="content_description_copy">Скопіювати</string>
     <string name="content_description_edit">Редагувати</string>
     <string name="content_description_more_emojis">Більше емодзі</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -124,6 +124,7 @@
     <!-- Logout Wipe Data Dialog -->
     <!-- User Profile status dialog-->
     <!-- Conversations BottomSheet -->
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <!--Profile image-->
     <!--Conversation-->
@@ -169,6 +170,7 @@
     <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--create and restore backup-->
+    <!--    report bug-->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
@@ -193,4 +195,5 @@
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
+    <!--    Personal to team migration screen-->
 </resources>

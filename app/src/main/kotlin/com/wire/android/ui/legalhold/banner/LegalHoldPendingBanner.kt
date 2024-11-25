@@ -32,10 +32,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun LegalHoldPendingBanner(
-    onClick: () -> Unit = {},
-    modifier: Modifier = Modifier,
-) {
+fun LegalHoldPendingBanner(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     LegalHoldBaseBanner(onClick = onClick, modifier = modifier) {
         Row {
             Text(

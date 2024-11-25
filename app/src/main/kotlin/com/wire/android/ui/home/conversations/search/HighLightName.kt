@@ -28,10 +28,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import com.wire.android.R
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.android.util.QueryMatchExtractor
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun HighlightName(
@@ -93,3 +95,14 @@ fun HighlightName(
 
 @Composable
 private fun String.isUnknownUser() = this == stringResource(id = R.string.username_unavailable_label)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewHighlightName() {
+    WireTheme {
+        HighlightName(
+            name = "John Doe",
+            searchQuery = "John"
+        )
+    }
+}

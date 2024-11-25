@@ -81,7 +81,6 @@
     <string name="label_and">e</string>
     <string name="label_retry">Riprova</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Logo dell\'app</string>
     <string name="content_description_reveal_password">Mostra la password</string>
     <string name="content_description_hide_password">Nascondi la password</string>
     <string name="content_description_search_back">Icona di ricerca all\'indietro</string>
@@ -110,7 +109,6 @@
     <string name="content_description_conversation_send_emoticon">Invia emoticon</string>
     <string name="content_description_conversation_send_gif">Invia GIF</string>
     <string name="content_description_conversation_mention_someone">Menziona qualcuno</string>
-    <string name="content_description_new_conversation">Inizia una nuova conversazione</string>
     <string name="content_description_back_button">Pulsante indietro</string>
     <string name="content_description_send_button">Invia</string>
     <string name="content_description_timed_message_button">Messaggi auto-cancellanti, pulsante</string>
@@ -139,7 +137,6 @@
     <string name="content_description_self_deleting_message_timer">Imposta il timer per l\'eliminazione automatica dei messaggi</string>
     <string name="content_description_calling_hang_up_call">Chiudi la chiamata</string>
     <string name="content_description_calling_accept_call">Accetta la chiamata</string>
-    <string name="content_description_calling_decline_call">Rifiuta la chiamata</string>
     <string name="content_description_calling_flip_camera_on">Passa alla fotocamera anteriore</string>
     <string name="content_description_calling_flip_camera_off">Passa alla fotocamera posteriore</string>
     <string name="content_description_calling_participant_muted">Partecipante mutato</string>
@@ -171,6 +168,7 @@
     <string name="content_description_mls_certificate_valid">Tutti i dispositivi di tutti i partecipanti hanno un certificato MLS valido</string>
     <string name="content_description_proteus_certificate_valid">Tutti i partecipanti sono verificati (Proteus)</string>
     <string name="content_description_location_icon">Elemento di posizione</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -511,6 +509,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_unblock">Sblocca</string>
     <string name="label_leave_group">Lascia il gruppo</string>
     <string name="label_delete_group">Elimina il gruppo</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Tutto</string>
     <string name="muting_option_all_allowed_text">Ricevi le notifiche per questa conversazione su tutto (inclusi audio e video chiamate)</string>
@@ -766,9 +765,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="notification_action_reply">Rispondi</string>
     <string name="notification_receiver_name">Tu</string>
     <string name="label_type_a_message">Scrivi un messaggio</string>
-    <string name="notification_action_open_call">Apri la chiamata</string>
-    <string name="notification_action_decline_call">Rifiuta</string>
-    <string name="notification_action_hang_up_call">Riaggancia</string>
     <string name="notification_incoming_call_content">Chiamata in arrivo...</string>
     <string name="notification_ongoing_call_content">Chiamata in corso...</string>
     <string name="notification_group_call_content">%s sta chiamando...</string>
@@ -785,7 +781,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="calling_button_label_join_call">Unisciti</string>
     <string name="calling_hang_up_call">Riaggancia la chiamata</string>
     <string name="calling_accept_call">Accetta la chiamata</string>
-    <string name="calling_decline_call">Rifiuta la chiamata</string>
     <string name="calling_label_ringing_call">In chiamata...</string>
     <string name="calling_label_incoming_call">Chiamata in arrivo...</string>
     <string name="calling_label_default_caller_name">Chiamata in entrata</string>
@@ -1029,6 +1024,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="backup_dialog_choose_backup_file_option">Scegli file di backup</string>
     <string name="backup_label_enter_password">Inserisci la password</string>
     <string name="backup_dialog_restore_backup_password_message">Questo backup &#232; protetto da password.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">Seleziona il provider di email:</string>
     <string name="backup_dialog_create_backup_save">Salva file</string>
     <string name="backup_dialog_create_backup_share">Condividi file</string>
@@ -1332,4 +1328,5 @@ registrato. Sei pregato di riprovare.</string>
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Impostazioni di Debug</string>
+    <!--    Personal to team migration screen-->
 </resources>

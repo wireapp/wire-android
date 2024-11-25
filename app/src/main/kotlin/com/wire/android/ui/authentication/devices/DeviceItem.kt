@@ -64,6 +64,8 @@ import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
+const val DEVICE_ITEM_TEST_TAG = "device_item"
+
 @Composable
 fun DeviceItem(
     device: Device,
@@ -104,7 +106,11 @@ private fun DeviceItemContent(
     Row(
         verticalAlignment = Alignment.Top,
         modifier = modifier
-            .clickable(enabled = isWholeItemClickable) {
+            .testTag(DEVICE_ITEM_TEST_TAG)
+            .clickable(
+                enabled = isWholeItemClickable,
+                onClickLabel = stringResource(id = R.string.content_description_user_profile_open_device_btn)
+            ) {
                 if (isWholeItemClickable) {
                     onClickAction?.invoke(device)
                 }
@@ -118,7 +124,7 @@ private fun DeviceItemContent(
             Icon(
                 modifier = Modifier.shimmerPlaceholder(visible = placeholder),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_devices),
-                contentDescription = stringResource(R.string.content_description_remove_devices_screen_device_item_icon)
+                contentDescription = null
             )
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -199,7 +205,8 @@ private fun ColumnScope.DeviceItemTexts(
                 ProteusVerifiedIcon(
                     Modifier
                         .wrapContentWidth()
-                        .align(Alignment.CenterVertically))
+                        .align(Alignment.CenterVertically)
+                )
             }
         }
     }

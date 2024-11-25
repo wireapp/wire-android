@@ -27,7 +27,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 @Composable
 fun DeleteItemMenuOption(onDeleteItemClick: () -> Unit) {
     MenuBottomSheetItem(
-        icon = {
+        leading = {
             MenuItemIcon(
                 id = R.drawable.ic_delete,
                 contentDescription = stringResource(R.string.content_description_delete_the_message),

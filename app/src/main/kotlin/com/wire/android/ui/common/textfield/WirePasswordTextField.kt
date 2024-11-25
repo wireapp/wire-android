@@ -74,6 +74,7 @@ fun WirePasswordTextField(
     labelText: String? = stringResource(R.string.login_password_label),
     labelMandatoryIcon: Boolean = false,
     descriptionText: String? = null,
+    semanticDescription: String? = null,
     state: WireTextFieldState = WireTextFieldState.Default,
     autoFill: Boolean = false,
     inputTransformation: InputTransformation = InputTransformation.maxLength(8000),
@@ -97,6 +98,7 @@ fun WirePasswordTextField(
         labelText = labelText,
         labelMandatoryIcon = labelMandatoryIcon,
         descriptionText = descriptionText,
+        semanticDescription = semanticDescription,
         state = state,
         interactionSource = interactionSource,
         placeholderTextStyle = placeholderTextStyle,
@@ -108,7 +110,7 @@ fun WirePasswordTextField(
         modifier = modifier.then(autoFillModifier(autoFillType, textState::setTextAndPlaceCursorAtEnd)),
         testTag = testTag,
         onTap = onTap,
-        innerBasicTextField = { decorator, textFieldModifier ->
+        innerBasicTextField = { decorator, textFieldModifier, _ ->
             BasicSecureTextField(
                 state = textState,
                 textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),

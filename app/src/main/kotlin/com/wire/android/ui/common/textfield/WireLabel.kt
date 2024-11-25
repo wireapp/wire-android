@@ -36,14 +36,15 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun Label(
+fun WireLabel(
     labelText: String,
+    modifier: Modifier = Modifier,
     labelMandatoryIcon: Boolean = false,
     state: WireTextFieldState = WireTextFieldState.Default,
     interactionSource: InteractionSource = remember { MutableInteractionSource() },
     colors: WireTextFieldColors = wireTextFieldColors()
 ) {
-    Row {
+    Row(modifier = modifier) {
         Text(
             text = labelText,
             style = MaterialTheme.wireTypography.label01,
@@ -64,5 +65,5 @@ fun Label(
 @PreviewMultipleThemes
 @Composable
 fun PreviewLabel() = WireTheme {
-    Label("Label", true)
+    WireLabel(labelText = "Label", labelMandatoryIcon = true)
 }

@@ -73,11 +73,11 @@ fun EditSelfDeletingMessagesScreen(
 
     WireScaffold(
         topBar = {
+            val title = stringResource(id = R.string.self_deleting_messages_title)
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 onNavigationPressed = navigator::navigateBack,
-                title = stringResource(id = R.string.self_deleting_messages_title),
-                titleContentDescription = stringResource(id = R.string.content_description_edit_self_delete_title),
+                title = title,
                 navigationIconType = NavigationIconType.Back(R.string.content_description_edit_self_delete_back_btn)
             )
         }
@@ -141,10 +141,11 @@ fun EditSelfDeletingMessagesScreen(
 fun SelectableSelfDeletingItem(
     duration: SelfDeletionDuration,
     isSelected: Boolean,
-    onSelfDeletionDurationSelected: (SelfDeletionDuration) -> Unit
+    onSelfDeletionDurationSelected: (SelfDeletionDuration) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .selectableBackground(isSelected, onClick = { onSelfDeletionDurationSelected(duration) })
             .background(color = MaterialTheme.wireColorScheme.surface)
@@ -170,5 +171,5 @@ fun PreviewEditSelfDeletingMessagesScreen() {
 @Preview
 @Composable
 fun PreviewSelectableSelfDeletingItem() {
-    SelectableSelfDeletingItem(SelfDeletionDuration.FiveMinutes, true) { _ -> }
+    SelectableSelfDeletingItem(SelfDeletionDuration.FiveMinutes, true, { _ -> })
 }

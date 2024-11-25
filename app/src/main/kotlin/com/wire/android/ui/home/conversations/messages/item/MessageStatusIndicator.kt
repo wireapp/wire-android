@@ -36,11 +36,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun MessageStatusIndicator(
-    status: MessageFlowStatus,
-    isGroupConversation: Boolean = false,
-    modifier: Modifier = Modifier
-) {
+fun MessageStatusIndicator(status: MessageFlowStatus, modifier: Modifier = Modifier, isGroupConversation: Boolean = false) {
     when (status) {
         MessageFlowStatus.Sending -> Icon(
             modifier = modifier,

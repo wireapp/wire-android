@@ -57,10 +57,11 @@ fun EndToEndIdentityCertificateItem(
     isCurrentDevice: Boolean,
     isLoadingCertificate: Boolean,
     enrollE2eiCertificate: () -> Unit,
-    showCertificate: (MLSClientIdentity) -> Unit
+    showCertificate: (MLSClientIdentity) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(
                 top = MaterialTheme.wireDimensions.spacing12x,
                 bottom = MaterialTheme.wireDimensions.spacing12x,

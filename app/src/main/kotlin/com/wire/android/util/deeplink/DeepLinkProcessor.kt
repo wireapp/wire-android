@@ -148,21 +148,21 @@ class DeepLinkProcessor @Inject constructor(
     }
 
     private fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean, accountInfo: AccountInfo.Valid): DeepLinkResult {
+        // todo. handle with domain case, before lastPathSegment. format of deeplink wire://user/domain/user-id
         return uri.lastPathSegment?.toDefaultQualifiedId(accountInfo.userId.domain)?.let {
             DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
-        } ?: DeepLinkResult.Unknown
+        } ?: return DeepLinkResult.Unknown
     }
 
     /**
-     * Currently the DeepLinks sent from web are not qualified.
-     * This is way to default to the current account domain as a best effort.
+     * Converts the string to a [QualifiedID] with the current user domain or default, to preserve retro compatibility.
+     * When implementing Milestone 2 this should be replaced with a new qualifiedIdMapper, implementing wire://user/domain/user-id
      *
-     * TODO: replace and remove this with String.toQualifiedID() when web sends qualified id.
-     * REF: WPB-10532
+     * - new mapper should follow "domain/user-id" parsing.
      */
     private fun String.toDefaultQualifiedId(currentUserDomain: String?): QualifiedID {
         val domain = currentUserDomain ?: "wire.com"
-        // This lowercase is important, since web/iOS is sending/handling this as uppercase.
+        // TODO. This lowercase is important, since web/iOS is sending/handling this as uppercase!!
         return QualifiedID(this.lowercase(), domain)
     }
 

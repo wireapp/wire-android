@@ -53,7 +53,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     /**
      * Security/Cryptography stuff
      */
-    MLS_SUPPORT_ENABLED("mls_support_enabled", ConfigType.BOOLEAN),
     LOWER_KEYPACKAGE_LIMIT("lower_keypackage_limit", ConfigType.BOOLEAN),
     ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
     WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
@@ -105,6 +104,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC("limit_team_members_fetch_during_slow_sync", ConfigType.INT),
 
     PICTURE_IN_PICTURE_ENABLED("picture_in_picture_enabled", ConfigType.BOOLEAN),
+    PAGINATED_CONVERSATION_LIST_ENABLED("paginated_conversation_list_enabled", ConfigType.BOOLEAN),
 
     /**
      * Anonymous Analytics

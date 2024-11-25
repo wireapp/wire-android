@@ -25,5 +25,6 @@ data class SelfQRCodeState(
     val avatarAsset: UserAvatarAsset? = null,
     val handle: String = "",
     val userProfileLink: String = "",
+    val userAccountProfileLink: String = "",
     val hasError: Boolean = false
 )

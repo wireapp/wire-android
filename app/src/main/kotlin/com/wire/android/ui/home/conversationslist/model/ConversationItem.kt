@@ -33,7 +33,7 @@ import com.wire.kalium.logic.data.user.type.isTeammate
 sealed class ConversationItem : ConversationFolderItem {
     abstract val conversationId: ConversationId
     abstract val mutedStatus: MutedConversationStatus
-    abstract val isLegalHold: Boolean
+    abstract val showLegalHoldIndicator: Boolean
     abstract val lastMessageContent: UILastMessageContent?
     abstract val badgeEventType: BadgeEventType
     abstract val teamId: TeamId?
@@ -54,7 +54,7 @@ sealed class ConversationItem : ConversationFolderItem {
         val isSelfUserMember: Boolean = true,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
-        override val isLegalHold: Boolean = false,
+        override val showLegalHoldIndicator: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
@@ -73,7 +73,7 @@ sealed class ConversationItem : ConversationFolderItem {
         val blockingState: BlockingState,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
-        override val isLegalHold: Boolean = false,
+        override val showLegalHoldIndicator: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
@@ -90,7 +90,7 @@ sealed class ConversationItem : ConversationFolderItem {
         val conversationInfo: ConversationInfo,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
-        override val isLegalHold: Boolean = false,
+        override val showLegalHoldIndicator: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val isArchived: Boolean = false,
@@ -127,7 +127,7 @@ val OtherUser.BlockState: BlockingState
 fun ConversationItem.PrivateConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
-        isLegalHold = isLegalHold,
+        showLegalHoldIndicator = showLegalHoldIndicator,
         membership = conversationInfo.membership,
         unavailable = conversationInfo.isSenderUnavailable,
         mlsVerificationStatus = mlsVerificationStatus,
@@ -137,7 +137,7 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel() =
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
-        isLegalHold = isLegalHold,
+        showLegalHoldIndicator = showLegalHoldIndicator,
         membership = conversationInfo.membership,
         unavailable = conversationInfo.isSenderUnavailable
     )

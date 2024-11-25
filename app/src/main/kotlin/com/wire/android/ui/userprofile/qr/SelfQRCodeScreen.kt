@@ -203,7 +203,7 @@ private fun SelfQRCodeContent(
                 color = colorsScheme().secondaryText
             )
             Spacer(modifier = Modifier.weight(1f))
-            ShareLinkButton(state.userProfileLink, trackAnalyticsEvent)
+            ShareLinkButton(state.userAccountProfileLink, trackAnalyticsEvent)
             VerticalSpace.x8()
             ShareQRCodeButton {
                 trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.ShareQrCode)

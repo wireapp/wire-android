@@ -128,7 +128,6 @@ class ChangeConversationFavoriteVMTest {
 
         private lateinit var viewModel: ChangeConversationFavoriteVM
 
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }

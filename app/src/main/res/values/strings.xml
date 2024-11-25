@@ -97,7 +97,6 @@
     <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_open_asset_icon">Open icon</string>
     <string name="content_description_add_to_favourite">Add to Favorites</string>
-    <string name="content_description_remove_from_favourites">Remove from Favorites</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
     <string name="content_description_unarchive">Unarchive</string>

@@ -58,9 +58,9 @@ import com.wire.kalium.logic.data.user.ConnectionState
 @Composable
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
-// TODO(profile): enable when implemented
     changeFavoriteState: (dialogState: GroupDialogState, addToFavorite: Boolean) -> Unit,
-//    moveConversationToFolder: () -> Unit,
+    // TODO(profile): enable when implemented
+    // moveConversationToFolder: () -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
@@ -113,48 +113,31 @@ internal fun ConversationMainSheetContent(
 
             if (conversationSheetContent.canAddToFavourite() && !conversationSheetContent.isArchived) {
                 conversationSheetContent.isFavorite?.let { isFavorite ->
-                    if (isFavorite) {
-                        add {
-                            MenuBottomSheetItem(
-                                title = stringResource(R.string.label_remove_from_favourites),
-                                leading = {
-                                    MenuItemIcon(
-                                        id = R.drawable.ic_favourite,
-                                        contentDescription = stringResource(R.string.content_description_remove_from_favourites),
-                                    )
-                                },
-                                onItemClick = {
-                                    changeFavoriteState(
-                                        GroupDialogState(
-                                            conversationSheetContent.conversationId,
-                                            conversationSheetContent.title
-                                        ),
-                                        false
-                                    )
+                    add {
+                        MenuBottomSheetItem(
+                            title = stringResource(
+                                if (isFavorite) {
+                                    R.string.label_remove_from_favourites
+                                } else {
+                                    R.string.label_add_to_favourites
                                 }
-                            )
-                        }
-                    } else {
-                        add {
-                            MenuBottomSheetItem(
-                                title = stringResource(R.string.label_add_to_favourites),
-                                leading = {
-                                    MenuItemIcon(
-                                        id = R.drawable.ic_favourite,
-                                        contentDescription = stringResource(R.string.content_description_add_to_favourite),
-                                    )
-                                },
-                                onItemClick = {
-                                    changeFavoriteState(
-                                        GroupDialogState(
-                                            conversationSheetContent.conversationId,
-                                            conversationSheetContent.title
-                                        ),
-                                        true
-                                    )
-                                }
-                            )
-                        }
+                            ),
+                            leading = {
+                                MenuItemIcon(
+                                    id = R.drawable.ic_favourite,
+                                    contentDescription = null
+                                )
+                            },
+                            onItemClick = {
+                                changeFavoriteState(
+                                    GroupDialogState(
+                                        conversationSheetContent.conversationId,
+                                        conversationSheetContent.title
+                                    ),
+                                    !isFavorite
+                                )
+                            }
+                        )
                     }
                 }
             }

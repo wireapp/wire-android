@@ -68,16 +68,23 @@ fun HomeTopBar(
                     onButtonClicked = { onOpenConversationFilter(navigationItem.currentFilter()) }
                 )
             }
-            val openLabel = stringResource(R.string.content_description_open_label)
-            UserProfileAvatar(
-                avatarData = userAvatarData,
-                clickable = remember {
-                    Clickable(enabled = true, onClickDescription = openLabel) { onNavigateToSelfUserProfile() }
-                },
-                type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = withLegalHoldIndicator),
-                shouldShowCreateTeamUnreadIndicator = shouldShowCreateTeamUnreadIndicator,
-                contentDescription = stringResource(R.string.content_description_home_profile_btn)
-            )
+            if (navigationItem.withUserAvatar) {
+                val openLabel = stringResource(R.string.content_description_open_label)
+                UserProfileAvatar(
+                    avatarData = userAvatarData,
+                    clickable = remember {
+                        Clickable(
+                            enabled = true,
+                            onClickDescription = openLabel
+                        ) { onNavigateToSelfUserProfile() }
+                    },
+                    type = UserProfileAvatarType.WithIndicators.RegularUser(
+                        legalHoldIndicatorVisible = withLegalHoldIndicator
+                    ),
+                    shouldShowCreateTeamUnreadIndicator = shouldShowCreateTeamUnreadIndicator,
+                    contentDescription = stringResource(R.string.content_description_home_profile_btn)
+                )
+            }
         },
         elevation = elevation,
     )
@@ -89,6 +96,23 @@ fun PreviewTopBar() {
     WireTheme {
         HomeTopBar(
             navigationItem = HomeDestination.Conversations,
+            userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+            elevation = 0.dp,
+            withLegalHoldIndicator = false,
+            shouldShowCreateTeamUnreadIndicator = false,
+            onHamburgerMenuClick = {},
+            onNavigateToSelfUserProfile = {},
+            onOpenConversationFilter = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSettingsTopBarWithoutAvatar() {
+    WireTheme {
+        HomeTopBar(
+            navigationItem = HomeDestination.Settings,
             userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
             elevation = 0.dp,
             withLegalHoldIndicator = false,

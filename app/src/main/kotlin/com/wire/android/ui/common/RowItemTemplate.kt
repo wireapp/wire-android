@@ -20,6 +20,7 @@ package com.wire.android.ui.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ fun RowItemTemplate(
     titleStartPadding: Dp = dimensions().spacing8x,
     subtitle: @Composable () -> Unit = {},
     actions: @Composable () -> Unit = {},
+    wrapTitleContentWidth: Boolean = false,
     clickable: Clickable = Clickable(false) {}
 ) {
     RowItem(
@@ -46,11 +48,17 @@ fun RowItemTemplate(
         leadingIcon()
         Column(
             modifier = Modifier
-                .weight(1f)
                 .padding(start = titleStartPadding)
+                .then(
+                    if (wrapTitleContentWidth) Modifier.wrapContentWidth() else Modifier.weight(1f)
+                )
         ) {
             title()
             subtitle()
+        }
+        if (wrapTitleContentWidth) {
+            // Add a spacer to push the actions to the end of the row when weight is not set
+            Spacer(modifier = Modifier.weight(1f))
         }
         Box(
             modifier = Modifier

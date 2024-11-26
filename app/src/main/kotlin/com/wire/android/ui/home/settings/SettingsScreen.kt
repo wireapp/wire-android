@@ -105,6 +105,12 @@ fun SettingsScreenContent(
                         add(SettingsItem.BackupAndRestore)
                     }
                 },
+                trailingText = { settingsItem ->
+                    if (settingsItem is SettingsItem.YourAccount) {
+                        return@folderWithElements settingsState.userName
+                    }
+                    return@folderWithElements null
+                },
                 onItemClicked = onItemClicked
             )
 
@@ -160,6 +166,7 @@ fun SettingsScreenContent(
 private fun LazyListScope.folderWithElements(
     header: String,
     items: List<SettingsItem>,
+    trailingText: ((SettingsItem) -> String?)? = null,
     onItemClicked: (SettingsItem.DirectionItem) -> Unit
 ) {
     folderWithElements(
@@ -175,6 +182,7 @@ private fun LazyListScope.folderWithElements(
                 }
             },
             trailingIcon = if (settingsItem is SettingsItem.DirectionItem) R.drawable.ic_arrow_right else null,
+            trailingText = trailingText?.invoke(settingsItem),
         )
     }
 }
@@ -182,5 +190,9 @@ private fun LazyListScope.folderWithElements(
 @PreviewMultipleThemes
 @Composable
 fun PreviewSettingsScreen() = WireTheme {
-    SettingsScreenContent(settingsState = SettingsState(), onItemClicked = {}, onAppLockSwitchChanged = {},)
+    SettingsScreenContent(
+        settingsState = SettingsState(userName = "Longlonglonglonglonglonglonglong Name"),
+        onItemClicked = {},
+        onAppLockSwitchChanged = {},
+    )
 }

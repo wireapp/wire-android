@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.navArgs
@@ -50,6 +51,9 @@ class SelfQRCodeViewModelTest {
         @MockK
         lateinit var selfServerConfig: SelfServerConfigUseCase
 
+        @MockK
+        lateinit var analyticsManager: AnonymousAnalyticsManager
+
         val context = mockk<Context>()
 
         init {
@@ -66,7 +70,8 @@ class SelfQRCodeViewModelTest {
             selfUserId = TestUser.SELF_USER.id,
             selfServerLinks = selfServerConfig,
             kaliumFileSystem = fakeKaliumFileSystem,
-            dispatchers = TestDispatcherProvider()
+            dispatchers = TestDispatcherProvider(),
+            analyticsManager = analyticsManager
         )
 
         val fakeKaliumFileSystem: FakeKaliumFileSystem = FakeKaliumFileSystem()

@@ -200,7 +200,7 @@ class CallNotificationBuilder @Inject constructor(
             .setOngoing(true)
             .setSilent(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE )
+            .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
             .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
             .setFullScreenIntent(outgoingCallPendingIntent(context, conversationIdString), true)
             .setContentIntent(outgoingCallPendingIntent(context, conversationIdString))

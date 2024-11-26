@@ -99,7 +99,11 @@ class SelfUserProfileViewModelArrangement {
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
+<<<<<<< HEAD
     lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
+=======
+    lateinit var analyticsManager: AnonymousAnalyticsManager
+>>>>>>> 4e943f0ff (feat: Track qr-code analytics #WPB-11679 🍒 (#3565) (#3664))
 
     private val viewModel by lazy {
         SelfUserProfileViewModel(
@@ -121,7 +125,11 @@ class SelfUserProfileViewModelArrangement {
             notificationManager = notificationManager,
             globalDataStore = globalDataStore,
             qualifiedIdMapper = qualifiedIdMapper,
+<<<<<<< HEAD
             anonymousAnalyticsManager = anonymousAnalyticsManager
+=======
+            analyticsManager = analyticsManager
+>>>>>>> 4e943f0ff (feat: Track qr-code analytics #WPB-11679 🍒 (#3565) (#3664))
         )
     }
 

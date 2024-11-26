@@ -31,6 +31,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBU
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_TEAM
+<<<<<<< HEAD
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MIGRATION_DOT_ACTIVE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_BACK_TO_WIRE_CLICKED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_CONTINUE_CLICKED
@@ -42,6 +43,8 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_STARTED_EVENT
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.STEP_MODAL_CREATE_TEAM
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.USER_PROFILE_OPENED
+=======
+>>>>>>> 4e943f0ff (feat: Track qr-code analytics #WPB-11679 🍒 (#3565) (#3664))
 
 interface AnalyticsEvent {
     /**
@@ -235,6 +238,7 @@ interface AnalyticsEvent {
             }
         }
     }
+<<<<<<< HEAD
 
     data class UserProfileOpened(val isMigrationDotActive: Boolean) : AnalyticsEvent {
         override val key: String = USER_PROFILE_OPENED
@@ -322,6 +326,8 @@ interface AnalyticsEvent {
             }
         }
     }
+=======
+>>>>>>> 4e943f0ff (feat: Track qr-code analytics #WPB-11679 🍒 (#3565) (#3664))
 }
 
 object AnalyticsEventConstants {
@@ -382,6 +388,7 @@ object AnalyticsEventConstants {
     const val QR_CODE_SEGMENTATION_USER_TYPE = "user_type"
     const val QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL = "personal"
     const val QR_CODE_SEGMENTATION_USER_TYPE_TEAM = "team"
+<<<<<<< HEAD
 
     /**
      * user profile
@@ -404,4 +411,6 @@ object AnalyticsEventConstants {
     const val MODAL_LEAVE_CLICKED = "modal_leave-clicked"
     const val MODAL_BACK_TO_WIRE_CLICKED = "modal_back-to-wire-clicked"
     const val MODAL_OPEN_TEAM_MANAGEMENT_CLICKED = "modal_open-tm-clicked"
+=======
+>>>>>>> 4e943f0ff (feat: Track qr-code analytics #WPB-11679 🍒 (#3565) (#3664))
 }

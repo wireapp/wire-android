@@ -98,7 +98,11 @@ class SelfUserProfileViewModel @Inject constructor(
     private val notificationManager: WireNotificationManager,
     private val globalDataStore: GlobalDataStore,
     private val qualifiedIdMapper: QualifiedIdMapper,
+<<<<<<< HEAD
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager
+=======
+    private val analyticsManager: AnonymousAnalyticsManager
+>>>>>>> 4e943f0ff (feat: Track qr-code analytics #WPB-11679 🍒 (#3565) (#3664))
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
@@ -310,6 +314,7 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     fun trackQrCodeClick() {
+<<<<<<< HEAD
         anonymousAnalyticsManager.sendEvent(AnalyticsEvent.QrCode.Click(!userProfileState.teamName.isNullOrBlank()))
     }
 
@@ -319,6 +324,9 @@ class SelfUserProfileViewModel @Inject constructor(
                 createTeamButtonClicked = true
             )
         )
+=======
+        analyticsManager.sendEvent(AnalyticsEvent.QrCode.Click(!userProfileState.teamName.isNullOrBlank()))
+>>>>>>> 4e943f0ff (feat: Track qr-code analytics #WPB-11679 🍒 (#3565) (#3664))
     }
 
     sealed class ErrorCodes {

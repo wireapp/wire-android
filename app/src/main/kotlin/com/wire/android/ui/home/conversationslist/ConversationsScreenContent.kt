@@ -33,6 +33,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.NavigationCommand
@@ -44,6 +45,9 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteStateArgs
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVM
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVMImpl
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
@@ -98,6 +102,10 @@ fun ConversationsScreenContent(
         LocalInspectionMode.current -> ConversationCallListViewModelPreview
         else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_${conversationsSource.name}")
     },
+    changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
+        hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
+            ChangeConversationFavoriteStateArgs
+        ),
 ) {
     var currentConversationOptionNavigation by remember {
         mutableStateOf<ConversationOptionNavigation>(ConversationOptionNavigation.Home)
@@ -304,7 +312,7 @@ fun ConversationsScreenContent(
                             mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
                         )
                     },
-                    addConversationToFavourites = conversationListViewModel::addConversationToFavourites,
+                    changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
                     moveConversationToFolder = conversationListViewModel::moveConversationToFolder,
                     updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
                     clearConversationContent = clearContentDialogState::show,
@@ -318,6 +326,9 @@ fun ConversationsScreenContent(
     }
 
     SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage)
+    SnackBarMessageHandler(infoMessages = changeConversationFavoriteStateViewModel.infoMessage, onEmitted = {
+        sheetState.hide()
+    })
 }
 
 private const val TAG = "BaseConversationsScreen"

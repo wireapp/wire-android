@@ -69,6 +69,11 @@ fun HomeTopBar(
                 )
             }
             val openLabel = stringResource(R.string.content_description_open_label)
+            val contentDescription = if (shouldShowCreateTeamUnreadIndicator) {
+                stringResource(R.string.content_description_home_profile_btn_with_notification)
+            } else {
+                stringResource(R.string.content_description_home_profile_btn)
+            }
             UserProfileAvatar(
                 avatarData = userAvatarData,
                 clickable = remember {
@@ -76,7 +81,7 @@ fun HomeTopBar(
                 },
                 type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = withLegalHoldIndicator),
                 shouldShowCreateTeamUnreadIndicator = shouldShowCreateTeamUnreadIndicator,
-                contentDescription = stringResource(R.string.content_description_home_profile_btn)
+                contentDescription = contentDescription
             )
         },
         elevation = elevation,

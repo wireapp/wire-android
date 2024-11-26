@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material3.CardDefaults
@@ -84,7 +83,6 @@ fun CreateTeamInfoCard(
         WireSecondaryButton(
             modifier = Modifier
                 .padding(dimensions().spacing8x)
-                .width(dimensions().createTeamInfoCardButtonWidth)
                 .height(dimensions().createTeamInfoCardButtonHeight),
             text = stringResource(R.string.user_profile_create_team_card_button),
             onClick = onCreateAccount,
@@ -98,5 +96,5 @@ fun CreateTeamInfoCard(
 @PreviewMultipleThemes
 @Composable
 fun PreviewCreateTeamInfoCard() = WireTheme {
-    CreateTeamInfoCard({ })
+        CreateTeamInfoCard({ })
 }

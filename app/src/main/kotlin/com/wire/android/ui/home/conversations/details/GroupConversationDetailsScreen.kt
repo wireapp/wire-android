@@ -63,6 +63,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -78,6 +79,9 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteStateArgs
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVM
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVMImpl
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -287,6 +291,10 @@ private fun GroupConversationDetailsContent(
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
+    changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
+        hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
+            ChangeConversationFavoriteStateArgs
+        ),
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
@@ -464,7 +472,7 @@ private fun GroupConversationDetailsContent(
                         )
                     }
                 },
-                addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
+                changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
                 moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
                 updateConversationArchiveStatus = {
                     // Only show the confirmation dialog if the conversation is not archived
@@ -600,7 +608,8 @@ fun PreviewGroupConversationDetails() {
                 ),
                 mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                 isUnderLegalHold = false,
-                proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
+                proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+                isFavorite = false
             ),
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},

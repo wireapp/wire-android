@@ -59,6 +59,8 @@ import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
+const val TEAM_MIGRATION_TEAM_PLAN_STEP = 1
+
 @PersonalToTeamMigrationNavGraph(start = true)
 @WireDestination(
     style = SlideNavigationAnimation::class
@@ -75,7 +77,8 @@ fun TeamMigrationTeamPlanStepScreen(
     )
 
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(1)
+        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(TEAM_MIGRATION_TEAM_PLAN_STEP)
+        teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_TEAM_PLAN_STEP)
     }
 }
 

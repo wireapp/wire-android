@@ -29,13 +29,15 @@ import kotlinx.coroutines.flow.SharedFlow
 @Composable
 fun SnackBarMessageHandler(
     infoMessages: SharedFlow<SnackBarMessage>,
-    onActionClicked: (SnackBarMessage) -> Unit = {}
+    onEmitted: () -> Unit = {},
+    onActionClicked: (SnackBarMessage) -> Unit = {},
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
 
     LaunchedEffect(Unit) {
         infoMessages.collect {
+            onEmitted()
             snackbarHostState.showSnackbar(
                 message = it.uiText.asString(context.resources),
                 actionLabel = it.actionLabel?.asString(context.resources),

@@ -110,7 +110,6 @@ interface ConversationListViewModel {
     fun leaveGroup(leaveGroupState: GroupDialogState) {}
     fun clearConversationContent(dialogState: DialogState) {}
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
-    fun addConversationToFavourites() {}
     fun moveConversationToFolder() {}
     fun searchQueryChanged(searchQuery: String) {}
 }
@@ -365,11 +364,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
             }
             _requestInProgress = false
         }
-    }
-
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    override fun addConversationToFavourites() {
     }
 
     // TODO: needs to be implemented

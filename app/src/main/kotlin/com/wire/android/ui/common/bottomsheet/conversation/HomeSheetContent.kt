@@ -53,12 +53,14 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.ConnectionState
 
+// items cannot be simplified
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
-// TODO(profile): enable when implemented
-//    addConversationToFavourites: () -> Unit,
-//    moveConversationToFolder: () -> Unit,
+    changeFavoriteState: (dialogState: GroupDialogState, addToFavorite: Boolean) -> Unit,
+    // TODO(profile): enable when implemented
+    // moveConversationToFolder: () -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
@@ -108,21 +110,38 @@ internal fun ConversationMainSheetContent(
                     )
                 }
             }
+
+            if (conversationSheetContent.canAddToFavourite() && !conversationSheetContent.isArchived) {
+                conversationSheetContent.isFavorite?.let { isFavorite ->
+                    add {
+                        MenuBottomSheetItem(
+                            title = stringResource(
+                                if (isFavorite) {
+                                    R.string.label_remove_from_favourites
+                                } else {
+                                    R.string.label_add_to_favourites
+                                }
+                            ),
+                            leading = {
+                                MenuItemIcon(
+                                    id = R.drawable.ic_favourite,
+                                    contentDescription = null
+                                )
+                            },
+                            onItemClick = {
+                                changeFavoriteState(
+                                    GroupDialogState(
+                                        conversationSheetContent.conversationId,
+                                        conversationSheetContent.title
+                                    ),
+                                    !isFavorite
+                                )
+                            }
+                        )
+                    }
+                }
+            }
 // TODO(profile): enable when implemented
-//
-//            if (conversationSheetContent.canAddToFavourite())
-//                add {
-//                    MenuBottomSheetItem(
-//                        title = stringResource(R.string.label_add_to_favourites),
-//                        icon = {
-//                            MenuItemIcon(
-//                                id = R.drawable.ic_favourite,
-//                                contentDescription = stringResource(R.string.content_description_add_to_favourite),
-//                            )
-//                        },
-//                        onItemClick = addConversationToFavourites
-//                    )
-//                }
 //            add {
 //                MenuBottomSheetItem(
 //                    icon = {

@@ -219,8 +219,7 @@ class TeamMigrationViewModelTest {
         fun arrange() = this to TeamMigrationViewModel(
             anonymousAnalyticsManager = anonymousAnalyticsManager,
             migrateFromPersonalToTeam = migrateFromPersonalToTeam,
-        )
-            .also { viewModel ->
+        ).also { viewModel ->
             viewModel.teamMigrationState.teamNameTextState.setTextAndPlaceCursorAtEnd(TEAM_NAME)
         }
 

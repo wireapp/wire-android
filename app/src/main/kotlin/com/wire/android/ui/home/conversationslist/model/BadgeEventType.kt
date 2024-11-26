@@ -18,15 +18,38 @@
 
 package com.wire.android.ui.home.conversationslist.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 sealed class BadgeEventType {
+
+    @Serializable
     data class UnreadMessage(val unreadMessageCount: Int) : BadgeEventType()
-    object UnreadMention : BadgeEventType()
-    object UnreadReply : BadgeEventType()
-    object MissedCall : BadgeEventType()
-    object Knock : BadgeEventType()
-    object ReceivedConnectionRequest : BadgeEventType()
-    object SentConnectRequest : BadgeEventType()
-    object Blocked : BadgeEventType()
-    object Deleted : BadgeEventType()
-    object None : BadgeEventType()
+
+    @Serializable
+    data object UnreadMention : BadgeEventType()
+
+    @Serializable
+    data object UnreadReply : BadgeEventType()
+
+    @Serializable
+    data object MissedCall : BadgeEventType()
+
+    @Serializable
+    data object Knock : BadgeEventType()
+
+    @Serializable
+    data object ReceivedConnectionRequest : BadgeEventType()
+
+    @Serializable
+    data object SentConnectRequest : BadgeEventType()
+
+    @Serializable
+    data object Blocked : BadgeEventType()
+
+    @Serializable
+    data object Deleted : BadgeEventType()
+
+    @Serializable
+    data object None : BadgeEventType()
 }

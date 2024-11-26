@@ -31,7 +31,6 @@ import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.call.VideoState
@@ -86,7 +85,6 @@ class SharedCallingViewModel @AssistedInject constructor(
     private val observeSpeaker: ObserveSpeakerUseCase,
     private val callRinger: CallRinger,
     private val uiCallParticipantMapper: UICallParticipantMapper,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
@@ -137,7 +135,7 @@ class SharedCallingViewModel @AssistedInject constructor(
                         callState.copy(
                             conversationName = getConversationName(details.otherUser.name),
                             avatarAssetId = details.otherUser.completePicture?.let { assetId ->
-                                ImageAsset.UserAvatarAsset(wireSessionImageLoader, assetId)
+                                ImageAsset.UserAvatarAsset(assetId)
                             },
                             conversationTypeForCall = ConversationTypeForCall.OneOnOne,
                             membership = userTypeMapper.toMembership(details.otherUser.userType),

@@ -158,7 +158,7 @@ class HomeViewModelTest {
                 wireSessionImageLoader = wireSessionImageLoader,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser,
                 analyticsManager = analyticsManager,
-                isPersonalToTeamAccountSupportedByBackend = canMigrateFromPersonalToTeam
+                canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam
             )
         }
 
@@ -174,6 +174,7 @@ class HomeViewModelTest {
 
         private fun withCanMigrateFromPersonalToTeamReturning(result: Boolean) = apply {
             coEvery { canMigrateFromPersonalToTeam.invoke() } returns result
+            coEvery { dataStore.isCreateTeamNoticeRead() } returns flowOf(false)
         }
 
         fun withLegalHoldStatus(result: Flow<LegalHoldStateForSelfUser>) = apply {

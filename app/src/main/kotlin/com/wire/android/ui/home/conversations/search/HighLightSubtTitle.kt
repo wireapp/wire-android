@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversations.search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,6 +34,7 @@ import com.wire.android.util.QueryMatchExtractor
 @Composable
 fun HighlightSubtitle(
     subTitle: String,
+    modifier: Modifier = Modifier,
     searchQuery: String = String.EMPTY,
     prefix: String = "@"
 ) {
@@ -76,6 +78,7 @@ fun HighlightSubtitle(
                         }
                     }
             },
+            modifier = modifier,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -85,7 +88,8 @@ fun HighlightSubtitle(
             style = MaterialTheme.wireTypography.subline01,
             color = MaterialTheme.wireColorScheme.secondaryText,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = modifier
         )
     }
 }

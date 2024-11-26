@@ -70,7 +70,8 @@ fun WireSecondaryButton(
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    onClickDescription: String? = null
+    onClickDescription: String? = null,
+    description: String? = null
 ) = WireButton(
     onClick = onClick,
     loading = loading,
@@ -92,7 +93,8 @@ fun WireSecondaryButton(
     contentPadding = contentPadding,
     interactionSource = interactionSource,
     modifier = modifier,
-    onClickDescription = onClickDescription
+    onClickDescription = onClickDescription,
+    description = description
 )
 
 @Preview(name = "Default WireSecondaryButton")

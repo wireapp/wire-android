@@ -22,7 +22,6 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
-import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

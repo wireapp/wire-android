@@ -54,7 +54,7 @@ class UICallParticipantMapperTest {
 
     private class Arrangement {
 
-        private val mapper: UICallParticipantMapper = UICallParticipantMapper(mockk(), UserTypeMapper())
+        private val mapper: UICallParticipantMapper = UICallParticipantMapper(UserTypeMapper())
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

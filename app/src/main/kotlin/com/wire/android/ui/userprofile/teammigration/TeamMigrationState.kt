@@ -23,5 +23,6 @@ import com.wire.kalium.logic.CoreFailure
 data class TeamMigrationState(
     val teamNameTextState: TextFieldState = TextFieldState(),
     val shouldShowMigrationLeaveDialog: Boolean = false,
-    val migrationFailure: CoreFailure? = null,
+    val currentStep: Int = 0,
+    val migrationFailure: CoreFailure? = null
 )

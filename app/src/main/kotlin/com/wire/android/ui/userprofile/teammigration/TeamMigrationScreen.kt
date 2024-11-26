@@ -22,6 +22,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -54,6 +55,10 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.teammigration.common.ConfirmMigrationLeaveDialog
+import com.wire.android.ui.userprofile.teammigration.step1.TEAM_MIGRATION_TEAM_PLAN_STEP
+import com.wire.android.ui.userprofile.teammigration.step2.TEAM_MIGRATION_TEAM_NAME_STEP
+import com.wire.android.ui.userprofile.teammigration.step3.TEAM_MIGRATION_CONFIRMATION_STEP
+import com.wire.android.ui.userprofile.teammigration.step4.TEAM_MIGRATION_DONE_STEP
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @WireDestination(style = PopUpNavigationAnimation::class)
@@ -82,6 +87,7 @@ fun TeamMigrationScreen(
     Column(
         modifier = modifier
             .padding(top = dimensions().spacing32x)
+            .navigationBarsPadding()
             .clip(
                 shape = RoundedCornerShape(
                     dimensions().corner16x,
@@ -91,6 +97,14 @@ fun TeamMigrationScreen(
             .fillMaxSize()
             .background(color = colorsScheme().surface)
     ) {
+        val closeIconContentDescription = when (teamMigrationViewModel.teamMigrationState.currentStep) {
+            TEAM_MIGRATION_TEAM_PLAN_STEP -> stringResource(R.string.personal_to_team_migration_close_team_account_content_description)
+            TEAM_MIGRATION_TEAM_NAME_STEP -> stringResource(R.string.personal_to_team_migration_close_team_name_content_description)
+            TEAM_MIGRATION_CONFIRMATION_STEP -> stringResource(R.string.personal_to_team_migration_close_confirmation_content_description)
+            TEAM_MIGRATION_DONE_STEP -> stringResource(R.string.personal_to_team_migration_close_team_created_content_description)
+            else -> stringResource(R.string.personal_to_team_migration_close_icon_content_description)
+        }
+
         IconButton(
             modifier = Modifier.align(alignment = Alignment.End),
             onClick = {
@@ -105,7 +119,7 @@ fun TeamMigrationScreen(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_close),
-                contentDescription = stringResource(R.string.personal_to_team_migration_close_icon_content_description)
+                contentDescription = closeIconContentDescription
             )
         }
 

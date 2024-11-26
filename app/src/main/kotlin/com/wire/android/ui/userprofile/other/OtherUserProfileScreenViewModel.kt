@@ -308,10 +308,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onAddConversationToFavourites(conversationId: ConversationId?) {
-    }
-
-    @Suppress("EmptyFunctionBlock")
     override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
@@ -421,6 +417,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     mlsVerificationStatus = conversation.mlsVerificationStatus,
                     proteusVerificationStatus = conversation.proteusVerificationStatus,
                     isUnderLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
+                    isFavorite = null
                 )
             }
         )

@@ -219,14 +219,13 @@ class TeamMigrationViewModelTest {
         fun arrange() = this to TeamMigrationViewModel(
             anonymousAnalyticsManager = anonymousAnalyticsManager,
             migrateFromPersonalToTeam = migrateFromPersonalToTeam,
-        ).also { viewModel ->
+        )
+            .also { viewModel ->
             viewModel.teamMigrationState.teamNameTextState.setTextAndPlaceCursorAtEnd(TEAM_NAME)
         }
 
         fun withMigrateFromPersonalToTeamSuccess() = apply {
-            coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Success(
-                TEAM_NAME
-            )
+            coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Success
         }
 
         fun withMigrateFromPersonalToTeamError() = apply {

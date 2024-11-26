@@ -28,6 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -124,10 +126,18 @@ fun ConversationParticipantItem(
             }
         },
         subtitle = {
+            val userName = processUsername(uiParticipant)
+            // Availability status should be called after username by TalkBack
+            val subtitleModifier = uiParticipant.avatarData.getAvailabilityStatusDescriptionId()?.let {
+                val contentDescription = stringResource(it)
+                Modifier.semantics { this.contentDescription = "$userName, $contentDescription" }
+            } ?: Modifier
+
             HighlightSubtitle(
-                subTitle = processUsername(uiParticipant),
+                subTitle = userName,
                 searchQuery = searchQuery,
-                prefix = processUsernamePrefix(uiParticipant)
+                prefix = processUsernamePrefix(uiParticipant),
+                modifier = subtitleModifier
             )
         },
         actions = {

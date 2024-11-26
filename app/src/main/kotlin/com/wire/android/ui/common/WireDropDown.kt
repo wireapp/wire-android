@@ -56,6 +56,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -164,6 +165,8 @@ private fun MenuPopUp(
     hidePopUp: () -> Unit,
     onChange: (selectedIndex: Int) -> Unit
 ) {
+    val dropdownDescription = stringResource(R.string.content_description_drop_down)
+
     MaterialTheme(shapes = MaterialTheme.shapes.copy(extraSmall = shape)) {
         // we want PopUp to cover the selection field, so we set this offset.
         // "- 8.dp" is because DropdownMenu has inner top padding, which can't be changed,
@@ -178,14 +181,15 @@ private fun MenuPopUp(
                 .width(with(LocalDensity.current) { textFieldWidth.width.toDp() })
                 .background(color = MaterialTheme.wireColorScheme.secondaryButtonEnabled)
                 .border(width = 1.dp, color = borderColor, shape)
+                .semantics { paneTitle = dropdownDescription }
         ) {
 
             SelectionField(
-                Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) { hidePopUp() },
                 leadingCompose,
                 selectedIndex,
                 selectionText,
-                arrowRotation
+                arrowRotation,
+                Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) { hidePopUp() }
             )
 
             List(items.size) { index ->
@@ -210,11 +214,11 @@ private fun MenuPopUp(
 
 @Composable
 private fun SelectionField(
-    modifier: Modifier = Modifier,
     leadingCompose: @Composable ((index: Int) -> Unit)?,
     selectedIndex: Int,
     text: String,
-    arrowRotation: Float
+    arrowRotation: Float,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier
@@ -262,6 +266,7 @@ private fun DropdownItem(
     onClick: () -> Unit
 ) {
     val selectLabel = stringResource(R.string.content_description_select_label)
+    val closeDropdownLabel = stringResource(R.string.content_description_close_dropdown)
     return DropdownMenuItem(
         text = {
             Text(
@@ -281,8 +286,12 @@ private fun DropdownItem(
         onClick = onClick,
         modifier = Modifier
             .semantics {
-                onClick(selectLabel) { false }
-                if (isSelected) selected = true
+                if (isSelected) {
+                    selected = true
+                    onClick(closeDropdownLabel) { false }
+                } else {
+                    onClick(selectLabel) { false }
+                }
             }
             .background(
                 color = if (isSelected) MaterialTheme.wireColorScheme.secondaryButtonSelected

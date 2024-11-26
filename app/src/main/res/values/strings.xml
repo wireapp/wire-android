@@ -211,14 +211,18 @@
     <string name="content_description_toggle_setting_label">toggle setting</string>
     <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
     <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
+    <string name="content_description_accept_or_ignore_connection_label">accept or ignore the request</string>
     <string name="content_description_open_user_profile_label">open profile</string>
     <string name="content_description_open_conversation_label">open conversation</string>
     <string name="content_description_open_service_label">open service</string>
     <string name="content_description_change_it_label">change it</string>
     <string name="content_description_open_link_label">open link</string>
     <string name="content_description_alert">Alert</string>
+    <string name="content_description_drop_down">Dropdown</string>
     <string name="content_description_close_dropdown">close dropdown</string>
     <string name="content_description_open_notification_settings_label">open notification settings</string>
+    <string name="content_description_new_conversation_close_btn">Close new conversation view</string>
+    <string name="content_description_new_group_conversation_back_btn">Go back to new conversation view</string>
     <string name="content_description_new_conversation_name_back_btn">Go back to new conversation view</string>
     <string name="content_description_new_conversation_name_field">Type group name</string>
     <string name="content_description_new_conversation_options_heading">Conversation options</string>
@@ -618,6 +622,7 @@
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Clear Data?</string>
     <string name="dialog_logout_wipe_data_checkbox">Delete all your personal information and conversations on this device</string>
+    <string name="dialog_logout_wipe_data_cancel_description">Cancel logout</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
     <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>

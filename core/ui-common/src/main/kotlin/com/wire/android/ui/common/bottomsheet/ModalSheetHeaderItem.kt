@@ -30,7 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.common.dimensions
@@ -60,7 +60,7 @@ fun ModalSheetHeaderItem(header: MenuModalSheetHeader = MenuModalSheetHeader.Gon
                     Text(
                         text = header.title,
                         style = MaterialTheme.wireTypography.title02,
-                        modifier = Modifier.semantics { contentDescription = header.title }
+                        modifier = Modifier.semantics { heading() }
                     )
                 }
                 WireDivider()

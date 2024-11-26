@@ -33,7 +33,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,6 +48,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -65,7 +66,6 @@ import com.wire.android.ui.theme.wireTypography
 import java.lang.Integer.max
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WireButton(
     onClick: () -> Unit,
@@ -91,7 +91,8 @@ fun WireButton(
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    onClickDescription: String? = null
+    onClickDescription: String? = null,
+    description: String? = null
 ) {
     val border = when {
         borderWidth > 0.dp -> BorderStroke(width = borderWidth, color = colors.outlineColor(state).value)
@@ -124,7 +125,10 @@ fun WireButton(
                         placeable.place(centerX, centerY)
                     }
                 }
-                .semantics { onClickDescription?.let { onClick(it) { false } } },
+                .semantics {
+                    onClickDescription?.let { onClick(it) { false } }
+                    description?.let { contentDescription = description }
+                },
             enabled = state != WireButtonState.Disabled,
             interactionSource = interactionSource,
             elevation = elevation,
@@ -144,6 +148,7 @@ fun WireButton(
                 textStyle = textStyle,
                 state = state,
                 colors = colors,
+                semanticIgnoreText = !description.isNullOrEmpty()
             )
         }
     }
@@ -161,6 +166,7 @@ private fun InnerButtonBox(
     textStyle: TextStyle = MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
     colors: WireButtonColors = wirePrimaryButtonColors(),
+    semanticIgnoreText: Boolean = false
 ) {
     val contentColor = colors.contentColor(state).value
     val leadingItem: (@Composable () -> Unit) = { leadingIcon?.let { Tint(contentColor = contentColor, content = it) } }
@@ -198,7 +204,9 @@ private fun InnerButtonBox(
         ) {
             if (leadingIconAlignment == IconAlignment.Center) leadingItem()
             if (!text.isNullOrEmpty()) {
+                val modifier = if (semanticIgnoreText) Modifier.clearAndSetSemantics { } else Modifier
                 Text(
+                    modifier = modifier,
                     text = text,
                     style = textStyle,
                     color = contentColor

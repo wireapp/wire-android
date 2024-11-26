@@ -78,6 +78,7 @@ fun HighlightSubtitle(
                         }
                     }
             },
+            modifier = modifier,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = modifier

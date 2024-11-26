@@ -57,7 +57,10 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -291,12 +294,28 @@ private fun DefaultInitialsAvatar(
     type: UserProfileAvatarType,
     size: Dp,
     modifier: Modifier = Modifier,
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/common/avatar/UserProfileAvatar.kt
     contentDescription: String? = stringResource(R.string.content_description_user_avatar),
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .semantics { this.contentDescription = contentDescription ?: "" }
+=======
+    contentDescription: String? = null
+) {
+    val semantics = if (contentDescription != null) {
+        Modifier.semantics {
+            this.contentDescription = contentDescription
+            this.role = Role.Image
+        }
+    } else {
+        Modifier.clearAndSetSemantics { }
+    }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+>>>>>>> dc7ff425e (fix: Accessibility strings founded issues #WPB-9784 (#3657)):app/src/main/kotlin/com/wire/android/ui/common/UserProfileAvatar.kt
             .size(size)
             .clip(CircleShape)
             .background(
@@ -312,6 +331,7 @@ private fun DefaultInitialsAvatar(
                     )
                 }
             )
+            .then(semantics)
     ) {
         Text(
             text = nameBasedAvatar.initials,

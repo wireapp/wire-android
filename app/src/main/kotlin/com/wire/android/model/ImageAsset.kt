@@ -58,7 +58,7 @@ sealed class ImageAsset {
         val idKey: String
     ) : ImageAsset()
 
-    sealed class Remote() : ImageAsset() {
+    sealed class Remote : ImageAsset() {
 
         /**
          * Value that uniquely identifies this Asset,

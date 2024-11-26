@@ -158,6 +158,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     mlsVerificationStatus = groupDetails.conversation.mlsVerificationStatus,
                     proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
                     isUnderLegalHold = groupDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+                    isFavorite = groupDetails.isFavorite
                 )
 
                 updateState(
@@ -372,10 +373,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         } else {
             onMessage(UIText.StringResource(R.string.group_content_deleted))
         }
-    }
-
-    @Suppress("EmptyFunctionBlock")
-    override fun onAddConversationToFavourites(conversationId: ConversationId?) {
     }
 
     @Suppress("EmptyFunctionBlock")

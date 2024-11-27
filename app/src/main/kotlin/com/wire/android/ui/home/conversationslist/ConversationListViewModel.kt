@@ -70,6 +70,7 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserU
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -85,6 +86,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -141,6 +143,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     @CurrentAccount val currentAccount: UserId,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
+    private val observeSelfUser: GetSelfUserUseCase
 ) : ConversationListViewModel, ViewModel() {
 
     @AssistedFactory
@@ -238,6 +241,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                                     wireSessionImageLoader = wireSessionImageLoader,
                                     userTypeMapper = userTypeMapper,
                                     searchQuery = searchQuery,
+                                    selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
                                 ).hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
                             } to searchQuery
                         }

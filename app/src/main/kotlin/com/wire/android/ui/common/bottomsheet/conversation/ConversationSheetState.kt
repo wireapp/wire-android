@@ -70,7 +70,7 @@ fun rememberConversationSheetState(
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(
                         conversationId = conversationId,
-                        isCreator = isSelfUserCreator
+                        isFromTheSameTeam = isFromTheSameTeam
                     ),
                     isTeamConversation = teamId != null,
                     selfRole = selfMemberRole,

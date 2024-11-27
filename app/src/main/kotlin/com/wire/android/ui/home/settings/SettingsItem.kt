@@ -19,6 +19,8 @@
 package com.wire.android.ui.home.settings
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -29,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -64,18 +67,21 @@ fun SettingsItem(
     modifier: Modifier = Modifier,
     title: String? = null,
     @DrawableRes trailingIcon: Int? = null,
+    trailingText: String? = null,
     switchState: SwitchState = SwitchState.None,
     onRowPressed: Clickable = Clickable(false),
     onIconPressed: Clickable? = null
 ) {
     RowItemTemplate(
         modifier = modifier,
+        wrapTitleContentWidth = true,
         title = {
             if (!title.isNullOrBlank()) {
                 Text(
                     style = MaterialTheme.wireTypography.label01,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     text = title,
+                    maxLines = 1,
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )
             }
@@ -83,22 +89,43 @@ fun SettingsItem(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.onBackground,
                 text = text,
+                maxLines = 1,
                 modifier = Modifier.padding(start = dimensions().spacing8x)
             )
         },
         actions = {
-            SettingsOptionSwitch(switchState = switchState)
-            trailingIcon?.let {
-                Icon(
-                    painter = painterResource(id = trailingIcon),
-                    contentDescription = "",
-                    tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
-                    modifier = Modifier
-                        .defaultMinSize(dimensions().wireIconButtonSize)
-                        .padding(end = dimensions().spacing8x)
-                        .clickable(onIconPressed)
-                )
-            } ?: Icons.Filled.ChevronRight
+            Row(
+                horizontalArrangement = Arrangement.End,
+            ) {
+                SettingsOptionSwitch(switchState = switchState)
+                if (trailingText != null) {
+                    Row(
+                        Modifier
+                            .padding(end = dimensions().spacing12x)
+                            .weight(1f),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            trailingText,
+                            style = MaterialTheme.wireTypography.body01,
+                            color = MaterialTheme.wireColorScheme.secondaryText,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
+                    }
+                }
+                trailingIcon?.let {
+                    Icon(
+                        painter = painterResource(id = trailingIcon),
+                        contentDescription = "",
+                        tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+                        modifier = Modifier
+                            .defaultMinSize(dimensions().wireIconButtonSize)
+                            .padding(end = dimensions().spacing8x)
+                            .clickable(onIconPressed)
+                    )
+                } ?: Icons.Filled.ChevronRight
+            }
         },
         clickable = onRowPressed
     )
@@ -229,12 +256,38 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewFileRestrictionDialog() {
+fun PreviewSettingsItem() {
     WireTheme {
         SettingsItem(
             title = "Some Setting",
             text = "This is the value of the setting",
             trailingIcon = R.drawable.ic_arrow_right
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSettingsItemTrailingComposable() {
+    WireTheme {
+        SettingsItem(
+            title = "Some Setting",
+            text = "This is the value of the setting",
+            trailingIcon = R.drawable.ic_arrow_right,
+            trailingText = "Longlonglonglonglonglonglonglong Name"
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSettingsItemTrailingShortComposable() {
+    WireTheme {
+        SettingsItem(
+            title = "Some Setting",
+            text = "This is the value of the setting",
+            trailingIcon = R.drawable.ic_arrow_right,
+            trailingText = "Short Name"
         )
     }
 }

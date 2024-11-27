@@ -72,7 +72,7 @@ fun MessageDetailsEmptyScreenText(
                 append(learnMoreText)
                 addStyle(
                     style = SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         textDecoration = TextDecoration.Underline
                     ),
                     start = 0,

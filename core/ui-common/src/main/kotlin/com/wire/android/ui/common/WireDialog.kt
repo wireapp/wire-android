@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -230,7 +231,7 @@ fun WireDialogContent(
 @Composable
 private fun TitleDialogSection(title: String, titleLoading: Boolean) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(text = title, style = MaterialTheme.wireTypography.title02)
+        Text(text = title, style = MaterialTheme.wireTypography.title02, modifier = Modifier.semantics { heading() })
         if (titleLoading) {
             WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
         }
@@ -281,13 +282,13 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
         Box(modifier = modifier) {
             when (type) {
                 WireDialogButtonType.Primary ->
-                    WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading)
+                    WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading, description = description)
 
                 WireDialogButtonType.Secondary ->
-                    WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading)
+                    WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading, description = description)
 
                 WireDialogButtonType.Tertiary ->
-                    WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading)
+                    WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, description = description)
             }
         }
     }
@@ -300,7 +301,8 @@ data class WireDialogButtonProperties(
     val onClick: () -> Unit,
     val state: WireButtonState = WireButtonState.Default,
     val type: WireDialogButtonType = WireDialogButtonType.Secondary,
-    val loading: Boolean = false
+    val loading: Boolean = false,
+    val description: String? = null
 )
 
 data class DialogTextSuffixLink(val linkText: String, val linkUrl: String)

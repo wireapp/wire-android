@@ -153,7 +153,7 @@ class GroupConversationDetailsViewModelTest {
             conversationName = conversationDetails.conversation.name.orEmpty(),
             conversationTypeDetail = ConversationTypeDetail.Group(
                 conversationId = conversationDetails.conversation.id,
-                isCreator = conversationDetails.isSelfUserCreator
+                isFromTheSameTeam = false
             ),
             isArchived = conversationDetails.conversation.archived,
             isMember = true
@@ -202,7 +202,7 @@ class GroupConversationDetailsViewModelTest {
             conversationName = conversationDetails.conversation.name.orEmpty(),
             conversationTypeDetail = ConversationTypeDetail.Group(
                 conversationId = conversationDetails.conversation.id,
-                isCreator = conversationDetails.isSelfUserCreator
+                isFromTheSameTeam = false
             ),
             isArchived = conversationDetails.conversation.archived,
             isMember = true
@@ -452,6 +452,7 @@ class GroupConversationDetailsViewModelTest {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isUnderLegalHold = true,
+            isFavorite = false
         )
         // When - Then
         assertEquals(expected, viewModel.conversationSheetContent)

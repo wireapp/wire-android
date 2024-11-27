@@ -21,9 +21,11 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaPlayer.SEEK_CLOSEST_SYNC
 import android.net.Uri
+import com.wire.android.di.KaliumCoreLogic
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -34,14 +36,44 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class ConversationAudioMessagePlayer
+@Singleton
+class ConversationAudioMessagePlayerProvider
 @Inject constructor(
     private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
-    private val getMessageAsset: GetMessageAssetUseCase
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
+) {
+    private var player: ConversationAudioMessagePlayer? = null
+    private var usageCount: Int = 0
+
+    @Synchronized
+    fun provide(): ConversationAudioMessagePlayer {
+        val player = player ?: ConversationAudioMessagePlayer(context, audioMediaPlayer, coreLogic).also { player = it }
+        usageCount++
+
+        return player
+    }
+
+    @Synchronized
+    fun onCleared() {
+        usageCount--
+        if (usageCount <= 0) {
+            player?.close()
+            player = null
+        }
+    }
+}
+
+class ConversationAudioMessagePlayer
+internal constructor(
+    private val context: Context,
+    private val audioMediaPlayer: MediaPlayer,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
     private companion object {
         const val UPDATE_POSITION_INTERVAL_IN_MS = 1000L
@@ -137,7 +169,7 @@ class ConversationAudioMessagePlayer
             }
 
             audioMessageStateHistory
-        }
+        }.onStart { emit(audioMessageStateHistory) }
 
     private var currentAudioMessageId: String? = null
 
@@ -169,10 +201,10 @@ class ConversationAudioMessagePlayer
     }
 
     private suspend fun stopCurrentlyPlayingAudioMessage() {
-        if (currentAudioMessageId != null) {
-            val currentAudioState = audioMessageStateHistory[currentAudioMessageId]
+        currentAudioMessageId?.let {
+            val currentAudioState = audioMessageStateHistory[it]
             if (currentAudioState?.audioMediaPlayingState != AudioMediaPlayingState.Fetching) {
-                stop(currentAudioMessageId!!)
+                stop(it)
             }
         }
     }
@@ -194,6 +226,9 @@ class ConversationAudioMessagePlayer
 
         coroutineScope {
             launch {
+                val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
+                if (currentAccountResult is CurrentSessionResult.Failure) return@launch
+
                 audioMessageStateUpdate.emit(
                     AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
                         messageId,
@@ -201,7 +236,12 @@ class ConversationAudioMessagePlayer
                     )
                 )
 
-                when (val result = getMessageAsset(conversationId, messageId).await()) {
+                val assetMessage = coreLogic
+                    .getSessionScope((currentAccountResult as CurrentSessionResult.Success).accountInfo.userId)
+                    .messages
+                    .getAssetMessage(conversationId, messageId)
+
+                when (val result = assetMessage.await()) {
                     is MessageAssetResult.Success -> {
                         audioMessageStateUpdate.emit(
                             AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
@@ -219,9 +259,7 @@ class ConversationAudioMessagePlayer
                             )
                             audioMediaPlayer.prepare()
 
-                            if (position != null) {
-                                audioMediaPlayer.seekTo(position)
-                            }
+                            if (position != null) audioMediaPlayer.seekTo(position)
 
                             audioMediaPlayer.start()
 
@@ -292,7 +330,7 @@ class ConversationAudioMessagePlayer
         )
     }
 
-    fun close() {
-        audioMediaPlayer.release()
+    internal fun close() {
+        audioMediaPlayer.reset()
     }
 }

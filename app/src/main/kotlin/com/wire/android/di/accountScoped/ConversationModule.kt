@@ -327,4 +327,14 @@ class ConversationModule {
     @Provides
     fun provideGetFavoriteFolderUseCase(conversationScope: ConversationScope) =
         conversationScope.getFavoriteFolder
+
+    @ViewModelScoped
+    @Provides
+    fun provideAddConversationToFavoritesUseCase(conversationScope: ConversationScope) =
+        conversationScope.addConversationToFavorites
+
+    @ViewModelScoped
+    @Provides
+    fun provideRemoveConversationFromFavoritesUseCase(conversationScope: ConversationScope) =
+        conversationScope.removeConversationFromFavorites
 }

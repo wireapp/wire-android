@@ -44,7 +44,8 @@ object TestConversationItem {
         userId = UserId("value", "domain"),
         isArchived = false,
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        isFavorite = false
     )
 
     val GROUP = ConversationItem.GroupConversation(
@@ -56,10 +57,12 @@ object TestConversationItem {
         ),
         badgeEventType = BadgeEventType.UnreadMessage(100),
         selfMemberRole = null,
+        isFromTheSameTeam = false,
         teamId = null,
         isArchived = false,
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        isFavorite = false
     )
 
     val CONNECTION = ConversationItem.ConnectionConversation(

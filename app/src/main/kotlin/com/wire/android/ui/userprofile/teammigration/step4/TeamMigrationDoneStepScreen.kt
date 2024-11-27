@@ -27,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,11 +46,13 @@ import com.wire.android.ui.common.spacers.VerticalSpace.x32
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
+import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
+
+const val TEAM_MIGRATION_DONE_STEP = 4
 
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
@@ -83,6 +86,10 @@ fun TeamMigrationDoneStepScreen(
         },
         teamName = teamMigrationViewModel.teamMigrationState.teamNameTextState.text.toString()
     )
+
+    LaunchedEffect(Unit) {
+        teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_DONE_STEP)
+    }
 
     BackHandler { }
 }

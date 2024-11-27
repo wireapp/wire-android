@@ -22,7 +22,9 @@ import androidx.paging.testing.asSnapshot
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversationDetails
+import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
@@ -33,6 +35,7 @@ import com.wire.kalium.logic.data.conversation.FolderType
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -42,6 +45,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -73,6 +77,7 @@ class GetConversationsFromSearchUseCaseTest {
         )
         val (arrangement, useCase) = Arrangement()
             .withPaginatedResult(conversationsList)
+            .withSelfUser()
             .arrange()
         // When
         val result = with(arrangement.queryConfig) {
@@ -99,6 +104,7 @@ class GetConversationsFromSearchUseCaseTest {
         val (arrangement, useCase) = Arrangement()
             .withFavoriteFolderResult(folderResult)
             .withFolderConversationsResult(conversationsList)
+            .withSelfUser()
             .arrange()
 
         // When
@@ -116,6 +122,52 @@ class GetConversationsFromSearchUseCaseTest {
         coVerify(exactly = 0) { arrangement.useCase(any(), any(), any()) }
     }
 
+    @Test
+    fun givenGroupConversation_whenConversationFromTheSameTeam_thenReturnDataWithProperlySameTeamSet() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversationsList = listOf(
+                ConversationDetailsWithEvents(
+                    TestConversationDetails.GROUP.copy(
+                        conversation = TestConversationDetails.GROUP.conversation.copy(
+                            teamId = TestUser.SELF_USER.teamId
+                        )
+                    )
+                )
+            )
+            val (arrangement, useCase) = Arrangement()
+                .withPaginatedResult(conversationsList)
+                .withSelfUser()
+                .arrange()
+            // When
+            val result = with(arrangement.queryConfig) {
+                useCase(searchQuery, fromArchive, newActivitiesOnTop, onlyInteractionEnabled).asSnapshot()
+            }
+            // Then
+            val conversation = result.first()
+            assertInstanceOf<ConversationItem.GroupConversation>(conversation)
+            assertEquals(true, conversation.isFromTheSameTeam)
+        }
+
+    @Test
+    fun givenGroupConversation_whenConversationNotFromTheSameTeam_thenReturnDataWithProperlySameTeamSet() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversationsList = listOf(ConversationDetailsWithEvents(TestConversationDetails.GROUP))
+            val (arrangement, useCase) = Arrangement()
+                .withPaginatedResult(conversationsList)
+                .withSelfUser()
+                .arrange()
+            // When
+            val result = with(arrangement.queryConfig) {
+                useCase(searchQuery, fromArchive, newActivitiesOnTop, onlyInteractionEnabled).asSnapshot()
+            }
+            // Then
+            val conversation = result.first()
+            assertInstanceOf<ConversationItem.GroupConversation>(conversation)
+            assertEquals(false, conversation.isFromTheSameTeam)
+        }
+
     inner class Arrangement {
 
         @MockK
@@ -132,6 +184,9 @@ class GetConversationsFromSearchUseCaseTest {
 
         @MockK
         lateinit var userTypeMapper: UserTypeMapper
+
+        @MockK
+        lateinit var observeSelfUser: GetSelfUserUseCase
 
         val queryConfig = ConversationQueryConfig(
             searchQuery = "search",
@@ -162,13 +217,18 @@ class GetConversationsFromSearchUseCaseTest {
             } returns flowOf(conversations)
         }
 
+        fun withSelfUser() = apply {
+            coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
+        }
+
         fun arrange() = this to GetConversationsFromSearchUseCase(
             useCase,
             getFavoriteFolderUseCase,
             observeConversationsFromFolderUseCase,
             wireSessionImageLoader,
             userTypeMapper,
-            dispatcherProvider
+            dispatcherProvider,
+            observeSelfUser
         )
     }
 }

@@ -23,7 +23,11 @@ import android.app.Notification
 import android.content.Context
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
+<<<<<<< HEAD
 import androidx.core.app.NotificationCompat.CallStyle
+=======
+import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
+>>>>>>> 4de7facb1 (fix: set Foreground Service Behavior IMMEDIATE (WPB-5512) (#3666))
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import com.wire.android.R
@@ -189,6 +193,11 @@ class CallNotificationBuilder @Inject constructor(
             )
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+<<<<<<< HEAD
+=======
+            .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
+            .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
+>>>>>>> 4de7facb1 (fix: set Foreground Service Behavior IMMEDIATE (WPB-5512) (#3666))
             .setFullScreenIntent(outgoingCallPendingIntent(context, conversationIdString), true)
             .setContentIntent(outgoingCallPendingIntent(context, conversationIdString))
             .build()
@@ -248,6 +257,7 @@ class CallNotificationBuilder @Inject constructor(
             .setAutoCancel(true)
             .setOngoing(true)
             .setUsesChronometer(true)
+<<<<<<< HEAD
             .setStyle(
                 CallStyle.forOngoingCall(
                     person,
@@ -255,6 +265,11 @@ class CallNotificationBuilder @Inject constructor(
                 )
             )
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+=======
+            .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
+            .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
+            .addAction(getOpenOngoingCallAction(context, conversationIdString))
+>>>>>>> 4de7facb1 (fix: set Foreground Service Behavior IMMEDIATE (WPB-5512) (#3666))
             .setFullScreenIntent(openOngoingCallPendingIntent(context, conversationIdString), true)
             .setContentIntent(openOngoingCallPendingIntent(context, conversationIdString))
             .build()

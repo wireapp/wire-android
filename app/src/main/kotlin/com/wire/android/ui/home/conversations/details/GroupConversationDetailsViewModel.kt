@@ -73,6 +73,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -150,7 +151,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     title = groupDetails.conversation.name.orEmpty(),
                     conversationId = conversationId,
                     mutingConversationState = groupDetails.conversation.mutedStatus,
-                    conversationTypeDetail = ConversationTypeDetail.Group(conversationId, groupDetails.isSelfUserCreator),
+                    conversationTypeDetail = ConversationTypeDetail.Group(
+                        conversationId = conversationId,
+                        isFromTheSameTeam = groupDetails.conversation.teamId == observerSelfUser().firstOrNull()?.teamId
+                    ),
                     isTeamConversation = groupDetails.conversation.teamId?.value != null,
                     selfRole = groupDetails.selfRole,
                     isArchived = groupDetails.conversation.archived,
@@ -158,6 +162,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     mlsVerificationStatus = groupDetails.conversation.mlsVerificationStatus,
                     proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
                     isUnderLegalHold = groupDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+                    isFavorite = groupDetails.isFavorite
                 )
 
                 updateState(
@@ -372,10 +377,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         } else {
             onMessage(UIText.StringResource(R.string.group_content_deleted))
         }
-    }
-
-    @Suppress("EmptyFunctionBlock")
-    override fun onAddConversationToFavourites(conversationId: ConversationId?) {
     }
 
     @Suppress("EmptyFunctionBlock")

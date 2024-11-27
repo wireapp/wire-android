@@ -17,18 +17,25 @@
  */
 package com.wire.android.ui.userprofile.teammigration
 
+import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class TeamMigrationViewModel @Inject constructor(
-    private val anonymousAnalyticsManager: AnonymousAnalyticsManager
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
+    private val migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase
 ) : ViewModel() {
 
     var teamMigrationState by mutableStateOf(TeamMigrationState())
@@ -56,6 +63,10 @@ class TeamMigrationViewModel @Inject constructor(
         )
     }
 
+    fun setCurrentStep(step: Int) {
+        teamMigrationState = teamMigrationState.copy(currentStep = step)
+    }
+
     fun sendPersonalTeamCreationFlowCanceledEvent(
         modalLeaveClicked: Boolean? = null,
         modalContinueClicked: Boolean? = null
@@ -80,5 +91,32 @@ class TeamMigrationViewModel @Inject constructor(
                 backToWireButtonClicked = backToWireButtonClicked
             )
         )
+    }
+
+    fun migrateFromPersonalToTeamAccount(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            migrateFromPersonalToTeam.invoke(
+                teamMigrationState.teamNameTextState.text.toString(),
+            ).let { result ->
+                when (result) {
+                    is MigrateFromPersonalToTeamResult.Success -> {
+                        teamMigrationState.teamNameTextState.setTextAndSelectAll(result.teamName)
+                        onSuccess()
+                    }
+
+                    is MigrateFromPersonalToTeamResult.Error -> {
+                        onMigrationFailure(result.failure)
+                    }
+                }
+            }
+        }
+    }
+
+    fun failureHandled() {
+        teamMigrationState = teamMigrationState.copy(migrationFailure = null)
+    }
+
+    private fun onMigrationFailure(failure: CoreFailure) {
+        teamMigrationState = teamMigrationState.copy(migrationFailure = failure)
     }
 }

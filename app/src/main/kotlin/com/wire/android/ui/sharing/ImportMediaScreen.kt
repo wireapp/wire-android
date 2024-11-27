@@ -441,7 +441,8 @@ fun FileSharingRestrictedContent(
                         annotation = learnMoreUrl,
                         onClick = { CustomTabsHelper.launchUrl(context, learnMoreUrl) }
                     )
-                )
+                ),
+                textColor = colorsScheme().onBackground
             )
         }
     }

@@ -33,11 +33,12 @@ import com.wire.kalium.logic.data.user.type.isTeammate
 sealed class ConversationItem : ConversationFolderItem {
     abstract val conversationId: ConversationId
     abstract val mutedStatus: MutedConversationStatus
-    abstract val isLegalHold: Boolean
+    abstract val showLegalHoldIndicator: Boolean
     abstract val lastMessageContent: UILastMessageContent?
     abstract val badgeEventType: BadgeEventType
     abstract val teamId: TeamId?
     abstract val isArchived: Boolean
+    abstract val isFavorite: Boolean
     abstract val mlsVerificationStatus: Conversation.VerificationStatus
     abstract val proteusVerificationStatus: Conversation.VerificationStatus
     abstract val hasNewActivitiesToShow: Boolean
@@ -48,16 +49,17 @@ sealed class ConversationItem : ConversationFolderItem {
     data class GroupConversation(
         val groupName: String,
         val hasOnGoingCall: Boolean = false,
-        val isSelfUserCreator: Boolean = false,
         val selfMemberRole: Conversation.Member.Role?,
+        val isFromTheSameTeam: Boolean,
         val isSelfUserMember: Boolean = true,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
-        override val isLegalHold: Boolean = false,
+        override val showLegalHoldIndicator: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
         override val isArchived: Boolean,
+        override val isFavorite: Boolean,
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
@@ -71,11 +73,12 @@ sealed class ConversationItem : ConversationFolderItem {
         val blockingState: BlockingState,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
-        override val isLegalHold: Boolean = false,
+        override val showLegalHoldIndicator: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
         override val isArchived: Boolean,
+        override val isFavorite: Boolean,
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
@@ -87,10 +90,11 @@ sealed class ConversationItem : ConversationFolderItem {
         val conversationInfo: ConversationInfo,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
-        override val isLegalHold: Boolean = false,
+        override val showLegalHoldIndicator: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val isArchived: Boolean = false,
+        override val isFavorite: Boolean = false,
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
     ) : ConversationItem() {
@@ -123,7 +127,7 @@ val OtherUser.BlockState: BlockingState
 fun ConversationItem.PrivateConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
-        isLegalHold = isLegalHold,
+        showLegalHoldIndicator = showLegalHoldIndicator,
         membership = conversationInfo.membership,
         unavailable = conversationInfo.isSenderUnavailable,
         mlsVerificationStatus = mlsVerificationStatus,
@@ -133,7 +137,7 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel() =
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
-        isLegalHold = isLegalHold,
+        showLegalHoldIndicator = showLegalHoldIndicator,
         membership = conversationInfo.membership,
         unavailable = conversationInfo.isSenderUnavailable
     )

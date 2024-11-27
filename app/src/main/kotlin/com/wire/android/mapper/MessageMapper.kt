@@ -148,7 +148,7 @@ class MessageMapper @Inject constructor(
             is SelfUser, null -> Membership.None
         },
         connectionState = getConnectionState(sender),
-        isLegalHold = sender?.isUnderLegalHold == true,
+        showLegalHoldIndicator = sender?.isUnderLegalHold == true,
         messageTime = MessageTime(message.date),
         messageStatus = getMessageStatus(message),
         messageId = message.id,

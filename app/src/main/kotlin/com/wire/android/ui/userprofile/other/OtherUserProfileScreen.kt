@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -67,6 +68,9 @@ import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteStateArgs
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVM
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVMImpl
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WireButtonState
@@ -104,6 +108,7 @@ import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheetContent
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -202,6 +207,7 @@ fun OtherUserProfileScreen(
             snackbarHostState.showSnackbar(it.asString(context.resources))
         }
     }
+
     LaunchedEffect(Unit) {
         viewModel.closeBottomSheet.collect {
             sheetState.hide()
@@ -237,7 +243,11 @@ fun OtherProfileScreenContent(
     onOpenDeviceDetails: (Device) -> Unit = {},
     onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {},
-    onLegalHoldLearnMoreClick: () -> Unit = {}
+    onLegalHoldLearnMoreClick: () -> Unit = {},
+    changeConversationFavoriteViewModel: ChangeConversationFavoriteVM =
+        hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
+            ChangeConversationFavoriteStateArgs
+        )
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
@@ -272,6 +282,8 @@ fun OtherProfileScreenContent(
             if (!isVisible) bottomSheetState.clearBottomSheetState()
         })
     }
+
+    SnackBarMessageHandler(changeConversationFavoriteViewModel.infoMessage, onEmitted = closeBottomSheet)
 
     val tabItems by remember(state) {
         derivedStateOf {
@@ -358,6 +370,7 @@ fun OtherProfileScreenContent(
                 unblockUser = unblockUserDialogState::show,
                 clearContent = clearConversationDialogState::show,
                 archivingStatusState = archivingConversationDialogState::show,
+                changeFavoriteState = changeConversationFavoriteViewModel::changeFavoriteState,
                 closeBottomSheet = closeBottomSheet,
             )
         }

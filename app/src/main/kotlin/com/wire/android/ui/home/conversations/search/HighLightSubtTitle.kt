@@ -51,7 +51,7 @@ fun HighlightSubtitle(
 
     if (searchQuery != String.EMPTY && highlightIndexes.isNotEmpty()) {
         Text(
-            buildAnnotatedString {
+            text = buildAnnotatedString {
                 withStyle(
                     style = SpanStyle(
                         color = MaterialTheme.wireColorScheme.secondaryText,
@@ -78,7 +78,6 @@ fun HighlightSubtitle(
                         }
                     }
             },
-            modifier = modifier,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = modifier

@@ -874,6 +874,7 @@
     <string name="dialog_archive_conversation_title">Archiválja a beszélgetést?</string>
     <string name="dialog_archive_conversation_description">Ez a beszélgetés az archívumba kerül. Továbbra is megkapja az új üzeneteket, fájlokat és hívásokat, azonban nem lesznek értesítések. Az archívumból bármikor előveheti a beszélgetést.</string>
     <string name="dialog_archive_conversation_option">Archiválás</string>
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">Nyitott beszélgetés</string>
     <string name="label_start_conversation">Beszélgetés indítása</string>

@@ -157,6 +157,7 @@
     <string name="content_description_add_participants_search_field">Personen nach Namen oder Benutzernamen suchen</string>
     <string name="content_description_add_participants_back_btn">Zurück zum Hinzufügen von Teilnehmern</string>
     <string name="content_description_home_profile_btn">Ihr Profil</string>
+    <string name="content_description_home_profile_btn_with_notification">Ihr Profil, ein ungelesener Hinweis.</string>
     <string name="content_description_open_label">Öffnen</string>
     <string name="content_description_join_call_label">Anruf annehmen</string>
     <string name="content_description_share_label">Teilen</string>
@@ -560,6 +561,7 @@
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Benachrichtigungen</string>
     <string name="label_add_to_favourites">Zu Favoriten hinzufügen</string>
+    <string name="label_remove_from_favourites">Aus Favoriten entfernen</string>
     <string name="label_move_to_folder">In Ordner verschieben</string>
     <string name="label_move_to_archive">Ins Archiv verschieben</string>
     <string name="label_unarchive">Reaktivieren</string>
@@ -814,6 +816,11 @@
     <string name="dialog_archive_conversation_title">Unterhaltung archivieren?</string>
     <string name="dialog_archive_conversation_description">Diese Unterhaltung wird in Ihr Archiv verschoben. Sie erhalten weiterhin neue Nachrichten, Dateien und Anrufe, aber keine Benachrichtigungen. Sie können die Unterhaltung jederzeit reaktivieren.</string>
     <string name="dialog_archive_conversation_option">Archivieren</string>
+    <!-- Favorite -->
+    <string name="success_adding_to_favorite">\"%s\" wurde zu Favoriten hinzugefügt</string>
+    <string name="success_removing_from_favorite">“%s“ wurde aus Favoriten entfernt</string>
+    <string name="error_adding_to_favorite">“%s” konnte nicht zu Favoriten hinzugefügt werden</string>
+    <string name="error_removing_from_favorite">“%s” konnte nicht aus Favoriten entfernt werden</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Unterhaltung öffnen</string>
     <string name="label_start_conversation">Unterhaltung beginnen</string>
@@ -1440,6 +1447,12 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="personal_to_team_migration_step_label">Schritt %1$d von 4</string>
     <string name="personal_to_team_migration_back_to_wire_button">Zurück zu Wire</string>
     <string name="personal_to_team_migration_back_button_label">Zurück</string>
+    <string name="personal_to_team_migration_back_button_team_name_content_description">Zurück zur Team-Konto-Übersicht</string>
+    <string name="personal_to_team_migration_back_button_confirmation_content_description">Zurück zur Ansicht Team-Name</string>
+    <string name="personal_to_team_migration_close_team_account_content_description">Team-Konto-Übersicht schließen</string>
+    <string name="personal_to_team_migration_close_team_name_content_description">Ansicht Teamname schließen</string>
+    <string name="personal_to_team_migration_close_confirmation_content_description">Bestätigungsansicht schließen</string>
+    <string name="personal_to_team_migration_close_team_created_content_description">Ansicht Team erstellt schließen</string>
     <string name="personal_to_team_migration_team_plan_step">Team-Konto</string>
     <string name="personal_to_team_migration_team_plan_description">Übertragen Sie Ihr privates Benutzerkonto in ein Team-Konto, um besser zusammenzuarbeiten.</string>
     <string name="personal_to_team_migration_team_plan_admin_console_label">Admin-Konsole:</string>

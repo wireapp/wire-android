@@ -684,6 +684,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Conversa arquivada</string>
     <string name="dialog_archive_conversation_title">Arquivar conversa?</string>
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">Abrir conversa</string>
     <string name="email_label">E-mail</string>

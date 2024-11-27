@@ -747,6 +747,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="dialog_archive_conversation_title">Archiviare la conversazione?</string>
     <string name="dialog_archive_conversation_description">Questa conversazione si sposta nel tuo archivio. Ricevi comunque nuovi messaggi, file e chiamate, ma nessuna notifica. Puoi disarchiviarla in qualsiasi momento.</string>
     <string name="dialog_archive_conversation_option">Archivia</string>
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">Apri la conversazione.</string>
     <string name="email_label">E-mail</string>

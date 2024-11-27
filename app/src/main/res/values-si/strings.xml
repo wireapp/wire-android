@@ -752,6 +752,7 @@
     <string name="dialog_archive_conversation_title">සංවාදය සංරක්‍ෂණය කරන්නද?</string>
     <string name="dialog_archive_conversation_description">මෙම සංවාදය ඔබගේ සංරක්‍ෂිතය වෙත ගෙන යයි. ඔබට තවදුරටත් නව පණිවිඩ, ගොනු සහ ඇමතුම් ලැබේ, නමුත් දැනුම්දීම් නොලැබේ. ඔබට ඕනෑම වේලාවක සංවාදය අසංරක්‍ෂණයට හැකිය.</string>
     <string name="dialog_archive_conversation_option">සංරක්‍ෂණය</string>
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">සංවාදය අරින්න</string>
     <string name="label_start_conversation">සංවාදය අරඹන්න</string>

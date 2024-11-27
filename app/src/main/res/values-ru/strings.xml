@@ -196,6 +196,7 @@
     <string name="content_description_add_participants_search_field">Поиск по имени или псевдониму</string>
     <string name="content_description_add_participants_back_btn">Вернуться к просмотру добавления участников</string>
     <string name="content_description_home_profile_btn">Ваш профиль</string>
+    <string name="content_description_home_profile_btn_with_notification">Ваш профиль, одна непрочитанная подсказка.</string>
     <string name="content_description_open_label">открыть</string>
     <string name="content_description_join_call_label">присоединиться к вызову</string>
     <string name="content_description_share_label">поделиться</string>
@@ -610,6 +611,7 @@
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Уведомления</string>
     <string name="label_add_to_favourites">Добавить в избранное</string>
+    <string name="label_remove_from_favourites">Удалить из избранного</string>
     <string name="label_move_to_folder">Переместить в папку</string>
     <string name="label_move_to_archive">Переместить в архив</string>
     <string name="label_unarchive">Переместить из архива</string>
@@ -909,6 +911,11 @@
     <string name="dialog_archive_conversation_title">Архивировать беседу?</string>
     <string name="dialog_archive_conversation_description">Эта беседа перемещается в архив. Вы по-прежнему будете получать новые сообщения, файлы и звонки, но без уведомлений. Разархивировать беседу можно в любое время.</string>
     <string name="dialog_archive_conversation_option">Архивировать</string>
+    <!-- Favorite -->
+    <string name="success_adding_to_favorite">“%s” был добавлен в избранное</string>
+    <string name="success_removing_from_favorite">“%s” был удален из избранного</string>
+    <string name="error_adding_to_favorite">“%s” не удалось добавить в избранное</string>
+    <string name="error_removing_from_favorite">“%s” не может быть удален из избранного</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Открыть беседу</string>
     <string name="label_start_conversation">Начать беседу</string>
@@ -1586,7 +1593,13 @@
     <string name="personal_to_team_migration_step_label">Шаг %1$d из 4</string>
     <string name="personal_to_team_migration_back_to_wire_button">Вернуться в Wire</string>
     <string name="personal_to_team_migration_back_button_label">Назад</string>
+    <string name="personal_to_team_migration_back_button_team_name_content_description">Вернуться к информации о команде</string>
+    <string name="personal_to_team_migration_back_button_confirmation_content_description">Вернуться к информации о названии команды</string>
     <string name="personal_to_team_migration_close_icon_content_description">Закрыть процесс миграции команды</string>
+    <string name="personal_to_team_migration_close_team_account_content_description">Закрыть информацию об аккаунте команды</string>
+    <string name="personal_to_team_migration_close_team_name_content_description">Закрыть просмотр информации о названии команды</string>
+    <string name="personal_to_team_migration_close_confirmation_content_description">Закрыть окно подтверждения</string>
+    <string name="personal_to_team_migration_close_team_created_content_description">Закрыть просмотр создания команды</string>
     <string name="personal_to_team_migration_team_plan_step">Аккаунт команды</string>
     <string name="personal_to_team_migration_team_plan_description">Трансформируйте свой персональный аккаунт в командный, чтобы получить больше пользы от совместной работы.</string>
     <string name="personal_to_team_migration_team_plan_admin_console_label">Консоль администратора:</string>

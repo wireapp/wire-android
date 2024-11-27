@@ -620,6 +620,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="delete_group_conversation_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas usuwania rozmowy.</string>
     <string name="error_limit_number_assets_imported_exceeded">Mo&#380;esz przes&#322;a&#263; jednocze&#347;nie maksymalnie 20 plik&#243;w</string>
     <!-- Archiving -->
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">Otw&#243;rz konwersacj&#281;</string>
     <string name="email_label">E-mail</string>

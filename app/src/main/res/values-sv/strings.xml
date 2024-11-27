@@ -455,6 +455,7 @@
     <string name="error_no_network_message">Kontrollera din internetanslutning och försök igen</string>
     <string name="left_conversation_group_success">Du har lämnat konversationen.</string>
     <!-- Archiving -->
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="email_label">E-postadress</string>
     <string name="phone_label">Telefon</string>

@@ -86,10 +86,13 @@ internal class NavigationUtilsTest {
         val mockQualifiedIdDomain = "mocked.domain"
         val mockMessageId = "mocked-message-id"
         val actualPrivateAssetImage = ImageAsset.PrivateAsset(
-            QualifiedID(
+            conversationId = QualifiedID(
                 value = mockQualifiedIdValue,
                 domain = mockQualifiedIdDomain
-            ), mockMessageId, true, true
+            ),
+            messageId = mockMessageId,
+            isSelfAsset = true,
+            isEphemeral = true
         )
         val expectedPrivateAssetImage = "$mockQualifiedIdValue@$mockQualifiedIdDomain:$mockMessageId:true:true"
 

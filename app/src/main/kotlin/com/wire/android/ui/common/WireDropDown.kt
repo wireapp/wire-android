@@ -189,21 +189,11 @@ private fun MenuPopUp(
         ) {
 
             SelectionField(
-<<<<<<< HEAD
                 leadingCompose = leadingCompose,
                 selectedIndex = selectedIndex,
                 text = selectionText,
                 arrowRotation = arrowRotation,
-                modifier = Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) {
-                    hidePopUp()
-                },
-=======
-                leadingCompose,
-                selectedIndex,
-                selectionText,
-                arrowRotation,
-                Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) { hidePopUp() }
->>>>>>> dc7ff425e (fix: Accessibility strings founded issues #WPB-9784 (#3657))
+                modifier = Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) { hidePopUp() }
             )
 
             List(items.size) { index ->

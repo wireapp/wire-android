@@ -294,15 +294,7 @@ private fun DefaultInitialsAvatar(
     type: UserProfileAvatarType,
     size: Dp,
     modifier: Modifier = Modifier,
-<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/common/avatar/UserProfileAvatar.kt
-    contentDescription: String? = stringResource(R.string.content_description_user_avatar),
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .semantics { this.contentDescription = contentDescription ?: "" }
-=======
-    contentDescription: String? = null
+    contentDescription: String? = null,
 ) {
     val semantics = if (contentDescription != null) {
         Modifier.semantics {
@@ -315,7 +307,6 @@ private fun DefaultInitialsAvatar(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
->>>>>>> dc7ff425e (fix: Accessibility strings founded issues #WPB-9784 (#3657)):app/src/main/kotlin/com/wire/android/ui/common/UserProfileAvatar.kt
             .size(size)
             .clip(CircleShape)
             .background(

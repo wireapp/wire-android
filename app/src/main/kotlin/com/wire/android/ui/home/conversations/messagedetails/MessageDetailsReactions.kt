@@ -26,11 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.home.conversations.details.participants.folderWithElements
 import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun MessageDetailsReactions(
@@ -68,11 +68,12 @@ fun MessageDetailsReactions(
 }
 
 @MultipleThemePreviews
-@Preview(showBackground = true)
 @Composable
 fun PreviewMessageDetailsReactions() {
-    MessageDetailsReactions(
-        reactionsData = MessageDetailsReactionsData(),
-        onReactionsLearnMore = {}
-    )
+    WireTheme {
+        MessageDetailsReactions(
+            reactionsData = MessageDetailsReactionsData(),
+            onReactionsLearnMore = {}
+        )
+    }
 }

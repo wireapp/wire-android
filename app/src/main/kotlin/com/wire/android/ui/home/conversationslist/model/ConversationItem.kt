@@ -38,6 +38,7 @@ sealed class ConversationItem : ConversationFolderItem {
     abstract val badgeEventType: BadgeEventType
     abstract val teamId: TeamId?
     abstract val isArchived: Boolean
+    abstract val isFavorite: Boolean
     abstract val mlsVerificationStatus: Conversation.VerificationStatus
     abstract val proteusVerificationStatus: Conversation.VerificationStatus
     abstract val hasNewActivitiesToShow: Boolean
@@ -48,8 +49,8 @@ sealed class ConversationItem : ConversationFolderItem {
     data class GroupConversation(
         val groupName: String,
         val hasOnGoingCall: Boolean = false,
-        val isSelfUserCreator: Boolean = false,
         val selfMemberRole: Conversation.Member.Role?,
+        val isFromTheSameTeam: Boolean,
         val isSelfUserMember: Boolean = true,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
@@ -58,6 +59,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
         override val isArchived: Boolean,
+        override val isFavorite: Boolean,
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
@@ -76,6 +78,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
         override val isArchived: Boolean,
+        override val isFavorite: Boolean,
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
@@ -91,6 +94,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val isArchived: Boolean = false,
+        override val isFavorite: Boolean = false,
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
     ) : ConversationItem() {

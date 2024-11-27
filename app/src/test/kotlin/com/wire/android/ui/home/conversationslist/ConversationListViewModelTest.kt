@@ -56,6 +56,7 @@ import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -274,6 +275,9 @@ class ConversationListViewModelTest {
         @MockK
         private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
+        @MockK
+        private lateinit var observeSelfUser: GetSelfUserUseCase
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withConversationsPaginated(listOf(TestConversationItem.CONNECTION, TestConversationItem.PRIVATE, TestConversationItem.GROUP))
@@ -343,7 +347,8 @@ class ConversationListViewModelTest {
             observeLegalHoldStateForSelfUser = observeLegalHoldStateForSelfUserUseCase,
             userTypeMapper = UserTypeMapper(),
             wireSessionImageLoader = wireSessionImageLoader,
-            usePagination = true,
+            observeSelfUser = observeSelfUser,
+            usePagination = true
         )
     }
 

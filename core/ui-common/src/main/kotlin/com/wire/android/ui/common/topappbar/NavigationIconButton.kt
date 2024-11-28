@@ -45,10 +45,10 @@ fun BackNavigationIconButton(onBackButtonClick: () -> Unit) {
 }
 
 sealed class NavigationIconType(val icon: ImageVector, @StringRes open val contentDescription: Int) {
-    data class Back(@StringRes override val contentDescription: Int = R.string.content_description_back_button) :
+    data class Back(@StringRes override val contentDescription: Int = R.string.content_description_left_arrow) :
         NavigationIconType(Icons.AutoMirrored.Filled.ArrowBack, contentDescription)
 
-    data class Close(@StringRes override val contentDescription: Int = R.string.content_description_close_button) :
+    data class Close(@StringRes override val contentDescription: Int = R.string.content_description_close) :
         NavigationIconType(Icons.Filled.Close, contentDescription)
 
     data object Menu : NavigationIconType(Icons.Filled.Menu, R.string.content_description_menu_button)

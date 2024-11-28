@@ -19,6 +19,7 @@
 package com.wire.android.model
 
 import androidx.compose.runtime.Stable
+import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -36,6 +37,13 @@ data class UserAvatarData(
     fun shouldPreferNameBasedAvatar(): Boolean {
         return asset == null && nameBasedAvatar != null &&
                 nameBasedAvatar.initials.isEmpty().not() && membership != Membership.Service
+    }
+
+    fun getAvailabilityStatusDescriptionId(): Int? = when (availabilityStatus) {
+        UserAvailabilityStatus.NONE -> null
+        UserAvailabilityStatus.AVAILABLE -> R.string.user_profile_status_available
+        UserAvailabilityStatus.AWAY -> R.string.user_profile_status_away
+        UserAvailabilityStatus.BUSY -> R.string.user_profile_status_busy
     }
 }
 

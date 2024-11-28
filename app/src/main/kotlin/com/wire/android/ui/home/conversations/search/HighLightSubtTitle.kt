@@ -51,7 +51,7 @@ fun HighlightSubtitle(
 
     if (searchQuery != String.EMPTY && highlightIndexes.isNotEmpty()) {
         Text(
-            buildAnnotatedString {
+            text = buildAnnotatedString {
                 withStyle(
                     style = SpanStyle(
                         color = MaterialTheme.wireColorScheme.secondaryText,

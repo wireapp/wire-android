@@ -55,7 +55,7 @@ fun RemoveDeviceTopBar(elevation: Dp, onBackButtonClicked: () -> Unit, modifier:
         Text(
             text = stringResource(id = R.string.remove_device_label),
             style = MaterialTheme.wireTypography.title03,
-            color = MaterialTheme.wireColorScheme.labelText,
+            color = MaterialTheme.wireColorScheme.secondaryText,
             modifier = Modifier.padding(
                 horizontal = MaterialTheme.wireDimensions.removeDeviceHorizontalPadding,
                 vertical = MaterialTheme.wireDimensions.removeDeviceLabelVerticalPadding

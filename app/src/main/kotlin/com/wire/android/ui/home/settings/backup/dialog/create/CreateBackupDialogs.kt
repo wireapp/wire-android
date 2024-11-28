@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,12 +38,15 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCreateFileFlow
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -150,8 +152,22 @@ fun CreateBackupDialog(
                 }
             }
             VerticalSpace.x16()
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = { progress })
+            WireLinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = { progress })
             VerticalSpace.x16()
         }
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSetBackupPasswordDialog() = WireTheme {
+    CreateBackupDialog(
+        isBackupCreationCompleted = false,
+        createBackupProgress = 0.5f,
+        backupFileName = "filename",
+        onPermissionPermanentlyDenied = {},
+        onSaveBackup = {},
+        onShareBackup = {},
+        onDismissDialog = {}
+    )
 }

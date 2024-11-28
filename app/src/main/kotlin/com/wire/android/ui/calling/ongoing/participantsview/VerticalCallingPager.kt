@@ -46,7 +46,6 @@ import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid
 import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.CallingHorizontalView
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -120,6 +119,7 @@ fun VerticalCallingPager(
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap,
                             currentUserId = currentUserId,
+                            isInPictureInPictureMode = isInPictureInPictureMode,
                         )
                     }
 
@@ -139,15 +139,10 @@ fun VerticalCallingPager(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(end = MaterialTheme.wireDimensions.spacing12x),
-                    color = colorsScheme().callingPagerIndicatorBackground,
                 ) {
                     VerticalPagerIndicator(
                         modifier = Modifier.padding(dimensions().spacing4x),
                         pagerState = pagerState,
-                        activeColor = colorsScheme().callingActiveIndicator,
-                        inactiveColor = colorsScheme().callingInActiveIndicator,
-                        inactiveBorderColor = colorsScheme().callingInActiveBorderIndicator,
-                        inactiveBorderWidth = dimensions().spacing2x,
                         indicatorHeight = dimensions().spacing12x,
                         indicatorWidth = dimensions().spacing12x,
                         spacing = dimensions().spacing6x,
@@ -183,7 +178,7 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         requestVideoStreams = {},
         onDoubleTap = { },
         isInPictureInPictureMode = false,
-        currentUserId = UserId("id", "domain")
+        currentUserId = participants[0].id,
     )
 }
 
@@ -200,5 +195,5 @@ fun PreviewVerticalCallingPagerHorizontalView() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewVerticalCallingPagerGrid() = WireTheme {
-    PreviewVerticalCallingPager(participants = buildPreviewParticipantsList(MAX_TILES_PER_PAGE))
+    PreviewVerticalCallingPager(participants = buildPreviewParticipantsList(MAX_TILES_PER_PAGE + 1))
 }

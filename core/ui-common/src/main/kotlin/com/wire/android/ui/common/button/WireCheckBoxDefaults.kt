@@ -27,18 +27,18 @@ import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun wireCheckBoxColors() = CheckboxDefaults.colors(
-    uncheckedColor = MaterialTheme.wireColorScheme.uncheckedColor,
+    uncheckedColor = MaterialTheme.wireColorScheme.onPrimaryButtonDisabled,
     checkedColor = MaterialTheme.colorScheme.primary,
     checkmarkColor = MaterialTheme.colorScheme.onPrimary,
-    disabledCheckedColor = MaterialTheme.wireColorScheme.disabledCheckedColor,
-    disabledUncheckedColor = MaterialTheme.wireColorScheme.disabledUncheckedColor,
-    disabledIndeterminateColor = MaterialTheme.wireColorScheme.disabledIndeterminateColor
+    disabledCheckedColor = MaterialTheme.wireColorScheme.primaryButtonDisabled,
+    disabledUncheckedColor = MaterialTheme.wireColorScheme.primaryButtonDisabled,
+    disabledIndeterminateColor = MaterialTheme.wireColorScheme.primaryButtonDisabled
 )
 
 @Composable
 fun wireRadioButtonColors() = RadioButtonDefaults.colors(
     selectedColor = colorsScheme().primary,
-    unselectedColor = colorsScheme().uncheckedColor,
-    disabledSelectedColor = colorsScheme().disabledCheckedColor,
-    disabledUnselectedColor = colorsScheme().disabledUncheckedColor
+    unselectedColor = colorsScheme().onPrimaryButtonDisabled,
+    disabledSelectedColor = colorsScheme().primaryButtonDisabled,
+    disabledUnselectedColor = colorsScheme().primaryButtonDisabled
 )

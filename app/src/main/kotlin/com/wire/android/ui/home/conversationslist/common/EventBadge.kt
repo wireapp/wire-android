@@ -70,7 +70,7 @@ private fun MissedCallBadge(modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_missed_call),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.inverseOnSurface),
                 modifier = Modifier.height(dimensions().spacing18x)
             )
         }
@@ -87,7 +87,7 @@ private fun UnreadMentionBadge(modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_unread_mention),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.inverseOnSurface),
                 modifier = Modifier.height(dimensions().spacing18x)
             )
         }
@@ -104,7 +104,7 @@ private fun UnreadReplyBadge(modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_unread_reply),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.inverseOnSurface),
                 modifier = Modifier.height(dimensions().spacing18x)
             )
         }
@@ -121,7 +121,7 @@ fun UnreadKnockBadge(modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_unread_knock),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.inverseOnSurface),
                 modifier = Modifier.height(dimensions().spacing18x)
             )
         }
@@ -138,7 +138,7 @@ fun ConnectRequestBadge(modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_connect_request),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.inverseOnSurface),
                 modifier = Modifier.height(dimensions().spacing18x)
             )
         }
@@ -167,7 +167,7 @@ fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier = Modifi
                             vertical = dimensions().spacing2x
                         ),
                     text = unReadMessageCountStringify(unreadMessageCount),
-                    color = MaterialTheme.wireColorScheme.onBadge,
+                    color = MaterialTheme.wireColorScheme.inverseOnSurface,
                     style = MaterialTheme.wireTypography.label02,
                 )
             }
@@ -180,7 +180,7 @@ private fun NotificationBadgeContainer(notificationIcon: @Composable () -> Unit,
     Box(
         modifier = modifier
             .background(
-                color = MaterialTheme.wireColorScheme.badge,
+                color = MaterialTheme.wireColorScheme.inverseSurface,
                 shape = RoundedCornerShape(MaterialTheme.wireDimensions.notificationBadgeRadius)
             )
             .wrapContentSize(Alignment.Center)

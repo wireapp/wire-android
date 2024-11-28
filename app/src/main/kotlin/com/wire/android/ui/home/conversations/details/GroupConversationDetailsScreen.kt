@@ -290,6 +290,7 @@ private fun GroupConversationDetailsContent(
     isAbandonedOneOnOneConversation: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
+    initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
             ChangeConversationFavoriteStateArgs
@@ -299,8 +300,10 @@ private fun GroupConversationDetailsContent(
     val resources = LocalContext.current.resources
     val snackbarHostState = LocalSnackbarHostState.current
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }
-    val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
-    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { GroupConversationDetailsTabItem.entries.size })
+    val pagerState = rememberPagerState(
+        initialPage = initialPageIndex.ordinal,
+        pageCount = { GroupConversationDetailsTabItem.entries.size }
+    )
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
 
     val conversationSheetState = rememberConversationSheetState(conversationSheetContent)
@@ -418,7 +421,7 @@ private fun GroupConversationDetailsContent(
         },
         contentLazyListState = lazyListStates[currentTabState],
     ) {
-        var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
+        var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex.ordinal) }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
 
@@ -542,7 +545,7 @@ private fun VerificationInfo(conversationSheetContent: ConversationSheetContent?
 private fun MLSVerifiedLabel() {
     VerifiedLabel(
         stringResource(id = R.string.label_conversations_details_verified_mls).uppercase(),
-        MaterialTheme.wireColorScheme.mlsVerificationTextColor
+        MaterialTheme.wireColorScheme.positive
     ) { MLSVerifiedIcon() }
 }
 
@@ -621,7 +624,8 @@ fun PreviewGroupConversationDetails() {
             onEditGuestAccess = {},
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},
-            isAbandonedOneOnOneConversation = false
+            isAbandonedOneOnOneConversation = false,
+            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS,
         )
     }
 }

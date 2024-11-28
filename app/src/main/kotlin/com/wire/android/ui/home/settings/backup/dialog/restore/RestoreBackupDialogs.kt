@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,11 +36,14 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.home.messagecomposer.rememberSingleFileBrowserFlow
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlin.math.roundToInt
 
 @Composable
@@ -154,11 +156,22 @@ fun RestoreProgressDialog(
                 }
             }
             VerticalSpace.x16()
-            LinearProgressIndicator(
+            WireLinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier.fillMaxWidth(),
             )
             VerticalSpace.x16()
         }
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewRestoreProgressDialog() = WireTheme {
+    RestoreProgressDialog(
+        isRestoreCompleted = false,
+        restoreProgress = 0.5f,
+        onOpenConversation = {},
+        onCancelBackupRestore = {},
+    )
 }

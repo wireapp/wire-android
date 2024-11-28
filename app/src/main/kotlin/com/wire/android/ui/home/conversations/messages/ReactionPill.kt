@@ -65,7 +65,7 @@ fun ReactionPill(
     val textColor = if (isOwn) {
         MaterialTheme.wireColorScheme.primary
     } else {
-        MaterialTheme.wireColorScheme.labelText
+        MaterialTheme.wireColorScheme.secondaryText
     }
 
     CompositionLocalProvider(

@@ -40,7 +40,7 @@ fun wireTextFieldColors(
     disabledTextColor: Color = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
     backgroundColor: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
     disabledBackgroundColor: Color = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
-    labelColor: Color = MaterialTheme.wireColorScheme.labelText,
+    labelColor: Color = MaterialTheme.wireColorScheme.secondaryText,
     descriptionColor: Color = MaterialTheme.wireColorScheme.secondaryText,
 ): WireTextFieldColors = object : WireTextFieldColors {
 

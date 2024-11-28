@@ -247,7 +247,7 @@ private fun MLSDetails(
     device.mlsClientIdentity?.let { identity ->
         Text(
             style = MaterialTheme.wireTypography.subline01,
-            color = MaterialTheme.wireColorScheme.labelText,
+            color = MaterialTheme.wireColorScheme.secondaryText,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             text = stringResource(
@@ -289,7 +289,7 @@ private fun ProteusDetails(
     }
     Text(
         style = MaterialTheme.wireTypography.subline01,
-        color = MaterialTheme.wireColorScheme.labelText,
+        color = MaterialTheme.wireColorScheme.secondaryText,
         text = proteusDetails,
         minLines = 2,
         modifier = Modifier

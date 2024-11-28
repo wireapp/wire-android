@@ -19,5 +19,6 @@ package com.wire.android.ui.home.settings
 
 data class SettingsState(
     val isAppLockEditable: Boolean = false,
-    val isAppLockEnabled: Boolean = false
+    val isAppLockEnabled: Boolean = false,
+    val userName: String = "",
 )

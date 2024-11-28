@@ -26,10 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.home.conversations.details.participants.folderWithElements
 import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReadReceiptsData
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun MessageDetailsReadReceipts(
@@ -64,11 +65,13 @@ fun MessageDetailsReadReceipts(
     }
 }
 
-@Preview(showBackground = true)
+@MultipleThemePreviews
 @Composable
 fun PreviewMessageDetailsReadReceipts() {
-    MessageDetailsReadReceipts(
-        readReceiptsData = MessageDetailsReadReceiptsData(),
-        onReadReceiptsLearnMore = {}
-    )
+    WireTheme {
+        MessageDetailsReadReceipts(
+            readReceiptsData = MessageDetailsReadReceiptsData(),
+            onReadReceiptsLearnMore = {}
+        )
+    }
 }

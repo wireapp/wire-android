@@ -26,7 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -34,11 +34,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +71,7 @@ fun ReactionPill(
     }
 
     CompositionLocalProvider(
-        LocalMinimumInteractiveComponentEnforcement provides false
+        LocalMinimumInteractiveComponentSize provides Dp.Unspecified
     ) {
         OutlinedButton(
             onClick = onTap,
@@ -91,6 +93,17 @@ fun ReactionPill(
             )
         }
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun ReactionPillPreview() {
+    ReactionPill(
+        emoji = "👍",
+        count = 5,
+        isOwn = false,
+        onTap = {}
+    )
 }
 
 private val minDimension = 1.dp

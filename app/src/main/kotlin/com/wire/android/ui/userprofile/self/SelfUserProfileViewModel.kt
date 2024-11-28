@@ -54,6 +54,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -84,6 +85,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
+    private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
@@ -109,11 +111,17 @@ class SelfUserProfileViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             fetchSelfUser()
+            checkIfUserAbleToMigrateToTeamAccount()
             observeEstablishedCall()
             fetchIsReadOnlyAccount()
             observeLegalHoldStatus()
             markCreateTeamNoticeAsRead()
         }
+    }
+
+    private suspend fun checkIfUserAbleToMigrateToTeamAccount() {
+        val isAbleToMigrateToTeamAccount = canMigrateFromPersonalToTeam() && userProfileState.teamName.isNullOrBlank()
+        userProfileState = userProfileState.copy(isAbleToMigrateToTeamAccount = isAbleToMigrateToTeamAccount)
     }
 
     private suspend fun fetchIsReadOnlyAccount() {

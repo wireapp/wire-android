@@ -46,7 +46,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -141,7 +140,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     @CurrentAccount val currentAccount: UserId,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val observeSelfUser: GetSelfUserUseCase
 ) : ConversationListViewModel, ViewModel() {
@@ -238,7 +236,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                         ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
                             conversations.map { conversationDetails ->
                                 conversationDetails.toConversationItem(
-                                    wireSessionImageLoader = wireSessionImageLoader,
                                     userTypeMapper = userTypeMapper,
                                     searchQuery = searchQuery,
                                     selfUserTeamId = observeSelfUser().firstOrNull()?.teamId

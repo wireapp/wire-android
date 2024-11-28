@@ -108,7 +108,7 @@ fun MessageEditActions(
             WireTertiaryIconButton(
                 onButtonClicked = onEditCancelButtonClicked,
                 iconResource = R.drawable.ic_close,
-                contentDescription = R.string.content_description_close_button,
+                contentDescription = R.string.label_close,
                 shape = CircleShape,
                 minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
                 minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,

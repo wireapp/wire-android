@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.messages.item
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -67,7 +66,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 // TODO: a definite candidate for a refactor and cleanup WPB-14390
-@OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")
 @Composable
 fun RegularMessageItem(
@@ -290,7 +288,7 @@ private fun MessageAuthorRow(messageHeader: MessageHeader) {
                     startPadding = dimensions().spacing6x,
                     isDeleted = isSenderDeleted
                 )
-                if (isLegalHold) {
+                if (showLegalHoldIndicator) {
                     LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                 }
             }

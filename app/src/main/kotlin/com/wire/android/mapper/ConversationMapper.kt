@@ -34,6 +34,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -43,20 +44,21 @@ fun ConversationDetailsWithEvents.toConversationItem(
     wireSessionImageLoader: WireSessionImageLoader,
     userTypeMapper: UserTypeMapper,
     searchQuery: String,
+    selfUserTeamId: TeamId?
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
     is Group -> {
         ConversationItem.GroupConversation(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            isLegalHold = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
             ),
             hasOnGoingCall = conversationDetails.hasOngoingCall && conversationDetails.isSelfUserMember,
-            isSelfUserCreator = conversationDetails.isSelfUserCreator,
+            isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,
             selfMemberRole = conversationDetails.selfRole,
@@ -65,6 +67,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
             searchQuery = searchQuery,
+            isFavorite = conversationDetails.isFavorite
         )
     }
 
@@ -83,7 +86,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             ),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            isLegalHold = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parsePrivateConversationEventType(
                 conversationDetails.otherUser.connectionStatus,
@@ -101,6 +104,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
             searchQuery = searchQuery,
+            isFavorite = conversationDetails.isFavorite
         )
     }
 

@@ -56,6 +56,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           target: google_apis
+          arch: x86_64
           script: ./gradlew runAcceptanceTests
         env:
           GITHUB_USER: ${{ github.actor }}

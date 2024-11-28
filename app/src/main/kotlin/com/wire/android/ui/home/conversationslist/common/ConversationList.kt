@@ -201,9 +201,11 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
                     teamId = null,
                     hasOnGoingCall = false,
                     isArchived = false,
+                    isFromTheSameTeam = false,
                     mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                     searchQuery = searchQuery,
+                    isFavorite = false
                 )
             )
 
@@ -222,6 +224,7 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
                     mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                     searchQuery = searchQuery,
+                    isFavorite = false
                 )
             )
         }

@@ -28,7 +28,7 @@
             "default_backend_url_website": "https://wire.com",
             "default_backend_title": "wire-staging",
             "is_password_protected_guest_link_enabled": true,
-            "encrypt_proteus_storage": true
+            "encrypt_proteus_storage": false
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",

@@ -145,7 +145,7 @@ fun EnabledMessageComposer(
 
         Surface(
             modifier = modifier,
-            color = colorsScheme().messageComposerBackgroundColor
+            color = colorsScheme().surface
         ) {
             Column(
                 modifier = Modifier
@@ -161,7 +161,7 @@ fun EnabledMessageComposer(
                 Box(
                     contentAlignment = Alignment.BottomCenter,
                     modifier = expandOrHideMessagesModifier
-                        .background(color = colorsScheme().backgroundVariant)
+                        .background(color = colorsScheme().surfaceContainerLow)
                 ) {
                     messageListContent()
                     if (!inputStateHolder.isTextExpanded) {
@@ -190,7 +190,7 @@ fun EnabledMessageComposer(
                     verticalArrangement = Arrangement.Bottom,
                     modifier = fillRemainingSpaceOrWrapContent
                         .fillMaxWidth()
-                        .background(color = colorsScheme().backgroundVariant)
+                        .background(color = colorsScheme().surfaceContainerLow)
                 ) {
                     Box(Modifier.wrapContentSize()) {
                         SecurityClassificationBannerForConversation(
@@ -330,7 +330,7 @@ fun EnabledMessageComposer(
                         showAttachments(false)
                     }
                 ) {
-                    val rippleColor = colorsScheme().messageComposerBackgroundColor
+                    val rippleColor = colorsScheme().surface
                     val shape = if (isImeVisible) {
                         RectangleShape
                     } else {

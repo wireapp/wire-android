@@ -31,9 +31,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun WireSwitch(
@@ -61,22 +62,22 @@ fun WireSwitch(
 
 @Composable
 fun wireSwitchColors(
-    checkedThumbColor: Color = MaterialTheme.wireColorScheme.switchEnabledThumb,
-    checkedTrackColor: Color = MaterialTheme.wireColorScheme.switchEnabledChecked,
+    checkedThumbColor: Color = MaterialTheme.wireColorScheme.surface,
+    checkedTrackColor: Color = MaterialTheme.wireColorScheme.positive,
     checkedBorderColor: Color = Color.Transparent,
-    checkedIconColor: Color = MaterialTheme.wireColorScheme.switchEnabledChecked,
-    uncheckedThumbColor: Color = MaterialTheme.wireColorScheme.switchEnabledThumb,
-    uncheckedTrackColor: Color = MaterialTheme.wireColorScheme.switchEnabledUnchecked,
+    checkedIconColor: Color = MaterialTheme.wireColorScheme.onSurface,
+    uncheckedThumbColor: Color = MaterialTheme.wireColorScheme.surface,
+    uncheckedTrackColor: Color = MaterialTheme.wireColorScheme.onPrimaryButtonDisabled,
     uncheckedBorderColor: Color = Color.Transparent,
-    uncheckedIconColor: Color = MaterialTheme.wireColorScheme.switchEnabledUnchecked,
-    disabledCheckedThumbColor: Color = MaterialTheme.wireColorScheme.switchDisabledThumb,
-    disabledCheckedTrackColor: Color = MaterialTheme.wireColorScheme.switchDisabledChecked,
+    uncheckedIconColor: Color = MaterialTheme.wireColorScheme.onPrimaryButtonDisabled,
+    disabledCheckedThumbColor: Color = MaterialTheme.wireColorScheme.onPrimaryButtonDisabled,
+    disabledCheckedTrackColor: Color = MaterialTheme.wireColorScheme.primaryButtonDisabled,
     disabledCheckedBorderColor: Color = Color.Transparent,
-    disabledCheckedIconColor: Color = MaterialTheme.wireColorScheme.switchDisabledChecked,
-    disabledUncheckedThumbColor: Color = MaterialTheme.wireColorScheme.switchDisabledThumb,
-    disabledUncheckedTrackColor: Color = MaterialTheme.wireColorScheme.switchDisabledUnchecked,
+    disabledCheckedIconColor: Color = MaterialTheme.wireColorScheme.primaryButtonDisabled,
+    disabledUncheckedThumbColor: Color = MaterialTheme.wireColorScheme.onPrimaryButtonDisabled,
+    disabledUncheckedTrackColor: Color = MaterialTheme.wireColorScheme.primaryButtonDisabled,
     disabledUncheckedBorderColor: Color = Color.Transparent,
-    disabledUncheckedIconColor: Color = MaterialTheme.wireColorScheme.switchDisabledUnchecked,
+    disabledUncheckedIconColor: Color = MaterialTheme.wireColorScheme.primaryButtonDisabled,
 ): SwitchColors = SwitchDefaults.colors(
     checkedThumbColor = checkedThumbColor,
     checkedTrackColor = checkedTrackColor,
@@ -96,26 +97,26 @@ fun wireSwitchColors(
     disabledUncheckedIconColor = disabledUncheckedIconColor
 )
 
-@Preview("Wire switch on")
+@PreviewMultipleThemes
 @Composable
-fun PreviewWireSwitchOn() {
+fun PreviewWireSwitchOn() = WireTheme {
     WireSwitch(checked = true, onCheckedChange = {})
 }
 
-@Preview("Wire switch off")
+@PreviewMultipleThemes
 @Composable
-fun PreviewWireSwitchOff() {
+fun PreviewWireSwitchOff() = WireTheme {
     WireSwitch(checked = false, onCheckedChange = {})
 }
 
-@Preview("Wire switch disabled on")
+@PreviewMultipleThemes
 @Composable
-fun PreviewWireSwitchDisabledOn() {
+fun PreviewWireSwitchDisabledOn() = WireTheme {
     WireSwitch(checked = true, enabled = false, onCheckedChange = {})
 }
 
-@Preview("Wire switch disabled off")
+@PreviewMultipleThemes
 @Composable
-fun PreviewWireSwitchDisabledOff() {
+fun PreviewWireSwitchDisabledOff() = WireTheme {
     WireSwitch(checked = false, enabled = false, onCheckedChange = {})
 }

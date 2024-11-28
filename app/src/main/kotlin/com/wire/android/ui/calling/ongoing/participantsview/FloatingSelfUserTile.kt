@@ -118,7 +118,7 @@ fun FloatingSelfUserTile(
     }
 
     Card(
-        border = BorderStroke(1.dp, colorsScheme().uncheckedColor),
+        border = BorderStroke(1.dp, colorsScheme().onSecondaryButtonDisabled),
         shape = RoundedCornerShape(dimensions().corner6x),
         modifier = modifier
             .height(selfVideoTileHeight)

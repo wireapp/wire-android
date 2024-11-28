@@ -26,5 +26,6 @@ data class CreateAccountOverviewParams(
     val contentText: String = "",
     @DrawableRes val contentIconResId: Int = 0,
     val learnMoreText: String = "",
-    val learnMoreUrl: String = ""
+    val learnMoreUrl: String = "",
+    val isContentTextSemanticAccessible: Boolean = false
 )

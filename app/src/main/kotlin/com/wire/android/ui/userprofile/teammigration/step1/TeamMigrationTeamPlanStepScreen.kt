@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -226,7 +225,7 @@ private fun AdvantageRow(
             Icon(
                 painter = painterResource(id = R.drawable.ic_check),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = colorsScheme().positive,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
             Text(
@@ -238,7 +237,7 @@ private fun AdvantageRow(
             )
         }
         Divider(
-            color = colorsScheme().dividerPersonalToTeamMigration
+            color = colorsScheme().outline
         )
     }
 }

@@ -112,7 +112,7 @@ internal fun MessageAsset(
                             },
                         painter = painterResource(R.drawable.ic_file),
                         contentDescription = stringResource(R.string.content_description_image_message),
-                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.badge)
+                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
                     )
                     Text(
                         modifier = Modifier

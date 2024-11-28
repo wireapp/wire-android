@@ -37,6 +37,7 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -52,6 +53,7 @@ class HomeViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
+    private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
@@ -80,15 +82,17 @@ class HomeViewModel @Inject constructor(
 
     private fun observeCreateTeamIndicator() {
         viewModelScope.launch {
-            getSelf().first().let { selfUser ->
-                val isPersonalUser = selfUser.teamId == null
-                if (isPersonalUser) {
-                    dataStore.isCreateTeamNoticeRead().collect { isRead ->
-                        homeState = homeState.copy(
-                            shouldShowCreateTeamUnreadIndicator = !isRead
-                        )
-                    }
-                }
+            if (!canMigrateFromPersonalToTeam()) {
+                homeState = homeState.copy(
+                    shouldShowCreateTeamUnreadIndicator = false
+                )
+                return@launch
+            }
+
+            dataStore.isCreateTeamNoticeRead().collect { isRead ->
+                homeState = homeState.copy(
+                    shouldShowCreateTeamUnreadIndicator = !isRead
+                )
             }
         }
     }

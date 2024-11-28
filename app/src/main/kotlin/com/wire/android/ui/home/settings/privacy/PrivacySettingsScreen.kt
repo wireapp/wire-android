@@ -100,14 +100,14 @@ fun PrivacySettingsScreenContent(
                     subtitle = stringResource(id = R.string.settings_send_anonymous_usage_data_description)
                 )
             }
-            WireDivider(color = colorsScheme().outlineVariant)
+            WireDivider(color = colorsScheme().divider)
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_send_read_receipts),
                 switchState = SwitchState.Enabled(value = areReadReceiptsEnabled, onCheckedChange = setReadReceiptsState),
                 arrowType = ArrowType.NONE,
                 subtitle = stringResource(id = R.string.settings_send_read_receipts_description)
             )
-            WireDivider(color = colorsScheme().outlineVariant)
+            WireDivider(color = colorsScheme().divider)
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_censor_screenshots),
                 switchState = when (screenshotCensoringConfig) {
@@ -128,7 +128,7 @@ fun PrivacySettingsScreenContent(
                     }
                 )
             )
-            WireDivider(color = colorsScheme().outlineVariant)
+            WireDivider(color = colorsScheme().divider)
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_show_typing_indicator_title),
                 switchState = SwitchState.Enabled(value = isTypingIndicatorEnabled, onCheckedChange = setTypingIndicatorState),

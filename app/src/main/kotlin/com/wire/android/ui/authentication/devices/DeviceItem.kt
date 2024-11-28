@@ -42,6 +42,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
@@ -189,13 +191,22 @@ private fun ColumnScope.DeviceItemTexts(
             .fillMaxWidth()
             .shimmerPlaceholder(visible = placeholder)
     ) {
+        val deviceName = device.name.asString()
+        val shouldAddNotVerifiedLabel = shouldShowVerifyLabel && !shouldShowE2EIInfo && !(device.isVerifiedProteus && !isCurrentClient)
+        val semantic = if (shouldAddNotVerifiedLabel) {
+            val notVerifiedLabel = stringResource(R.string.label_client_unverified)
+            Modifier.clearAndSetSemantics { contentDescription = "$deviceName, $notVerifiedLabel" }
+        } else {
+            Modifier
+        }
         Text(
             style = MaterialTheme.wireTypography.body02,
             color = MaterialTheme.wireColorScheme.onBackground,
-            text = device.name.asString(),
+            text = deviceName,
             modifier = Modifier
                 .wrapContentWidth()
                 .shimmerPlaceholder(visible = placeholder)
+                .then(semantic)
         )
         if (shouldShowVerifyLabel) {
             if (shouldShowE2EIInfo) {
@@ -223,10 +234,20 @@ private fun ColumnScope.DeviceItemTexts(
 
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
 
+    MLSDetails(device, placeholder)
+
+    ProteusDetails(device, placeholder)
+}
+
+@Composable
+private fun MLSDetails(
+    device: Device,
+    placeholder: Boolean
+) {
     device.mlsClientIdentity?.let { identity ->
         Text(
             style = MaterialTheme.wireTypography.subline01,
-            color = MaterialTheme.wireColorScheme.labelText,
+            color = MaterialTheme.wireColorScheme.secondaryText,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             text = stringResource(
@@ -238,7 +259,13 @@ private fun ColumnScope.DeviceItemTexts(
                 .shimmerPlaceholder(visible = placeholder)
         )
     }
+}
 
+@Composable
+private fun ProteusDetails(
+    device: Device,
+    placeholder: Boolean
+) {
     val proteusDetails: String = if (!device.registrationTime.isNullOrBlank()) {
         if (device.lastActiveInWholeWeeks != null) {
             stringResource(
@@ -262,7 +289,7 @@ private fun ColumnScope.DeviceItemTexts(
     }
     Text(
         style = MaterialTheme.wireTypography.subline01,
-        color = MaterialTheme.wireColorScheme.labelText,
+        color = MaterialTheme.wireColorScheme.secondaryText,
         text = proteusDetails,
         minLines = 2,
         modifier = Modifier

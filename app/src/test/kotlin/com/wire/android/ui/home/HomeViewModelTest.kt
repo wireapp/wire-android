@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -143,6 +144,9 @@ class HomeViewModelTest {
         @MockK
         lateinit var analyticsManager: AnonymousAnalyticsManager
 
+        @MockK
+        lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
+
         private val viewModel by lazy {
             HomeViewModel(
                 savedStateHandle = savedStateHandle,
@@ -153,17 +157,24 @@ class HomeViewModelTest {
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 wireSessionImageLoader = wireSessionImageLoader,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser,
-                analyticsManager = analyticsManager
+                analyticsManager = analyticsManager,
+                canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam
             )
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withGetSelf(flowOf(TestUser.SELF_USER))
+            withCanMigrateFromPersonalToTeamReturning(true)
         }
 
         fun withGetSelf(result: Flow<SelfUser>) = apply {
             coEvery { getSelf.invoke() } returns result
+        }
+
+        private fun withCanMigrateFromPersonalToTeamReturning(result: Boolean) = apply {
+            coEvery { canMigrateFromPersonalToTeam.invoke() } returns result
+            coEvery { dataStore.isCreateTeamNoticeRead() } returns flowOf(false)
         }
 
         fun withLegalHoldStatus(result: Flow<LegalHoldStateForSelfUser>) = apply {

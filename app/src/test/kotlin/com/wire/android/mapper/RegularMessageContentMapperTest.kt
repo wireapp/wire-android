@@ -28,7 +28,6 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
@@ -220,11 +219,8 @@ class RegularMessageContentMapperTest {
         @MockK
         lateinit var messageResourceProvider: MessageResourceProvider
 
-        @MockK
-        private lateinit var wireSessionImageLoader: WireSessionImageLoader
-
         private val messageContentMapper by lazy {
-            RegularMessageMapper(messageResourceProvider, wireSessionImageLoader, ISOFormatter())
+            RegularMessageMapper(messageResourceProvider, ISOFormatter())
         }
 
         init {

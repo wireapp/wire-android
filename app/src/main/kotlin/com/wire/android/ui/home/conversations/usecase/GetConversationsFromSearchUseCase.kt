@@ -25,7 +25,6 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +34,6 @@ import javax.inject.Inject
 
 class GetConversationsFromSearchUseCase @Inject constructor(
     private val useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
 ) {
@@ -62,7 +60,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             startingOffset = 0L,
         ).map { pagingData ->
             pagingData.map {
-                it.toConversationItem(wireSessionImageLoader, userTypeMapper, searchQuery)
+                it.toConversationItem(userTypeMapper, searchQuery)
             }
         }.flowOn(dispatchers.io())
     }

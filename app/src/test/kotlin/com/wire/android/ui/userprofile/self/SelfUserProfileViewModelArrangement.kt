@@ -30,7 +30,6 @@ import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -66,8 +65,6 @@ class SelfUserProfileViewModelArrangement {
     lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase
     @MockK
     lateinit var dispatchers: DispatcherProvider
-    @MockK
-    lateinit var wireSessionImageLoader: WireSessionImageLoader
     @MockK
     lateinit var authServerConfigProvider: AuthServerConfigProvider
     @MockK
@@ -105,7 +102,6 @@ class SelfUserProfileViewModelArrangement {
             logout = logout,
             observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
             dispatchers = TestDispatcherProvider(),
-            wireSessionImageLoader = wireSessionImageLoader,
             authServerConfigProvider = authServerConfigProvider,
             selfServerLinks = selfServerLinks,
             otherAccountMapper = otherAccountMapper,

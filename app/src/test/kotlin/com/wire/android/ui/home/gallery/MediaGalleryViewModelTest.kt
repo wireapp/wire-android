@@ -29,7 +29,6 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveSt
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -193,9 +192,6 @@ class MediaGalleryViewModelTest {
         private lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
-        private lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-        @MockK
         lateinit var getConversationDetails: ObserveConversationDetailsUseCase
 
         @MockK
@@ -271,7 +267,6 @@ class MediaGalleryViewModelTest {
 
         fun arrange() = this to MediaGalleryViewModel(
             savedStateHandle,
-            wireSessionImageLoader,
             getConversationDetails,
             TestDispatcherProvider(),
             getImageData,

@@ -103,7 +103,7 @@ class SelfUserProfileViewModelArrangement {
     lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
 
     @MockK
-    lateinit var isPersonalToTeamAccountSupportedByBackend: CanMigrateFromPersonalToTeamUseCase
+    lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
     private val viewModel by lazy {
         SelfUserProfileViewModel(
@@ -126,7 +126,7 @@ class SelfUserProfileViewModelArrangement {
             globalDataStore = globalDataStore,
             qualifiedIdMapper = qualifiedIdMapper,
             anonymousAnalyticsManager = anonymousAnalyticsManager,
-            isPersonalToTeamAccountSupportedByBackend = isPersonalToTeamAccountSupportedByBackend
+            canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam
         )
     }
 
@@ -139,6 +139,8 @@ class SelfUserProfileViewModelArrangement {
         coEvery { observeValidAccounts.invoke() } returns flowOf(listOf(TestUser.SELF_USER to TestTeam.TEAM))
         coEvery { isReadOnlyAccount.invoke() } returns false
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
+        coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
+        coEvery { canMigrateFromPersonalToTeam.invoke() } returns true
     }
 
     fun withLegalHoldStatus(result: LegalHoldStateForSelfUser) = apply {

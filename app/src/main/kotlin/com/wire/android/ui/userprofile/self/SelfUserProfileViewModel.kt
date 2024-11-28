@@ -85,7 +85,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
-    private val isPersonalToTeamAccountSupportedByBackend: CanMigrateFromPersonalToTeamUseCase,
+    private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
@@ -120,7 +120,7 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     private suspend fun checkIfUserAbleToMigrateToTeamAccount() {
-        val isAbleToMigrateToTeamAccount = isPersonalToTeamAccountSupportedByBackend() && userProfileState.teamName.isNullOrBlank()
+        val isAbleToMigrateToTeamAccount = canMigrateFromPersonalToTeam() && userProfileState.teamName.isNullOrBlank()
         userProfileState = userProfileState.copy(isAbleToMigrateToTeamAccount = isAbleToMigrateToTeamAccount)
     }
 

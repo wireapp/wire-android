@@ -24,7 +24,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
@@ -86,9 +85,6 @@ class GetConversationsFromSearchUseCaseTest {
         lateinit var useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 
         @MockK
-        lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-        @MockK
         lateinit var userTypeMapper: UserTypeMapper
 
         val queryConfig = ConversationQueryConfig(
@@ -110,6 +106,6 @@ class GetConversationsFromSearchUseCaseTest {
             } returns flowOf(PagingData.from(conversations))
         }
 
-        fun arrange() = this to GetConversationsFromSearchUseCase(useCase, wireSessionImageLoader, userTypeMapper, dispatcherProvider)
+        fun arrange() = this to GetConversationsFromSearchUseCase(useCase, userTypeMapper, dispatcherProvider)
     }
 }

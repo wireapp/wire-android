@@ -29,7 +29,6 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import com.wire.kalium.logic.data.id.ConversationId
@@ -50,7 +49,6 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions")
 class RegularMessageMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     private val isoFormatter: ISOFormatter,
 ) {
 
@@ -207,7 +205,6 @@ class RegularMessageMapper @Inject constructor(
             is MessageContent.QuotedMessageDetails.Asset -> when (AttachmentType.fromMimeTypeString(quotedContent.assetMimeType)) {
                 AttachmentType.IMAGE -> UIQuotedMessage.UIQuotedData.DisplayableImage(
                     ImageAsset.PrivateAsset(
-                        wireSessionImageLoader,
                         conversationId,
                         it.messageId,
                         it.isQuotingSelfUser
@@ -249,7 +246,6 @@ class RegularMessageMapper @Inject constructor(
                     UIMessageContent.ImageMessage(
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         asset = ImageAsset.PrivateAsset(
-                            wireSessionImageLoader,
                             message.conversationId,
                             message.id,
                             sender is SelfUser

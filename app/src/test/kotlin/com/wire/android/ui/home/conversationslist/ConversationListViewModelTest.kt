@@ -29,7 +29,6 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -205,9 +204,6 @@ class ConversationListViewModelTest {
         private lateinit var observeConversationListDetailsWithEventsUseCase:
                 ObserveConversationListDetailsWithEventsUseCase
 
-        @MockK
-        private lateinit var wireSessionImageLoader: WireSessionImageLoader
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery {
@@ -258,7 +254,6 @@ class ConversationListViewModelTest {
             updateConversationArchivedStatus = updateConversationArchivedStatus,
             observeConversationListDetailsWithEvents = observeConversationListDetailsWithEventsUseCase,
             userTypeMapper = UserTypeMapper(),
-            wireSessionImageLoader = wireSessionImageLoader
         )
     }
 

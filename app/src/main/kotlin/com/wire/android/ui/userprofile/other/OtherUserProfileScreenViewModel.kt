@@ -47,7 +47,6 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Rem
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.UnblockingUserOperationError
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -96,7 +95,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val observeOneToOneConversation: GetOneToOneConversationUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val userTypeMapper: UserTypeMapper,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateMemberRole: UpdateConversationMemberRoleUseCase,
@@ -384,7 +382,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     ) {
         val otherUser = userResult.otherUser
         val userAvatarAsset = otherUser.completePicture
-            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+            ?.let { pic -> ImageAsset.UserAvatarAsset(pic) }
 
         state = state.copy(
             isDataLoading = false,

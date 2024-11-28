@@ -28,7 +28,6 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Conve
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -296,9 +295,6 @@ class ServiceDetailsViewModelTest {
         lateinit var observeConversationRoleForUser: ObserveConversationRoleForUserUseCase
 
         @MockK
-        lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-        @MockK
         lateinit var removeMemberFromConversation: RemoveMemberFromConversationUseCase
 
         @MockK
@@ -316,7 +312,6 @@ class ServiceDetailsViewModelTest {
                 getServiceById,
                 observeIsServiceMember,
                 observeConversationRoleForUser,
-                wireSessionImageLoader,
                 removeMemberFromConversation,
                 addServiceToConversation,
                 serviceDetailsMapper,

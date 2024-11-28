@@ -18,14 +18,6 @@
 
 package com.wire.android.ui.home.conversations.mock
 
-import coil.ComponentRegistry
-import coil.ImageLoader
-import coil.disk.DiskCache
-import coil.memory.MemoryCache
-import coil.request.DefaultRequestOptions
-import coil.request.Disposable
-import coil.request.ImageRequest
-import coil.request.ImageResult
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
@@ -43,17 +35,12 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
-import com.wire.kalium.network.NetworkState
-import com.wire.kalium.network.NetworkStateObserver
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
@@ -282,25 +269,10 @@ val mockUsersUITexts = listOf(
     "Gudrun Gut".toUIText()
 )
 
-val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
-    override val components: ComponentRegistry get() = TODO("Not yet implemented")
-    override val defaults: DefaultRequestOptions get() = TODO("Not yet implemented")
-    override val diskCache: DiskCache get() = TODO("Not yet implemented")
-    override val memoryCache: MemoryCache get() = TODO("Not yet implemented")
-    override fun enqueue(request: ImageRequest): Disposable = TODO("Not yet implemented")
-    override suspend fun execute(request: ImageRequest): ImageResult = TODO("Not yet implemented")
-    override fun newBuilder(): ImageLoader.Builder = TODO("Not yet implemented")
-    override fun shutdown() = TODO("Not yet implemented")
-},
-    object : NetworkStateObserver {
-        override fun observeNetworkState(): StateFlow<NetworkState> = MutableStateFlow(NetworkState.ConnectedWithInternet)
-    }
-)
-
 fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = UIMessage.Regular(
     conversationId = ConversationId("value", "domain"),
     userAvatarData = UserAvatarData(
-        UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
+        UserAvatarAsset(UserAssetId("a", "domain")),
         UserAvailabilityStatus.AVAILABLE
     ),
     header = MessageHeader(
@@ -329,7 +301,7 @@ fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = U
 fun mockAssetAudioMessage(assetId: String = "asset1", messageId: String = "msg1") = UIMessage.Regular(
     conversationId = ConversationId("value", "domain"),
     userAvatarData = UserAvatarData(
-        UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
+        UserAvatarAsset(UserAssetId("a", "domain")),
         UserAvailabilityStatus.AVAILABLE
     ),
     header = MessageHeader(
@@ -375,7 +347,6 @@ fun mockedImg() = UIMessageContent.ImageMessage(
 )
 
 fun mockedPrivateAsset() = ImageAsset.PrivateAsset(
-    imageLoader = mockImageLoader,
     conversationId = ConversationId("id", "domain"),
     messageId = "messageId",
     isSelfAsset = true

@@ -489,6 +489,7 @@
     <string name="error_limit_number_assets_imported_exceeded">Možete poslati najviše 20 datoteka odjednom</string>
     <!-- Archiving -->
     <string name="dialog_archive_conversation_option">Arhiviraj</string>
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">Otvori razgovor</string>
     <string name="email_label">E-mail</string>

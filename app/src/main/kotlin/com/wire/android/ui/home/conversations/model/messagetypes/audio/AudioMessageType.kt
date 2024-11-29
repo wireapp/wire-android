@@ -22,8 +22,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -145,10 +146,7 @@ private fun SuccessfulAudioMessage(
     }
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(dimensions().audioMessageHeight),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.fillMaxWidth(),
     ) {
         val (iconResource, contentDescriptionRes) = getPlayOrPauseIcon(audioMediaPlayingState)
         WireSecondaryIconButton(
@@ -162,23 +160,39 @@ private fun SuccessfulAudioMessage(
             onButtonClicked = onPlayButtonClick
         )
 
-        AudioMessageSlider(
-            audioDuration = audioDuration,
-            totalTimeInMs = totalTimeInMs,
-            onSliderPositionChange = onSliderPositionChange
-        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
 
-        if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) {
-            WireCircularProgressIndicator(
-                progressColor = MaterialTheme.wireColorScheme.secondaryButtonEnabled
+            AudioMessageSlider(
+                audioDuration = audioDuration,
+                totalTimeInMs = totalTimeInMs,
+                onSliderPositionChange = onSliderPositionChange
             )
-        } else {
-            Text(
-                text = audioDuration.formattedTimeLeft(),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.wireColorScheme.secondaryText,
-                maxLines = 1
-            )
+
+            Row {
+                Text(
+                    text = audioDuration.formattedCurrentTime(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.wireColorScheme.primary,
+                    maxLines = 1
+                )
+
+                Spacer(Modifier.weight(1F))
+
+                if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) {
+                    WireCircularProgressIndicator(
+                        progressColor = MaterialTheme.wireColorScheme.secondaryButtonEnabled
+                    )
+                } else {
+                    Text(
+                        text = audioDuration.formattedTotalTime(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.wireColorScheme.secondaryText,
+                        maxLines = 1
+                    )
+                }
+            }
         }
     }
 }
@@ -194,11 +208,12 @@ private fun SuccessfulAudioMessage(
  */
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun RowScope.AudioMessageSlider(
+private fun AudioMessageSlider(
     audioDuration: AudioDuration,
     totalTimeInMs: AudioState.TotalTimeInMs,
     onSliderPositionChange: (Float) -> Unit,
 ) {
+    // cyka check this for waves https://stackoverflow.com/questions/38744579/show-waveform-of-audio
     Slider(
         value = audioDuration.currentPositionInMs.toFloat(),
         onValueChange = onSliderPositionChange,
@@ -222,7 +237,7 @@ private fun RowScope.AudioMessageSlider(
         colors = SliderDefaults.colors(
             inactiveTrackColor = colorsScheme().secondaryButtonDisabledOutline
         ),
-        modifier = Modifier.weight(1f)
+        modifier = Modifier.fillMaxWidth()
     )
 }
 

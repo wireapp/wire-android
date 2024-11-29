@@ -161,7 +161,7 @@ class SelfUserProfileViewModel @Inject constructor(
                 Pair(
                     selfUser,
                     list.filter { it.first.id != selfUser.id }
-                        .map { (selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
+                        .map { (selfUser, _) -> otherAccountMapper.toOtherAccount(selfUser) }
                 )
             }
                 .distinctUntilChanged()

@@ -20,7 +20,8 @@ package com.wire.android.media.audiomessage
 data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
     val currentPositionInMs: Int,
-    val totalTimeInMs: TotalTimeInMs
+    val totalTimeInMs: TotalTimeInMs,
+//    val speed: Float cyka
 ) {
     companion object {
         val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, TotalTimeInMs.NotKnown)

@@ -76,7 +76,7 @@ internal constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
     private companion object {
-        const val UPDATE_POSITION_INTERVAL_IN_MS = 1000L
+        const val UPDATE_POSITION_INTERVAL_IN_MS = 200L
     }
 
     init {

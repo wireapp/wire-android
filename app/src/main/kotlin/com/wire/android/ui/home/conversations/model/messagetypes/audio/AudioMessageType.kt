@@ -150,13 +150,14 @@ private fun SuccessfulAudioMessage(
             .height(dimensions().audioMessageHeight),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val (iconResource, contentDescriptionRes) = getPlayOrPauseIcon(audioMediaPlayingState)
         WireSecondaryIconButton(
-            minSize = dimensions().buttonSmallMinSize,
+            minSize = DpSize(dimensions().spacing32x, dimensions().spacing32x),
             minClickableSize = dimensions().buttonMinClickableSize,
             iconSize = dimensions().spacing12x,
-            iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
+            iconResource = iconResource,
             shape = CircleShape,
-            contentDescription = R.string.content_description_image_message,
+            contentDescription = contentDescriptionRes,
             state = if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) WireButtonState.Disabled else WireButtonState.Default,
             onButtonClicked = onPlayButtonClick
         )
@@ -205,7 +206,7 @@ private fun RowScope.AudioMessageSlider(
         thumb = {
             SliderDefaults.Thumb(
                 interactionSource = remember { MutableInteractionSource() },
-                thumbSize = DpSize(dimensions().spacing20x, dimensions().spacing20x)
+                thumbSize = DpSize(dimensions().spacing4x, dimensions().spacing32x)
             )
         },
         track = { sliderState ->
@@ -268,11 +269,11 @@ private fun FailedAudioMessage() {
     }
 }
 
-private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): Int =
+private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): Pair<Int, Int> =
     when (audioMediaPlayingState) {
-        AudioMediaPlayingState.Playing -> R.drawable.ic_pause
-        AudioMediaPlayingState.Completed -> R.drawable.ic_play
-        else -> R.drawable.ic_play
+        AudioMediaPlayingState.Playing -> R.drawable.ic_pause to R.string.content_description_pause_audio
+        AudioMediaPlayingState.Completed -> R.drawable.ic_play to R.string.content_description_play_audio
+        else -> R.drawable.ic_play to R.string.content_description_play_audio
     }
 
 // helper wrapper class to format the time that is left
@@ -296,16 +297,29 @@ private data class AudioDuration(val totalDurationInMs: AudioState.TotalTimeInMs
                 totalTimeInSec - currentPositionInSec
             }
 
-            // sanity check, timeLeft, should not be smaller, however if the back-end makes mistake we
-            // will display a negative values, which we do not want
-            val minutes = if (timeLeft < 0) 0 else timeLeft / totalSecInMin
-            val seconds = if (timeLeft < 0) 0 else timeLeft % totalSecInMin
-            val formattedSeconds = String.format("%02d", seconds)
-
-            return "$minutes:$formattedSeconds"
+            return formattedTime(timeLeft)
         }
 
         return UNKNOWN_DURATION_LABEL
+    }
+
+    fun formattedCurrentTime(): String =
+        formattedTime(currentPositionInMs / totalMsInSec)
+
+    fun formattedTotalTime(): String = if (totalDurationInMs is AudioState.TotalTimeInMs.Known) {
+        formattedTime(totalDurationInMs.value / totalMsInSec)
+    } else {
+        UNKNOWN_DURATION_LABEL
+    }
+
+    private fun formattedTime(timeSeconds: Int): String {
+        // sanity check, timeLeft, should not be smaller, however if the back-end makes mistake we
+        // will display a negative values, which we do not want
+        val minutes = if (timeSeconds < 0) 0 else timeSeconds / totalSecInMin
+        val seconds = if (timeSeconds < 0) 0 else timeSeconds % totalSecInMin
+        val formattedSeconds = String.format("%02d", seconds)
+
+        return "$minutes:$formattedSeconds"
     }
 }
 

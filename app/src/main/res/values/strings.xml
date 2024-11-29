@@ -142,6 +142,8 @@
     <string name="content_description_more_options">More options</string>
     <string name="content_description_add_contact">Add contact</string>
     <string name="content_description_image_message">Image message</string>
+    <string name="content_description_pause_audio">Pause audio</string>
+    <string name="content_description_play_audio">Play audio</string>
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping</string>
     <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>

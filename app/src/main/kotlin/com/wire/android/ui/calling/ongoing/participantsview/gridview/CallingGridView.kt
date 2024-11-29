@@ -34,7 +34,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -58,9 +57,8 @@ fun GroupCallGrid(
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
     spacedBy: Dp = dimensions().spacing2x,
+    isInPictureInPictureMode: Boolean,
 ) {
-    val activity = LocalActivity.current
-
     // We need the number of tiles rows needed to calculate their height
     val numberOfTilesRows = remember(participants.size) {
         tilesRowsCount(participants.size)
@@ -104,7 +102,7 @@ fun GroupCallGrid(
                     .height(tileHeight)
                     .animateItem(),
                 participantTitleState = participant,
-                isOnPiPMode = activity.isInPictureInPictureMode,
+                isOnPiPMode = isInPictureInPictureMode,
                 isSelfUser = isSelfUser,
                 isSelfUserMuted = isSelfUserMuted,
                 isSelfUserCameraOn = isSelfUserCameraOn,
@@ -141,7 +139,8 @@ private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier
             onSelfVideoPreviewCreated = {},
             onSelfClearVideoPreview = {},
             onDoubleTap = { },
-            currentUserId = UserId("id", "domain")
+            currentUserId = UserId("id", "domain"),
+            isInPictureInPictureMode = false,
         )
     }
 }

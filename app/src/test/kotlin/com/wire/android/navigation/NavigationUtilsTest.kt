@@ -22,7 +22,6 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
-import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -44,7 +43,7 @@ internal class NavigationUtilsTest {
             "$mockConversationIdValue@$mockConversationIdDomain:$mockMessageId:$mockIsSelfAsset:$mockIsEphemeral"
 
         // When
-        val privateImgAsset = correctImagePrivateAssetString.parseIntoPrivateImageAsset(mockk(), qualifiedIdMapper)
+        val privateImgAsset = correctImagePrivateAssetString.parseIntoPrivateImageAsset(qualifiedIdMapper)
 
         // Then
         assertEquals(privateImgAsset.conversationId.value, mockConversationIdValue)
@@ -62,7 +61,7 @@ internal class NavigationUtilsTest {
         val mockWrongImagePrivateAssetString = "wrong-private-asset@image"
 
         // When, Then
-        assertThrows<Exception> { mockWrongImagePrivateAssetString.parseIntoPrivateImageAsset(mockk(), qualifiedIdMapper) }
+        assertThrows<Exception> { mockWrongImagePrivateAssetString.parseIntoPrivateImageAsset(qualifiedIdMapper) }
     }
 
     @Test
@@ -87,11 +86,13 @@ internal class NavigationUtilsTest {
         val mockQualifiedIdDomain = "mocked.domain"
         val mockMessageId = "mocked-message-id"
         val actualPrivateAssetImage = ImageAsset.PrivateAsset(
-            mockk(),
-            QualifiedID(
+            conversationId = QualifiedID(
                 value = mockQualifiedIdValue,
                 domain = mockQualifiedIdDomain
-            ), mockMessageId, true, true
+            ),
+            messageId = mockMessageId,
+            isSelfAsset = true,
+            isEphemeral = true
         )
         val expectedPrivateAssetImage = "$mockQualifiedIdValue@$mockQualifiedIdDomain:$mockMessageId:true:true"
 

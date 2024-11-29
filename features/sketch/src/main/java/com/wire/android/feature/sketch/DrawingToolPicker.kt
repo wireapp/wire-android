@@ -59,6 +59,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireColorPalette
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.feature.sketch.util.PreviewMultipleThemes
+import com.wire.android.ui.common.fixedColorsScheme
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -68,7 +69,7 @@ fun DrawingToolPicker(
     onColorSelected: (Color) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colorPalette = colorsScheme().sketchColorPalette
+    val colorPalette = fixedColorsScheme().sketchColorPalette
     WireModalSheetLayout(
         modifier = modifier,
         dragHandle = null,

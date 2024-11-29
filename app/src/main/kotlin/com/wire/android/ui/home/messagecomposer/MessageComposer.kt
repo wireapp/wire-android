@@ -174,7 +174,7 @@ private fun DisabledInteractionMessageComposer(
     learnMoreLink: String? = null,
     messageListContent: @Composable () -> Unit
 ) {
-    Surface(color = colorsScheme().messageComposerBackgroundColor) {
+    Surface(color = colorsScheme().surface) {
         Column(
             Modifier
                 .fillMaxWidth()
@@ -186,7 +186,7 @@ private fun DisabledInteractionMessageComposer(
 
             Box(
                 Modifier
-                    .background(color = colorsScheme().backgroundVariant)
+                    .background(color = colorsScheme().surfaceContainerLow)
                     .then(fillRemainingSpaceBetweenMessageListContentAndMessageComposer)
             ) {
                 messageListContent()
@@ -197,7 +197,7 @@ private fun DisabledInteractionMessageComposer(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(color = colorsScheme().backgroundVariant)
+                        .background(color = colorsScheme().surfaceContainerLow)
                         .padding(dimensions().spacing16x)
                 ) {
                     Icon(

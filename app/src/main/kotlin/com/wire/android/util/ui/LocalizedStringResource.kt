@@ -17,37 +17,16 @@
  */
 package com.wire.android.util.ui
 
-import android.content.Context
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface LocalizedStringResource {
 
-    fun getString(context: Context): String
-    data class StringResource(@StringRes val id: Int) : LocalizedStringResource {
-        override fun getString(context: Context): String = context.getString(id)
-    }
+    @Serializable
+    data class String(@StringRes val id: Int) : LocalizedStringResource
 
-    data class PluralResource(@PluralsRes val id: Int, val quantity: Int, val formatArgs: Array<Any>) : LocalizedStringResource {
-        override fun getString(context: Context): String = context.resources.getQuantityString(id, quantity, formatArgs)
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as PluralResource
-
-            if (id != other.id) return false
-            if (quantity != other.quantity) return false
-            if (!formatArgs.contentEquals(other.formatArgs)) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = id
-            result = 31 * result + quantity
-            result = 31 * result + formatArgs.contentHashCode()
-            return result
-        }
-    }
+    @Serializable
+    data class Plural(@PluralsRes val id: Int, val quantity: Int) : LocalizedStringResource
 }

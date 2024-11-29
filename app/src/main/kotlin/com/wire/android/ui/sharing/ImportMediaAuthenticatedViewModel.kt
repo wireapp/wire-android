@@ -45,7 +45,6 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.parcelableArrayList
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
@@ -80,7 +79,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val handleUriAsset: HandleUriAssetUseCase,
     private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,
     private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     val dispatchers: DispatcherProvider,
 ) : ViewModel() {
     val searchQueryTextState: TextFieldState = TextFieldState()
@@ -124,7 +122,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         getSelf().collect { selfUser ->
             withContext(dispatchers.main()) {
                 avatarAsset = selfUser.previewPicture?.let {
-                    ImageAsset.UserAvatarAsset(wireSessionImageLoader, it)
+                    ImageAsset.UserAvatarAsset(it)
                 }
             }
         }

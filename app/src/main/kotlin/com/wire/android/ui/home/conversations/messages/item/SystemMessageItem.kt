@@ -109,7 +109,6 @@ fun SystemMessageItem(
                     text = annotatedString,
                     linkText = learnMoreLink?.let { stringResource(id = R.string.label_learn_more) },
                     textColor = MaterialTheme.wireColorScheme.secondaryText,
-                    linkColor = MaterialTheme.wireColorScheme.onBackground,
                     onLinkClick = { learnMoreLink?.let { CustomTabsHelper.launchUrl(context, it) } },
                     onTextLayout = {
                         centerOfFirstLine = if (it.lineCount == 0) 0f else ((it.getLineTop(0) + it.getLineBottom(0)) / 2)

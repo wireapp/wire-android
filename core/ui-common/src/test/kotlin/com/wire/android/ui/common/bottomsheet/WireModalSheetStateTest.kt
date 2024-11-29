@@ -27,6 +27,7 @@ import org.junit.jupiter.api.assertInstanceOf
 
 class WireModalSheetStateTest {
 
+    @Suppress("LongParameterList")
     @Serializable
     class SerializableTestModel(
         val boolean: Boolean,

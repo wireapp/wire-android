@@ -89,6 +89,7 @@ open class WireModalSheetState<T : Any>(
     companion object {
         const val DELAY_TO_SHOW_BOTTOM_SHEET_WHEN_KEYBOARD_IS_OPEN = 300L
 
+        @Suppress("TooGenericExceptionCaught")
         @OptIn(InternalSerializationApi::class)
         inline fun <reified T : Any> saver(
             density: Density,

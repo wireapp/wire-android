@@ -215,8 +215,10 @@ sealed interface MessageFlowStatus {
         }
     }
 
+    @Serializable
     data object Delivered : MessageFlowStatus
 
+    @Serializable
     data class Read(val count: Long) : MessageFlowStatus
 }
 
@@ -285,7 +287,8 @@ sealed interface UIMessageContent {
     @Serializable
     data object IncompleteAssetMessage : UIMessageContent
 
-    interface PartialDeliverable {
+    @Serializable
+    sealed interface PartialDeliverable {
         val deliveryStatus: DeliveryStatusContent
     }
 

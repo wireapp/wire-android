@@ -95,7 +95,7 @@ open class WireModalSheetState<T : Any>(
             softwareKeyboardController: SoftwareKeyboardController?,
             noinline onDismissAction: () -> Unit,
             scope: CoroutineScope
-        ): Saver<WireModalSheetState<T>, *> = Saver(
+        ): Saver<WireModalSheetState<T>, List<Any>> = Saver(
             save = {
                 when (it.currentValue) {
                     is WireSheetValue.Hidden -> listOf(false) // hidden
@@ -109,7 +109,13 @@ open class WireModalSheetState<T : Any>(
                                 listOf(true, SavedType.Regular, value)
 
                             T::class.serializerOrNull() != null -> // expanded and with non-Unit value that can be serialized
-                                listOf(true, SavedType.SerializedBundle, Bundlizer.bundle(T::class.serializer(), value))
+                                try {
+                                    val serializedBundleValue = Bundlizer.bundle(T::class.serializer(), value)
+                                    listOf(true, SavedType.SerializedBundle, serializedBundleValue)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    listOf(false) // hidden because value cannot be serialized properly
+                                }
 
                             else -> listOf(false) // hidden because value cannot be saved
                         }

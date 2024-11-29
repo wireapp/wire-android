@@ -39,25 +39,34 @@ sealed class UIQuotedMessage {
         val quotedContent: Content
     ) : UIQuotedMessage() {
 
+        @Serializable
         sealed interface Content
 
+        @Serializable
         data class Text(val value: String) : Content
 
+        @Serializable
         data class GenericAsset(
             val assetName: String?,
             val assetMimeType: String
         ) : Content
 
+        @Serializable
         data class DisplayableImage(
             val displayable: ImageAsset.PrivateAsset
         ) : Content
 
+        @Serializable
         data class Location(val locationName: String) : Content
 
-        object AudioMessage : Content
+        @Serializable
+        data object AudioMessage : Content
 
-        object Deleted : Content
-        object Invalid : Content
+        @Serializable
+        data object Deleted : Content
+
+        @Serializable
+        data object Invalid : Content
     }
 }
 

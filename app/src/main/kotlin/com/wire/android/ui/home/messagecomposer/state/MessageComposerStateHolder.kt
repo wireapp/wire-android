@@ -55,15 +55,6 @@ fun rememberMessageComposerStateHolder(
 
     val messageTextFieldValue = remember { mutableStateOf(TextFieldValue()) }
 
-    LaunchedEffect(draftMessageComposition.draftText) {
-        if (draftMessageComposition.draftText.isNotBlank()) {
-            messageTextFieldValue.value = messageTextFieldValue.value.copy(
-                text = draftMessageComposition.draftText,
-                selection = TextRange(draftMessageComposition.draftText.length) // Place cursor at the end of the new text
-            )
-        }
-    }
-
     val messageCompositionHolder = remember {
         mutableStateOf(
             MessageCompositionHolder(
@@ -77,6 +68,23 @@ fun rememberMessageComposerStateHolder(
             )
         )
     }
+
+    LaunchedEffect(draftMessageComposition.draftText) {
+        if (draftMessageComposition.draftText.isNotBlank()) {
+            messageTextFieldValue.value = messageTextFieldValue.value.copy(
+                text = draftMessageComposition.draftText,
+                selection = TextRange(draftMessageComposition.draftText.length) // Place cursor at the end of the new text
+            )
+        }
+
+        if (draftMessageComposition.selectedMentions.isNotEmpty()) {
+            messageCompositionHolder.value.setMentions(
+                draftMessageComposition.draftText,
+                draftMessageComposition.selectedMentions.map { it.intoMessageMention() }
+            )
+        }
+    }
+
     LaunchedEffect(Unit) {
         messageCompositionHolder.value.handleMessageTextUpdates()
     }

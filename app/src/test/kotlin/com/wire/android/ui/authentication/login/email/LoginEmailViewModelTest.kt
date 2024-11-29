@@ -65,6 +65,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -489,6 +490,19 @@ class LoginEmailViewModelTest {
         loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
         coVerify(exactly = 1) { getOrRegisterClientUseCase(match { it.secondFactorVerificationCode == null }) }
+    }
+    @Test
+    fun `given 2fa is needed, when user used handle to login, then show correct error message` () = runTest {
+        val email = "some.handle"
+        val code = "123456"
+        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
+
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
+        loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
+        advanceUntilIdle()
+        coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
+        coVerify(exactly = 0) { getOrRegisterClientUseCase(any()) }
+        assertEquals(LoginState.Error.DialogError.Request2FAWithHandle, loginViewModel.loginState.flowState)
     }
 
     companion object {

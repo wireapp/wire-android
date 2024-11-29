@@ -37,6 +37,7 @@ sealed class LoginState {
             data object InvalidSSOCodeError : DialogError()
             data object UserAlreadyExists : DialogError()
             data object PasswordNeededToRegisterClient : DialogError()
+            data object Request2FAWithHandle : DialogError()
             data class SSOResultError(val result: SSOFailureCodes) :
                 DialogError()
             data object ServerVersionNotSupported : DialogError()

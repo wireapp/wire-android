@@ -369,6 +369,8 @@
     <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
     <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
+    <string name="login_error_request_2fa_with_handle_title">Login with email</string>
+    <string name="login_error_request_2fa_with_handle_message">You can\'t use your username as two-factor authentication is activated. Please log in with your email instead.</string>
     <string name="deleted_user_error_title">Deleted account</string>
     <string name="deleted_user_error_message">You were logged out because your account was
         deleted.
@@ -1637,5 +1639,4 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_error_message_already_in_team">You\'ve created or joined a team with this email address on another device.</string>
     <string name="personal_to_team_migration_error_message_slow_network">Wire could not complete your team creation due to a slow internet connection.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
-
 </resources>

@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
@@ -111,7 +110,7 @@ private fun UserGroupDetailsInformation(
             Spacer(modifier = Modifier.height(dimensions().spacing16x))
             Text(
                 style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.labelText,
+                color = MaterialTheme.wireColorScheme.onBackground,
                 text = title
             )
             Spacer(modifier = Modifier.height(dimensions().spacing16x))
@@ -142,8 +141,8 @@ private fun UserRoleInformation(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
         title = {
             Text(
-                style = MaterialTheme.wireTypography.subline01,
-                color = MaterialTheme.wireColorScheme.labelText,
+                style = MaterialTheme.wireTypography.label01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
                 text = label.uppercase()
             )
         },
@@ -181,8 +180,8 @@ val Member.Role.name
     }
 
 @Composable
-@Preview
-fun PreviewOtherUserProfileGroup() {
+@PreviewMultipleThemes
+fun PreviewOtherUserProfileGroup() = WireTheme {
     OtherUserProfileGroup(OtherUserProfileState.PREVIEW, {}, {})
 }
 

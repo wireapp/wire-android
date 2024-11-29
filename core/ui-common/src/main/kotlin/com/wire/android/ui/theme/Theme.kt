@@ -34,6 +34,7 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 @Composable
 fun WireTheme(
     wireColorScheme: WireColorScheme = WireColorSchemeTypes.currentTheme,
+    wireFixedColorScheme: WireFixedColorScheme = DefaultWireFixedColorScheme,
     wireTypography: WireTypography = WireTypographyTypes.currentScreenSize,
     wireDimensions: WireDimensions = WireDimensionsTypes.currentScreenSize.currentOrientation,
     content: @Composable () -> Unit
@@ -43,6 +44,7 @@ fun WireTheme(
     @Suppress("SpreadOperator")
     CompositionLocalProvider(
         LocalWireColors provides wireColorScheme,
+        LocalWireFixedColors provides wireFixedColorScheme,
         LocalWireTypography provides wireTypography,
         LocalWireDimensions provides wireDimensions,
         // we need to provide our default content color dependent on the current colorScheme, otherwise it's Color.Black
@@ -69,12 +71,25 @@ fun WireTheme(
 }
 
 private val LocalWireColors = staticCompositionLocalOf { WireColorSchemeTypes.light }
+private val LocalWireFixedColors = staticCompositionLocalOf { DefaultWireFixedColorScheme }
 private val LocalWireTypography = staticCompositionLocalOf { WireTypographyTypes.defaultPhone }
 private val LocalWireDimensions = staticCompositionLocalOf { WireDimensionsTypes.defaultPhone.portrait }
 
 val MaterialTheme.wireColorScheme
     @Composable
     get() = LocalWireColors.current
+
+val MaterialTheme.wireDarkColorScheme
+    @Composable
+    get() = WireColorSchemeTypes.dark
+
+val MaterialTheme.wireLightColorScheme
+    @Composable
+    get() = WireColorSchemeTypes.light
+
+val MaterialTheme.wireFixedColorScheme
+    @Composable
+    get() = LocalWireFixedColors.current
 
 val MaterialTheme.wireTypography
     @Composable

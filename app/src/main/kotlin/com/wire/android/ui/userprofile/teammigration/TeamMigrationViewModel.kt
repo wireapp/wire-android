@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.userprofile.teammigration
 
-import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -100,8 +99,6 @@ class TeamMigrationViewModel @Inject constructor(
             ).let { result ->
                 when (result) {
                     is MigrateFromPersonalToTeamResult.Success -> {
-                        teamMigrationState = teamMigrationState.copy(migrationFailure = null)
-                        teamMigrationState.teamNameTextState.setTextAndSelectAll(result.teamName)
                         onSuccess()
                     }
 

@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
@@ -239,6 +240,11 @@ class UserModule {
     @Provides
     fun provideFeatureFlagsSyncWorker(userScope: UserScope): FeatureFlagsSyncWorker =
         userScope.featureFlagsSyncWorker
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsPersonalToTeamAccountSupportedByBackendUseCase(userScope: UserScope): CanMigrateFromPersonalToTeamUseCase =
+        userScope.isPersonalToTeamAccountSupportedByBackend
 
     @ViewModelScoped
     @Provides

@@ -18,21 +18,37 @@
 
 package com.wire.android.ui.common
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.button.wireRadioButtonColors
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun WireRadioButton(
     checked: Boolean,
     onButtonChecked: (() -> Unit),
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     RadioButton(
         modifier = modifier,
         selected = checked,
+        enabled = enabled,
         onClick = onButtonChecked,
         colors = wireRadioButtonColors()
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireRadioButtons() = WireTheme {
+    Column {
+        WireRadioButton(checked = true, enabled = true, onButtonChecked = {})
+        WireRadioButton(checked = false, enabled = true, onButtonChecked = {})
+        WireRadioButton(checked = true, enabled = false, onButtonChecked = {})
+        WireRadioButton(checked = false, enabled = false, onButtonChecked = {})
+    }
 }

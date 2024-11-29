@@ -18,31 +18,29 @@
 
 package com.wire.android.ui.home.conversations.messages
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReactionPill(
     emoji: String,
@@ -67,37 +65,47 @@ fun ReactionPill(
     val textColor = if (isOwn) {
         MaterialTheme.wireColorScheme.primary
     } else {
-        MaterialTheme.wireColorScheme.labelText
+        MaterialTheme.wireColorScheme.secondaryText
     }
 
     CompositionLocalProvider(
         LocalMinimumInteractiveComponentSize provides Dp.Unspecified
     ) {
-        OutlinedButton(
+        WireSecondaryButton(
+            modifier = modifier,
             onClick = onTap,
-            border = BorderStroke(borderStrokeWidth, strokeColor),
             shape = RoundedCornerShape(borderRadius),
-            colors = ButtonDefaults.outlinedButtonColors(containerColor = backgroundColor),
-            contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x),
-            modifier = modifier.defaultMinSize(minWidth = minDimension, minHeight = minDimension)
-        ) {
-            Text(
-                emoji,
-                style = TextStyle(fontSize = reactionFontSize)
-            )
-            Spacer(modifier = Modifier.width(dimensions().spacing4x))
-            Text(
-                count.toString(),
-                style = MaterialTheme.wireTypography.label02,
-                color = textColor
-            )
-        }
+            contentPadding = PaddingValues(
+                horizontal = dimensions().spacing8x,
+                vertical = dimensions().spacing4x
+            ),
+            colors = wireSecondaryButtonColors().copy(
+                enabled = backgroundColor,
+                enabledOutline = strokeColor,
+            ),
+            fillMaxWidth = false,
+            minClickableSize = DpSize(minDimension, minDimension),
+            borderWidth = borderStrokeWidth,
+            minSize = DpSize(minDimension, minDimension),
+            leadingIcon = {
+                Text(
+                    emoji,
+                    style = TextStyle(fontSize = reactionFontSize)
+                )
+                Spacer(modifier = Modifier.width(dimensions().spacing4x))
+                Text(
+                    count.toString(),
+                    style = MaterialTheme.wireTypography.label02,
+                    color = textColor
+                )
+            },
+        )
     }
 }
 
 @PreviewMultipleThemes
 @Composable
-fun ReactionPillPreview() {
+fun ReactionPillPreview() = WireTheme {
     ReactionPill(
         emoji = "👍",
         count = 5,

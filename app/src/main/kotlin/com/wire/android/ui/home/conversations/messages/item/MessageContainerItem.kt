@@ -57,7 +57,7 @@ fun MessageContainerItem(
     shouldDisplayFooter: Boolean = true,
     isSelectedMessage: Boolean = false,
     failureInteractionAvailable: Boolean = true,
-    defaultBackgroundColor: Color = colorsScheme().backgroundVariant,
+    defaultBackgroundColor: Color = colorsScheme().surfaceContainerLow,
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (

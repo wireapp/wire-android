@@ -22,10 +22,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.theme.DefaultWireFixedColorScheme
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireColorSchemeTypes
 import com.wire.android.ui.theme.WireDimensions
 import com.wire.android.ui.theme.WireDimensionsTypes
+import com.wire.android.ui.theme.WireFixedColorScheme
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.WireTypography
 import com.wire.android.ui.theme.WireTypographyTypes
@@ -33,6 +35,7 @@ import com.wire.android.ui.theme.WireTypographyTypes
 @Composable
 fun WireTestTheme(
     wireColorScheme: WireColorScheme = WireColorSchemeTypes.currentTheme,
+    wireFixedColorScheme: WireFixedColorScheme = DefaultWireFixedColorScheme,
     wireTypography: WireTypography = WireTypographyTypes.currentScreenSize,
     wireDimensions: WireDimensions = WireDimensionsTypes.currentScreenSize.currentOrientation,
     content: @Composable () -> Unit
@@ -41,6 +44,7 @@ fun WireTestTheme(
         CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
             WireTheme(
                 wireColorScheme,
+                wireFixedColorScheme,
                 wireTypography,
                 wireDimensions,
                 content

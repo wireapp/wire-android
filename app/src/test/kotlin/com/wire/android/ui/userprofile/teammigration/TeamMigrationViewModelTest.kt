@@ -263,9 +263,7 @@ class TeamMigrationViewModelTest {
         }
 
         fun withMigrateFromPersonalToTeamSuccess() = apply {
-            coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Success(
-                TEAM_NAME
-            )
+            coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Success
         }
 
         fun withMigrateFromPersonalToTeamErrorUnknown() = apply {

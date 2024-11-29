@@ -188,7 +188,7 @@ private fun Content(
 
     WireScaffold(
         modifier = Modifier
-            .background(color = colorsScheme().backgroundVariant),
+            .background(color = colorsScheme().surfaceContainerLow),
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,

@@ -49,7 +49,7 @@ fun ConversationFilterSheetContent(
                                 MenuItemIcon(
                                     id = R.drawable.ic_check_circle,
                                     contentDescription = stringResource(R.string.label_selected),
-                                    tint = MaterialTheme.wireColorScheme.switchEnabledChecked,
+                                    tint = MaterialTheme.wireColorScheme.positive,
                                 )
                             }
                         },

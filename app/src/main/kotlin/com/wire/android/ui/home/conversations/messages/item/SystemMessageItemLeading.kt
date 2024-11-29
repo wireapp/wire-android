@@ -30,9 +30,9 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessa
 
 @Composable
 fun SystemMessageItemLeading(messageContent: SystemMessage, modifier: Modifier = Modifier) {
-    if (messageContent.iconResId != null) {
+    messageContent.iconResId?.let { iconResId ->
         Image(
-            painter = painterResource(id = messageContent.iconResId),
+            painter = painterResource(id = iconResId),
             contentDescription = null,
             colorFilter = getColorFilter(messageContent),
             modifier = modifier.size(

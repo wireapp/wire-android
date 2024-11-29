@@ -30,14 +30,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun OtherUserProfileDetails(
@@ -93,8 +94,8 @@ private fun UserDetailInformation(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
         title = {
             Text(
-                style = MaterialTheme.wireTypography.subline01,
-                color = MaterialTheme.wireColorScheme.labelText,
+                style = MaterialTheme.wireTypography.label01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
                 text = title.uppercase()
             )
         },
@@ -117,8 +118,8 @@ private fun UserDetailInformation(
     )
 }
 
+@PreviewMultipleThemes
 @Composable
-@Preview
-fun PreviewOtherUserProfileDetails() {
+fun PreviewOtherUserProfileDetails() = WireTheme {
     OtherUserProfileDetails(OtherUserProfileState.PREVIEW)
 }

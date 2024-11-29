@@ -48,14 +48,14 @@ fun WireCallControlButton(
         shape = CircleShape,
         colors = with(colorsScheme()) {
             wireSecondaryButtonColors().copy(
-                selected = callingControlButtonActive,
-                selectedOutline = callingControlButtonActiveOutline,
-                onSelected = onCallingControlButtonActive,
-                selectedRipple = onCallingControlButtonActive,
-                enabled = callingControlButtonInactive,
-                enabledOutline = callingControlButtonInactiveOutline,
-                onEnabled = onCallingControlButtonInactive,
-                enabledRipple = onCallingControlButtonInactive,
+                selected = inverseSurface,
+                selectedOutline = inverseSurface,
+                onSelected = inverseOnSurface,
+                selectedRipple = inverseOnSurface,
+                enabled = secondaryButtonEnabled,
+                enabledOutline = secondaryButtonEnabledOutline,
+                onEnabled = onSecondaryButtonEnabled,
+                enabledRipple = secondaryButtonRipple,
             )
         },
         contentDescription = contentDescription,

@@ -59,7 +59,7 @@ fun AdditionalOptionsMenu(
     onOnSelfDeletingOptionClicked: ((SelfDeletionTimer) -> Unit)? = null,
     onGifOptionClicked: (() -> Unit)? = null
 ) {
-    Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
+    Box(modifier.background(colorsScheme().surface)) {
         when (additionalOptionsState) {
             AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(

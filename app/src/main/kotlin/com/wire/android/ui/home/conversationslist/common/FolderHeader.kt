@@ -52,7 +52,7 @@ fun FolderHeader(name: String, modifier: Modifier = Modifier) {
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         style = MaterialTheme.wireTypography.title03,
-        color = MaterialTheme.wireColorScheme.labelText,
+        color = MaterialTheme.wireColorScheme.secondaryText,
     )
 }
 
@@ -78,7 +78,7 @@ fun CollapsingFolderHeader(
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_collapse),
             contentDescription = null,
-            tint = MaterialTheme.wireColorScheme.labelText,
+            tint = MaterialTheme.wireColorScheme.secondaryText,
             modifier = Modifier
                 .padding(horizontal = arrowHorizontalPadding)
                 .width(arrowWidth)
@@ -89,7 +89,7 @@ fun CollapsingFolderHeader(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.wireTypography.title02,
-            color = MaterialTheme.wireColorScheme.labelText,
+            color = MaterialTheme.wireColorScheme.secondaryText,
         )
     }
 }

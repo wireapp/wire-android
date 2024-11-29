@@ -20,11 +20,9 @@ package com.wire.android.mapper
 
 import com.wire.android.ui.home.conversations.avatar
 import com.wire.android.ui.userprofile.self.model.OtherAccount
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import io.mockk.MockKAnnotations
-import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -43,26 +41,22 @@ class OtherAccountMapperTest {
         // Then
         results.forEachIndexed { index, result ->
             val (selfUser, _) = data[index]
-            assert(compareResult(arrangement.wireSessionImageLoader, selfUser, result))
+            assert(compareResult(selfUser, result))
         }
     }
 
     private fun compareResult(
-        wireSessionImageLoader: WireSessionImageLoader,
         selfUser: SelfUser,
         otherAccount: OtherAccount
     ): Boolean =
         selfUser.id == otherAccount.id
             && selfUser.name == otherAccount.fullName
-            && selfUser.avatar(wireSessionImageLoader, selfUser.connectionStatus) == otherAccount.avatarData
+            && selfUser.avatar(selfUser.connectionStatus) == otherAccount.avatarData
             && selfUser.handle == otherAccount.handle
 
     private class Arrangement {
 
-        @MockK
-        lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-        private val mapper: OtherAccountMapper by lazy { OtherAccountMapper(wireSessionImageLoader) }
+        private val mapper: OtherAccountMapper by lazy { OtherAccountMapper() }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

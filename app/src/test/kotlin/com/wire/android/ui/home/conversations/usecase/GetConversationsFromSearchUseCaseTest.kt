@@ -26,7 +26,6 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationFolder
@@ -180,9 +179,6 @@ class GetConversationsFromSearchUseCaseTest {
         lateinit var observeConversationsFromFolderUseCase: ObserveConversationsFromFolderUseCase
 
         @MockK
-        lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-        @MockK
         lateinit var userTypeMapper: UserTypeMapper
 
         @MockK
@@ -225,7 +221,6 @@ class GetConversationsFromSearchUseCaseTest {
             useCase,
             getFavoriteFolderUseCase,
             observeConversationsFromFolderUseCase,
-            wireSessionImageLoader,
             userTypeMapper,
             dispatcherProvider,
             observeSelfUser

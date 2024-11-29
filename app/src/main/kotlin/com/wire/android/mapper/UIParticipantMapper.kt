@@ -21,7 +21,6 @@ package com.wire.android.mapper
 import com.wire.android.ui.home.conversations.avatar
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.previewAsset
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.message.UserSummary
 import com.wire.kalium.logic.data.message.reaction.MessageReaction
 import com.wire.kalium.logic.data.message.receipt.DetailedReceipt
@@ -33,7 +32,6 @@ import javax.inject.Inject
 
 class UIParticipantMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
-    private val wireSessionImageLoader: WireSessionImageLoader
 ) {
     fun toUIParticipant(user: User, isMLSVerified: Boolean = false): UIParticipant = with(user) {
         val (userType, connectionState, unavailable) = when (this) {
@@ -45,7 +43,7 @@ class UIParticipantMapper @Inject constructor(
             id = id,
             name = name.orEmpty(),
             handle = handle.orEmpty(),
-            avatarData = avatar(wireSessionImageLoader, connectionState),
+            avatarData = avatar(connectionState),
             isSelf = user is SelfUser,
             isService = userType == UserType.SERVICE,
             membership = userTypeMapper.toMembership(userType),
@@ -67,7 +65,7 @@ class UIParticipantMapper @Inject constructor(
             id = userSummary.userId,
             name = userSummary.userName.orEmpty(),
             handle = userSummary.userHandle.orEmpty(),
-            avatarData = userSummary.previewAsset(wireSessionImageLoader),
+            avatarData = userSummary.previewAsset(),
             membership = userTypeMapper.toMembership(userSummary.userType),
             unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
             isDeleted = userSummary.isUserDeleted,
@@ -83,7 +81,7 @@ class UIParticipantMapper @Inject constructor(
             id = userSummary.userId,
             name = userSummary.userName.orEmpty(),
             handle = userSummary.userHandle.orEmpty(),
-            avatarData = userSummary.previewAsset(wireSessionImageLoader),
+            avatarData = userSummary.previewAsset(),
             membership = userTypeMapper.toMembership(userSummary.userType),
             unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
             isDeleted = userSummary.isUserDeleted,
@@ -100,7 +98,7 @@ class UIParticipantMapper @Inject constructor(
             id = userSummary.userId,
             name = userSummary.userName.orEmpty(),
             handle = userSummary.userHandle.orEmpty(),
-            avatarData = previewAsset(wireSessionImageLoader),
+            avatarData = previewAsset(),
             membership = userTypeMapper.toMembership(userSummary.userType),
             unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
             isDeleted = userSummary.isUserDeleted,

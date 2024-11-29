@@ -24,8 +24,10 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import kotlinx.serialization.Serializable
 
 @Stable
+@Serializable
 data class UserAvatarData(
     val asset: ImageAsset.UserAvatarAsset? = null,
     val availabilityStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
@@ -50,6 +52,7 @@ data class UserAvatarData(
 /**
  * Holder that can be used to generate an avatar based on the user's full name initials and accent color.
  */
+@Serializable
 data class NameBasedAvatar(val fullName: String?, val accentColor: Int) {
     val initials: String
         get() {

@@ -39,7 +39,6 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
@@ -91,7 +90,6 @@ class SelfUserProfileViewModel @Inject constructor(
     private val logout: LogoutUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val dispatchers: DispatcherProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     private val otherAccountMapper: OtherAccountMapper,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
@@ -220,7 +218,7 @@ class SelfUserProfileViewModel @Inject constructor(
             showLoadingAvatar(true)
             try {
                 userProfileState = userProfileState.copy(
-                    avatarAsset = UserAvatarAsset(wireSessionImageLoader, avatarAssetId)
+                    avatarAsset = UserAvatarAsset(avatarAssetId)
                 )
                 // Update avatar asset id on user data store
                 // TODO: obtain the asset id through a useCase once we also store assets ids

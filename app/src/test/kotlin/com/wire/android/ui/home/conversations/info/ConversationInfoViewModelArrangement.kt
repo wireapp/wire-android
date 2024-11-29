@@ -23,7 +23,6 @@ import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -59,9 +58,6 @@ class ConversationInfoViewModelArrangement {
     @MockK
     lateinit var fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase
 
-    @MockK
-    private lateinit var wireSessionImageLoader: WireSessionImageLoader
-
     @MockK(relaxed = true)
     lateinit var onNotFound: () -> Unit
 
@@ -71,7 +67,6 @@ class ConversationInfoViewModelArrangement {
             savedStateHandle,
             observeConversationDetails,
             fetchConversationMLSVerificationStatus,
-            wireSessionImageLoader,
             selfUserId = TestUser.SELF_USER_ID,
         )
     }

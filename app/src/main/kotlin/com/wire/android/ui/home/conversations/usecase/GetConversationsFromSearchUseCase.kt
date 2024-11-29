@@ -27,7 +27,6 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
@@ -45,7 +44,6 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     private val useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase,
     private val getFavoriteFolderUseCase: GetFavoriteFolderUseCase,
     private val observeConversationsFromFromFolder: ObserveConversationsFromFolderUseCase,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
     private val observeSelfUser: GetSelfUserUseCase
@@ -99,7 +97,6 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             .map { pagingData ->
                 pagingData.map {
                     it.toConversationItem(
-                        wireSessionImageLoader = wireSessionImageLoader,
                         userTypeMapper = userTypeMapper,
                         searchQuery = searchQuery,
                         selfUserTeamId = observeSelfUser().firstOrNull()?.teamId

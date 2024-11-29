@@ -298,6 +298,16 @@ fun ConversationScreen(
             messageComposerStateHolder.messageCompositionHolder.value.updateQuote(compositionState.quotedMessage)
         }
     }
+    // add mentions when selectedMentions is not empty in MessageDraft
+    LaunchedEffect(messageDraftViewModel.state.value.selectedMentions) {
+        val compositionState = messageDraftViewModel.state.value
+        if (compositionState.selectedMentions.isNotEmpty()) {
+            messageComposerStateHolder.messageCompositionHolder.value.setMentions(
+                compositionState.draftText,
+                compositionState.selectedMentions.map { it.intoMessageMention() }
+            )
+        }
+    }
 
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(

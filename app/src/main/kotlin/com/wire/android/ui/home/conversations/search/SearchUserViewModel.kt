@@ -27,16 +27,13 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
-import com.wire.kalium.logic.feature.conversation.GetConversationProtocolInfoUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
+import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
 import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
-import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
@@ -59,8 +56,7 @@ class SearchUserViewModel @Inject constructor(
     private val contactMapper: ContactMapper,
     private val federatedSearchParser: FederatedSearchParser,
     private val validateUserHandle: ValidateUserHandleUseCase,
-    private val getDefaultProtocol: GetDefaultProtocolUseCase,
-    private val getConversationProtocolInfo: GetConversationProtocolInfoUseCase,
+    private val isFederationSearchAllowed: IsFederationSearchAllowedUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -78,17 +74,7 @@ class SearchUserViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val isProteusTeam = getDefaultProtocol() == SupportedProtocol.PROTEUS
-
-            val isOtherDomainAllowed: Boolean = addMembersSearchNavArgs?.conversationId?.let { conversationId ->
-                when (val result = getConversationProtocolInfo(conversationId)) {
-                    is GetConversationProtocolInfoUseCase.Result.Failure -> !isProteusTeam
-
-                    is GetConversationProtocolInfoUseCase.Result.Success ->
-                        !isProteusTeam && result.protocolInfo !is Conversation.ProtocolInfo.Proteus
-                }
-            } ?: !isProteusTeam
-
+            val isOtherDomainAllowed = isFederationSearchAllowed(addMembersSearchNavArgs?.conversationId)
             state = state.copy(isOtherDomainAllowed = isOtherDomainAllowed)
         }
 

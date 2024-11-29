@@ -33,17 +33,15 @@ import com.wire.kalium.logic.data.id.GroupID
 import com.wire.kalium.logic.data.mls.CipherSuite
 import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
-import com.wire.kalium.logic.feature.conversation.GetConversationProtocolInfoUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
+import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
 import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
-import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -138,10 +136,9 @@ class SearchUserViewModelTest {
     fun `given Proteus conversation and MLS team, when calling the searchUseCase, then otherDomain is not allowed`() =
         runTest {
             val conversationId = ConversationId("id", "domain")
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
-                .withConversationProtocolInfo(GetConversationProtocolInfoUseCase.Result.Success(Conversation.ProtocolInfo.Proteus))
-                .withDefaultProtocol(SupportedProtocol.MLS)
+                .withIsFederationSearchAllowedResult(false)
                 .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
                 .withFederatedSearchParserResult(
                     FederatedSearchParser.Result(
@@ -164,10 +161,9 @@ class SearchUserViewModelTest {
     fun `given MLS conversation and Proteus team, when calling the searchUseCase, then otherDomain is not allowed`() =
         runTest {
             val conversationId = ConversationId("id", "domain")
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
-                .withConversationProtocolInfo(GetConversationProtocolInfoUseCase.Result.Success(mlsProtocol))
-                .withDefaultProtocol(SupportedProtocol.PROTEUS)
+                .withIsFederationSearchAllowedResult(false)
                 .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
                 .withFederatedSearchParserResult(
                     FederatedSearchParser.Result(
@@ -190,10 +186,9 @@ class SearchUserViewModelTest {
     fun `given MLS conversation and MLS team, when calling the searchUseCase, then otherDomain is allowed`() =
         runTest {
             val conversationId = ConversationId("id", "domain")
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
-                .withConversationProtocolInfo(GetConversationProtocolInfoUseCase.Result.Success(mlsProtocol))
-                .withDefaultProtocol(SupportedProtocol.MLS)
+                .withIsFederationSearchAllowedResult(true)
                 .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
                 .withFederatedSearchParserResult(
                     FederatedSearchParser.Result(
@@ -360,10 +355,7 @@ class SearchUserViewModelTest {
         lateinit var searchByHandleUseCase: SearchByHandleUseCase
 
         @MockK
-        lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
-
-        @MockK
-        lateinit var getConversationProtocolInfo: GetConversationProtocolInfoUseCase
+        lateinit var isFederationSearchAllowedUseCase: IsFederationSearchAllowedUseCase
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -371,10 +363,7 @@ class SearchUserViewModelTest {
                 val user = args.get(0) as UserSearchDetails
                 fromSearchUserResult(user)
             }
-            every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
-            coEvery {
-                getConversationProtocolInfo(any())
-            } returns GetConversationProtocolInfoUseCase.Result.Success(Conversation.ProtocolInfo.Proteus)
+            withIsFederationSearchAllowedResult(false)
         }
 
         fun fromSearchUserResult(user: UserSearchDetails): Contact {
@@ -427,12 +416,8 @@ class SearchUserViewModelTest {
             coEvery { searchByHandleUseCase(any(), any(), any()) } returns result
         }
 
-        suspend fun withConversationProtocolInfo(result: GetConversationProtocolInfoUseCase.Result) = apply {
-            coEvery { getConversationProtocolInfo(any()) } returns result
-        }
-
-        fun withDefaultProtocol(protocol: SupportedProtocol) = apply {
-            every { getDefaultProtocolUseCase() } returns protocol
+        fun withIsFederationSearchAllowedResult(isAllowed: Boolean = true) = apply {
+            coEvery { isFederationSearchAllowedUseCase(any()) } returns isAllowed
         }
 
         private lateinit var searchUserViewModel: SearchUserViewModel
@@ -444,8 +429,7 @@ class SearchUserViewModelTest {
                 contactMapper = contactMapper,
                 federatedSearchParser = federatedSearchParser,
                 validateUserHandle = validateUserHandle,
-                getConversationProtocolInfo = getConversationProtocolInfo,
-                getDefaultProtocol = getDefaultProtocolUseCase,
+                isFederationSearchAllowed = isFederationSearchAllowedUseCase,
                 savedStateHandle = savedStateHandle
             )
         }.run {

@@ -23,7 +23,6 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversations.handle
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.userId
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.TeamId
@@ -36,7 +35,6 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import io.mockk.MockKAnnotations
-import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -58,7 +56,7 @@ class UIParticipantMapperTest {
         val results = data.map { mapper.toUIParticipant(it.user) }
         // Then
         results.forEachIndexed { index, result ->
-            assert(compareResult(arrangement.wireSessionImageLoader, data[index], result, arrangement.userTypeMapper))
+            assert(compareResult(data[index], result, arrangement.userTypeMapper))
         }
     }
 
@@ -96,7 +94,6 @@ class UIParticipantMapperTest {
     }
 
     private fun compareResult(
-        wireSessionImageLoader: WireSessionImageLoader,
         memberDetails: MemberDetails,
         uiParticipant: UIParticipant,
         userTypeMapper: UserTypeMapper
@@ -105,20 +102,17 @@ class UIParticipantMapperTest {
         return (memberDetails.userId == uiParticipant.id
                 && memberDetails.name == uiParticipant.name
                 && memberDetails.handle == uiParticipant.handle
-                && memberDetails.user.avatar(wireSessionImageLoader, connectionState) == uiParticipant.avatarData
+                && memberDetails.user.avatar(connectionState) == uiParticipant.avatarData
                 && userTypeMapper.toMembership(memberDetails.user.userType) == uiParticipant.membership
                 && memberDetails.user is SelfUser == uiParticipant.isSelf)
     }
 
     private class Arrangement {
 
-        @MockK
-        lateinit var wireSessionImageLoader: WireSessionImageLoader
-
         val userTypeMapper: UserTypeMapper = UserTypeMapper()
 
         private val mapper: UIParticipantMapper by lazy {
-            UIParticipantMapper(userTypeMapper, wireSessionImageLoader)
+            UIParticipantMapper(userTypeMapper)
         }
 
         init {

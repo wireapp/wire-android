@@ -69,9 +69,11 @@ import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversa
 import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.textfield.mention.MentionUpdateCoordinator
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.model.update
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
@@ -206,10 +208,18 @@ fun EnabledMessageComposer(
                             conversationId = conversationId,
                             messageComposition = messageComposition.value,
                             messageTextFieldValue = inputStateHolder.messageTextFieldValue,
-                            onValueChange = {
-                                inputStateHolder.messageTextFieldValue.value = it
+                            onValueChange = { newTextField ->
+                                val updatedTextField = MentionUpdateCoordinator().handle(
+                                    inputStateHolder.messageTextFieldValue.value,
+                                    newTextField,
+                                    messageComposition.value.selectedMentions,
+                                    updateMentions = { mentions ->
+                                        messageComposition.update { it.copy(selectedMentions = mentions) }
+                                    }
+                                )
+                                inputStateHolder.messageTextFieldValue.value = updatedTextField
                             },
-                            mentions = (messageComposition.value.selectedMentions),
+                            mentions = messageComposition.value.selectedMentions,
                             isTextExpanded = inputStateHolder.isTextExpanded,
                             inputType = messageCompositionInputStateHolder.inputType,
                             focusRequester = messageCompositionInputStateHolder.focusRequester,

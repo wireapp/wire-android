@@ -30,6 +30,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.home.conversations.details.participants.folderWithElements
 import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun MessageDetailsReactions(
@@ -69,8 +70,10 @@ fun MessageDetailsReactions(
 @MultipleThemePreviews
 @Composable
 fun PreviewMessageDetailsReactions() {
-    MessageDetailsReactions(
-        reactionsData = MessageDetailsReactionsData(),
-        onReactionsLearnMore = {}
-    )
+    WireTheme {
+        MessageDetailsReactions(
+            reactionsData = MessageDetailsReactionsData(),
+            onReactionsLearnMore = {}
+        )
+    }
 }

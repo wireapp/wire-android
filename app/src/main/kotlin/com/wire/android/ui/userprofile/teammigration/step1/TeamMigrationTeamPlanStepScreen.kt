@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -60,6 +59,8 @@ import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
+const val TEAM_MIGRATION_TEAM_PLAN_STEP = 1
+
 @PersonalToTeamMigrationNavGraph(start = true)
 @WireDestination(
     style = SlideNavigationAnimation::class
@@ -76,7 +77,8 @@ fun TeamMigrationTeamPlanStepScreen(
     )
 
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(1)
+        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(TEAM_MIGRATION_TEAM_PLAN_STEP)
+        teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_TEAM_PLAN_STEP)
     }
 }
 
@@ -223,7 +225,7 @@ private fun AdvantageRow(
             Icon(
                 painter = painterResource(id = R.drawable.ic_check),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = colorsScheme().positive,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
             Text(

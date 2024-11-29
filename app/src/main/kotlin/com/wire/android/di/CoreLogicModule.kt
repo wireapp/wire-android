@@ -492,4 +492,12 @@ class UseCaseModule {
     @Provides
     fun provideSendFCMTokenToAPIUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).debug.sendFCMTokenToServer
+
+    @ViewModelScoped
+    @Provides
+    fun provideMigrateFromPersonalToTeamUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ) =
+        coreLogic.getSessionScope(currentAccount).migrateFromPersonalToTeam
 }

@@ -24,6 +24,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayerProvider
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -97,6 +98,9 @@ class ConversationMessagesViewModelArrangement {
     lateinit var conversationAudioMessagePlayer: ConversationAudioMessagePlayer
 
     @MockK
+    lateinit var conversationAudioMessagePlayerProvider: ConversationAudioMessagePlayerProvider
+
+    @MockK
     lateinit var getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase
 
     @MockK
@@ -124,7 +128,7 @@ class ConversationMessagesViewModelArrangement {
             getMessagesForConversationUseCase,
             toggleReaction,
             resetSession,
-            conversationAudioMessagePlayer,
+            conversationAudioMessagePlayerProvider,
             getConversationUnreadEventsCount,
             clearUsersTypingEvents,
             getSearchedConversationMessagePosition,
@@ -143,6 +147,8 @@ class ConversationMessagesViewModelArrangement {
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit
+        every { conversationAudioMessagePlayerProvider.provide() } returns conversationAudioMessagePlayer
+        every { conversationAudioMessagePlayerProvider.onCleared() } returns Unit
         coEvery {
             getSearchedConversationMessagePosition(any(), any())
         } returns GetSearchedConversationMessagePositionUseCase.Result.Success(position = 0)

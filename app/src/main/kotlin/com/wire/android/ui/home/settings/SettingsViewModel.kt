@@ -24,16 +24,23 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
-    private val observeIsAppLockEditable: ObserveIsAppLockEditableUseCase
+    private val observeIsAppLockEditable: ObserveIsAppLockEditableUseCase,
+    private val getSelf: GetSelfUserUseCase,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
     var state by mutableStateOf(SettingsState())
         private set
@@ -51,11 +58,25 @@ class SettingsViewModel @Inject constructor(
                 )
             }.collect { state = it }
         }
+        viewModelScope.launch {
+            fetchSelfUser()
+        }
     }
 
     fun disableAppLock() {
         viewModelScope.launch {
             globalDataStore.clearAppLockPasscode()
+        }
+    }
+
+    private suspend fun fetchSelfUser() {
+        viewModelScope.launch {
+            val self =
+                getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
+
+            self.collect { user ->
+                state = state.copy(userName = user.name ?: "")
+            }
         }
     }
 }

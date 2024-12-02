@@ -467,14 +467,12 @@
     <!-- User Profile -->
     <string name="user_profile_title">Profil utilisateur</string>
     <string name="user_profile_close_description">Fermer le profil utilisateur</string>
-    <string name="user_profile_logout">Se déconnecter</string>
     <string name="user_profile_other_accs">Vos autres comptes</string>
     <string name="user_profile_status_availability">Disponibilité</string>
     <string name="user_profile_status_available">Disponible</string>
     <string name="user_profile_status_busy">Occupé(e)</string>
     <string name="user_profile_status_away">Absent(e)</string>
     <string name="user_profile_status_none">Aucune</string>
-    <string name="user_profile_new_account_text">Nouvelle équipe ou nouveau compte</string>
     <string name="user_profile_details_tab">Informations</string>
     <string name="user_profile_devices_tab">Appareils</string>
     <string name="user_profile_group_tab">Groupe</string>
@@ -545,6 +543,7 @@
     <!-- Search Contact-->
     <!-- Snackbar messages -->
     <!-- Archiving -->
+    <!-- Favorite -->
     <!-- Animation label -->
     <!-- Notifications -->
     <!-- Calling-->

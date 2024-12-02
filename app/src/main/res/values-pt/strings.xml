@@ -449,14 +449,12 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <!-- User Profile -->
     <string name="user_profile_title">Perfil do usuário</string>
     <string name="user_profile_close_description">Fechar perfil do usuário</string>
-    <string name="user_profile_logout">Sair</string>
     <string name="user_profile_other_accs">Suas outras contas</string>
     <string name="user_profile_status_availability">Disponibilidade</string>
     <string name="user_profile_status_available">Disponível</string>
     <string name="user_profile_status_busy">Ocupado</string>
     <string name="user_profile_status_away">Ausente</string>
     <string name="user_profile_status_none">Nenhum</string>
-    <string name="user_profile_new_account_text">Nova equipe ou conta</string>
     <string name="user_profile_details_tab">Detalhes</string>
     <string name="user_profile_devices_tab">Dispositivos</string>
     <string name="user_profile_group_tab">Grupo</string>
@@ -684,6 +682,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Conversa arquivada</string>
     <string name="dialog_archive_conversation_title">Arquivar conversa?</string>
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">Abrir conversa</string>
     <string name="email_label">E-mail</string>

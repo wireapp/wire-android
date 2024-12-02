@@ -330,14 +330,12 @@
     <!-- User Profile -->
     <string name="user_profile_title">Användarprofil</string>
     <string name="user_profile_close_description">Stäng ner användarprofil</string>
-    <string name="user_profile_logout">Logga ut</string>
     <string name="user_profile_other_accs">Dina andra konton</string>
     <string name="user_profile_status_availability">Tillgänglighet</string>
     <string name="user_profile_status_available">Tillgänglig</string>
     <string name="user_profile_status_busy">Upptagen</string>
     <string name="user_profile_status_away">Borta</string>
     <string name="user_profile_status_none">Ingen</string>
-    <string name="user_profile_new_account_text">Nytt team eller konto</string>
     <string name="user_profile_details_tab">Detaljer</string>
     <string name="user_profile_devices_tab">Enheter</string>
     <string name="user_profile_group_tab">Grupp</string>
@@ -455,6 +453,7 @@
     <string name="error_no_network_message">Kontrollera din internetanslutning och försök igen</string>
     <string name="left_conversation_group_success">Du har lämnat konversationen.</string>
     <!-- Archiving -->
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="email_label">E-postadress</string>
     <string name="phone_label">Telefon</string>

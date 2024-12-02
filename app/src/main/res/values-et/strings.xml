@@ -282,6 +282,7 @@
     <string name="blocking_user_success">%s blokeeritud</string>
     <string name="conversation_group_removed_success">“%s” eemaldatud</string>
     <!-- Archiving -->
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">Ava vestlus</string>
     <string name="email_label">E-post</string>

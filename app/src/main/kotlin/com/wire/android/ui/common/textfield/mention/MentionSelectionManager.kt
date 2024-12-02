@@ -24,6 +24,15 @@ import com.wire.android.ui.home.conversations.model.UIMention
  * Manages the selection for mentions.
  */
 class MentionSelectionManager {
+
+    /**
+     * if the selection is inside the mention's range, it will return the mention's range.
+     * Otherwise, it will return the new selection.
+     * @param oldSelection the old selection.
+     * @param newSelection the new selection.
+     * @param mentions the list of mentions.
+     * @return the new selection.
+     */
     fun updateSelectionForMention(
         oldSelection: TextRange,
         newSelection: TextRange,

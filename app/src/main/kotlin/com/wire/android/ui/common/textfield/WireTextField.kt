@@ -222,17 +222,7 @@ internal fun WireTextField(
         innerBasicTextField = { _, textFieldModifier, decoratorBox ->
             BasicTextField(
                 value = textFieldValue.value,
-                onValueChange = { newText ->
-                    val mentionsByName = mentions.map { it.handler }
-                    val updatedText =
-                        MentionDeletionHandler.handle(
-                            textFieldValue.value.text,
-                            newText.text,
-                            textFieldValue.value.selection,
-                            mentionsByName
-                        )
-                    onValueChange(TextFieldValue(updatedText, newText.selection))
-                },
+                onValueChange = onValueChange,
                 textStyle = textStyle.copy(
                     color = colors.textColor(state = state).value,
                     textDirection = TextDirection.ContentOrLtr

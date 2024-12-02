@@ -106,7 +106,7 @@ mockk = "1.13.10"
 okio = "3.9.0"
 turbine = "1.2.0"
 robolectric = "4.12.1"
-hamcrest = "2.2"
+hamcrest = "3.0"
 
 [plugins]
 # 3rd Party plugins

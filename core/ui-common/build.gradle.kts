@@ -1,6 +1,7 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
     id(libs.plugins.wire.kover.get().pluginId)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -12,6 +13,8 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.ktx.serialization)
+    implementation(libs.bundlizer.core)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

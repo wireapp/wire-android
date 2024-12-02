@@ -37,7 +37,6 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -52,8 +51,6 @@ class MessageMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
-    // TODO(qol): a message mapper should not depend on a UI related component
-    private val wireSessionImageLoader: WireSessionImageLoader
 ) {
 
     fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
@@ -200,7 +197,7 @@ class MessageMapper @Inject constructor(
     }
 
     private fun getUserAvatarData(sender: User?) = UserAvatarData(
-        asset = sender?.previewAsset(wireSessionImageLoader),
+        asset = sender?.previewAsset(),
         availabilityStatus = sender?.availabilityStatus ?: UserAvailabilityStatus.NONE,
         membership = sender?.userType?.let { userTypeMapper.toMembership(it) } ?: Membership.None,
         connectionState = getConnectionState(sender),

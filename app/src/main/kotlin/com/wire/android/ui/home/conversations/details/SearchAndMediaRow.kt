@@ -22,16 +22,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.media.ConversationMediaButton
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesButton
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun SearchAndMediaRow(
     onSearchConversationMessagesClick: () -> Unit,
-    onConversationMediaClick: () -> Unit
+    onConversationMediaClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
+    Row(modifier = modifier.padding(horizontal = dimensions().spacing16x)) {
         SearchConversationMessagesButton(
             modifier = Modifier.weight(1F),
             onClick = onSearchConversationMessagesClick
@@ -42,4 +45,10 @@ fun SearchAndMediaRow(
             onClick = onConversationMediaClick
         )
     }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewSearchAndMediaRow() = WireTheme {
+    SearchAndMediaRow({}, {})
 }

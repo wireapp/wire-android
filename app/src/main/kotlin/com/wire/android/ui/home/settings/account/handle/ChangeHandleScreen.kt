@@ -84,15 +84,19 @@ fun ChangeHandleContent(
     onSaveClicked: () -> Unit,
     onErrorDismiss: () -> Unit,
     onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    WireScaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            elevation = scrollState.rememberTopBarElevationState().value,
-            onNavigationPressed = onBackPressed,
-            title = stringResource(id = R.string.create_account_handle_title)
-        )
-    }) { internalPadding ->
+    WireScaffold(
+        modifier = modifier,
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = scrollState.rememberTopBarElevationState().value,
+                onNavigationPressed = onBackPressed,
+                title = stringResource(id = R.string.create_account_handle_title)
+            )
+        }
+    ) { internalPadding ->
         Column(
             modifier = Modifier
                 .padding(internalPadding)

@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversationslist.all
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.rememberNavigator
@@ -31,6 +32,7 @@ import com.wire.android.ui.home.conversationslist.common.previewConversationFold
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import kotlinx.coroutines.flow.flowOf
 
 @HomeNavGraph(start = true)
@@ -42,8 +44,53 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.MAIN,
-            lazyListState = currentLazyListState,
-            emptyListContent = { AllConversationsEmptyContent() }
+            lazyListState = lazyListStateFor(HomeDestination.Conversations),
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.ALL) }
+        )
+    }
+}
+
+@HomeNavGraph
+@WireDestination
+@Composable
+fun FavoritesConversationsScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationsScreenContent(
+            navigator = navigator,
+            searchBarState = searchBarState,
+            conversationsSource = ConversationsSource.FAVORITES,
+            lazyListState = lazyListStateFor(HomeDestination.Favorites),
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.FAVORITES) }
+        )
+    }
+}
+
+@HomeNavGraph
+@WireDestination
+@Composable
+fun GroupConversationsScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationsScreenContent(
+            navigator = navigator,
+            searchBarState = searchBarState,
+            conversationsSource = ConversationsSource.GROUPS,
+            lazyListState = lazyListStateFor(HomeDestination.Group),
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.GROUPS) }
+        )
+    }
+}
+
+@HomeNavGraph
+@WireDestination
+@Composable
+fun OneOnOneConversationsScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationsScreenContent(
+            navigator = navigator,
+            searchBarState = searchBarState,
+            conversationsSource = ConversationsSource.ONE_ON_ONE,
+            lazyListState = lazyListStateFor(HomeDestination.OneOnOne),
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.ONE_ON_ONE, domain = it) }
         )
     }
 }
@@ -55,7 +102,7 @@ fun PreviewAllConversationsEmptyScreen() = WireTheme {
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { AllConversationsEmptyContent() },
+        emptyListContent = { ConversationsEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(flowOf()),
     )
 }
@@ -67,7 +114,7 @@ fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { AllConversationsEmptyContent() },
+        emptyListContent = { ConversationsEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(flowOf()),
     )
 }
@@ -79,7 +126,7 @@ fun PreviewAllConversationsSearchScreen() = WireTheme {
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { AllConversationsEmptyContent() },
+        emptyListContent = { ConversationsEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow("er")),
     )
 }

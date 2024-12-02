@@ -36,6 +36,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.settings.devices.button.GetE2eiCertificateButton
 import com.wire.android.ui.settings.devices.button.ShowE2eiCertificateButton
 import com.wire.android.ui.settings.devices.button.UpdateE2eiCertificateButton
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -57,10 +58,11 @@ fun EndToEndIdentityCertificateItem(
     isCurrentDevice: Boolean,
     isLoadingCertificate: Boolean,
     enrollE2eiCertificate: () -> Unit,
-    showCertificate: (MLSClientIdentity) -> Unit
+    showCertificate: (MLSClientIdentity) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(
                 top = MaterialTheme.wireDimensions.spacing12x,
                 bottom = MaterialTheme.wireDimensions.spacing12x,
@@ -113,7 +115,7 @@ fun EndToEndIdentityCertificateItem(
                     MLSClientE2EIStatus.VALID -> {
                         E2EIStatusRow(
                             label = stringResource(id = R.string.e2ei_certificat_status_valid),
-                            labelColor = colorsScheme().validE2eiStatusColor,
+                            labelColor = colorsScheme().positive,
                             icon = R.drawable.ic_certificate_valid_mls
                         )
                         SerialNumberBlock(mlsClientIdentity.x509Identity!!.serialNumber)
@@ -214,7 +216,7 @@ private fun E2EIStatusRow(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewEndToEndIdentityCertificateItem() {
+fun PreviewEndToEndIdentityCertificateItem() = WireTheme {
     EndToEndIdentityCertificateItem(
         isE2eiCertificateActivated = true,
         isCurrentDevice = false,
@@ -227,7 +229,7 @@ fun PreviewEndToEndIdentityCertificateItem() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewEndToEndIdentityCertificateSelfItem() {
+fun PreviewEndToEndIdentityCertificateSelfItem() = WireTheme {
     EndToEndIdentityCertificateItem(
         isE2eiCertificateActivated = true,
         isCurrentDevice = true,

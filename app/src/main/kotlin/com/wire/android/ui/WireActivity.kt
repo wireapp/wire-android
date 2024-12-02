@@ -40,9 +40,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
@@ -71,6 +74,7 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
+import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
@@ -120,6 +124,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
@@ -203,6 +208,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("LongMethod")
     private fun setComposableContent(
         startDestination: Route,
         onComplete: () -> Unit
@@ -220,36 +226,15 @@ class WireActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    Column(modifier = Modifier.statusBarsPadding()) {
+                    Column(
+                        modifier = Modifier
+                            .statusBarsPadding()
+                            .semantics { testTagsAsResourceId = true }
+                    ) {
                         val navigator = rememberNavigator(this@WireActivity::finish)
-                        CommonTopAppBar(
+                        WireTopAppBar(
                             themeOption = viewModel.globalAppState.themeOption,
                             commonTopAppBarState = commonTopAppBarViewModel.state,
-                            onReturnToCallClick = { establishedCall ->
-                                getOngoingCallIntent(
-                                    this@WireActivity,
-                                    establishedCall.conversationId.toString()
-                                ).run {
-                                    startActivity(this)
-                                }
-                            },
-                            onReturnToIncomingCallClick = {
-                                getIncomingCallIntent(
-                                    this@WireActivity,
-                                    it.conversationId.toString(),
-                                    null
-                                ).run {
-                                    startActivity(this)
-                                }
-                            },
-                            onReturnToOutgoingCallClick = {
-                                getOutgoingCallIntent(
-                                    this@WireActivity,
-                                    it.conversationId.toString()
-                                ).run {
-                                    startActivity(this)
-                                }
-                            }
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
                             MainNavHost(
@@ -267,6 +252,42 @@ class WireActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    @Composable
+    private fun WireTopAppBar(
+        themeOption: ThemeOption,
+        commonTopAppBarState: CommonTopAppBarState
+    ) {
+        CommonTopAppBar(
+            themeOption = themeOption,
+            commonTopAppBarState = commonTopAppBarState,
+            onReturnToCallClick = { establishedCall ->
+                getOngoingCallIntent(
+                    this@WireActivity,
+                    establishedCall.conversationId.toString()
+                ).run {
+                    startActivity(this)
+                }
+            },
+            onReturnToIncomingCallClick = {
+                getIncomingCallIntent(
+                    this@WireActivity,
+                    it.conversationId.toString(),
+                    null
+                ).run {
+                    startActivity(this)
+                }
+            },
+            onReturnToOutgoingCallClick = {
+                getOutgoingCallIntent(
+                    this@WireActivity,
+                    it.conversationId.toString()
+                ).run {
+                    startActivity(this)
+                }
+            }
+        )
     }
 
     @Composable

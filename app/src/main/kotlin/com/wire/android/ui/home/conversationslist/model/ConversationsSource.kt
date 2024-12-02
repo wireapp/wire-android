@@ -17,4 +17,4 @@
  */
 package com.wire.android.ui.home.conversationslist.model
 
-enum class ConversationsSource { MAIN, ARCHIVE; }
+enum class ConversationsSource { MAIN, ARCHIVE, FAVORITES, GROUPS, ONE_ON_ONE }

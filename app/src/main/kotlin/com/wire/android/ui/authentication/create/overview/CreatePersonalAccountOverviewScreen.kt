@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -36,6 +35,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,6 +51,8 @@ import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNav
 import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
 import com.wire.android.ui.theme.WireTheme
@@ -107,7 +109,8 @@ fun CreateTeamAccountOverviewScreen(
                 contentText = stringResource(id = overviewResources.overviewContentTextResId),
                 contentIconResId = overviewResources.overviewContentIconResId,
                 learnMoreText = stringResource(id = overviewResources.overviewLearnMoreTextResId),
-                learnMoreUrl = viewModel.learnMoreUrl()
+                learnMoreUrl = viewModel.learnMoreUrl(),
+                isContentTextSemanticAccessible = true
             )
         )
     }
@@ -126,6 +129,7 @@ private fun OverviewContent(
                 elevation = dimensions().spacing0x,
                 title = overviewParams.title,
                 onNavigationPressed = onBackPressed,
+                navigationIconType = NavigationIconType.Back(R.string.content_description_login_back_btn),
                 subtitleContent = {
                     if (serverConfig.isOnPremises) {
                         ServerTitle(
@@ -149,6 +153,7 @@ private fun OverviewContent(
                         horizontal = MaterialTheme.wireDimensions.spacing64x,
                         vertical = MaterialTheme.wireDimensions.spacing32x
                     )
+                    .clearAndSetSemantics {}
             )
             OverviewTexts(
                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing24x),
@@ -182,13 +187,22 @@ private fun OverviewTexts(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+                    .clearAndSetSemantics {}
             )
         }
         Text(
             text = overviewParams.contentText,
             style = MaterialTheme.wireTypography.body02,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .run {
+                    if (overviewParams.isContentTextSemanticAccessible) {
+                        this
+                    } else {
+                        clearAndSetSemantics {}
+                    }
+                }
         )
         Text(
             text = overviewParams.learnMoreText,
@@ -201,7 +215,8 @@ private fun OverviewTexts(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = onLearnMoreClick
+                    onClick = onLearnMoreClick,
+                    onClickLabel = stringResource(R.string.content_description_open_link_label)
                 )
         )
     }

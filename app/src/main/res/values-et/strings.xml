@@ -59,7 +59,6 @@
     <string name="label_and">ja</string>
     <string name="label_retry">Proovi uuesti</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Rakenduse logo</string>
     <string name="content_description_reveal_password">Kuva parool</string>
     <string name="content_description_hide_password">Peida parool</string>
     <string name="content_description_search_back">Otsi tagasi ikoon</string>
@@ -83,7 +82,6 @@
     <string name="content_description_ping_everyone">Pingi</string>
     <string name="content_description_calling_hang_up_call">Lõpeta kõne</string>
     <string name="content_description_calling_accept_call">Võta kõne vastu</string>
-    <string name="content_description_calling_decline_call">Keeldu kõnest</string>
     <string name="content_description_calling_flip_camera_on">Vali eesmine kaamera</string>
     <string name="content_description_calling_flip_camera_off">Vali tagumine kaamera</string>
     <string name="content_description_calling_participant_muted">Osaleja vaigistatud</string>
@@ -103,6 +101,7 @@
     <string name="content_description_calling_call_unmuted">Kõne vaigistus tühistatud</string>
     <string name="content_description_calling_call_paused_camera">Kaamera pausil</string>
     <string name="content_description_more_emojis">Rohkem emojisid</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -206,6 +205,7 @@
     <!-- User Profile status dialog-->
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Teavitused</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Kõik</string>
     <string name="muting_option_all_muted_title">Puuduvad</string>
@@ -282,6 +282,7 @@
     <string name="blocking_user_success">%s blokeeritud</string>
     <string name="conversation_group_removed_success">“%s” eemaldatud</string>
     <!-- Archiving -->
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">Ava vestlus</string>
     <string name="email_label">E-post</string>
@@ -299,9 +300,6 @@
     <string name="notification_action_reply">Vasta</string>
     <string name="notification_receiver_name">Sina</string>
     <string name="label_type_a_message">Sisesta sõnum</string>
-    <string name="notification_action_open_call">Ava kõne</string>
-    <string name="notification_action_decline_call">Keeldu</string>
-    <string name="notification_action_hang_up_call">Lõpeta kõne</string>
     <string name="notification_incoming_call_content">Helistab…</string>
     <string name="notification_ongoing_call_content">Käimasolev kõne…</string>
     <string name="notification_group_call_content">%s helistab...</string>
@@ -318,7 +316,6 @@
     <string name="calling_button_label_join_call">Liitu</string>
     <string name="calling_hang_up_call">Lõpeta kõne</string>
     <string name="calling_accept_call">Võta kõne vastu</string>
-    <string name="calling_decline_call">Keeldu kõnest</string>
     <string name="calling_label_ringing_call">Heliseb…</string>
     <string name="calling_label_incoming_call">Helistab…</string>
     <string name="calling_label_default_caller_name">Sissetulev kõne</string>
@@ -372,6 +369,7 @@
     <string name="label_reactions">Reaktsioonid</string>
     <string name="label_more_comming_soon">(varsti tuleb juurde)</string>
     <!--create and restore backup-->
+    <!--    report bug-->
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Uuenda</string>
     <string name="cancel_login_button_label">Tühista</string>
@@ -457,4 +455,5 @@
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Silumise seaded</string>
+    <!--    Personal to team migration screen-->
 </resources>

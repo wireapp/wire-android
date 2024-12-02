@@ -32,19 +32,25 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: NodeData) {
+fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: NodeData, modifier: Modifier = Modifier) {
     val color = MaterialTheme.wireColorScheme.onBackground
     val xOffset = dimensions().spacing12x.value
-    Column(modifier = Modifier
-        .drawBehind {
-            drawLine(
-                color = color,
-                strokeWidth = 2f,
-                start = Offset(xOffset, 0f),
-                end = Offset(xOffset, size.height)
+    Column(
+        modifier = modifier
+            .drawBehind {
+                drawLine(
+                    color = color,
+                    strokeWidth = 2f,
+                    start = Offset(xOffset, 0f),
+                    end = Offset(xOffset, size.height)
+                )
+            }
+            .padding(
+                start = dimensions().spacing16x,
+                top = dimensions().spacing4x,
+                bottom = dimensions().spacing4x
             )
-        }
-        .padding(start = dimensions().spacing16x, top = dimensions().spacing4x, bottom = dimensions().spacing4x)) {
+    ) {
 
         blockQuote.children.map { child ->
             when (child) {

@@ -22,6 +22,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
+import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
 import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchScope
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
@@ -53,4 +54,9 @@ class SearchModule {
     @ViewModelScoped
     @Provides
     fun provideFederatedSearchParser(searchScope: SearchScope): FederatedSearchParser = searchScope.federatedSearchParser
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsFederationSearchAllowedUseCase(searchScope: SearchScope): IsFederationSearchAllowedUseCase =
+        searchScope.isFederationSearchAllowedUseCase
 }

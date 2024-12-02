@@ -27,16 +27,16 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -60,12 +61,9 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.avatar.UserProfileAvatar
-import com.wire.android.ui.common.avatar.UserStatusIndicator
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDropDown
+import com.wire.android.ui.common.avatar.UserStatusIndicator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -73,15 +71,16 @@ import com.wire.android.ui.common.dialogs.ProgressDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AvatarPickerScreenDestination
+import com.wire.android.ui.destinations.MyAccountScreenDestination
 import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
+import com.wire.android.ui.destinations.TeamMigrationScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
-import com.wire.android.ui.home.conversations.search.HighlightName
-import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.legalhold.banner.LegalHoldPendingBanner
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
@@ -91,6 +90,7 @@ import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileSelfDialog
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
@@ -122,7 +122,13 @@ fun SelfUserProfileScreen(
         state = viewModelSelf.userProfileState,
         onCloseClick = navigator::navigateBack,
         logout = { viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate)) },
-        onChangeUserProfilePicture = { navigator.navigate(NavigationCommand(AvatarPickerScreenDestination)) },
+        onChangeUserProfilePicture = {
+            navigator.navigate(
+                NavigationCommand(
+                    AvatarPickerScreenDestination
+                )
+            )
+        },
         onEditClick = { navigator.navigate(NavigationCommand(AppSettingsScreenDestination)) },
         onStatusClicked = viewModelSelf::changeStatusClick,
         onAddAccountClick = { navigator.navigate(NavigationCommand(WelcomeScreenDestination)) },
@@ -132,13 +138,21 @@ fun SelfUserProfileScreen(
         onMessageShown = viewModelSelf::clearErrorMessage,
         onLegalHoldAcceptClick = legalHoldRequestedViewModel::show,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
-        onOtherAccountClick = { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) },
+        onOtherAccountClick = {
+            viewModelSelf.switchAccount(
+                it,
+                NavigationSwitchAccountActions(navigator::navigate)
+            )
+        },
         onQrCodeClick = {
+            viewModelSelf.trackQrCodeClick()
             navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName)))
         },
         onCreateAccount = {
-            // TODO: open screen to create a team
+            viewModelSelf.sendPersonalToTeamMigrationEvent()
+            navigator.navigate(NavigationCommand(TeamMigrationScreenDestination))
         },
+        onAccountDetailsClick = { navigator.navigate(NavigationCommand(MyAccountScreenDestination)) },
         isUserInCall = viewModelSelf::isUserInCall,
     )
 
@@ -190,6 +204,7 @@ private fun SelfUserProfileContent(
     onOtherAccountClick: (UserId) -> Unit = {},
     onQrCodeClick: () -> Unit = {},
     onCreateAccount: () -> Unit = {},
+    onAccountDetailsClick: () -> Unit = {},
     isUserInCall: () -> Boolean
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -209,7 +224,11 @@ private fun SelfUserProfileContent(
             SelfUserProfileTopBar(
                 onCloseClick = onCloseClick,
                 onLogoutClick = remember {
-                    { logoutOptionsDialogState.show(logoutOptionsDialogState.savedState ?: LogoutOptionsDialogState()) }
+                    {
+                        logoutOptionsDialogState.show(
+                            logoutOptionsDialogState.savedState ?: LogoutOptionsDialogState()
+                        )
+                    }
                 }
             )
         }
@@ -223,6 +242,7 @@ private fun SelfUserProfileContent(
                     .background(MaterialTheme.colorScheme.background)
                     .padding(internalPadding)
             ) {
+                val selectLabel = stringResource(R.string.content_description_select_label)
                 LazyColumn(
                     modifier = Modifier
                         .weight(1F)
@@ -230,7 +250,7 @@ private fun SelfUserProfileContent(
                         .fillMaxHeight()
                         .scrollable(state = scrollState, orientation = Orientation.Vertical)
                 ) {
-                    if (state.teamName == null) {
+                    if (state.isAbleToMigrateToTeamAccount) {
                         stickyHeader {
                             Column(
                                 modifier = Modifier
@@ -267,8 +287,8 @@ private fun SelfUserProfileContent(
                                     .padding(top = dimensions().spacing8x)
                             ) {
                                 when (state.legalHoldStatus) {
-                                    LegalHoldUIState.Active -> LegalHoldSubjectBanner(onLegalHoldLearnMoreClick)
-                                    LegalHoldUIState.Pending -> LegalHoldPendingBanner(onLegalHoldAcceptClick)
+                                    LegalHoldUIState.Active -> LegalHoldSubjectBanner(onClick = onLegalHoldLearnMoreClick)
+                                    LegalHoldUIState.Pending -> LegalHoldPendingBanner(onClick = onLegalHoldAcceptClick)
                                     LegalHoldUIState.None -> {
                                         /* no banner */
                                     }
@@ -280,37 +300,54 @@ private fun SelfUserProfileContent(
                         stickyHeader {
                             CurrentSelfUserStatus(
                                 userStatus = status,
-                                onStatusClicked = onStatusClicked
+                                onStatusClicked = onStatusClicked,
                             )
+                        }
+                    }
+                    stickyHeader {
+                        VerticalSpace.x8()
+                        Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)) {
+                            AccountDetailButton(onAccountDetailsClick = onAccountDetailsClick)
                         }
                     }
                     if (state.otherAccounts.isNotEmpty()) {
                         stickyHeader {
+                            VerticalSpace.x16()
                             OtherAccountsHeader()
                         }
                         items(
                             items = otherAccounts,
                             itemContent = { account ->
                                 OtherAccountItem(
-                                    account,
+                                    account = account,
                                     clickable = remember {
-                                        Clickable(enabled = true, onClick = {
-                                            if (isUserInCall()) {
-                                                Toast.makeText(
-                                                    context,
-                                                    context.getString(R.string.cant_switch_account_in_call),
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            } else {
-                                                onOtherAccountClick(account.id)
+                                        Clickable(
+                                            enabled = true,
+                                            onClickDescription = selectLabel,
+                                            onClick = {
+                                                if (isUserInCall()) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        context.getString(R.string.cant_switch_account_in_call),
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                } else {
+                                                    onOtherAccountClick(account.id)
+                                                }
                                             }
-                                        })
-                                    })
+                                        )
+                                    }
+                                )
                             }
                         )
                     }
                 }
-                NewTeamButton(onAddAccountClick, isUserInCall, context)
+
+                Divider(color = MaterialTheme.wireColorScheme.outline)
+
+                Box(modifier = Modifier.padding(dimensions().spacing16x)) {
+                    NewTeamButton(onAddAccountClick, isUserInCall, context)
+                }
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
@@ -346,7 +383,8 @@ private fun SelfUserProfileTopBar(
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
         title = stringResource(id = R.string.user_profile_title),
-        navigationIconType = NavigationIconType.Close,
+        navigationIconType = NavigationIconType.Close(R.string.content_description_self_profile_close),
+        titleContentDescription = stringResource(R.string.content_description_self_profile_heading),
         elevation = 0.dp,
         actions = {
             WireSecondaryButton(
@@ -356,7 +394,10 @@ private fun SelfUserProfileTopBar(
                 minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
                 minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                 state = WireButtonState.Error,
-                clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
+                clickBlockParams = ClickBlockParams(
+                    blockWhenSyncing = false,
+                    blockWhenConnecting = false
+                ),
             )
         }
     )
@@ -365,7 +406,7 @@ private fun SelfUserProfileTopBar(
 @Composable
 private fun CurrentSelfUserStatus(
     userStatus: UserAvailabilityStatus,
-    onStatusClicked: (UserAvailabilityStatus) -> Unit
+    onStatusClicked: (UserAvailabilityStatus) -> Unit,
 ) {
     val items = listOf(
         UserAvailabilityStatus.AVAILABLE,
@@ -388,23 +429,15 @@ private fun CurrentSelfUserStatus(
             },
             defaultItemIndex = items.indexOf(userStatus),
             label = null,
-            modifier = Modifier.padding(
-                bottom = MaterialTheme.wireDimensions.spacing16x,
-                start = MaterialTheme.wireDimensions.spacing16x,
-                end = MaterialTheme.wireDimensions.spacing16x
-            ),
+            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
             autoUpdateSelection = false,
             showDefaultTextIndicator = false,
-            leadingCompose = { index -> UserStatusIndicator(items[index]) }
+            leadingCompose = { index -> UserStatusIndicator(items[index]) },
+            onChangeClickDescription = stringResource(R.string.content_description_self_profile_change_status)
         ) { selectedIndex ->
             onStatusClicked(items[selectedIndex])
         }
     }
-}
-
-@Composable
-private fun OtherAccountsHeader() {
-    FolderHeader(stringResource(id = R.string.user_profile_other_accs))
 }
 
 @Composable
@@ -413,63 +446,46 @@ private fun NewTeamButton(
     isUserIdCall: () -> Boolean,
     context: Context
 ) {
-    Surface(shadowElevation = dimensions().spacing8x) {
-        WirePrimaryButton(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .padding(dimensions().spacing16x)
-                .testTag("New Team or Account"),
-            text = stringResource(R.string.user_profile_new_account_text),
-            onClick = remember {
-                {
-                    if (isUserIdCall()) {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.cant_switch_account_in_call),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        onAddAccountClick()
-                    }
+    WirePrimaryButton(
+        modifier = Modifier
+            .testTag("New Team or Account"),
+        text = stringResource(R.string.user_profile_new_account_text),
+        onClickDescription = stringResource(R.string.content_description_self_profile_new_account_btn),
+        onClick = remember {
+            {
+                if (isUserIdCall()) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.cant_switch_account_in_call),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    onAddAccountClick()
                 }
             }
-        )
-    }
+        }
+    )
 }
 
 @Composable
-private fun OtherAccountItem(
-    account: OtherAccount,
-    clickable: Clickable = Clickable(enabled = true) {}
+private fun AccountDetailButton(
+    onAccountDetailsClick: () -> Unit,
 ) {
-    RowItemTemplate(
-        leadingIcon = { UserProfileAvatar(account.avatarData) },
-        titleStartPadding = dimensions().spacing0x,
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                HighlightName(
-                    name = account.fullName,
-                    modifier = Modifier.weight(weight = 1f, fill = false),
-                    searchQuery = ""
-                )
-            }
-        },
-        subtitle = {
-            if (account.teamName != null) {
-                HighlightSubtitle(subTitle = account.teamName, prefix = "")
-            }
-        },
-        actions = {
-            Box(
+    WireSecondaryButton(
+        modifier = Modifier
+            .testTag("Account details"),
+        text = stringResource(R.string.settings_your_account_label),
+        trailingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_right),
+                contentDescription = "",
+                tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                 modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(end = MaterialTheme.wireDimensions.spacing8x)
-            ) {
-                ArrowRightIcon(Modifier.align(Alignment.TopEnd))
-            }
+                    .defaultMinSize(dimensions().wireIconButtonSize)
+                    .padding(end = dimensions().spacing8x)
+            )
         },
-        clickable = clickable,
-        modifier = Modifier.padding(start = dimensions().spacing8x)
+        onClick = onAccountDetailsClick,
     )
 }
 
@@ -478,7 +494,11 @@ private fun LoggingOutDialog(isLoggingOut: Boolean) {
     if (isLoggingOut) {
         ProgressDialog(
             title = stringResource(R.string.user_profile_logging_out_progress),
-            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = true)
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false,
+                usePlatformDefaultWidth = true
+            )
         )
     }
 }
@@ -495,13 +515,21 @@ fun PreviewSelfUserProfileScreen() {
                 userName = "userName_long_long_long_long_long_long_long_long_long_long",
                 teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
                 otherAccounts = listOf(
-                    OtherAccount(id = UserId("id1", "domain"), fullName = "Other Name", teamName = "team A"),
-                    OtherAccount(id = UserId("id2", "domain"), fullName = "New Name")
+                    OtherAccount(
+                        id = UserId("id1", "domain"),
+                        fullName = "Other Name",
+                        handle = "userName",
+                    ),
+                    OtherAccount(
+                        id = UserId("id2", "domain"),
+                        fullName = "New Name",
+                        handle = "userName",
+                    )
                 ),
                 statusDialogData = null,
                 legalHoldStatus = LegalHoldUIState.Active,
             ),
-            isUserInCall = { false }
+            isUserInCall = { false },
         )
     }
 }
@@ -518,8 +546,16 @@ fun PersonalSelfUserProfileScreenPreview() {
                 userName = "some-user",
                 teamName = null,
                 otherAccounts = listOf(
-                    OtherAccount(id = UserId("id1", "domain"), fullName = "Other Name", teamName = "team A"),
-                    OtherAccount(id = UserId("id2", "domain"), fullName = "New Name")
+                    OtherAccount(
+                        id = UserId("id1", "domain"),
+                        fullName = "Other Name",
+                        handle = "userName",
+                    ),
+                    OtherAccount(
+                        id = UserId("id2", "domain"),
+                        fullName = "New Name",
+                        handle = "userName",
+                    )
                 ),
                 statusDialogData = null,
                 legalHoldStatus = LegalHoldUIState.Active,
@@ -533,7 +569,10 @@ fun PersonalSelfUserProfileScreenPreview() {
 @Composable
 fun PreviewCurrentSelfUserStatus() {
     WireTheme {
-        CurrentSelfUserStatus(UserAvailabilityStatus.AVAILABLE, onStatusClicked = {})
+        CurrentSelfUserStatus(
+            UserAvailabilityStatus.AVAILABLE,
+            onStatusClicked = {},
+        )
     }
 }
 

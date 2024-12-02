@@ -44,6 +44,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun WireTertiaryButton(
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     loading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     leadingIconAlignment: IconAlignment = IconAlignment.Center,
@@ -65,7 +66,8 @@ fun WireTertiaryButton(
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    modifier: Modifier = Modifier,
+    onClickDescription: String? = null,
+    description: String? = null
 ) = WireButton(
     onClick = onClick,
     loading = loading,
@@ -86,7 +88,9 @@ fun WireTertiaryButton(
     borderWidth = borderWidth,
     contentPadding = contentPadding,
     interactionSource = interactionSource,
-    modifier = modifier
+    modifier = modifier,
+    onClickDescription = onClickDescription,
+    description = description
 )
 
 @Preview(name = "Default WireSecondaryButton")

@@ -57,7 +57,10 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -140,6 +143,7 @@ fun UserProfileAvatar(
     showPlaceholderIfNoAsset: Boolean = true,
     shouldShowCreateTeamUnreadIndicator: Boolean = false,
     withCrossfadeAnimation: Boolean = false,
+    contentDescription: String? = null,
     type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators.RegularUser(
         legalHoldIndicatorVisible = false
     ),
@@ -176,6 +180,7 @@ fun UserProfileAvatar(
                 withCrossfadeAnimation = withCrossfadeAnimation,
                 type = type,
                 size = size,
+                contentDescription = contentDescription,
                 modifier = Modifier
                     .padding(padding)
                     .clip(CircleShape)
@@ -261,19 +266,21 @@ private fun UserAvatar(
     type: UserProfileAvatarType,
     size: Dp,
     modifier: Modifier = Modifier,
+    contentDescription: String? = stringResource(R.string.content_description_user_avatar)
 ) {
     if (avatarData.shouldPreferNameBasedAvatar()) {
         DefaultInitialsAvatar(
             nameBasedAvatar = avatarData.nameBasedAvatar!!,
             type = type,
             size = size,
-            modifier = modifier
+            modifier = modifier,
+            contentDescription = contentDescription
         )
     } else {
         val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
         Image(
             painter = painter,
-            contentDescription = stringResource(R.string.content_description_user_avatar),
+            contentDescription = contentDescription,
             contentScale = ContentScale.Crop,
             modifier = modifier,
         )
@@ -287,12 +294,19 @@ private fun DefaultInitialsAvatar(
     type: UserProfileAvatarType,
     size: Dp,
     modifier: Modifier = Modifier,
+    contentDescription: String? = null,
 ) {
-    val contentDescription = stringResource(R.string.content_description_user_avatar)
+    val semantics = if (contentDescription != null) {
+        Modifier.semantics {
+            this.contentDescription = contentDescription
+            this.role = Role.Image
+        }
+    } else {
+        Modifier.clearAndSetSemantics { }
+    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .semantics { this.contentDescription = contentDescription }
             .size(size)
             .clip(CircleShape)
             .background(
@@ -308,6 +322,7 @@ private fun DefaultInitialsAvatar(
                     )
                 }
             )
+            .then(semantics)
     ) {
         Text(
             text = nameBasedAvatar.initials,

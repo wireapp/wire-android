@@ -51,6 +51,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -112,9 +113,11 @@ class CommonTopAppBarViewModelTest {
             val state = commonTopAppBarViewModel.state
 
             val info = state.connectivityState
-            info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
-            info as ConnectivityUIState.EstablishedCall
-            info.conversationId shouldBeEqualTo ongoingCall.conversationId
+            info.shouldBeInstanceOf<ConnectivityUIState.Calls>().let {
+                it.calls.shouldHaveSize(1)
+                it.calls[0].shouldBeInstanceOf<ConnectivityUIState.Call.Established>()
+                    .conversationId shouldBeEqualTo ongoingCall.conversationId
+            }
         }
 
     @Test
@@ -132,9 +135,11 @@ class CommonTopAppBarViewModelTest {
         val state = commonTopAppBarViewModel.state
 
         val info = state.connectivityState
-        info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
-        info as ConnectivityUIState.EstablishedCall
-        info.isMuted shouldBe true
+        info.shouldBeInstanceOf<ConnectivityUIState.Calls>().let {
+            it.calls.shouldHaveSize(1)
+            it.calls[0].shouldBeInstanceOf<ConnectivityUIState.Call.Established>()
+                .isMuted shouldBe true
+        }
     }
 
     @Test
@@ -153,9 +158,11 @@ class CommonTopAppBarViewModelTest {
             val state = commonTopAppBarViewModel.state
 
             val info = state.connectivityState
-            info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
-            info as ConnectivityUIState.EstablishedCall
-            info.isMuted shouldBe false
+            info.shouldBeInstanceOf<ConnectivityUIState.Calls>().let {
+                it.calls.shouldHaveSize(1)
+                it.calls[0].shouldBeInstanceOf<ConnectivityUIState.Call.Established>()
+                    .isMuted shouldBe false
+            }
         }
 
     @Test
@@ -174,7 +181,10 @@ class CommonTopAppBarViewModelTest {
             val state = commonTopAppBarViewModel.state
 
             val info = state.connectivityState
-            info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
+            info.shouldBeInstanceOf<ConnectivityUIState.Calls>().let {
+                it.calls.shouldHaveSize(1)
+                it.calls[0].shouldBeInstanceOf<ConnectivityUIState.Call.Established>()
+            }
         }
 
     @Test
@@ -192,7 +202,10 @@ class CommonTopAppBarViewModelTest {
         val state = commonTopAppBarViewModel.state
 
         val info = state.connectivityState
-        info shouldBeInstanceOf ConnectivityUIState.IncomingCall::class
+        info.shouldBeInstanceOf<ConnectivityUIState.Calls>().let {
+            it.calls.shouldHaveSize(1)
+            it.calls[0].shouldBeInstanceOf<ConnectivityUIState.Call.Incoming>()
+        }
     }
 
     @Test
@@ -210,7 +223,10 @@ class CommonTopAppBarViewModelTest {
         val state = commonTopAppBarViewModel.state
 
         val info = state.connectivityState
-        info shouldBeInstanceOf ConnectivityUIState.OutgoingCall::class
+        info.shouldBeInstanceOf<ConnectivityUIState.Calls>().let {
+            it.calls.shouldHaveSize(1)
+            it.calls[0].shouldBeInstanceOf<ConnectivityUIState.Call.Outgoing>()
+        }
     }
 
     @Test
@@ -226,20 +242,20 @@ class CommonTopAppBarViewModelTest {
     }
 
     @Test
-    fun givenEstablishedAndIncomingCall_whenActiveCallFlowIsCalled_thenEmitEstablishedCallOnly() = runTest {
+    fun givenEstablishedAndIncomingCall_whenActiveCallFlowsIsCalled_thenEmitBoth() = runTest {
         val (_, commonTopAppBarViewModel) = Arrangement()
             .withCurrentSessionExist()
             .withOngoingCall(isMuted = true)
             .withIncomingCall()
-            .withOutgoingCall()
+            .withoutOutgoingCall()
             .withCurrentScreen(CurrentScreen.Home)
             .withSyncState(SyncState.Waiting)
             .arrange()
 
-        val flow = commonTopAppBarViewModel.activeCallFlow(userId)
+        val flow = commonTopAppBarViewModel.activeCallsFlow(userId)
 
         flow.collect {
-            it shouldBeEqualTo ongoingCall
+            it shouldBeEqualTo listOf(ongoingCall, incomingCall)
         }
     }
 

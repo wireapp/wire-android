@@ -32,9 +32,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.clickable
@@ -47,6 +50,7 @@ import io.github.esentsov.PackagePrivate
 @Composable
 fun SelectableMenuBottomSheetItem(
     title: String,
+    modifier: Modifier = Modifier,
     titleColor: Color? = null,
     titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02,
     titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02,
@@ -57,12 +61,13 @@ fun SelectableMenuBottomSheetItem(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .wrapContentHeight()
             .wrapContentWidth()
             .defaultMinSize(minHeight = dimensions().spacing48x)
             .let { if (isSelectedItem(state)) it.background(MaterialTheme.wireColorScheme.secondaryButtonSelected) else it }
             .clickable(onItemClick)
+            .semantics { if (isSelectedItem(state)) selected = true }
             .padding(vertical = dimensions().spacing12x, horizontal = dimensions().spacing16x)
     ) {
         icon()
@@ -91,7 +96,7 @@ fun SelectableMenuBottomSheetItem(
                     .padding(start = dimensions().spacing8x)
                     .align(Alignment.CenterVertically)
             ) {
-                WireCheckIcon()
+                WireCheckIcon(contentDescription = R.string.content_description_empty)
             }
         }
     }
@@ -101,11 +106,11 @@ fun SelectableMenuBottomSheetItem(
 @Composable
 fun MenuItemHeading(
     title: String,
+    modifier: Modifier = Modifier,
     titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02,
     titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02,
     state: RichMenuItemState = RichMenuItemState.DEFAULT,
-    color: Color? = null,
-    modifier: Modifier = Modifier
+    color: Color? = null
 ) {
     Text(
         style = if (isSelectedItem(state)) titleStyleSelected else titleStyleUnselected,
@@ -123,7 +128,7 @@ fun MenuItemSubLine(
 ) {
     Text(
         style = MaterialTheme.wireTypography.subline01,
-        color = MaterialTheme.wireColorScheme.labelText,
+        color = MaterialTheme.wireColorScheme.secondaryText,
         text = subLine,
         modifier = modifier.fillMaxWidth()
     )

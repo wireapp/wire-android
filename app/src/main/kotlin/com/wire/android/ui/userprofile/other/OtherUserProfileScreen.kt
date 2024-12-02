@@ -16,8 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.wire.android.ui.userprofile.other
 
 import android.annotation.SuppressLint
@@ -37,7 +35,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -57,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -70,6 +68,9 @@ import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteStateArgs
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVM
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVMImpl
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WireButtonState
@@ -79,11 +80,13 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
+import com.wire.android.ui.common.dialogs.UserNotFoundDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
 import com.wire.android.ui.destinations.ConversationMediaScreenDestination
@@ -98,12 +101,14 @@ import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheetContent
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -193,7 +198,6 @@ fun OtherUserProfileScreen(
         },
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
         navigateBack = navigator::navigateBack,
-        navigationIconType = NavigationIconType.Close,
         onConversationMediaClick = onConversationMediaClick,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
     )
@@ -203,6 +207,7 @@ fun OtherUserProfileScreen(
             snackbarHostState.showSnackbar(it.asString(context.resources))
         }
     }
+
     LaunchedEffect(Unit) {
         viewModel.closeBottomSheet.collect {
             sheetState.hide()
@@ -215,6 +220,10 @@ fun OtherUserProfileScreen(
             legalHoldSubjectDialogState::dismiss
         )
     }
+
+    if (viewModel.state.errorLoadingUser != null) {
+        UserNotFoundDialog(onActionButtonClicked = navigator::navigateBack)
+    }
 }
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
@@ -222,7 +231,6 @@ fun OtherUserProfileScreen(
 fun OtherProfileScreenContent(
     scope: CoroutineScope,
     state: OtherUserProfileState,
-    navigationIconType: NavigationIconType,
     requestInProgress: Boolean,
     sheetState: WireModalSheetState<Unit>,
     openBottomSheet: () -> Unit,
@@ -235,7 +243,11 @@ fun OtherProfileScreenContent(
     onOpenDeviceDetails: (Device) -> Unit = {},
     onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {},
-    onLegalHoldLearnMoreClick: () -> Unit = {}
+    onLegalHoldLearnMoreClick: () -> Unit = {},
+    changeConversationFavoriteViewModel: ChangeConversationFavoriteVM =
+        hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
+            ChangeConversationFavoriteStateArgs
+        )
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
@@ -271,6 +283,8 @@ fun OtherProfileScreenContent(
         })
     }
 
+    SnackBarMessageHandler(changeConversationFavoriteViewModel.infoMessage, onEmitted = closeBottomSheet)
+
     val tabItems by remember(state) {
         derivedStateOf {
             listOfNotNull(
@@ -299,7 +313,6 @@ fun OtherProfileScreenContent(
         topBarHeader = {
             TopBarHeader(
                 state = state,
-                navigationIconType = navigationIconType,
                 elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                 onNavigateBack = navigateBack,
                 openConversationBottomSheet = openConversationBottomSheet
@@ -357,6 +370,7 @@ fun OtherProfileScreenContent(
                 unblockUser = unblockUserDialogState::show,
                 clearContent = clearConversationDialogState::show,
                 archivingStatusState = archivingConversationDialogState::show,
+                changeFavoriteState = changeConversationFavoriteViewModel::changeFavoriteState,
                 closeBottomSheet = closeBottomSheet,
             )
         }
@@ -393,19 +407,33 @@ fun OtherProfileScreenContent(
 @Composable
 private fun TopBarHeader(
     state: OtherUserProfileState,
-    navigationIconType: NavigationIconType,
     elevation: Dp,
     onNavigateBack: () -> Unit,
     openConversationBottomSheet: () -> Unit
 ) {
+    val navigationIconType = if (state.groupState != null) {
+        NavigationIconType.Close(R.string.content_description_user_profile_close_btn)
+    } else if (state.connectionState == ConnectionState.PENDING || state.connectionState == ConnectionState.IGNORED) {
+        NavigationIconType.Close(R.string.content_description_connection_request_close_btn)
+    } else {
+        NavigationIconType.Close()
+    }
+
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
         navigationIconType = navigationIconType,
-        title = stringResource(id = R.string.user_profile_title),
+        titleContent = {
+            WireTopAppBarTitle(
+                title = stringResource(id = R.string.user_profile_title),
+                style = MaterialTheme.wireTypography.title01,
+                maxLines = 2
+            )
+        },
         elevation = elevation,
         actions = {
             if (state.conversationSheetContent != null) {
                 MoreOptionIcon(
+                    contentDescription = R.string.content_description_user_profile_more_btn,
                     onButtonClicked = openConversationBottomSheet,
                     state = if (state.isMetadataEmpty()) WireButtonState.Disabled else WireButtonState.Default
                 )
@@ -515,17 +543,17 @@ private fun Content(
                             when (val tabItem = tabItems[pageIndex]) {
                                 OtherUserProfileTabItem.DETAILS ->
                                     OtherUserProfileDetails(
-                                        state,
-                                        otherUserProfileScreenState,
-                                        lazyListStates[tabItem]!!
+                                        state = state,
+                                        otherUserProfileScreenState = otherUserProfileScreenState,
+                                        lazyListState = lazyListStates[tabItem]!!
                                     )
 
                                 OtherUserProfileTabItem.GROUP ->
                                     OtherUserProfileGroup(
-                                        state,
-                                        lazyListStates[tabItem]!!,
-                                        openRemoveConversationMemberDialog,
-                                        openChangeRoleBottomSheet
+                                        state = state,
+                                        onRemoveFromConversation = openRemoveConversationMemberDialog,
+                                        openChangeRoleBottomSheet = openChangeRoleBottomSheet,
+                                        lazyListState = lazyListStates[tabItem]!!,
                                     )
 
                                 OtherUserProfileTabItem.DEVICES -> {
@@ -543,10 +571,10 @@ private fun Content(
 
                 state.groupState != null -> {
                     OtherUserProfileGroup(
-                        state,
-                        lazyListStates[OtherUserProfileTabItem.DETAILS]!!,
-                        openRemoveConversationMemberDialog,
-                        openChangeRoleBottomSheet
+                        state = state,
+                        onRemoveFromConversation = openRemoveConversationMemberDialog,
+                        openChangeRoleBottomSheet = openChangeRoleBottomSheet,
+                        lazyListState = lazyListStates[OtherUserProfileTabItem.DETAILS]!!,
                     )
                 }
 
@@ -599,7 +627,6 @@ enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @PreviewMultipleThemes
 fun PreviewOtherProfileScreenGroupMemberContent() {
@@ -610,7 +637,6 @@ fun PreviewOtherProfileScreenGroupMemberContent() {
                 connectionState = ConnectionState.ACCEPTED,
                 isUnderLegalHold = true,
             ),
-            navigationIconType = NavigationIconType.Back,
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},
@@ -622,7 +648,6 @@ fun PreviewOtherProfileScreenGroupMemberContent() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @PreviewMultipleThemes
 fun PreviewOtherProfileScreenContent() {
@@ -634,7 +659,6 @@ fun PreviewOtherProfileScreenContent() {
                 isUnderLegalHold = true,
                 groupState = null
             ),
-            navigationIconType = NavigationIconType.Back,
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},
@@ -646,7 +670,6 @@ fun PreviewOtherProfileScreenContent() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @PreviewMultipleThemes
 fun PreviewOtherProfileScreenContentNotConnected() {
@@ -657,7 +680,6 @@ fun PreviewOtherProfileScreenContentNotConnected() {
                 connectionState = ConnectionState.CANCELLED,
                 isUnderLegalHold = true,
             ),
-            navigationIconType = NavigationIconType.Back,
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},
@@ -669,7 +691,6 @@ fun PreviewOtherProfileScreenContentNotConnected() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @PreviewMultipleThemes
 fun PreviewOtherProfileScreenTempUser() {
@@ -682,7 +703,6 @@ fun PreviewOtherProfileScreenTempUser() {
                 isUnderLegalHold = true,
                 expiresAt = Instant.DISTANT_FUTURE
             ),
-            navigationIconType = NavigationIconType.Back,
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},

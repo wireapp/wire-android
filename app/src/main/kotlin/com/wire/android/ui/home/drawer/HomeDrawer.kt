@@ -43,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.dimensions
@@ -59,9 +60,10 @@ fun HomeDrawer(
     currentRoute: String?,
     navigateToHomeItem: (HomeDestination) -> Unit,
     onCloseDrawer: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(
                 start = MaterialTheme.wireDimensions.homeDrawerHorizontalPadding,
                 end = MaterialTheme.wireDimensions.homeDrawerHorizontalPadding,
@@ -111,22 +113,28 @@ fun HomeDrawer(
 }
 
 @Composable
-fun DrawerItem(destination: HomeDestination, selected: Boolean, unreadCount: Int = 0, onItemClick: () -> Unit) {
+fun DrawerItem(
+    destination: HomeDestination,
+    selected: Boolean,
+    onItemClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    unreadCount: Int = 0,
+) {
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .padding(bottom = 8.dp)
             .clip(RoundedCornerShape(12.dp))
             .fillMaxWidth()
             .height(40.dp)
             .background(backgroundColor)
-            .selectableBackground(selected) { onItemClick() },
+            .selectableBackground(selected, stringResource(R.string.content_description_open_label), onItemClick),
     ) {
         Image(
             painter = painterResource(id = destination.icon),
-            contentDescription = stringResource(destination.title),
+            contentDescription = null,
             colorFilter = ColorFilter.tint(contentColor),
             contentScale = ContentScale.Fit,
             modifier = Modifier.padding(start = dimensions().spacing16x, end = dimensions().spacing16x)
@@ -152,8 +160,8 @@ fun PreviewSelectedArchivedItemWithUnreadCount() {
         DrawerItem(
             destination = HomeDestination.Archive,
             selected = true,
-            unreadCount = 100,
-            {}
+            onItemClick = {},
+            unreadCount = 100
         )
     }
 }
@@ -165,8 +173,8 @@ fun PreviewUnSelectedArchivedItemWithUnreadCount() {
         DrawerItem(
             destination = HomeDestination.Archive,
             selected = false,
-            unreadCount = 100,
-            {}
+            onItemClick = {},
+            unreadCount = 100
         )
     }
 }

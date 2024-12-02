@@ -40,9 +40,9 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
-fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership: Membership) {
+fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership: Membership, modifier: Modifier = Modifier) {
     Box(
-        Modifier
+        modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(start = dimensions().spacing32x, end = dimensions().spacing32x)
@@ -61,7 +61,7 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership:
                 Text(
                     text = stringResource(it),
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.wireColorScheme.labelText,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
                     style = MaterialTheme.wireTypography.body01
                 )
                 VerticalSpace.x24()

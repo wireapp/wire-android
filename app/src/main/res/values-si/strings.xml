@@ -82,7 +82,6 @@
     <string name="label_retry">නැවත</string>
     <string name="label_draft">*කටුපිටපත*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">යෙදුමේ ලාංඡනය</string>
     <string name="content_description_reveal_password">මුරපදය පෙන්වන්න</string>
     <string name="content_description_hide_password">මුරපදය සඟවන්න</string>
     <string name="content_description_search_back">ආපසු සොයන්න නිරූපකය</string>
@@ -112,7 +111,6 @@
     <string name="content_description_conversation_send_emoticon">චිත්තවේග යැවීමේ බොත්තම</string>
     <string name="content_description_conversation_send_gif">චලරූ යැවීමේ බොත්තම</string>
     <string name="content_description_conversation_mention_someone">යමෙක් සඳහන් කරන්න</string>
-    <string name="content_description_new_conversation">නව සංවාදයක් අරඹන්න</string>
     <string name="content_description_back_button">ආපසු බොත්තම</string>
     <string name="content_description_send_button">යවන්න</string>
     <string name="content_description_timed_message_button">ඉබේ මැකෙන පණිවිඩ බොත්තම</string>
@@ -141,7 +139,6 @@
     <string name="content_description_self_deleting_message_timer">පණිවිඩ ඉබේ මැකීමට කාලය සකසන්න</string>
     <string name="content_description_calling_hang_up_call">ඇමතුම තබන්න</string>
     <string name="content_description_calling_accept_call">ඇමතුම පිළිගන්න</string>
-    <string name="content_description_calling_decline_call">ඇමතුම නවතන්න</string>
     <string name="content_description_calling_flip_camera_on">ඉදිරිපස රූගතයට පෙරළන්න</string>
     <string name="content_description_calling_flip_camera_off">පසුපස රූගතයට පෙරළන්න</string>
     <string name="content_description_calling_participant_muted">සහභාගියා නිහඬ කළා</string>
@@ -173,6 +170,7 @@
     <string name="content_description_mls_certificate_valid">සියළුම සහභාගීන්ගේ උපාංගවල වලංගු MLS සහතිකයක් ඇත</string>
     <string name="content_description_proteus_certificate_valid">සියළුම සහභාගීන් සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
     <string name="content_description_location_icon">ස්ථානය අථකය</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -468,14 +466,12 @@
     <!-- User Profile -->
     <string name="user_profile_title">පරිශ්‍රීලක පැතිකඩ</string>
     <string name="user_profile_close_description">පරිශ්‍රීලක පැතිකඩ වසන්න</string>
-    <string name="user_profile_logout">නික්මෙන්න</string>
     <string name="user_profile_other_accs">ඔබගේ වෙනත් ගිණුම්</string>
     <string name="user_profile_status_availability">තත්‍වය</string>
     <string name="user_profile_status_available">සිටිනවා</string>
     <string name="user_profile_status_busy">කාර්යබහුලයි</string>
     <string name="user_profile_status_away">නොසිටියි</string>
     <string name="user_profile_status_none">කිසිවක් නැත</string>
-    <string name="user_profile_new_account_text">නව කණ්ඩායමක් හෝ ගිණුමක්</string>
     <string name="user_profile_details_tab">විස්තර</string>
     <string name="user_profile_devices_tab">උපාංග</string>
     <string name="user_profile_group_tab">සමූහය</string>
@@ -516,6 +512,7 @@
     <string name="label_unblock">අනවහිර</string>
     <string name="label_leave_group">සමූහය හැරයන්න</string>
     <string name="label_delete_group">සමූහය මකන්න</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">සියල්ල</string>
     <string name="muting_option_all_allowed_text">මෙම සංවාදයේ සියළුම දෑ පිළිබඳව දැනුම්දීම් ලබන්න (ශ්‍රව්‍ය සහ දෘශ්‍ය ඇමතුම් ඇතුළුව)</string>
@@ -753,6 +750,7 @@
     <string name="dialog_archive_conversation_title">සංවාදය සංරක්‍ෂණය කරන්නද?</string>
     <string name="dialog_archive_conversation_description">මෙම සංවාදය ඔබගේ සංරක්‍ෂිතය වෙත ගෙන යයි. ඔබට තවදුරටත් නව පණිවිඩ, ගොනු සහ ඇමතුම් ලැබේ, නමුත් දැනුම්දීම් නොලැබේ. ඔබට ඕනෑම වේලාවක සංවාදය අසංරක්‍ෂණයට හැකිය.</string>
     <string name="dialog_archive_conversation_option">සංරක්‍ෂණය</string>
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">සංවාදය අරින්න</string>
     <string name="label_start_conversation">සංවාදය අරඹන්න</string>
@@ -772,9 +770,6 @@
     <string name="notification_action_reply">පිළිතුර</string>
     <string name="notification_receiver_name">ඔබ</string>
     <string name="label_type_a_message">පණිවිඩයක් ලියන්න</string>
-    <string name="notification_action_open_call">ඇමතුම අරින්න</string>
-    <string name="notification_action_decline_call">ප්‍රතික්‍ෂේප</string>
-    <string name="notification_action_hang_up_call">තබන්න</string>
     <string name="notification_incoming_call_content">අමතමින්…</string>
     <string name="notification_ongoing_call_content">පවතින ඇමතුම…</string>
     <string name="notification_group_call_content">%s අමතමින්...</string>
@@ -792,7 +787,6 @@
     <string name="calling_button_label_join_call">එක්වන්න</string>
     <string name="calling_hang_up_call">ඇමතුම තබන්න</string>
     <string name="calling_accept_call">ඇමතුම පිළිගන්න</string>
-    <string name="calling_decline_call">ඇමතුම නවතන්න</string>
     <string name="calling_label_ringing_call">නාද වෙමින්…</string>
     <string name="calling_label_incoming_call">අමතමින්…</string>
     <string name="calling_label_default_caller_name">ලැබෙන ඇමතුම</string>
@@ -1040,6 +1034,7 @@
     <string name="backup_dialog_choose_backup_file_option">උපස්ථ ගොනුව තෝරන්න</string>
     <string name="backup_label_enter_password">මුරපදය යොදන්න</string>
     <string name="backup_dialog_restore_backup_password_message">මෙම උපස්ථය මුරපදයකින් ආරක්‍ෂිතයි.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"වි-තැපැල් ප්‍රතිපාදක තෝරන්න:\"</string>
     <string name="backup_dialog_create_backup_save">ගොනුව සුරකින්න</string>
     <string name="backup_dialog_create_backup_share">ගොනුව බෙදාගන්න</string>
@@ -1344,4 +1339,5 @@
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">නිදොස්කරණ සැකසුම්</string>
+    <!--    Personal to team migration screen-->
 </resources>

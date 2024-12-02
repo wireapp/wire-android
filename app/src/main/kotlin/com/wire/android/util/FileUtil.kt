@@ -195,10 +195,20 @@ fun Uri.getMimeType(context: Context): String? {
     return mimeType
 }
 
+/**
+ * Resamples the images if needed and copies them to the temp path [tempCachePath]
+ * If desired, the metadata can be removed from the image according to [shouldRemoveMetadata]
+ *
+ * @param context the context
+ * @param tempCachePath the path where the image will be copied
+ * @param sizeClass the desired size class of the image [ImageSizeClass]
+ * @param shouldRemoveMetadata whether to remove metadata from the image defaults to false
+ */
 suspend fun Uri.resampleImageAndCopyToTempPath(
     context: Context,
     tempCachePath: Path,
     sizeClass: ImageSizeClass = Medium,
+    shouldRemoveMetadata: Boolean = false,
     dispatcher: DispatcherProvider = DefaultDispatcherProvider()
 ): Long {
     return withContext(dispatcher.io()) {
@@ -211,7 +221,8 @@ suspend fun Uri.resampleImageAndCopyToTempPath(
             // If the GIF is too large, the user will be informed about that, just like for all other files.
             originalImage.writeToFile(tempCachePath.toFile())
         } else {
-            ImageUtil.resample(originalImage, sizeClass).writeToFile(tempCachePath.toFile())
+            ImageUtil.resample(originalImage, sizeClass, shouldRemoveMetadata)
+                .writeToFile(tempCachePath.toFile())
         }
     }
 }

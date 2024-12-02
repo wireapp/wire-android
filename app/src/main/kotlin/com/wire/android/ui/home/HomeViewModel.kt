@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,15 +26,17 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -49,11 +52,13 @@ class HomeViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
+    private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
-    private val wireSessionImageLoader: WireSessionImageLoader,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
+    private val analyticsManager: AnonymousAnalyticsManager
 ) : SavedStateViewModel(savedStateHandle) {
 
+    @VisibleForTesting
     var homeState by mutableStateOf(HomeState())
         private set
 
@@ -75,15 +80,17 @@ class HomeViewModel @Inject constructor(
 
     private fun observeCreateTeamIndicator() {
         viewModelScope.launch {
-            getSelf().first().let { selfUser ->
-                val isPersonalUser = selfUser.teamId == null
-                if (isPersonalUser) {
-                    dataStore.isCreateTeamNoticeRead().collect { isRead ->
-                        homeState = homeState.copy(
-                            shouldShowCreateTeamUnreadIndicator = !isRead
-                        )
-                    }
-                }
+            if (!canMigrateFromPersonalToTeam()) {
+                homeState = homeState.copy(
+                    shouldShowCreateTeamUnreadIndicator = false
+                )
+                return@launch
+            }
+
+            dataStore.isCreateTeamNoticeRead().collect { isRead ->
+                homeState = homeState.copy(
+                    shouldShowCreateTeamUnreadIndicator = !isRead
+                )
             }
         }
     }
@@ -117,10 +124,7 @@ class HomeViewModel @Inject constructor(
                 homeState = homeState.copy(
                     userAvatarData = UserAvatarData(
                         asset = selfUser.previewPicture?.let {
-                            UserAvatarAsset(
-                                wireSessionImageLoader,
-                                it
-                            )
+                            UserAvatarAsset(it)
                         },
                         availabilityStatus = selfUser.availabilityStatus,
                         nameBasedAvatar = NameBasedAvatar(selfUser.name, selfUser.accentId)
@@ -135,5 +139,9 @@ class HomeViewModel @Inject constructor(
             globalDataStore.setWelcomeScreenPresented()
             homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
         }
+    }
+
+    fun sendOpenProfileEvent() {
+        analyticsManager.sendEvent(AnalyticsEvent.UserProfileOpened(homeState.shouldShowCreateTeamUnreadIndicator))
     }
 }

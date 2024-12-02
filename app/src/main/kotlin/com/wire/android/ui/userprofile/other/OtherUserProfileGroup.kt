@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
@@ -55,14 +54,15 @@ import com.wire.kalium.logic.data.conversation.Conversation.Member
 @Composable
 fun OtherUserProfileGroup(
     state: OtherUserProfileState,
-    lazyListState: LazyListState = rememberLazyListState(),
     onRemoveFromConversation: (RemoveConversationMemberState) -> Unit,
-    openChangeRoleBottomSheet: () -> Unit
+    openChangeRoleBottomSheet: () -> Unit,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         item(key = "user_group_name") {
             UserGroupDetailsInformation(
@@ -110,7 +110,7 @@ private fun UserGroupDetailsInformation(
             Spacer(modifier = Modifier.height(dimensions().spacing16x))
             Text(
                 style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.labelText,
+                color = MaterialTheme.wireColorScheme.onBackground,
                 text = title
             )
             Spacer(modifier = Modifier.height(dimensions().spacing16x))
@@ -132,17 +132,17 @@ private fun UserGroupDetailsInformation(
 private fun UserRoleInformation(
     label: String,
     value: AnnotatedString,
-    clickable: Clickable = Clickable(enabled = false) {},
     isSelfAdmin: Boolean,
     isRoleEditable: Boolean,
+    clickable: Clickable = Clickable(enabled = false) {},
     openChangeRoleBottomSheet: () -> Unit
 ) {
     RowItemTemplate(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
         title = {
             Text(
-                style = MaterialTheme.wireTypography.subline01,
-                color = MaterialTheme.wireColorScheme.labelText,
+                style = MaterialTheme.wireTypography.label01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
                 text = label.uppercase()
             )
         },
@@ -167,7 +167,7 @@ fun EditButton(onEditClicked: () -> Unit, modifier: Modifier = Modifier) {
     WireSecondaryIconButton(
         onButtonClicked = onEditClicked,
         iconResource = R.drawable.ic_edit,
-        contentDescription = R.string.content_description_edit,
+        contentDescription = R.string.content_description_user_profile_edit_role_btn,
         modifier = modifier
     )
 }
@@ -180,9 +180,9 @@ val Member.Role.name
     }
 
 @Composable
-@Preview
-fun PreviewOtherUserProfileGroup() {
-    OtherUserProfileGroup(OtherUserProfileState.PREVIEW, rememberLazyListState(), {}) {}
+@PreviewMultipleThemes
+fun PreviewOtherUserProfileGroup() = WireTheme {
+    OtherUserProfileGroup(OtherUserProfileState.PREVIEW, {}, {})
 }
 
 @Composable

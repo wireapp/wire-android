@@ -44,6 +44,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
+    <string name="label_try_again">Try Again</string>
     <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
@@ -87,7 +88,6 @@
     <string name="label_retry">Retry</string>
     <string name="label_draft">*Draft*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show password</string>
     <string name="content_description_hide_password">Hide password</string>
     <string name="content_description_search_back">Search back icon</string>
@@ -117,7 +117,9 @@
     <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
     <string name="content_description_conversation_send_gif">Send GIF button</string>
     <string name="content_description_conversation_mention_someone">Mention someone</string>
-    <string name="content_description_new_conversation">Start a new conversation</string>
+    <string name="content_description_conversation_back_btn">Go back to conversation list</string>
+    <string name="content_description_conversation_open_details_label">open conversation details</string>
+    <string name="content_description_new_conversation">Search for people or create a new group</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
@@ -146,7 +148,6 @@
     <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
     <string name="content_description_calling_hang_up_call">Hang up call</string>
     <string name="content_description_calling_accept_call">Accept call</string>
-    <string name="content_description_calling_decline_call">Decline call</string>
     <string name="content_description_calling_flip_camera_on">Flip to front camera</string>
     <string name="content_description_calling_flip_camera_off">Flip to back camera</string>
     <string name="content_description_calling_participant_muted">Participant muted</string>
@@ -179,6 +180,73 @@
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
     <string name="content_description_jump_to_last_message">Scroll to end of conversation</string>
     <string name="content_description_location_icon">Location item</string>
+    <string name="content_description_conversation_details_more_btn">Open conversation options</string>
+    <string name="content_description_conversation_details_options_tab_header">Options</string>
+    <string name="content_description_conversation_details_participants_tab_header">Participants</string>
+    <string name="content_description_conversation_details_close_btn">Close conversation details</string>
+    <string name="content_description_conversation_details_guests_action">adjust guest access</string>
+    <string name="content_description_conversation_details_self_deleting_action">adjust self-deleting time</string>
+    <string name="content_description_user_profile_more_btn">Open conversation options</string>
+    <string name="content_description_user_profile_close_btn">Go back to conversation details</string>
+    <string name="content_description_user_profile_edit_role_btn">Edit role</string>
+    <string name="content_description_user_profile_copy_phone_btn">Copy phone</string>
+    <string name="content_description_user_profile_copy_email_btn">Copy email</string>
+    <string name="content_description_user_profile_open_device_btn">open device details</string>
+    <string name="content_description_connection_request_close_btn">Close connection request view</string>
+    <string name="content_description_search_text_in_conversation_btn">Search text messages</string>
+    <string name="content_description_see_media_in_conversation_btn">Open overview of pictures and files</string>
+    <string name="content_description_add_participants_close">Close add partipants view</string>
+    <string name="content_description_add_participants_search_field">Search people by name or username</string>
+    <string name="content_description_add_participants_back_btn">Go back to add participants view</string>
+    <string name="content_description_home_profile_btn">Your profile</string>
+    <string name="content_description_home_profile_btn_with_notification">Your profile, one unread hint.</string>
+    <string name="content_description_open_label">open</string>
+    <string name="content_description_join_call_label">join a call</string>
+    <string name="content_description_share_label">share</string>
+    <string name="content_description_collapse_label">collapse</string>
+    <string name="content_description_expand_label">expand</string>
+    <string name="content_description_edit_label">edit</string>
+    <string name="content_description_select_label">select</string>
+    <string name="content_description_unselect_label">unselect</string>
+    <string name="content_description_selected_label">selected</string>
+    <string name="content_description_toggle_setting_label">toggle setting</string>
+    <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
+    <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
+    <string name="content_description_accept_or_ignore_connection_label">accept or ignore the request</string>
+    <string name="content_description_open_user_profile_label">open profile</string>
+    <string name="content_description_open_conversation_label">open conversation</string>
+    <string name="content_description_open_service_label">open service</string>
+    <string name="content_description_change_it_label">change it</string>
+    <string name="content_description_open_link_label">open link</string>
+    <string name="content_description_alert">Alert</string>
+    <string name="content_description_drop_down">Dropdown</string>
+    <string name="content_description_close_dropdown">close dropdown</string>
+    <string name="content_description_open_notification_settings_label">open notification settings</string>
+    <string name="content_description_new_conversation_close_btn">Close new conversation view</string>
+    <string name="content_description_new_group_conversation_back_btn">Go back to new conversation view</string>
+    <string name="content_description_new_conversation_name_back_btn">Go back to new conversation view</string>
+    <string name="content_description_new_conversation_name_field">Type group name</string>
+    <string name="content_description_new_conversation_options_heading">Conversation options</string>
+    <string name="content_description_new_conversation_options_back_btn">Go back to new group creation</string>
+    <string name="content_description_pending_connection_badge">pending approval of connection request</string>
+    <string name="content_description_self_profile_close">Close your profile</string>
+    <string name="content_description_self_profile_heading">Your profile</string>
+    <string name="content_description_self_profile_avatar">Your profile picture</string>
+    <string name="content_description_self_profile_profile_name">Profile name, %s</string>
+    <string name="content_description_self_profile_username">Username, %s</string>
+    <string name="content_description_self_profile_team">Team name, %s</string>
+    <string name="content_description_self_profile_change_status">change availability status</string>
+    <string name="content_description_self_profile_new_account_btn">Create a new team or personal account or log in</string>
+    <string name="content_description_change_picture_back_btn">Go back to your profile overview</string>
+    <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
+    <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
+    <string name="content_description_login_email_field">enter your email or username</string>
+    <string name="content_description_login_password_field">enter your password</string>
+    <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
+    <string name="content_description_whats_new_welcome_item">Welcome to Wire\'s New Android App, link to support page</string>
+    <string name="content_description_whats_new_all_releases_item">All Android release notes, link to release note overview</string>
+    <string name="content_description_whats_new_release_item">%1$s, %2$s, link to release details</string>
+    <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
     <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
@@ -203,6 +271,9 @@
     <string name="url_system_message_learn_more_about_mls" translatable="false">https://support.wire.com/hc/articles/12434725011485</string>
     <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/articles/6655706999581</string>
     <string name="url_why_verify_conversation" translatable="false">https://support.wire.com/hc/articles/207859815</string>
+    <string name="url_how_to_add_favorites" translatable="false">https://support.wire.com/hc/articles/360002855557</string>
+    <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
+    <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -530,7 +601,7 @@
     <string name="user_profile_status_busy">Busy</string>
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>
-    <string name="user_profile_new_account_text">New Team or Account</string>
+    <string name="user_profile_new_account_text">New Team or Add Account</string>
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Devices</string>
     <string name="user_profile_group_tab">Group</string>
@@ -558,6 +629,7 @@
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Clear Data?</string>
     <string name="dialog_logout_wipe_data_checkbox">Delete all your personal information and conversations on this device</string>
+    <string name="dialog_logout_wipe_data_cancel_description">Cancel logout</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
     <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
@@ -571,6 +643,7 @@
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Add to Favorites</string>
+    <string name="label_remove_from_favourites">Remove from Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_unarchive">Unarchive</string>
@@ -579,6 +652,13 @@
     <string name="label_unblock">Unblock</string>
     <string name="label_leave_group">Leave Group</string>
     <string name="label_delete_group">Delete Group</string>
+    <!-- Conversation filter BottomSheet -->
+    <string name="label_filter_conversations">Filter Conversations</string>
+    <string name="label_filter_all">All Conversations</string>
+    <string name="label_filter_favorites">Favorites</string>
+    <string name="label_filter_group">Groups</string>
+    <string name="label_filter_one_on_one">1:1 Conversations</string>
+
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Everything</string>
     <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
@@ -832,6 +912,11 @@
     <string name="dialog_archive_conversation_title">Archive conversation?</string>
     <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
     <string name="dialog_archive_conversation_option">Archive</string>
+    <!-- Favorite -->
+    <string name="success_adding_to_favorite">“%s” was added to Favorites</string>
+    <string name="success_removing_from_favorite">“%s” was removed from Favorites</string>
+    <string name="error_adding_to_favorite">“%s” could not be added to Favorites</string>
+    <string name="error_removing_from_favorite">“%s” could not be removed from Favorites</string>
     <!-- Animation label -->
     <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
     <string name="animation_label_typing_indicator_horizontal_transition" translatable="false">HorizontalBouncingWritingPen transition</string>
@@ -854,9 +939,6 @@
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>
-    <string name="notification_action_open_call">Open Call</string>
-    <string name="notification_action_decline_call">Decline</string>
-    <string name="notification_action_hang_up_call">Hang Up</string>
     <string name="notification_incoming_call_content">Calling…</string>
     <string name="notification_ongoing_call_content">Ongoing call…</string>
     <string name="notification_group_call_content">%s calling...</string>
@@ -874,7 +956,6 @@
     <string name="calling_button_label_join_call">Join</string>
     <string name="calling_hang_up_call">Hang up call</string>
     <string name="calling_accept_call">Accept call</string>
-    <string name="calling_decline_call">Decline call</string>
     <string name="calling_label_ringing_call">Ringing…</string>
     <string name="calling_label_incoming_call">Calling…</string>
     <string name="calling_label_incoming_call_someone_calling">is calling…</string>
@@ -922,6 +1003,8 @@
     <string name="connection_label_ignore">Ignore</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <string name="connection_label_user_not_found_warning_title">Wire can\'t find this person</string>
+    <string name="connection_label_user_not_found_warning_description">You may not have permission with this account or the person may not be on Wire.</string>
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
     <string name="missing_keypackage_dialog_body">You can\'t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
@@ -1111,6 +1194,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
+    <string name="favorites_empty_list_description">Select your favorite conversations, and you’ll find them here</string>
+    <string name="group_empty_list_description">You are not part of any group conversation yet.\nStart a new conversation!</string>
+    <string name="one_on_one_empty_list_description">You have no contacts yet.\nSearch for people on %1$s and get connected.</string>
+    <string name="favorites_empty_list_how_to_label">How to label conversations as favorites</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
     <string name="label_no_conversation_found">No conversations could be found.</string>
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation</string>
@@ -1142,7 +1229,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
     <string name="backup_label_enter_password">Enter password</string>
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
+
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
+    <string name="send_bug_report_subject">Bug Report</string>
+    <string name="send_bug_report_email" translatable="false" >wire-newandroid@wearezeta.zendesk.com</string>
+
     <string name="backup_dialog_create_backup_save">Save File</string>
     <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible backup</string>
@@ -1493,4 +1585,59 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
     <string name="debug_settings_break_session" translatable="false">⚠️ Break Session</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
+
+    <!--    Personal to team migration screen-->
+    <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>
+    <string name="personal_to_team_migration_back_to_wire_button">Back to Wire</string>
+    <string name="personal_to_team_migration_back_button_label">Back</string>
+    <string name="personal_to_team_migration_back_button_team_name_content_description">Go back to team account overview</string>
+    <string name="personal_to_team_migration_back_button_confirmation_content_description">Go back to team name view</string>
+    <string name="personal_to_team_migration_close_icon_content_description">Close team migration flow</string>
+    <string name="personal_to_team_migration_close_team_account_content_description">Close team account overview</string>
+    <string name="personal_to_team_migration_close_team_name_content_description">Close team name view</string>
+    <string name="personal_to_team_migration_close_confirmation_content_description">Close confirmation view</string>
+    <string name="personal_to_team_migration_close_team_created_content_description">Close team created view</string>
+
+    <string name="personal_to_team_migration_team_plan_step">Team Account</string>
+    <string name="personal_to_team_migration_team_plan_description">Transform your personal account into a team account to get more out of your collaboration.</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_label">Admin Console:</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_details">Invite team members and manage settings.</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_label">Effortless Collaboration:</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_details">Communicate with guests and external parties.</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_label">Larger Meetings:</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_details">Join video conferences up to 150 participants.</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_label">Availability status:</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_details">Let your team know if you’re available, busy or away.</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_label">Upgrade to Enterprise:</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_description">Get additional features and premium support.</string>
+    <string name="personal_to_team_migration_team_plan_learn_more_about_wire_plan">Learn more about Wire\’s plans</string>
+
+    <string name="personal_to_team_migration_team_name_step">Team Name</string>
+    <string name="personal_to_team_migration_team_name_description">Select a name for your team. You can change it at any time.</string>
+    <string name="personal_to_team_migration_team_name_text_field_placeholder">Your Team</string>
+
+    <string name="personal_to_team_migration_confirmation_step">Confirmation</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_first_item">You create a team and transfer your personal account into a team account</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_second_item">As the team owner you can invite and remove team members and  manage team settings</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_third_item">This change is permanent and irrevocable</string>
+    <string name="personal_to_team_migration_confirmation_step_terms">I agree to the migration terms and understand that this change is irreversible.</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">I accept</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_label">Wire\’s Terms of Use.</string>
+
+    <string name="personal_to_team_migration_done_step">Congratulations %1$s!</string>
+    <string name="personal_to_team_migration_done_step_now_team_member_label">You\’re now the owner of the team %1$s.</string>
+    <string name="personal_to_team_migration_done_step_go_to_team_label">Go to Team Management to:</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_first_item">Invite your first team members, and start working together</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_second_item">Customize your team settings</string>
+
+    <string name="personal_to_team_migration_confirm_leave_dialog_title">Leave without saving?</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_description">When you leave now, you lose your progress and need to restart the team creation.</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Continue Team Creation</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Leave Without Saving</string>
+    <string name="personal_to_team_migration_error_title">Team not created</string>
+    <string name="personal_to_team_migration_error_title_already_in_team">Already part of a team</string>
+    <string name="personal_to_team_migration_error_message_already_in_team">You\'ve created or joined a team with this email address on another device.</string>
+    <string name="personal_to_team_migration_error_message_slow_network">Wire could not complete your team creation due to a slow internet connection.</string>
+    <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
+
 </resources>

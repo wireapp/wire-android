@@ -17,12 +17,10 @@
  */
 package com.wire.android.ui.home.messagecomposer.state
 
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.clearText
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.substring
 import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -53,7 +51,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Suppress("TooManyFunctions")
 class MessageCompositionHolder(
     val messageComposition: MutableState<MessageComposition>,
-    val messageTextState: TextFieldState,
+    var messageTextFieldValue: MutableState<TextFieldValue>,
+    val onClearDraft: () -> Unit,
     private val onSaveDraft: (MessageDraft) -> Unit,
     private val onSearchMentionQueryChanged: (String) -> Unit,
     private val onClearMentionSearchResult: () -> Unit,
@@ -71,7 +70,7 @@ class MessageCompositionHolder(
                 editMessageId = null
             )
         }
-        onSaveDraft(messageComposition.value.toDraft(messageTextState.text.toString()))
+        onSaveDraft(messageComposition.value.toDraft(messageTextFieldValue.value.text))
     }
 
     fun setReply(message: UIMessage.Regular) {
@@ -95,7 +94,7 @@ class MessageCompositionHolder(
                 )
             }
         }
-        onSaveDraft(messageComposition.value.toDraft(messageTextState.text.toString()))
+        onSaveDraft(messageComposition.value.toDraft(messageTextFieldValue.value.text))
     }
 
     fun clearReply() {
@@ -109,13 +108,12 @@ class MessageCompositionHolder(
     }
 
     suspend fun handleMessageTextUpdates() {
-        snapshotFlow { messageTextState.text to messageTextState.selection }
+        snapshotFlow { messageTextFieldValue.value.text to messageTextFieldValue.value.selection }
             .distinctUntilChanged()
             .collectLatest { (messageText, selection) ->
-                updateTypingEvent(messageText.toString())
-                updateMentionsIfNeeded(messageText.toString())
-                requestMentionSuggestionIfNeeded(messageText.toString(), selection)
-                onSaveDraft(messageComposition.value.toDraft(messageText.toString()))
+                updateTypingEvent(messageText)
+                requestMentionSuggestionIfNeeded(messageText, selection)
+                onSaveDraft(messageComposition.value.toDraft(messageText))
             }
     }
 
@@ -124,10 +122,6 @@ class MessageCompositionHolder(
             messageText.isEmpty() -> onTypingEvent(TypingIndicatorMode.STOPPED)
             messageText.isNotEmpty() && messageComposition.value.draftText != messageText -> onTypingEvent(TypingIndicatorMode.STARTED)
         }
-    }
-
-    private fun updateMentionsIfNeeded(messageText: String) {
-        messageComposition.update { it.copy(selectedMentions = it.getSelectedMentions(messageText)) }
     }
 
     private fun requestMentionSuggestionIfNeeded(messageText: String, selection: TextRange) {
@@ -161,8 +155,8 @@ class MessageCompositionHolder(
     }
 
     fun startMention() {
-        val beforeSelection = messageTextState.text
-            .subSequence(0, messageTextState.selection.min)
+        val beforeSelection = messageTextFieldValue.value.text
+            .subSequence(0, messageTextFieldValue.value.selection.min)
             .run {
                 if (endsWith(String.WHITE_SPACE) || endsWith(String.NEW_LINE_SYMBOL) || this == String.EMPTY) {
                     this.toString()
@@ -173,10 +167,10 @@ class MessageCompositionHolder(
                 }
             }
 
-        val afterSelection = messageTextState.text
+        val afterSelection = messageTextFieldValue.value.text
             .subSequence(
-                messageTextState.selection.max,
-                messageTextState.text.length
+                messageTextFieldValue.value.selection.max,
+                messageTextFieldValue.value.text.length
             )
 
         val resultText = StringBuilder(beforeSelection)
@@ -185,35 +179,42 @@ class MessageCompositionHolder(
             .toString()
 
         val newSelection = TextRange(beforeSelection.length + 1)
-        messageTextState.edit {
-            replace(0, messageTextState.text.length, resultText)
+        messageTextFieldValue.value = messageTextFieldValue.value.copy(
+            text = messageTextFieldValue.value.text.replaceRange(0, messageTextFieldValue.value.text.length, resultText),
             selection = newSelection
-        }
+        )
         requestMentionSuggestionIfNeeded(resultText, newSelection)
     }
 
     fun addMention(contact: Contact) {
-        val mention = UIMention(
-            start = currentMentionStartIndex(messageTextState.text.toString(), messageTextState.selection),
+        val mentionToAdd = UIMention(
+            start = currentMentionStartIndex(messageTextFieldValue.value.text, messageTextFieldValue.value.selection),
             length = contact.name.length + 1, // +1 cause there is an "@" before it
             userId = UserId(contact.id, contact.domain),
             handler = String.MENTION_SYMBOL + contact.name
         )
-        insertMentionIntoText(mention)
+        val updatedList = mutableListOf<UIMention>()
+        messageComposition.value.selectedMentions.forEach { mention ->
+            if (messageTextFieldValue.value.selection.start < mention.start) {
+                updatedList.add(mention.copy(start = mention.start + mentionToAdd.length))
+            } else {
+                updatedList.add(mention)
+            }
+        }
+        updatedList.add(mentionToAdd)
+        insertMentionIntoText(mentionToAdd)
         messageComposition.update {
-            it.copy(
-                selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }
-            )
+            it.copy(selectedMentions = updatedList.sortedBy { it.start })
         }
     }
 
     private fun insertMentionIntoText(mention: UIMention) {
-        val beforeMentionText = messageTextState.text
+        val beforeMentionText = messageTextFieldValue.value.text
             .subSequence(0, mention.start)
-        val afterMentionText = messageTextState.text
+        val afterMentionText = messageTextFieldValue.value.text
             .subSequence(
-                messageTextState.selection.max,
-                messageTextState.text.length
+                messageTextFieldValue.value.selection.max,
+                messageTextFieldValue.value.text.length
             )
         val resultText = StringBuilder()
             .append(beforeMentionText)
@@ -226,16 +227,18 @@ class MessageCompositionHolder(
 
         // + 1 cause we add space after mention and move selector there
         val newSelection = TextRange(beforeMentionText.length + mention.handler.length + 1)
-
-        messageTextState.edit {
-            replace(0, messageTextState.text.length, resultText)
+        messageTextFieldValue.value = messageTextFieldValue.value.copy(
+            text = messageTextFieldValue.value.text.replaceRange(0, messageTextFieldValue.value.text.length, resultText),
             selection = newSelection
-        }
+        )
         onSaveDraft(messageComposition.value.toDraft(resultText))
     }
 
     fun setEditText(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
-        messageTextState.setTextAndPlaceCursorAtEnd(editMessageText)
+        messageTextFieldValue.value = messageTextFieldValue.value.copy(
+            text = editMessageText,
+            selection = TextRange(editMessageText.length) // Place cursor at the end of the new text
+        )
         messageComposition.update {
             it.copy(
                 selectedMentions = mentions.mapNotNull { it.toUiMention(editMessageText) },
@@ -249,9 +252,9 @@ class MessageCompositionHolder(
         markdown: RichTextMarkdown,
     ) {
         val isHeader = markdown == RichTextMarkdown.Header
-        val range = messageTextState.selection
-        val selectedText = messageTextState.text.substring(messageTextState.selection)
-        val stringBuilder = StringBuilder(messageTextState.text.toString())
+        val range = messageTextFieldValue.value.selection
+        val selectedText = messageTextFieldValue.value.text.substring(messageTextFieldValue.value.selection)
+        val stringBuilder = StringBuilder(messageTextFieldValue.value.text)
         val markdownLength = markdown.value.length
         val markdownLengthComplete =
             if (isHeader) markdownLength else (markdownLength * RICH_TEXT_MARKDOWN_MULTIPLIER)
@@ -284,15 +287,15 @@ class MessageCompositionHolder(
         }
 
         val newMessageText = stringBuilder.toString()
-        messageTextState.edit {
-            replace(0, messageTextState.text.length, newMessageText)
+        messageTextFieldValue.value = messageTextFieldValue.value.copy(
+            text = messageTextFieldValue.value.text.replaceRange(0, messageTextFieldValue.value.text.length, newMessageText),
             selection = TextRange(selectionStart, selectionEnd)
-        }
+        )
         onSaveDraft(messageComposition.value.toDraft(newMessageText))
     }
 
     fun clearMessage() {
-        messageTextState.clearText()
+        messageTextFieldValue.value = TextFieldValue(String.EMPTY)
         messageComposition.update {
             it.copy(
                 quotedMessageId = null,
@@ -304,7 +307,7 @@ class MessageCompositionHolder(
     }
 
     fun toMessageBundle(conversationId: ConversationId) =
-        messageComposition.value.toMessageBundle(conversationId, messageTextState.text.toString())
+        messageComposition.value.toMessageBundle(conversationId, messageTextFieldValue.value.text)
 
     private fun currentMentionStartIndex(messageText: String, selection: TextRange): Int {
         val lastIndexOfAt = messageText.lastIndexOf(String.MENTION_SYMBOL, selection.min - 1)

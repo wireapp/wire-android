@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("ComposeModifierMissing", "ComposeNamingUppercase")
+
 package com.wire.android.ui.common.spacers
 
 import androidx.compose.foundation.layout.Spacer

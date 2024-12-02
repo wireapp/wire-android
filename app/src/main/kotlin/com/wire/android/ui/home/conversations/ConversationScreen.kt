@@ -235,6 +235,7 @@ fun ConversationScreen(
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         draftMessageComposition = messageDraftViewModel.state.value,
+        onClearDraft = messageDraftViewModel::clearDraft,
         onSaveDraft = messageComposerViewModel::saveDraft,
         onSearchMentionQueryChanged = messageComposerViewModel::searchMembersToMention,
         onTypingEvent = messageComposerViewModel::sendTypingEvent,
@@ -294,7 +295,7 @@ fun ConversationScreen(
     LaunchedEffect(messageDraftViewModel.state.value.quotedMessageId) {
         val compositionState = messageDraftViewModel.state.value
         if (compositionState.quotedMessage != null) {
-            messageComposerStateHolder.messageCompositionHolder.updateQuote(compositionState.quotedMessage)
+            messageComposerStateHolder.messageCompositionHolder.value.updateQuote(compositionState.quotedMessage)
         }
     }
 
@@ -1135,7 +1136,7 @@ fun MessageList(
         contentAlignment = Alignment.BottomEnd,
         modifier = modifier
             .fillMaxSize()
-            .background(color = colorsScheme().backgroundVariant),
+            .background(color = colorsScheme().surfaceContainerLow),
         content = {
             LazyColumn(
                 state = lazyListState,
@@ -1332,8 +1333,8 @@ fun JumpToLastMessageButton(
     ) {
         SmallFloatingActionButton(
             onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
-            containerColor = MaterialTheme.wireColorScheme.scrollToBottomButtonColor,
-            contentColor = MaterialTheme.wireColorScheme.onScrollToBottomButtonColor,
+            containerColor = MaterialTheme.wireColorScheme.secondaryText,
+            contentColor = MaterialTheme.wireColorScheme.primaryButtonEnabled,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(dimensions().spacing0x),
             modifier = Modifier
@@ -1373,6 +1374,7 @@ fun PreviewConversationScreen() = WireTheme {
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         draftMessageComposition = messageCompositionState.value,
+        onClearDraft = {},
         onSaveDraft = {},
         onTypingEvent = {},
         onSearchMentionQueryChanged = {},

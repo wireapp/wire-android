@@ -51,11 +51,11 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 @Composable
 fun SecurityClassificationBannerForConversation(
     conversationId: ConversationId,
+    modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
         hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationArgs>(
             SecurityClassificationArgs.Conversation(id = conversationId)
-        ),
-    modifier: Modifier = Modifier
+        )
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),
@@ -66,11 +66,11 @@ fun SecurityClassificationBannerForConversation(
 @Composable
 fun SecurityClassificationBannerForUser(
     userId: UserId,
+    modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
         hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationArgs>(
             SecurityClassificationArgs.User(id = userId)
-        ),
-    modifier: Modifier = Modifier
+        )
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),
@@ -123,27 +123,27 @@ private fun getTextFor(securityClassificationType: SecurityClassificationType): 
 @Composable
 private fun getBackgroundColorFor(securityClassificationType: SecurityClassificationType): Color {
     return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
-        colorsScheme().classifiedBannerBackgroundColor
+        colorsScheme().positiveVariant
     } else {
-        colorsScheme().unclassifiedBannerBackgroundColor
+        colorsScheme().error
     }
 }
 
 @Composable
 private fun getColorTextFor(securityClassificationType: SecurityClassificationType): Color {
     return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
-        colorsScheme().classifiedBannerForegroundColor
+        colorsScheme().onPositiveVariant
     } else {
-        colorsScheme().unclassifiedBannerForegroundColor
+        colorsScheme().onError
     }
 }
 
 @Composable
 private fun getDividerColorFor(securityClassificationType: SecurityClassificationType): Color {
     return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
-        colorsScheme().classifiedBannerForegroundColor
+        colorsScheme().onPositiveVariant
     } else {
-        colorsScheme().unclassifiedBannerBackgroundColor
+        colorsScheme().onError
     }
 }
 

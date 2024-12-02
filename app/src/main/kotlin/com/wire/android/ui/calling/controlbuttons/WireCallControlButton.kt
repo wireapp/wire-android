@@ -38,9 +38,9 @@ fun WireCallControlButton(
     @DrawableRes iconResId: Int,
     @StringRes contentDescription: Int,
     onClick: () -> Unit,
-    size: Dp = dimensions().defaultCallingControlsSize,
-    iconSize: Dp = dimensions().defaultCallingControlsIconSize,
     modifier: Modifier = Modifier,
+    size: Dp = dimensions().defaultCallingControlsSize,
+    iconSize: Dp = dimensions().defaultCallingControlsIconSize
 ) {
     WireSecondaryIconButton(
         onButtonClicked = onClick,
@@ -48,14 +48,14 @@ fun WireCallControlButton(
         shape = CircleShape,
         colors = with(colorsScheme()) {
             wireSecondaryButtonColors().copy(
-                selected = callingControlButtonActive,
-                selectedOutline = callingControlButtonActiveOutline,
-                onSelected = onCallingControlButtonActive,
-                selectedRipple = onCallingControlButtonActive,
-                enabled = callingControlButtonInactive,
-                enabledOutline = callingControlButtonInactiveOutline,
-                onEnabled = onCallingControlButtonInactive,
-                enabledRipple = onCallingControlButtonInactive,
+                selected = inverseSurface,
+                selectedOutline = inverseSurface,
+                onSelected = inverseOnSurface,
+                selectedRipple = inverseOnSurface,
+                enabled = secondaryButtonEnabled,
+                enabledOutline = secondaryButtonEnabledOutline,
+                onEnabled = onSecondaryButtonEnabled,
+                enabledRipple = secondaryButtonRipple,
             )
         },
         contentDescription = contentDescription,

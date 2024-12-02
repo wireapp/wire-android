@@ -108,12 +108,12 @@ fun MyAccountScreen(
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
     val successDisplayNameSnackBarMessage = stringResource(id = R.string.settings_myaccount_display_name_updated)
     val successHandleSnackBarMessage = stringResource(id = R.string.settings_myaccount_handle_updated)
-    handleNavResult(scope, changeDisplayNameResultRecipient, tryAgainSnackBarMessage, successDisplayNameSnackBarMessage, snackbarHostState)
-    handleNavResult(scope, changeHandleResultRecipient, tryAgainSnackBarMessage, successHandleSnackBarMessage, snackbarHostState)
+    HandleNavResult(scope, changeDisplayNameResultRecipient, tryAgainSnackBarMessage, successDisplayNameSnackBarMessage, snackbarHostState)
+    HandleNavResult(scope, changeHandleResultRecipient, tryAgainSnackBarMessage, successHandleSnackBarMessage, snackbarHostState)
 }
 
 @Composable
-private fun <T : DestinationSpec<*>> handleNavResult(
+private fun <T : DestinationSpec<*>> HandleNavResult(
     scope: CoroutineScope,
     resultRecipient: ResultRecipient<T, Boolean>,
     tryAgainSnackBarMessage: String,
@@ -180,11 +180,13 @@ fun MyAccountContent(
     onDeleteAccountConfirmed: () -> Unit,
     onDeleteAccountDismissed: () -> Unit,
     startDeleteAccountFlow: Boolean,
+    modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
     WireScaffold(
+        modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onNavigateBack,
@@ -276,6 +278,7 @@ fun PreviewMyAccountScreen() {
         { },
         {},
         false,
+        Modifier,
         { }
     )
 }

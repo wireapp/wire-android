@@ -29,7 +29,6 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import com.wire.kalium.logic.data.id.ConversationId
@@ -38,10 +37,10 @@ import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.Asset
+import com.wire.kalium.logic.data.message.hasValidData
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
-import com.wire.kalium.logic.sync.receiver.conversation.message.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
@@ -50,7 +49,6 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions")
 class RegularMessageMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     private val isoFormatter: ISOFormatter,
 ) {
 
@@ -207,7 +205,6 @@ class RegularMessageMapper @Inject constructor(
             is MessageContent.QuotedMessageDetails.Asset -> when (AttachmentType.fromMimeTypeString(quotedContent.assetMimeType)) {
                 AttachmentType.IMAGE -> UIQuotedMessage.UIQuotedData.DisplayableImage(
                     ImageAsset.PrivateAsset(
-                        wireSessionImageLoader,
                         conversationId,
                         it.messageId,
                         it.isQuotingSelfUser
@@ -239,7 +236,8 @@ class RegularMessageMapper @Inject constructor(
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 // If some of image data are still missing, we mark it as incomplete which won't be shown until we get missing data
-                assetMessageContentMetadata.isIncompleteImage() -> {
+                // But we also check if isnt our own message, if its our own, most likely the there was an error sending the image.
+                assetMessageContentMetadata.isIncompleteImage() && sender !is SelfUser -> {
                     UIMessageContent.IncompleteAssetMessage
                 }
 
@@ -248,7 +246,6 @@ class RegularMessageMapper @Inject constructor(
                     UIMessageContent.ImageMessage(
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         asset = ImageAsset.PrivateAsset(
-                            wireSessionImageLoader,
                             message.conversationId,
                             message.id,
                             sender is SelfUser
@@ -306,7 +303,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
 
     // Sometimes client receives two events for the same asset, first one with only part of the data ("preview" type from web),
     // so such asset shouldn't be shown until all the required data is received.
-    fun isIncompleteImage(): Boolean = isDisplayableImage() && !assetMessageContent.hasValidRemoteData()
+    fun isIncompleteImage(): Boolean = isDisplayableImage() && !assetMessageContent.remoteData.hasValidData()
 }
 
 private fun String?.orUnknownName(): UIText = when {

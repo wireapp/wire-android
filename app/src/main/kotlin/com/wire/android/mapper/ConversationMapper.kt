@@ -26,7 +26,6 @@ import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
@@ -34,29 +33,30 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Suppress("LongMethod")
 fun ConversationDetailsWithEvents.toConversationItem(
-    wireSessionImageLoader: WireSessionImageLoader,
     userTypeMapper: UserTypeMapper,
     searchQuery: String,
+    selfUserTeamId: TeamId?
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
     is Group -> {
         ConversationItem.GroupConversation(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            isLegalHold = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
             ),
             hasOnGoingCall = conversationDetails.hasOngoingCall && conversationDetails.isSelfUserMember,
-            isSelfUserCreator = conversationDetails.isSelfUserCreator,
+            isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,
             selfMemberRole = conversationDetails.selfRole,
@@ -65,13 +65,14 @@ fun ConversationDetailsWithEvents.toConversationItem(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
             searchQuery = searchQuery,
+            isFavorite = conversationDetails.isFavorite
         )
     }
 
     is OneOne -> {
         ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(
-                asset = conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                asset = conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) },
                 availabilityStatus = conversationDetails.otherUser.availabilityStatus,
                 connectionState = conversationDetails.otherUser.connectionStatus,
                 nameBasedAvatar = NameBasedAvatar(conversationDetails.otherUser.name, conversationDetails.otherUser.accentId)
@@ -83,7 +84,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             ),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            isLegalHold = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parsePrivateConversationEventType(
                 conversationDetails.otherUser.connectionStatus,
@@ -101,13 +102,14 @@ fun ConversationDetailsWithEvents.toConversationItem(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
             searchQuery = searchQuery,
+            isFavorite = conversationDetails.isFavorite
         )
     }
 
     is Connection -> {
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
-                asset = conversationDetails.otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                asset = conversationDetails.otherUser?.previewPicture?.let { UserAvatarAsset(it) },
                 availabilityStatus = conversationDetails.otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE,
                 nameBasedAvatar = NameBasedAvatar(conversationDetails.otherUser?.name, conversationDetails.otherUser?.accentId ?: -1)
             ),

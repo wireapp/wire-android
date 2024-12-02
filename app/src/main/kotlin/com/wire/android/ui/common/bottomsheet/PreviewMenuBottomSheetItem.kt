@@ -37,13 +37,13 @@ import com.wire.android.ui.theme.wireTypography
 fun PreviewMenuBottomSheetItem() {
     MenuBottomSheetItem(
         title = "very long looooooong title",
-        icon = {
+        leading = {
             MenuItemIcon(
                 id = R.drawable.ic_erase,
                 contentDescription = "",
             )
         },
-        action = {
+        trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "very long looooooong action",

@@ -152,13 +152,14 @@ private fun LoginSSOContent(
 
 @Composable
 private fun SSOCodeInput(
-    modifier: Modifier,
     ssoCodeState: TextFieldState,
     error: String?,
+    modifier: Modifier = Modifier
 ) {
     WireTextField(
         textState = ssoCodeState,
         labelText = stringResource(R.string.login_sso_code_label),
+        semanticDescription = stringResource(R.string.content_description_login_sso_code_field),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         modifier = modifier.testTag("ssoCodeField")
@@ -166,7 +167,12 @@ private fun SSOCodeInput(
 }
 
 @Composable
-private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, onClick: () -> Unit) {
+private fun LoginButton(
+    loading: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
         val text = if (loading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)

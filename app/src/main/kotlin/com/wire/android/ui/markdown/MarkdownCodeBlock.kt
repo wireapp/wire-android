@@ -31,12 +31,12 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode, nodeData: NodeData) {
+fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode, nodeData: NodeData, modifier: Modifier = Modifier) {
     Text(
         text = highlightText(nodeData, indentedCodeBlock.literal),
         style = MaterialTheme.wireTypography.body01,
         fontFamily = FontFamily.Monospace,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = dimensions().spacing4x)
             .background(MaterialTheme.wireColorScheme.surfaceVariant, shape = RoundedCornerShape(dimensions().spacing16x))
@@ -45,12 +45,12 @@ fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode
 }
 
 @Composable
-fun MarkdownFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, nodeData: NodeData) {
+fun MarkdownFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, nodeData: NodeData, modifier: Modifier = Modifier) {
     Text(
         text = highlightText(nodeData, fencedCodeBlock.literal),
         style = MaterialTheme.wireTypography.body01,
         fontFamily = FontFamily.Monospace,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = dimensions().spacing4x)
             .background(MaterialTheme.wireColorScheme.surfaceVariant, shape = RoundedCornerShape(dimensions().spacing16x))

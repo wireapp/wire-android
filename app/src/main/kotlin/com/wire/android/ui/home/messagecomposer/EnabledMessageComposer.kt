@@ -66,12 +66,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
-import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
+import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.textfield.mention.MentionUpdateCoordinator
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.model.update
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
@@ -104,7 +106,7 @@ fun EnabledMessageComposer(
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val navBarHeight = BottomNavigationBarHeight()
+    val navBarHeight = bottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
     val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)
@@ -145,7 +147,7 @@ fun EnabledMessageComposer(
 
         Surface(
             modifier = modifier,
-            color = colorsScheme().messageComposerBackgroundColor
+            color = colorsScheme().surface
         ) {
             Column(
                 modifier = Modifier
@@ -161,7 +163,7 @@ fun EnabledMessageComposer(
                 Box(
                     contentAlignment = Alignment.BottomCenter,
                     modifier = expandOrHideMessagesModifier
-                        .background(color = colorsScheme().backgroundVariant)
+                        .background(color = colorsScheme().surfaceContainerLow)
                 ) {
                     messageListContent()
                     if (!inputStateHolder.isTextExpanded) {
@@ -172,7 +174,7 @@ fun EnabledMessageComposer(
                             membersToMention = messageComposerViewState.value.mentionSearchResult,
                             searchQuery = messageComposerViewState.value.mentionSearchQuery,
                             onMentionPicked = { pickedMention ->
-                                messageCompositionHolder.addMention(pickedMention)
+                                messageCompositionHolder.value.addMention(pickedMention)
                                 onClearMentionSearchResult()
                             },
                             modifier = Modifier.align(Alignment.BottomCenter)
@@ -190,7 +192,7 @@ fun EnabledMessageComposer(
                     verticalArrangement = Arrangement.Bottom,
                     modifier = fillRemainingSpaceOrWrapContent
                         .fillMaxWidth()
-                        .background(color = colorsScheme().backgroundVariant)
+                        .background(color = colorsScheme().surfaceContainerLow)
                 ) {
                     Box(Modifier.wrapContentSize()) {
                         SecurityClassificationBannerForConversation(
@@ -205,14 +207,26 @@ fun EnabledMessageComposer(
                         ActiveMessageComposerInput(
                             conversationId = conversationId,
                             messageComposition = messageComposition.value,
-                            messageTextState = inputStateHolder.messageTextState,
+                            messageTextFieldValue = inputStateHolder.messageTextFieldValue,
+                            onValueChange = { newTextField ->
+                                val updatedTextField = MentionUpdateCoordinator().handle(
+                                    inputStateHolder.messageTextFieldValue.value,
+                                    newTextField,
+                                    messageComposition.value.selectedMentions,
+                                    updateMentions = { mentions ->
+                                        messageComposition.update { it.copy(selectedMentions = mentions) }
+                                    }
+                                )
+                                inputStateHolder.messageTextFieldValue.value = updatedTextField
+                            },
+                            mentions = messageComposition.value.selectedMentions,
                             isTextExpanded = inputStateHolder.isTextExpanded,
                             inputType = messageCompositionInputStateHolder.inputType,
                             focusRequester = messageCompositionInputStateHolder.focusRequester,
                             onFocused = ::onInputFocused,
                             onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
                             onTextCollapse = messageCompositionInputStateHolder::collapseText,
-                            onCancelReply = messageCompositionHolder::clearReply,
+                            onCancelReply = messageCompositionHolder.value::clearReply,
                             onCancelEdit = ::cancelEdit,
                             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                             onSendButtonClicked = onSendButtonClicked,
@@ -274,7 +288,7 @@ fun EnabledMessageComposer(
                                 membersToMention = mentionSearchResult,
                                 searchQuery = messageComposerViewState.value.mentionSearchQuery,
                                 onMentionPicked = {
-                                    messageCompositionHolder.addMention(it)
+                                    messageCompositionHolder.value.addMention(it)
                                     onClearMentionSearchResult()
                                 }
                             )
@@ -289,9 +303,9 @@ fun EnabledMessageComposer(
                             attachmentsVisible = inputStateHolder.optionsVisible,
                             isEditing = messageCompositionInputStateHolder.inputType is InputType.Editing,
                             isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
-                            onMentionButtonClicked = messageCompositionHolder::startMention,
+                            onMentionButtonClicked = messageCompositionHolder.value::startMention,
                             onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
-                            onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
+                            onRichOptionButtonClicked = messageCompositionHolder.value::addOrRemoveMessageMarkdown,
                             onPingOptionClicked = onPingOptionClicked,
                             onAdditionalOptionsMenuClicked = {
                                 if (!hideRipple) {
@@ -326,7 +340,7 @@ fun EnabledMessageComposer(
                         showAttachments(false)
                     }
                 ) {
-                    val rippleColor = colorsScheme().messageComposerBackgroundColor
+                    val rippleColor = colorsScheme().surface
                     val shape = if (isImeVisible) {
                         RectangleShape
                     } else {

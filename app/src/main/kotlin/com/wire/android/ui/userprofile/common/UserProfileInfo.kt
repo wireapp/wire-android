@@ -80,6 +80,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.debug.FeatureVisibilityFlags.QRCodeEnabled
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -145,6 +146,12 @@ fun UserProfileInfo(
                 targetState = userAvatarData to showPlaceholderIfNoAsset.value,
                 label = "UserProfileInfoAvatar"
             ) { (userAvatarData, showPlaceholderIfNoAsset) ->
+                val onAvatarClickDescription = stringResource(R.string.content_description_change_it_label)
+                val contentDescription = if (editableState is EditableState.IsEditable) {
+                    stringResource(R.string.content_description_self_profile_avatar)
+                } else {
+                    null
+                }
                 UserProfileAvatar(
                     size = dimensions().avatarDefaultBigSize,
                     temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
@@ -153,12 +160,14 @@ fun UserProfileInfo(
                         Clickable(
                             enabled = editableState is EditableState.IsEditable,
                             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                            onClickDescription = onAvatarClickDescription,
                         ) { onUserProfileClick?.invoke() }
                     },
                     showPlaceholderIfNoAsset = showPlaceholderIfNoAsset,
                     withCrossfadeAnimation = true,
                     type = expiresAt?.let { UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt) }
-                        ?: UserProfileAvatarType.WithoutIndicators
+                        ?: UserProfileAvatarType.WithoutIndicators,
+                    contentDescription = contentDescription
                 )
             }
             this@Column.AnimatedVisibility(visible = isLoading) {
@@ -193,21 +202,23 @@ fun UserProfileInfo(
                     isMLSVerified = isMLSVerified
                 )
 
+            val profileNameDescription =
+                stringResource(R.string.content_description_self_profile_profile_name, fullName)
             Text(
                 modifier = Modifier
                     .padding(horizontal = dimensions().spacing16x)
                     .constrainAs(displayName) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                    },
+                    }
+                    .semantics(mergeDescendants = true) { contentDescription = profileNameDescription },
                 text = text,
                 // TODO. replace with MIDDLE_ELLIPSIS when available see https://issuetracker.google.com/issues/185418980
                 overflow = TextOverflow.Visible,
                 maxLines = 2,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.wireTypography.title02,
-                color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground
-                else MaterialTheme.wireColorScheme.labelText,
+                color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.secondaryText,
                 inlineContent = inlineContent
             )
 
@@ -219,15 +230,22 @@ fun UserProfileInfo(
                     top.linkTo(displayName.bottom)
                 }
             ) {
+                val usernameDescription =
+                    stringResource(R.string.content_description_self_profile_username, userName)
                 Text(
                     text = processUsername(userName, membership, expiresAt),
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.wireTypography.body02,
                     maxLines = 2,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.wireColorScheme.labelText
+                    color = MaterialTheme.wireColorScheme.secondaryText,
+                    modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = usernameDescription }
                 )
-                UserBadge(membership, connection, topPadding = dimensions().spacing8x)
+                UserBadge(
+                    membership = membership,
+                    connectionState = connection,
+                    topPadding = dimensions().spacing8x
+                )
             }
 
             Column(
@@ -240,7 +258,7 @@ fun UserProfileInfo(
                         bottom.linkTo(displayName.bottom)
                     }
             ) {
-                if (isLoading.not()) {
+                if (QRCodeEnabled && isLoading.not()) {
                     onQrCodeClick?.let { QRCodeIcon(it) }
                 }
             }
@@ -258,10 +276,12 @@ fun UserProfileInfo(
         }
 
         if (teamName != null) {
+            val teamDescription = stringResource(R.string.content_description_self_profile_team, teamName)
             TeamInformation(
                 modifier = Modifier
                     .padding(top = dimensions().spacing8x)
-                    .padding(horizontal = dimensions().spacing16x),
+                    .padding(horizontal = dimensions().spacing16x)
+                    .semantics(mergeDescendants = true) { contentDescription = teamDescription },
                 teamName = teamName
             )
         }
@@ -339,11 +359,13 @@ fun QRCodeIcon(
     modifier: Modifier = Modifier,
 ) {
     val contentDescription = stringResource(id = R.string.user_profile_qr_code_share_link)
+    val clickDescription = stringResource(id = R.string.content_description_share_label)
     WireSecondaryButton(
         modifier = modifier.semantics { this.contentDescription = contentDescription },
         leadingIcon = Icons.Filled.QrCode.Icon(),
         contentPadding = PaddingValues(0.dp),
         onClick = onQrCodeClick,
+        onClickDescription = clickDescription,
         fillMaxWidth = false,
         minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,

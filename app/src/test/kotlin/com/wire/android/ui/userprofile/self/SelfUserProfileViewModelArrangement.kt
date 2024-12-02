@@ -21,25 +21,24 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.TestTeam
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
-import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
@@ -50,42 +49,57 @@ import kotlinx.coroutines.flow.flowOf
 class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var userDataStore: UserDataStore
+
     @MockK
     lateinit var getSelf: GetSelfUserUseCase
+
     @MockK
     lateinit var getSelfTeam: GetUpdatedSelfTeamUseCase
+
     @MockK
     lateinit var observeValidAccounts: ObserveValidAccountsUseCase
+
     @MockK
     lateinit var updateStatus: UpdateSelfAvailabilityStatusUseCase
+
     @MockK
     lateinit var logout: LogoutUseCase
+
     @MockK
     lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase
+
     @MockK
     lateinit var dispatchers: DispatcherProvider
-    @MockK
-    lateinit var wireSessionImageLoader: WireSessionImageLoader
-    @MockK
-    lateinit var authServerConfigProvider: AuthServerConfigProvider
-    @MockK
-    lateinit var selfServerLinks: SelfServerConfigUseCase
+
     @MockK
     lateinit var otherAccountMapper: OtherAccountMapper
+
     @MockK
     lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+
     @MockK
     lateinit var accountSwitch: AccountSwitchUseCase
+
     @MockK
     lateinit var endCall: EndCallUseCase
+
     @MockK
     lateinit var isReadOnlyAccount: IsReadOnlyAccountUseCase
+
     @MockK
     lateinit var notificationManager: WireNotificationManager
+
     @MockK
     lateinit var globalDataStore: GlobalDataStore
+
     @MockK
     lateinit var qualifiedIdMapper: QualifiedIdMapper
+
+    @MockK
+    lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
+
+    @MockK
+    lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
     private val viewModel by lazy {
         SelfUserProfileViewModel(
@@ -98,9 +112,6 @@ class SelfUserProfileViewModelArrangement {
             logout = logout,
             observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
             dispatchers = TestDispatcherProvider(),
-            wireSessionImageLoader = wireSessionImageLoader,
-            authServerConfigProvider = authServerConfigProvider,
-            selfServerLinks = selfServerLinks,
             otherAccountMapper = otherAccountMapper,
             observeEstablishedCalls = observeEstablishedCalls,
             accountSwitch = accountSwitch,
@@ -108,7 +119,9 @@ class SelfUserProfileViewModelArrangement {
             isReadOnlyAccount = isReadOnlyAccount,
             notificationManager = notificationManager,
             globalDataStore = globalDataStore,
-            qualifiedIdMapper = qualifiedIdMapper
+            qualifiedIdMapper = qualifiedIdMapper,
+            anonymousAnalyticsManager = anonymousAnalyticsManager,
+            canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam
         )
     }
 
@@ -121,9 +134,13 @@ class SelfUserProfileViewModelArrangement {
         coEvery { observeValidAccounts.invoke() } returns flowOf(listOf(TestUser.SELF_USER to TestTeam.TEAM))
         coEvery { isReadOnlyAccount.invoke() } returns false
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
+        coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
+        coEvery { canMigrateFromPersonalToTeam.invoke() } returns true
     }
+
     fun withLegalHoldStatus(result: LegalHoldStateForSelfUser) = apply {
         coEvery { observeLegalHoldStatusForSelfUser.invoke() } returns flowOf(result)
     }
+
     fun arrange() = this to viewModel
 }

@@ -18,8 +18,8 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -30,6 +30,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -42,7 +43,7 @@ import com.wire.android.util.isNotMarkdownBlank
 
 @Stable
 class MessageCompositionInputStateHolder(
-    val messageTextState: TextFieldState,
+    val messageTextFieldValue: MutableState<TextFieldValue>,
     private val keyboardController: SoftwareKeyboardController?,
     val focusRequester: FocusRequester
 ) {
@@ -64,11 +65,12 @@ class MessageCompositionInputStateHolder(
     val inputType: InputType by derivedStateOf {
         when (val state = compositionState) {
             is CompositionState.Composing -> InputType.Composing(
-                isSendButtonEnabled = messageTextState.text.isNotMarkdownBlank()
+                isSendButtonEnabled = messageTextFieldValue.value.text.isNotMarkdownBlank()
             )
 
             is CompositionState.Editing -> InputType.Editing(
-                isEditButtonEnabled = messageTextState.text != state.originalMessageText && messageTextState.text.isNotMarkdownBlank()
+                isEditButtonEnabled = messageTextFieldValue.value.text != state.originalMessageText &&
+                        messageTextFieldValue.value.text.isNotMarkdownBlank()
             )
         }
     }
@@ -170,7 +172,7 @@ class MessageCompositionInputStateHolder(
         val composeTextHeight = 128.dp
 
         fun saver(
-            messageTextState: TextFieldState,
+            messageTextFieldValue: MutableState<TextFieldValue>,
             keyboardController: SoftwareKeyboardController?,
             focusRequester: FocusRequester,
             density: Density
@@ -188,7 +190,7 @@ class MessageCompositionInputStateHolder(
             restore = { savedState ->
                 with(density) {
                     MessageCompositionInputStateHolder(
-                        messageTextState = messageTextState,
+                        messageTextFieldValue = messageTextFieldValue,
                         keyboardController = keyboardController,
                         focusRequester = focusRequester
                     ).apply {
@@ -222,7 +224,7 @@ sealed class InputType {
     )
 
     @Composable
-    open fun backgroundColor(): Color = colorsScheme().messageComposerBackgroundColor
+    open fun backgroundColor(): Color = colorsScheme().surface
 
     @Composable
     open fun labelText(): String = stringResource(R.string.label_type_a_message)
@@ -232,6 +234,6 @@ sealed class InputType {
     class Editing(val isEditButtonEnabled: Boolean) : InputType() {
 
         @Composable
-        override fun backgroundColor(): Color = colorsScheme().messageComposerEditBackgroundColor
+        override fun backgroundColor(): Color = colorsScheme().primaryVariant
     }
 }

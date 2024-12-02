@@ -90,6 +90,11 @@ class ConversationModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveConversationListDetailsWithEvents(conversationScope: ConversationScope) =
+        conversationScope.observeConversationListDetailsWithEvents
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveConversationUseCase(conversationScope: ConversationScope): GetOneToOneConversationUseCase =
         conversationScope.getOneToOneConversation
 
@@ -312,4 +317,24 @@ class ConversationModule {
     @Provides
     fun provideGetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase(conversationScope: ConversationScope) =
         conversationScope.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveConversationsFromFolderUseCase(conversationScope: ConversationScope) =
+        conversationScope.observeConversationsFromFolder
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetFavoriteFolderUseCase(conversationScope: ConversationScope) =
+        conversationScope.getFavoriteFolder
+
+    @ViewModelScoped
+    @Provides
+    fun provideAddConversationToFavoritesUseCase(conversationScope: ConversationScope) =
+        conversationScope.addConversationToFavorites
+
+    @ViewModelScoped
+    @Provides
+    fun provideRemoveConversationFromFavoritesUseCase(conversationScope: ConversationScope) =
+        conversationScope.removeConversationFromFavorites
 }

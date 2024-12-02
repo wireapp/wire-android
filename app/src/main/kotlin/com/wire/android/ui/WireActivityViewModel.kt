@@ -296,7 +296,7 @@ class WireActivityViewModel @Inject constructor(
                     // Self logout is handled from the Self user profile screen directly
                 }
 
-                LogoutReason.REMOVED_CLIENT ->
+                LogoutReason.MIGRATION_TO_CC_FAILED, LogoutReason.REMOVED_CLIENT ->
                     globalAppState =
                         globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
 

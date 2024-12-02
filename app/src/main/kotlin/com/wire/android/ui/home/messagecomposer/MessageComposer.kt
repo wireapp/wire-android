@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
 import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
@@ -134,9 +134,10 @@ fun MessageComposer(
                     messageComposerStateHolder = messageComposerStateHolder,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
-                        onSendMessageBundle(messageCompositionHolder.toMessageBundle(conversationId))
+                        onSendMessageBundle(messageCompositionHolder.value.toMessageBundle(conversationId))
                         onClearMentionSearchResult()
                         clearMessage()
+                        messageCompositionHolder.value.onClearDraft()
                     },
                     onPingOptionClicked = onPingOptionClicked,
                     onImagesPicked = onImagesPicked,
@@ -173,7 +174,7 @@ private fun DisabledInteractionMessageComposer(
     learnMoreLink: String? = null,
     messageListContent: @Composable () -> Unit
 ) {
-    Surface(color = colorsScheme().messageComposerBackgroundColor) {
+    Surface(color = colorsScheme().surface) {
         Column(
             Modifier
                 .fillMaxWidth()
@@ -185,7 +186,7 @@ private fun DisabledInteractionMessageComposer(
 
             Box(
                 Modifier
-                    .background(color = colorsScheme().backgroundVariant)
+                    .background(color = colorsScheme().surfaceContainerLow)
                     .then(fillRemainingSpaceBetweenMessageListContentAndMessageComposer)
             ) {
                 messageListContent()
@@ -196,7 +197,7 @@ private fun DisabledInteractionMessageComposer(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(color = colorsScheme().backgroundVariant)
+                        .background(color = colorsScheme().surfaceContainerLow)
                         .padding(dimensions().spacing16x)
                 ) {
                     Icon(
@@ -248,28 +249,36 @@ private fun BaseComposerPreview(
             )
         )
     }
-    val messageTextState = rememberTextFieldState()
+
+    val messageTextFieldValue = remember { mutableStateOf(TextFieldValue()) }
+
     val messageComposition = remember { mutableStateOf(MessageComposition(ConversationId("value", "domain"))) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
+    val messageCompositionHolder = remember {
+        mutableStateOf(
+            MessageCompositionHolder(
+                messageComposition = messageComposition,
+                messageTextFieldValue = messageTextFieldValue,
+                onClearDraft = {},
+                onSaveDraft = {},
+                onSearchMentionQueryChanged = {},
+                onClearMentionSearchResult = {},
+                onTypingEvent = {}
+            )
+        )
+    }
     MessageComposer(
         conversationId = ConversationId("value", "domain"),
         bottomSheetVisible = false,
         messageComposerStateHolder = MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
-                messageTextState = messageTextState,
+                messageTextFieldValue = messageTextFieldValue,
                 keyboardController = keyboardController,
                 focusRequester = focusRequester
             ),
-            messageCompositionHolder = MessageCompositionHolder(
-                messageComposition = messageComposition,
-                messageTextState = messageTextState,
-                onSaveDraft = {},
-                onSearchMentionQueryChanged = {},
-                onClearMentionSearchResult = {},
-                onTypingEvent = {}
-            ),
+            messageCompositionHolder = messageCompositionHolder,
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
         ),
         onPingOptionClicked = { },
@@ -284,6 +293,12 @@ private fun BaseComposerPreview(
         openDrawingCanvas = {},
         onImagesPicked = {}
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewMessageComposerEnabled() = WireTheme {
+    BaseComposerPreview(interactionAvailability = InteractionAvailability.ENABLED)
 }
 
 @PreviewMultipleThemes
@@ -308,10 +323,4 @@ private fun PreviewMessageComposerUnsupportedProtocol() = WireTheme {
 @Composable
 private fun PreviewMessageComposerLegalHold() = WireTheme {
     BaseComposerPreview(interactionAvailability = InteractionAvailability.LEGAL_HOLD)
-}
-
-@PreviewMultipleThemes
-@Composable
-private fun PreviewMessageComposerEnabled() = WireTheme {
-    BaseComposerPreview(interactionAvailability = InteractionAvailability.ENABLED)
 }

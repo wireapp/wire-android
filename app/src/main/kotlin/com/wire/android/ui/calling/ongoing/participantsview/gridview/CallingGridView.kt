@@ -34,8 +34,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import com.wire.android.BuildConfig
-import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -43,6 +41,7 @@ import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun GroupCallGrid(
@@ -51,15 +50,15 @@ fun GroupCallGrid(
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     contentHeight: Dp,
+    currentUserId: UserId,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
     spacedBy: Dp = dimensions().spacing2x,
+    isInPictureInPictureMode: Boolean,
 ) {
-    val activity = LocalActivity.current
-
     // We need the number of tiles rows needed to calculate their height
     val numberOfTilesRows = remember(participants.size) {
         tilesRowsCount(participants.size)
@@ -82,11 +81,8 @@ fun GroupCallGrid(
             key = { it.id.toString() + it.clientId + pageIndex },
             contentType = { getContentType(it.isCameraOn, it.isSharingScreen) }
         ) { participant ->
-            // since we are getting participants by chunk of 8 items,
-            // we need to check that we are on first page for self user
-            val isSelfUser = remember(pageIndex, participants.first()) {
-                pageIndex == 0 && participants.first() == participant && !BuildConfig.PICTURE_IN_PICTURE_ENABLED
-            }
+            // API returns only id.value, without domain, till this get changed compare only id.value
+            val isSelfUser = participant.id.equalsIgnoringBlankDomain(currentUserId)
 
             ParticipantTile(
                 modifier = Modifier
@@ -106,7 +102,7 @@ fun GroupCallGrid(
                     .height(tileHeight)
                     .animateItem(),
                 participantTitleState = participant,
-                isOnPiPMode = activity.isInPictureInPictureMode,
+                isOnPiPMode = isInPictureInPictureMode,
                 isSelfUser = isSelfUser,
                 isSelfUserMuted = isSelfUserMuted,
                 isSelfUserCameraOn = isSelfUserCameraOn,
@@ -142,7 +138,9 @@ private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier
             contentHeight = 800.dp,
             onSelfVideoPreviewCreated = {},
             onSelfClearVideoPreview = {},
-            onDoubleTap = { }
+            onDoubleTap = { },
+            currentUserId = UserId("id", "domain"),
+            isInPictureInPictureMode = false,
         )
     }
 }

@@ -48,6 +48,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -86,7 +90,9 @@ fun WireButton(
         horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    onClickDescription: String? = null,
+    description: String? = null
 ) {
     val border = when {
         borderWidth > 0.dp -> BorderStroke(width = borderWidth, color = colors.outlineColor(state).value)
@@ -118,6 +124,10 @@ fun WireButton(
                         val centerY = ((height - placeable.height) / 2f).roundToInt()
                         placeable.place(centerX, centerY)
                     }
+                }
+                .semantics {
+                    onClickDescription?.let { onClick(it) { false } }
+                    description?.let { contentDescription = description }
                 },
             enabled = state != WireButtonState.Disabled,
             interactionSource = interactionSource,
@@ -138,6 +148,7 @@ fun WireButton(
                 textStyle = textStyle,
                 state = state,
                 colors = colors,
+                semanticIgnoreText = !description.isNullOrEmpty()
             )
         }
     }
@@ -155,6 +166,7 @@ private fun InnerButtonBox(
     textStyle: TextStyle = MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
     colors: WireButtonColors = wirePrimaryButtonColors(),
+    semanticIgnoreText: Boolean = false
 ) {
     val contentColor = colors.contentColor(state).value
     val leadingItem: (@Composable () -> Unit) = { leadingIcon?.let { Tint(contentColor = contentColor, content = it) } }
@@ -192,7 +204,9 @@ private fun InnerButtonBox(
         ) {
             if (leadingIconAlignment == IconAlignment.Center) leadingItem()
             if (!text.isNullOrEmpty()) {
+                val modifier = if (semanticIgnoreText) Modifier.clearAndSetSemantics { } else Modifier
                 Text(
+                    modifier = modifier,
                     text = text,
                     style = textStyle,
                     color = contentColor

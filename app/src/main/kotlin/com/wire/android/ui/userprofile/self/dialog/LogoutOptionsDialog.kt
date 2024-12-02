@@ -42,17 +42,20 @@ import com.wire.android.ui.common.visbility.VisibilityState
 fun LogoutOptionsDialog(
     dialogState: VisibilityState<LogoutOptionsDialogState>,
     logout: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
     checkboxEnabled: Boolean = true
 ) {
     VisibilityState(dialogState) { state ->
         WireDialog(
+            modifier = modifier,
             title = stringResource(R.string.dialog_logout_wipe_data_title),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = dialogState::dismiss,
                 text = stringResource(id = R.string.label_cancel),
-                state = WireButtonState.Default
+                state = WireButtonState.Default,
+                description = stringResource(R.string.dialog_logout_wipe_data_cancel_description)
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = remember(state) { { logout(state.shouldWipeData).also { dialogState.dismiss() } } },

@@ -33,6 +33,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.NavigationCommand
@@ -44,6 +45,9 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteStateArgs
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVM
+import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVMImpl
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
@@ -80,7 +84,7 @@ import com.wire.kalium.logic.data.user.UserId
 fun ConversationsScreenContent(
     navigator: Navigator,
     searchBarState: SearchBarState,
-    emptyListContent: @Composable () -> Unit = {},
+    emptyListContent: @Composable (domain: String) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
     loadingListContent: @Composable (LazyListState) -> Unit = { ConversationListLoadingContent(it) },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
@@ -98,6 +102,10 @@ fun ConversationsScreenContent(
         LocalInspectionMode.current -> ConversationCallListViewModelPreview
         else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_${conversationsSource.name}")
     },
+    changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
+        hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
+            ChangeConversationFavoriteStateArgs
+        ),
 ) {
     var currentConversationOptionNavigation by remember {
         mutableStateOf<ConversationOptionNavigation>(ConversationOptionNavigation.Home)
@@ -178,36 +186,65 @@ fun ConversationsScreenContent(
             }
         }
 
-        with(conversationListViewModel.conversationListState) {
-            val lazyPagingItems = foldersWithConversations.collectAsLazyPagingItems()
-            var showLoading by remember { mutableStateOf(!initiallyLoaded) }
-            if (lazyPagingItems.loadState.refresh != LoadState.Loading && showLoading) {
-                showLoading = false
+        when (val state = conversationListViewModel.conversationListState) {
+            is ConversationListState.Paginated -> {
+                val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
+                var showLoading by remember { mutableStateOf(!initiallyLoaded) }
+                if (lazyPagingItems.loadState.refresh != LoadState.Loading && showLoading) {
+                    showLoading = false
+                }
+
+                when {
+                    // when conversation list is not yet fetched, show loading indicator
+                    showLoading -> loadingListContent(lazyListState)
+                    // when there is at least one conversation
+                    lazyPagingItems.itemCount > 0 -> ConversationList(
+                        lazyPagingConversations = lazyPagingItems,
+                        lazyListState = lazyListState,
+                        onOpenConversation = onOpenConversation,
+                        onEditConversation = onEditConversationItem,
+                        onOpenUserProfile = onOpenUserProfile,
+                        onJoinCall = onJoinCall,
+                        onAudioPermissionPermanentlyDenied = {
+                            permissionPermanentlyDeniedDialogState.show(
+                                PermissionPermanentlyDeniedDialogState.Visible(
+                                    R.string.app_permission_dialog_title,
+                                    R.string.call_permission_dialog_description
+                                )
+                            )
+                        }
+                    )
+                    // when there is no conversation in any folder
+                    searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
+                    else -> emptyListContent(state.domain)
+                }
             }
 
-            when {
-                // when conversation list is not yet fetched, show loading indicator
-                showLoading -> loadingListContent(lazyListState)
-                // when there is at least one conversation
-                lazyPagingItems.itemCount > 0 -> ConversationList(
-                    lazyPagingConversations = lazyPagingItems,
-                    lazyListState = lazyListState,
-                    onOpenConversation = onOpenConversation,
-                    onEditConversation = onEditConversationItem,
-                    onOpenUserProfile = onOpenUserProfile,
-                    onJoinCall = onJoinCall,
-                    onAudioPermissionPermanentlyDenied = {
-                        permissionPermanentlyDeniedDialogState.show(
-                            PermissionPermanentlyDeniedDialogState.Visible(
-                                R.string.app_permission_dialog_title,
-                                R.string.call_permission_dialog_description
+            is ConversationListState.NotPaginated -> {
+                when {
+                    // when conversation list is not yet fetched, show loading indicator
+                    state.isLoading -> loadingListContent(lazyListState)
+                    // when there is at least one conversation in any folder
+                    state.conversations.isNotEmpty() && state.conversations.any { it.value.isNotEmpty() } -> ConversationList(
+                        lazyListState = lazyListState,
+                        conversationListItems = state.conversations,
+                        onOpenConversation = onOpenConversation,
+                        onEditConversation = onEditConversationItem,
+                        onOpenUserProfile = onOpenUserProfile,
+                        onJoinCall = onJoinCall,
+                        onAudioPermissionPermanentlyDenied = {
+                            permissionPermanentlyDeniedDialogState.show(
+                                PermissionPermanentlyDeniedDialogState.Visible(
+                                    R.string.app_permission_dialog_title,
+                                    R.string.call_permission_dialog_description
+                                )
                             )
-                        )
-                    }
-                )
-                // when there is no conversation in any folder
-                searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
-                else -> emptyListContent()
+                        }
+                    )
+                    // when there is no conversation in any folder
+                    searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
+                    else -> emptyListContent(state.domain)
+                }
             }
         }
 
@@ -275,7 +312,7 @@ fun ConversationsScreenContent(
                             mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
                         )
                     },
-                    addConversationToFavourites = conversationListViewModel::addConversationToFavourites,
+                    changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
                     moveConversationToFolder = conversationListViewModel::moveConversationToFolder,
                     updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
                     clearConversationContent = clearContentDialogState::show,
@@ -289,6 +326,9 @@ fun ConversationsScreenContent(
     }
 
     SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage)
+    SnackBarMessageHandler(infoMessages = changeConversationFavoriteStateViewModel.infoMessage, onEmitted = {
+        sheetState.hide()
+    })
 }
 
 private const val TAG = "BaseConversationsScreen"

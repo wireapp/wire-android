@@ -22,11 +22,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,9 +45,9 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun MessageDetailsEmptyScreenText(
     onClick: () -> Unit,
-    modifier: Modifier,
     text: String,
-    learnMoreText: String
+    learnMoreText: String,
+    modifier: Modifier = Modifier
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -72,7 +72,7 @@ fun MessageDetailsEmptyScreenText(
                 append(learnMoreText)
                 addStyle(
                     style = SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         textDecoration = TextDecoration.Underline
                     ),
                     start = 0,

@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.common
 
-import androidx.compose.foundation.selection.selectable
+import android.annotation.SuppressLint
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -29,13 +29,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
+import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -53,13 +57,25 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 // todo try to move as much as we can to common
 
+@SuppressLint("ComposeComposableModifier")
 @Composable
-fun Modifier.selectableBackground(isSelected: Boolean, onClick: () -> Unit): Modifier =
-    this.selectable(
-        selected = isSelected,
+fun Modifier.selectableBackground(
+    isSelected: Boolean,
+    onClickDescription: String = stringResource(id = R.string.content_description_select_label),
+    onClick: () -> Unit
+): Modifier {
+    val onItemClick = Clickable(
+        enabled = !isSelected,
         onClick = onClick,
-        role = Role.Tab
+        onClickDescription = onClickDescription
     )
+
+    return this
+        .clickable(onItemClick)
+        .semantics {
+            if (isSelected) selected = true // So TalkBack ignores selection when it's not selected
+        }
+}
 
 @Composable
 fun Modifier.shimmerPlaceholder(

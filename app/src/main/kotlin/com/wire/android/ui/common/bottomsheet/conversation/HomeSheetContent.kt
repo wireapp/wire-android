@@ -53,12 +53,14 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.ConnectionState
 
+// items cannot be simplified
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
-// TODO(profile): enable when implemented
-//    addConversationToFavourites: () -> Unit,
-//    moveConversationToFolder: () -> Unit,
+    changeFavoriteState: (dialogState: GroupDialogState, addToFavorite: Boolean) -> Unit,
+    // TODO(profile): enable when implemented
+    // moveConversationToFolder: () -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
@@ -96,32 +98,50 @@ internal fun ConversationMainSheetContent(
                 add {
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_mute,
-                                contentDescription = stringResource(R.string.content_description_muted_conversation),
+                                contentDescription = null,
                             )
                         },
-                        action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
-                        onItemClick = navigateToNotification
+                        trailing = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
+                        onItemClick = navigateToNotification,
+                        onItemClickDescription = stringResource(id = R.string.content_description_open_notification_settings_label)
                     )
                 }
             }
+
+            if (conversationSheetContent.canAddToFavourite() && !conversationSheetContent.isArchived) {
+                conversationSheetContent.isFavorite?.let { isFavorite ->
+                    add {
+                        MenuBottomSheetItem(
+                            title = stringResource(
+                                if (isFavorite) {
+                                    R.string.label_remove_from_favourites
+                                } else {
+                                    R.string.label_add_to_favourites
+                                }
+                            ),
+                            leading = {
+                                MenuItemIcon(
+                                    id = R.drawable.ic_favourite,
+                                    contentDescription = null
+                                )
+                            },
+                            onItemClick = {
+                                changeFavoriteState(
+                                    GroupDialogState(
+                                        conversationSheetContent.conversationId,
+                                        conversationSheetContent.title
+                                    ),
+                                    !isFavorite
+                                )
+                            }
+                        )
+                    }
+                }
+            }
 // TODO(profile): enable when implemented
-//
-//            if (conversationSheetContent.canAddToFavourite())
-//                add {
-//                    MenuBottomSheetItem(
-//                        title = stringResource(R.string.label_add_to_favourites),
-//                        icon = {
-//                            MenuItemIcon(
-//                                id = R.drawable.ic_favourite,
-//                                contentDescription = stringResource(R.string.content_description_add_to_favourite),
-//                            )
-//                        },
-//                        onItemClick = addConversationToFavourites
-//                    )
-//                }
 //            add {
 //                MenuBottomSheetItem(
 //                    icon = {
@@ -136,13 +156,10 @@ internal fun ConversationMainSheetContent(
 //            }
             add {
                 MenuBottomSheetItem(
-                    icon = {
+                    leading = {
                         MenuItemIcon(
                             id = R.drawable.ic_archive,
-                            contentDescription = stringResource(
-                                if (conversationSheetContent.isArchived) R.string.content_description_unarchive
-                                else R.string.content_description_move_to_archive
-                            ),
+                            contentDescription = null,
                         )
                     },
                     title = stringResource(
@@ -161,14 +178,15 @@ internal fun ConversationMainSheetContent(
                                 )
                             )
                         }
-                    })
+                    }
+                )
             }
             add {
                 MenuBottomSheetItem(
-                    icon = {
+                    leading = {
                         MenuItemIcon(
                             id = R.drawable.ic_erase,
-                            contentDescription = stringResource(R.string.content_description_clear_content),
+                            contentDescription = null,
                         )
                     },
                     title = stringResource(R.string.label_clear_content),
@@ -188,10 +206,10 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canBlockUser()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_block,
-                                contentDescription = stringResource(R.string.content_description_block_the_user),
+                                contentDescription = null,
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.error,
@@ -211,10 +229,10 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canUnblockUser()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_block,
-                                contentDescription = stringResource(R.string.content_description_unblock_the_user)
+                                contentDescription = null
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.onBackground,
@@ -233,10 +251,10 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canLeaveTheGroup()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_leave,
-                                contentDescription = stringResource(R.string.content_description_leave_the_group),
+                                contentDescription = null,
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.error,
@@ -255,10 +273,10 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canDeleteGroup()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_remove,
-                                contentDescription = stringResource(R.string.content_description_delete_the_group),
+                                contentDescription = null,
                             )
                         },
                         title = stringResource(R.string.label_delete_group),
@@ -293,6 +311,6 @@ fun NotificationsOptionsItemAction(
             modifier = Modifier.weight(weight = 1f, fill = false)
         )
         Spacer(modifier = Modifier.size(dimensions().spacing16x))
-        ArrowRightIcon()
+        ArrowRightIcon(contentDescription = R.string.content_description_empty)
     }
 }

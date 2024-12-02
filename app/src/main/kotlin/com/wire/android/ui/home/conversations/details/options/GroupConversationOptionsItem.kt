@@ -34,9 +34,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -50,12 +53,11 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun GroupConversationOptionsItem(
     title: String,
-    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }),
     modifier: Modifier = Modifier
         .fillMaxWidth()
         .background(MaterialTheme.wireColorScheme.surface)
-        .clickable(clickable)
         .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight),
+    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }),
     subtitle: String? = null,
     label: String? = null,
     trailingOnText: String? = null,
@@ -64,10 +66,13 @@ fun GroupConversationOptionsItem(
     switchState: SwitchState = SwitchState.None,
     titleStyle: TextStyle = MaterialTheme.wireTypography.body02,
     arrowType: ArrowType = ArrowType.CENTER_ALIGNED,
+    contentDescription: String? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .clickable(clickable)
+            .semantics { contentDescription?.let { this.contentDescription = contentDescription } }
             .padding(
                 top = MaterialTheme.wireDimensions.spacing12x,
                 bottom = MaterialTheme.wireDimensions.spacing12x,
@@ -76,8 +81,7 @@ fun GroupConversationOptionsItem(
             )
     ) {
         Column(
-            modifier = Modifier
-                .weight(1f)
+            modifier = Modifier.weight(1f)
         ) {
             if (label != null) {
                 Text(
@@ -97,7 +101,10 @@ fun GroupConversationOptionsItem(
                 if (titleTrailingItem != null) {
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
                 }
-                SettingsOptionSwitch(switchState, trailingOnText)
+                SettingsOptionSwitch(
+                    switchState = switchState,
+                    trailingOnText = trailingOnText
+                )
 
                 if (arrowType == ArrowType.TITLE_ALIGNED) {
                     ArrowRight()
@@ -126,7 +133,7 @@ private fun ArrowRight() {
             start = MaterialTheme.wireDimensions.spacing8x,
             end = MaterialTheme.wireDimensions.spacing8x
         )
-    ) { ArrowRightIcon() }
+    ) { ArrowRightIcon(contentDescription = R.string.content_description_empty) }
 }
 
 enum class ArrowType {

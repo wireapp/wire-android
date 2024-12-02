@@ -38,6 +38,7 @@ plugins {
     id(ScriptPlugins.testing)
     id(libs.plugins.wire.kover.get().pluginId)
     id(libs.plugins.wire.versionizer.get().pluginId)
+    alias(libs.plugins.screenshot)
 }
 
 repositories {
@@ -61,6 +62,14 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
 
 android {
     defaultConfig {
+        ndk {
+            abiFilters.apply {
+                add("armeabi-v7a")
+                add("arm64-v8a")
+                add("x86_64")
+            }
+        }
+
         val datadogApiKeyKey = "DATADOG_CLIENT_TOKEN"
         val datadogApiKey: String? = System.getenv(datadogApiKeyKey) ?: project.getLocalProperty(datadogApiKeyKey, null)
         buildConfigField("String", datadogApiKeyKey, datadogApiKey?.let { "\"$it\"" } ?: "null")
@@ -82,6 +91,13 @@ android {
         jniLibs.pickFirsts.add("**/libsodium.so")
     }
     android.buildFeatures.buildConfig = true
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
+
+    testOptions {
+        screenshotTests {
+            imageDifferenceThreshold = 0.0001f // 0.01%
+        }
+    }
 
     sourceSets {
         allFlavors.forEach { flavor ->
@@ -106,6 +122,10 @@ android {
         }
         getByName("androidTest") {
             java.srcDirs("src/androidTest/kotlin")
+        }
+        create("screenshotTest") {
+            java.srcDirs("src/screenshotTest/kotlin")
+            res.srcDirs("src/main/res")
         }
     }
 }
@@ -239,6 +259,9 @@ dependencies {
     implementation(libs.aboutLibraries.core)
     implementation(libs.aboutLibraries.ui)
     implementation(libs.compose.qr.code)
+
+    // screenshot testing
+    screenshotTestImplementation(libs.compose.ui.tooling)
 
     // Unit/Android tests dependencies
     testImplementation(libs.androidx.test.archCore)

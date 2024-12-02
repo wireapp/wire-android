@@ -114,9 +114,14 @@ fun SearchUsersAndServicesScreen(
                         elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                         title = searchTitle,
                         navigationIconType = when (screenType) {
-                            SearchPeopleScreenType.CONVERSATION_DETAILS -> NavigationIconType.Close
-                            SearchPeopleScreenType.NEW_CONVERSATION -> NavigationIconType.Close
-                            SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> NavigationIconType.Back
+                            SearchPeopleScreenType.CONVERSATION_DETAILS ->
+                                NavigationIconType.Close(R.string.content_description_add_participants_close)
+
+                            SearchPeopleScreenType.NEW_CONVERSATION ->
+                                NavigationIconType.Close(R.string.content_description_new_conversation_close_btn)
+
+                            SearchPeopleScreenType.NEW_GROUP_CONVERSATION ->
+                                NavigationIconType.Back(R.string.content_description_new_group_conversation_back_btn)
                         },
                         onNavigationPressed = onClose
                     )
@@ -127,6 +132,7 @@ fun SearchUsersAndServicesScreen(
             SearchTopBar(
                 isSearchActive = searchBarState.isSearchActive,
                 searchBarHint = stringResource(R.string.label_search_people),
+                searchBarDescription = stringResource(R.string.content_description_add_participants_search_field),
                 searchQueryTextState = searchBarState.searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,
             )
@@ -163,7 +169,6 @@ fun SearchUsersAndServicesScreen(
                                 onOpenUserProfile = onOpenUserProfile,
                                 onContactChecked = onContactChecked,
                                 isSearchActive = searchBarState.isSearchActive,
-                                isLoading = false, // TODO: update correctly
                                 actionType = actionType,
                                 lazyListState = lazyListStates[pageIndex],
                             )
@@ -220,6 +225,7 @@ fun SearchUsersAndServicesScreen(
 enum class SearchPeopleTabItem(@StringRes val titleResId: Int) : TabItem {
     PEOPLE(R.string.label_add_member_people),
     SERVICES(R.string.label_add_member_services);
+
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
@@ -233,7 +239,6 @@ enum class SearchPeopleScreenType {
 private fun SearchAllPeopleOrContactsScreen(
     searchQuery: String,
     contactsSelected: ImmutableSet<Contact>,
-    isLoading: Boolean,
     isSearchActive: Boolean,
     actionType: ItemActionType,
     onOpenUserProfile: (Contact) -> Unit,
@@ -266,7 +271,7 @@ private fun SearchAllPeopleOrContactsScreen(
         onOpenUserProfile = onOpenUserProfile,
         lazyListState = lazyListState,
         isSearchActive = isSearchActive,
-        isLoading = isLoading,
+        isLoading = searchUserViewModel.state.isLoading,
         actionType = actionType,
         selectedContactResultsExpanded = selectedContactResultsExpanded,
         onSelectedContactResultsExpansionChanged = remember { { selectedContactResultsExpanded = it } },

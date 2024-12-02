@@ -96,6 +96,7 @@ import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -106,9 +107,11 @@ import java.util.Locale
 fun OngoingCallScreen(
     conversationId: ConversationId,
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel<OngoingCallViewModel, OngoingCallViewModel.Factory>(
+        key = "ongoing_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+        key = "shared_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     )
 ) {
@@ -161,6 +164,7 @@ fun OngoingCallScreen(
         }
     }
 
+    val inPictureInPictureMode = activity.isInPictureInPictureMode
     OngoingCallContent(
         callState = sharedCallingViewModel.callState,
         shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
@@ -173,9 +177,13 @@ fun OngoingCallScreen(
         clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
         onCollapse = onCollapse,
         requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
+        onSelectedParticipant = ongoingCallViewModel::onSelectedParticipant,
+        selectedParticipantForFullScreen = ongoingCallViewModel.selectedParticipant,
         hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
         onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
-        participants = sharedCallingViewModel.participantsState
+        participants = sharedCallingViewModel.participantsState,
+        inPictureInPictureMode = inPictureInPictureMode,
+        currentUserId = ongoingCallViewModel.currentUserId,
     )
 
     BackHandler {
@@ -283,10 +291,12 @@ private fun OngoingCallContent(
     hideDoubleTapToast: () -> Unit,
     onCameraPermissionPermanentlyDenied: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
-    participants: PersistentList<UICallParticipant>
+    onSelectedParticipant: (selectedParticipant: SelectedParticipant) -> Unit,
+    selectedParticipantForFullScreen: SelectedParticipant,
+    participants: PersistentList<UICallParticipant>,
+    inPictureInPictureMode: Boolean,
+    currentUserId: UserId,
 ) {
-    val activity = LocalActivity.current
-
     val sheetInitialValue = SheetValue.PartiallyExpanded
     val sheetState = rememberStandardBottomSheetState(
         initialValue = sheetInitialValue
@@ -297,11 +307,10 @@ private fun OngoingCallContent(
     )
 
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
-    var selectedParticipantForFullScreen by remember { mutableStateOf(SelectedParticipant()) }
 
     WireBottomSheetScaffold(
         sheetDragHandle = null,
-        topBar = if (activity.isInPictureInPictureMode) {
+        topBar = if (inPictureInPictureMode) {
             null
         } else {
             {
@@ -319,10 +328,10 @@ private fun OngoingCallContent(
                 )
             }
         },
-        sheetPeekHeight = if (activity.isInPictureInPictureMode) 0.dp else dimensions().defaultSheetPeekHeight,
+        sheetPeekHeight = if (inPictureInPictureMode) 0.dp else dimensions().defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
         sheetContent = {
-            if (!activity.isInPictureInPictureMode) {
+            if (!inPictureInPictureMode) {
                 CallingControls(
                     conversationId = callState.conversationId,
                     isMuted = callState.isMuted ?: true,
@@ -343,7 +352,7 @@ private fun OngoingCallContent(
             modifier = Modifier
                 .padding(
                     top = it.calculateTopPadding(),
-                    bottom = if (activity.isInPictureInPictureMode) 0.dp else dimensions().defaultSheetPeekHeight
+                    bottom = if (inPictureInPictureMode) 0.dp else dimensions().defaultSheetPeekHeight
                 )
         ) {
 
@@ -385,11 +394,14 @@ private fun OngoingCallContent(
                             selectedParticipant = selectedParticipantForFullScreen,
                             height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x,
                             closeFullScreen = {
+                                onSelectedParticipant(SelectedParticipant())
                                 shouldOpenFullScreen = !shouldOpenFullScreen
                             },
                             onBackButtonClicked = {
+                                onSelectedParticipant(SelectedParticipant())
                                 shouldOpenFullScreen = !shouldOpenFullScreen
                             },
+                            requestVideoStreams = requestVideoStreams,
                             setVideoPreview = setVideoPreview,
                             clearVideoPreview = clearVideoPreview,
                             participants = participants
@@ -399,29 +411,35 @@ private fun OngoingCallContent(
                             participants = participants,
                             isSelfUserCameraOn = callState.isCameraOn,
                             isSelfUserMuted = callState.isMuted ?: true,
+                            isInPictureInPictureMode = inPictureInPictureMode,
                             contentHeight = this@BoxWithConstraints.maxHeight,
                             onSelfVideoPreviewCreated = setVideoPreview,
                             onSelfClearVideoPreview = clearVideoPreview,
                             requestVideoStreams = requestVideoStreams,
+                            currentUserId = currentUserId,
                             onDoubleTap = { selectedParticipant ->
-                                selectedParticipantForFullScreen = selectedParticipant
+                                onSelectedParticipant(selectedParticipant)
                                 shouldOpenFullScreen = !shouldOpenFullScreen
-                            }
+                            },
                         )
                         DoubleTapToast(
                             modifier = Modifier.align(Alignment.TopCenter),
                             enabled = shouldShowDoubleTapToast,
-                            text = stringResource(id = R.string.calling_ongoing_double_tap_for_full_screen)
-                        ) {
-                            hideDoubleTapToast()
-                        }
+                            text = stringResource(id = R.string.calling_ongoing_double_tap_for_full_screen),
+                            onTap = hideDoubleTapToast
+                        )
                     }
                     if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+                        val selfUser =
+                            participants.first { participant ->
+                                // API returns only id.value, without domain, till this get changed compare only id.value
+                                participant.id.equalsIgnoringBlankDomain(currentUserId)
+                            }
                         FloatingSelfUserTile(
                             modifier = Modifier.align(Alignment.TopEnd),
                             contentHeight = this@BoxWithConstraints.maxHeight,
                             contentWidth = this@BoxWithConstraints.maxWidth,
-                            participant = participants.first(),
+                            participant = selfUser,
                             onSelfUserVideoPreviewCreated = setVideoPreview,
                             onClearSelfUserVideoPreview = clearVideoPreview
                         )
@@ -565,7 +583,11 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>) {
         hideDoubleTapToast = {},
         onCameraPermissionPermanentlyDenied = {},
         requestVideoStreams = {},
-        participants = participants
+        participants = participants,
+        inPictureInPictureMode = false,
+        currentUserId = UserId("userId", "domain"),
+        onSelectedParticipant = {},
+        selectedParticipantForFullScreen = SelectedParticipant(),
     )
 }
 

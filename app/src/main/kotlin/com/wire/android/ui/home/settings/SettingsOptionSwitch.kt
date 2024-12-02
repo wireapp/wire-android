@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.WireSwitch
@@ -32,9 +33,13 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun SettingsOptionSwitch(
     switchState: SwitchState,
+    modifier: Modifier = Modifier,
     trailingOnText: String? = null
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         if (switchState is SwitchState.Visible) {
             if (switchState.isOnOffVisible) {
                 HorizontalSpace.x8()
@@ -57,7 +62,8 @@ fun SettingsOptionSwitch(
                 WireSwitch(
                     checked = switchState.value,
                     enabled = switchState is SwitchState.Enabled,
-                    onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
+                    onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange,
+                    toggleActionDescription = stringResource(id = R.string.content_description_toggle_setting_label)
                 )
             }
         }

@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.common
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -28,6 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.util.LocalSyncStateObserver
@@ -60,16 +64,24 @@ fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: ()
     }
 }
 
+@SuppressLint("ComposeComposableModifier")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
-    val onClick = rememberClickBlockAction(clickable.clickBlockParams, clickable.onClick)
-    val onLongClick = clickable.onLongClick?.let { onLongClick ->
-        rememberClickBlockAction(clickable.clickBlockParams, onLongClick)
+    if (clickable.enabled) {
+        val onClick = rememberClickBlockAction(clickable.clickBlockParams, clickable.onClick)
+        val onLongClick = clickable.onLongClick?.let { onLongClick ->
+            rememberClickBlockAction(clickable.clickBlockParams, onLongClick)
+        }
+        this.combinedClickable(
+            enabled = clickable.enabled,
+            onClick = onClick,
+            onLongClick = onLongClick,
+            onClickLabel = clickable.onClickDescription,
+            onLongClickLabel = clickable.onLongClickDescription
+        )
+    } else {
+        // even though element is disabled we want to merge all inner elements into one for TalkBack
+        this.semantics(mergeDescendants = true) { }
     }
-    this.combinedClickable(
-        enabled = clickable.enabled,
-        onClick = onClick,
-        onLongClick = onLongClick
-    )
 } ?: this

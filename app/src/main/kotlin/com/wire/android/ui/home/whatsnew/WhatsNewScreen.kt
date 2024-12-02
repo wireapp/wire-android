@@ -27,10 +27,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireDestination
@@ -49,7 +52,7 @@ fun WhatsNewScreen(
     val context = LocalContext.current
     WhatsNewScreenContent(
         state = whatsNewViewModel.state,
-        lazyListState = homeStateHolder.currentLazyListState,
+        lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.WhatsNew),
         onItemClicked = remember {
             {
                 it.direction.handleNavigation(
@@ -69,17 +72,21 @@ fun WhatsNewScreenContent(
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
+    val openLinkLabel = stringResource(R.string.content_description_open_link_label)
     LazyColumn(
         state = lazyListState,
         modifier = modifier.fillMaxSize()
     ) {
-        folderWithElements(
-            items = buildList {
-                add(WhatsNewItem.WelcomeToNewAndroidApp)
-            },
-            onItemClicked = onItemClicked,
-            isLoading = false,
-        )
+        if (BuildConfig.SHOULD_DISPLAY_RELEASE_NOTES) {
+            folderWithElements(
+                items = buildList {
+                    add(WhatsNewItem.WelcomeToNewAndroidApp)
+                },
+                onItemClicked = onItemClicked,
+                onItemClickedDescription = openLinkLabel,
+                isLoading = false,
+            )
+        }
 
         folderWithElements(
             header = context.getString(R.string.whats_new_release_notes_group_title),
@@ -99,21 +106,24 @@ fun WhatsNewScreenContent(
                     }
                     add(WhatsNewItem.AllAndroidReleaseNotes(id = "placeholder_all"))
                 } else {
-                    state.releaseNotesItems.forEach {
-                        add(
-                            WhatsNewItem.AndroidReleaseNotes(
-                                id = it.id,
-                                title = UIText.DynamicString(it.title),
-                                boldTitle = true,
-                                text = UIText.DynamicString(it.publishDate),
-                                url = it.link,
+                    if (BuildConfig.SHOULD_DISPLAY_RELEASE_NOTES) {
+                        state.releaseNotesItems.forEach {
+                            add(
+                                WhatsNewItem.AndroidReleaseNotes(
+                                    id = it.id,
+                                    title = UIText.DynamicString(it.title),
+                                    boldTitle = true,
+                                    text = UIText.DynamicString(it.publishDate),
+                                    url = it.link,
+                                )
                             )
-                        )
+                        }
                     }
                     add(WhatsNewItem.AllAndroidReleaseNotes())
                 }
             },
             onItemClicked = onItemClicked,
+            onItemClickedDescription = openLinkLabel,
             isLoading = state.isLoading,
         )
     }
@@ -123,17 +133,30 @@ private fun LazyListScope.folderWithElements(
     header: String? = null,
     items: List<WhatsNewItem>,
     onItemClicked: (WhatsNewItem) -> Unit,
+    onItemClickedDescription: String,
     isLoading: Boolean,
 ) {
     folderWithElements(
         header = header?.uppercase(),
         items = items.associateBy { it.id }
     ) { item ->
+        val contentDescription = when (item) {
+            WhatsNewItem.WelcomeToNewAndroidApp -> stringResource(R.string.content_description_whats_new_welcome_item)
+            is WhatsNewItem.AllAndroidReleaseNotes -> stringResource(R.string.content_description_whats_new_all_releases_item)
+            is WhatsNewItem.AndroidReleaseNotes ->
+                stringResource(R.string.content_description_whats_new_release_item, item.title.asString(), item.text?.asString() ?: "")
+        }
         WhatsNewItem(
             title = item.title.asString(),
             boldTitle = item.boldTitle,
             text = item.text?.asString(),
-            onRowPressed = remember(isLoading) { Clickable(enabled = !isLoading) { onItemClicked(item) } },
+            onRowPressed = remember(isLoading) {
+                Clickable(
+                    enabled = !isLoading,
+                    onClickDescription = onItemClickedDescription
+                ) { onItemClicked(item) }
+            },
+            contentDescription = contentDescription,
             trailingIcon = R.drawable.ic_arrow_right,
             isLoading = isLoading,
         )

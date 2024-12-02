@@ -20,7 +20,10 @@ package com.wire.android.ui.common
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDarkColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireFixedColorScheme
+import com.wire.android.ui.theme.wireLightColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
@@ -28,6 +31,15 @@ fun dimensions() = MaterialTheme.wireDimensions
 
 @Composable
 fun colorsScheme() = MaterialTheme.wireColorScheme
+
+@Composable
+fun darkColorsScheme() = MaterialTheme.wireDarkColorScheme
+
+@Composable
+fun lightColorsScheme() = MaterialTheme.wireLightColorScheme
+
+@Composable
+fun fixedColorsScheme() = MaterialTheme.wireFixedColorScheme
 
 @Composable
 fun typography() = MaterialTheme.wireTypography

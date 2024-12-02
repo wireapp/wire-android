@@ -42,6 +42,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
@@ -63,6 +65,8 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+
+const val DEVICE_ITEM_TEST_TAG = "device_item"
 
 @Composable
 fun DeviceItem(
@@ -104,7 +108,11 @@ private fun DeviceItemContent(
     Row(
         verticalAlignment = Alignment.Top,
         modifier = modifier
-            .clickable(enabled = isWholeItemClickable) {
+            .testTag(DEVICE_ITEM_TEST_TAG)
+            .clickable(
+                enabled = isWholeItemClickable,
+                onClickLabel = stringResource(id = R.string.content_description_user_profile_open_device_btn)
+            ) {
                 if (isWholeItemClickable) {
                     onClickAction?.invoke(device)
                 }
@@ -118,7 +126,7 @@ private fun DeviceItemContent(
             Icon(
                 modifier = Modifier.shimmerPlaceholder(visible = placeholder),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_devices),
-                contentDescription = stringResource(R.string.content_description_remove_devices_screen_device_item_icon)
+                contentDescription = null
             )
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -183,13 +191,22 @@ private fun ColumnScope.DeviceItemTexts(
             .fillMaxWidth()
             .shimmerPlaceholder(visible = placeholder)
     ) {
+        val deviceName = device.name.asString()
+        val shouldAddNotVerifiedLabel = shouldShowVerifyLabel && !shouldShowE2EIInfo && !(device.isVerifiedProteus && !isCurrentClient)
+        val semantic = if (shouldAddNotVerifiedLabel) {
+            val notVerifiedLabel = stringResource(R.string.label_client_unverified)
+            Modifier.clearAndSetSemantics { contentDescription = "$deviceName, $notVerifiedLabel" }
+        } else {
+            Modifier
+        }
         Text(
             style = MaterialTheme.wireTypography.body02,
             color = MaterialTheme.wireColorScheme.onBackground,
-            text = device.name.asString(),
+            text = deviceName,
             modifier = Modifier
                 .wrapContentWidth()
                 .shimmerPlaceholder(visible = placeholder)
+                .then(semantic)
         )
         if (shouldShowVerifyLabel) {
             if (shouldShowE2EIInfo) {
@@ -199,7 +216,8 @@ private fun ColumnScope.DeviceItemTexts(
                 ProteusVerifiedIcon(
                     Modifier
                         .wrapContentWidth()
-                        .align(Alignment.CenterVertically))
+                        .align(Alignment.CenterVertically)
+                )
             }
         }
     }
@@ -216,10 +234,20 @@ private fun ColumnScope.DeviceItemTexts(
 
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
 
+    MLSDetails(device, placeholder)
+
+    ProteusDetails(device, placeholder)
+}
+
+@Composable
+private fun MLSDetails(
+    device: Device,
+    placeholder: Boolean
+) {
     device.mlsClientIdentity?.let { identity ->
         Text(
             style = MaterialTheme.wireTypography.subline01,
-            color = MaterialTheme.wireColorScheme.labelText,
+            color = MaterialTheme.wireColorScheme.secondaryText,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             text = stringResource(
@@ -231,7 +259,13 @@ private fun ColumnScope.DeviceItemTexts(
                 .shimmerPlaceholder(visible = placeholder)
         )
     }
+}
 
+@Composable
+private fun ProteusDetails(
+    device: Device,
+    placeholder: Boolean
+) {
     val proteusDetails: String = if (!device.registrationTime.isNullOrBlank()) {
         if (device.lastActiveInWholeWeeks != null) {
             stringResource(
@@ -255,7 +289,7 @@ private fun ColumnScope.DeviceItemTexts(
     }
     Text(
         style = MaterialTheme.wireTypography.subline01,
-        color = MaterialTheme.wireColorScheme.labelText,
+        color = MaterialTheme.wireColorScheme.secondaryText,
         text = proteusDetails,
         minLines = 2,
         modifier = Modifier

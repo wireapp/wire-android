@@ -40,6 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -83,6 +86,7 @@ fun WireDialog(
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     centerContent: Boolean = false,
     titleLoading: Boolean = false,
+    dialogDescription: String = stringResource(R.string.content_description_alert),
     content: @Composable (() -> Unit)? = null
 ) {
     WireDialog(
@@ -109,6 +113,7 @@ fun WireDialog(
         },
         textSuffixLink = textSuffixLink,
         centerContent = centerContent,
+        dialogDescription = dialogDescription,
         content = content
     )
 }
@@ -129,6 +134,7 @@ fun WireDialog(
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     centerContent: Boolean = false,
     titleLoading: Boolean = false,
+    dialogDescription: String = stringResource(R.string.content_description_alert),
     content: @Composable (() -> Unit)? = null
 ) {
     Dialog(
@@ -140,7 +146,7 @@ fun WireDialog(
             optionButton2Properties = optionButton2Properties,
             dismissButtonProperties = dismissButtonProperties,
             buttonsHorizontalAlignment = buttonsHorizontalAlignment,
-            modifier = modifier,
+            modifier = modifier.semantics { paneTitle = dialogDescription },
             shape = shape,
             contentPadding = contentPadding,
             title = title,
@@ -225,7 +231,7 @@ fun WireDialogContent(
 @Composable
 private fun TitleDialogSection(title: String, titleLoading: Boolean) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(text = title, style = MaterialTheme.wireTypography.title02)
+        Text(text = title, style = MaterialTheme.wireTypography.title02, modifier = Modifier.semantics { heading() })
         if (titleLoading) {
             WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
         }
@@ -276,13 +282,13 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
         Box(modifier = modifier) {
             when (type) {
                 WireDialogButtonType.Primary ->
-                    WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading)
+                    WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading, description = description)
 
                 WireDialogButtonType.Secondary ->
-                    WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading)
+                    WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading, description = description)
 
                 WireDialogButtonType.Tertiary ->
-                    WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading)
+                    WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, description = description)
             }
         }
     }
@@ -295,7 +301,8 @@ data class WireDialogButtonProperties(
     val onClick: () -> Unit,
     val state: WireButtonState = WireButtonState.Default,
     val type: WireDialogButtonType = WireDialogButtonType.Secondary,
-    val loading: Boolean = false
+    val loading: Boolean = false,
+    val description: String? = null
 )
 
 data class DialogTextSuffixLink(val linkText: String, val linkUrl: String)

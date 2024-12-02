@@ -28,6 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -76,6 +78,7 @@ fun ConversationParticipantItem(
                 modifier = Modifier.padding(
                     start = dimensions().spacing8x
                 ),
+                contentDescription = null,
                 type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithIndicators.RegularUser()
             )
         },
@@ -109,7 +112,7 @@ fun ConversationParticipantItem(
 
                 if (uiParticipant.isMLSVerified) MLSVerifiedIcon()
                 if (uiParticipant.isProteusVerified) ProteusVerifiedIcon()
-                if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                if (BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                     uiParticipant.supportedProtocolList.map {
                         ProtocolLabel(
                             protocolName = it.name,
@@ -123,10 +126,18 @@ fun ConversationParticipantItem(
             }
         },
         subtitle = {
+            val userName = processUsername(uiParticipant)
+            // Availability status should be called after username by TalkBack
+            val subtitleModifier = uiParticipant.avatarData.getAvailabilityStatusDescriptionId()?.let {
+                val contentDescription = stringResource(it)
+                Modifier.semantics { this.contentDescription = "$userName, $contentDescription" }
+            } ?: Modifier
+
             HighlightSubtitle(
-                subTitle = processUsername(uiParticipant),
+                subTitle = userName,
                 searchQuery = searchQuery,
-                prefix = processUsernamePrefix(uiParticipant)
+                prefix = processUsernamePrefix(uiParticipant),
+                modifier = subtitleModifier
             )
         },
         actions = {
@@ -136,7 +147,10 @@ fun ConversationParticipantItem(
                         .wrapContentWidth()
                         .padding(end = MaterialTheme.wireDimensions.spacing8x)
                 ) {
-                    ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+                    ArrowRightIcon(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        contentDescription = R.string.content_description_empty
+                    )
                 }
             }
         },

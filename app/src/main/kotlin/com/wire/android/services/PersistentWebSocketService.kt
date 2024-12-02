@@ -18,11 +18,13 @@
 
 package com.wire.android.services
 
+import android.app.ForegroundServiceStartNotAllowedException
 import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
@@ -127,16 +129,34 @@ class PersistentWebSocketService : Service() {
             .setSmallIcon(R.drawable.websocket_notification_icon_small)
             .setContentIntent(openAppPendingIntent(this))
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setAutoCancel(false)
             .setOngoing(true)
             .build()
 
-        ServiceCompat.startForeground(
-            this,
-            NotificationIds.PERSISTENT_NOTIFICATION_ID.ordinal,
-            notification,
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                ServiceCompat.startForeground(
+                    this,
+                    NotificationIds.PERSISTENT_NOTIFICATION_ID.ordinal,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                )
+            } catch (e: ForegroundServiceStartNotAllowedException) {
+                // ForegroundServiceStartNotAllowedException may be thrown on restarting service from the background.
+                // this is the only suggested workaround from google for now.
+                // https://issuetracker.google.com/issues/307329994#comment86
+                appLogger.e("Failure while starting foreground: $e")
+                stopSelf()
+            }
+        } else {
+            ServiceCompat.startForeground(
+                this,
+                NotificationIds.PERSISTENT_NOTIFICATION_ID.ordinal,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            )
+        }
     }
 
     override fun onDestroy() {

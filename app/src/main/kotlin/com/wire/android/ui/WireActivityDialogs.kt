@@ -57,8 +57,6 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
-import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialog
-import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialog
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountAllowedDialogContent
@@ -255,12 +253,6 @@ fun CustomBackendDialog(
                 serverLinks = globalAppState.customBackendDialog.serverLinks,
                 onDismiss = onDismiss,
                 onConfirm = onConfirm
-            )
-        }
-
-        is CustomServerInvalidJsonDialogState -> {
-            CustomServerInvalidJsonDialog(
-                onDismiss = onDismiss
             )
         }
 

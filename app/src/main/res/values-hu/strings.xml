@@ -1116,7 +1116,6 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="custom_backend_dialog_body_backend_website">Honlap URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Kiszolgáló WSURL:</string>
     <string name="custom_backend_error_title">Hiba történt</string>
-    <string name="custom_backend_error_invalid_deeplink_data_body">A saját kiszolgálóra történő átirányítás nem volt lehetséges, mivel a JSON fájl érvénytelen beállítást tartalmazott.\n\nLépjen kapcsolatba a rendszergazdával, vagy ellenőrizze a mélylinket, ami ide vezette.</string>
     <string name="label_fetching_your_messages">Új üzenetek lekérdezése</string>
     <string name="label_text_copied">Szöveg a vágólapra másolva</string>
     <string name="label_logs_option_title">Naplók</string>

@@ -1170,7 +1170,6 @@
     <string name="custom_backend_dialog_body_backend_website">URL веб-сайта:</string>
     <string name="custom_backend_dialog_body_backend_websocket">WSURL бэкэнда:</string>
     <string name="custom_backend_error_title">Произошла ошибка</string>
-    <string name="custom_backend_error_invalid_deeplink_data_body">Перенаправление на локальный бэкэнд было неудачным, поскольку в JSON-файле была неверная конфигурация.\n\nСвяжитесь с администратором или проверьте ссылку, которая привела вас сюда.</string>
     <string name="label_fetching_your_messages">Получение новых сообщений</string>
     <string name="label_text_copied">Текст скопирован в буфер обмена</string>
     <string name="label_logs_option_title">Журналы</string>

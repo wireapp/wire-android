@@ -101,7 +101,7 @@ fun HomeDrawer(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val bottomItems = listOf(HomeDestination.WhatsNew, HomeDestination.Settings, HomeDestination.Support)
+        val bottomItems = listOf(HomeDestination.WhatsNew, HomeDestination.Settings, HomeDestination.Support, HomeDestination.Vault("abc"), HomeDestination.Vault("def"))
         bottomItems.forEach { item ->
             DrawerItem(
                 destination = item,

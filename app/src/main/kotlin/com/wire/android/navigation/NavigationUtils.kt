@@ -107,6 +107,16 @@ fun String.getBaseRoute(): String =
         else this
     }
 
+fun NavBackStackEntry.getRouteWithArguments(): String {
+    var path = destination.route ?: ""
+    arguments.let { arguments ->
+        arguments?.keySet()?.forEach { key ->
+            path = path.replace("{$key}", arguments.get(key).toString())
+        }
+    }
+    return path
+}
+
 fun Direction.handleNavigation(context: Context, handleOtherDirection: (Direction) -> Unit) = when (this) {
     is ExternalUriDirection -> CustomTabsHelper.launchUri(context, this.uri)
     is ExternalUriStringResDirection -> CustomTabsHelper.launchUri(context, this.getUri(context.resources))

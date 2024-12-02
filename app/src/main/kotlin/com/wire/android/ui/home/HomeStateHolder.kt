@@ -32,7 +32,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.navigation.HomeDestination
+import com.wire.android.navigation.HomeDestination.Archive
+import com.wire.android.navigation.HomeDestination.Conversations
+import com.wire.android.navigation.HomeDestination.Settings
+import com.wire.android.navigation.HomeDestination.Support
+import com.wire.android.navigation.HomeDestination.Vault
+import com.wire.android.navigation.HomeDestination.WhatsNew
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.getBaseRoute
+import com.wire.android.navigation.getRouteWithArguments
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
@@ -70,9 +78,10 @@ class HomeStateHolder(
 @Composable
 fun rememberHomeScreenState(
     navigator: Navigator,
+    homeDestinations: List<HomeDestination> = listOf(Conversations, Settings, Vault("abc"), Vault("def"), Archive, Support, WhatsNew),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    navController: NavHostController = rememberTrackingAnimatedNavController {
-        HomeDestination.fromRoute(it)?.itemName
+    navController: NavHostController = rememberTrackingAnimatedNavController { route ->
+        homeDestinations.find { it.direction.route.getBaseRoute() == route }?.itemName
     },
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
 ): HomeStateHolder {
@@ -80,12 +89,14 @@ fun rememberHomeScreenState(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentNavigationItemState = remember {
         derivedStateOf {
-            navBackStackEntry?.destination?.route?.let { HomeDestination.fromRoute(it) } ?: HomeDestination.Conversations
+            navBackStackEntry?.getRouteWithArguments()?.let { routeWithArguments ->
+                homeDestinations.find { it.direction.route == routeWithArguments }
+            } ?: Conversations
         }
     }
-    val lazyListStates = HomeDestination.values().associateWith { rememberLazyListState() }
+    val lazyListStates = homeDestinations.associateWith { rememberLazyListState() }
 
-    return remember {
+    return remember(homeDestinations) {
         HomeStateHolder(
             coroutineScope = coroutineScope,
             navController = navController,

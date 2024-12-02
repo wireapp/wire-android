@@ -18,21 +18,34 @@
 
 package com.wire.android.ui.home.vault
 
+import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.UnderConstructionScreen
+import kotlinx.parcelize.Parcelize
 
 @HomeNavGraph
-@WireDestination
+@WireDestination(navArgsDelegate = VaultNavArgs::class)
 @Composable
-fun VaultScreen() {
-    UnderConstructionScreen(screenName = "VaultScreen")
+fun VaultScreen(
+    navArgs: VaultNavArgs
+) {
+    UnderConstructionScreen(screenName = navArgs.name)
 }
 
 @Preview(showBackground = false)
 @Composable
 fun PreviewVaultScreen() {
-    VaultScreen()
+    VaultScreen(
+        navArgs = VaultNavArgs(
+            name = "Vault"
+        )
+    )
 }
+
+@Parcelize
+data class VaultNavArgs(
+    val name: String,
+) : Parcelable

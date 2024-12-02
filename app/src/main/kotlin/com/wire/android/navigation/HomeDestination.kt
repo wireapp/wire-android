@@ -80,10 +80,10 @@ sealed class HomeDestination(
         direction = SettingsScreenDestination
     )
 
-    data object Vault : HomeDestination(
+    data class Vault(val name: String) : HomeDestination(
         title = R.string.vault_screen_title,
         icon = R.drawable.ic_vault,
-        direction = VaultScreenDestination
+        direction = VaultScreenDestination(name)
     )
 
     data object Archive : HomeDestination(
@@ -109,11 +109,6 @@ sealed class HomeDestination(
 
     companion object {
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
-        fun fromRoute(fullRoute: String): HomeDestination? =
-            values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
-
-        fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Favorites, Group, OneOnOne, Settings, Vault, Archive, Support, WhatsNew)
     }
 }
 
@@ -123,11 +118,7 @@ fun HomeDestination.currentFilter(): ConversationFilter {
         HomeDestination.Favorites -> ConversationFilter.FAVORITES
         HomeDestination.Group -> ConversationFilter.GROUPS
         HomeDestination.OneOnOne -> ConversationFilter.ONE_ON_ONE
-        HomeDestination.Archive,
-        HomeDestination.Settings,
-        HomeDestination.Support,
-        HomeDestination.Vault,
-        HomeDestination.WhatsNew -> ConversationFilter.ALL
+        else -> ConversationFilter.ALL
     }
 }
 

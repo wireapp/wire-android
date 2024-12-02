@@ -20,34 +20,28 @@ package com.wire.android.ui.home.conversations.details.participants
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.BuildConfig
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.SupportedProtocol
 
@@ -92,32 +86,22 @@ fun GroupConversationParticipants(
 fun MLSProgressIndicator(
     mlsProgress: Float,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.wireColorScheme.primary,
-    trackColor: Color = MaterialTheme.wireColorScheme.uncheckedColor
 ) {
     val progress by animateFloatAsState(targetValue = mlsProgress)
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(dimensions().spacing28x))
-            .height(dimensions().spacing32x),
-        contentAlignment = Alignment.Center
-    ) {
-        LinearProgressIndicator(
-            progress = { progress },
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "${SupportedProtocol.MLS.name} (${String.format("%.2f", mlsProgress * 100)}%)",
+            textAlign = TextAlign.Start,
+            style = MaterialTheme.wireTypography.title03,
+            color = MaterialTheme.wireColorScheme.secondaryText,
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(),
-            color = color,
-            trackColor = trackColor,
+                .padding(vertical = dimensions().spacing4x)
         )
-        Text(
-            style = MaterialTheme.typography.labelLarge,
-            text = "${SupportedProtocol.MLS.name} (${String.format("%.2f", mlsProgress * 100)}%)",
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.wireColorScheme.onPrimary,
-            modifier = Modifier.fillMaxWidth()
+        WireLinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

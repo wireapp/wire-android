@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
@@ -75,16 +76,24 @@ fun ConversationItemFactory(
 ) {
     val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
     val openUserProfileDescription = stringResource(R.string.content_description_open_user_profile_label)
+    val acceptOrIgnoreDescription = stringResource(R.string.content_description_accept_or_ignore_connection_label)
     val openConversationDescription = stringResource(R.string.content_description_open_conversation_label)
     val onConversationItemClick = remember(conversation) {
         when (val lastEvent = conversation.lastMessageContent) {
-            is UILastMessageContent.Connection -> Clickable(
-                enabled = true,
-                onClick = { openUserProfile(lastEvent.userId) },
-                onLongClick = null,
-                onClickDescription = openUserProfileDescription,
-                onLongClickDescription = null
-            )
+            is UILastMessageContent.Connection -> {
+                val onClickDescription = if (conversation.badgeEventType == BadgeEventType.ReceivedConnectionRequest) {
+                    acceptOrIgnoreDescription
+                } else {
+                    openUserProfileDescription
+                }
+                Clickable(
+                    enabled = true,
+                    onClick = { openUserProfile(lastEvent.userId) },
+                    onLongClick = null,
+                    onClickDescription = onClickDescription,
+                    onLongClickDescription = null
+                )
+            }
 
             else -> Clickable(
                 enabled = true,
@@ -97,7 +106,7 @@ fun ConversationItemFactory(
     }
 
     GeneralConversationItem(
-        modifier = modifier,
+        modifier = modifier.semantics(mergeDescendants = true) { },
         conversation = conversation,
         isSelectable = isSelectableItem,
         isChecked = isChecked,
@@ -310,6 +319,7 @@ fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
             selfMemberRole = null,
             teamId = null,
             isArchived = false,
+            isFromTheSameTeam = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false
@@ -336,6 +346,7 @@ fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
             selfMemberRole = null,
             teamId = null,
             isArchived = false,
+            isFromTheSameTeam = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false
@@ -364,6 +375,7 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
             selfMemberRole = null,
             teamId = null,
             isArchived = false,
+            isFromTheSameTeam = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false
@@ -390,6 +402,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireThem
             selfMemberRole = null,
             teamId = null,
             isArchived = false,
+            isFromTheSameTeam = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false
@@ -417,6 +430,7 @@ fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
             teamId = null,
             hasOnGoingCall = true,
             isArchived = false,
+            isFromTheSameTeam = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false

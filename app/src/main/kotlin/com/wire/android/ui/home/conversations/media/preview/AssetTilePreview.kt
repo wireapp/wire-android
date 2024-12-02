@@ -130,7 +130,7 @@ fun AssetFilePreviewTile(assetBundle: AssetBundle, modifier: Modifier = Modifier
                 modifier = Modifier,
                 painter = painterResource(R.drawable.ic_file),
                 contentDescription = stringResource(R.string.content_description_image_message),
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.badge)
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
             )
             HorizontalSpace.x4()
             Text(

@@ -53,7 +53,7 @@ internal class AssetImageFetcherTest {
         val someUserAssetId = AssetId("value", "domain")
         val someDummyData = "some-dummy-data".toByteArray()
         val someDummyName = "some-dummy-name"
-        val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
+        val data = ImageAsset.UserAvatarAsset(someUserAssetId)
         val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
         val (arrangement, assetImageFetcher) = Arrangement()
             .withSuccessfulImageData(data, avatarPath, someDummyData.size.toLong(), someDummyName)
@@ -74,7 +74,7 @@ internal class AssetImageFetcherTest {
         val someUserAssetId = AssetId("value", "domain")
         val someDummyData = "some-dummy-data".toByteArray()
         val someDummyName = "some-dummy-name"
-        val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
+        val data = ImageAsset.UserAvatarAsset(someUserAssetId)
         val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
         val (arrangement, assetImageFetcher) = Arrangement()
             .withSuccessfulImageData(data, avatarPath, someDummyData.size.toLong(), someDummyName, 1)
@@ -97,7 +97,7 @@ internal class AssetImageFetcherTest {
         val someMessageId = "some-message-id"
         val someDummyData = "some-dummy-data".toByteArray()
         val someDummyName = "some-dummy-name"
-        val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
+        val data = ImageAsset.PrivateAsset(someConversationId, someMessageId, true)
         val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
         val (arrangement, assetImageFetcher) = Arrangement()
             .withSuccessfulImageData(data, avatarPath, 1, someDummyName)
@@ -117,7 +117,7 @@ internal class AssetImageFetcherTest {
     fun givenAUserAvatarAssetData_WhenCallingFetchUnsuccessfully_ThenFetchResultIsNotReturned() = runTest {
         // Given
         val someUserAssetId = AssetId("value", "domain")
-        val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
+        val data = ImageAsset.UserAvatarAsset(someUserAssetId)
         val (arrangement, assetImageFetcher) = Arrangement().withErrorResponse(data).arrange()
 
         // When
@@ -132,7 +132,7 @@ internal class AssetImageFetcherTest {
         // Given
         val someConversationId = ConversationId("some-value", "some-domain")
         val someMessageId = "some-message-id"
-        val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
+        val data = ImageAsset.PrivateAsset(someConversationId, someMessageId, true)
         val (arrangement, assetImageFetcher) = Arrangement().withErrorResponse(data).arrange()
 
         // When
@@ -147,7 +147,7 @@ internal class AssetImageFetcherTest {
         runTest {
             // Given
             val someUserAssetId = AssetId("value", "domain")
-            val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
+            val data = ImageAsset.UserAvatarAsset(someUserAssetId)
             val (arrangement, assetImageFetcher) = Arrangement()
                 .withErrorResponse(
                     data = data,
@@ -169,7 +169,7 @@ internal class AssetImageFetcherTest {
         runTest {
             // Given
             val someUserAssetId = AssetId("value", "domain")
-            val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
+            val data = ImageAsset.UserAvatarAsset(someUserAssetId)
             val (arrangement, assetImageFetcher) = Arrangement()
                 .withErrorResponse(
                     data = data,
@@ -191,7 +191,7 @@ internal class AssetImageFetcherTest {
         runTest {
             // Given
             val someUserAssetId = AssetId("value", "domain")
-            val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
+            val data = ImageAsset.UserAvatarAsset(someUserAssetId)
             val (arrangement, assetImageFetcher) = Arrangement()
                 .withErrorResponse(
                     data = data,
@@ -214,7 +214,7 @@ internal class AssetImageFetcherTest {
             // Given
             val someConversationId = ConversationId("some-value", "some-domain")
             val someMessageId = "some-message-id"
-            val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
+            val data = ImageAsset.PrivateAsset(someConversationId, someMessageId, true)
             val (arrangement, assetImageFetcher) = Arrangement()
                 .withErrorResponse(
                     data = data,
@@ -237,7 +237,7 @@ internal class AssetImageFetcherTest {
             // Given
             val someConversationId = ConversationId("some-value", "some-domain")
             val someMessageId = "some-message-id"
-            val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
+            val data = ImageAsset.PrivateAsset(someConversationId, someMessageId, true)
             val (arrangement, assetImageFetcher) = Arrangement()
                 .withErrorResponse(
                     data = data,
@@ -260,7 +260,7 @@ internal class AssetImageFetcherTest {
             // Given
             val someConversationId = ConversationId("some-value", "some-domain")
             val someMessageId = "some-message-id"
-            val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
+            val data = ImageAsset.PrivateAsset(someConversationId, someMessageId, true)
             val (arrangement, assetImageFetcher) = Arrangement()
                 .withErrorResponse(
                     data = data,

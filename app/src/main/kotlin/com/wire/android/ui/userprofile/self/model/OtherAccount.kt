@@ -26,5 +26,5 @@ data class OtherAccount(
     val id: UserId,
     val fullName: String,
     val avatarData: UserAvatarData = UserAvatarData(),
-    val teamName: String? = null
+    val handle: String?,
 )

@@ -47,9 +47,9 @@ fun CreateTeamInfoCard(
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = colorsScheme().createTeamInfoCardBackgroundColor
+            containerColor = colorsScheme().secondaryButtonSelected
         ),
-        border = BorderStroke(dimensions().spacing1x, colorsScheme().createTeamInfoCardBorderColor),
+        border = BorderStroke(dimensions().spacing1x, colorsScheme().secondaryButtonSelectedOutline),
     ) {
         Row(
             modifier = Modifier.padding(
@@ -95,8 +95,6 @@ fun CreateTeamInfoCard(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCreateTeamInfoCard() {
-    WireTheme {
+fun PreviewCreateTeamInfoCard() = WireTheme {
         CreateTeamInfoCard({ })
-    }
 }

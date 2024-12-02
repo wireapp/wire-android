@@ -167,6 +167,7 @@ class AccountSwitchUseCase @Inject constructor(
             LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                 deleteSession(invalidAccount.userId)
             }
+            LogoutReason.MIGRATION_TO_CC_FAILED,
             LogoutReason.DELETED_ACCOUNT,
             LogoutReason.REMOVED_CLIENT,
             LogoutReason.SESSION_EXPIRED -> deleteSession(invalidAccount.userId)

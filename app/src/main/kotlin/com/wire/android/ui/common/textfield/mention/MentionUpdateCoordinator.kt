@@ -27,6 +27,7 @@ class MentionUpdateCoordinator(
     private val mentionAdjuster: MentionAdjuster = MentionAdjuster(),
     private val selectionManager: MentionSelectionManager = MentionSelectionManager()
 ) {
+    @Suppress("ReturnCount")
     fun handle(
         oldTextFieldValue: TextFieldValue,
         newTextFieldValue: TextFieldValue,

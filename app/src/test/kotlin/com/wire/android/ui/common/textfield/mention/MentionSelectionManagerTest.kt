@@ -67,7 +67,7 @@ class MentionSelectionManagerTest {
     fun `Given new selection outside of any mention, When updateSelectionForMention is called, Then selection remains unchanged`() {
         // Given
         val oldSelection = TextRange(0, 5)
-        val newSelection = TextRange(10, 10)  // Outside the mention range
+        val newSelection = TextRange(10, 10) // Outside the mention range
         val mentions = listOf(UIMention(start = 0, length = 5, handler = "@user", userId = TestUser.USER_ID))
 
         // When
@@ -78,14 +78,14 @@ class MentionSelectionManagerTest {
         )
 
         // Then
-        assertEquals(newSelection, updatedSelection)  // Should remain unchanged
+        assertEquals(newSelection, updatedSelection) // Should remain unchanged
     }
 
     @Test
     fun `Given multiple mentions, When new selection is inside one of them, Then selection updates to the correct mention's range`() {
         // Given
         val oldSelection = TextRange(0, 5)
-        val newSelection = TextRange(8, 8)  // Inside the second mention
+        val newSelection = TextRange(8, 8) // Inside the second mention
         val mentions = listOf(
             UIMention(start = 0, length = 5, handler = "@user1", userId = TestUser.USER_ID),
             UIMention(start = 6, length = 5, handler = "@user2", userId = TestUser.SELF_USER_ID),

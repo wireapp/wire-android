@@ -166,7 +166,6 @@ class MentionUpdateCoordinatorTest {
             selectionManager.updateSelectionForMention(any(), any(), any())
         } returns TextRange(6, 11)
 
-
         // When
         val updatedTextFieldValue = coordinator.handle(
             oldTextFieldValue,

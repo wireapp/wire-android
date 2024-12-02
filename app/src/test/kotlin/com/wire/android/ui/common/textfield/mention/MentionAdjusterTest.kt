@@ -54,7 +54,7 @@ class MentionAdjusterTest {
     fun `Given deleted text affects mentions, When adjustMentionsForDeletion is called, Then mentions are adjusted and selection updated`() {
         // Given
         val mentions = listOf(UIMention(start = 12, length = 5, handler = "@user", userId = TestUser.USER_ID))
-        val deletedLength = 2  // Simulate deleting 2 characters before the mention
+        val deletedLength = 2 // Simulate deleting 2 characters before the mention
         val text = "Hello ain @user"
         val selection = TextRange(7, 7)
 
@@ -76,7 +76,7 @@ class MentionAdjusterTest {
     fun `Given cursor is at end of a mention, When adjustMentionsForDeletion is called, Then selection is updated to the mention's range`() {
         // Given
         val mentions = listOf(UIMention(start = 0, length = 5, handler = "@user", userId = TestUser.USER_ID))
-        val deletedLength = 1  // Simulate deleting 1 character inside the mention
+        val deletedLength = 1 // Simulate deleting 1 character inside the mention
         val text = "@user"
         val selection = TextRange(5, 5)
 
@@ -121,7 +121,7 @@ class MentionAdjusterTest {
     fun `Given inserted text shifts mentions, When adjustMentionsForInsertion is called, Then mentions are adjusted`() {
         // Given
         val mentions = listOf(UIMention(start = 5, length = 5, handler = "@user", userId = TestUser.USER_ID))
-        val addedLength = 2  // Simulate inserting 2 characters before the mention
+        val addedLength = 2 // Simulate inserting 2 characters before the mention
         val text = "Hello @user"
         val selection = TextRange(0, 5)
 
@@ -143,7 +143,7 @@ class MentionAdjusterTest {
     fun `Given inserted text shifts mentions, When adjustMentionsForInsertion is called, Then mentions are adjusted accordingly`() {
         // Given
         val mentions = listOf(UIMention(start = 0, length = 5, handler = "@user", userId = TestUser.USER_ID))
-        val addedLength = 3  // Simulate inserting 3 characters before the mention
+        val addedLength = 3 // Simulate inserting 3 characters before the mention
         val text = "Hel world"
         val selection = TextRange(0, 5)
 

@@ -196,7 +196,7 @@ class MessageCompositionHolder(
         val updatedList = mutableListOf<UIMention>()
         messageComposition.value.selectedMentions.forEach { mention ->
             if (messageTextFieldValue.value.selection.start < mention.start) {
-                updatedList.add(mention.copy(start = mention.start + mentionToAdd.length ))
+                updatedList.add(mention.copy(start = mention.start + mentionToAdd.length))
             } else {
                 updatedList.add(mention)
             }

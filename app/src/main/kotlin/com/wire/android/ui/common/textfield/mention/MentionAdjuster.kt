@@ -32,6 +32,7 @@ class MentionAdjuster {
      * @param text The new text after deletion.
      * @param selection The current selection.
      */
+    @Suppress("NestedBlockDepth")
     fun adjustMentionsForDeletion(
         mentions: List<UIMention>,
         deletedLength: Int,

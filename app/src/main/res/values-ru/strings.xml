@@ -568,7 +568,6 @@
     <!-- User Profile -->
     <string name="user_profile_title">Профиль пользователя</string>
     <string name="user_profile_close_description">Закрыть профиль пользователя</string>
-    <string name="user_profile_logout">Выйти</string>
     <string name="user_profile_other_accs">Другие ваши аккаунты</string>
     <string name="user_profile_status_availability">Доступность</string>
     <string name="user_profile_status_available">Доступен</string>

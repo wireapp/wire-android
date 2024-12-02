@@ -594,7 +594,7 @@
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>
-    <string name="user_profile_logout">Logout</string>
+    <string name="user_profile_logout">Log out</string>
     <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_availability">Availability</string>
     <string name="user_profile_status_available">Available</string>

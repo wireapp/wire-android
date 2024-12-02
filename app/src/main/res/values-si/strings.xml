@@ -466,14 +466,12 @@
     <!-- User Profile -->
     <string name="user_profile_title">පරිශ්‍රීලක පැතිකඩ</string>
     <string name="user_profile_close_description">පරිශ්‍රීලක පැතිකඩ වසන්න</string>
-    <string name="user_profile_logout">නික්මෙන්න</string>
     <string name="user_profile_other_accs">ඔබගේ වෙනත් ගිණුම්</string>
     <string name="user_profile_status_availability">තත්‍වය</string>
     <string name="user_profile_status_available">සිටිනවා</string>
     <string name="user_profile_status_busy">කාර්යබහුලයි</string>
     <string name="user_profile_status_away">නොසිටියි</string>
     <string name="user_profile_status_none">කිසිවක් නැත</string>
-    <string name="user_profile_new_account_text">නව කණ්ඩායමක් හෝ ගිණුමක්</string>
     <string name="user_profile_details_tab">විස්තර</string>
     <string name="user_profile_devices_tab">උපාංග</string>
     <string name="user_profile_group_tab">සමූහය</string>
@@ -752,6 +750,7 @@
     <string name="dialog_archive_conversation_title">සංවාදය සංරක්‍ෂණය කරන්නද?</string>
     <string name="dialog_archive_conversation_description">මෙම සංවාදය ඔබගේ සංරක්‍ෂිතය වෙත ගෙන යයි. ඔබට තවදුරටත් නව පණිවිඩ, ගොනු සහ ඇමතුම් ලැබේ, නමුත් දැනුම්දීම් නොලැබේ. ඔබට ඕනෑම වේලාවක සංවාදය අසංරක්‍ෂණයට හැකිය.</string>
     <string name="dialog_archive_conversation_option">සංරක්‍ෂණය</string>
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">සංවාදය අරින්න</string>
     <string name="label_start_conversation">සංවාදය අරඹන්න</string>

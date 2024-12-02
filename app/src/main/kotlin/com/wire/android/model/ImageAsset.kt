@@ -58,6 +58,7 @@ sealed class ImageAsset {
         val idKey: String
     ) : ImageAsset()
 
+    @Serializable
     sealed class Remote : ImageAsset() {
 
         /**

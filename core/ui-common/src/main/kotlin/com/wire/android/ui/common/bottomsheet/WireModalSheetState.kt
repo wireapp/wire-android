@@ -23,9 +23,9 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -84,32 +84,21 @@ open class WireModalSheetState<T : Any> internal constructor(
     companion object {
         const val DELAY_TO_SHOW_BOTTOM_SHEET_WHEN_KEYBOARD_IS_OPEN = 300L
 
-        @OptIn(InternalSerializationApi::class)
-        inline fun <reified T : Any> saver(
+        @Suppress("UNCHECKED_CAST")
+        fun <T : Any> saver(
             density: Density,
             softwareKeyboardController: SoftwareKeyboardController?,
             onDismissAction: () -> Unit,
             scope: CoroutineScope
         ): Saver<WireModalSheetState<T>, *> = Saver(
             save = {
-                when (it.currentValue) {
-                    is WireSheetValue.Hidden -> listOf(false) // hidden
-                    is WireSheetValue.Expanded<T> -> {
-                        val value = (it.currentValue as WireSheetValue.Expanded<T>).value
-                        when {
-                            value is Unit -> // expanded and with Unit value
-                                listOf(true, SavedType.Unit)
-
-                            canBeSaved(value) -> // expanded and non-Unit value that can be saved normally
-                                listOf(true, SavedType.Regular, value)
-
-                            T::class.serializerOrNull() != null -> // expanded and with non-Unit value that can be serialized
-                                listOf(true, SavedType.SerializedBundle, Bundlizer.bundle(T::class.serializer(), value))
-
-                            else -> listOf(false) // hidden because value cannot be saved
-                        }
-                    }
-                }
+                val isExpanded = it.currentValue is WireSheetValue.Expanded<T>
+                val (isValueOfTypeUnit, value) = (it.currentValue as? WireSheetValue.Expanded<T>)?.let {
+                    val isValueOfTypeUnit = it.value is Unit // Unit cannot be saved into Bundle, need to handle it separately
+                    val value = if (isValueOfTypeUnit) null else it.value
+                    isValueOfTypeUnit to value
+                } ?: (false to null)
+                listOf(isExpanded, isValueOfTypeUnit, value)
             },
             restore = { savedValue ->
                 val isExpanded = savedValue[0] as Boolean
@@ -153,14 +142,7 @@ fun <T : Any> rememberWireModalSheetState(
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
-    return rememberSaveable(
-        saver = WireModalSheetState.saver(
-            density = density,
-            softwareKeyboardController = softwareKeyboardController,
-            onDismissAction = onDismissAction,
-            scope = scope
-        )
-    ) {
+    return remember {
         WireModalSheetState(
             density = density,
             scope = scope,

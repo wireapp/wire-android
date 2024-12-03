@@ -69,7 +69,6 @@ import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUse
 import com.wire.kalium.logic.feature.debug.SynchronizeExternalDataResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
-import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
@@ -124,7 +123,6 @@ class WireActivityViewModel @Inject constructor(
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
     private val workManager: Lazy<WorkManager>,
-    private val updateApiVersions: UpdateApiVersionsUseCase
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -159,13 +157,6 @@ class WireActivityViewModel @Inject constructor(
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
         observeLogoutState()
-        updateApiVersionsOnStart()
-    }
-
-    private fun updateApiVersionsOnStart() {
-        viewModelScope.launch {
-            updateApiVersions()
-        }
     }
 
     @Suppress("TooGenericExceptionCaught")

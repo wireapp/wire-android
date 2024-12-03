@@ -20,9 +20,15 @@ package com.wire.android.mapper
 
 import com.wire.android.ui.home.conversations.avatar
 import com.wire.android.ui.userprofile.self.model.OtherAccount
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import io.mockk.MockKAnnotations
+<<<<<<< HEAD
+=======
+import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -40,23 +46,37 @@ class OtherAccountMapperTest {
         val results = data.map { (selfUser, _) -> mapper.toOtherAccount(selfUser) }
         // Then
         results.forEachIndexed { index, result ->
+<<<<<<< HEAD
             val (selfUser, _) = data[index]
             assert(compareResult(selfUser, result))
+=======
+            val (selfUser, team) = data[index]
+            assert(compareResult(arrangement.wireSessionImageLoader, selfUser, team, result))
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
         }
     }
 
     private fun compareResult(
+        wireSessionImageLoader: WireSessionImageLoader,
         selfUser: SelfUser,
         otherAccount: OtherAccount
     ): Boolean =
         selfUser.id == otherAccount.id
             && selfUser.name == otherAccount.fullName
+<<<<<<< HEAD
             && selfUser.avatar(selfUser.connectionStatus) == otherAccount.avatarData
             && selfUser.handle == otherAccount.handle
+=======
+            && selfUser.avatar(wireSessionImageLoader, selfUser.connectionStatus) == otherAccount.avatarData
+            && team?.name == otherAccount.teamName
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
 
     private class Arrangement {
 
-        private val mapper: OtherAccountMapper by lazy { OtherAccountMapper() }
+        @MockK
+        lateinit var wireSessionImageLoader: WireSessionImageLoader
+
+        private val mapper: OtherAccountMapper by lazy { OtherAccountMapper(wireSessionImageLoader) }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

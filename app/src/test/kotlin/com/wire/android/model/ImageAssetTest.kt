@@ -19,10 +19,12 @@
 package com.wire.android.model
 
 import android.net.Uri
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserAssetId
 import io.mockk.MockKAnnotations
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import okio.Path
@@ -34,6 +36,9 @@ import org.junit.jupiter.api.Test
 
 class ImageAssetTest {
 
+    @MockK
+    private lateinit var imageLoader: WireSessionImageLoader
+
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -42,13 +47,15 @@ class ImageAssetTest {
         every { Uri.parse(any()) } returns mockUri
     }
 
-    private fun createUserAvatarAsset(userAssetId: UserAssetId) = ImageAsset.UserAvatarAsset(userAssetId)
+    private fun createUserAvatarAsset(userAssetId: UserAssetId) = ImageAsset.UserAvatarAsset(
+        imageLoader, userAssetId
+    )
 
     private fun createPrivateAsset(
         conversationId: ConversationId,
         messageId: String,
         isSelfAsset: Boolean
-    ) = ImageAsset.PrivateAsset(conversationId, messageId, isSelfAsset)
+    ) = ImageAsset.PrivateAsset(imageLoader, conversationId, messageId, isSelfAsset)
 
     private fun createLocalAsset(
         dataPath: Path,

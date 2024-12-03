@@ -27,7 +27,11 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
+<<<<<<< HEAD
 import com.wire.kalium.logic.data.conversation.ConversationFilter
+=======
+import com.wire.android.util.ui.WireSessionImageLoader
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
@@ -42,8 +46,12 @@ import javax.inject.Inject
 
 class GetConversationsFromSearchUseCase @Inject constructor(
     private val useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase,
+<<<<<<< HEAD
     private val getFavoriteFolderUseCase: GetFavoriteFolderUseCase,
     private val observeConversationsFromFromFolder: ObserveConversationsFromFolderUseCase,
+=======
+    private val wireSessionImageLoader: WireSessionImageLoader,
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
     private val observeSelfUser: GetSelfUserUseCase
@@ -61,6 +69,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             initialLoadSize = INITIAL_LOAD_SIZE,
             enablePlaceholders = true,
         )
+<<<<<<< HEAD
         return when (conversationFilter) {
             ConversationFilter.ALL,
             ConversationFilter.GROUPS,
@@ -92,6 +101,20 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                             )
                         )
                     }
+=======
+        return useCase(
+            queryConfig = ConversationQueryConfig(
+                searchQuery = searchQuery,
+                fromArchive = fromArchive,
+                newActivitiesOnTop = newActivitiesOnTop,
+                onlyInteractionEnabled = onlyInteractionEnabled
+            ),
+            pagingConfig = pagingConfig,
+            startingOffset = 0L,
+        ).map { pagingData ->
+            pagingData.map {
+                it.toConversationItem(wireSessionImageLoader, userTypeMapper, searchQuery)
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
             }
         }
             .map { pagingData ->

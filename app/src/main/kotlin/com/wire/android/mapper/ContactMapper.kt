@@ -25,6 +25,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.userprofile.common.UsernameMapper
 import com.wire.android.util.EMPTY
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -35,6 +36,7 @@ import javax.inject.Inject
 class ContactMapper
 @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
+    private val wireSessionImageLoader: WireSessionImageLoader,
 ) {
 
     fun fromOtherUser(otherUser: OtherUser): Contact {
@@ -46,7 +48,7 @@ class ContactMapper
                 handle = handle.orEmpty(),
                 label = UsernameMapper.fromOtherUser(otherUser),
                 avatarData = UserAvatarData(
-                    asset = previewPicture?.let { ImageAsset.UserAvatarAsset(it) },
+                    asset = previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
                     connectionState = connectionStatus,
                     nameBasedAvatar = NameBasedAvatar(fullName = name, accentColor = otherUser.accentId)
                 ),
@@ -65,7 +67,7 @@ class ContactMapper
                 handle = String.EMPTY,
                 label = String.EMPTY,
                 avatarData = UserAvatarData(
-                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(it) },
+                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
                     membership = Membership.Service
                 ),
                 membership = Membership.Service,
@@ -83,7 +85,7 @@ class ContactMapper
                 handle = handle.orEmpty(),
                 label = mapUserHandle(user),
                 avatarData = UserAvatarData(
-                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(it) },
+                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
                     nameBasedAvatar = NameBasedAvatar(fullName = name, accentColor = -1)
                 ),
                 membership = userTypeMapper.toMembership(type),

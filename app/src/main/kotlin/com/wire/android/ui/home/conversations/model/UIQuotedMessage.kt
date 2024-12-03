@@ -21,15 +21,11 @@ import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.serialization.Serializable
 
-@Serializable
 sealed class UIQuotedMessage {
 
-    @Serializable
-    data object UnavailableData : UIQuotedMessage()
+    object UnavailableData : UIQuotedMessage()
 
-    @Serializable
     data class UIQuotedData(
         val messageId: String,
         val senderId: UserId,
@@ -54,10 +50,18 @@ sealed class UIQuotedMessage {
 
         data class Location(val locationName: String) : Content
 
+<<<<<<< HEAD
         object AudioMessage : Content
 
         object Deleted : Content
         object Invalid : Content
+=======
+        data object AudioMessage : Content
+
+        data object Deleted : Content
+
+        data object Invalid : Content
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
     }
 }
 

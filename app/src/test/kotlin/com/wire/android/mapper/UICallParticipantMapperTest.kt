@@ -21,6 +21,7 @@ package com.wire.android.mapper
 import com.wire.kalium.logic.data.call.Participant
 import com.wire.kalium.logic.data.id.QualifiedID
 import io.mockk.MockKAnnotations
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -53,7 +54,7 @@ class UICallParticipantMapperTest {
 
     private class Arrangement {
 
-        private val mapper: UICallParticipantMapper = UICallParticipantMapper(UserTypeMapper())
+        private val mapper: UICallParticipantMapper = UICallParticipantMapper(mockk(), UserTypeMapper())
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

@@ -22,6 +22,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.UserSummary
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -50,22 +51,24 @@ val MemberDetails.availabilityStatus: UserAvailabilityStatus
         is SelfUser -> (user as SelfUser).availabilityStatus
     }
 
-fun User.previewAsset(): UserAvatarAsset? = when (this) {
+fun User.previewAsset(wireSessionImageLoader: WireSessionImageLoader): UserAvatarAsset? = when (this) {
     is OtherUser -> previewPicture
     is SelfUser -> previewPicture
-}?.let { UserAvatarAsset(it) }
+}?.let { UserAvatarAsset(wireSessionImageLoader, it) }
 
-fun User.avatar(connectionState: ConnectionState?): UserAvatarData =
+fun User.avatar(wireSessionImageLoader: WireSessionImageLoader, connectionState: ConnectionState?): UserAvatarData =
     UserAvatarData(
-        asset = this.previewAsset(),
+        asset = this.previewAsset(wireSessionImageLoader),
         availabilityStatus = availabilityStatus,
         connectionState = connectionState,
         membership = if (userType == UserType.SERVICE) Membership.Service else Membership.None,
         nameBasedAvatar = NameBasedAvatar(fullName = name, accentColor = accentId)
     )
 
-fun UserSummary.previewAsset() = UserAvatarData(
-    asset = this.userPreviewAssetId?.let { UserAvatarAsset(it) },
+fun UserSummary.previewAsset(
+    wireSessionImageLoader: WireSessionImageLoader
+) = UserAvatarData(
+    asset = this.userPreviewAssetId?.let { UserAvatarAsset(wireSessionImageLoader, it) },
     availabilityStatus = this.availabilityStatus,
     connectionState = this.connectionStatus,
     nameBasedAvatar = NameBasedAvatar(fullName = userName, accentColor = accentId)

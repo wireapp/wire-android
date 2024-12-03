@@ -32,6 +32,7 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent.TextMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -219,8 +220,11 @@ class MessageMapperTest {
         @MockK
         lateinit var isoFormatter: ISOFormatter
 
+        @MockK
+        private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
         private val messageMapper by lazy {
-            MessageMapper(userTypeMapper, messageContentMapper, isoFormatter)
+            MessageMapper(userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
         }
 
         init {

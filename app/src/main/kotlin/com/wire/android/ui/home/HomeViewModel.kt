@@ -33,6 +33,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
@@ -54,8 +55,13 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
+<<<<<<< HEAD
     private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
     private val analyticsManager: AnonymousAnalyticsManager
+=======
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
 ) : SavedStateViewModel(savedStateHandle) {
 
     @VisibleForTesting
@@ -124,7 +130,10 @@ class HomeViewModel @Inject constructor(
                 homeState = homeState.copy(
                     userAvatarData = UserAvatarData(
                         asset = selfUser.previewPicture?.let {
-                            UserAvatarAsset(it)
+                            UserAvatarAsset(
+                                wireSessionImageLoader,
+                                it
+                            )
                         },
                         availabilityStatus = selfUser.availabilityStatus,
                         nameBasedAvatar = NameBasedAvatar(selfUser.name, selfUser.accentId)

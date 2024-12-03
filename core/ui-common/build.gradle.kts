@@ -1,7 +1,10 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
     id(libs.plugins.wire.kover.get().pluginId)
+<<<<<<< HEAD
     alias(libs.plugins.kotlin.serialization)
+=======
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
 }
 
 android {
@@ -13,8 +16,6 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.ktx.serialization)
-    implementation(libs.bundlizer.core)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

@@ -26,6 +26,7 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationFolder
@@ -173,10 +174,14 @@ class GetConversationsFromSearchUseCaseTest {
         lateinit var useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 
         @MockK
+<<<<<<< HEAD
         lateinit var getFavoriteFolderUseCase: GetFavoriteFolderUseCase
 
         @MockK
         lateinit var observeConversationsFromFolderUseCase: ObserveConversationsFromFolderUseCase
+=======
+        lateinit var wireSessionImageLoader: WireSessionImageLoader
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
 
         @MockK
         lateinit var userTypeMapper: UserTypeMapper
@@ -203,6 +208,7 @@ class GetConversationsFromSearchUseCaseTest {
             } returns flowOf(PagingData.from(conversations))
         }
 
+<<<<<<< HEAD
         fun withFavoriteFolderResult(result: GetFavoriteFolderUseCase.Result) = apply {
             coEvery { getFavoriteFolderUseCase.invoke() } returns result
         }
@@ -225,5 +231,8 @@ class GetConversationsFromSearchUseCaseTest {
             dispatcherProvider,
             observeSelfUser
         )
+=======
+        fun arrange() = this to GetConversationsFromSearchUseCase(useCase, wireSessionImageLoader, userTypeMapper, dispatcherProvider)
+>>>>>>> dda09e7ca (fix: revert of #3670 (WPB-14433) (#3700))
     }
 }

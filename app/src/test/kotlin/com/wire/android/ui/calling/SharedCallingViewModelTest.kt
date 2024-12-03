@@ -25,6 +25,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -100,13 +101,19 @@ class SharedCallingViewModelTest {
     private lateinit var view: View
 
     @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
+    @MockK
     private lateinit var userTypeMapper: UserTypeMapper
 
     @MockK(relaxed = true)
     private lateinit var onCompleted: () -> Unit
 
     private val uiCallParticipantMapper: UICallParticipantMapper by lazy {
-        UICallParticipantMapper(userTypeMapper)
+        UICallParticipantMapper(
+            wireSessionImageLoader,
+            userTypeMapper
+        )
     }
 
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
@@ -134,6 +141,7 @@ class SharedCallingViewModelTest {
             observeSpeaker = observeSpeaker,
             callRinger = callRinger,
             uiCallParticipantMapper = uiCallParticipantMapper,
+            wireSessionImageLoader = wireSessionImageLoader,
             userTypeMapper = userTypeMapper,
             dispatchers = TestDispatcherProvider()
         )

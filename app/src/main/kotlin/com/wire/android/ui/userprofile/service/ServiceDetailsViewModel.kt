@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -61,6 +62,7 @@ class ServiceDetailsViewModel @Inject constructor(
     private val getServiceById: GetServiceByIdUseCase,
     private val observeIsServiceMember: ObserveIsServiceMemberUseCase,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
+    private val wireSessionImageLoader: WireSessionImageLoader,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val addServiceToConversation: AddServiceToConversationUseCase,
     private val serviceDetailsMapper: ServiceDetailsMapper,
@@ -135,7 +137,7 @@ class ServiceDetailsViewModel @Inject constructor(
         getServiceById(serviceId = serviceId).also { service ->
             if (service != null) {
                 val serviceAvatarAsset = service.completeAssetId?.let { asset ->
-                    ImageAsset.UserAvatarAsset(asset)
+                    ImageAsset.UserAvatarAsset(wireSessionImageLoader, asset)
                 }
 
                 serviceDetailsState = serviceDetailsState.copy(

@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
@@ -39,6 +40,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Suppress("LongMethod")
 fun ConversationDetailsWithEvents.toConversationItem(
+    wireSessionImageLoader: WireSessionImageLoader,
     userTypeMapper: UserTypeMapper,
     searchQuery: String,
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
@@ -69,7 +71,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
     is OneOne -> {
         ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(
-                asset = conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) },
+                asset = conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
                 availabilityStatus = conversationDetails.otherUser.availabilityStatus,
                 connectionState = conversationDetails.otherUser.connectionStatus,
                 nameBasedAvatar = NameBasedAvatar(conversationDetails.otherUser.name, conversationDetails.otherUser.accentId)
@@ -105,7 +107,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
     is Connection -> {
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
-                asset = conversationDetails.otherUser?.previewPicture?.let { UserAvatarAsset(it) },
+                asset = conversationDetails.otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
                 availabilityStatus = conversationDetails.otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE,
                 nameBasedAvatar = NameBasedAvatar(conversationDetails.otherUser?.name, conversationDetails.otherUser?.accentId ?: -1)
             ),

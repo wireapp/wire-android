@@ -18,33 +18,18 @@
 
 package com.wire.android.model
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.R
-import com.wire.android.ui.LocalActivity
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserAssetId
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import okio.Path
-import okio.Path.Companion.toPath
-import javax.inject.Inject
 
 @Stable
-@Serializable
 sealed class ImageAsset {
 
     /**
@@ -52,14 +37,12 @@ sealed class ImageAsset {
      * message, i.e. some preview images that the user selected from local device gallery.
      */
     @Stable
-    @Serializable
     data class Local(
-        val dataPath: @Serializable(with = PathAsStringSerializer::class) Path,
+        val dataPath: Path,
         val idKey: String
     ) : ImageAsset()
 
-    @Serializable
-    sealed class Remote : ImageAsset() {
+    sealed class Remote(private val imageLoader: WireSessionImageLoader) : ImageAsset() {
 
         /**
          * Value that uniquely identifies this Asset,
@@ -73,53 +56,39 @@ sealed class ImageAsset {
             withCrossfadeAnimation: Boolean = false
         ) = when {
             LocalInspectionMode.current -> painterResource(id = R.drawable.ic_welcome_1)
-            else -> {
-                hiltViewModel<RemoteAssetImageViewModel>(
-                    // limit the scope of the ViewModel to the current activity so that there's one image loader instance for the Activity
-                    viewModelStoreOwner = checkNotNull(LocalActivity.current as? AppCompatActivity ?: LocalViewModelStoreOwner.current) {
-                        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-                    },
-                    key = "remote_asset_image_loader"
-                ).imageLoader.paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
-            }
+            else -> imageLoader.paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
         }
     }
 
     @Stable
-    @Serializable
     data class UserAvatarAsset(
+        private val imageLoader: WireSessionImageLoader,
         val userAssetId: UserAssetId
-    ) : Remote() {
+    ) : Remote(imageLoader) {
         override val uniqueKey: String
             get() = userAssetId.toString()
     }
 
     @Stable
-    @Serializable
     data class PrivateAsset(
+        private val imageLoader: WireSessionImageLoader,
         val conversationId: ConversationId,
         val messageId: String,
         val isSelfAsset: Boolean,
         val isEphemeral: Boolean = false
-    ) : Remote() {
+    ) : Remote(imageLoader) {
         override fun toString(): String = "$conversationId:$messageId:$isSelfAsset:$isEphemeral"
         override val uniqueKey: String
             get() = toString()
     }
 }
 
-fun String.parseIntoPrivateImageAsset(qualifiedIdMapper: QualifiedIdMapper): ImageAsset.PrivateAsset {
+fun String.parseIntoPrivateImageAsset(
+    imageLoader: WireSessionImageLoader,
+    qualifiedIdMapper: QualifiedIdMapper,
+): ImageAsset.PrivateAsset {
     val (conversationIdString, messageId, isSelfAsset, isEphemeral) = split(":")
     val conversationIdParam = qualifiedIdMapper.fromStringToQualifiedID(conversationIdString)
 
-    return ImageAsset.PrivateAsset(conversationIdParam, messageId, isSelfAsset.toBoolean(), isEphemeral.toBoolean())
+    return ImageAsset.PrivateAsset(imageLoader, conversationIdParam, messageId, isSelfAsset.toBoolean(), isEphemeral.toBoolean())
 }
-
-object PathAsStringSerializer : KSerializer<Path> {
-    override val descriptor = PrimitiveSerialDescriptor("Path", PrimitiveKind.STRING)
-    override fun serialize(encoder: Encoder, value: Path) = encoder.encodeString(value.toString())
-    override fun deserialize(decoder: Decoder): Path = decoder.decodeString().toPath(normalize = true)
-}
-
-@HiltViewModel
-class RemoteAssetImageViewModel @Inject constructor(val imageLoader: WireSessionImageLoader) : ViewModel()

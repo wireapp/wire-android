@@ -29,9 +29,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.isTeammate
-import kotlinx.serialization.Serializable
 
-@Serializable
 sealed class ConversationItem : ConversationFolderItem {
     abstract val conversationId: ConversationId
     abstract val mutedStatus: MutedConversationStatus
@@ -47,7 +45,6 @@ sealed class ConversationItem : ConversationFolderItem {
 
     val isTeamConversation get() = teamId != null
 
-    @Serializable
     data class GroupConversation(
         val groupName: String,
         val hasOnGoingCall: Boolean = false,
@@ -67,7 +64,6 @@ sealed class ConversationItem : ConversationFolderItem {
         override val searchQuery: String = "",
     ) : ConversationItem()
 
-    @Serializable
     data class PrivateConversation(
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
@@ -86,7 +82,6 @@ sealed class ConversationItem : ConversationFolderItem {
         override val searchQuery: String = "",
     ) : ConversationItem()
 
-    @Serializable
     data class ConnectionConversation(
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
@@ -105,7 +100,6 @@ sealed class ConversationItem : ConversationFolderItem {
     }
 }
 
-@Serializable
 data class ConversationInfo(
     val name: String,
     val membership: Membership = Membership.None,

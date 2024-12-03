@@ -29,6 +29,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
@@ -47,6 +48,7 @@ class HomeViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
+    private val wireSessionImageLoader: WireSessionImageLoader,
     private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -97,7 +99,10 @@ class HomeViewModel @Inject constructor(
                 homeState = homeState.copy(
                     userAvatarData = UserAvatarData(
                         asset = selfUser.previewPicture?.let {
-                            UserAvatarAsset(it)
+                            UserAvatarAsset(
+                                wireSessionImageLoader,
+                                it
+                            )
                         },
                         availabilityStatus = selfUser.availabilityStatus,
                         nameBasedAvatar = NameBasedAvatar(selfUser.name, selfUser.accentId)

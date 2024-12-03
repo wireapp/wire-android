@@ -185,7 +185,7 @@ class SystemMessageContentMapper @Inject constructor(
 
     private fun mapTeamMemberRemovedMessage(
         content: MessageContent.TeamMemberRemoved
-    ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved_Legacy(content.userName)
+    ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved_Legacy(content)
 
     private fun mapConversationRenamedMessage(
         senderUserId: UserId,
@@ -197,7 +197,7 @@ class SystemMessageContentMapper @Inject constructor(
             user = sender,
             type = SelfNameType.ResourceTitleCase
         )
-        return UIMessageContent.SystemMessage.RenamedConversation(authorName, content.conversationName)
+        return UIMessageContent.SystemMessage.RenamedConversation(authorName, content)
     }
 
     fun mapMemberChangeMessage(
@@ -271,7 +271,7 @@ class SystemMessageContentMapper @Inject constructor(
         UIMessageContent.SystemMessage.HistoryLost
 
     private fun mapMLSWrongEpochWarning(): UIMessageContent.SystemMessage =
-        UIMessageContent.SystemMessage.MLSWrongEpochWarning
+        UIMessageContent.SystemMessage.MLSWrongEpochWarning()
 
     private fun mapConversationHistoryListProtocolChanged(): UIMessageContent.SystemMessage =
         UIMessageContent.SystemMessage.HistoryLostProtocolChanged

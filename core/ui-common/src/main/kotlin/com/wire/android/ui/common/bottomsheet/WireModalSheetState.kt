@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.common.bottomsheet
 
-import android.os.Bundle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
@@ -32,16 +31,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.Density
-import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.serializer
-import kotlinx.serialization.serializerOrNull
 
 @OptIn(ExperimentalMaterial3Api::class)
-open class WireModalSheetState<T : Any>(
+open class WireModalSheetState<T : Any> internal constructor(
     density: Density,
     private val scope: CoroutineScope,
     private val keyboardController: SoftwareKeyboardController? = null,
@@ -89,50 +84,33 @@ open class WireModalSheetState<T : Any>(
     companion object {
         const val DELAY_TO_SHOW_BOTTOM_SHEET_WHEN_KEYBOARD_IS_OPEN = 300L
 
-        @Suppress("TooGenericExceptionCaught")
-        @OptIn(InternalSerializationApi::class)
-        inline fun <reified T : Any> saver(
+        @Suppress("UNCHECKED_CAST")
+        fun <T : Any> saver(
             density: Density,
             softwareKeyboardController: SoftwareKeyboardController?,
-            noinline onDismissAction: () -> Unit,
+            onDismissAction: () -> Unit,
             scope: CoroutineScope
-        ): Saver<WireModalSheetState<T>, List<Any>> = Saver(
+        ): Saver<WireModalSheetState<T>, *> = Saver(
             save = {
-                when (it.currentValue) {
-                    is WireSheetValue.Hidden -> listOf(false) // hidden
-                    is WireSheetValue.Expanded<T> -> {
-                        val value = (it.currentValue as WireSheetValue.Expanded<T>).value
-                        when {
-                            value is Unit -> // expanded and with Unit value
-                                listOf(true, SavedType.Unit)
-
-                            canBeSaved(value) -> // expanded and non-Unit value that can be saved normally
-                                listOf(true, SavedType.Regular, value)
-
-                            T::class.serializerOrNull() != null -> // expanded and with non-Unit value that can be serialized
-                                try {
-                                    val serializedBundleValue = Bundlizer.bundle(T::class.serializer(), value)
-                                    listOf(true, SavedType.SerializedBundle, serializedBundleValue)
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                    listOf(false) // hidden because value cannot be serialized properly
-                                }
-
-                            else -> listOf(false) // hidden because value cannot be saved
-                        }
-                    }
-                }
+                val isExpanded = it.currentValue is WireSheetValue.Expanded<T>
+                val (isValueOfTypeUnit, value) = (it.currentValue as? WireSheetValue.Expanded<T>)?.let {
+                    val isValueOfTypeUnit = it.value is Unit // Unit cannot be saved into Bundle, need to handle it separately
+                    val value = if (isValueOfTypeUnit) null else it.value
+                    isValueOfTypeUnit to value
+                } ?: (false to null)
+                listOf(isExpanded, isValueOfTypeUnit, value)
             },
             restore = { savedValue ->
                 val isExpanded = savedValue[0] as Boolean
                 val sheetValue = when (isExpanded) {
-                    true -> when (savedValue[1] as SavedType) {
-                        SavedType.Unit -> WireSheetValue.Expanded(Unit as T)
-
-                        SavedType.Regular -> WireSheetValue.Expanded(savedValue[2] as T)
-
-                        SavedType.SerializedBundle ->
-                            WireSheetValue.Expanded(Bundlizer.unbundle(T::class.serializer(), savedValue[2] as Bundle))
+                    true -> {
+                        val isValueOfTypeUnit = savedValue[1] as Boolean
+                        if (isValueOfTypeUnit) {
+                            WireSheetValue.Expanded(Unit as T)
+                        } else {
+                            val value = savedValue[2] as T
+                            WireSheetValue.Expanded(value)
+                        }
                     }
 
                     false -> WireSheetValue.Hidden
@@ -142,8 +120,6 @@ open class WireModalSheetState<T : Any>(
         )
     }
 }
-
-enum class SavedType { Unit, Regular, SerializedBundle }
 
 @OptIn(ExperimentalMaterial3Api::class)
 sealed class WireSheetValue<out T : Any>(val originalValue: SheetValue) {
@@ -159,9 +135,9 @@ sealed class WireSheetValue<out T : Any>(val originalValue: SheetValue) {
  * @param onDismissAction The action to be executed when the sheet is dismissed.
  */
 @Composable
-inline fun <reified T : Any> rememberWireModalSheetState(
+fun <T : Any> rememberWireModalSheetState(
     initialValue: WireSheetValue<T> = WireSheetValue.Hidden,
-    noinline onDismissAction: () -> Unit = {}
+    onDismissAction: () -> Unit = {}
 ): WireModalSheetState<T> {
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current

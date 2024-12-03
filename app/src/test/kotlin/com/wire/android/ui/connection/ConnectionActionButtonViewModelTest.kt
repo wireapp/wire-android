@@ -30,6 +30,7 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
@@ -341,6 +342,9 @@ internal class ConnectionActionButtonHiltArrangement {
 
     @MockK
     lateinit var ignoreConnectionRequest: IgnoreConnectionRequestUseCase
+
+    @MockK
+    lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
     lateinit var unblockUser: UnblockUserUseCase

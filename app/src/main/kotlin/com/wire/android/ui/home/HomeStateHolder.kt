@@ -51,8 +51,13 @@ class HomeStateHolder(
 ) {
     val currentNavigationItem
         get() = currentNavigationItemState.value
-    fun lazyListStateFor(destination: HomeDestination): LazyListState =
-        lazyListStates[destination] ?: error("No LazyListState found for $destination")
+    fun lazyListStateFor(destination: HomeDestination): LazyListState {
+        return lazyListStates[destination] ?: error("No LazyListState found for $destination")
+    }
+
+    fun nullAbleLazyListStateFor(destination: HomeDestination): LazyListState? {
+        return lazyListStates[destination]
+    }
 
     fun closeDrawer() {
         coroutineScope.launch {
@@ -80,7 +85,7 @@ fun rememberHomeScreenState(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentNavigationItemState = remember {
         derivedStateOf {
-            navBackStackEntry?.destination?.route?.let { HomeDestination.fromRoute(it) } ?: HomeDestination.Conversations
+            HomeDestination.fromEntry(navBackStackEntry) ?: HomeDestination.Conversations
         }
     }
     val lazyListStates = HomeDestination.values().associateWith { rememberLazyListState() }

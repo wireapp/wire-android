@@ -147,6 +147,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     interface Factory {
         fun create(
             conversationsSource: ConversationsSource,
+            folderId: String?,
             usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
         ): ConversationListViewModelImpl
     }
@@ -164,6 +165,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val containsNewActivitiesSection = when (conversationsSource) {
         ConversationsSource.MAIN,
         ConversationsSource.FAVORITES,
+        is ConversationsSource.FOLDER,
         ConversationsSource.GROUPS,
         ConversationsSource.ONE_ON_ONE -> true
 
@@ -438,11 +440,12 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 fun Conversation.LegalHoldStatus.showLegalHoldIndicator() = this == Conversation.LegalHoldStatus.ENABLED
 
 private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
-    ConversationsSource.MAIN -> ConversationFilter.ALL
-    ConversationsSource.ARCHIVE -> ConversationFilter.ALL
-    ConversationsSource.GROUPS -> ConversationFilter.GROUPS
-    ConversationsSource.FAVORITES -> ConversationFilter.FAVORITES
-    ConversationsSource.ONE_ON_ONE -> ConversationFilter.ONE_ON_ONE
+    ConversationsSource.MAIN -> ConversationFilter.All
+    ConversationsSource.ARCHIVE -> ConversationFilter.All
+    ConversationsSource.GROUPS -> ConversationFilter.Groups
+    ConversationsSource.FAVORITES -> ConversationFilter.Favorites
+    ConversationsSource.ONE_ON_ONE -> ConversationFilter.OneOnOne
+    is ConversationsSource.FOLDER ->ConversationFilter.Folder(folderId = folderId, folderName = folderName)
 }
 
 private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus: LegalHoldStateForSelfUser) =
@@ -472,6 +475,7 @@ private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map
         ConversationsSource.FAVORITES,
         ConversationsSource.GROUPS,
         ConversationsSource.ONE_ON_ONE,
+        is ConversationsSource.FOLDER,
         ConversationsSource.MAIN -> {
             val unreadConversations = filter {
                 when (it.mutedStatus) {

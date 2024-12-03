@@ -278,7 +278,7 @@ class ConversationListViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withConversationsPaginated(listOf(TestConversationItem.CONNECTION, TestConversationItem.PRIVATE, TestConversationItem.GROUP))
             withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Disabled)
-            coEvery { observeConversationListDetailsWithEventsUseCase.invoke(false, ConversationFilter.ALL) } returns flowOf(
+            coEvery { observeConversationListDetailsWithEventsUseCase.invoke(false, ConversationFilter.All) } returns flowOf(
                 listOf(
                     TestConversationDetails.CONNECTION,
                     TestConversationDetails.CONVERSATION_ONE_ONE,

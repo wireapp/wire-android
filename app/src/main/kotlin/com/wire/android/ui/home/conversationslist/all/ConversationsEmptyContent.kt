@@ -45,7 +45,7 @@ import com.wire.kalium.logic.data.conversation.ConversationFilter
 @Composable
 fun ConversationsEmptyContent(
     modifier: Modifier = Modifier,
-    filter: ConversationFilter = ConversationFilter.ALL,
+    filter: ConversationFilter = ConversationFilter.All,
     domain: String = "wire.com"
 ) {
     val context = LocalContext.current
@@ -58,7 +58,7 @@ fun ConversationsEmptyContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (filter == ConversationFilter.ALL) {
+        if (filter == ConversationFilter.All) {
             Text(
                 modifier = Modifier.padding(
                     bottom = dimensions().spacing24x,
@@ -76,7 +76,7 @@ fun ConversationsEmptyContent(
             textAlign = TextAlign.Center,
             color = MaterialTheme.wireColorScheme.onSurface,
         )
-        if (filter == ConversationFilter.FAVORITES) {
+        if (filter == ConversationFilter.Favorites) {
             val supportUrl = stringResource(id = R.string.url_how_to_add_favorites)
             Text(
                 text = stringResource(R.string.favorites_empty_list_how_to_label),
@@ -102,32 +102,35 @@ fun ConversationsEmptyContent(
 
 @Composable
 private fun ConversationFilter.emptyDescription(backendName: String): String = when (this) {
-    ConversationFilter.ALL -> stringResource(R.string.conversation_empty_list_description)
-    ConversationFilter.FAVORITES -> stringResource(R.string.favorites_empty_list_description)
-    ConversationFilter.GROUPS -> stringResource(R.string.group_empty_list_description)
-    ConversationFilter.ONE_ON_ONE -> stringResource(R.string.one_on_one_empty_list_description, backendName)
+    ConversationFilter.All -> stringResource(R.string.conversation_empty_list_description)
+    ConversationFilter.Favorites -> stringResource(R.string.favorites_empty_list_description)
+    ConversationFilter.Groups -> stringResource(R.string.group_empty_list_description)
+    ConversationFilter.OneOnOne -> stringResource(R.string.one_on_one_empty_list_description, backendName)
+    // currently not used, because empty folders are removed from filters
+    is ConversationFilter.Folder -> ""
+
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewAllConversationsEmptyContent() = WireTheme {
-    ConversationsEmptyContent(filter = ConversationFilter.ALL)
+    ConversationsEmptyContent(filter = ConversationFilter.All)
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewFavoritesConversationsEmptyContent() = WireTheme {
-    ConversationsEmptyContent(filter = ConversationFilter.FAVORITES)
+    ConversationsEmptyContent(filter = ConversationFilter.Favorites)
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationsEmptyContent() = WireTheme {
-    ConversationsEmptyContent(filter = ConversationFilter.GROUPS)
+    ConversationsEmptyContent(filter = ConversationFilter.Groups)
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewOneOnOneConversationsEmptyContent() = WireTheme {
-    ConversationsEmptyContent(filter = ConversationFilter.ONE_ON_ONE, domain = "wire.com")
+    ConversationsEmptyContent(filter = ConversationFilter.OneOnOne, domain = "wire.com")
 }

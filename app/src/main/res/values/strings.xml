@@ -266,6 +266,7 @@
     <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/articles/6655706999581</string>
     <string name="url_why_verify_conversation" translatable="false">https://support.wire.com/hc/articles/207859815</string>
     <string name="url_how_to_add_favorites" translatable="false">https://support.wire.com/hc/articles/360002855557</string>
+    <string name="url_how_to_add_folders" translatable="false">https://support.wire.com/hc/articles/360002855817</string>
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
     <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
     <!-- Navigation -->
@@ -649,8 +650,10 @@
     <string name="label_filter_conversations">Filter Conversations</string>
     <string name="label_filter_all">All Conversations</string>
     <string name="label_filter_favorites">Favorites</string>
+    <string name="label_filter_folders">Folders %1$s</string>
     <string name="label_filter_group">Groups</string>
     <string name="label_filter_one_on_one">1:1 Conversations</string>
+    <string name="label_folders">Folders</string>
 
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Everything</string>
@@ -1189,6 +1192,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="group_empty_list_description">You are not part of any group conversation yet.\nStart a new conversation!</string>
     <string name="one_on_one_empty_list_description">You have no contacts yet.\nSearch for people on %1$s and get connected.</string>
     <string name="favorites_empty_list_how_to_label">How to label conversations as favorites</string>
+    <string name="folders_empty_list_description">Add your conversations to folders to stay organized.</string>
+    <string name="folders_empty_list_how_to_add">How to add a conversation to a folder</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
     <string name="label_no_conversation_found">No conversations could be found.</string>
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation</string>

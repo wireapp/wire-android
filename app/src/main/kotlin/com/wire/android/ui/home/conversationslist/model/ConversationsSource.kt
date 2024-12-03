@@ -17,4 +17,16 @@
  */
 package com.wire.android.ui.home.conversationslist.model
 
-enum class ConversationsSource { MAIN, ARCHIVE, FAVORITES, GROUPS, ONE_ON_ONE }
+import kotlinx.serialization.Serializable
+
+@Serializable
+sealed class ConversationsSource {
+
+    data object MAIN : ConversationsSource()
+    data object ARCHIVE : ConversationsSource()
+    data object FAVORITES : ConversationsSource()
+    data object GROUPS : ConversationsSource()
+    data object ONE_ON_ONE : ConversationsSource()
+
+    data class FOLDER(val folderId: String, val folderName: String) : ConversationsSource()
+}

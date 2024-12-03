@@ -17,54 +17,66 @@
  */
 package com.wire.android.ui.home.conversationslist.filter
 
-import androidx.compose.material3.MaterialTheme
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.remember
 import com.wire.android.R
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
-import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @Composable
 fun ConversationFilterSheetContent(
-    currentFilter: ConversationFilter,
-    onChangeFilter: (ConversationFilter) -> Unit
+    filterSheetState: ConversationFilterSheetState,
+    onChangeFilter: (ConversationFilter) -> Unit,
+    onChangeFolder: (ConversationFilter.Folder) -> Unit,
+    isBottomSheetVisible: () -> Boolean = { true }
 ) {
-    WireMenuModalSheetContent(
-        header = MenuModalSheetHeader.Visible(
-            title = stringResource(R.string.label_filter_conversations),
-            customVerticalPadding = dimensions().spacing8x
-        ),
-        menuItems = buildList<@Composable () -> Unit> {
-            ConversationFilter.entries.forEach { filter ->
-                add {
-                    MenuBottomSheetItem(
-                        title = stringResource(filter.getResource()),
-                        trailing = {
-                            if (filter == currentFilter) {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_check_circle,
-                                    contentDescription = stringResource(R.string.label_selected),
-                                    tint = MaterialTheme.wireColorScheme.switchEnabledChecked,
-                                )
-                            }
-                        },
-                        onItemClick = { onChangeFilter(filter) },
-                        onItemClickDescription = stringResource(R.string.content_description_select_label)
-                    )
+    when (filterSheetState.currentData.tab) {
+        FilterTab.FILTERS -> {
+            ConversationFiltersSheetContent(
+                sheetData = filterSheetState.currentData,
+                onChangeFilter = onChangeFilter,
+                showFoldersBottomSheet = {
+                    filterSheetState.toFolders()
                 }
-            }
+            )
         }
-    )
+
+        FilterTab.FOLDERS -> {
+            ConversationFoldersSheetContent(
+                sheetData = filterSheetState.currentData,
+                onChangeFolder = onChangeFolder,
+                onBackClick = {
+                    filterSheetState.toFilters()
+                }
+            )
+        }
+    }
+
+    BackHandler(
+        filterSheetState.currentData.tab == FilterTab.FOLDERS
+                && isBottomSheetVisible()
+    ) {
+        filterSheetState.toFilters()
+    }
 }
 
-private fun ConversationFilter.getResource(): Int = when (this) {
-    ConversationFilter.ALL -> R.string.label_filter_all
-    ConversationFilter.FAVORITES -> R.string.label_filter_favorites
-    ConversationFilter.GROUPS -> R.string.label_filter_group
-    ConversationFilter.ONE_ON_ONE -> R.string.label_filter_one_on_one
+
+@Composable
+fun rememberFilterSheetState(
+    filterSheetData: ConversationFilterSheetData,
+): ConversationFilterSheetState {
+    return remember(filterSheetData) {
+        ConversationFilterSheetState(
+            conversationFilterSheetData = filterSheetData
+        )
+    }
+}
+
+fun ConversationFilter.uiText(): UIText = when (this) {
+    ConversationFilter.All -> UIText.StringResource(R.string.label_filter_all)
+    ConversationFilter.Favorites -> UIText.StringResource(R.string.label_filter_favorites)
+    ConversationFilter.Groups -> UIText.StringResource(R.string.label_filter_group)
+    ConversationFilter.OneOnOne -> UIText.StringResource(R.string.label_filter_one_on_one)
+    is ConversationFilter.Folder -> UIText.StringResource(R.string.label_filter_folders, this.folderName)
 }

@@ -62,11 +62,11 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.currentFilter
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.navigation.toDestination
 import com.wire.android.ui.NavGraphs
@@ -87,12 +87,16 @@ import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
 import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent
+import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetData
+import com.wire.android.ui.home.conversationslist.filter.rememberFilterSheetState
 import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
-import com.wire.kalium.logic.data.conversation.ConversationFilter
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -240,9 +244,13 @@ fun HomeContent(
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
     modifier: Modifier = Modifier,
+    foldersViewModel: ConversationFoldersVM =
+        hiltViewModelScoped<ConversationFoldersVMImpl, ConversationFoldersVM, ConversationFoldersStateArgs>(
+            ConversationFoldersStateArgs
+        ),
 ) {
     val context = LocalContext.current
-    val filterSheetState = rememberWireModalSheetState<ConversationFilter>()
+    val filterSheetState = rememberWireModalSheetState<ConversationFilterSheetData>()
 
     with(homeStateHolder) {
         fun openHomeDestination(item: HomeDestination) {
@@ -302,7 +310,11 @@ fun HomeContent(
                                 shouldShowCreateTeamUnreadIndicator = homeState.shouldShowCreateTeamUnreadIndicator,
                                 onHamburgerMenuClick = ::openDrawer,
                                 onNavigateToSelfUserProfile = onSelfUserClick,
-                                onOpenConversationFilter = { filterSheetState.show(it) }
+                                onOpenConversationFilter = { filterSheetState.show(
+                                    ConversationFilterSheetData(
+                                        currentFilter = it,
+                                        folders = foldersViewModel.state().folders
+                                    )) }
                             )
                         }
                     },
@@ -317,7 +329,7 @@ fun HomeContent(
                         }
                     },
                     collapsingEnabled = !searchBarState.isSearchActive,
-                    contentLazyListState = homeStateHolder.lazyListStateFor(currentNavigationItem),
+                    contentLazyListState = homeStateHolder.nullAbleLazyListStateFor(currentNavigationItem),
                     content = {
                         /**
                          * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
@@ -372,13 +384,18 @@ fun HomeContent(
         )
         WireModalSheetLayout(
             sheetState = filterSheetState,
-            sheetContent = {
+            sheetContent = { sheetData ->
+                val sheetContentState = rememberFilterSheetState(sheetData)
                 ConversationFilterSheetContent(
-                    currentFilter = currentNavigationItem.currentFilter(),
                     onChangeFilter = { filter ->
                         filterSheetState.hide()
                         openHomeDestination(filter.toDestination())
-                    }
+                    },
+                    onChangeFolder = {
+                        filterSheetState.hide()
+                        openHomeDestination(it.toDestination())
+                    },
+                    filterSheetState = sheetContentState
                 )
             }
         )

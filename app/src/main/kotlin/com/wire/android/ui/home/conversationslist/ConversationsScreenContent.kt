@@ -92,15 +92,17 @@ fun ConversationsScreenContent(
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
         else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
-            key = "list_${conversationsSource.name}",
+            key = "list_${conversationsSource}",
             creationCallback = { factory ->
-                factory.create(conversationsSource = conversationsSource)
+                factory.create(
+                    conversationsSource = conversationsSource,
+                    folderId = (conversationsSource as ConversationsSource.FOLDER).folderId)
             }
         )
     },
     conversationCallListViewModel: ConversationCallListViewModel = when {
         LocalInspectionMode.current -> ConversationCallListViewModelPreview
-        else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_${conversationsSource.name}")
+        else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_${conversationsSource}")
     },
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(

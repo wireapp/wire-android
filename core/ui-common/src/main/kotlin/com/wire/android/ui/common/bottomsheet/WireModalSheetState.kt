@@ -17,26 +17,31 @@
  */
 package com.wire.android.ui.common.bottomsheet
 
+import android.os.Bundle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.Density
+import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
+import kotlinx.serialization.serializerOrNull
 
 @OptIn(ExperimentalMaterial3Api::class)
-open class WireModalSheetState<T : Any> internal constructor(
+open class WireModalSheetState<T : Any>(
     density: Density,
     private val scope: CoroutineScope,
     private val keyboardController: SoftwareKeyboardController? = null,
@@ -84,33 +89,50 @@ open class WireModalSheetState<T : Any> internal constructor(
     companion object {
         const val DELAY_TO_SHOW_BOTTOM_SHEET_WHEN_KEYBOARD_IS_OPEN = 300L
 
-        @Suppress("UNCHECKED_CAST")
-        fun <T : Any> saver(
+        @Suppress("TooGenericExceptionCaught")
+        @OptIn(InternalSerializationApi::class)
+        inline fun <reified T : Any> saver(
             density: Density,
             softwareKeyboardController: SoftwareKeyboardController?,
-            onDismissAction: () -> Unit,
+            noinline onDismissAction: () -> Unit,
             scope: CoroutineScope
-        ): Saver<WireModalSheetState<T>, *> = Saver(
+        ): Saver<WireModalSheetState<T>, List<Any>> = Saver(
             save = {
-                val isExpanded = it.currentValue is WireSheetValue.Expanded<T>
-                val (isValueOfTypeUnit, value) = (it.currentValue as? WireSheetValue.Expanded<T>)?.let {
-                    val isValueOfTypeUnit = it.value is Unit // Unit cannot be saved into Bundle, need to handle it separately
-                    val value = if (isValueOfTypeUnit) null else it.value
-                    isValueOfTypeUnit to value
-                } ?: (false to null)
-                listOf(isExpanded, isValueOfTypeUnit, value)
+                when (it.currentValue) {
+                    is WireSheetValue.Hidden -> listOf(false) // hidden
+                    is WireSheetValue.Expanded<T> -> {
+                        val value = (it.currentValue as WireSheetValue.Expanded<T>).value
+                        when {
+                            value is Unit -> // expanded and with Unit value
+                                listOf(true, SavedType.Unit)
+
+                            canBeSaved(value) -> // expanded and non-Unit value that can be saved normally
+                                listOf(true, SavedType.Regular, value)
+
+                            T::class.serializerOrNull() != null -> // expanded and with non-Unit value that can be serialized
+                                try {
+                                    val serializedBundleValue = Bundlizer.bundle(T::class.serializer(), value)
+                                    listOf(true, SavedType.SerializedBundle, serializedBundleValue)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    listOf(false) // hidden because value cannot be serialized properly
+                                }
+
+                            else -> listOf(false) // hidden because value cannot be saved
+                        }
+                    }
+                }
             },
             restore = { savedValue ->
                 val isExpanded = savedValue[0] as Boolean
                 val sheetValue = when (isExpanded) {
-                    true -> {
-                        val isValueOfTypeUnit = savedValue[1] as Boolean
-                        if (isValueOfTypeUnit) {
-                            WireSheetValue.Expanded(Unit as T)
-                        } else {
-                            val value = savedValue[2] as T
-                            WireSheetValue.Expanded(value)
-                        }
+                    true -> when (savedValue[1] as SavedType) {
+                        SavedType.Unit -> WireSheetValue.Expanded(Unit as T)
+
+                        SavedType.Regular -> WireSheetValue.Expanded(savedValue[2] as T)
+
+                        SavedType.SerializedBundle ->
+                            WireSheetValue.Expanded(Bundlizer.unbundle(T::class.serializer(), savedValue[2] as Bundle))
                     }
 
                     false -> WireSheetValue.Hidden
@@ -120,6 +142,8 @@ open class WireModalSheetState<T : Any> internal constructor(
         )
     }
 }
+
+enum class SavedType { Unit, Regular, SerializedBundle }
 
 @OptIn(ExperimentalMaterial3Api::class)
 sealed class WireSheetValue<out T : Any>(val originalValue: SheetValue) {
@@ -135,21 +159,16 @@ sealed class WireSheetValue<out T : Any>(val originalValue: SheetValue) {
  * @param onDismissAction The action to be executed when the sheet is dismissed.
  */
 @Composable
-fun <T : Any> rememberWireModalSheetState(
+inline fun <reified T : Any> rememberWireModalSheetState(
     initialValue: WireSheetValue<T> = WireSheetValue.Hidden,
-    onDismissAction: () -> Unit = {}
+    noinline onDismissAction: () -> Unit = {}
 ): WireModalSheetState<T> {
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
-    return rememberSaveable(
-        saver = WireModalSheetState.saver(
-            density = density,
-            softwareKeyboardController = softwareKeyboardController,
-            onDismissAction = onDismissAction,
-            scope = scope
-        )
-    ) {
+    // TODO: we can use rememberSaveable instead of remember to save the state but first we need to make sure that we don't store too much,
+    //  especially for conversations and messages to not keep such data unencrypted anywhere
+    return remember {
         WireModalSheetState(
             density = density,
             scope = scope,

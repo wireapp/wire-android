@@ -19,7 +19,6 @@
 package com.wire.android.ui.home.conversations.model
 
 import android.content.res.Resources
-import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
@@ -41,7 +40,6 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -53,8 +51,10 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 
+@Serializable
 sealed interface UIMessage {
     val conversationId: ConversationId
     val header: MessageHeader
@@ -64,6 +64,7 @@ sealed interface UIMessage {
     val decryptionFailed: Boolean
     val isPending: Boolean
 
+    @Serializable
     data class Regular(
         override val conversationId: ConversationId,
         override val header: MessageHeader,
@@ -110,6 +111,7 @@ sealed interface UIMessage {
         val isLocation: Boolean = messageContent is UIMessageContent.Location
     }
 
+    @Serializable
     data class System(
         override val conversationId: ConversationId,
         override val header: MessageHeader,
@@ -124,6 +126,7 @@ sealed interface UIMessage {
 }
 
 @Stable
+@Serializable
 data class MessageHeader(
     val username: UIText,
     val membership: Membership,
@@ -141,68 +144,86 @@ data class MessageHeader(
 )
 
 @Stable
+@Serializable
 data class MessageFooter(
     val messageId: String,
     val reactions: Map<String, Int> = emptyMap(),
     val ownReactions: Set<String> = emptySet()
 )
 
-sealed class ExpirationStatus {
+@Serializable
+sealed interface ExpirationStatus {
+
+    @Serializable
     data class Expirable(
         val expireAfter: Duration,
         val selfDeletionStatus: Message.ExpirationData.SelfDeletionStatus
-    ) : ExpirationStatus()
+    ) : ExpirationStatus
 
-    object NotExpirable : ExpirationStatus()
+    @Serializable
+    data object NotExpirable : ExpirationStatus
 }
 
-sealed class MessageEditStatus {
-    object NonEdited : MessageEditStatus()
-    data class Edited(val formattedEditTimeStamp: String) : MessageEditStatus()
+@Serializable
+sealed interface MessageEditStatus {
+
+    @Serializable
+    data object NonEdited : MessageEditStatus
+
+    @Serializable
+    data class Edited(val formattedEditTimeStamp: String) : MessageEditStatus
 }
 
-sealed class MessageFlowStatus {
+@Serializable
+sealed interface MessageFlowStatus {
 
-    data object Sending : MessageFlowStatus()
-    data object Sent : MessageFlowStatus()
-    sealed class Failure(val errorText: UIText) : MessageFlowStatus() {
-        sealed class Send(errorText: UIText) : Failure(errorText) {
-            data class Locally(val isEdited: Boolean) : Send(
-                if (isEdited) {
-                    UIText.StringResource(R.string.label_message_edit_sent_failure)
-                } else {
-                    UIText.StringResource(R.string.label_message_sent_failure)
-                }
-            )
+    @Serializable
+    data object Sending : MessageFlowStatus
 
-            data class Remotely(val isEdited: Boolean, val backendWithFailure: String) : Send(
-                if (isEdited) {
-                    UIText.StringResource(
-                        R.string.label_message_edit_sent_remotely_failure,
-                        backendWithFailure
-                    )
-                } else {
-                    UIText.StringResource(
-                        R.string.label_message_sent_remotely_failure,
-                        backendWithFailure
-                    )
-                }
-            )
+    @Serializable
+    data object Sent : MessageFlowStatus
+
+    @Serializable
+    sealed interface Failure : MessageFlowStatus {
+        val errorText: UIText
+
+        @Serializable
+        sealed interface Send : Failure {
+
+            @Serializable
+            data class Locally(val isEdited: Boolean) : Send {
+                override val errorText: UIText = when {
+                        isEdited -> UIText.StringResource(R.string.label_message_edit_sent_failure)
+                        else -> UIText.StringResource(R.string.label_message_sent_failure)
+                    }
+            }
+
+            @Serializable
+            data class Remotely(val isEdited: Boolean, val backendWithFailure: String) : Send {
+                override val errorText: UIText = when {
+                        isEdited -> UIText.StringResource(R.string.label_message_edit_sent_remotely_failure, backendWithFailure)
+                        else -> UIText.StringResource(R.string.label_message_sent_remotely_failure, backendWithFailure)
+                    }
+            }
         }
 
-        data class Decryption(val isDecryptionResolved: Boolean, private val errorCode: Int?) : Failure(
-            errorCode?.let {
+        @Serializable
+        data class Decryption(val isDecryptionResolved: Boolean, private val errorCode: Int?) : Failure {
+            override val errorText: UIText = errorCode?.let {
                 UIText.StringResource(R.string.label_message_decryption_failure_message_with_error_code, it)
             } ?: UIText.StringResource(R.string.label_message_decryption_failure_message)
-        )
+        }
     }
 
-    data object Delivered : MessageFlowStatus()
+    @Serializable
+    data object Delivered : MessageFlowStatus
 
-    data class Read(val count: Long) : MessageFlowStatus()
+    @Serializable
+    data class Read(val count: Long) : MessageFlowStatus
 }
 
 @Stable
+@Serializable
 data class MessageStatus(
     val flowStatus: MessageFlowStatus,
     val expirationStatus: ExpirationStatus,
@@ -223,42 +244,55 @@ data class MessageStatus(
 }
 
 @Stable
-sealed class UILastMessageContent {
-    object None : UILastMessageContent()
+@Serializable
+sealed interface UILastMessageContent {
 
-    data class TextMessage(val messageBody: MessageBody) : UILastMessageContent()
+    @Serializable
+    data object None : UILastMessageContent
 
+    @Serializable
+    data class TextMessage(val messageBody: MessageBody) : UILastMessageContent
+
+    @Serializable
     data class SenderWithMessage(
         val sender: UIText,
         val message: UIText,
         val separator: String = MarkdownConstants.NON_BREAKING_SPACE
-    ) : UILastMessageContent()
+    ) : UILastMessageContent
 
+    @Serializable
     data class MultipleMessage(
         val messages: List<UIText>,
         val separator: String = MarkdownConstants.NON_BREAKING_SPACE
-    ) : UILastMessageContent()
+    ) : UILastMessageContent
 
-    data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()
+    @Serializable
+    data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent
 
-    data class VerificationChanged(@StringRes val textResId: Int) : UILastMessageContent()
+    @Serializable
+    data class VerificationChanged(@StringRes val textResId: Int) : UILastMessageContent
 }
 
-sealed class UIMessageContent {
+@Serializable
+sealed interface UIMessageContent {
 
-    sealed class Regular : UIMessageContent()
+    @Serializable
+    sealed class Regular : UIMessageContent
 
     /**
      * IncompleteAssetMessage is a displayable asset that's missing the remote data.
      * Sometimes client receives two events about the same asset, first one with only part of the data ("preview" type from web),
      * so such asset shouldn't be shown until all the required data is received.
      */
-    object IncompleteAssetMessage : UIMessageContent()
+    @Serializable
+    data object IncompleteAssetMessage : UIMessageContent
 
-    interface PartialDeliverable {
+    @Serializable
+    sealed interface PartialDeliverable {
         val deliveryStatus: DeliveryStatusContent
     }
 
+    @Serializable
     data class TextMessage(
         val messageBody: MessageBody,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
@@ -266,6 +300,7 @@ sealed class UIMessageContent {
         override fun textToCopy(resources: Resources): String = messageBody.message.asString(resources)
     }
 
+    @Serializable
     data class Composite(
         val messageBody: MessageBody?,
         val buttonList: PersistentList<MessageButton>
@@ -273,8 +308,10 @@ sealed class UIMessageContent {
         override fun textToCopy(resources: Resources): String? = messageBody?.message?.asString(resources)
     }
 
-    object Deleted : Regular()
+    @Serializable
+    data object Deleted : Regular()
 
+    @Serializable
     data class RestrictedAsset(
         val mimeType: String,
         val assetSizeInBytes: Long,
@@ -283,6 +320,7 @@ sealed class UIMessageContent {
     ) : Regular(), PartialDeliverable
 
     @Stable
+    @Serializable
     data class AssetMessage(
         val assetName: String,
         val assetExtension: String,
@@ -291,6 +329,7 @@ sealed class UIMessageContent {
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 
+    @Serializable
     data class ImageMessage(
         val assetId: AssetId,
         val asset: ImageAsset.PrivateAsset?,
@@ -300,6 +339,7 @@ sealed class UIMessageContent {
     ) : Regular(), PartialDeliverable
 
     @Stable
+    @Serializable
     data class AudioAssetMessage(
         val assetName: String,
         val assetExtension: String,
@@ -309,6 +349,7 @@ sealed class UIMessageContent {
     ) : Regular(), PartialDeliverable
 
     @Stable
+    @Serializable
     data class Location(
         val latitude: Float,
         val longitude: Float,
@@ -318,308 +359,363 @@ sealed class UIMessageContent {
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 
-    sealed class SystemMessage(
-        @DrawableRes val iconResId: Int?,
-        open val stringResId: LocalizedStringResource,
-        @StringRes val learnMoreResId: Int? = null,
-        val isSmallIcon: Boolean = true,
-    ) : UIMessageContent() {
+    @Serializable
+    sealed interface SystemMessage : UIMessageContent {
+        val iconResId: Int?
+        val stringRes: LocalizedStringResource
+        val learnMoreResId: Int? get() = null
+        val isSmallIcon: Boolean get() = true
 
-        constructor(
-            @DrawableRes iconResId: Int?,
-            @StringRes stringResId: Int,
-            isSmallIcon: Boolean = true,
-            @StringRes learnMoreResId: Int? = null
-        ) : this(iconResId, LocalizedStringResource.StringResource(stringResId), learnMoreResId, isSmallIcon)
+        @Serializable
+        data class Knock(
+            val author: UIText,
+            val isSelfTriggered: Boolean
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_ping
+            override val stringRes = when {
+                isSelfTriggered -> R.string.label_system_message_self_user_knock
+                else -> R.string.label_system_message_other_user_knock
+            }.toLocalizedStringResource()
+        }
 
-        constructor(
-            @DrawableRes iconResId: Int?,
-            @PluralsRes stringResId: Int,
-            quantity: Int,
-            formatArgs: List<UIText>,
-            isSmallIcon: Boolean = true,
-            @StringRes learnMoreResId: Int? = null
-        ) : this(
-            iconResId,
-            LocalizedStringResource.PluralResource(stringResId, quantity, formatArgs.toTypedArray()),
-            learnMoreResId,
-            isSmallIcon
-        )
-
-        data class Knock(val author: UIText, val isSelfTriggered: Boolean) : SystemMessage(
-            R.drawable.ic_ping,
-            if (isSelfTriggered) R.string.label_system_message_self_user_knock else R.string.label_system_message_other_user_knock
-        )
-
+        @Serializable
         data class MemberAdded(
             val author: UIText,
             val memberNames: List<UIText>,
             val isSelfTriggered: Boolean = false
-        ) : SystemMessage(
-            R.drawable.ic_add,
-            if (isSelfTriggered) R.string.label_system_message_added_by_self else R.string.label_system_message_added_by_other
-        )
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_add
+            override val stringRes = when {
+                isSelfTriggered -> R.string.label_system_message_added_by_self
+                else -> R.string.label_system_message_added_by_other
+            }.toLocalizedStringResource()
+        }
 
+        @Serializable
         data class MemberJoined(
             val author: UIText,
             val isSelfTriggered: Boolean = false
-        ) : SystemMessage(
-            R.drawable.ic_add,
-            if (isSelfTriggered) {
-                R.string.label_system_message_joined_the_conversation_by_self
-            } else {
-                R.string.label_system_message_joined_the_conversation_by_other
-            }
-        )
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_add
+            override val stringRes = when {
+                isSelfTriggered -> R.string.label_system_message_joined_the_conversation_by_self
+                else -> R.string.label_system_message_joined_the_conversation_by_other
+            }.toLocalizedStringResource()
+        }
 
+        @Serializable
         data class MemberRemoved(
             val author: UIText,
             val memberNames: List<UIText>,
             val isSelfTriggered: Boolean = false
-        ) : SystemMessage(
-            R.drawable.ic_minus,
-            if (isSelfTriggered) R.string.label_system_message_removed_by_self else R.string.label_system_message_removed_by_other
-        )
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_minus
+            override val stringRes = when {
+                isSelfTriggered -> R.string.label_system_message_removed_by_self
+                else -> R.string.label_system_message_removed_by_other
+            }.toLocalizedStringResource()
+        }
 
+        @Serializable
         data class TeamMemberRemoved(
             val author: UIText,
             val memberNames: List<UIText>,
-        ) : SystemMessage(
-            R.drawable.ic_minus,
-            R.plurals.label_system_message_team_member_left,
-            quantity = memberNames.size,
-            formatArgs = memberNames
-        )
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_minus
+            override val stringRes = R.plurals.label_system_message_team_member_left.toLocalizedPluralResource(memberNames.size)
+        }
 
+        @Serializable
         data class MemberLeft(
             val author: UIText,
             val isSelfTriggered: Boolean = false
-        ) : SystemMessage(
-            R.drawable.ic_minus,
-            if (isSelfTriggered) {
-                R.string.label_system_message_left_the_conversation_by_self
-            } else {
-                R.string.label_system_message_left_the_conversation_by_other
-            }
-        )
-
-        data class FederationMemberRemoved(
-            val memberNames: List<UIText>
-        ) : SystemMessage(
-            R.drawable.ic_minus,
-            if (memberNames.size > 1) {
-                R.string.label_system_message_federation_many_member_removed
-            } else {
-                R.string.label_system_message_federation_one_member_removed
-            }
-        )
-
-        data class FederationStopped(
-            val domainList: List<String>
-        ) : SystemMessage(
-            R.drawable.ic_info,
-            if (domainList.size > 1) {
-                R.string.label_system_message_federation_conection_removed
-            } else {
-                R.string.label_system_message_federation_removed
-            },
-            learnMoreResId = R.string.url_federation_support
-        )
-
-        sealed class MissedCall(
-            open val author: UIText,
-            @StringRes stringResId: Int,
-        ) : SystemMessage(R.drawable.ic_call_end, stringResId, isSmallIcon = false) {
-
-            data class YouCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_you_called)
-            data class OtherCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_other_called)
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_minus
+            override val stringRes = when {
+                isSelfTriggered -> R.string.label_system_message_left_the_conversation_by_self
+                else -> R.string.label_system_message_left_the_conversation_by_other
+            }.toLocalizedStringResource()
         }
 
-        data class RenamedConversation(val author: UIText, val content: MessageContent.ConversationRenamed) :
-            SystemMessage(R.drawable.ic_edit, R.string.label_system_message_renamed_the_conversation)
+        @Serializable
+        data class FederationMemberRemoved(
+            val memberNames: List<UIText>
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_minus
+            override val stringRes = when {
+                memberNames.size > 1 -> R.string.label_system_message_federation_many_member_removed
+                else -> R.string.label_system_message_federation_one_member_removed
+            }.toLocalizedStringResource()
+        }
+
+        @Serializable
+        data class FederationStopped(
+            val domainList: List<String>
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_info
+            override val stringRes = when {
+                domainList.size > 1 -> R.string.label_system_message_federation_conection_removed
+                else -> R.string.label_system_message_federation_removed
+            }.toLocalizedStringResource()
+            override val learnMoreResId = R.string.url_federation_support
+        }
+
+        @Serializable
+        sealed interface MissedCall : SystemMessage {
+            val author: UIText
+            override val iconResId get() = R.drawable.ic_call_end
+            override val isSmallIcon get() = false
+
+            @Serializable
+            data class YouCalled(override val author: UIText) : MissedCall {
+                override val stringRes = R.string.label_system_message_you_called.toLocalizedStringResource()
+            }
+
+            @Serializable
+            data class OtherCalled(override val author: UIText) : MissedCall {
+                override val stringRes = R.string.label_system_message_other_called.toLocalizedStringResource()
+            }
+        }
+
+        @Serializable
+        data class RenamedConversation(
+            val author: UIText,
+            val conversationName: String
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_edit
+            override val stringRes = R.string.label_system_message_renamed_the_conversation.toLocalizedStringResource()
+        }
 
         @Deprecated("Use TeamMemberRemoved")
         @Suppress("ClassNaming")
-        data class TeamMemberRemoved_Legacy(val content: MessageContent.TeamMemberRemoved) :
-            SystemMessage(
-                R.drawable.ic_minus,
-                R.plurals.label_system_message_team_member_left,
-                quantity = 0,
-                formatArgs = emptyList(),
-                true
-            )
+        @Serializable
+        data class TeamMemberRemoved_Legacy(
+            val userName: String
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_minus
+            override val stringRes = R.plurals.label_system_message_team_member_left.toLocalizedPluralResource(0)
+        }
 
-        data class CryptoSessionReset(val author: UIText) :
-            SystemMessage(R.drawable.ic_info, R.string.label_system_message_session_reset)
+        @Serializable
+        data class CryptoSessionReset(
+            val author: UIText
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_info
+            override val stringRes = R.string.label_system_message_session_reset.toLocalizedStringResource()
+        }
 
+        @Serializable
         data class NewConversationReceiptMode(
             val receiptMode: UIText
-        ) : SystemMessage(R.drawable.ic_view, R.string.label_system_message_new_conversation_receipt_mode)
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_view
+            override val stringRes = R.string.label_system_message_new_conversation_receipt_mode.toLocalizedStringResource()
+        }
 
+        @Serializable
         data class ConversationReceiptModeChanged(
             val author: UIText,
             val receiptMode: UIText,
             val isAuthorSelfUser: Boolean = false
-        ) : SystemMessage(
-            R.drawable.ic_view,
-            if (isAuthorSelfUser) {
-                R.string.label_system_message_read_receipt_changed_by_self
-            } else {
-                R.string.label_system_message_read_receipt_changed_by_other
-            }
-        )
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_view
+            override val stringRes = when {
+                isAuthorSelfUser -> R.string.label_system_message_read_receipt_changed_by_self
+                else -> R.string.label_system_message_read_receipt_changed_by_other
+            }.toLocalizedStringResource()
+        }
 
+        @Serializable
         data class ConversationMessageTimerActivated(
             val author: UIText,
             val isAuthorSelfUser: Boolean = false,
             val selfDeletionDuration: SelfDeletionDuration
-        ) : SystemMessage(
-            R.drawable.ic_timer,
-            if (isAuthorSelfUser) {
-                R.string.label_system_message_conversation_message_timer_activated_by_self
-            } else {
-                R.string.label_system_message_conversation_message_timer_activated_by_other
-            }
-        )
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_timer
+            override val stringRes = when {
+                isAuthorSelfUser -> R.string.label_system_message_conversation_message_timer_activated_by_self
+                else -> R.string.label_system_message_conversation_message_timer_activated_by_other
+            }.toLocalizedStringResource()
+        }
 
+        @Serializable
         data class ConversationMessageTimerDeactivated(
             val author: UIText,
             val isAuthorSelfUser: Boolean = false
-        ) : SystemMessage(
-            R.drawable.ic_timer,
-            if (isAuthorSelfUser) {
-                R.string.label_system_message_conversation_message_timer_deactivated_by_self
-            } else {
-                R.string.label_system_message_conversation_message_timer_deactivated_by_other
-            }
-        )
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_timer
+            override val stringRes = when {
+                isAuthorSelfUser -> R.string.label_system_message_conversation_message_timer_deactivated_by_self
+                else -> R.string.label_system_message_conversation_message_timer_deactivated_by_other
+            }.toLocalizedStringResource()
+        }
 
-        class MLSWrongEpochWarning : SystemMessage(
-            iconResId = R.drawable.ic_info,
-            stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled,
-            learnMoreResId = R.string.url_system_message_learn_more_about_mls
-        )
+        @Serializable
+        data object MLSWrongEpochWarning : SystemMessage {
+            override val iconResId = R.drawable.ic_info
+            override val stringRes = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled.toLocalizedStringResource()
+            override val learnMoreResId = R.string.url_system_message_learn_more_about_mls
+        }
 
+        @Serializable
         data class ConversationProtocolChanged(
             val protocol: Conversation.Protocol
-        ) : SystemMessage(
-            iconResId = R.drawable.ic_info,
-            stringResId = when (protocol) {
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_info
+            override val stringRes = when (protocol) {
                 Conversation.Protocol.PROTEUS -> R.string.label_system_message_conversation_protocol_changed_proteus
                 Conversation.Protocol.MIXED -> R.string.label_system_message_conversation_protocol_changed_mixed
                 Conversation.Protocol.MLS -> R.string.label_system_message_conversation_protocol_changed_mls
-            },
-            learnMoreResId = when (protocol) {
+            }.toLocalizedStringResource()
+            override val learnMoreResId = when (protocol) {
                 Conversation.Protocol.PROTEUS -> null
                 Conversation.Protocol.MIXED -> null
                 Conversation.Protocol.MLS -> R.string.url_system_message_learn_more_about_mls
             }
-        )
+        }
 
-        data object ConversationProtocolChangedWithCallOngoing : SystemMessage(
-            R.drawable.ic_info,
-            R.string.label_system_message_conversation_protocol_changed_during_a_call
-        )
+        @Serializable
+        data object ConversationProtocolChangedWithCallOngoing : SystemMessage {
+            override val iconResId = R.drawable.ic_info
+            override val stringRes = R.string.label_system_message_conversation_protocol_changed_during_a_call.toLocalizedStringResource()
+        }
 
-        object HistoryLost : SystemMessage(
-            R.drawable.ic_info,
-            R.string.label_system_message_conversation_history_lost
-        )
+        @Serializable
+        data object HistoryLost : SystemMessage {
+            override val iconResId = R.drawable.ic_info
+            override val stringRes = R.string.label_system_message_conversation_history_lost.toLocalizedStringResource()
+        }
 
-        object HistoryLostProtocolChanged : SystemMessage(
-            R.drawable.ic_info,
-            R.string.label_system_message_conversation_history_lost_protocol_changed
-        )
+        @Serializable
+        data object HistoryLostProtocolChanged : SystemMessage {
+            override val iconResId = R.drawable.ic_info
+            override val stringRes = R.string.label_system_message_conversation_history_lost_protocol_changed.toLocalizedStringResource()
+        }
 
+        @Serializable
         data class ConversationMessageCreated(
             val author: UIText,
             val isAuthorSelfUser: Boolean = false,
             val date: String
-        ) : SystemMessage(
-            R.drawable.ic_conversation,
-            if (isAuthorSelfUser) {
-                R.string.label_system_message_conversation_started_by_self
-            } else {
-                R.string.label_system_message_conversation_started_by_other
-            }
-        )
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_conversation
+            override val stringRes = when {
+                isAuthorSelfUser -> R.string.label_system_message_conversation_started_by_self
+                else -> R.string.label_system_message_conversation_started_by_other
+            }.toLocalizedStringResource()
+        }
 
+        @Serializable
         data class ConversationStartedWithMembers(
             val memberNames: List<UIText>
-        ) : SystemMessage(
-            R.drawable.ic_contact,
-            R.string.label_system_message_conversation_started_with_members
-        )
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_contact
+            override val stringRes = R.string.label_system_message_conversation_started_with_members.toLocalizedStringResource()
+        }
 
+        @Serializable
         data class MemberFailedToAdd(
             val memberNames: List<UIText>,
             val type: Type,
-        ) : SystemMessage(
-            R.drawable.ic_info,
-            if (memberNames.size > 1) {
-                R.string.label_system_message_conversation_failed_add_many_members_details
-            } else {
-                R.string.label_system_message_conversation_failed_add_one_member_details
-            },
-            learnMoreResId = when (type) {
+        ) : SystemMessage {
+            override val iconResId = R.drawable.ic_info
+            override val stringRes = when {
+                memberNames.size > 1 -> R.string.label_system_message_conversation_failed_add_many_members_details
+                else -> R.string.label_system_message_conversation_failed_add_one_member_details
+            }.toLocalizedStringResource()
+            override val learnMoreResId = when (type) {
                 Type.Federation -> R.string.url_message_details_offline_backends_learn_more
                 Type.LegalHold -> R.string.url_legal_hold_learn_more
                 Type.Unknown -> null
             }
-
-        ) {
             val usersCount = memberNames.size
 
             enum class Type { Federation, LegalHold, Unknown; }
         }
 
-        data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(
-            iconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
-            else R.drawable.ic_shield_holo,
-            stringResId = if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_degraded_mls
-            else R.string.label_system_message_conversation_degraded_proteus
-        )
+        @Serializable
+        data class ConversationDegraded(
+            val protocol: Conversation.Protocol
+        ) : SystemMessage {
+            override val iconResId =
+                if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
+                else R.drawable.ic_shield_holo
+            override val stringRes = LocalizedStringResource.String(
+                if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_degraded_mls
+                else R.string.label_system_message_conversation_degraded_proteus
+            )
+        }
 
-        data class ConversationVerified(val protocol: Conversation.Protocol) : SystemMessage(
-            iconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
-            else R.drawable.ic_certificate_valid_proteus,
-            stringResId = if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
-            else R.string.label_system_message_conversation_verified_proteus
-        )
+        @Serializable
+        data class ConversationVerified(
+            val protocol: Conversation.Protocol
+        ) : SystemMessage {
+            override val iconResId =
+                if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
+                else R.drawable.ic_certificate_valid_proteus
+            override val stringRes = LocalizedStringResource.String(
+                if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
+                else R.string.label_system_message_conversation_verified_proteus
+            )
+        }
 
-        data object ConversationMessageCreatedUnverifiedWarning : SystemMessage(
-            R.drawable.ic_info,
-            R.string.label_system_message_conversation_started_sensitive_information
-        )
+        @Serializable
+        data object ConversationMessageCreatedUnverifiedWarning : SystemMessage {
+            override val iconResId = R.drawable.ic_info
+            override val stringRes = LocalizedStringResource.String(
+                R.string.label_system_message_conversation_started_sensitive_information
+            )
+        }
 
-        sealed class LegalHold(
-            stringResId: LocalizedStringResource.StringResource,
-            @StringRes learnMoreResId: Int? = null,
-            open val memberNames: List<UIText>? = null,
-        ) : SystemMessage(R.drawable.ic_legal_hold, stringResId, learnMoreResId) {
+        @Serializable
+        sealed interface LegalHold : SystemMessage {
+            val memberNames: List<UIText>? get() = null
+            override val iconResId get() = R.drawable.ic_legal_hold
 
-            sealed class Enabled(override val stringResId: LocalizedStringResource.StringResource) :
-                LegalHold(stringResId, R.string.url_legal_hold_learn_more) {
+            @Serializable
+            sealed interface Enabled : LegalHold {
+                override val learnMoreResId get() = R.string.url_legal_hold_learn_more
 
-                constructor(@StringRes stringResId: Int) : this(LocalizedStringResource.StringResource(stringResId))
+                @Serializable
+                data object Self : Enabled {
+                    override val stringRes = LocalizedStringResource.String(R.string.legal_hold_system_message_enabled_self)
+                }
 
-                data object Self : Enabled(R.string.legal_hold_system_message_enabled_self)
-                data class Others(override val memberNames: List<UIText>) : Enabled(R.string.legal_hold_system_message_enabled_others)
-                data object Conversation : Enabled(R.string.legal_hold_system_message_enabled_conversation)
+                @Serializable
+                data class Others(override val memberNames: List<UIText>) : Enabled {
+                    override val stringRes = LocalizedStringResource.String(R.string.legal_hold_system_message_enabled_others)
+                }
+
+                @Serializable
+                data object Conversation : Enabled {
+                    override val stringRes = LocalizedStringResource.String(R.string.legal_hold_system_message_enabled_conversation)
+                }
             }
 
-            sealed class Disabled(override val stringResId: LocalizedStringResource.StringResource) : LegalHold(stringResId, null) {
+            @Serializable
+            sealed interface Disabled : LegalHold {
 
-                constructor(@StringRes stringResId: Int) : this(LocalizedStringResource.StringResource(stringResId))
+                @Serializable
+                data object Self : Disabled {
+                    override val stringRes = LocalizedStringResource.String(R.string.legal_hold_system_message_disabled_self)
+                }
 
-                data object Self : Disabled(R.string.legal_hold_system_message_disabled_self)
-                data class Others(override val memberNames: List<UIText>) : Disabled(R.string.legal_hold_system_message_disabled_others)
-                data object Conversation : Disabled(R.string.legal_hold_system_message_disabled_conversation)
+                @Serializable
+                data class Others(override val memberNames: List<UIText>) : Disabled {
+                    override val stringRes = LocalizedStringResource.String(R.string.legal_hold_system_message_disabled_others)
+                }
+
+                @Serializable
+                data object Conversation : Disabled {
+                    override val stringRes =
+                        LocalizedStringResource.String(R.string.legal_hold_system_message_disabled_conversation)
+                }
             }
         }
     }
 }
 
+@Serializable
 data class MessageBody(
     val message: UIText,
     val quotedMessage: UIQuotedMessage? = null
@@ -629,6 +725,7 @@ enum class MessageSource {
     Self, OtherUser
 }
 
+@Serializable
 data class MessageTime(val instant: Instant) {
     val utcISO: String = instant.toIsoDateTimeString()
     val formattedDate: String = utcISO.uiMessageDateTime() ?: ""
@@ -638,7 +735,10 @@ data class MessageTime(val instant: Instant) {
 }
 
 @Stable
+@Serializable
 sealed interface DeliveryStatusContent {
+
+    @Serializable
     class PartialDelivery(
         val failedRecipients: ImmutableList<UIText> = persistentListOf(),
         val noClients: ImmutableMap<String, List<UIText>> = persistentMapOf(),
@@ -651,14 +751,19 @@ sealed interface DeliveryStatusContent {
         val totalUsersWithFailures by lazy { (failedRecipients.size + noClients.values.distinct().sumOf { it.size }) }
     }
 
+    @Serializable
     data object CompleteDelivery : DeliveryStatusContent
 }
 
 @Stable
+@Serializable
 data class MessageButton(
     val id: String,
     val text: String,
     val isSelected: Boolean,
 )
+
+private fun @receiver:StringRes Int.toLocalizedStringResource() = LocalizedStringResource.String(this)
+private fun @receiver:PluralsRes Int.toLocalizedPluralResource(quantity: Int) = LocalizedStringResource.Plural(this, quantity)
 
 const val DEFAULT_LOCATION_ZOOM = 20

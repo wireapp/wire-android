@@ -19,12 +19,15 @@
 package com.wire.android.model
 
 import androidx.compose.runtime.Stable
+import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import kotlinx.serialization.Serializable
 
 @Stable
+@Serializable
 data class UserAvatarData(
     val asset: ImageAsset.UserAvatarAsset? = null,
     val availabilityStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
@@ -37,11 +40,19 @@ data class UserAvatarData(
         return asset == null && nameBasedAvatar != null &&
                 nameBasedAvatar.initials.isEmpty().not() && membership != Membership.Service
     }
+
+    fun getAvailabilityStatusDescriptionId(): Int? = when (availabilityStatus) {
+        UserAvailabilityStatus.NONE -> null
+        UserAvailabilityStatus.AVAILABLE -> R.string.user_profile_status_available
+        UserAvailabilityStatus.AWAY -> R.string.user_profile_status_away
+        UserAvailabilityStatus.BUSY -> R.string.user_profile_status_busy
+    }
 }
 
 /**
  * Holder that can be used to generate an avatar based on the user's full name initials and accent color.
  */
+@Serializable
 data class NameBasedAvatar(val fullName: String?, val accentColor: Int) {
     val initials: String
         get() {

@@ -117,8 +117,11 @@ fun SearchUsersAndServicesScreen(
                             SearchPeopleScreenType.CONVERSATION_DETAILS ->
                                 NavigationIconType.Close(R.string.content_description_add_participants_close)
 
-                            SearchPeopleScreenType.NEW_CONVERSATION -> NavigationIconType.Close()
-                            SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> NavigationIconType.Back()
+                            SearchPeopleScreenType.NEW_CONVERSATION ->
+                                NavigationIconType.Close(R.string.content_description_new_conversation_close_btn)
+
+                            SearchPeopleScreenType.NEW_GROUP_CONVERSATION ->
+                                NavigationIconType.Back(R.string.content_description_new_group_conversation_back_btn)
                         },
                         onNavigationPressed = onClose
                     )

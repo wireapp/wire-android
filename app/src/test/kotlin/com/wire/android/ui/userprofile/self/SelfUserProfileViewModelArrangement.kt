@@ -23,13 +23,13 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.TestTeam
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -66,8 +66,6 @@ class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var dispatchers: DispatcherProvider
     @MockK
-    lateinit var wireSessionImageLoader: WireSessionImageLoader
-    @MockK
     lateinit var authServerConfigProvider: AuthServerConfigProvider
     @MockK
     lateinit var selfServerLinks: SelfServerConfigUseCase
@@ -90,6 +88,9 @@ class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+    @MockK
+    lateinit var analyticsManager: AnonymousAnalyticsManager
+
     private val viewModel by lazy {
         SelfUserProfileViewModel(
             selfUserId = TestUser.SELF_USER.id,
@@ -101,7 +102,6 @@ class SelfUserProfileViewModelArrangement {
             logout = logout,
             observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
             dispatchers = TestDispatcherProvider(),
-            wireSessionImageLoader = wireSessionImageLoader,
             authServerConfigProvider = authServerConfigProvider,
             selfServerLinks = selfServerLinks,
             otherAccountMapper = otherAccountMapper,
@@ -112,7 +112,8 @@ class SelfUserProfileViewModelArrangement {
             notificationChannelsManager = notificationChannelsManager,
             notificationManager = notificationManager,
             globalDataStore = globalDataStore,
-            qualifiedIdMapper = qualifiedIdMapper
+            qualifiedIdMapper = qualifiedIdMapper,
+            analyticsManager = analyticsManager
         )
     }
 

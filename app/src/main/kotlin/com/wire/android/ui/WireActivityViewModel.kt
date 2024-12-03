@@ -64,6 +64,7 @@ import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
+import com.wire.kalium.logic.feature.debug.SynchronizeExternalDataResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -116,7 +117,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: GlobalDataStore,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
-    private val workManager: WorkManager,
+    private val workManager: WorkManager
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -538,7 +539,10 @@ sealed class NewClientsData(open val clientsInfo: List<NewClientInfo>, open val 
 data class NewClientInfo(val date: String, val deviceInfo: UIText) {
     companion object {
         fun fromClient(client: Client): NewClientInfo =
-            NewClientInfo(client.registrationTime?.toIsoDateTimeString() ?: "", client.displayName())
+            NewClientInfo(
+                client.registrationTime?.toIsoDateTimeString() ?: "",
+                client.displayName()
+            )
     }
 }
 

@@ -29,7 +29,7 @@ kover = "0.7.6"
 
 # AndroidX
 androidx-appcompat = "1.7.0"
-androidx-core = "1.13.0"
+androidx-core = "1.13.1"
 androidx-dataStore = "1.1.1"
 androidx-exif = "1.3.7"
 androidx-emoji = "1.5.0"
@@ -124,6 +124,7 @@ wire-android-library = { id = "com.wire.android.library" }
 wire-hilt = { id = "com.wire.android.hilt" }
 wire-kover = { id = "com.wire.android.kover" }
 wire-versionizer = { id = "com.wire.android.versionizer" }
+android-test = { id = "com.android.test", version.ref = "android-gradlePlugin" }
 [bundles]
 #android = ["appCompat", "activityCompose", "work", "composeMaterial", "coroutinesAndroid", "ktor", "ktor-okHttp"]
 

@@ -65,6 +65,7 @@ import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
@@ -682,6 +683,7 @@ class WireActivityViewModelTest {
                     flowOf(false)
             every { workManager.cancelAllWorkByTag(any()) } returns OperationImpl()
             every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns OperationImpl()
+            coEvery { updateApiVersions() } returns Unit
         }
 
         @MockK
@@ -747,6 +749,9 @@ class WireActivityViewModelTest {
         lateinit var workManager: WorkManager
 
         @MockK
+        lateinit var updateApiVersions: UpdateApiVersionsUseCase
+
+        @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
         @MockK(relaxed = true)
@@ -779,7 +784,8 @@ class WireActivityViewModelTest {
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
                 globalDataStore = { globalDataStore },
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
-                workManager = { workManager }
+                workManager = { workManager },
+                updateApiVersions = updateApiVersions
             )
         }
 

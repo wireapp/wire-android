@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
@@ -43,8 +44,8 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
@@ -64,6 +65,9 @@ internal class OtherUserProfileViewModelArrangement {
 
     @MockK
     lateinit var observeUserInfo: ObserveUserInfoUseCase
+
+    @MockK
+    lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
     lateinit var observeConversationRoleForUserUseCase: ObserveConversationRoleForUserUseCase
@@ -119,6 +123,7 @@ internal class OtherUserProfileViewModelArrangement {
             getOneToOneConversation,
             observeUserInfo,
             userTypeMapper,
+            wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
             removeMemberFromConversationUseCase,
             updateConversationMemberRoleUseCase,

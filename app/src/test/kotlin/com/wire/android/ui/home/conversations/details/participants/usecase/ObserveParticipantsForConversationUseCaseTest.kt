@@ -23,6 +23,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UIParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.testOtherUser
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -219,7 +220,9 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
     @MockK
     lateinit var getMembersE2EICertificateStatuses: GetMembersE2EICertificateStatusesUseCase
 
-    private val uIParticipantMapper by lazy { UIParticipantMapper(UserTypeMapper()) }
+    @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+    private val uIParticipantMapper by lazy { UIParticipantMapper(UserTypeMapper(), wireSessionImageLoader) }
     private val conversationMembersChannel = Channel<List<MemberDetails>>(capacity = Channel.UNLIMITED)
     private val useCase by lazy {
         ObserveParticipantsForConversationUseCase(

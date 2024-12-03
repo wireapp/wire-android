@@ -31,6 +31,7 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -51,6 +52,7 @@ class ConversationInfoViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
+    private val wireSessionImageLoader: WireSessionImageLoader,
     @CurrentAccount private val selfUserId: UserId,
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -152,7 +154,7 @@ class ConversationInfoViewModel @Inject constructor(
             is ConversationDetails.OneOne ->
                 ConversationAvatar.OneOne(
                     conversationDetails.otherUser.previewPicture?.let {
-                        ImageAsset.UserAvatarAsset(it)
+                        ImageAsset.UserAvatarAsset(wireSessionImageLoader, it)
                     },
                     conversationDetails.otherUser.availabilityStatus
                 )

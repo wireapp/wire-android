@@ -44,6 +44,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -128,6 +129,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
+    private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
 ) : ConversationListViewModel, ViewModel() {
 
@@ -203,6 +205,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                         ).map {
                             it.map { conversationDetails ->
                                 conversationDetails.toConversationItem(
+                                    wireSessionImageLoader = wireSessionImageLoader,
                                     userTypeMapper = userTypeMapper,
                                     searchQuery = searchQuery,
                                 )

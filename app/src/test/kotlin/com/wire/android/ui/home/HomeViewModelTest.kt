@@ -22,6 +22,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
@@ -97,6 +98,8 @@ class HomeViewModelTest {
         @MockK
         lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase
         @MockK
+        lateinit var wireSessionImageLoader: WireSessionImageLoader
+        @MockK
         lateinit var shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 
         private val viewModel by lazy {
@@ -106,6 +109,7 @@ class HomeViewModelTest {
                 getSelf = getSelf,
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
+                wireSessionImageLoader = wireSessionImageLoader,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser
             )
         }

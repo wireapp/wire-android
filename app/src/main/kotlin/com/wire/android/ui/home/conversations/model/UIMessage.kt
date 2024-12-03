@@ -197,9 +197,9 @@ sealed class MessageFlowStatus {
         )
     }
 
-    data object Delivered : MessageFlowStatus
+    data object Delivered : MessageFlowStatus()
 
-    data class Read(val count: Long) : MessageFlowStatus
+    data class Read(val count: Long) : MessageFlowStatus()
 }
 
 @Stable

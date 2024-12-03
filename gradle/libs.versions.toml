@@ -124,7 +124,6 @@ wire-android-library = { id = "com.wire.android.library" }
 wire-hilt = { id = "com.wire.android.hilt" }
 wire-kover = { id = "com.wire.android.kover" }
 wire-versionizer = { id = "com.wire.android.versionizer" }
-android-test = { id = "com.android.test", version.ref = "android-gradlePlugin" }
 [bundles]
 #android = ["appCompat", "activityCompose", "work", "composeMaterial", "coroutinesAndroid", "ktor", "ktor-okHttp"]
 

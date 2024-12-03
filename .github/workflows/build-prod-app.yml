@@ -36,8 +36,8 @@ jobs:
         run: |
           current_tag=${{ github.event.release.tag_name }}
           latest_tag=${{ steps.get_latest_release.outputs.latest_tag }}
-
-          if [[ "$current_tag" != "$(echo -e "$current_tag\n$latest_tag" | sort -V | head -n1)" ]]; then
+          compare_result=$(printf "%s\n%s" "$current_tag" "$latest_tag" | sort -V | tail -n1)
+          if [[ "$current_tag" != "$compare_result" ]]; then
             echo "Current tag ($current_tag) is lower than latest tag ($latest_tag). Failing the workflow."
             exit 1
           else

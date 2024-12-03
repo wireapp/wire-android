@@ -142,6 +142,8 @@ fun <T : Any> rememberWireModalSheetState(
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
+    // TODO: we can use rememberSaveable instead of remember to save the state but first we need to make sure that we don't store too much,
+    //  especially for conversations and messages to not keep such data unencrypted anywhere
     return remember {
         WireModalSheetState(
             density = density,

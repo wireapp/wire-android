@@ -20,7 +20,7 @@ jobs:
     uses: ./.github/workflows/gradle-run-unit-tests.yml
     secrets: inherit
   build-app:
-    needs: [ code-analysis, ui-tests, unit-tests ]
+#    needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

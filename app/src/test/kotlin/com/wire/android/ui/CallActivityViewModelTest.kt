@@ -133,8 +133,12 @@ class CallActivityViewModelTest {
 
         viewModel.switchAccountIfNeeded(UserId("anotherUser", "domain"), arrangement.switchAccountActions)
 
-        coVerify(exactly = if (switchedToAnotherAccountCalled) 1 else 0) { arrangement.switchAccountActions.switchedToAnotherAccount() }
-        coVerify(exactly = if (noOtherAccountToSwitchCalled) 1 else 0) { arrangement.switchAccountActions.noOtherAccountToSwitch() }
+        coVerify(exactly = if (switchedToAnotherAccountCalled) 1 else 0) {
+            arrangement.switchAccountActions.switchedToAnotherAccount()
+        }
+        coVerify(exactly = if (noOtherAccountToSwitchCalled) 1 else 0) {
+            arrangement.switchAccountActions.noOtherAccountToSwitch()
+        }
     }
 
     @Test

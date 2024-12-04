@@ -242,13 +242,14 @@ class CallNotificationBuilder @Inject constructor(
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .addAction(getDeclineCallAction(context, conversationIdString, userIdString))
             .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
-
             .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString))
             .setDeleteIntent(callNotificationDismissedPendingIntent(context, userIdString, conversationIdString))
             .let {
                 if (asFullScreenIntent) {
                     it.setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString), true)
-                } else it
+                } else {
+                    it
+                }
             }
             .build()
 

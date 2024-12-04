@@ -491,8 +491,9 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
         coVerify(exactly = 1) { getOrRegisterClientUseCase(match { it.secondFactorVerificationCode == null }) }
     }
+
     @Test
-    fun `given 2fa is needed, when user used handle to login, then show correct error message` () = runTest {
+    fun `given 2fa is needed, when user used handle to login, then show correct error message`() = runTest {
         val email = "some.handle"
         val code = "123456"
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA

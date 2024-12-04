@@ -21,7 +21,6 @@ import com.wire.android.feature.SwitchAccountActions
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @Singleton
 class SwitchAccountObserver @Inject constructor() : SwitchAccountActions {
     private val lock = Object()

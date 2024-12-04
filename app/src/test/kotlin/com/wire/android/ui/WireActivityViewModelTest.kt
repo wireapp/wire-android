@@ -930,7 +930,9 @@ class WireActivityViewModelTest {
 
         suspend fun withScreenshotCensoringConfigForUser(id: UserId, result: ObserveScreenshotCensoringConfigResult) = apply {
             val useCase = mockk<ObserveScreenshotCensoringConfigUseCase>()
-            coEvery { observeScreenshotCensoringConfigUseCaseProviderFactory.create(id).observeScreenshotCensoringConfig } returns useCase
+            coEvery {
+                observeScreenshotCensoringConfigUseCaseProviderFactory.create(id).observeScreenshotCensoringConfig
+            } returns useCase
             coEvery { useCase() } returns flowOf(result)
         }
 

@@ -20,6 +20,8 @@ package com.wire.android.ui
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.ui.calling.CallActivityViewModel
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -33,6 +35,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -87,7 +90,7 @@ class CallActivityViewModelTest {
                 .withAccountSwitch(SwitchAccountResult.Failure)
                 .arrange()
 
-            viewModel.switchAccountIfNeeded(userId)
+            viewModel.switchAccountIfNeeded(userId, NavigationSwitchAccountActions {})
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.accountSwitch(any()) }
@@ -101,7 +104,7 @@ class CallActivityViewModelTest {
                 .withAccountSwitch(SwitchAccountResult.SwitchedToAnotherAccount)
                 .arrange()
 
-            viewModel.switchAccountIfNeeded(UserId("anotherUserId", "domain"))
+            viewModel.switchAccountIfNeeded(UserId("anotherUserId", "domain"), NavigationSwitchAccountActions {})
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.accountSwitch(any()) }
@@ -115,10 +118,55 @@ class CallActivityViewModelTest {
                 .withAccountSwitch(SwitchAccountResult.SwitchedToAnotherAccount)
                 .arrange()
 
-            viewModel.switchAccountIfNeeded(userId)
+            viewModel.switchAccountIfNeeded(userId, NavigationSwitchAccountActions {})
 
             coVerify(inverse = true) { arrangement.accountSwitch(any()) }
         }
+
+    private fun testCallingSwitchAccountActions(
+        switchAccountResult: SwitchAccountResult,
+        switchedToAnotherAccountCalled: Boolean = false,
+        noOtherAccountToSwitchCalled: Boolean = false,
+    ) = runTest {
+        val (_, viewModel) = Arrangement()
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(UserId("user", "domain"))))
+            .withAccountSwitch(switchAccountResult)
+            .arrange()
+        val switchAccountActions = mockk<SwitchAccountActions>()
+
+        viewModel.switchAccountIfNeeded(UserId("anotherUser", "domain"), switchAccountActions)
+
+        coVerify(exactly = if (switchedToAnotherAccountCalled) 1 else 0) { switchAccountActions.switchedToAnotherAccount() }
+        coVerify(exactly = if (noOtherAccountToSwitchCalled) 1 else 0) { switchAccountActions.noOtherAccountToSwitch() }
+    }
+
+    @Test
+    fun `given no other account to switch, when switching, then call proper action`() = testCallingSwitchAccountActions(
+        switchAccountResult = SwitchAccountResult.NoOtherAccountToSwitch,
+        switchedToAnotherAccountCalled = false,
+        noOtherAccountToSwitchCalled = true,
+    )
+
+    @Test
+    fun `given account switched, when switching, then call proper action`() = testCallingSwitchAccountActions(
+        switchAccountResult = SwitchAccountResult.SwitchedToAnotherAccount,
+        switchedToAnotherAccountCalled = true,
+        noOtherAccountToSwitchCalled = false,
+    )
+
+    @Test
+    fun `given invalid account, when switching, then do not call any action`() = testCallingSwitchAccountActions(
+        switchAccountResult = SwitchAccountResult.GivenAccountIsInvalid,
+        switchedToAnotherAccountCalled = false,
+        noOtherAccountToSwitchCalled = false,
+    )
+
+    @Test
+    fun `given failure, when switching, then do not call any action`() = testCallingSwitchAccountActions(
+        switchAccountResult = SwitchAccountResult.Failure,
+        switchedToAnotherAccountCalled = false,
+        noOtherAccountToSwitchCalled = false,
+    )
 
     private class Arrangement {
 

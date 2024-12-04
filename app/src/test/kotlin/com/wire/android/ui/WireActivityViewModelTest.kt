@@ -23,6 +23,7 @@ package com.wire.android.ui
 import android.content.Intent
 import androidx.work.WorkManager
 import androidx.work.impl.OperationImpl
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -56,6 +57,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -88,6 +90,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -636,6 +639,50 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun `given session changes, when observing screenshot censoring, then update screenshot censoring state`() = runTest {
+        val firstSession = AccountInfo.Valid(UserId("user1", "domain1"))
+        val secondSession = AccountInfo.Valid(UserId("user2", "domain2"))
+        val firstSessionScreenshotCensoringConfig = ObserveScreenshotCensoringConfigResult.Disabled
+        val secondSessionScreenshotCensoringConfig = ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser
+        val currentSessionFlow = MutableStateFlow(firstSession)
+        val (_, viewModel) = Arrangement()
+            .withCurrentSessionFlow(currentSessionFlow.map { CurrentSessionResult.Success(it) })
+            .withScreenshotCensoringConfigForUser(firstSession.userId, firstSessionScreenshotCensoringConfig)
+            .withScreenshotCensoringConfigForUser(secondSession.userId, secondSessionScreenshotCensoringConfig)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
+
+        currentSessionFlow.emit(secondSession)
+        advanceUntilIdle()
+        assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
+
+    @Test
+    fun `given session changes, when observing sync state, then update sync state`() = runTest {
+        val firstSession = AccountInfo.Valid(UserId("user1", "domain1"))
+        val secondSession = AccountInfo.Valid(UserId("user2", "domain2"))
+        val firstSessionSyncState = SyncState.Live
+        val secondSessionSyncState = SyncState.SlowSync
+        val currentSessionFlow = MutableStateFlow(firstSession)
+        val (_, viewModel) = Arrangement()
+            .withCurrentSessionFlow(currentSessionFlow.map { CurrentSessionResult.Success(it) })
+            .withSyncStateForUser(firstSession.userId, firstSessionSyncState)
+            .withSyncStateForUser(secondSession.userId, secondSessionSyncState)
+            .arrange()
+        advanceUntilIdle()
+        viewModel.observeSyncFlowState.test {
+            assertEquals(firstSessionSyncState, awaitItem())
+
+            currentSessionFlow.emit(secondSession)
+            advanceUntilIdle()
+            assertEquals(secondSessionSyncState, awaitItem())
+
+            expectNoEvents()
+        }
+    }
+
+    @Test
     fun `given app theme change, when observing it, then update state with theme option`() = runTest {
         val (_, viewModel) = Arrangement()
             .withThemeOption(ThemeOption.DARK)
@@ -806,6 +853,10 @@ class WireActivityViewModelTest {
             return this
         }
 
+        fun withCurrentSessionFlow(result: Flow<CurrentSessionResult>): Arrangement = apply {
+            coEvery { currentSessionFlow() } returns result
+        }
+
         fun withDeepLinkResult(result: DeepLinkResult, isSharingIntent: Boolean = false): Arrangement {
             coEvery { deepLinkProcessor(any(), isSharingIntent) } returns result
             return this
@@ -875,6 +926,18 @@ class WireActivityViewModelTest {
 
         suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {
             coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(result)
+        }
+
+        suspend fun withScreenshotCensoringConfigForUser(id: UserId, result: ObserveScreenshotCensoringConfigResult) = apply {
+            val useCase = mockk<ObserveScreenshotCensoringConfigUseCase>()
+            coEvery { observeScreenshotCensoringConfigUseCaseProviderFactory.create(id).observeScreenshotCensoringConfig } returns useCase
+            coEvery { useCase() } returns flowOf(result)
+        }
+
+        suspend fun withSyncStateForUser(id: UserId, result: SyncState) = apply {
+            val useCase = mockk<ObserveSyncStateUseCase>()
+            coEvery { observeSyncStateUseCaseProviderFactory.create(id).observeSyncState } returns useCase
+            coEvery { useCase() } returns flowOf(result)
         }
 
         suspend fun withThemeOption(themeOption: ThemeOption) = apply {

@@ -68,7 +68,7 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
     }
 
     override fun sendEvent(event: AnalyticsEvent) {
-        Countly.sharedInstance().events().recordEvent(event.key, event.toSegmentation())
+        Countly.sharedInstance().events().recordEvent(event.key, event.toSegmentation().toMutableMap())
     }
 
     override fun halt() {

@@ -23,6 +23,7 @@ import android.app.Notification
 import android.content.Context
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -199,6 +200,7 @@ class CallNotificationBuilder @Inject constructor(
             .setOngoing(true)
             .setSilent(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
             .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
             .setFullScreenIntent(outgoingCallPendingIntent(context, conversationIdString), true)
             .setContentIntent(outgoingCallPendingIntent(context, conversationIdString))
@@ -254,6 +256,7 @@ class CallNotificationBuilder @Inject constructor(
             .setAutoCancel(true)
             .setOngoing(true)
             .setUsesChronometer(true)
+            .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
             .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
             .addAction(getOpenOngoingCallAction(context, conversationIdString))
             .setFullScreenIntent(openOngoingCallPendingIntent(context, conversationIdString), true)

@@ -26,6 +26,8 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.appLogger
 import com.wire.kalium.logic.data.message.mention.MessageMention
+import com.wire.kalium.util.serialization.AnyPrimitiveValueSerializer
+import kotlinx.serialization.Serializable
 
 sealed class UIText {
     data class DynamicString(
@@ -35,13 +37,13 @@ sealed class UIText {
 
     class StringResource(
         @StringRes val resId: Int,
-        vararg val formatArgs: Any
+        vararg val formatArgs: @Serializable(with = AnyPrimitiveValueSerializer::class) Any
     ) : UIText()
 
     class PluralResource(
         @PluralsRes val resId: Int,
         val count: Int,
-        vararg val formatArgs: Any
+        vararg val formatArgs: @Serializable(with = AnyPrimitiveValueSerializer::class) Any
     ) : UIText()
 
     @Suppress("SpreadOperator")

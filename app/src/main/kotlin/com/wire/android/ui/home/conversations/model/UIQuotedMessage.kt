@@ -50,10 +50,11 @@ sealed class UIQuotedMessage {
 
         data class Location(val locationName: String) : Content
 
-        object AudioMessage : Content
+        data object AudioMessage : Content
 
-        object Deleted : Content
-        object Invalid : Content
+        data object Deleted : Content
+
+        data object Invalid : Content
     }
 }
 

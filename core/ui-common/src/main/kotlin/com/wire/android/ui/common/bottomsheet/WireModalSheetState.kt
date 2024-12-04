@@ -23,9 +23,9 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -142,14 +142,9 @@ fun <T : Any> rememberWireModalSheetState(
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
-    return rememberSaveable(
-        saver = WireModalSheetState.saver(
-            density = density,
-            softwareKeyboardController = softwareKeyboardController,
-            onDismissAction = onDismissAction,
-            scope = scope
-        )
-    ) {
+    // TODO: we can use rememberSaveable instead of remember to save the state but first we need to make sure that we don't store too much,
+    //  especially for conversations and messages to not keep such data unencrypted anywhere
+    return remember {
         WireModalSheetState(
             density = density,
             scope = scope,

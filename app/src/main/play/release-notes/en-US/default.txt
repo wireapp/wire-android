@@ -1,18 +1,10 @@
-New:
-- Survey on call quality
-- Send a GIF from the keyboard
-- Call in a separate window
-- Compatibility with Android 15
-- Confirmation before pinging in groups
-- Preparation for private to cloud federation
-- Preparation for MLS as the new standard protocol
+New
+- QR code
 
-Improvements:
-- Performance
-- Switch account from a notification during a call and the call remains
-- Video pausing while scrolling
+Improvement
+- Federation search on proteus
+- Migrate to new and faster encryption library
 
-Fixes:
-- People could not see active speakers
-- People could not edit their email
-- Several crashes
+Fixes
+- Slow messages loading for some users
+- Countly

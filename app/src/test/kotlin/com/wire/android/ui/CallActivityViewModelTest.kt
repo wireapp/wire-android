@@ -20,7 +20,6 @@ package com.wire.android.ui
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
-import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.ui.calling.CallActivityViewModel
@@ -35,7 +34,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -90,7 +88,7 @@ class CallActivityViewModelTest {
                 .withAccountSwitch(SwitchAccountResult.Failure)
                 .arrange()
 
-            viewModel.switchAccountIfNeeded(userId, NavigationSwitchAccountActions {})
+            viewModel.switchAccountIfNeeded(userId, arrangement.switchAccountActions)
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.accountSwitch(any()) }
@@ -104,7 +102,7 @@ class CallActivityViewModelTest {
                 .withAccountSwitch(SwitchAccountResult.SwitchedToAnotherAccount)
                 .arrange()
 
-            viewModel.switchAccountIfNeeded(UserId("anotherUserId", "domain"), NavigationSwitchAccountActions {})
+            viewModel.switchAccountIfNeeded(UserId("anotherUserId", "domain"), arrangement.switchAccountActions)
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.accountSwitch(any()) }
@@ -118,7 +116,7 @@ class CallActivityViewModelTest {
                 .withAccountSwitch(SwitchAccountResult.SwitchedToAnotherAccount)
                 .arrange()
 
-            viewModel.switchAccountIfNeeded(userId, NavigationSwitchAccountActions {})
+            viewModel.switchAccountIfNeeded(userId, arrangement.switchAccountActions)
 
             coVerify(inverse = true) { arrangement.accountSwitch(any()) }
         }
@@ -128,16 +126,15 @@ class CallActivityViewModelTest {
         switchedToAnotherAccountCalled: Boolean = false,
         noOtherAccountToSwitchCalled: Boolean = false,
     ) = runTest {
-        val (_, viewModel) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(UserId("user", "domain"))))
             .withAccountSwitch(switchAccountResult)
             .arrange()
-        val switchAccountActions = mockk<SwitchAccountActions>()
 
-        viewModel.switchAccountIfNeeded(UserId("anotherUser", "domain"), switchAccountActions)
+        viewModel.switchAccountIfNeeded(UserId("anotherUser", "domain"), arrangement.switchAccountActions)
 
-        coVerify(exactly = if (switchedToAnotherAccountCalled) 1 else 0) { switchAccountActions.switchedToAnotherAccount() }
-        coVerify(exactly = if (noOtherAccountToSwitchCalled) 1 else 0) { switchAccountActions.noOtherAccountToSwitch() }
+        coVerify(exactly = if (switchedToAnotherAccountCalled) 1 else 0) { arrangement.switchAccountActions.switchedToAnotherAccount() }
+        coVerify(exactly = if (noOtherAccountToSwitchCalled) 1 else 0) { arrangement.switchAccountActions.noOtherAccountToSwitch() }
     }
 
     @Test
@@ -182,6 +179,9 @@ class CallActivityViewModelTest {
 
         @MockK
         private lateinit var observeScreenshotCensoringConfig: ObserveScreenshotCensoringConfigUseCase
+
+        @MockK
+        lateinit var switchAccountActions: SwitchAccountActions
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

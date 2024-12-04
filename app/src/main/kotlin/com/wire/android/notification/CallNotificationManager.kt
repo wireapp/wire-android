@@ -27,14 +27,17 @@ import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationConstants.INCOMING_CALL_ID_PREFIX
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -57,9 +60,10 @@ import javax.inject.Singleton
 @Singleton
 @Suppress("TooManyFunctions")
 class CallNotificationManager @Inject constructor(
-    private val context: Context,
+    context: Context,
     dispatcherProvider: DispatcherProvider,
     val builder: CallNotificationBuilder,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
 
     private val notificationManager = NotificationManagerCompat.from(context)
@@ -97,8 +101,19 @@ class CallNotificationManager @Inject constructor(
                     hideOutdatedIncomingCallNotifications(allCurrentCalls)
                     // show current incoming call notifications
                     appLogger.i("$TAG: showing ${newCalls.size} new incoming calls (all incoming calls: ${allCurrentCalls.size})")
+
+                    val currentSessionId = (coreLogic.getGlobalScope().session.currentSession() as? CurrentSessionResult.Success)?.let {
+                        if (it.accountInfo.isValid()) it.accountInfo.userId else null
+                    }
                     newCalls.forEach { data ->
-                        showIncomingCallNotification(data)
+                        /**
+                         * For now only show full screen intent for current session, as if shown for another session it will switch to that
+                         * session and the user won't know that he/she is receiving a call as a different account.
+                         * For calls that are not for the current session it will show the notification as a heads up notification.
+                         * In the future we can implement showing on the incoming call screen as what account the user will answer
+                         * or even give them the option to change it themselves on that screen.
+                         */
+                        showIncomingCallNotification(data = data, asFullScreenIntent = currentSessionId == data.userId)
                     }
                 }
         }
@@ -157,14 +172,14 @@ class CallNotificationManager @Inject constructor(
 
     @SuppressLint("MissingPermission")
     @VisibleForTesting
-    internal fun showIncomingCallNotification(data: CallNotificationData) {
+    internal fun showIncomingCallNotification(data: CallNotificationData, asFullScreenIntent: Boolean) {
         appLogger.i(
             "$TAG: showing incoming call notification for user ${data.userId.toLogString()}" +
                     " and conversation ${data.conversationId.toLogString()}"
         )
         val tag = NotificationConstants.getIncomingCallTag(data.userId.toString())
         val id = NotificationConstants.getIncomingCallId(data.userId.toString(), data.conversationId.toString())
-        val notification = builder.getIncomingCallNotification(data)
+        val notification = builder.getIncomingCallNotification(data, asFullScreenIntent)
         notificationManager.notify(tag, id, notification)
     }
 
@@ -202,13 +217,12 @@ class CallNotificationBuilder @Inject constructor(
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
             .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
-            .setFullScreenIntent(outgoingCallPendingIntent(context, conversationIdString), true)
             .setContentIntent(outgoingCallPendingIntent(context, conversationIdString))
             .setDeleteIntent(callNotificationDismissedPendingIntent(context, userIdString, conversationIdString))
             .build()
     }
 
-    fun getIncomingCallNotification(data: CallNotificationData): Notification {
+    fun getIncomingCallNotification(data: CallNotificationData, asFullScreenIntent: Boolean): Notification {
         val conversationIdString = data.conversationId.toString()
         val userIdString = data.userId.toString()
         val title = getNotificationTitle(data)
@@ -228,9 +242,14 @@ class CallNotificationBuilder @Inject constructor(
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .addAction(getDeclineCallAction(context, conversationIdString, userIdString))
             .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
-            .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString), true)
+
             .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString))
             .setDeleteIntent(callNotificationDismissedPendingIntent(context, userIdString, conversationIdString))
+            .let {
+                if (asFullScreenIntent) {
+                    it.setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString), true)
+                } else it
+            }
             .build()
 
         // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.
@@ -259,7 +278,6 @@ class CallNotificationBuilder @Inject constructor(
             .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
             .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
             .addAction(getOpenOngoingCallAction(context, conversationIdString))
-            .setFullScreenIntent(openOngoingCallPendingIntent(context, conversationIdString), true)
             .setContentIntent(openOngoingCallPendingIntent(context, conversationIdString))
             .setDeleteIntent(callNotificationDismissedPendingIntent(context, userIdString, conversationIdString))
             .build()

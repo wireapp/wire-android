@@ -24,9 +24,9 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -89,13 +89,14 @@ open class WireModalSheetState<T : Any>(
     companion object {
         const val DELAY_TO_SHOW_BOTTOM_SHEET_WHEN_KEYBOARD_IS_OPEN = 300L
 
+        @Suppress("TooGenericExceptionCaught")
         @OptIn(InternalSerializationApi::class)
         inline fun <reified T : Any> saver(
             density: Density,
             softwareKeyboardController: SoftwareKeyboardController?,
             noinline onDismissAction: () -> Unit,
             scope: CoroutineScope
-        ): Saver<WireModalSheetState<T>, *> = Saver(
+        ): Saver<WireModalSheetState<T>, List<Any>> = Saver(
             save = {
                 when (it.currentValue) {
                     is WireSheetValue.Hidden -> listOf(false) // hidden
@@ -109,7 +110,13 @@ open class WireModalSheetState<T : Any>(
                                 listOf(true, SavedType.Regular, value)
 
                             T::class.serializerOrNull() != null -> // expanded and with non-Unit value that can be serialized
-                                listOf(true, SavedType.SerializedBundle, Bundlizer.bundle(T::class.serializer(), value))
+                                try {
+                                    val serializedBundleValue = Bundlizer.bundle(T::class.serializer(), value)
+                                    listOf(true, SavedType.SerializedBundle, serializedBundleValue)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    listOf(false) // hidden because value cannot be serialized properly
+                                }
 
                             else -> listOf(false) // hidden because value cannot be saved
                         }
@@ -159,14 +166,9 @@ inline fun <reified T : Any> rememberWireModalSheetState(
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
-    return rememberSaveable(
-        saver = WireModalSheetState.saver(
-            density = density,
-            softwareKeyboardController = softwareKeyboardController,
-            onDismissAction = onDismissAction,
-            scope = scope
-        )
-    ) {
+    // TODO: we can use rememberSaveable instead of remember to save the state but first we need to make sure that we don't store too much,
+    //  especially for conversations and messages to not keep such data unencrypted anywhere
+    return remember {
         WireModalSheetState(
             density = density,
             scope = scope,

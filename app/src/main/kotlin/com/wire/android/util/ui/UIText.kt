@@ -25,8 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.appLogger
+import com.wire.android.util.AnyPrimitiveAsStringSerializer
 import com.wire.kalium.logic.data.message.mention.MessageMention
-import com.wire.kalium.util.serialization.AnyPrimitiveValueSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -41,14 +41,14 @@ sealed class UIText {
     @Serializable
     class StringResource(
         @StringRes val resId: Int,
-        vararg val formatArgs: @Serializable(with = AnyPrimitiveValueSerializer::class) Any
+        vararg val formatArgs: @Serializable(with = AnyPrimitiveAsStringSerializer::class) Any
     ) : UIText()
 
     @Serializable
     class PluralResource(
         @PluralsRes val resId: Int,
         val count: Int,
-        vararg val formatArgs: @Serializable(with = AnyPrimitiveValueSerializer::class) Any
+        vararg val formatArgs: @Serializable(with = AnyPrimitiveAsStringSerializer::class) Any
     ) : UIText()
 
     @Suppress("SpreadOperator")

@@ -286,7 +286,8 @@ sealed interface UIMessageContent {
     @Serializable
     data object IncompleteAssetMessage : UIMessageContent
 
-    interface PartialDeliverable {
+    @Serializable
+    sealed interface PartialDeliverable {
         val deliveryStatus: DeliveryStatusContent
     }
 

@@ -26,7 +26,11 @@ object AndroidSdk {
 
 object AndroidApp {
     const val id = "com.wire.android"
+<<<<<<< HEAD
     const val versionName = "4.10.0"
+=======
+    const val versionName = "4.9.2"
+>>>>>>> 9923285e7 (fix: disabling countly on prod (WPB-14829) (#3708))
     val versionCode by lazy {
         Versionizer(_rootDir).versionCode
     }

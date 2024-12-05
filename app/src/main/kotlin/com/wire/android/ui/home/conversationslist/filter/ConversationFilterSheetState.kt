@@ -43,7 +43,6 @@ class ConversationFilterSheetState(
     }
 }
 
-
 @Serializable
 data class ConversationFilterSheetData(
     val tab: FilterTab = FilterTab.FILTERS,

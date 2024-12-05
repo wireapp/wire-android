@@ -650,7 +650,7 @@
     <string name="label_filter_conversations">Filter Conversations</string>
     <string name="label_filter_all">All Conversations</string>
     <string name="label_filter_favorites">Favorites</string>
-    <string name="label_filter_folders">Folders %1$s</string>
+    <string name="label_filter_folders">Folders</string>
     <string name="label_filter_group">Groups</string>
     <string name="label_filter_one_on_one">1:1 Conversations</string>
     <string name="label_folders">Folders</string>

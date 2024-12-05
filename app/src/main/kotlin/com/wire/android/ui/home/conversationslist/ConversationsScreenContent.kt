@@ -92,17 +92,15 @@ fun ConversationsScreenContent(
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
         else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
-            key = "list_${conversationsSource}",
+            key = "list_$conversationsSource",
             creationCallback = { factory ->
-                factory.create(
-                    conversationsSource = conversationsSource,
-                    folderId = (conversationsSource as ConversationsSource.FOLDER).folderId)
+                factory.create(conversationsSource = conversationsSource)
             }
         )
     },
     conversationCallListViewModel: ConversationCallListViewModel = when {
         LocalInspectionMode.current -> ConversationCallListViewModelPreview
-        else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_${conversationsSource}")
+        else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_$conversationsSource")
     },
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
@@ -191,7 +189,7 @@ fun ConversationsScreenContent(
         when (val state = conversationListViewModel.conversationListState) {
             is ConversationListState.Paginated -> {
                 val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
-                var showLoading by remember { mutableStateOf(!initiallyLoaded) }
+                var showLoading by remember(conversationsSource) { mutableStateOf(!initiallyLoaded) }
                 if (lazyPagingItems.loadState.refresh != LoadState.Loading && showLoading) {
                     showLoading = false
                 }

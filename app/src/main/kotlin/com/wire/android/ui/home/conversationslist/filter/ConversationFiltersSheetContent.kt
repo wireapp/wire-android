@@ -17,16 +17,15 @@
  */
 package com.wire.android.ui.home.conversationslist.filter
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
+import com.wire.android.ui.common.bottomsheet.RichMenuItemState
+import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @Composable
@@ -42,87 +41,84 @@ fun ConversationFiltersSheetContent(
         ),
         menuItems = buildList<@Composable () -> Unit> {
             add {
-                MenuBottomSheetItem(
+                val state = if (ConversationFilter.All == sheetData.currentFilter) {
+                    RichMenuItemState.SELECTED
+                } else {
+                    RichMenuItemState.DEFAULT
+                }
+                SelectableMenuBottomSheetItem(
                     title = ConversationFilter.All.uiText().asString(),
-                    trailing = {
-                        if (ConversationFilter.All == sheetData.currentFilter) {
-                            MenuItemIcon(
-                                id = R.drawable.ic_check_circle,
-                                contentDescription = stringResource(R.string.label_selected),
-                                tint = MaterialTheme.wireColorScheme.switchEnabledChecked,
-                            )
-                        }
-                    },
-                    onItemClick = { onChangeFilter(ConversationFilter.All) },
-                    onItemClickDescription = stringResource(R.string.content_description_select_label)
+                    onItemClick = Clickable(
+                        enabled = state == RichMenuItemState.DEFAULT,
+                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClick = { onChangeFilter(ConversationFilter.All) },
+                    ),
+                    state = state
                 )
             }
             add {
-                MenuBottomSheetItem(
+                val state = if (ConversationFilter.Favorites == sheetData.currentFilter) {
+                    RichMenuItemState.SELECTED
+                } else {
+                    RichMenuItemState.DEFAULT
+                }
+                SelectableMenuBottomSheetItem(
                     title = ConversationFilter.Favorites.uiText().asString(),
-                    trailing = {
-                        if (ConversationFilter.Favorites == sheetData.currentFilter) {
-                            MenuItemIcon(
-                                id = R.drawable.ic_check_circle,
-                                contentDescription = stringResource(R.string.label_selected),
-                                tint = MaterialTheme.wireColorScheme.switchEnabledChecked,
-                            )
-                        }
-                    },
-                    onItemClick = { onChangeFilter(ConversationFilter.Favorites) },
-                    onItemClickDescription = stringResource(R.string.content_description_select_label)
+                    onItemClick = Clickable(
+                        enabled = state == RichMenuItemState.DEFAULT,
+                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClick = { onChangeFilter(ConversationFilter.Favorites) },
+                    ),
+                    state = state
                 )
             }
             add {
-                MenuBottomSheetItem(
+                val state = if (ConversationFilter.Groups == sheetData.currentFilter) {
+                    RichMenuItemState.SELECTED
+                } else {
+                    RichMenuItemState.DEFAULT
+                }
+                SelectableMenuBottomSheetItem(
                     title = ConversationFilter.Groups.uiText().asString(),
-                    trailing = {
-                        if (ConversationFilter.Groups == sheetData.currentFilter) {
-                            MenuItemIcon(
-                                id = R.drawable.ic_check_circle,
-                                contentDescription = stringResource(R.string.label_selected),
-                                tint = MaterialTheme.wireColorScheme.switchEnabledChecked,
-                            )
-                        }
-                    },
-                    onItemClick = { onChangeFilter(ConversationFilter.Groups) },
-                    onItemClickDescription = stringResource(R.string.content_description_select_label)
+                    onItemClick = Clickable(
+                        enabled = state == RichMenuItemState.DEFAULT,
+                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClick = { onChangeFilter(ConversationFilter.Groups) },
+                    ),
+                    state = state
                 )
             }
             add {
-                MenuBottomSheetItem(
+                val state = if (ConversationFilter.OneOnOne == sheetData.currentFilter) {
+                    RichMenuItemState.SELECTED
+                } else {
+                    RichMenuItemState.DEFAULT
+                }
+                SelectableMenuBottomSheetItem(
                     title = ConversationFilter.OneOnOne.uiText().asString(),
-                    trailing = {
-                        if (ConversationFilter.OneOnOne == sheetData.currentFilter) {
-                            MenuItemIcon(
-                                id = R.drawable.ic_check_circle,
-                                contentDescription = stringResource(R.string.label_selected),
-                                tint = MaterialTheme.wireColorScheme.switchEnabledChecked,
-                            )
-                        }
-                    },
-                    onItemClick = { onChangeFilter(ConversationFilter.OneOnOne) },
-                    onItemClickDescription = stringResource(R.string.content_description_select_label)
+                    onItemClick = Clickable(
+                        enabled = state == RichMenuItemState.DEFAULT,
+                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClick = { onChangeFilter(ConversationFilter.OneOnOne) },
+                    ),
+                    state = state
                 )
             }
             add {
-                MenuBottomSheetItem(
-                    title = if (sheetData.currentFilter is ConversationFilter.Folder) {
-                        stringResource(R.string.label_filter_folders, sheetData.currentFilter.folderName) // TODO color selected one
-                    } else {
-                        stringResource(R.string.label_filter_folders, "")
-                    },
-                    trailing = {
-                        if (sheetData.currentFilter is ConversationFilter.Folder) {
-                            MenuItemIcon(
-                                id = R.drawable.ic_check_circle,
-                                contentDescription = stringResource(R.string.label_selected),
-                                tint = MaterialTheme.wireColorScheme.switchEnabledChecked,
-                            )
-                        }
-                    },
-                    onItemClick = { showFoldersBottomSheet((sheetData.currentFilter as? ConversationFilter.Folder)?.folderId) },
-                    onItemClickDescription = stringResource(R.string.content_description_select_label)
+                val state = if (sheetData.currentFilter is ConversationFilter.Folder) {
+                    RichMenuItemState.SELECTED
+                } else {
+                    RichMenuItemState.DEFAULT
+                }
+                SelectableMenuBottomSheetItem(
+                    title = stringResource(R.string.label_filter_folders),
+                    description = (sheetData.currentFilter as? ConversationFilter.Folder)?.folderName,
+                    onItemClick = Clickable(
+                        enabled = true,
+                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClick = { showFoldersBottomSheet((sheetData.currentFilter as? ConversationFilter.Folder)?.folderId) },
+                    ),
+                    state = state
                 )
             }
         }

@@ -28,6 +28,7 @@ import com.wire.android.mapper.toConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
@@ -81,30 +82,12 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     is GetFavoriteFolderUseCase.Result.Success ->
                         observeConversationsFromFromFolder(result.folder.id)
                 }
-                    .map {
-                        PagingData.from(
-                            it,
-                            sourceLoadStates = LoadStates(
-                                prepend = LoadState.NotLoading(true),
-                                append = LoadState.NotLoading(true),
-                                refresh = LoadState.NotLoading(true),
-                            )
-                        )
-                    }
+                    .map { staticPagingItems(it) }
             }
 
             is ConversationFilter.Folder -> {
                 observeConversationsFromFromFolder(conversationFilter.folderId)
-                    .map {
-                        PagingData.from(
-                            it,
-                            sourceLoadStates = LoadStates(
-                                prepend = LoadState.NotLoading(true),
-                                append = LoadState.NotLoading(true),
-                                refresh = LoadState.NotLoading(true),
-                            )
-                        )
-                    }
+                    .map { staticPagingItems(it) }
             }
         }
             .map { pagingData ->
@@ -112,6 +95,17 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     it.toConversationItem(wireSessionImageLoader, userTypeMapper, searchQuery)
                 }
             }.flowOn(dispatchers.io())
+    }
+
+    private fun staticPagingItems(conversations: List<ConversationDetailsWithEvents>): PagingData<ConversationDetailsWithEvents> {
+        return PagingData.from(
+            conversations,
+            sourceLoadStates = LoadStates(
+                prepend = LoadState.NotLoading(true),
+                append = LoadState.NotLoading(true),
+                refresh = LoadState.NotLoading(true),
+            )
+        )
     }
 
     private companion object {

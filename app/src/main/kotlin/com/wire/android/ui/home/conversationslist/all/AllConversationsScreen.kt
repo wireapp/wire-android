@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversationslist.all
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import com.wire.android.navigation.FolderNavArgs
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.WireDestination
@@ -66,16 +67,15 @@ fun FavoritesConversationsScreen(homeStateHolder: HomeStateHolder) {
 }
 
 @HomeNavGraph
-@WireDestination
+@WireDestination(navArgsDelegate = FolderNavArgs::class)
 @Composable
-fun FolderConversationsScreen(homeStateHolder: HomeStateHolder, folderId: String, folderName: String) {
+fun FolderConversationsScreen(homeStateHolder: HomeStateHolder, args: FolderNavArgs) {
     with(homeStateHolder) {
         ConversationsScreenContent(
             navigator = navigator,
             searchBarState = searchBarState,
-            conversationsSource = ConversationsSource.FOLDER(folderId, folderName),
-//            lazyListState = lazyListStateFor(HomeDestination.Folder("", "")),
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.Folder(folderId, folderName)) }
+            conversationsSource = ConversationsSource.FOLDER(args.folderId, args.folderName),
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.Folder(args.folderId, args.folderName)) }
         )
     }
 }

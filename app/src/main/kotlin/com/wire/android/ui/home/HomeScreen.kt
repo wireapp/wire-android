@@ -260,6 +260,7 @@ fun HomeContent(
                     navController.navigate(direction.route) {
                         navController.graph.startDestinationRoute?.let { route ->
                             popUpTo(route) {
+                                inclusive = true
                                 saveState = true
                             }
                         }
@@ -310,11 +311,14 @@ fun HomeContent(
                                 shouldShowCreateTeamUnreadIndicator = homeState.shouldShowCreateTeamUnreadIndicator,
                                 onHamburgerMenuClick = ::openDrawer,
                                 onNavigateToSelfUserProfile = onSelfUserClick,
-                                onOpenConversationFilter = { filterSheetState.show(
-                                    ConversationFilterSheetData(
-                                        currentFilter = it,
-                                        folders = foldersViewModel.state().folders
-                                    )) }
+                                onOpenConversationFilter = {
+                                    filterSheetState.show(
+                                        ConversationFilterSheetData(
+                                            currentFilter = it,
+                                            folders = foldersViewModel.state().folders
+                                        )
+                                    )
+                                }
                             )
                         }
                     },

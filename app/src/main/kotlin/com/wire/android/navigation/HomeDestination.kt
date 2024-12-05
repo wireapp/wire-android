@@ -120,26 +120,21 @@ sealed class HomeDestination(
 
     companion object {
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
-        fun fromRoute(fullRoute: String): HomeDestination? {
-            println("KBX fullRoute: $fullRoute")
-            return values().find {
-                println("KBX find route ${it.direction.route.getBaseRoute()}")
-                it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
-        }
+        fun fromRoute(fullRoute: String): HomeDestination? =
+            values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
 
-        fun fromEntry(entry: NavBackStackEntry?): HomeDestination? {
-            return entry?.let {
-                val folderId = it.arguments?.getString("folderId")
-                if(folderId != null) {
-                    Folder(folderId, it.arguments?.getString("folderName") ?: "")
+        fun values(): Array<HomeDestination> =
+            arrayOf(Conversations, Favorites, Group, OneOnOne, Settings, Vault, Archive, Support, WhatsNew)
+
+        fun getArgumentsFromEntry(navBackStackEntry: NavBackStackEntry?): FolderNavArgs? {
+            return navBackStackEntry?.let {
+                if (it.destination.route == FolderConversationsScreenDestination.route) {
+                    FolderConversationsScreenDestination.argsFrom(it)
                 } else {
-                   it.destination.route?.let { fromRoute(it) }
+                    null
                 }
             }
         }
-
-        fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Favorites, Group, OneOnOne, Settings, Vault, Archive, Support, WhatsNew, Folder("", ""))
     }
 }
 

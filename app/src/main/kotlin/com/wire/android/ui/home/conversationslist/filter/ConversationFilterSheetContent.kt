@@ -61,7 +61,6 @@ fun ConversationFilterSheetContent(
     }
 }
 
-
 @Composable
 fun rememberFilterSheetState(
     filterSheetData: ConversationFilterSheetData,

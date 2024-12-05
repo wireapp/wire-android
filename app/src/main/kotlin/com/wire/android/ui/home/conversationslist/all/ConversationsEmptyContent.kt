@@ -108,7 +108,6 @@ private fun ConversationFilter.emptyDescription(backendName: String): String = w
     ConversationFilter.OneOnOne -> stringResource(R.string.one_on_one_empty_list_description, backendName)
     // currently not used, because empty folders are removed from filters
     is ConversationFilter.Folder -> ""
-
 }
 
 @PreviewMultipleThemes

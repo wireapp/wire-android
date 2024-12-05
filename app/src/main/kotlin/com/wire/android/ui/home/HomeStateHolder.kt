@@ -32,7 +32,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.navigation.HomeDestination
+import com.wire.android.navigation.HomeDestination.Archive
+import com.wire.android.navigation.HomeDestination.Conversations
+import com.wire.android.navigation.HomeDestination.Favorites
+import com.wire.android.navigation.HomeDestination.Group
+import com.wire.android.navigation.HomeDestination.OneOnOne
+import com.wire.android.navigation.HomeDestination.Settings
+import com.wire.android.navigation.HomeDestination.Support
+import com.wire.android.navigation.HomeDestination.Vault
+import com.wire.android.navigation.HomeDestination.WhatsNew
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
@@ -51,6 +61,7 @@ class HomeStateHolder(
 ) {
     val currentNavigationItem
         get() = currentNavigationItemState.value
+
     fun lazyListStateFor(destination: HomeDestination): LazyListState {
         return lazyListStates[destination] ?: error("No LazyListState found for $destination")
     }
@@ -75,22 +86,37 @@ class HomeStateHolder(
 @Composable
 fun rememberHomeScreenState(
     navigator: Navigator,
+    homeDestinations: List<HomeDestination> = listOf(
+        Conversations,
+        Favorites,
+        OneOnOne,
+        Group,
+        Settings,
+        Vault,
+        Archive,
+        Support,
+        WhatsNew
+    ),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    navController: NavHostController = rememberTrackingAnimatedNavController {
-        HomeDestination.fromRoute(it)?.itemName
+    navController: NavHostController = rememberTrackingAnimatedNavController { route ->
+        homeDestinations.find { it.direction.route.getBaseRoute() == route }?.itemName
     },
-    drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
+    drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed)
 ): HomeStateHolder {
+
     val searchBarState = rememberSearchbarState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+
     val currentNavigationItemState = remember {
         derivedStateOf {
-            HomeDestination.fromEntry(navBackStackEntry) ?: HomeDestination.Conversations
+            HomeDestination.getArgumentsFromEntry(navBackStackEntry)?.let { args ->
+                return@derivedStateOf HomeDestination.Folder(args.folderId, args.folderName)
+            } ?: navBackStackEntry?.destination?.route?.let { HomeDestination.fromRoute(it) ?: Conversations } ?: Conversations
         }
     }
-    val lazyListStates = HomeDestination.values().associateWith { rememberLazyListState() }
+    val lazyListStates = homeDestinations.associateWith { rememberLazyListState() }
 
-    return remember {
+    return remember(homeDestinations) {
         HomeStateHolder(
             coroutineScope = coroutineScope,
             navController = navController,

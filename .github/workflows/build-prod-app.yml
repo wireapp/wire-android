@@ -3,9 +3,6 @@ name: "Prod build"
 on:
   release:
     types: [ published ]
-  push:
-    branches:
-      - "fix/bump-countly-24.7.5"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
@@ -20,7 +17,7 @@ jobs:
     uses: ./.github/workflows/gradle-run-unit-tests.yml
     secrets: inherit
   build-app:
-#    needs: [ code-analysis, ui-tests, unit-tests ]
+    needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,24 +25,24 @@ jobs:
         with:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
-#      - name: Get latest release tag
-#        id: get_latest_release
-#        run: |
-#          latest_tag=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')
-#          echo "::set-output name=latest_tag::$latest_tag"
-#
-#      - name: Compare versions
-#        id: compare_versions
-#        run: |
-#          current_tag=${{ github.event.release.tag_name }}
-#          latest_tag=${{ steps.get_latest_release.outputs.latest_tag }}
-#          compare_result=$(printf "%s\n%s" "$current_tag" "$latest_tag" | sort -V | tail -n1)
-#          if [[ "$current_tag" != "$compare_result" ]]; then
-#            echo "Current tag ($current_tag) is lower than latest tag ($latest_tag). Failing the workflow."
-#            exit 1
-#          else
-#            echo "Current tag ($current_tag) is equal or higher than latest tag ($latest_tag). Continuing the workflow."
-#          fi
+      - name: Get latest release tag
+        id: get_latest_release
+        run: |
+          latest_tag=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')
+          echo "::set-output name=latest_tag::$latest_tag"
+
+      - name: Compare versions
+        id: compare_versions
+        run: |
+          current_tag=${{ github.event.release.tag_name }}
+          latest_tag=${{ steps.get_latest_release.outputs.latest_tag }}
+          compare_result=$(printf "%s\n%s" "$current_tag" "$latest_tag" | sort -V | tail -n1)
+          if [[ "$current_tag" != "$compare_result" ]]; then
+            echo "Current tag ($current_tag) is lower than latest tag ($latest_tag). Failing the workflow."
+            exit 1
+          else
+            echo "Current tag ($current_tag) is equal or higher than latest tag ($latest_tag). Continuing the workflow."
+          fi
       - name: Set up JDK 17
         uses: buildjet/setup-java@v4
         with:
@@ -63,11 +60,11 @@ jobs:
         run: chmod +x ./gradlew
       - name: Generate version file
         run: ./gradlew generateVersionFile
-#      - name: Upload version file as artifact
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: Version File
-#          path: app/version.txt
+      - name: Upload version file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Version File
+          path: app/version.txt
       - name: build prod flavour APK
         run:
           ./gradlew app:assembleProdCompatrelease
@@ -80,33 +77,33 @@ jobs:
           KEYPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}
           KEYSTOREPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
-#      - name: build prod flavour bundle
-#        run:
-#          ./gradlew app:bundleProdCompatrelease
-#        env:
-#          KEYSTORE_FILE_PATH_DEBUG: ${{ vars.KEYSTORE_FILE_PATH }}
-#          KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
-#          KEYSTORE_FILE_PATH_COMPAT: ${{ vars.KEYSTORE_FILE_PATH }}
-#          KEYSTORE_FILE_PATH_COMPAT_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
-#          KEYSTORE_KEY_NAME_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}
-#          KEYPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}
-#          KEYSTOREPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}
-#          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
-#      - name: Upload
-#        if: success()
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: Build Artifacts
-#          path: app/build/outputs/
-#      - name: Create service_account.json
-#        run: echo '${{ secrets.SERVICE_ACCOUNT_JSON }}' > service_account.json
-#      - name: Deploy to production track
-#        uses: r0adkll/upload-google-play@v1
-#        with:
-#          serviceAccountJson: service_account.json
-#          packageName: com.wire
-#          releaseFiles: app/build/outputs/bundle/prodCompatrelease/*.aab
-#          track: alpha
+      - name: build prod flavour bundle
+        run:
+          ./gradlew app:bundleProdCompatrelease
+        env:
+          KEYSTORE_FILE_PATH_DEBUG: ${{ vars.KEYSTORE_FILE_PATH }}
+          KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
+          KEYSTORE_FILE_PATH_COMPAT: ${{ vars.KEYSTORE_FILE_PATH }}
+          KEYSTORE_FILE_PATH_COMPAT_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
+          KEYSTORE_KEY_NAME_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}
+          KEYPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}
+          KEYSTOREPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+      - name: Upload
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build Artifacts
+          path: app/build/outputs/
+      - name: Create service_account.json
+        run: echo '${{ secrets.SERVICE_ACCOUNT_JSON }}' > service_account.json
+      - name: Deploy to production track
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: service_account.json
+          packageName: com.wire
+          releaseFiles: app/build/outputs/bundle/prodCompatrelease/*.aab
+          track: alpha
       - name: Deploy ProdCompatRelease to S3
         uses: ./.github/actions/deploy-to-s3
         with:
@@ -116,9 +113,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           build-flavour: prod
           build-variant: compatrelease
-#      - name: Attach APK and version file to release
-#        uses: softprops/action-gh-release@v2.0.8
-#        with:
-#          files: |
-#            app/build/outputs/apk/prodCompatrelease/*.apk
-#            app/version.txt
+      - name: Attach APK and version file to release
+        uses: softprops/action-gh-release@v2.0.8
+        with:
+          files: |
+            app/build/outputs/apk/prodCompatrelease/*.apk
+            app/version.txt

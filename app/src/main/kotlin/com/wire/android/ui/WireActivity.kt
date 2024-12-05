@@ -107,6 +107,7 @@ import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
+import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SyncStateObserver
@@ -134,6 +135,9 @@ class WireActivity : AppCompatActivity() {
 
     @Inject
     lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
+
+    @Inject
+    lateinit var switchAccountObserver: SwitchAccountObserver
 
     private val viewModel: WireActivityViewModel by viewModels()
 
@@ -343,6 +347,19 @@ class WireActivity : AppCompatActivity() {
                     updateScreenSettingsListener
                 )
                 navigator.navController.removeOnDestinationChangedListener(currentScreenManager)
+            }
+        }
+
+        DisposableEffect(switchAccountObserver, navigator) {
+            NavigationSwitchAccountActions {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    navigator.navigate(it)
+                }
+            }.let {
+                switchAccountObserver.register(it)
+                onDispose {
+                    switchAccountObserver.unregister(it)
+                }
             }
         }
     }

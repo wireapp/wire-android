@@ -18,16 +18,13 @@
 
 package com.wire.android.model
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.R
-import com.wire.android.ui.LocalActivity
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -72,15 +69,8 @@ sealed class ImageAsset {
             withCrossfadeAnimation: Boolean = false
         ) = when {
             LocalInspectionMode.current -> painterResource(id = R.drawable.ic_welcome_1)
-            else -> {
-                hiltViewModel<RemoteAssetImageViewModel>(
-                    // limit the scope of the ViewModel to the current activity so that there's one image loader instance for the Activity
-                    viewModelStoreOwner = checkNotNull(LocalActivity.current as? AppCompatActivity ?: LocalViewModelStoreOwner.current) {
-                        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-                    },
-                    key = "remote_asset_image_loader"
-                ).imageLoader.paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
-            }
+            else -> hiltViewModel<RemoteAssetImageViewModel>().imageLoader
+                .paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
         }
     }
 

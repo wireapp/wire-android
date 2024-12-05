@@ -598,7 +598,8 @@ fun ContentFooter(
         exit = fadeOut(),
     ) {
         // TODO show open conversation button for service bots after AR-2135
-        if (!state.isMetadataEmpty() && state.membership != Membership.Service && !state.isTemporaryUser()) {
+        val isNotTemporaryAndNotDeleted = !state.isTemporaryUser() && !state.isDeletedUser
+        if (!state.isMetadataEmpty() && state.membership != Membership.Service && isNotTemporaryAndNotDeleted) {
             Surface(
                 shadowElevation = dimensions().bottomNavigationShadowElevation,
                 color = MaterialTheme.wireColorScheme.background

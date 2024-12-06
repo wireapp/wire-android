@@ -29,7 +29,9 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.isTeammate
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed class ConversationItem : ConversationFolderItem {
     abstract val conversationId: ConversationId
     abstract val mutedStatus: MutedConversationStatus
@@ -38,6 +40,7 @@ sealed class ConversationItem : ConversationFolderItem {
     abstract val badgeEventType: BadgeEventType
     abstract val teamId: TeamId?
     abstract val isArchived: Boolean
+    abstract val isFavorite: Boolean
     abstract val mlsVerificationStatus: Conversation.VerificationStatus
     abstract val proteusVerificationStatus: Conversation.VerificationStatus
     abstract val hasNewActivitiesToShow: Boolean
@@ -45,11 +48,12 @@ sealed class ConversationItem : ConversationFolderItem {
 
     val isTeamConversation get() = teamId != null
 
+    @Serializable
     data class GroupConversation(
         val groupName: String,
         val hasOnGoingCall: Boolean = false,
-        val isSelfUserCreator: Boolean = false,
         val selfMemberRole: Conversation.Member.Role?,
+        val isFromTheSameTeam: Boolean,
         val isSelfUserMember: Boolean = true,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
@@ -58,12 +62,14 @@ sealed class ConversationItem : ConversationFolderItem {
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
         override val isArchived: Boolean,
+        override val isFavorite: Boolean,
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
     ) : ConversationItem()
 
+    @Serializable
     data class PrivateConversation(
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
@@ -76,12 +82,14 @@ sealed class ConversationItem : ConversationFolderItem {
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
         override val isArchived: Boolean,
+        override val isFavorite: Boolean,
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
     ) : ConversationItem()
 
+    @Serializable
     data class ConnectionConversation(
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
@@ -91,6 +99,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val isArchived: Boolean = false,
+        override val isFavorite: Boolean = false,
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
     ) : ConversationItem() {
@@ -100,6 +109,7 @@ sealed class ConversationItem : ConversationFolderItem {
     }
 }
 
+@Serializable
 data class ConversationInfo(
     val name: String,
     val membership: Membership = Membership.None,

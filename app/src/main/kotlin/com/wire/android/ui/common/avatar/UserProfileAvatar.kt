@@ -57,7 +57,10 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -291,12 +294,19 @@ private fun DefaultInitialsAvatar(
     type: UserProfileAvatarType,
     size: Dp,
     modifier: Modifier = Modifier,
-    contentDescription: String? = stringResource(R.string.content_description_user_avatar),
+    contentDescription: String? = null,
 ) {
+    val semantics = if (contentDescription != null) {
+        Modifier.semantics {
+            this.contentDescription = contentDescription
+            this.role = Role.Image
+        }
+    } else {
+        Modifier.clearAndSetSemantics { }
+    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .semantics { this.contentDescription = contentDescription ?: "" }
             .size(size)
             .clip(CircleShape)
             .background(
@@ -312,6 +322,7 @@ private fun DefaultInitialsAvatar(
                     )
                 }
             )
+            .then(semantics)
     ) {
         Text(
             text = nameBasedAvatar.initials,

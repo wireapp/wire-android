@@ -44,6 +44,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
+    <string name="label_try_again">Try Again</string>
     <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
@@ -198,6 +199,7 @@
     <string name="content_description_add_participants_search_field">Search people by name or username</string>
     <string name="content_description_add_participants_back_btn">Go back to add participants view</string>
     <string name="content_description_home_profile_btn">Your profile</string>
+    <string name="content_description_home_profile_btn_with_notification">Your profile, one unread hint.</string>
     <string name="content_description_open_label">open</string>
     <string name="content_description_join_call_label">join a call</string>
     <string name="content_description_share_label">share</string>
@@ -210,14 +212,18 @@
     <string name="content_description_toggle_setting_label">toggle setting</string>
     <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
     <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
+    <string name="content_description_accept_or_ignore_connection_label">accept or ignore the request</string>
     <string name="content_description_open_user_profile_label">open profile</string>
     <string name="content_description_open_conversation_label">open conversation</string>
     <string name="content_description_open_service_label">open service</string>
     <string name="content_description_change_it_label">change it</string>
     <string name="content_description_open_link_label">open link</string>
     <string name="content_description_alert">Alert</string>
+    <string name="content_description_drop_down">Dropdown</string>
     <string name="content_description_close_dropdown">close dropdown</string>
     <string name="content_description_open_notification_settings_label">open notification settings</string>
+    <string name="content_description_new_conversation_close_btn">Close new conversation view</string>
+    <string name="content_description_new_group_conversation_back_btn">Go back to new conversation view</string>
     <string name="content_description_new_conversation_name_back_btn">Go back to new conversation view</string>
     <string name="content_description_new_conversation_name_field">Type group name</string>
     <string name="content_description_new_conversation_options_heading">Conversation options</string>
@@ -597,7 +603,7 @@
     <string name="user_profile_status_busy">Busy</string>
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>
-    <string name="user_profile_new_account_text">New Team or Account</string>
+    <string name="user_profile_new_account_text">New Team or Add Account</string>
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Devices</string>
     <string name="user_profile_group_tab">Group</string>
@@ -625,6 +631,7 @@
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Clear Data?</string>
     <string name="dialog_logout_wipe_data_checkbox">Delete all your personal information and conversations on this device</string>
+    <string name="dialog_logout_wipe_data_cancel_description">Cancel logout</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
     <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
@@ -638,6 +645,7 @@
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Add to Favorites</string>
+    <string name="label_remove_from_favourites">Remove from Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_unarchive">Unarchive</string>
@@ -906,6 +914,11 @@
     <string name="dialog_archive_conversation_title">Archive conversation?</string>
     <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
     <string name="dialog_archive_conversation_option">Archive</string>
+    <!-- Favorite -->
+    <string name="success_adding_to_favorite">“%s” was added to Favorites</string>
+    <string name="success_removing_from_favorite">“%s” was removed from Favorites</string>
+    <string name="error_adding_to_favorite">“%s” could not be added to Favorites</string>
+    <string name="error_removing_from_favorite">“%s” could not be removed from Favorites</string>
     <!-- Animation label -->
     <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
     <string name="animation_label_typing_indicator_horizontal_transition" translatable="false">HorizontalBouncingWritingPen transition</string>
@@ -1585,7 +1598,13 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>
     <string name="personal_to_team_migration_back_to_wire_button">Back to Wire</string>
     <string name="personal_to_team_migration_back_button_label">Back</string>
+    <string name="personal_to_team_migration_back_button_team_name_content_description">Go back to team account overview</string>
+    <string name="personal_to_team_migration_back_button_confirmation_content_description">Go back to team name view</string>
     <string name="personal_to_team_migration_close_icon_content_description">Close team migration flow</string>
+    <string name="personal_to_team_migration_close_team_account_content_description">Close team account overview</string>
+    <string name="personal_to_team_migration_close_team_name_content_description">Close team name view</string>
+    <string name="personal_to_team_migration_close_confirmation_content_description">Close confirmation view</string>
+    <string name="personal_to_team_migration_close_team_created_content_description">Close team created view</string>
 
     <string name="personal_to_team_migration_team_plan_step">Team Account</string>
     <string name="personal_to_team_migration_team_plan_description">Transform your personal account into a team account to get more out of your collaboration.</string>
@@ -1623,5 +1642,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_description">When you leave now, you lose your progress and need to restart the team creation.</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Continue Team Creation</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Leave Without Saving</string>
+    <string name="personal_to_team_migration_error_title">Team not created</string>
+    <string name="personal_to_team_migration_error_title_already_in_team">Already part of a team</string>
+    <string name="personal_to_team_migration_error_message_already_in_team">You\'ve created or joined a team with this email address on another device.</string>
+    <string name="personal_to_team_migration_error_message_slow_network">Wire could not complete your team creation due to a slow internet connection.</string>
+    <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
 
 </resources>

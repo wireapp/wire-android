@@ -58,7 +58,7 @@ fun TextWithLinkSuffix(
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
     textColor: Color = MaterialTheme.wireColorScheme.onBackground,
     linkStyle: TextStyle = MaterialTheme.wireTypography.body02,
-    linkColor: Color = MaterialTheme.wireColorScheme.primary,
+    linkColor: Color = MaterialTheme.wireColorScheme.onBackground,
     linkDecoration: TextDecoration = TextDecoration.Underline,
     onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {

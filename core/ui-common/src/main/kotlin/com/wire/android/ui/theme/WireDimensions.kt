@@ -115,7 +115,6 @@ data class WireDimensions(
     val dialogCardMargin: Dp,
     // UserProfile
     val userProfileOtherAccItemHeight: Dp,
-    val createTeamInfoCardButtonWidth: Dp,
     val createTeamInfoCardButtonHeight: Dp,
     // Profile Image
     val imagePreviewHeight: Dp,
@@ -222,7 +221,6 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     avatarStatusSize = 14.dp,
     unReadIndicatorSize = 16.dp,
     avatarStatusBorderWidth = 2.dp,
-    createTeamInfoCardButtonWidth = 120.dp,
     createTeamInfoCardButtonHeight = 32.dp,
     avatarTemporaryUserBorderWidth = 2.dp,
     avatarBigTemporaryUserBorderWidth = 4.dp,

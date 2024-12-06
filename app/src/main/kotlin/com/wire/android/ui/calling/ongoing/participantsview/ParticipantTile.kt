@@ -77,10 +77,10 @@ import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.darkColorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -104,7 +104,7 @@ fun ParticipantTile(
     Surface(
         modifier = modifier
             .thenIf(participantTitleState.isSpeaking, activeSpeakerBorderModifier),
-        color = colorsScheme().callingParticipantTileBackgroundColor,
+        color = darkColorsScheme().surfaceContainer,
         shape = RoundedCornerShape(if (participantTitleState.isSpeaking) dimensions().corner8x else dimensions().corner3x),
     ) {
         ConstraintLayout {
@@ -273,7 +273,7 @@ private fun CameraPreview(
     if (isCameraOn) {
         isCameraStopped = false
         val context = LocalContext.current
-        val backgroundColor = colorsScheme().callingParticipantTileBackgroundColor.value.toInt()
+        val backgroundColor = darkColorsScheme().surfaceContainer.value.toInt()
         val videoPreview = remember {
             CameraPreviewBuilder(context)
                 .setBackgroundColor(backgroundColor)
@@ -308,8 +308,7 @@ private fun OthersVideoRenderer(
     var offsetY by remember { mutableStateOf(0f) }
 
     val context = LocalContext.current
-    val rendererFillColor =
-        (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
+    val rendererFillColor = (darkColorsScheme().surfaceContainer.value shr 32).toLong()
     if (isCameraOn || isSharingScreen) {
 
         val videoRenderer = remember {
@@ -391,12 +390,12 @@ private fun UsernameTile(
     modifier: Modifier = Modifier,
 ) {
     val color =
-        if (isSpeaking) colorsScheme().primary else colorsScheme().callingParticipantNameBackground
+        if (isSpeaking) colorsScheme().primary else darkColorsScheme().surfaceContainerLowest
     val nameLabelColor =
         when {
             isSpeaking -> colorsScheme().onPrimary
-            hasEstablishedAudio -> colorsScheme().callingParticipantNameText
-            else -> colorsScheme().callingParticipantNameConnectingText
+            hasEstablishedAudio -> darkColorsScheme().onSurface
+            else -> darkColorsScheme().secondaryText
         }
 
     Surface(
@@ -418,7 +417,7 @@ private fun UsernameTile(
             )
             if (!hasEstablishedAudio) {
                 Text(
-                    color = colorsScheme().callingParticipantError,
+                    color = darkColorsScheme().error,
                     style = MaterialTheme.wireTypography.label01,
                     text = stringResource(id = R.string.participant_tile_call_connecting_label),
                     maxLines = 1,
@@ -445,7 +444,7 @@ private fun MicrophoneTile(
                     .padding(dimensions().spacing3x)
                     .size(dimensions().spacing16x),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
-                tint = MaterialTheme.wireColorScheme.callingParticipantError,
+                tint = darkColorsScheme().error,
                 contentDescription = stringResource(R.string.content_description_calling_participant_muted)
             )
         }

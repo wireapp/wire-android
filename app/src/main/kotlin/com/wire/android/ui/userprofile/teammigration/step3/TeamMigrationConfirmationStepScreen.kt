@@ -41,14 +41,18 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import com.wire.android.R
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WireCheckbox
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.destinations.TeamMigrationDoneStepScreenDestination
+import com.wire.android.ui.destinations.TeamMigrationTeamPlanStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
@@ -58,6 +62,9 @@ import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
+
+const val TEAM_MIGRATION_CONFIRMATION_STEP = 3
 
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
@@ -68,7 +75,7 @@ fun TeamMigrationConfirmationStepScreen(
     navigator: DestinationsNavigator,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
-    val state = remember { teamMigrationViewModel.teamMigrationState }
+    val state = teamMigrationViewModel.teamMigrationState
 
     TeamMigrationConfirmationStepScreenContent(
         onContinueButtonClicked = {
@@ -83,25 +90,89 @@ fun TeamMigrationConfirmationStepScreen(
         }
     )
 
-    HandleErrors(state, teamMigrationViewModel::failureHandled)
+    HandleErrors(
+        teamMigrationState = state,
+        onFailureHandled = teamMigrationViewModel::failureHandled,
+        goBackToFirstStep = {
+            navigator.navigate(
+                direction = TeamMigrationTeamPlanStepScreenDestination,
+                builder = {
+                    popUpTo(TeamMigrationTeamPlanStepScreenDestination) {
+                        inclusive = false
+                    }
+                }
+            )
+        }
+    )
 
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(3)
+        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(TEAM_MIGRATION_CONFIRMATION_STEP)
+        teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_CONFIRMATION_STEP)
     }
 }
 
 @Composable
 private fun HandleErrors(
     teamMigrationState: TeamMigrationState,
-    onFailureHandled: () -> Unit
+    onFailureHandled: () -> Unit,
+    goBackToFirstStep: () -> Unit,
 ) {
     val failure = teamMigrationState.migrationFailure ?: return
-    // TODO handle error WPB-14281
-    CoreFailureErrorDialog(
-        coreFailure = failure,
-        onDialogDismiss = {
-            onFailureHandled()
+
+    when (failure) {
+        is MigrateFromPersonalToTeamFailure.UserAlreadyInTeam -> {
+            ErrorDialog(
+                title = stringResource(R.string.personal_to_team_migration_error_title_already_in_team),
+                message = stringResource(R.string.personal_to_team_migration_error_message_already_in_team),
+                buttonText = stringResource(id = R.string.label_ok),
+                onDismiss = {
+                    onFailureHandled()
+                }
+            )
         }
+
+        is MigrateFromPersonalToTeamFailure.NoNetwork -> {
+            ErrorDialog(
+                title = stringResource(R.string.personal_to_team_migration_error_title),
+                message = stringResource(R.string.personal_to_team_migration_error_message_slow_network),
+                buttonText = stringResource(id = R.string.label_try_again),
+                onDismiss = {
+                    onFailureHandled()
+                    goBackToFirstStep()
+                }
+            )
+        }
+
+        else -> {
+            ErrorDialog(
+                title = stringResource(R.string.personal_to_team_migration_error_title),
+                message = stringResource(R.string.personal_to_team_migration_error_message_unknown_error),
+                buttonText = stringResource(id = R.string.label_try_again),
+                onDismiss = {
+                    onFailureHandled()
+                    goBackToFirstStep()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ErrorDialog(
+    title: String,
+    message: String,
+    buttonText: String,
+    onDismiss: () -> Unit,
+) {
+    WireDialog(
+        title = title,
+        text = message,
+        onDismiss = onDismiss,
+        dismissButtonProperties = WireDialogButtonProperties(
+            onClick = onDismiss,
+            text = buttonText,
+            type = WireDialogButtonType.Primary,
+        )
     )
 }
 
@@ -185,6 +256,7 @@ private fun TeamMigrationConfirmationStepScreenContent(
         BottomLineButtons(
             isContinueButtonEnabled = isContinueButtonEnabled,
             onContinue = onContinueButtonClicked,
+            backButtonContentDescription = stringResource(R.string.personal_to_team_migration_back_button_confirmation_content_description),
             onBack = onBackPressed
         )
     }

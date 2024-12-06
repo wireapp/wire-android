@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
@@ -51,11 +49,11 @@ import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireTertiaryIconButton
-import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.RecordedAudioMessage
@@ -74,7 +72,7 @@ fun RecordAudioButtonClose(
     WireTertiaryIconButton(
         onButtonClicked = onClick,
         iconResource = R.drawable.ic_close,
-        contentDescription = R.string.content_description_close_button,
+        contentDescription = R.string.label_close,
         shape = CircleShape,
         minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
@@ -95,7 +93,7 @@ fun RecordAudioButtonEnabled(
         topContent = {},
         iconResId = R.drawable.ic_microphone_on,
         contentDescription = R.string.content_description_record_audio_button_start,
-        buttonColor = colorsScheme().recordAudioStartColor,
+        buttonState = WireButtonState.Default,
         bottomText = R.string.record_audio_start_label,
         applyAudioFilterState = applyAudioFilterState,
         applyAudioFilterClick = applyAudioFilterClick
@@ -108,8 +106,9 @@ fun RecordAudioButtonRecording(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val initialSeconds = if (LocalInspectionMode.current) 1 else 0
     var seconds by remember {
-        mutableStateOf(0)
+        mutableStateOf(initialSeconds)
     }
     LaunchedEffect(key1 = Unit) {
         while (true) {
@@ -141,9 +140,8 @@ fun RecordAudioButtonRecording(
         },
         iconResId = R.drawable.ic_stop,
         contentDescription = R.string.content_description_record_audio_button_stop,
-        buttonColor = colorsScheme().recordAudioStopColor,
         bottomText = R.string.record_audio_recording_label,
-        buttonState = if (seconds > 0) WireButtonState.Default else WireButtonState.Disabled,
+        buttonState = if (seconds > 0) WireButtonState.Error else WireButtonState.Disabled,
         isAudioFilterEnabled = false,
         applyAudioFilterState = applyAudioFilterState,
         applyAudioFilterClick = { }
@@ -173,7 +171,6 @@ fun RecordAudioButtonEncoding(
         iconResId = null,
         trailingIconAlignment = IconAlignment.Center,
         contentDescription = -1,
-        buttonColor = colorsScheme().recordAudioStopColor,
         bottomText = R.string.record_audio_encoding_label,
         buttonState = WireButtonState.Disabled,
         isAudioFilterEnabled = false,
@@ -212,7 +209,7 @@ fun RecordAudioButtonSend(
         },
         iconResId = R.drawable.ic_send,
         contentDescription = R.string.content_description_record_audio_button_send,
-        buttonColor = colorsScheme().recordAudioStartColor,
+        buttonState = WireButtonState.Default,
         bottomText = R.string.record_audio_send_label,
         applyAudioFilterState = applyAudioFilterState,
         applyAudioFilterClick = applyAudioFilterClick
@@ -225,7 +222,6 @@ private fun RecordAudioButton(
     topContent: @Composable () -> Unit,
     @DrawableRes iconResId: Int?,
     @StringRes contentDescription: Int,
-    buttonColor: Color,
     @StringRes bottomText: Int,
     applyAudioFilterState: Boolean,
     applyAudioFilterClick: (Boolean) -> Unit,
@@ -242,7 +238,7 @@ private fun RecordAudioButton(
         topContent()
         Spacer(modifier = Modifier.height(dimensions().spacing40x))
 
-        WireSecondaryButton(
+        WirePrimaryButton(
             modifier = Modifier
                 .width(dimensions().spacing80x)
                 .height(dimensions().spacing80x),
@@ -259,9 +255,6 @@ private fun RecordAudioButton(
                 }
             },
             shape = CircleShape,
-            colors = wireSecondaryButtonColors().copy(
-                enabled = buttonColor
-            ),
             state = buttonState,
             loading = loading
         )
@@ -275,7 +268,7 @@ private fun RecordAudioButton(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Checkbox(
+            WireCheckbox(
                 enabled = isAudioFilterEnabled,
                 checked = applyAudioFilterState,
                 onCheckedChange = applyAudioFilterClick
@@ -283,7 +276,7 @@ private fun RecordAudioButton(
             Text(
                 text = stringResource(id = R.string.record_audio_apply_filter_label),
                 style = MaterialTheme.wireTypography.body01,
-                color = if (isAudioFilterEnabled) Color.Unspecified else colorsScheme().checkboxTextDisabled
+                color = if (isAudioFilterEnabled) colorsScheme().onSecondaryButtonEnabled else colorsScheme().onSecondaryButtonDisabled
             )
         }
     }
@@ -345,18 +338,6 @@ fun PreviewRecordAudioButtonSend() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewRecordAudioButton() {
-    WireTheme {
-        RecordAudioButton(
-            onClick = {},
-            modifier = Modifier,
-            topContent = {},
-            iconResId = R.drawable.ic_microphone_on,
-            contentDescription = R.string.content_description_record_audio_button_start,
-            buttonColor = colorsScheme().recordAudioStartColor,
-            bottomText = R.string.record_audio_start_label,
-            applyAudioFilterState = false,
-            applyAudioFilterClick = {}
-        )
-    }
+fun PreviewRecordAudioButtonEncoding() = WireTheme {
+    RecordAudioButtonEncoding(applyAudioFilterState = false)
 }

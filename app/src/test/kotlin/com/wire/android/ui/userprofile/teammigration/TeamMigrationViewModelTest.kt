@@ -22,6 +22,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
 import io.mockk.MockKAnnotations
@@ -186,10 +187,48 @@ class TeamMigrationViewModelTest {
         }
 
     @Test
-    fun `given team name, when migrateFromPersonalToTeamAccount return failure, then call use case and handle the failure`() =
+    fun `given team name, when migrateFromPersonalToTeamAccount return unknown failure, then call use case and handle the failure`() =
         runTest {
             val (arrangement, viewModel) = Arrangement()
-                .withMigrateFromPersonalToTeamError()
+                .withMigrateFromPersonalToTeamErrorUnknown()
+                .arrange()
+
+            val onSuccess = {}
+
+            viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+
+            coVerify(exactly = 1) {
+                arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)
+            }
+            Assertions.assertNotNull(viewModel.teamMigrationState.migrationFailure)
+            viewModel.failureHandled()
+            Assertions.assertNull(viewModel.teamMigrationState.migrationFailure)
+        }
+
+    @Test
+    fun `given team name, when migrateFromPersonalToTeamAccount return user already in team failure, then call use case and handle the failure`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withMigrateFromPersonalToTeamErrorAlreadyInTeam()
+                .arrange()
+
+            val onSuccess = {}
+
+            viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+
+            coVerify(exactly = 1) {
+                arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)
+            }
+            Assertions.assertNotNull(viewModel.teamMigrationState.migrationFailure)
+            viewModel.failureHandled()
+            Assertions.assertNull(viewModel.teamMigrationState.migrationFailure)
+        }
+
+    @Test
+    fun `given team name, when migrateFromPersonalToTeamAccount return no network failure, then call use case and handle the failure`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withMigrateFromPersonalToTeamErrorNoNetwork()
                 .arrange()
 
             val onSuccess = {}
@@ -224,14 +263,24 @@ class TeamMigrationViewModelTest {
         }
 
         fun withMigrateFromPersonalToTeamSuccess() = apply {
-            coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Success(
-                TEAM_NAME
+            coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Success
+        }
+
+        fun withMigrateFromPersonalToTeamErrorUnknown() = apply {
+            coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Error(
+                MigrateFromPersonalToTeamFailure.UnknownError(NetworkFailure.ProxyError(null))
             )
         }
 
-        fun withMigrateFromPersonalToTeamError() = apply {
+        fun withMigrateFromPersonalToTeamErrorAlreadyInTeam() = apply {
             coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Error(
-                NetworkFailure.NoNetworkConnection(null)
+                MigrateFromPersonalToTeamFailure.UserAlreadyInTeam()
+            )
+        }
+
+        fun withMigrateFromPersonalToTeamErrorNoNetwork() = apply {
+            coEvery { migrateFromPersonalToTeam(any()) } returns MigrateFromPersonalToTeamResult.Error(
+                MigrateFromPersonalToTeamFailure.NoNetwork
             )
         }
 

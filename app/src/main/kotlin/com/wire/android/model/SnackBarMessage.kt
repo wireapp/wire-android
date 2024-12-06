@@ -27,3 +27,10 @@ interface SnackBarMessage {
     val uiText: UIText
     val actionLabel: UIText? get() = null
 }
+
+data class DefaultSnackBarMessage(
+    override val uiText: UIText,
+    override val actionLabel: UIText? = null
+) : SnackBarMessage
+
+fun UIText.asSnackBarMessage(actionLabel: UIText? = null): SnackBarMessage = DefaultSnackBarMessage(this, actionLabel)

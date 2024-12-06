@@ -37,7 +37,7 @@ import com.wire.kalium.logic.data.user.UserId
 fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
     onMutingConversationStatusChange: () -> Unit,
-    addConversationToFavourites: () -> Unit,
+    changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
     moveConversationToFolder: () -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
@@ -54,9 +54,8 @@ fun ConversationSheetContent(
         ConversationOptionNavigation.Home -> {
             ConversationMainSheetContent(
                 conversationSheetContent = conversationSheetState.conversationSheetContent!!,
+                changeFavoriteState = changeFavoriteState,
 // TODO(profile): enable when implemented
-//
-//                addConversationToFavourites = addConversationToFavourites,
 //                moveConversationToFolder = moveConversationToFolder,
                 updateConversationArchiveStatus = updateConversationArchiveStatus,
                 clearConversationContent = clearConversationContent,
@@ -100,7 +99,7 @@ sealed class ConversationOptionNavigation {
 }
 
 sealed class ConversationTypeDetail {
-    data class Group(val conversationId: ConversationId, val isCreator: Boolean) : ConversationTypeDetail()
+    data class Group(val conversationId: ConversationId, val isFromTheSameTeam: Boolean) : ConversationTypeDetail()
     data class Private(
         val avatarAsset: UserAvatarAsset?,
         val userId: UserId,
@@ -125,6 +124,7 @@ data class ConversationSheetContent(
     val mlsVerificationStatus: Conversation.VerificationStatus,
     val proteusVerificationStatus: Conversation.VerificationStatus,
     val isUnderLegalHold: Boolean,
+    val isFavorite: Boolean?
 ) {
 
     private val isSelfUserMember: Boolean get() = selfRole != null
@@ -134,10 +134,11 @@ data class ConversationSheetContent(
             && (conversationTypeDetail.blockingState != BlockingState.BLOCKED))
             || conversationTypeDetail is ConversationTypeDetail.Group)
 
-    fun canDeleteGroup(): Boolean =
-        conversationTypeDetail is ConversationTypeDetail.Group &&
+    fun canDeleteGroup(): Boolean {
+       return conversationTypeDetail is ConversationTypeDetail.Group &&
                 selfRole == Conversation.Member.Role.Admin &&
-                conversationTypeDetail.isCreator && isTeamConversation
+                conversationTypeDetail.isFromTheSameTeam && isTeamConversation
+    }
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
 
@@ -147,9 +148,9 @@ data class ConversationSheetContent(
     fun canUnblockUser(): Boolean =
         conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.BLOCKED
 
-    fun canAddToFavourite(): Boolean =
-        (conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
-                || conversationTypeDetail is ConversationTypeDetail.Group
+    fun canAddToFavourite(): Boolean = isFavorite != null &&
+            ((conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
+                    || conversationTypeDetail is ConversationTypeDetail.Group)
 
     fun isAbandonedOneOnOneConversation(participantsCount: Int): Boolean = title.isEmpty() && participantsCount == 1
 }

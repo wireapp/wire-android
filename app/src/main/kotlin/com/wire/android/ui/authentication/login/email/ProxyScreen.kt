@@ -63,7 +63,7 @@ fun ProxyScreen(
         Text(
             text = stringResource(R.string.label_proxy_credentials),
             style = MaterialTheme.wireTypography.title03.copy(
-                color = colorsScheme().labelText
+                color = colorsScheme().secondaryText
             ),
             modifier = Modifier
                 .fillMaxWidth()

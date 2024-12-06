@@ -93,7 +93,7 @@ fun SettingUpWireScreenContent(
                         )
                 )
                 AnimatedVisibility(visible = type is SettingUpWireScreenType.Progress) {
-                    WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.badge)
+                    WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
                 }
                 AnimatedVisibility(visible = title?.isNotEmpty() == true) {
                     Text(

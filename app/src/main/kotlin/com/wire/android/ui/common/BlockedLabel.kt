@@ -45,7 +45,7 @@ fun BlockedLabel(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = stringResource(id = R.string.label_user_blocked),
-            color = colorsScheme().labelText,
+            color = colorsScheme().secondaryText,
             style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.calling.ongoing.participantsview
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -36,28 +35,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 /**
  * Updating VerticalPagerIndicator from com.google.accompanist.pager to have the ability to add a border to the pager indicator
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VerticalPagerIndicator(
     pagerState: PagerState,
     modifier: Modifier = Modifier,
     activeColor: Color = colorsScheme().primary,
     inactiveColor: Color = colorsScheme().surface,
-    inactiveBorderColor: Color = colorsScheme().uncheckedColor,
-    inactiveBorderWidth: Dp = 1.dp,
-    indicatorHeight: Dp = 8.dp,
-    indicatorWidth: Dp = indicatorHeight,
-    spacing: Dp = indicatorHeight,
+    inactiveBorderColor: Color = colorsScheme().onSecondaryButtonDisabled,
+    backgroundColor: Color = colorsScheme().surfaceContainerHighest,
+    inactiveBorderWidth: Dp = dimensions().spacing1x,
+    indicatorHeight: Dp = dimensions().spacing12x,
+    indicatorWidth: Dp = dimensions().spacing12x,
+    spacing: Dp = dimensions().spacing6x,
     indicatorShape: Shape = CircleShape,
 ) {
 
@@ -65,8 +64,10 @@ fun VerticalPagerIndicator(
     val spacingPx = LocalDensity.current.run { spacing.roundToPx() }
 
     Box(
-        modifier = modifier,
-        contentAlignment = Alignment.TopCenter
+        modifier = Modifier
+            .background(backgroundColor)
+            .then(modifier),
+        contentAlignment = Alignment.TopCenter,
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(spacing),
@@ -106,10 +107,9 @@ fun VerticalPagerIndicator(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewVerticalPagerIndicator() {
+fun PreviewVerticalPagerIndicator() = WireTheme {
     VerticalPagerIndicator(
         modifier = Modifier.padding(dimensions().spacing4x),
         pagerState = rememberPagerState(pageCount = { 3 })

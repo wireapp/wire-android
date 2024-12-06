@@ -28,13 +28,13 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -72,9 +72,6 @@ class SelfUserProfileViewModelArrangement {
     lateinit var dispatchers: DispatcherProvider
 
     @MockK
-    lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-    @MockK
     lateinit var otherAccountMapper: OtherAccountMapper
 
     @MockK
@@ -101,6 +98,9 @@ class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
 
+    @MockK
+    lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
+
     private val viewModel by lazy {
         SelfUserProfileViewModel(
             selfUserId = TestUser.SELF_USER.id,
@@ -112,7 +112,6 @@ class SelfUserProfileViewModelArrangement {
             logout = logout,
             observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
             dispatchers = TestDispatcherProvider(),
-            wireSessionImageLoader = wireSessionImageLoader,
             otherAccountMapper = otherAccountMapper,
             observeEstablishedCalls = observeEstablishedCalls,
             accountSwitch = accountSwitch,
@@ -121,7 +120,8 @@ class SelfUserProfileViewModelArrangement {
             notificationManager = notificationManager,
             globalDataStore = globalDataStore,
             qualifiedIdMapper = qualifiedIdMapper,
-            anonymousAnalyticsManager = anonymousAnalyticsManager
+            anonymousAnalyticsManager = anonymousAnalyticsManager,
+            canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam
         )
     }
 
@@ -134,6 +134,8 @@ class SelfUserProfileViewModelArrangement {
         coEvery { observeValidAccounts.invoke() } returns flowOf(listOf(TestUser.SELF_USER to TestTeam.TEAM))
         coEvery { isReadOnlyAccount.invoke() } returns false
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
+        coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
+        coEvery { canMigrateFromPersonalToTeam.invoke() } returns true
     }
 
     fun withLegalHoldStatus(result: LegalHoldStateForSelfUser) = apply {

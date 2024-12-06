@@ -70,7 +70,7 @@ fun rememberConversationSheetState(
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(
                         conversationId = conversationId,
-                        isCreator = isSelfUserCreator
+                        isFromTheSameTeam = isFromTheSameTeam
                     ),
                     isTeamConversation = teamId != null,
                     selfRole = selfMemberRole,
@@ -78,7 +78,8 @@ fun rememberConversationSheetState(
                     protocol = Conversation.ProtocolInfo.Proteus,
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-                    isUnderLegalHold = showLegalHoldIndicator
+                    isUnderLegalHold = showLegalHoldIndicator,
+                    isFavorite = isFavorite
                 )
             }
         }
@@ -102,7 +103,8 @@ fun rememberConversationSheetState(
                     protocol = Conversation.ProtocolInfo.Proteus,
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-                    isUnderLegalHold = showLegalHoldIndicator
+                    isUnderLegalHold = showLegalHoldIndicator,
+                    isFavorite = isFavorite
                 )
             }
         }
@@ -122,7 +124,8 @@ fun rememberConversationSheetState(
                     protocol = Conversation.ProtocolInfo.Proteus,
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-                    isUnderLegalHold = showLegalHoldIndicator
+                    isUnderLegalHold = showLegalHoldIndicator,
+                    isFavorite = null
                 )
             }
         }

@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversationslist.all
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import com.wire.android.navigation.FolderNavArgs
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.WireDestination
@@ -45,7 +46,7 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.MAIN,
             lazyListState = lazyListStateFor(HomeDestination.Conversations),
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.ALL) }
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.All) }
         )
     }
 }
@@ -60,7 +61,21 @@ fun FavoritesConversationsScreen(homeStateHolder: HomeStateHolder) {
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.FAVORITES,
             lazyListState = lazyListStateFor(HomeDestination.Favorites),
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.FAVORITES) }
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.Favorites) }
+        )
+    }
+}
+
+@HomeNavGraph
+@WireDestination(navArgsDelegate = FolderNavArgs::class)
+@Composable
+fun FolderConversationsScreen(homeStateHolder: HomeStateHolder, args: FolderNavArgs) {
+    with(homeStateHolder) {
+        ConversationsScreenContent(
+            navigator = navigator,
+            searchBarState = searchBarState,
+            conversationsSource = ConversationsSource.FOLDER(args.folderId, args.folderName),
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.Folder(args.folderId, args.folderName)) }
         )
     }
 }
@@ -75,7 +90,7 @@ fun GroupConversationsScreen(homeStateHolder: HomeStateHolder) {
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.GROUPS,
             lazyListState = lazyListStateFor(HomeDestination.Group),
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.GROUPS) }
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.Groups) }
         )
     }
 }
@@ -90,7 +105,7 @@ fun OneOnOneConversationsScreen(homeStateHolder: HomeStateHolder) {
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.ONE_ON_ONE,
             lazyListState = lazyListStateFor(HomeDestination.OneOnOne),
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.ONE_ON_ONE, domain = it) }
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.OneOnOne, domain = it) }
         )
     }
 }

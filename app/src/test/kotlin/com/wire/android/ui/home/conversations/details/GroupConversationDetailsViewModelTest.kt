@@ -444,7 +444,7 @@ class GroupConversationDetailsViewModelTest {
             title = details.conversation.name.orEmpty(),
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
-            conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
+            conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, false),
             selfRole = Conversation.Member.Role.Member,
             isTeamConversation = details.conversation.isTeamGroup(),
             isArchived = false,
@@ -683,7 +683,6 @@ class GroupConversationDetailsViewModelTest {
                 legalHoldStatus = Conversation.LegalHoldStatus.ENABLED
             ),
             hasOngoingCall = false,
-            isSelfUserCreator = false,
             isSelfUserMember = true,
             selfRole = Conversation.Member.Role.Member
         )

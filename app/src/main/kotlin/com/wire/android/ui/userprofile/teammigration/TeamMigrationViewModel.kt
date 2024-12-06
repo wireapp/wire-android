@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.userprofile.teammigration
 
-import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,7 +24,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,6 +62,10 @@ class TeamMigrationViewModel @Inject constructor(
         )
     }
 
+    fun setCurrentStep(step: Int) {
+        teamMigrationState = teamMigrationState.copy(currentStep = step)
+    }
+
     fun sendPersonalTeamCreationFlowCanceledEvent(
         modalLeaveClicked: Boolean? = null,
         modalContinueClicked: Boolean? = null
@@ -96,7 +99,6 @@ class TeamMigrationViewModel @Inject constructor(
             ).let { result ->
                 when (result) {
                     is MigrateFromPersonalToTeamResult.Success -> {
-                        teamMigrationState.teamNameTextState.setTextAndSelectAll(result.teamName)
                         onSuccess()
                     }
 
@@ -112,7 +114,7 @@ class TeamMigrationViewModel @Inject constructor(
         teamMigrationState = teamMigrationState.copy(migrationFailure = null)
     }
 
-    private fun onMigrationFailure(failure: CoreFailure) {
+    private fun onMigrationFailure(failure: MigrateFromPersonalToTeamFailure) {
         teamMigrationState = teamMigrationState.copy(migrationFailure = failure)
     }
 }

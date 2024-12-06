@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,13 +54,14 @@ fun WireItemLabel(
     contentDescription: String = text
 ) = Box(
     modifier = modifier
-        .border(width = 1.dp, color = MaterialTheme.wireColorScheme.divider, shape = shape)
+        .border(width = 1.dp, color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline, shape = shape)
         .padding(contentPadding)
-        .semantics(mergeDescendants = true) { this.contentDescription = contentDescription }
+        .semantics { this.contentDescription = contentDescription }
         .wrapContentWidth()
         .wrapContentHeight(),
 ) {
     Text(
+        modifier = Modifier.clearAndSetSemantics { },
         text = text,
         style = MaterialTheme.wireTypography.label02,
     )

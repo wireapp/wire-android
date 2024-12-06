@@ -108,6 +108,7 @@ android {
     }
 
     buildTypes {
+        
         getByName(BuildTypes.DEBUG) {
             isMinifyEnabled = false
             applicationIdSuffix = ".${BuildTypes.DEBUG}"

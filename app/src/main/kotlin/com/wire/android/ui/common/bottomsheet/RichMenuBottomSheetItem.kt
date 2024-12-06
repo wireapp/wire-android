@@ -96,7 +96,7 @@ fun SelectableMenuBottomSheetItem(
                     Text(
                         text = description,
                         style = MaterialTheme.wireTypography.body01,
-                        color = colorsScheme().labelText,
+                        color = colorsScheme().secondaryText,
                         modifier = Modifier
                             .weight(1f)
                             .padding(start = dimensions().spacing16x)
@@ -148,7 +148,7 @@ fun MenuItemSubLine(
 ) {
     Text(
         style = MaterialTheme.wireTypography.subline01,
-        color = MaterialTheme.wireColorScheme.labelText,
+        color = MaterialTheme.wireColorScheme.secondaryText,
         text = subLine,
         modifier = modifier.fillMaxWidth()
     )

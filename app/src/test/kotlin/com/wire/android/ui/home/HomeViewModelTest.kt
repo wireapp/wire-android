@@ -25,12 +25,12 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -135,13 +135,13 @@ class HomeViewModelTest {
         lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase
 
         @MockK
-        lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-        @MockK
         lateinit var shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 
         @MockK
         lateinit var analyticsManager: AnonymousAnalyticsManager
+
+        @MockK
+        lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
         private val viewModel by lazy {
             HomeViewModel(
@@ -151,19 +151,25 @@ class HomeViewModelTest {
                 getSelf = getSelf,
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
-                wireSessionImageLoader = wireSessionImageLoader,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser,
-                analyticsManager = analyticsManager
+                analyticsManager = analyticsManager,
+                canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam
             )
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withGetSelf(flowOf(TestUser.SELF_USER))
+            withCanMigrateFromPersonalToTeamReturning(true)
         }
 
         fun withGetSelf(result: Flow<SelfUser>) = apply {
             coEvery { getSelf.invoke() } returns result
+        }
+
+        private fun withCanMigrateFromPersonalToTeamReturning(result: Boolean) = apply {
+            coEvery { canMigrateFromPersonalToTeam.invoke() } returns result
+            coEvery { dataStore.isCreateTeamNoticeRead() } returns flowOf(false)
         }
 
         fun withLegalHoldStatus(result: Flow<LegalHoldStateForSelfUser>) = apply {

@@ -30,7 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.common.dimensions
@@ -48,7 +48,7 @@ fun ModalSheetHeaderItem(
         }
 
         is MenuModalSheetHeader.Visible -> {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = modifier.padding(
@@ -63,7 +63,7 @@ fun ModalSheetHeaderItem(
                     Text(
                         text = header.title,
                         style = MaterialTheme.wireTypography.title02,
-                        modifier = Modifier.semantics { contentDescription = header.title }
+                        modifier = Modifier.semantics { heading() }
                     )
                 }
                 if (header.includeDivider) {

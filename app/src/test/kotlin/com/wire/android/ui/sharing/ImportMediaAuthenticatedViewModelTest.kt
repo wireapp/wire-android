@@ -28,7 +28,6 @@ import com.wire.android.framework.TestConversationItem
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -87,9 +86,6 @@ class ImportMediaAuthenticatedViewModelTest {
         @MockK
         lateinit var observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase
 
-        @MockK
-        lateinit var wireSessionImageLoader: WireSessionImageLoader
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery {
@@ -109,7 +105,6 @@ class ImportMediaAuthenticatedViewModelTest {
             handleUriAsset = handleUriAssetUseCase,
             persistNewSelfDeletionTimerUseCase = persistNewSelfDeletionTimerUseCase,
             observeSelfDeletionSettingsForConversation = observeSelfDeletionSettingsForConversation,
-            wireSessionImageLoader = wireSessionImageLoader,
             dispatchers = dispatcherProvider,
         )
     }

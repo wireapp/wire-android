@@ -218,8 +218,7 @@ fun UserProfileInfo(
                 maxLines = 2,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.wireTypography.title02,
-                color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground
-                else MaterialTheme.wireColorScheme.labelText,
+                color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.secondaryText,
                 inlineContent = inlineContent
             )
 
@@ -239,7 +238,7 @@ fun UserProfileInfo(
                     style = MaterialTheme.wireTypography.body02,
                     maxLines = 2,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.wireColorScheme.labelText,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
                     modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = usernameDescription }
                 )
                 UserBadge(

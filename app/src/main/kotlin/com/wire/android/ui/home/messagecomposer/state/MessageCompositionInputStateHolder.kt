@@ -224,7 +224,7 @@ sealed class InputType {
     )
 
     @Composable
-    open fun backgroundColor(): Color = colorsScheme().messageComposerBackgroundColor
+    open fun backgroundColor(): Color = colorsScheme().surface
 
     @Composable
     open fun labelText(): String = stringResource(R.string.label_type_a_message)
@@ -234,6 +234,6 @@ sealed class InputType {
     class Editing(val isEditButtonEnabled: Boolean) : InputType() {
 
         @Composable
-        override fun backgroundColor(): Color = colorsScheme().messageComposerEditBackgroundColor
+        override fun backgroundColor(): Color = colorsScheme().primaryVariant
     }
 }

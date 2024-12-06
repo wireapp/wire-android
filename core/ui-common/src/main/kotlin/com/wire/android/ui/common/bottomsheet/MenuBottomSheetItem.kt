@@ -54,7 +54,7 @@ fun MenuBottomSheetItem(
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
-    itemProvidedColor: Color = MaterialTheme.colorScheme.secondary,
+    itemProvidedColor: Color = MaterialTheme.colorScheme.onSurface,
     onItemClick: () -> Unit = {},
     enabled: Boolean = true,
     onItemClickDescription: String? = null

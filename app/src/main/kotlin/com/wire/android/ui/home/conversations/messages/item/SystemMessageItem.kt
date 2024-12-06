@@ -109,7 +109,6 @@ fun SystemMessageItem(
                     text = annotatedString,
                     linkText = learnMoreLink?.let { stringResource(id = R.string.label_learn_more) },
                     textColor = MaterialTheme.wireColorScheme.secondaryText,
-                    linkColor = MaterialTheme.wireColorScheme.onBackground,
                     onLinkClick = { learnMoreLink?.let { CustomTabsHelper.launchUrl(context, it) } },
                     onTextLayout = {
                         centerOfFirstLine = if (it.lineCount == 0) 0f else ((it.getLineTop(0) + it.getLineBottom(0)) / 2)
@@ -236,7 +235,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.MemberJoined -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.MemberLeft -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.MissedCall -> arrayOf(author.asString(res).markdownBold())
-        is SystemMessage.RenamedConversation -> arrayOf(author.asString(res).markdownBold(), content.conversationName.markdownBold())
+        is SystemMessage.RenamedConversation -> arrayOf(author.asString(res).markdownBold(), conversationName.markdownBold())
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res).markdownBold())
         is SystemMessage.ConversationReceiptModeChanged -> arrayOf(
@@ -244,7 +243,7 @@ fun SystemMessage.annotatedString(
             receiptMode.asString(res).markdownBold()
         )
 
-        is SystemMessage.TeamMemberRemoved_Legacy -> arrayOf(content.userName)
+        is SystemMessage.TeamMemberRemoved_Legacy -> arrayOf(userName)
         is SystemMessage.Knock -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.HistoryLost -> arrayOf()
         is SystemMessage.MLSWrongEpochWarning -> arrayOf()
@@ -275,15 +274,15 @@ fun SystemMessage.annotatedString(
             arrayOf(memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res))
         } ?: arrayOf()
     }
-    val markdownString = when (stringResId) {
-        is LocalizedStringResource.PluralResource -> res.getQuantityString(
-            (stringResId as LocalizedStringResource.PluralResource).id,
-            (stringResId as LocalizedStringResource.PluralResource).quantity,
+    val markdownString = when (stringRes) {
+        is LocalizedStringResource.Plural -> res.getQuantityString(
+            (stringRes as LocalizedStringResource.Plural).id,
+            (stringRes as LocalizedStringResource.Plural).quantity,
             *markdownArgs
         )
 
-        is LocalizedStringResource.StringResource -> res.getString(
-            (stringResId as LocalizedStringResource.StringResource).id,
+        is LocalizedStringResource.String -> res.getString(
+            (stringRes as LocalizedStringResource.String).id,
             *markdownArgs
         )
     }
@@ -322,18 +321,7 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddMarkdownText(
         if (isMultipleUsersFailure) failedToAddAnnotatedText.append("\n\n")
         failedToAddAnnotatedText.append(
             markdownText(
-                when (stringResId) {
-                    is LocalizedStringResource.PluralResource -> res.getQuantityString(
-                        stringResId.id,
-                        stringResId.quantity,
-                        stringResId.formatArgs
-                    )
-
-                    is LocalizedStringResource.StringResource -> res.getString(
-                        stringResId.id,
-                        memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res)
-                    )
-                },
+                res.getString(stringRes.id, memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res)),
                 normalStyle,
                 boldStyle,
                 normalColor,

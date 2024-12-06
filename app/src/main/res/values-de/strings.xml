@@ -40,6 +40,7 @@
     <string name="label_membership_external">Extern</string>
     <string name="label_membership_service">Dienst</string>
     <string name="label_user_deleted">Gelöscht</string>
+    <string name="label_try_again">Erneut versuchen</string>
     <string name="label_message_sent_failure">Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
     <string name="label_message_edit_sent_failure">Bearbeitete Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
     <string name="label_message_sent_remotely_failure">Nachricht nicht gesendet, da das Backend %s nicht erreichbar ist.</string>
@@ -157,6 +158,7 @@
     <string name="content_description_add_participants_search_field">Personen nach Namen oder Benutzernamen suchen</string>
     <string name="content_description_add_participants_back_btn">Zurück zum Hinzufügen von Teilnehmern</string>
     <string name="content_description_home_profile_btn">Ihr Profil</string>
+    <string name="content_description_home_profile_btn_with_notification">Ihr Profil, ein ungelesener Hinweis.</string>
     <string name="content_description_open_label">Öffnen</string>
     <string name="content_description_join_call_label">Anruf annehmen</string>
     <string name="content_description_share_label">Teilen</string>
@@ -167,10 +169,14 @@
     <string name="content_description_toggle_setting_label">umschalten</string>
     <string name="content_description_edit_guests_option_back_btn">Zurück zu Unterhaltungsdetails</string>
     <string name="content_description_edit_self_delete_back_btn">Zurück zu Unterhaltungsdetails</string>
+    <string name="content_description_accept_or_ignore_connection_label">Anfrage akzeptieren oder ignorieren</string>
     <string name="content_description_open_user_profile_label">Profil öffnen</string>
     <string name="content_description_open_conversation_label">Unterhaltung öffnen</string>
     <string name="content_description_open_link_label">Link öffnen</string>
+    <string name="content_description_drop_down">Auswahlliste</string>
     <string name="content_description_open_notification_settings_label">Benachrichtigungseinstellungen öffnen</string>
+    <string name="content_description_new_conversation_close_btn">Ansicht neue Unterhaltung schließen</string>
+    <string name="content_description_new_group_conversation_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
     <string name="content_description_new_conversation_name_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
     <string name="content_description_new_conversation_options_heading">Unterhaltungsoptionen</string>
     <string name="content_description_new_conversation_options_back_btn">Zurück zur neuen Gruppenerstellung</string>
@@ -512,14 +518,13 @@
     <!-- User Profile -->
     <string name="user_profile_title">Benutzerprofil</string>
     <string name="user_profile_close_description">Benutzerprofil schließen</string>
-    <string name="user_profile_logout">Abmelden</string>
     <string name="user_profile_other_accs">Ihre anderen Benutzerkonten</string>
     <string name="user_profile_status_availability">Verfügbarkeit</string>
     <string name="user_profile_status_available">Verfügbar</string>
     <string name="user_profile_status_busy">Beschäftigt</string>
     <string name="user_profile_status_away">Abwesend</string>
     <string name="user_profile_status_none">Kein Status</string>
-    <string name="user_profile_new_account_text">Neues Team oder Benutzerkonto</string>
+    <string name="user_profile_new_account_text">Neues Team oder Konto</string>
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Geräte</string>
     <string name="user_profile_group_tab">Gruppe</string>
@@ -547,6 +552,7 @@
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Daten löschen?</string>
     <string name="dialog_logout_wipe_data_checkbox">Ihre persönlichen Daten und Unterhaltungen vollständig von diesem Gerät entfernen</string>
+    <string name="dialog_logout_wipe_data_cancel_description">Abmeldung abbrechen</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Ändern Sie Ihren Status zu Verfügbar</string>
     <string name="user_profile_change_status_dialog_available_text">Andere sehen den Status als Verfügbar. Benachrichtigungen über eingehende Anrufe und Nachrichten werden anhand der Einstellungen in jeder Unterhaltung angezeigt.</string>
@@ -560,6 +566,7 @@
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Benachrichtigungen</string>
     <string name="label_add_to_favourites">Zu Favoriten hinzufügen</string>
+    <string name="label_remove_from_favourites">Aus Favoriten entfernen</string>
     <string name="label_move_to_folder">In Ordner verschieben</string>
     <string name="label_move_to_archive">Ins Archiv verschieben</string>
     <string name="label_unarchive">Reaktivieren</string>
@@ -814,6 +821,11 @@
     <string name="dialog_archive_conversation_title">Unterhaltung archivieren?</string>
     <string name="dialog_archive_conversation_description">Diese Unterhaltung wird in Ihr Archiv verschoben. Sie erhalten weiterhin neue Nachrichten, Dateien und Anrufe, aber keine Benachrichtigungen. Sie können die Unterhaltung jederzeit reaktivieren.</string>
     <string name="dialog_archive_conversation_option">Archivieren</string>
+    <!-- Favorite -->
+    <string name="success_adding_to_favorite">\"%s\" wurde zu Favoriten hinzugefügt</string>
+    <string name="success_removing_from_favorite">“%s“ wurde aus Favoriten entfernt</string>
+    <string name="error_adding_to_favorite">“%s” konnte nicht zu Favoriten hinzugefügt werden</string>
+    <string name="error_removing_from_favorite">“%s” konnte nicht aus Favoriten entfernt werden</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Unterhaltung öffnen</string>
     <string name="label_start_conversation">Unterhaltung beginnen</string>
@@ -1440,6 +1452,12 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="personal_to_team_migration_step_label">Schritt %1$d von 4</string>
     <string name="personal_to_team_migration_back_to_wire_button">Zurück zu Wire</string>
     <string name="personal_to_team_migration_back_button_label">Zurück</string>
+    <string name="personal_to_team_migration_back_button_team_name_content_description">Zurück zur Team-Konto-Übersicht</string>
+    <string name="personal_to_team_migration_back_button_confirmation_content_description">Zurück zur Ansicht Team-Name</string>
+    <string name="personal_to_team_migration_close_team_account_content_description">Team-Konto-Übersicht schließen</string>
+    <string name="personal_to_team_migration_close_team_name_content_description">Ansicht Teamname schließen</string>
+    <string name="personal_to_team_migration_close_confirmation_content_description">Bestätigungsansicht schließen</string>
+    <string name="personal_to_team_migration_close_team_created_content_description">Ansicht Team erstellt schließen</string>
     <string name="personal_to_team_migration_team_plan_step">Team-Konto</string>
     <string name="personal_to_team_migration_team_plan_description">Übertragen Sie Ihr privates Benutzerkonto in ein Team-Konto, um besser zusammenzuarbeiten.</string>
     <string name="personal_to_team_migration_team_plan_admin_console_label">Admin-Konsole:</string>
@@ -1472,4 +1490,9 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_description">Wenn Sie jetzt aufhören, verlieren Sie Ihren Fortschritt und müssen die Team-Erstellung neu beginnen.</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Team-Erstellung fortsetzen</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Schließen ohne zu speichern</string>
+    <string name="personal_to_team_migration_error_title">Team nicht erstellt</string>
+    <string name="personal_to_team_migration_error_title_already_in_team">Bereits Teil eines Teams</string>
+    <string name="personal_to_team_migration_error_message_already_in_team">Sie haben ein Team mit dieser E-Mail-Adresse auf einem anderen Gerät erstellt oder sind einem Team beigetreten.</string>
+    <string name="personal_to_team_migration_error_message_slow_network">Wire konnte die Erstellung Ihres Teams aufgrund einer langsamen Internetverbindung nicht abschließen.</string>
+    <string name="personal_to_team_migration_error_message_unknown_error">Wire konnte die Erstellung Ihres Teams aufgrund eines unbekannten Fehlers nicht abschließen.</string>
 </resources>

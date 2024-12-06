@@ -123,27 +123,27 @@ private fun getTextFor(securityClassificationType: SecurityClassificationType): 
 @Composable
 private fun getBackgroundColorFor(securityClassificationType: SecurityClassificationType): Color {
     return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
-        colorsScheme().classifiedBannerBackgroundColor
+        colorsScheme().positiveVariant
     } else {
-        colorsScheme().unclassifiedBannerBackgroundColor
+        colorsScheme().error
     }
 }
 
 @Composable
 private fun getColorTextFor(securityClassificationType: SecurityClassificationType): Color {
     return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
-        colorsScheme().classifiedBannerForegroundColor
+        colorsScheme().onPositiveVariant
     } else {
-        colorsScheme().unclassifiedBannerForegroundColor
+        colorsScheme().onError
     }
 }
 
 @Composable
 private fun getDividerColorFor(securityClassificationType: SecurityClassificationType): Color {
     return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
-        colorsScheme().classifiedBannerForegroundColor
+        colorsScheme().onPositiveVariant
     } else {
-        colorsScheme().unclassifiedBannerBackgroundColor
+        colorsScheme().onError
     }
 }
 

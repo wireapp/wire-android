@@ -39,7 +39,6 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
@@ -54,6 +53,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -84,12 +84,12 @@ class SelfUserProfileViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
+    private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val dispatchers: DispatcherProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     private val otherAccountMapper: OtherAccountMapper,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
@@ -109,11 +109,17 @@ class SelfUserProfileViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             fetchSelfUser()
+            checkIfUserAbleToMigrateToTeamAccount()
             observeEstablishedCall()
             fetchIsReadOnlyAccount()
             observeLegalHoldStatus()
             markCreateTeamNoticeAsRead()
         }
+    }
+
+    private suspend fun checkIfUserAbleToMigrateToTeamAccount() {
+        val isAbleToMigrateToTeamAccount = canMigrateFromPersonalToTeam() && userProfileState.teamName.isNullOrBlank()
+        userProfileState = userProfileState.copy(isAbleToMigrateToTeamAccount = isAbleToMigrateToTeamAccount)
     }
 
     private suspend fun fetchIsReadOnlyAccount() {
@@ -155,7 +161,7 @@ class SelfUserProfileViewModel @Inject constructor(
                 Pair(
                     selfUser,
                     list.filter { it.first.id != selfUser.id }
-                        .map { (selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
+                        .map { (selfUser, _) -> otherAccountMapper.toOtherAccount(selfUser) }
                 )
             }
                 .distinctUntilChanged()
@@ -212,7 +218,7 @@ class SelfUserProfileViewModel @Inject constructor(
             showLoadingAvatar(true)
             try {
                 userProfileState = userProfileState.copy(
-                    avatarAsset = UserAvatarAsset(wireSessionImageLoader, avatarAssetId)
+                    avatarAsset = UserAvatarAsset(avatarAssetId)
                 )
                 // Update avatar asset id on user data store
                 // TODO: obtain the asset id through a useCase once we also store assets ids

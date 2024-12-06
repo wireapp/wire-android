@@ -52,7 +52,7 @@ fun GeneratePasswordButton(
                 modifier = Modifier.padding(end = dimensions().corner4x),
                 painter = painterResource(id = R.drawable.ic_shield_holo),
                 contentDescription = null,
-                tint = colorsScheme().labelText
+                tint = colorsScheme().onSecondaryButtonEnabled
             )
         },
         leadingIconAlignment = IconAlignment.Center,

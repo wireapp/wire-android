@@ -40,6 +40,7 @@ sealed class HomeDestination(
     @DrawableRes val icon: Int,
     val isSearchable: Boolean = false,
     val withNewConversationFab: Boolean = false,
+    val withUserAvatar: Boolean = true,
     val direction: Direction
 ) {
     data object Conversations : HomeDestination(
@@ -88,6 +89,7 @@ sealed class HomeDestination(
     data object Settings : HomeDestination(
         title = UIText.StringResource(R.string.settings_screen_title),
         icon = R.drawable.ic_settings,
+        withUserAvatar = false,
         direction = SettingsScreenDestination
     )
 

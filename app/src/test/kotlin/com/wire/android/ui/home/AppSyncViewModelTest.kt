@@ -21,6 +21,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
+import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -40,6 +41,7 @@ class AppSyncViewModelTest {
             withObserveCertificateRevocationForSelfClient()
             withFeatureFlagsSyncWorker()
             withSyncCertificateRevocationListUseCase()
+            withUpdateApiVersions()
         }
 
         viewModel.startSyncingAppConfig()
@@ -48,6 +50,7 @@ class AppSyncViewModelTest {
         coVerify { arrangement.observeCertificateRevocationForSelfClient.invoke() }
         coVerify { arrangement.syncCertificateRevocationListUseCase.invoke() }
         coVerify { arrangement.featureFlagsSyncWorker.execute() }
+        coVerify { arrangement.updateApiVersions() }
     }
 
     @Test
@@ -56,6 +59,7 @@ class AppSyncViewModelTest {
             withObserveCertificateRevocationForSelfClient(1000)
             withFeatureFlagsSyncWorker(1000)
             withSyncCertificateRevocationListUseCase(1000)
+            withUpdateApiVersions(1000)
         }
 
         viewModel.startSyncingAppConfig()
@@ -66,6 +70,7 @@ class AppSyncViewModelTest {
         coVerify(exactly = 1) { arrangement.observeCertificateRevocationForSelfClient.invoke() }
         coVerify(exactly = 1) { arrangement.syncCertificateRevocationListUseCase.invoke() }
         coVerify(exactly = 1) { arrangement.featureFlagsSyncWorker.execute() }
+        coVerify(exactly = 1) { arrangement.updateApiVersions() }
     }
 
     private class Arrangement {
@@ -79,6 +84,9 @@ class AppSyncViewModelTest {
         @MockK
         lateinit var featureFlagsSyncWorker: FeatureFlagsSyncWorker
 
+        @MockK
+        lateinit var updateApiVersions: UpdateApiVersionsUseCase
+
         init {
             MockKAnnotations.init(this)
         }
@@ -86,7 +94,8 @@ class AppSyncViewModelTest {
         private val viewModel = AppSyncViewModel(
             syncCertificateRevocationListUseCase,
             observeCertificateRevocationForSelfClient,
-            featureFlagsSyncWorker
+            featureFlagsSyncWorker,
+            updateApiVersions
         )
 
         @OptIn(InternalCoroutinesApi::class)
@@ -104,6 +113,12 @@ class AppSyncViewModelTest {
 
         fun withFeatureFlagsSyncWorker(delayMs: Long = 0) {
             coEvery { featureFlagsSyncWorker.execute() } coAnswers {
+                delay(delayMs)
+            }
+        }
+
+        fun withUpdateApiVersions(delayMs: Long = 0) {
+            coEvery { updateApiVersions() } coAnswers {
                 delay(delayMs)
             }
         }

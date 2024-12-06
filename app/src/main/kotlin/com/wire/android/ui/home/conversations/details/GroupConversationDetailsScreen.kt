@@ -94,6 +94,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
+import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
 import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
@@ -246,8 +247,10 @@ fun GroupConversationDetailsScreen(
         onConversationMediaClick = onConversationMediaClick,
         isAbandonedOneOnOneConversation = viewModel.conversationSheetContent?.isAbandonedOneOnOneConversation(
             viewModel.groupParticipantsState.data.allCount
-        ) ?: false
-
+        ) ?: false,
+        onMoveToFolder = {
+            navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
+        }
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -290,6 +293,7 @@ private fun GroupConversationDetailsContent(
     isAbandonedOneOnOneConversation: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
+    onMoveToFolder: (currentFolderId: String?) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
@@ -473,7 +477,9 @@ private fun GroupConversationDetailsContent(
                     }
                 },
                 changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
-                moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
+                moveConversationToFolder = {
+
+                },
                 updateConversationArchiveStatus = {
                     // Only show the confirmation dialog if the conversation is not archived
                     if (!it.isArchived) {

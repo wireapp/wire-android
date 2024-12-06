@@ -37,7 +37,8 @@ fun OtherUserProfileBottomSheetContent(
     unblockUser: (UnblockUserDialogState) -> Unit,
     changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
     closeBottomSheet: () -> Unit,
-    getBottomSheetVisibility: () -> Boolean
+    getBottomSheetVisibility: () -> Boolean,
+    onMoveToFolder: (String?) -> Unit
 ) {
     when (val state = bottomSheetState.bottomSheetContentState) {
         is BottomSheetContent.Conversation -> {
@@ -53,7 +54,7 @@ fun OtherUserProfileBottomSheetContent(
                     )
                 },
                 changeFavoriteState = changeFavoriteState,
-                moveConversationToFolder = eventsHandler::onMoveConversationToFolder,
+                moveConversationToFolder = onMoveToFolder,
                 updateConversationArchiveStatus = {
                     if (!it.isArchived) {
                         archivingStatusState(it)

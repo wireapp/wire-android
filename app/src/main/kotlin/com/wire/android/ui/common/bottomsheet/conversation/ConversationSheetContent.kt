@@ -38,7 +38,7 @@ fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
     onMutingConversationStatusChange: () -> Unit,
     changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
-    moveConversationToFolder: () -> Unit,
+    moveConversationToFolder: (currentFolderId: String?) -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
@@ -55,8 +55,7 @@ fun ConversationSheetContent(
             ConversationMainSheetContent(
                 conversationSheetContent = conversationSheetState.conversationSheetContent!!,
                 changeFavoriteState = changeFavoriteState,
-// TODO(profile): enable when implemented
-//                moveConversationToFolder = moveConversationToFolder,
+                moveConversationToFolder = moveConversationToFolder,
                 updateConversationArchiveStatus = updateConversationArchiveStatus,
                 clearConversationContent = clearConversationContent,
                 blockUserClick = blockUser,

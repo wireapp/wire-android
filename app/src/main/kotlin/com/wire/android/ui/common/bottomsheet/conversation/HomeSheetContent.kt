@@ -59,8 +59,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
     changeFavoriteState: (dialogState: GroupDialogState, addToFavorite: Boolean) -> Unit,
-    // TODO(profile): enable when implemented
-    // moveConversationToFolder: () -> Unit,
+    moveConversationToFolder: (currentFolder: String?) -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
@@ -141,19 +140,21 @@ internal fun ConversationMainSheetContent(
                     }
                 }
             }
-// TODO(profile): enable when implemented
-//            add {
-//                MenuBottomSheetItem(
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_folder,
-//                            contentDescription = stringResource(R.string.content_description_move_to_folder),
-//                        )
-//                    },
-//                    title = stringResource(R.string.label_move_to_folder),
-//                    onItemClick = moveConversationToFolder
-//                )
-//            }
+            add {
+                MenuBottomSheetItem(
+                    leading = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_folder,
+                            contentDescription = null,
+                        )
+                    },
+                    title = stringResource(R.string.label_move_to_folder),
+                    onItemClick = {
+                        // TODO KBX - add current folder id
+                        moveConversationToFolder(null)
+                    }
+                )
+            }
             add {
                 MenuBottomSheetItem(
                     leading = {

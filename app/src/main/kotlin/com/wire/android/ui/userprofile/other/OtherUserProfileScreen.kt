@@ -93,6 +93,7 @@ import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
+import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.model.DialogState
@@ -200,6 +201,9 @@ fun OtherUserProfileScreen(
         navigateBack = navigator::navigateBack,
         onConversationMediaClick = onConversationMediaClick,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
+        onMoveToFolder = {
+            navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
+        }
     )
 
     LaunchedEffect(Unit) {
@@ -244,6 +248,7 @@ fun OtherProfileScreenContent(
     onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {},
     onLegalHoldLearnMoreClick: () -> Unit = {},
+    onMoveToFolder: (String?) -> Unit = {},
     changeConversationFavoriteViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
             ChangeConversationFavoriteStateArgs
@@ -372,6 +377,7 @@ fun OtherProfileScreenContent(
                 archivingStatusState = archivingConversationDialogState::show,
                 changeFavoriteState = changeConversationFavoriteViewModel::changeFavoriteState,
                 closeBottomSheet = closeBottomSheet,
+                onMoveToFolder = onMoveToFolder
             )
         }
     )

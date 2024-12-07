@@ -518,6 +518,7 @@
     <!-- User Profile -->
     <string name="user_profile_title">Benutzerprofil</string>
     <string name="user_profile_close_description">Benutzerprofil schließen</string>
+    <string name="user_profile_logout">Abmelden</string>
     <string name="user_profile_other_accs">Ihre anderen Benutzerkonten</string>
     <string name="user_profile_status_availability">Verfügbarkeit</string>
     <string name="user_profile_status_available">Verfügbar</string>

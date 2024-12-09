@@ -250,6 +250,11 @@ class ConversationAudioMessagePlayerTest {
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
                 }
                 awaitAndAssertStateUpdate { state ->
+                    val currentState = state[firstAudioMessageId]
+                    assert(currentState != null)
+                    assertEquals(currentState!!.wavesMask, Arrangement.WAVES_MASK)
+                }
+                awaitAndAssertStateUpdate { state ->
                     val currentState = state[secondAudioMessageId]
                     assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.Playing)
@@ -341,6 +346,11 @@ class ConversationAudioMessagePlayerTest {
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
                 }
                 awaitAndAssertStateUpdate { state ->
+                    val currentState = state[firstAudioMessageId]
+                    assert(currentState != null)
+                    assertEquals(currentState!!.wavesMask, Arrangement.WAVES_MASK)
+                }
+                awaitAndAssertStateUpdate { state ->
                     val currentState = state[secondAudioMessageId]
                     assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.Playing)
@@ -373,6 +383,11 @@ class ConversationAudioMessagePlayerTest {
                     val currentState = state[firstAudioMessageId]
                     assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
+                }
+                awaitAndAssertStateUpdate { state ->
+                    val currentState = state[firstAudioMessageId]
+                    assert(currentState != null)
+                    assertEquals(currentState!!.wavesMask, Arrangement.WAVES_MASK)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]

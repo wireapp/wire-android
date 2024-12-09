@@ -78,12 +78,12 @@ runs:
         capitalized_variant=$(echo "${{ inputs.build-variant }}" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
         echo "Capitalized Variant: $capitalized_variant"
         mapping_full_path="app/build/outputs/mapping/${{ inputs.build-flavour }}$capitalized_variant/mapping.txt"
-        new_mapping_file_name="mapping-$version_name-$version_code.txt"
+        new_mapping_file_name="mapping-$capitalized_variant-$version_name-$version_code.txt"
         mv "$mapping_full_path" "$new_mapping_file_name"
         # Set the new mapping file name as an environment variable
         echo "new_mapping_file_name=$new_mapping_file_name" >> $GITHUB_ENV
     - name: Upload mapping file to S3 from branch
-      if: github.event.pull_request.number != ''
+      if: github.event.pull_request.number != '' && ${{ inputs.build-variant }} != 'debug'
       id: upload-mapping-from-branch
       uses: hkusu/s3-upload-action@v2.1.0
       with:

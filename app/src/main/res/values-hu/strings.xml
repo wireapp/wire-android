@@ -40,6 +40,7 @@
     <string name="label_membership_external">Külső</string>
     <string name="label_membership_service">Szolgáltatás</string>
     <string name="label_user_deleted">Törölve</string>
+    <string name="label_try_again">Próbálja újra</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Az üzenetet nem sikerült elküldeni kapcsolati problémák miatt.</string>
     <string name="label_message_sent_remotely_failure">Az üzenetet nem sikerült elküldeni, mivel a(z) %s kiszolgálót nem sikerült elérni.</string>
@@ -187,13 +188,14 @@
     <string name="content_description_user_profile_copy_phone_btn">Telefonszám másolása</string>
     <string name="content_description_user_profile_copy_email_btn">E-mail-cím másolása</string>
     <string name="content_description_user_profile_open_device_btn">eszköz részleteinek megnyitása</string>
-    <string name="content_description_connection_request_close_btn">Kapcsolatkérelem nézet bezárása</string>
+    <string name="content_description_connection_request_close_btn">Kapcsolatkérelem lap bezárása</string>
     <string name="content_description_search_text_in_conversation_btn">Szöveges üzenetek keresése</string>
     <string name="content_description_see_media_in_conversation_btn">Képek és fájlok áttekintésének megnyitása</string>
-    <string name="content_description_add_participants_close">Résztvevők hozzáadása nézet bezárása</string>
+    <string name="content_description_add_participants_close">Résztvevők hozzáadása lap bezárása</string>
     <string name="content_description_add_participants_search_field">Személyek keresése név vagy felhasználónév alapján</string>
-    <string name="content_description_add_participants_back_btn">Vissza a résztvevők hozzáadása nézethez</string>
+    <string name="content_description_add_participants_back_btn">Vissza a résztvevők hozzáadása lapra</string>
     <string name="content_description_home_profile_btn">Az Ön profilja</string>
+    <string name="content_description_home_profile_btn_with_notification">Saját profil, egy olvasatlan értesítés.</string>
     <string name="content_description_open_label">megnyitás</string>
     <string name="content_description_join_call_label">híváshoz csatlakozás</string>
     <string name="content_description_share_label">megosztás</string>
@@ -206,15 +208,19 @@
     <string name="content_description_toggle_setting_label">beállításkapcsoló</string>
     <string name="content_description_edit_guests_option_back_btn">Vissza a beszélgetés részleteihez</string>
     <string name="content_description_edit_self_delete_back_btn">Vissza a beszélgetés részleteihez</string>
+    <string name="content_description_accept_or_ignore_connection_label">a kérelem elfogadása vagy elutasítása</string>
     <string name="content_description_open_user_profile_label">profil megnyitása</string>
     <string name="content_description_open_conversation_label">beszélgetés megnyitása</string>
     <string name="content_description_open_service_label">szolgáltatás megnyitása</string>
     <string name="content_description_change_it_label">megváltoztatás</string>
     <string name="content_description_open_link_label">hivatkozás megnyitása</string>
     <string name="content_description_alert">Riasztás</string>
+    <string name="content_description_drop_down">Lenyitás</string>
     <string name="content_description_close_dropdown">lenyíló elem összecsukása</string>
     <string name="content_description_open_notification_settings_label">értesítési beállítások megnyitása</string>
-    <string name="content_description_new_conversation_name_back_btn">Vissza az új beszélgetés nézethez</string>
+    <string name="content_description_new_conversation_close_btn">Az új beszélgetés lap bezárása</string>
+    <string name="content_description_new_group_conversation_back_btn">Vissza az új beszélgetés lapra</string>
+    <string name="content_description_new_conversation_name_back_btn">Vissza az új beszélgetés lapra</string>
     <string name="content_description_new_conversation_name_field">Adja meg a csoport nevét</string>
     <string name="content_description_new_conversation_options_heading">Beszélgetés beállításai</string>
     <string name="content_description_new_conversation_options_back_btn">Vissza az új csoport létrehozásához</string>
@@ -228,8 +234,8 @@
     <string name="content_description_self_profile_change_status">elérhetőségi állapot megváltoztatása</string>
     <string name="content_description_self_profile_new_account_btn">Hozzon létre új csapatot vagy személyes fiókot vagy jelentkezzen be</string>
     <string name="content_description_change_picture_back_btn">Vissza a saját profil áttekintéséhez</string>
-    <string name="content_description_welcome_screen_close_btn">Az új csapat létrehozása és bejelentkezés nézet bezárása</string>
-    <string name="content_description_login_back_btn">Vissza az új csapat létrehozása és bejelentkezés nézethez</string>
+    <string name="content_description_welcome_screen_close_btn">Az új csapat létrehozása és bejelentkezés lap bezárása</string>
+    <string name="content_description_login_back_btn">Vissza az új csapat létrehozása és bejelentkezés lapra</string>
     <string name="content_description_login_email_field">adja meg e-mail-címét vagy felhasználónevét</string>
     <string name="content_description_login_password_field">adja meg jelszavát</string>
     <string name="content_description_login_sso_code_field">adja meg SSO-kódját vagy Wire-e-mailjét</string>
@@ -333,6 +339,8 @@
     <string name="login_sso_code_label">SSO KÓD VAGY E-MAIL</string>
     <string name="login_error_invalid_sso_code">Kérjük, adjon meg egy érvényes SSO kódot.</string>
     <string name="login_error_invalid_sso_code_format">Érvényes SSO kód megadása</string>
+    <string name="login_error_request_2fa_with_handle_title">Bejelentkezés e-mail-címmel</string>
+    <string name="login_error_request_2fa_with_handle_message">Nem adhatja meg felhasználónevét, mivel kétfaktoros azonosítás van érvényben. Az e-mail-címével tud bejelentkezni.</string>
     <string name="deleted_user_error_title">Törölt fiók</string>
     <string name="deleted_user_error_message">Ki lett jelentkeztetve, mivel a fiókja
         törölve lett.
@@ -558,12 +566,14 @@
     <!-- User Profile -->
     <string name="user_profile_title">Felhasználói profil</string>
     <string name="user_profile_close_description">A felhasználói profil bezárása</string>
+    <string name="user_profile_logout">Kijelentkezés</string>
     <string name="user_profile_other_accs">További fiókjai</string>
     <string name="user_profile_status_availability">Elérhetőség</string>
     <string name="user_profile_status_available">Elérhető</string>
     <string name="user_profile_status_busy">Elfoglalt</string>
     <string name="user_profile_status_away">Nincs a gépnél</string>
     <string name="user_profile_status_none">Semmi</string>
+    <string name="user_profile_new_account_text">Új csapat, vagy fiók hozzáadása</string>
     <string name="user_profile_details_tab">Részletek</string>
     <string name="user_profile_devices_tab">Eszközök</string>
     <string name="user_profile_group_tab">Csoport</string>
@@ -591,6 +601,7 @@
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Adatok törlése?</string>
     <string name="dialog_logout_wipe_data_checkbox">Törölje az összes személyes adatát és beszélgetését erről az eszközről</string>
+    <string name="dialog_logout_wipe_data_cancel_description">Kijelentkezés leállítása</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Elérhető állapot beállítása</string>
     <string name="user_profile_change_status_dialog_available_text">Mások számára Elérhető állapotúként jelenik meg. Az egyes beszélgetésekben az Értesítések beállításnak megfelelően értesítéseket kap a bejövő hívásokról és az üzenetekről.</string>
@@ -604,6 +615,7 @@
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Értesítések</string>
     <string name="label_add_to_favourites">Hozzáadás a kedvencekhez</string>
+    <string name="label_remove_from_favourites">Eltávolítás a Kedvencek közül</string>
     <string name="label_move_to_folder">Áthelyezés mappába</string>
     <string name="label_move_to_archive">Áthelyezés az archívumba</string>
     <string name="label_unarchive">Elővétel az archívumból</string>
@@ -873,6 +885,10 @@
     <string name="dialog_archive_conversation_description">Ez a beszélgetés az archívumba kerül. Továbbra is megkapja az új üzeneteket, fájlokat és hívásokat, azonban nem lesznek értesítések. Az archívumból bármikor előveheti a beszélgetést.</string>
     <string name="dialog_archive_conversation_option">Archiválás</string>
     <!-- Favorite -->
+    <string name="success_adding_to_favorite">\"%s\" a Kedvencek közé került</string>
+    <string name="success_removing_from_favorite">\"%s\" eltávolítva a Kedvencek közül</string>
+    <string name="error_adding_to_favorite">\"%s\"-t nem sikerült a Kedvencek közé tenni</string>
+    <string name="error_removing_from_favorite">\"%s\"-t nem lehetett eltávolítani a Kedvencek közül</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Nyitott beszélgetés</string>
     <string name="label_start_conversation">Beszélgetés indítása</string>
@@ -956,6 +972,8 @@
     <string name="connection_label_ignore">Elutasítás</string>
     <string name="connection_label_send_unverified_warning">Győződjön meg %s személyazonosságáról mielőtt csatlakozik.</string>
     <string name="connection_label_received_unverified_warning">Ellenőrizze a személyazonosságot mielőtt elfogadja a kapcsolódási kérelmet.</string>
+    <string name="connection_label_user_not_found_warning_title">A Wire nem találja ezt a személyt</string>
+    <string name="connection_label_user_not_found_warning_description">Lehet, hogy nincsen rá engedélye ezzel a fiókkal, vagy a személy nincs fent a Wire-ön.</string>
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Nem sikerült elindítani a beszélgetést</string>
     <string name="missing_keypackage_dialog_body">Nem tud beszélgetést kezdeni %1$s felhasználóval. %1$s részéről szükséges, hogy előbb megnyissa a Wire-t vagy bejelentkezzen. Próbálja újra később.</string>
@@ -1525,7 +1543,13 @@ Kérjük, próbálja meg újra.</string>
     <string name="personal_to_team_migration_step_label">%1$d. lépés a 4-ből</string>
     <string name="personal_to_team_migration_back_to_wire_button">Vissza a Wire-höz</string>
     <string name="personal_to_team_migration_back_button_label">Vissza</string>
+    <string name="personal_to_team_migration_back_button_team_name_content_description">Visszalépés a csapatfiók áttekintéséhez</string>
+    <string name="personal_to_team_migration_back_button_confirmation_content_description">Visszalépés a csapatnév lapra</string>
     <string name="personal_to_team_migration_close_icon_content_description">Csapattá átalakulás folyamatának bezárása</string>
+    <string name="personal_to_team_migration_close_team_account_content_description">Csapatfiók-áttekintés bezárása</string>
+    <string name="personal_to_team_migration_close_team_name_content_description">Csapatnév lap bezárása</string>
+    <string name="personal_to_team_migration_close_confirmation_content_description">Megerősítés lap bezárása</string>
+    <string name="personal_to_team_migration_close_team_created_content_description">Elkészült csapat lap bezárása</string>
     <string name="personal_to_team_migration_team_plan_step">Csapatfiók</string>
     <string name="personal_to_team_migration_team_plan_description">Alakítsa át személyes fiókját csapatfiókká, hogy még többet hozhasson ki együttműködéséből.</string>
     <string name="personal_to_team_migration_team_plan_admin_console_label">Adminisztrátori konzol:</string>
@@ -1558,4 +1582,9 @@ Kérjük, próbálja meg újra.</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_description">Ha kilép, az eddigi lépések eredményei elvesznek, és elölről kell kezdenie a csapat létrehozását.</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Csapat létrehozásának folytatása</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Kilépés mentés nélkül</string>
+    <string name="personal_to_team_migration_error_title">A csapat nem jött létre</string>
+    <string name="personal_to_team_migration_error_title_already_in_team">Már tagja egy csapatnak</string>
+    <string name="personal_to_team_migration_error_message_already_in_team">Már létrehozott egy csapatot vagy csatlakozott egyhez ezzel az e-mail-címmel egy másik eszközön.</string>
+    <string name="personal_to_team_migration_error_message_slow_network">A Wire nem tudta véghez vinni a csapat létrehozását a lassú internetkapcsolat miatt.</string>
+    <string name="personal_to_team_migration_error_message_unknown_error">A Wire nem tudta véghez vinni a csapat létrehozását ismeretlen hiba miatt.</string>
 </resources>

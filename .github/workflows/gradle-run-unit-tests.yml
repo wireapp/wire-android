@@ -78,7 +78,7 @@ jobs:
           merge-multiple: true
 
       - name: Upload code coverage to codecov
-        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457
+        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: "app/build/reports/kover/report.xml"

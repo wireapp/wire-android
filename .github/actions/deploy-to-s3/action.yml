@@ -75,7 +75,7 @@ runs:
       run: |
         version_code=$(cat app/version.txt | grep 'VersionCode' | sed 's/VersionCode: //')
         version_name=$(cat app/version.txt | grep 'VersionName' | sed 's/VersionName: //')
-        capitalized_variant=$(echo "${{ inputs.build-variant }}" | awk '{print toupper($0)}')
+        capitalized_variant=$(echo "${{ inputs.build-variant }}" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
         echo "Capitalized Variant: $capitalized_variant"
         mapping_full_path="app/build/outputs/mapping/${{ inputs.build-flavour }}$capitalized_variant/mapping.txt"
         new_mapping_file_name="mapping-$version_name-$version_code.txt"

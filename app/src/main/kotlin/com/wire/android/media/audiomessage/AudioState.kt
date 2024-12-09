@@ -47,6 +47,7 @@ data class AudioState(
     }
 }
 
+@Suppress("MagicNumber")
 enum class AudioSpeed(val value: Float, @StringRes val titleRes: Int) {
     NORMAL(1f, R.string.audio_speed_1),
     FAST(1.5f, R.string.audio_speed_1_5),
@@ -60,9 +61,9 @@ enum class AudioSpeed(val value: Float, @StringRes val titleRes: Int) {
 
     companion object {
         fun fromFloat(speed: Float): AudioSpeed = when {
-            (speed > 1.6) -> MAX
-            (speed > 1) -> FAST
-            else -> NORMAL
+            (speed < FAST.value) -> NORMAL
+            (speed < MAX.value) -> FAST
+            else -> MAX
         }
     }
 }

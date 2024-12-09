@@ -54,7 +54,9 @@ class ConversationAudioMessagePlayerProvider
 
     @Synchronized
     fun provide(): ConversationAudioMessagePlayer {
-        val player = player ?: ConversationAudioMessagePlayer(context, audioMediaPlayer, wavesMaskHelper, coreLogic).also { player = it }
+        val player = player ?: ConversationAudioMessagePlayer(context, audioMediaPlayer, wavesMaskHelper, coreLogic).also {
+            player = it
+        }
         usageCount++
 
         return player
@@ -255,16 +257,10 @@ internal constructor(
                 if (currentAccountResult is CurrentSessionResult.Failure) return@launch
 
                 audioMessageStateUpdate.emit(
-                    AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
-                        messageId,
-                        AudioMediaPlayingState.Fetching
-                    )
+                    AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(messageId, AudioMediaPlayingState.Fetching)
                 )
 
-                val assetMessage = coreLogic
-                    .getSessionScope((currentAccountResult as CurrentSessionResult.Success).accountInfo.userId)
-                    .messages
-                    .getAssetMessage(conversationId, messageId)
+                val assetMessage = getAssetMessage(currentAccountResult, conversationId, messageId)
 
                 when (val result = assetMessage.await()) {
                     is MessageAssetResult.Success -> {
@@ -278,10 +274,7 @@ internal constructor(
                         val isFetchedAudioCurrentlyQueuedToPlay = messageId == currentAudioMessageId
 
                         if (isFetchedAudioCurrentlyQueuedToPlay) {
-                            audioMediaPlayer.setDataSource(
-                                context,
-                                Uri.parse(result.decodedAssetPath.toString())
-                            )
+                            audioMediaPlayer.setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
                             audioMediaPlayer.prepare()
 
                             audioMessageStateUpdate.emit(
@@ -298,27 +291,18 @@ internal constructor(
                             updateSpeedFlow()
 
                             audioMessageStateUpdate.emit(
-                                AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
-                                    messageId,
-                                    AudioMediaPlayingState.Playing
-                                )
+                                AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(messageId, AudioMediaPlayingState.Playing)
                             )
 
                             audioMessageStateUpdate.emit(
-                                AudioMediaPlayerStateUpdate.TotalTimeUpdate(
-                                    messageId,
-                                    audioMediaPlayer.duration
-                                )
+                                AudioMediaPlayerStateUpdate.TotalTimeUpdate(messageId, audioMediaPlayer.duration)
                             )
                         }
                     }
 
                     is MessageAssetResult.Failure -> {
                         audioMessageStateUpdate.emit(
-                            AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
-                                messageId,
-                                AudioMediaPlayingState.Failed
-                            )
+                            AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(messageId, AudioMediaPlayingState.Failed)
                         )
                     }
                 }
@@ -359,6 +343,15 @@ internal constructor(
             )
         }
     }
+
+    private suspend fun getAssetMessage(
+        currentAccountResult: CurrentSessionResult,
+        conversationId: ConversationId,
+        messageId: String
+    ) = coreLogic
+        .getSessionScope((currentAccountResult as CurrentSessionResult.Success).accountInfo.userId)
+        .messages
+        .getAssetMessage(conversationId, messageId)
 
     private suspend fun resumeAudio(messageId: String) {
         audioMediaPlayer.start()

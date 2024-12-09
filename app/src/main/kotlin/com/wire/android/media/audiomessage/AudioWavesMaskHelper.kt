@@ -51,7 +51,7 @@ class AudioWavesMaskHelper @Inject constructor(
 
     private fun List<Int>.averageWavesMask(): List<Double> {
         val wavesSize = size
-        val sectionSize = (wavesSize.toFloat() / 75).roundToInt()
+        val sectionSize = (wavesSize.toFloat() / WAVES_AMOUNT).roundToInt()
 
         if (wavesSize < WAVES_AMOUNT || sectionSize == 1) return map { it.toDouble() }
 

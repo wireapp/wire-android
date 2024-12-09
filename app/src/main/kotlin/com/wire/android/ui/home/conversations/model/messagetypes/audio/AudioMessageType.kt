@@ -361,13 +361,8 @@ private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): 
         else -> R.drawable.ic_play to R.string.content_description_play_audio
     }
 
-private fun getDefaultWaveMask(): List<Int> {
-    val result = mutableListOf<Int>()
-    for (i in 0..75) {
-        result.add(1)
-    }
-    return result
-}
+@Suppress("MagicNumber")
+private fun getDefaultWaveMask(): List<Int> = List(75) { 1 }
 
 // helper wrapper class to format the time that is left
 private data class AudioDuration(val totalDurationInMs: AudioState.TotalTimeInMs, val currentPositionInMs: Int) {

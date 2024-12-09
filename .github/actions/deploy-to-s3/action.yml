@@ -69,7 +69,7 @@ runs:
       shell: bash
       run: ./gradlew generateVersionFile
     - name: Rename mapping file
-      if: github.event.pull_request.number != ''
+      if: github.event.pull_request.number != '' && ${{ inputs.build-variant }} != 'debug'
       shell: bash
       id: mapping
       run: |

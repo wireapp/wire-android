@@ -44,6 +44,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
+    <string name="label_try_again">Try Again</string>
     <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
@@ -368,6 +369,8 @@
     <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
     <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
+    <string name="login_error_request_2fa_with_handle_title">Login with email</string>
+    <string name="login_error_request_2fa_with_handle_message">You can\'t use your username as two-factor authentication is activated. Please log in with your email instead.</string>
     <string name="deleted_user_error_title">Deleted account</string>
     <string name="deleted_user_error_message">You were logged out because your account was
         deleted.
@@ -600,7 +603,7 @@
     <string name="user_profile_status_busy">Busy</string>
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>
-    <string name="user_profile_new_account_text">New Team or Account</string>
+    <string name="user_profile_new_account_text">New Team or Add Account</string>
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Devices</string>
     <string name="user_profile_group_tab">Group</string>
@@ -1631,5 +1634,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_description">When you leave now, you lose your progress and need to restart the team creation.</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Continue Team Creation</string>
     <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Leave Without Saving</string>
-
+    <string name="personal_to_team_migration_error_title">Team not created</string>
+    <string name="personal_to_team_migration_error_title_already_in_team">Already part of a team</string>
+    <string name="personal_to_team_migration_error_message_already_in_team">You\'ve created or joined a team with this email address on another device.</string>
+    <string name="personal_to_team_migration_error_message_slow_network">Wire could not complete your team creation due to a slow internet connection.</string>
+    <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
 </resources>

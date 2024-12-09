@@ -307,7 +307,8 @@ class MessageCompositionHolder(
             it.copy(
                 quotedMessageId = null,
                 quotedMessage = null,
-                editMessageId = null
+                editMessageId = null,
+                selectedMentions = emptyList()
             )
         }
         onSaveDraft(messageComposition.value.toDraft(String.EMPTY))

@@ -337,4 +337,9 @@ class ConversationModule {
     @Provides
     fun provideRemoveConversationFromFavoritesUseCase(conversationScope: ConversationScope) =
         conversationScope.removeConversationFromFavorites
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveUserFoldersUseCase(conversationScope: ConversationScope) =
+        conversationScope.observeUserFolders
 }

@@ -27,6 +27,7 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
@@ -53,7 +54,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         fromArchive: Boolean = false,
         newActivitiesOnTop: Boolean = false,
         onlyInteractionEnabled: Boolean = false,
-        conversationFilter: ConversationFilter = ConversationFilter.ALL
+        conversationFilter: ConversationFilter = ConversationFilter.All
     ): Flow<PagingData<ConversationItem>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
@@ -62,9 +63,9 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             enablePlaceholders = true,
         )
         return when (conversationFilter) {
-            ConversationFilter.ALL,
-            ConversationFilter.GROUPS,
-            ConversationFilter.ONE_ON_ONE -> useCase(
+            ConversationFilter.All,
+            ConversationFilter.Groups,
+            ConversationFilter.OneOnOne -> useCase(
                 queryConfig = ConversationQueryConfig(
                     searchQuery = searchQuery,
                     fromArchive = fromArchive,
@@ -76,22 +77,18 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                 startingOffset = 0L,
             )
 
-            ConversationFilter.FAVORITES -> {
+            ConversationFilter.Favorites -> {
                 when (val result = getFavoriteFolderUseCase.invoke()) {
                     GetFavoriteFolderUseCase.Result.Failure -> flowOf(emptyList())
                     is GetFavoriteFolderUseCase.Result.Success ->
                         observeConversationsFromFromFolder(result.folder.id)
                 }
-                    .map {
-                        PagingData.from(
-                            it,
-                            sourceLoadStates = LoadStates(
-                                prepend = LoadState.NotLoading(true),
-                                append = LoadState.NotLoading(true),
-                                refresh = LoadState.NotLoading(true),
-                            )
-                        )
-                    }
+                    .map { staticPagingItems(it) }
+            }
+
+            is ConversationFilter.Folder -> {
+                observeConversationsFromFromFolder(conversationFilter.folderId)
+                    .map { staticPagingItems(it) }
             }
         }
             .map { pagingData ->
@@ -103,6 +100,17 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     )
                 }
             }.flowOn(dispatchers.io())
+    }
+
+    private fun staticPagingItems(conversations: List<ConversationDetailsWithEvents>): PagingData<ConversationDetailsWithEvents> {
+        return PagingData.from(
+            conversations,
+            sourceLoadStates = LoadStates(
+                prepend = LoadState.NotLoading(true),
+                append = LoadState.NotLoading(true),
+                refresh = LoadState.NotLoading(true),
+            )
+        )
     }
 
     private companion object {

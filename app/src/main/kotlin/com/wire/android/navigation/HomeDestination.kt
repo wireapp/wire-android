@@ -19,22 +19,24 @@
 package com.wire.android.navigation
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
+import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.ui.destinations.AllConversationsScreenDestination
 import com.wire.android.ui.destinations.ArchiveScreenDestination
 import com.wire.android.ui.destinations.FavoritesConversationsScreenDestination
+import com.wire.android.ui.destinations.FolderConversationsScreenDestination
 import com.wire.android.ui.destinations.GroupConversationsScreenDestination
 import com.wire.android.ui.destinations.OneOnOneConversationsScreenDestination
 import com.wire.android.ui.destinations.SettingsScreenDestination
 import com.wire.android.ui.destinations.VaultScreenDestination
 import com.wire.android.ui.destinations.WhatsNewScreenDestination
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @Suppress("LongParameterList")
 sealed class HomeDestination(
-    @StringRes val title: Int,
+    val title: UIText,
     @DrawableRes val icon: Int,
     val isSearchable: Boolean = false,
     val withNewConversationFab: Boolean = false,
@@ -42,7 +44,7 @@ sealed class HomeDestination(
     val direction: Direction
 ) {
     data object Conversations : HomeDestination(
-        title = R.string.conversations_screen_title,
+        title = UIText.StringResource(R.string.conversations_screen_title),
         icon = R.drawable.ic_conversation,
         isSearchable = true,
         withNewConversationFab = true,
@@ -50,15 +52,26 @@ sealed class HomeDestination(
     )
 
     data object Favorites : HomeDestination(
-        title = R.string.label_filter_favorites,
+        title = UIText.StringResource(R.string.label_filter_favorites),
         icon = R.drawable.ic_conversation,
         isSearchable = true,
         withNewConversationFab = true,
         direction = FavoritesConversationsScreenDestination
     )
 
+    data class Folder(
+        val folderId: String,
+        val folderName: String,
+    ) : HomeDestination(
+        title = UIText.DynamicString(folderName),
+        icon = R.drawable.ic_conversation,
+        isSearchable = true,
+        withNewConversationFab = true,
+        direction = FolderConversationsScreenDestination(folderId, folderName)
+    )
+
     data object Group : HomeDestination(
-        title = R.string.label_filter_group,
+        title = UIText.StringResource(R.string.label_filter_group),
         icon = R.drawable.ic_conversation,
         isSearchable = true,
         withNewConversationFab = true,
@@ -66,7 +79,7 @@ sealed class HomeDestination(
     )
 
     data object OneOnOne : HomeDestination(
-        title = R.string.label_filter_one_on_one,
+        title = UIText.StringResource(R.string.label_filter_one_on_one),
         icon = R.drawable.ic_conversation,
         isSearchable = true,
         withNewConversationFab = true,
@@ -74,33 +87,33 @@ sealed class HomeDestination(
     )
 
     data object Settings : HomeDestination(
-        title = R.string.settings_screen_title,
+        title = UIText.StringResource(R.string.settings_screen_title),
         icon = R.drawable.ic_settings,
         withUserAvatar = false,
         direction = SettingsScreenDestination
     )
 
     data object Vault : HomeDestination(
-        title = R.string.vault_screen_title,
+        title = UIText.StringResource(R.string.vault_screen_title),
         icon = R.drawable.ic_vault,
         direction = VaultScreenDestination
     )
 
     data object Archive : HomeDestination(
-        title = R.string.archive_screen_title,
+        title = UIText.StringResource(R.string.archive_screen_title),
         icon = R.drawable.ic_archive,
         isSearchable = true,
         direction = ArchiveScreenDestination
     )
 
     data object Support : HomeDestination(
-        title = R.string.support_screen_title,
+        title = UIText.StringResource(R.string.support_screen_title),
         icon = R.drawable.ic_support,
         direction = SupportScreenDestination
     )
 
     data object WhatsNew : HomeDestination(
-        title = R.string.whats_new_screen_title,
+        title = UIText.StringResource(R.string.whats_new_screen_title),
         icon = R.drawable.ic_star,
         direction = WhatsNewScreenDestination
     )
@@ -114,28 +127,40 @@ sealed class HomeDestination(
 
         fun values(): Array<HomeDestination> =
             arrayOf(Conversations, Favorites, Group, OneOnOne, Settings, Vault, Archive, Support, WhatsNew)
+
+        fun getArgumentsFromEntry(navBackStackEntry: NavBackStackEntry?): FolderNavArgs? {
+            return navBackStackEntry?.let {
+                if (it.destination.route == FolderConversationsScreenDestination.route) {
+                    FolderConversationsScreenDestination.argsFrom(it)
+                } else {
+                    null
+                }
+            }
+        }
     }
 }
 
 fun HomeDestination.currentFilter(): ConversationFilter {
     return when (this) {
-        HomeDestination.Conversations -> ConversationFilter.ALL
-        HomeDestination.Favorites -> ConversationFilter.FAVORITES
-        HomeDestination.Group -> ConversationFilter.GROUPS
-        HomeDestination.OneOnOne -> ConversationFilter.ONE_ON_ONE
+        HomeDestination.Conversations -> ConversationFilter.All
+        HomeDestination.Favorites -> ConversationFilter.Favorites
+        HomeDestination.Group -> ConversationFilter.Groups
+        HomeDestination.OneOnOne -> ConversationFilter.OneOnOne
+        is HomeDestination.Folder -> ConversationFilter.Folder(folderName = folderName, folderId = folderId)
         HomeDestination.Archive,
         HomeDestination.Settings,
         HomeDestination.Support,
         HomeDestination.Vault,
-        HomeDestination.WhatsNew -> ConversationFilter.ALL
+        HomeDestination.WhatsNew -> ConversationFilter.All
     }
 }
 
 fun ConversationFilter.toDestination(): HomeDestination {
     return when (this) {
-        ConversationFilter.ALL -> HomeDestination.Conversations
-        ConversationFilter.FAVORITES -> HomeDestination.Favorites
-        ConversationFilter.GROUPS -> HomeDestination.Group
-        ConversationFilter.ONE_ON_ONE -> HomeDestination.OneOnOne
+        ConversationFilter.All -> HomeDestination.Conversations
+        ConversationFilter.Favorites -> HomeDestination.Favorites
+        ConversationFilter.Groups -> HomeDestination.Group
+        ConversationFilter.OneOnOne -> HomeDestination.OneOnOne
+        is ConversationFilter.Folder -> HomeDestination.Folder(folderId = folderId, folderName = folderName)
     }
 }

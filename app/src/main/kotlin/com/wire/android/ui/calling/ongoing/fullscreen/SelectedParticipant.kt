@@ -17,16 +17,10 @@
  */
 package com.wire.android.ui.calling.ongoing.fullscreen
 
-import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.user.UserId
 
 data class SelectedParticipant(
     val userId: UserId = UserId("", ""),
     val clientId: String = "",
     val isSelfUser: Boolean = false
-) {
-
-    fun toLogString(): String {
-        return "SelectedParticipant(userId=${userId.toLogString()}, clientId=${clientId.obfuscateId()}, isSelfUser=$isSelfUser)"
-    }
-}
+)

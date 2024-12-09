@@ -189,7 +189,7 @@ private fun InputContent(
     viewModel: SelfDeletingMessageActionViewModel =
         hiltViewModelScoped<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionViewModel, SelfDeletingMessageActionArgs>(
             SelfDeletingMessageActionArgs(conversationId = conversationId)
-        ),
+        )
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()

@@ -119,7 +119,7 @@ private val LightWireColorScheme = WireColorScheme(
     primaryVariant = WireColorPalette.LightBlue50, onPrimaryVariant = WireColorPalette.LightBlue500,
     inversePrimary = WireColorPalette.DarkBlue500,
     error = WireColorPalette.LightRed500, onError = Color.White,
-    errorVariant = WireColorPalette.LightRed200, onErrorVariant = WireColorPalette.LightRed500,
+    errorVariant = WireColorPalette.LightRed50, onErrorVariant = WireColorPalette.LightRed500,
     warning = WireColorPalette.LightAmber500, onWarning = Color.White,
     highlight = WireColorPalette.DarkAmber200, onHighlight = Color.Black,
     positive = WireColorPalette.LightGreen500, onPositive = Color.White,

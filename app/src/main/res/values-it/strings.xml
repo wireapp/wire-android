@@ -461,14 +461,12 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <!-- User Profile -->
     <string name="user_profile_title">Profilo Utente</string>
     <string name="user_profile_close_description">Chiudi profilo utente</string>
-    <string name="user_profile_logout">Logout</string>
     <string name="user_profile_other_accs">Gli Altri Tuoi Profili</string>
     <string name="user_profile_status_availability">Disponibilità</string>
     <string name="user_profile_status_available">Disponibile</string>
     <string name="user_profile_status_busy">Occupato</string>
     <string name="user_profile_status_away">Assente</string>
     <string name="user_profile_status_none">Nessuno</string>
-    <string name="user_profile_new_account_text">Nuovo team o account</string>
     <string name="user_profile_details_tab">Dettagli</string>
     <string name="user_profile_devices_tab">Dispositivi</string>
     <string name="user_profile_group_tab">Gruppo</string>
@@ -747,6 +745,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="dialog_archive_conversation_title">Archiviare la conversazione?</string>
     <string name="dialog_archive_conversation_description">Questa conversazione si sposta nel tuo archivio. Ricevi comunque nuovi messaggi, file e chiamate, ma nessuna notifica. Puoi disarchiviarla in qualsiasi momento.</string>
     <string name="dialog_archive_conversation_option">Archivia</string>
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">Apri la conversazione.</string>
     <string name="email_label">E-mail</string>

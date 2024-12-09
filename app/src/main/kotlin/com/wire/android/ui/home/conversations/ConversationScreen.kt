@@ -1341,7 +1341,7 @@ fun JumpToLastMessageButton(
         SmallFloatingActionButton(
             onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
             containerColor = MaterialTheme.wireColorScheme.secondaryText,
-            contentColor = MaterialTheme.wireColorScheme.primaryButtonEnabled,
+            contentColor = MaterialTheme.wireColorScheme.onPrimaryButtonEnabled,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(dimensions().spacing0x),
             modifier = Modifier

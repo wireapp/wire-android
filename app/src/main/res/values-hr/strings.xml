@@ -412,11 +412,9 @@
     <string name="attachment_voice_message">Zvuk</string>
     <!-- User Profile -->
     <string name="user_profile_title">Korisnički profil</string>
-    <string name="user_profile_logout">Odjava</string>
     <string name="user_profile_status_busy">Zauzet</string>
     <string name="user_profile_status_away">Odsutan</string>
     <string name="user_profile_status_none">Ništa</string>
-    <string name="user_profile_new_account_text">Novi tim ili račun</string>
     <string name="user_profile_details_tab">Detalji</string>
     <string name="user_profile_devices_tab">Uređaji</string>
     <string name="user_profile_group_tab">Grupa</string>
@@ -489,6 +487,7 @@
     <string name="error_limit_number_assets_imported_exceeded">Možete poslati najviše 20 datoteka odjednom</string>
     <!-- Archiving -->
     <string name="dialog_archive_conversation_option">Arhiviraj</string>
+    <!-- Favorite -->
     <!-- Animation label -->
     <string name="label_open_conversation">Otvori razgovor</string>
     <string name="email_label">E-mail</string>

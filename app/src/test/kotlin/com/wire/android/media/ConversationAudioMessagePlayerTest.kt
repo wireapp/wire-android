@@ -40,6 +40,7 @@ import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import okio.Path
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 
 @Suppress("LongMethod")
@@ -72,6 +73,11 @@ class ConversationAudioMessagePlayerTest {
                 val currentState = state[testAudioMessageId]
                 assert(currentState != null)
                 assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
+            }
+            awaitAndAssertStateUpdate { state ->
+                val currentState = state[testAudioMessageId]
+                assert(currentState != null)
+                assertEquals(currentState!!.wavesMask, Arrangement.WAVES_MASK)
             }
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[testAudioMessageId]
@@ -128,6 +134,11 @@ class ConversationAudioMessagePlayerTest {
                 val currentState = state[testAudioMessageId]
                 assert(currentState != null)
                 assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
+            }
+            awaitAndAssertStateUpdate { state ->
+                val currentState = state[testAudioMessageId]
+                assert(currentState != null)
+                assertEquals(currentState!!.wavesMask, Arrangement.WAVES_MASK)
             }
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[testAudioMessageId]
@@ -197,6 +208,11 @@ class ConversationAudioMessagePlayerTest {
                     val currentState = state[firstAudioMessageId]
                     assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
+                }
+                awaitAndAssertStateUpdate { state ->
+                    val currentState = state[firstAudioMessageId]
+                    assert(currentState != null)
+                    assertEquals(currentState!!.wavesMask, Arrangement.WAVES_MASK)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]
@@ -281,6 +297,11 @@ class ConversationAudioMessagePlayerTest {
                     val currentState = state[firstAudioMessageId]
                     assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
+                }
+                awaitAndAssertStateUpdate { state ->
+                    val currentState = state[firstAudioMessageId]
+                    assert(currentState != null)
+                    assertEquals(currentState!!.wavesMask, Arrangement.WAVES_MASK)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]
@@ -412,6 +433,11 @@ class ConversationAudioMessagePlayerTest {
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[testAudioMessageId]
                     assert(currentState != null)
+                    assertEquals(currentState!!.wavesMask, Arrangement.WAVES_MASK)
+                }
+                awaitAndAssertStateUpdate { state ->
+                    val currentState = state[testAudioMessageId]
+                    assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.Playing)
                 }
                 awaitAndAssertStateUpdate { state ->
@@ -494,7 +520,7 @@ class Arrangement {
     init {
         MockKAnnotations.init(this, relaxed = true)
 
-        every { wavesMaskHelper.getWaveMask(any<Path>()) } returns listOf()
+        every { wavesMaskHelper.getWaveMask(any<Path>()) } returns WAVES_MASK
         every { wavesMaskHelper.clear() } returns Unit
     }
 
@@ -529,4 +555,8 @@ class Arrangement {
     }
 
     fun arrange() = this to conversationAudioMessagePlayer
+
+    companion object {
+        val WAVES_MASK = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+    }
 }

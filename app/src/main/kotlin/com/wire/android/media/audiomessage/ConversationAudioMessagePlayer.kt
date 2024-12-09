@@ -72,6 +72,7 @@ class ConversationAudioMessagePlayerProvider
     }
 }
 
+@Suppress("TooManyFunctions")
 class ConversationAudioMessagePlayer
 internal constructor(
     private val context: Context,

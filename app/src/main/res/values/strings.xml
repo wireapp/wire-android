@@ -273,7 +273,6 @@
     <string name="url_why_verify_conversation" translatable="false">https://support.wire.com/hc/articles/207859815</string>
     <string name="url_how_to_add_favorites" translatable="false">https://support.wire.com/hc/articles/360002855557</string>
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
-    <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>

@@ -22,6 +22,8 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
@@ -251,6 +253,12 @@ class TeamMigrationViewModelTest {
         @MockK
         lateinit var migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase
 
+        @MockK
+        lateinit var getSelfUser: GetSelfUserUseCase
+
+        @MockK
+        lateinit var getTeamUrl: GetTeamUrlUseCase
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
@@ -258,6 +266,8 @@ class TeamMigrationViewModelTest {
         fun arrange() = this to TeamMigrationViewModel(
             anonymousAnalyticsManager = anonymousAnalyticsManager,
             migrateFromPersonalToTeam = migrateFromPersonalToTeam,
+            getSelfUser = getSelfUser,
+            getTeamUrl = getTeamUrl
         ).also { viewModel ->
             viewModel.teamMigrationState.teamNameTextState.setTextAndPlaceCursorAtEnd(TEAM_NAME)
         }

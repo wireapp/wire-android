@@ -70,6 +70,7 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
+import com.wire.android.ui.home.conversations.messages.AudioMessagesState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -169,7 +170,7 @@ fun ConversationMediaScreen(
 @Composable
 private fun Content(
     state: ConversationAssetMessagesViewState,
-    audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
+    audioMessagesState: AudioMessagesState = AudioMessagesState(),
     initialPage: ConversationMediaScreenTabItem = ConversationMediaScreenTabItem.PICTURES,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit = { _, _, _ -> },
     onPlayAudioItemClicked: (String) -> Unit = {},

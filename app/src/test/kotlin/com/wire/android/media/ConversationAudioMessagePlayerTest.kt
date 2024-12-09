@@ -24,6 +24,7 @@ import app.cash.turbine.test
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.media.audiomessage.AudioWavesMaskHelper
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -38,6 +39,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
+import okio.Path
 import org.junit.jupiter.api.Test
 
 @Suppress("LongMethod")
@@ -477,16 +479,23 @@ class Arrangement {
     @MockK
     lateinit var mediaPlayer: MediaPlayer
 
+    @MockK
+    lateinit var wavesMaskHelper: AudioWavesMaskHelper
+
     private val conversationAudioMessagePlayer by lazy {
         ConversationAudioMessagePlayer(
             context,
             mediaPlayer,
+            wavesMaskHelper,
             coreLogic,
         )
     }
 
     init {
         MockKAnnotations.init(this, relaxed = true)
+
+        every { wavesMaskHelper.getWaveMask(any<Path>()) } returns listOf()
+        every { wavesMaskHelper.clear() } returns Unit
     }
 
     fun withCurrentSession() = apply {

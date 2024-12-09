@@ -292,6 +292,8 @@
     <string name="login_sso_code_label">SSO-CODE ODER E-MAIL-ADRESSE</string>
     <string name="login_error_invalid_sso_code">Bitte geben Sie einen gültigen SSO-Code ein.</string>
     <string name="login_error_invalid_sso_code_format">Geben Sie einen gültigen SSO-Code ein</string>
+    <string name="login_error_request_2fa_with_handle_title">Anmeldung mit E-Mail-Adresse</string>
+    <string name="login_error_request_2fa_with_handle_message">Sie können Ihren Benutzernamen nicht verwenden, da die Zwei-Faktor-Authentifizierung aktiviert ist. Bitte melden Sie sich stattdessen mit Ihrer E-Mail-Adresse an.</string>
     <string name="deleted_user_error_title">Gelöschtes Benutzerkonto</string>
     <string name="deleted_user_error_message">Sie wurden abgemeldet, weil Ihr Konto
         gelöscht wurde.
@@ -518,6 +520,7 @@
     <!-- User Profile -->
     <string name="user_profile_title">Benutzerprofil</string>
     <string name="user_profile_close_description">Benutzerprofil schließen</string>
+    <string name="user_profile_logout">Abmelden</string>
     <string name="user_profile_other_accs">Ihre anderen Benutzerkonten</string>
     <string name="user_profile_status_availability">Verfügbarkeit</string>
     <string name="user_profile_status_available">Verfügbar</string>

@@ -20,7 +20,9 @@
     <string name="label_wait_until_synchronised">Várjon, amíg az alkalmazás szinkronizál</string>
     <string name="label_wait_until_connected">Várjon, amíg az internetkapcsolat helyreáll</string>
     <string name="content_description_back_button">Vissza gomb</string>
+    <string name="content_description_left_arrow">Visszalépés</string>
     <string name="content_description_close_button">Bezárás gomb</string>
+    <string name="content_description_close">Bezárás</string>
     <string name="content_description_menu_button">Menü gomb</string>
     <string name="content_description_drop_down_icon">Lefelé nyíló ikon</string>
     <string name="content_description_pending_connection_badge">kapcsolatkérelem jóváhagyása függőben</string>

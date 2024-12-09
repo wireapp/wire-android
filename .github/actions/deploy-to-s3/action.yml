@@ -76,7 +76,7 @@ runs:
         version_code=$(cat app/version.txt | grep 'VersionCode' | sed 's/VersionCode: //')
         version_name=$(cat app/version.txt | grep 'VersionName' | sed 's/VersionName: //')
         capitalized_variant=$(echo "$build_variant" | awk '{print toupper($0)}')
-        mapping_full_path="app/build/outputs/mapping/${{ inputs.build-flavour }}${{ capitalized_variant }}/mapping.txt"
+        mapping_full_path="app/build/outputs/mapping/${{ inputs.build-flavour }}${capitalized_variant}/mapping.txt"
         new_mapping_file_name="mapping-$version_name-$version_code.txt"
         mv "$mapping_full_path" "$new_mapping_file_name"
         # Set the new mapping file name as an environment variable

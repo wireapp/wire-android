@@ -28,29 +28,40 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-internal fun CustomServerInvalidJsonDialog(
+internal fun CustomServerNoNetworkDialog(
+    onTryAgain: () -> Unit,
     onDismiss: () -> Unit
 ) {
     WireDialog(
-        title = stringResource(R.string.custom_backend_invalid_deeplink_data_title),
-        text = stringResource(R.string.custom_backend_invalid_deeplink_data_body),
+        title = stringResource(R.string.custom_backend_error_title),
+        text = stringResource(R.string.custom_backend_error_no_internet_connection_body),
         onDismiss = onDismiss,
+        buttonsHorizontalAlignment = false,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onDismiss,
-            text = stringResource(id = R.string.label_ok),
+            onClick = {
+                onTryAgain()
+                onDismiss()
+            },
+            text = stringResource(id = R.string.custom_backend_error_no_internet_connection_try_again),
             type = WireDialogButtonType.Primary,
-            state =
-            WireButtonState.Default
+            state = WireButtonState.Default
         ),
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = onDismiss,
+            text = stringResource(id = R.string.label_cancel),
+            type = WireDialogButtonType.Secondary,
+            state = WireButtonState.Default
+        )
     )
 }
 
-data object CustomServerInvalidJsonDialogState : CustomServerDialogState()
+data class CustomServerNoNetworkDialogState(val customServerUrl: String) : CustomServerDialogState()
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCustomServerInvalidJsonDialog() = WireTheme {
-    CustomServerInvalidJsonDialog(
-        onDismiss = { }
+fun PreviewCustomServerNoNetworkDialog() = WireTheme {
+    CustomServerNoNetworkDialog(
+        onTryAgain = {},
+        onDismiss = {}
     )
 }

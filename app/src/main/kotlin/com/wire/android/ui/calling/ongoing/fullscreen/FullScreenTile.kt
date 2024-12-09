@@ -60,7 +60,6 @@ fun FullScreenTile(
     closeFullScreen: (offset: Offset) -> Unit,
     onBackButtonClicked: () -> Unit,
     setVideoPreview: (View) -> Unit,
-    requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     clearVideoPreview: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
@@ -120,10 +119,6 @@ fun FullScreenTile(
                 }
             )
         }
-
-        LaunchedEffect(selectedParticipant.userId) {
-            requestVideoStreams(listOf(it))
-        }
     }
 }
 
@@ -144,7 +139,6 @@ fun PreviewFullScreenTile() = WireTheme {
         closeFullScreen = {},
         onBackButtonClicked = {},
         setVideoPreview = {},
-        requestVideoStreams = {},
         clearVideoPreview = {},
         participants = participants,
     )

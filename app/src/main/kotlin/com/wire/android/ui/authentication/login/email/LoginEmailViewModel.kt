@@ -246,7 +246,14 @@ class LoginEmailViewModel @Inject constructor(
     }
 
     private suspend fun request2FACode(authScope: AuthenticationScope) {
-        val email = userIdentifierTextState.text.trim().toString()
+        val email = userIdentifierTextState.text.trim().toString().also {
+            // user is using handle to login when 2FA is required
+            if (!it.contains("@")) {
+                updateEmailFlowState(LoginState.Error.DialogError.Request2FAWithHandle)
+                return
+            }
+        }
+
         val result = authScope.requestSecondFactorVerificationCode(
             email = email,
             verifiableAction = VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION

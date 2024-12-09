@@ -23,13 +23,17 @@ import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.notification.CallNotificationManager.Companion.DEBOUNCE_TIME
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.MockKAnnotations
 import io.mockk.clearMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -326,6 +330,42 @@ class CallNotificationManagerTest {
             verify(exactly = 1) { arrangement.notificationManager.cancel(tag, id) }
         }
 
+    @Test
+    fun `given incoming call for current session, when handling incoming call, then show it as full screen intent`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val currentSession = AccountInfo.Valid(UserId("currentUserId", "domain"))
+            val userName = "user name"
+            val (arrangement, callNotificationManager) = Arrangement()
+                .withCurrentSession(currentSession)
+                .arrange()
+            // when
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), currentSession.userId, userName)
+            advanceUntilIdle()
+            // then
+            verify(exactly = 1) {
+                arrangement.callNotificationBuilder.getIncomingCallNotification(data = any(), asFullScreenIntent = eq(true))
+            }
+        }
+
+    @Test
+    fun `given incoming call for another session, when handling incoming call, then do not show it as full screen intent`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val currentSession = AccountInfo.Valid(UserId("currentUserId", "domain"))
+            val userName = "user name"
+            val (arrangement, callNotificationManager) = Arrangement()
+                .withCurrentSession(currentSession)
+                .arrange()
+            // when
+            callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
+            advanceUntilIdle()
+            // then
+            verify(exactly = 1) {
+                arrangement.callNotificationBuilder.getIncomingCallNotification(data = any(), asFullScreenIntent = eq(false))
+            }
+        }
+
     private inner class Arrangement {
 
         @MockK
@@ -337,11 +377,16 @@ class CallNotificationManagerTest {
         @MockK
         lateinit var callNotificationBuilder: CallNotificationBuilder
 
+        @MockK
+        lateinit var coreLogic: CoreLogic
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkStatic(NotificationManagerCompat::from)
             every { NotificationManagerCompat.from(any()) } returns notificationManager
             withActiveNotifications(emptyList())
+            every { callNotificationBuilder.getIncomingCallNotification(any(), any()) } returns mockk()
+            withCurrentSession(AccountInfo.Valid(UserId("userId", "domain")))
         }
 
         fun clearRecordedCallsForNotificationManager() {
@@ -356,14 +401,18 @@ class CallNotificationManagerTest {
         }
 
         fun withIncomingNotificationForUserAndCall(notification: Notification, forCallNotificationData: CallNotificationData) = apply {
-            every { callNotificationBuilder.getIncomingCallNotification(eq(forCallNotificationData)) } returns notification
+            every { callNotificationBuilder.getIncomingCallNotification(eq(forCallNotificationData), any()) } returns notification
         }
 
         fun withActiveNotifications(list: List<StatusBarNotification>) = apply {
             every { notificationManager.activeNotifications } returns list
         }
 
-        fun arrange() = this to CallNotificationManager(context, dispatcherProvider, callNotificationBuilder)
+        fun withCurrentSession(accountInfo: AccountInfo) = apply {
+            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Success(accountInfo)
+        }
+
+        fun arrange() = this to CallNotificationManager(context, dispatcherProvider, callNotificationBuilder, coreLogic)
     }
 
     companion object {

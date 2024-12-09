@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserId
@@ -59,7 +60,7 @@ class CallActivityViewModel @Inject constructor(
             }
         }
 
-    fun switchAccountIfNeeded(userId: UserId) {
+    fun switchAccountIfNeeded(userId: UserId, actions: SwitchAccountActions) {
         viewModelScope.launch(Dispatchers.IO) {
             val shouldSwitchAccount = when (val result = currentSession()) {
                 is CurrentSessionResult.Failure.Generic -> true
@@ -67,7 +68,9 @@ class CallActivityViewModel @Inject constructor(
                 is CurrentSessionResult.Success -> result.accountInfo.userId != userId
             }
             if (shouldSwitchAccount) {
-                accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
+                accountSwitch(SwitchAccountParam.SwitchToAccount(userId)).also {
+                    it.callAction(actions)
+                }
             }
         }
     }

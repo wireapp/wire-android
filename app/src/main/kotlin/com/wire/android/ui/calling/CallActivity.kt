@@ -22,12 +22,20 @@ import android.os.Build
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.wire.android.util.SwitchAccountObserver
 import androidx.lifecycle.lifecycleScope
 import com.wire.android.ui.AppLockActivity
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 abstract class CallActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var switchAccountObserver: SwitchAccountObserver
+
     companion object {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
         const val EXTRA_USER_ID = "user_id"
@@ -40,7 +48,7 @@ abstract class CallActivity : AppCompatActivity() {
     fun switchAccountIfNeeded(userId: String?) {
         userId?.let {
             qualifiedIdMapper.fromStringToQualifiedID(it).run {
-                callActivityViewModel.switchAccountIfNeeded(this)
+                callActivityViewModel.switchAccountIfNeeded(userId = this, actions = switchAccountObserver)
             }
         }
     }

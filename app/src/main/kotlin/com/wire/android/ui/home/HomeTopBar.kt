@@ -52,7 +52,7 @@ fun HomeTopBar(
     onOpenConversationFilter: (filter: ConversationFilter) -> Unit
 ) {
     WireCenterAlignedTopAppBar(
-        title = stringResource(navigationItem.title),
+        title = navigationItem.title.asString(),
         onNavigationPressed = onHamburgerMenuClick,
         navigationIconType = NavigationIconType.Menu,
         actions = {
@@ -60,7 +60,7 @@ fun HomeTopBar(
                 WireTertiaryIconButton(
                     iconResource = R.drawable.ic_filter,
                     contentDescription = R.string.label_filter_conversations,
-                    state = if (navigationItem.currentFilter() == ConversationFilter.ALL) {
+                    state = if (navigationItem.currentFilter() == ConversationFilter.All) {
                         WireButtonState.Default
                     } else {
                         WireButtonState.Selected

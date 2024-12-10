@@ -15,18 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversationslist.model
+package com.wire.android.navigation
 
-import kotlinx.serialization.Serializable
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-@Serializable
-sealed class ConversationsSource {
-
-    data object MAIN : ConversationsSource()
-    data object ARCHIVE : ConversationsSource()
-    data object FAVORITES : ConversationsSource()
-    data object GROUPS : ConversationsSource()
-    data object ONE_ON_ONE : ConversationsSource()
-
-    data class FOLDER(val folderId: String, val folderName: String) : ConversationsSource()
-}
+@Parcelize
+data class FolderNavArgs(
+    val folderId: String,
+    val folderName: String
+) : Parcelable

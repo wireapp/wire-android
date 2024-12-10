@@ -54,7 +54,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.ConnectionState
 
 // items cannot be simplified
-@Suppress("CyclomaticComplexMethod")
+@Suppress("CyclomaticComplexMethod", "UnusedParameter")
 @Composable
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
@@ -110,37 +110,37 @@ internal fun ConversationMainSheetContent(
                     )
                 }
             }
-
-            if (conversationSheetContent.canAddToFavourite() && !conversationSheetContent.isArchived) {
-                conversationSheetContent.isFavorite?.let { isFavorite ->
-                    add {
-                        MenuBottomSheetItem(
-                            title = stringResource(
-                                if (isFavorite) {
-                                    R.string.label_remove_from_favourites
-                                } else {
-                                    R.string.label_add_to_favourites
-                                }
-                            ),
-                            leading = {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_favourite,
-                                    contentDescription = null
-                                )
-                            },
-                            onItemClick = {
-                                changeFavoriteState(
-                                    GroupDialogState(
-                                        conversationSheetContent.conversationId,
-                                        conversationSheetContent.title
-                                    ),
-                                    !isFavorite
-                                )
-                            }
-                        )
-                    }
-                }
-            }
+// TODO restore on 4.11
+//            if (conversationSheetContent.canAddToFavourite() && !conversationSheetContent.isArchived) {
+//                conversationSheetContent.isFavorite?.let { isFavorite ->
+//                    add {
+//                        MenuBottomSheetItem(
+//                            title = stringResource(
+//                                if (isFavorite) {
+//                                    R.string.label_remove_from_favourites
+//                                } else {
+//                                    R.string.label_add_to_favourites
+//                                }
+//                            ),
+//                            leading = {
+//                                MenuItemIcon(
+//                                    id = R.drawable.ic_favourite,
+//                                    contentDescription = null
+//                                )
+//                            },
+//                            onItemClick = {
+//                                changeFavoriteState(
+//                                    GroupDialogState(
+//                                        conversationSheetContent.conversationId,
+//                                        conversationSheetContent.title
+//                                    ),
+//                                    !isFavorite
+//                                )
+//                            }
+//                        )
+//                    }
+//                }
+//            }
 // TODO(profile): enable when implemented
 //            add {
 //                MenuBottomSheetItem(

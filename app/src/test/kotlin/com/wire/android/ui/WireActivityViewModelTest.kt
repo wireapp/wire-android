@@ -38,7 +38,7 @@ import com.wire.android.framework.TestUser
 import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
-import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialogState
+import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelTest
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.theme.ThemeOption
@@ -141,13 +141,13 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with malformed ServerConfig json, when currentSessions is present, then initialAppState is LOGGED_IN and customBackEndInvalidJson dialog is shown`() =
+    fun `given intent with correct ServerConfig json, when no network is present, then initialAppState is LOGGED_IN and no network dialog is shown`() =
         runTest {
             val result = DeepLinkResult.CustomServerConfig("url")
             val (arrangement, viewModel) = Arrangement()
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)
-                .withMalformedServerJson()
+                .withNoNetworkConnectionWhenGettingServerConfig()
                 .withNoOngoingCall()
                 .arrange()
 
@@ -155,17 +155,17 @@ class WireActivityViewModelTest {
 
             assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertInstanceOf(CustomServerInvalidJsonDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+            assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
         }
 
     @Test
-    fun `given Intent with malformed ServerConfig json, when currentSessions is present, then initialAppState is NOT_LOGGED_IN and customBackEndInvalidJson dialog is shown`() =
+    fun `given Intent with malformed ServerConfig json, when currentSessions is absent, then initialAppState is NOT_LOGGED_IN and no network dialog is shown`() =
         runTest {
             val result = DeepLinkResult.CustomServerConfig("url")
             val (arrangement, viewModel) = Arrangement()
                 .withNoCurrentSession()
                 .withDeepLinkResult(result)
-                .withMalformedServerJson()
+                .withNoNetworkConnectionWhenGettingServerConfig()
                 .withNoOngoingCall()
                 .arrange()
 
@@ -173,7 +173,7 @@ class WireActivityViewModelTest {
 
             assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertInstanceOf(CustomServerInvalidJsonDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+            assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
         }
 
     @Test
@@ -919,7 +919,7 @@ class WireActivityViewModelTest {
             coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).observeIfE2EIRequiredDuringLogin() } returns flowOf(false)
         }
 
-        fun withMalformedServerJson() = apply {
+        fun withNoNetworkConnectionWhenGettingServerConfig() = apply {
             coEvery { getServerConfigUseCase(any()) } returns
                     GetServerConfigResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null))
         }

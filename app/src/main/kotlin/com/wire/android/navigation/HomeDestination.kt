@@ -33,6 +33,8 @@ import com.wire.android.ui.destinations.VaultScreenDestination
 import com.wire.android.ui.destinations.WhatsNewScreenDestination
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationFilter
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 
 @Suppress("LongParameterList")
 sealed class HomeDestination(
@@ -43,6 +45,10 @@ sealed class HomeDestination(
     val withUserAvatar: Boolean = true,
     val direction: Direction
 ) {
+
+    internal fun NavBackStackEntry.baseRouteMatches(): Boolean = direction.route.getBaseRoute() == destination.route?.getBaseRoute()
+    open fun entryMatches(entry: NavBackStackEntry): Boolean = entry.baseRouteMatches()
+
     data object Conversations : HomeDestination(
         title = UIText.StringResource(R.string.conversations_screen_title),
         icon = R.drawable.ic_conversation,
@@ -60,15 +66,17 @@ sealed class HomeDestination(
     )
 
     data class Folder(
-        val folderId: String,
-        val folderName: String,
+        val folderNavArgs: FolderNavArgs
     ) : HomeDestination(
-        title = UIText.DynamicString(folderName),
+        title = UIText.DynamicString(folderNavArgs.folderName),
         icon = R.drawable.ic_conversation,
         isSearchable = true,
         withNewConversationFab = true,
-        direction = FolderConversationsScreenDestination(folderId, folderName)
-    )
+        direction = FolderConversationsScreenDestination(folderNavArgs)
+    ) {
+        override fun entryMatches(entry: NavBackStackEntry): Boolean =
+            entry.baseRouteMatches() && FolderConversationsScreenDestination.argsFrom(entry).folderId == folderNavArgs.folderId
+    }
 
     data object Group : HomeDestination(
         title = UIText.StringResource(R.string.label_filter_group),
@@ -122,21 +130,8 @@ sealed class HomeDestination(
 
     companion object {
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
-        fun fromRoute(fullRoute: String): HomeDestination? =
-            values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
-
-        fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Favorites, Group, OneOnOne, Settings, Vault, Archive, Support, WhatsNew)
-
-        fun getArgumentsFromEntry(navBackStackEntry: NavBackStackEntry?): FolderNavArgs? {
-            return navBackStackEntry?.let {
-                if (it.destination.route == FolderConversationsScreenDestination.route) {
-                    FolderConversationsScreenDestination.argsFrom(it)
-                } else {
-                    null
-                }
-            }
-        }
+        fun values(): PersistentList<HomeDestination> =
+            persistentListOf(Conversations, Favorites, Group, OneOnOne, Settings, Vault, Archive, Support, WhatsNew)
     }
 }
 
@@ -146,7 +141,7 @@ fun HomeDestination.currentFilter(): ConversationFilter {
         HomeDestination.Favorites -> ConversationFilter.Favorites
         HomeDestination.Group -> ConversationFilter.Groups
         HomeDestination.OneOnOne -> ConversationFilter.OneOnOne
-        is HomeDestination.Folder -> ConversationFilter.Folder(folderName = folderName, folderId = folderId)
+        is HomeDestination.Folder -> ConversationFilter.Folder(folderName = folderNavArgs.folderName, folderId = folderNavArgs.folderId)
         HomeDestination.Archive,
         HomeDestination.Settings,
         HomeDestination.Support,
@@ -161,6 +156,6 @@ fun ConversationFilter.toDestination(): HomeDestination {
         ConversationFilter.Favorites -> HomeDestination.Favorites
         ConversationFilter.Groups -> HomeDestination.Group
         ConversationFilter.OneOnOne -> HomeDestination.OneOnOne
-        is ConversationFilter.Folder -> HomeDestination.Folder(folderId = folderId, folderName = folderName)
+        is ConversationFilter.Folder -> HomeDestination.Folder(FolderNavArgs(folderId, folderName))
     }
 }

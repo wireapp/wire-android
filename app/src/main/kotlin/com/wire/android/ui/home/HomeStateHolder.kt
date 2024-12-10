@@ -32,15 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.HomeDestination.Archive
 import com.wire.android.navigation.HomeDestination.Conversations
-import com.wire.android.navigation.HomeDestination.Favorites
-import com.wire.android.navigation.HomeDestination.Group
-import com.wire.android.navigation.HomeDestination.OneOnOne
-import com.wire.android.navigation.HomeDestination.Settings
-import com.wire.android.navigation.HomeDestination.Support
-import com.wire.android.navigation.HomeDestination.Vault
-import com.wire.android.navigation.HomeDestination.WhatsNew
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
@@ -86,17 +78,7 @@ class HomeStateHolder(
 @Composable
 fun rememberHomeScreenState(
     navigator: Navigator,
-    homeDestinations: List<HomeDestination> = listOf(
-        Conversations,
-        Favorites,
-        OneOnOne,
-        Group,
-        Settings,
-        Vault,
-        Archive,
-        Support,
-        WhatsNew
-    ),
+    homeDestinations: List<HomeDestination>,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberTrackingAnimatedNavController { route ->
         homeDestinations.find { it.direction.route.getBaseRoute() == route }?.itemName
@@ -107,11 +89,9 @@ fun rememberHomeScreenState(
     val searchBarState = rememberSearchbarState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    val currentNavigationItemState = remember {
+    val currentNavigationItemState = remember(homeDestinations) {
         derivedStateOf {
-            HomeDestination.getArgumentsFromEntry(navBackStackEntry)?.let { args ->
-                return@derivedStateOf HomeDestination.Folder(args.folderId, args.folderName)
-            } ?: navBackStackEntry?.destination?.route?.let { HomeDestination.fromRoute(it) ?: Conversations } ?: Conversations
+            navBackStackEntry?.let { entry -> homeDestinations.find { it.entryMatches(entry) } } ?: Conversations
         }
     }
     val lazyListStates = homeDestinations.associateWith { rememberLazyListState() }

@@ -38,6 +38,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -63,6 +64,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.navigation.FolderNavArgs
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -97,6 +99,9 @@ import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
+import com.wire.kalium.logic.data.conversation.ConversationFolder
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -109,10 +114,21 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     appSyncViewModel: AppSyncViewModel = hiltViewModel(),
     homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
-    analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel()
+    analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
+    foldersViewModel: ConversationFoldersVM =
+        hiltViewModelScoped<ConversationFoldersVMImpl, ConversationFoldersVM, ConversationFoldersStateArgs>(
+            ConversationFoldersStateArgs
+        )
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
-    val homeScreenState = rememberHomeScreenState(navigator)
+    val homeDestinations = remember(foldersViewModel.state().folders) {
+        HomeDestination.values()
+        .plus(
+            foldersViewModel.state().folders.map { HomeDestination.Folder(FolderNavArgs(it.id, it.name)) }
+        )
+    }
+
+    val homeScreenState = rememberHomeScreenState(navigator, homeDestinations = homeDestinations)
     val notificationsPermissionDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val showNotificationsPermissionDeniedDialog = {
         notificationsPermissionDeniedDialogState.show(
@@ -173,7 +189,8 @@ fun HomeScreen(
         onSelfUserClick = {
             homeViewModel.sendOpenProfileEvent()
             navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-        }
+        },
+        folders = foldersViewModel.state().folders
     )
 
     BackHandler(homeScreenState.drawerState.isOpen) {
@@ -244,10 +261,7 @@ fun HomeContent(
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
     modifier: Modifier = Modifier,
-    foldersViewModel: ConversationFoldersVM =
-        hiltViewModelScoped<ConversationFoldersVMImpl, ConversationFoldersVM, ConversationFoldersStateArgs>(
-            ConversationFoldersStateArgs
-        ),
+    folders: PersistentList<ConversationFolder> = persistentListOf()
 ) {
     val context = LocalContext.current
     val filterSheetState = rememberWireModalSheetState<ConversationFilterSheetData>()
@@ -315,7 +329,7 @@ fun HomeContent(
                                     filterSheetState.show(
                                         ConversationFilterSheetData(
                                             currentFilter = it,
-                                            folders = foldersViewModel.state().folders
+                                            folders = folders
                                         )
                                     )
                                 }

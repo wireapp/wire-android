@@ -18,15 +18,19 @@
 package com.wire.android.ui.home.conversations.call
 
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnabledUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -41,69 +45,187 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
 class ConversationListCallViewModelTest {
 
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
+    @Test
+    fun `given join dialog displayed, when user dismiss it, then hide it`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withDefaultAnswers()
+            .arrange()
+        viewModel.conversationCallViewState = viewModel.conversationCallViewState.copy(
+            shouldShowJoinAnywayDialog = true
+        )
 
-    @MockK
-    private lateinit var observeOngoingCalls: ObserveOngoingCallsUseCase
+        viewModel.dismissJoinCallAnywayDialog()
 
-    @MockK
-    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+        assertEquals(false, viewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
+    }
 
-    @MockK
-    private lateinit var joinCall: AnswerCallUseCase
+    @Test
+    fun `given no ongoing call, when user tries to join a call, then invoke answerCall call use case`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withDefaultAnswers()
+            .withJoinCallResponse()
+            .arrange()
+        viewModel.conversationCallViewState = viewModel.conversationCallViewState.copy(hasEstablishedCall = false)
 
-    @MockK
-    private lateinit var endCall: EndCallUseCase
+        viewModel.joinOngoingCall(arrangement.onAnswered)
 
-    @MockK
-    private lateinit var observeSyncState: ObserveSyncStateUseCase
+        coVerify(exactly = 1) { arrangement.joinCall(conversationId = any()) }
+        coVerify(exactly = 1) { arrangement.onAnswered(any()) }
+        assertEquals(false, viewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
+    }
 
-    @MockK
-    private lateinit var isConferenceCallingEnabled: IsEligibleToStartCallUseCase
+    @Test
+    fun `given an ongoing call, when user tries to join a call, then show JoinCallAnywayDialog`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withDefaultAnswers()
+            .arrange()
+        viewModel.conversationCallViewState = viewModel.conversationCallViewState.copy(hasEstablishedCall = true)
 
-    @MockK(relaxed = true)
-    private lateinit var onAnswered: (conversationId: ConversationId) -> Unit
+        viewModel.joinOngoingCall(arrangement.onAnswered)
 
-    @MockK
-    private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+        assertEquals(true, viewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
+        coVerify(inverse = true) { arrangement.joinCall(conversationId = any()) }
+    }
 
-    @MockK
-    private lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
+    @Test
+    fun `given an ongoing call, when user confirms dialog to join a call, then end current call and join the newer one`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withDefaultAnswers()
+            .withEndCallResponse()
+            .arrange()
+        viewModel.conversationCallViewState =
+            viewModel.conversationCallViewState.copy(hasEstablishedCall = true)
+        viewModel.establishedCallConversationId = ConversationId("value", "Domain")
 
-    @MockK
-    lateinit var setUserInformedAboutVerificationUseCase: SetUserInformedAboutVerificationUseCase
+        viewModel.joinAnyway(arrangement.onAnswered)
 
-    @MockK
-    lateinit var observeDegradedConversationNotifiedUseCase: ObserveDegradedConversationNotifiedUseCase
+        coVerify(exactly = 1) { arrangement.endCall(any()) }
+    }
 
-    @MockK
-    lateinit var getSelfUserUseCase: GetSelfUserUseCase
+    @Test
+    fun `given self team role as admin in conversation, when we observe own role, then its properly propagated`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withDefaultAnswers()
+            .withSelfAsAdmin()
+            .arrange()
 
-    private lateinit var conversationListCallViewModel: ConversationListCallViewModel
+        val role = viewModel.selfTeamRole
 
-    @BeforeEach
-    fun setUp() {
-        MockKAnnotations.init(this)
-        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
-        coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
-        coEvery { observeOngoingCalls.invoke() } returns emptyFlow()
-        coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { observeParticipantsForConversation(any()) } returns flowOf()
-        coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
-        coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(false)
+        assertEquals(UserType.ADMIN, role.value)
+    }
 
-        conversationListCallViewModel = ConversationListCallViewModel(
+    @Test
+    fun `given calling enabled event, when we observe it, then its properly propagated`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withDefaultAnswers()
+            .withConferenceCallingEnabledResponse()
+            .arrange()
+
+        val callingEnabled = viewModel.callingEnabled
+
+        callingEnabled.test {
+            assertEquals(Unit, awaitItem())
+        }
+    }
+
+    @Test
+    fun `given no calling enabled event, when we observe it, then there are no events propagated`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withDefaultAnswers()
+            .arrange()
+
+        val callingEnabled = viewModel.callingEnabled
+
+        callingEnabled.test {
+            expectNoEvents()
+        }
+    }
+
+    private class Arrangement {
+        @MockK
+        private lateinit var savedStateHandle: SavedStateHandle
+
+        @MockK
+        private lateinit var observeOngoingCalls: ObserveOngoingCallsUseCase
+
+        @MockK
+        private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+
+        @MockK
+        lateinit var joinCall: AnswerCallUseCase
+
+        @MockK
+        lateinit var endCall: EndCallUseCase
+
+        @MockK
+        private lateinit var observeSyncState: ObserveSyncStateUseCase
+
+        @MockK
+        private lateinit var isConferenceCallingEnabled: IsEligibleToStartCallUseCase
+
+        @MockK(relaxed = true)
+        lateinit var onAnswered: (conversationId: ConversationId) -> Unit
+
+        @MockK
+        private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+
+        @MockK
+        private lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
+
+        @MockK
+        lateinit var setUserInformedAboutVerificationUseCase: SetUserInformedAboutVerificationUseCase
+
+        @MockK
+        lateinit var observeDegradedConversationNotifiedUseCase: ObserveDegradedConversationNotifiedUseCase
+
+        @MockK
+        lateinit var getSelfUserUseCase: GetSelfUserUseCase
+
+        @MockK
+        lateinit var observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase
+
+        init {
+            MockKAnnotations.init(this)
+        }
+
+        suspend fun withDefaultAnswers() = apply {
+            val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+            every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
+            coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
+            coEvery { observeOngoingCalls.invoke() } returns emptyFlow()
+            coEvery { observeConversationDetails(any()) } returns flowOf()
+            coEvery { observeParticipantsForConversation(any()) } returns flowOf()
+            coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
+            coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(false)
+            coEvery { getSelfUserUseCase() } returns flowOf()
+            coEvery { observeConferenceCallingEnabled() } returns flowOf()
+        }
+
+        suspend fun withSelfAsAdmin() = apply {
+            coEvery { getSelfUserUseCase.invoke() } returns flowOf(TestUser.SELF_USER.copy(userType = UserType.ADMIN))
+        }
+
+        suspend fun withConferenceCallingEnabledResponse() = apply {
+            coEvery { observeConferenceCallingEnabled() } returns flowOf(Unit)
+        }
+
+        suspend fun withJoinCallResponse() = apply {
+            coEvery { joinCall(conversationId = any()) } returns Unit
+        }
+
+        suspend fun withEndCallResponse() = apply {
+            coEvery { endCall(any()) } returns Unit
+        }
+
+        fun arrange(): Pair<Arrangement, ConversationListCallViewModel> = this to ConversationListCallViewModel(
             savedStateHandle = savedStateHandle,
             observeOngoingCalls = observeOngoingCalls,
             observeEstablishedCalls = observeEstablishedCalls,
@@ -115,55 +237,8 @@ class ConversationListCallViewModelTest {
             observeParticipantsForConversation = observeParticipantsForConversation,
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
             observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
+            observeConferenceCallingEnabled = observeConferenceCallingEnabled,
             getSelf = getSelfUserUseCase
         )
-    }
-
-    @Test
-    fun `given join dialog displayed, when user dismiss it, then hide it`() {
-        conversationListCallViewModel.conversationCallViewState = conversationListCallViewModel.conversationCallViewState.copy(
-            shouldShowJoinAnywayDialog = true
-        )
-
-        conversationListCallViewModel.dismissJoinCallAnywayDialog()
-
-        assertEquals(false, conversationListCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
-    }
-
-    @Test
-    fun `given no ongoing call, when user tries to join a call, then invoke answerCall call use case`() {
-        conversationListCallViewModel.conversationCallViewState =
-            conversationListCallViewModel.conversationCallViewState.copy(hasEstablishedCall = false)
-
-        coEvery { joinCall(conversationId = any()) } returns Unit
-
-        conversationListCallViewModel.joinOngoingCall(onAnswered)
-
-        coVerify(exactly = 1) { joinCall(conversationId = any()) }
-        coVerify(exactly = 1) { onAnswered(any()) }
-        assertEquals(false, conversationListCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
-    }
-
-    @Test
-    fun `given an ongoing call, when user tries to join a call, then show JoinCallAnywayDialog`() {
-        conversationListCallViewModel.conversationCallViewState =
-            conversationListCallViewModel.conversationCallViewState.copy(hasEstablishedCall = true)
-
-        conversationListCallViewModel.joinOngoingCall(onAnswered)
-
-        assertEquals(true, conversationListCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
-        coVerify(inverse = true) { joinCall(conversationId = any()) }
-    }
-
-    @Test
-    fun `given an ongoing call, when user confirms dialog to join a call, then end current call and join the newer one`() {
-        conversationListCallViewModel.conversationCallViewState =
-            conversationListCallViewModel.conversationCallViewState.copy(hasEstablishedCall = true)
-        conversationListCallViewModel.establishedCallConversationId = ConversationId("value", "Domain")
-        coEvery { endCall(any()) } returns Unit
-
-        conversationListCallViewModel.joinAnyway(onAnswered)
-
-        coVerify(exactly = 1) { endCall(any()) }
     }
 }

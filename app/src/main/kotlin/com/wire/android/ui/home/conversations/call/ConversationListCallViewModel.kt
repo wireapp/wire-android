@@ -79,7 +79,7 @@ class ConversationListCallViewModel @Inject constructor(
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
     val shouldInformAboutVerification = mutableStateOf(false)
     val selfTeamRole = mutableStateOf(UserType.GUEST)
-    val callingEnabled = MutableSharedFlow<Unit>(replay = 0)
+    val callingEnabled = MutableSharedFlow<Unit>(replay = 1)
 
     var establishedCallConversationId: QualifiedID? = null
 

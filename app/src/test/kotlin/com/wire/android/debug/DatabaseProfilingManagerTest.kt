@@ -165,7 +165,7 @@ class DatabaseProfilingManagerTest {
             }
             coEvery { coreLogic.getSessionScope(any()) } answers {
                 val userId = firstArg<UserId>()
-                mockk() {
+                mockk {
                     coEvery { debug.changeProfiling(any()) } answers {
                         val profilingValue = firstArg<Boolean>()
                         profilingValues = profilingValues.put(userId, profilingValue)

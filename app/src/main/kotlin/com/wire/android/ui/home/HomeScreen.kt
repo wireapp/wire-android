@@ -38,6 +38,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -62,11 +63,12 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.navigation.FolderNavArgs
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.currentFilter
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.navigation.toDestination
 import com.wire.android.ui.NavGraphs
@@ -87,12 +89,19 @@ import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
 import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent
+import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetData
+import com.wire.android.ui.home.conversationslist.filter.rememberFilterSheetState
 import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
-import com.wire.kalium.logic.data.conversation.ConversationFilter
+import com.wire.kalium.logic.data.conversation.ConversationFolder
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -105,10 +114,21 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     appSyncViewModel: AppSyncViewModel = hiltViewModel(),
     homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
-    analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel()
+    analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
+    foldersViewModel: ConversationFoldersVM =
+        hiltViewModelScoped<ConversationFoldersVMImpl, ConversationFoldersVM, ConversationFoldersStateArgs>(
+            ConversationFoldersStateArgs
+        )
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
-    val homeScreenState = rememberHomeScreenState(navigator)
+    val homeDestinations = remember(foldersViewModel.state().folders) {
+        HomeDestination.values()
+        .plus(
+            foldersViewModel.state().folders.map { HomeDestination.Folder(FolderNavArgs(it.id, it.name)) }
+        )
+    }
+
+    val homeScreenState = rememberHomeScreenState(navigator, homeDestinations = homeDestinations)
     val notificationsPermissionDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val showNotificationsPermissionDeniedDialog = {
         notificationsPermissionDeniedDialogState.show(
@@ -169,7 +189,8 @@ fun HomeScreen(
         onSelfUserClick = {
             homeViewModel.sendOpenProfileEvent()
             navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-        }
+        },
+        folders = foldersViewModel.state().folders
     )
 
     BackHandler(homeScreenState.drawerState.isOpen) {
@@ -240,9 +261,10 @@ fun HomeContent(
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
     modifier: Modifier = Modifier,
+    folders: PersistentList<ConversationFolder> = persistentListOf()
 ) {
     val context = LocalContext.current
-    val filterSheetState = rememberWireModalSheetState<ConversationFilter>()
+    val filterSheetState = rememberWireModalSheetState<ConversationFilterSheetData>()
 
     with(homeStateHolder) {
         fun openHomeDestination(item: HomeDestination) {
@@ -252,6 +274,7 @@ fun HomeContent(
                     navController.navigate(direction.route) {
                         navController.graph.startDestinationRoute?.let { route ->
                             popUpTo(route) {
+                                inclusive = true
                                 saveState = true
                             }
                         }
@@ -302,7 +325,14 @@ fun HomeContent(
                                 shouldShowCreateTeamUnreadIndicator = homeState.shouldShowCreateTeamUnreadIndicator,
                                 onHamburgerMenuClick = ::openDrawer,
                                 onNavigateToSelfUserProfile = onSelfUserClick,
-                                onOpenConversationFilter = { filterSheetState.show(it) }
+                                onOpenConversationFilter = {
+                                    filterSheetState.show(
+                                        ConversationFilterSheetData(
+                                            currentFilter = it,
+                                            folders = folders
+                                        )
+                                    )
+                                }
                             )
                         }
                     },
@@ -317,7 +347,7 @@ fun HomeContent(
                         }
                     },
                     collapsingEnabled = !searchBarState.isSearchActive,
-                    contentLazyListState = homeStateHolder.lazyListStateFor(currentNavigationItem),
+                    contentLazyListState = homeStateHolder.nullAbleLazyListStateFor(currentNavigationItem),
                     content = {
                         /**
                          * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
@@ -372,13 +402,18 @@ fun HomeContent(
         )
         WireModalSheetLayout(
             sheetState = filterSheetState,
-            sheetContent = {
+            sheetContent = { sheetData ->
+                val sheetContentState = rememberFilterSheetState(sheetData)
                 ConversationFilterSheetContent(
-                    currentFilter = currentNavigationItem.currentFilter(),
                     onChangeFilter = { filter ->
                         filterSheetState.hide()
                         openHomeDestination(filter.toDestination())
-                    }
+                    },
+                    onChangeFolder = {
+                        filterSheetState.hide()
+                        openHomeDestination(it.toDestination())
+                    },
+                    filterSheetState = sheetContentState
                 )
             }
         )

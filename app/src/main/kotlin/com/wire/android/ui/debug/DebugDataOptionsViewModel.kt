@@ -34,6 +34,7 @@ import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
@@ -42,6 +43,8 @@ import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
@@ -87,6 +90,8 @@ class DebugDataOptionsViewModelImpl
     private val getCurrentAnalyticsTrackingIdentifier: GetCurrentAnalyticsTrackingIdentifierUseCase,
     private val sendFCMToken: SendFCMTokenUseCase,
     private val dispatcherProvider: DispatcherProvider,
+    private val selfServerConfigUseCase: SelfServerConfigUseCase,
+    private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     var state by mutableStateOf(
@@ -102,6 +107,31 @@ class DebugDataOptionsViewModelImpl
         checkIfCanTriggerManualMigration()
         setGitHashAndDeviceId()
         setAnalyticsTrackingId()
+        setServerConfigData()
+        setDefaultProtocol()
+    }
+
+    private fun setDefaultProtocol() {
+        viewModelScope.launch {
+            state = state.copy(
+                defaultProtocol = when (getDefaultProtocolUseCase()) {
+                    SupportedProtocol.PROTEUS -> "Proteus"
+                    SupportedProtocol.MLS -> "MLS"
+                }
+            )
+        }
+    }
+
+    private fun setServerConfigData() {
+        viewModelScope.launch {
+            val result = selfServerConfigUseCase()
+            if (result is SelfServerConfigUseCase.Result.Success) {
+                state = state.copy(
+                    isFederationEnabled = result.serverLinks.metaData.federation,
+                    currentApiVersion = result.serverLinks.metaData.commonApiVersion.version,
+                )
+            }
+        }
     }
 
     private fun setAnalyticsTrackingId() {

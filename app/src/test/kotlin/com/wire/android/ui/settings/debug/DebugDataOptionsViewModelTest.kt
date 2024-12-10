@@ -31,7 +31,10 @@ import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.configuration.server.CommonApiVersionType
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
@@ -39,6 +42,8 @@ import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
@@ -46,6 +51,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -156,6 +162,12 @@ internal class DebugDataOptionsHiltArrangement {
     lateinit var getCurrentAnalyticsTrackingIdentifier: GetCurrentAnalyticsTrackingIdentifierUseCase
 
     @MockK
+    lateinit var selfServerConfigUseCase: SelfServerConfigUseCase
+
+    @MockK
+    lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
+
+    @MockK
     lateinit var sendFCMToken: SendFCMTokenUseCase
 
     private val viewModel by lazy {
@@ -170,6 +182,8 @@ internal class DebugDataOptionsHiltArrangement {
             getCurrentAnalyticsTrackingIdentifier = getCurrentAnalyticsTrackingIdentifier,
             sendFCMToken = sendFCMToken,
             dispatcherProvider = TestDispatcherProvider(),
+            selfServerConfigUseCase = selfServerConfigUseCase,
+            getDefaultProtocolUseCase = getDefaultProtocolUseCase,
         )
     }
 
@@ -196,6 +210,22 @@ internal class DebugDataOptionsHiltArrangement {
         coEvery {
             globalDataStore.getUserMigrationStatus(TestUser.SELF_USER_ID.value)
         } returns flowOf(UserMigrationStatus.NoNeed)
+        coEvery {
+            selfServerConfigUseCase()
+        } returns SelfServerConfigUseCase.Result.Success(
+            ServerConfig(
+                id = "id",
+                links = mockk(),
+                metaData = ServerConfig.MetaData(
+                    federation = true,
+                    commonApiVersion = CommonApiVersionType.Unknown,
+                    domain = null,
+                )
+            )
+        )
+        every {
+            getDefaultProtocolUseCase()
+        } returns SupportedProtocol.PROTEUS
     }
 
     fun arrange() = this to viewModel

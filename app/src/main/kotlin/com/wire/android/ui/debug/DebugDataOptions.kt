@@ -161,6 +161,21 @@ fun DebugDataOptionsContent(
                 )
             )
 
+            Column {
+                SettingsItem(
+                    title = "Federation Enabled",
+                    text = state.isFederationEnabled.toString(),
+                )
+                SettingsItem(
+                    title = "Default Backend Protocol",
+                    text = state.defaultProtocol,
+                )
+                SettingsItem(
+                    title = "Current API Version",
+                    text = state.currentApiVersion.toString(),
+                )
+            }
+
             if (BuildConfig.DEBUG) {
                 GetE2EICertificateSwitch(
                     enrollE2EI = enrollE2EICertificate

@@ -222,7 +222,7 @@ class ConversationMessagesViewModel @Inject constructor(
         }
 
         val paginatedMessagesFlow = getMessageForConversation(conversationId, lastReadIndex)
-            .requestAudioWavesMaskIfNeeded()
+            .fetchAudioWavesMaskIfNeeded()
             .flowOn(dispatchers.io())
 
         conversationViewState = conversationViewState.copy(
@@ -450,7 +450,7 @@ class ConversationMessagesViewModel @Inject constructor(
         }
 
     // checking all the new messages if it's an AudioMessage and fetch WavesMask for it if so
-    private fun Flow<PagingData<UIMessage>>.requestAudioWavesMaskIfNeeded(): Flow<PagingData<UIMessage>> =
+    private fun Flow<PagingData<UIMessage>>.fetchAudioWavesMaskIfNeeded(): Flow<PagingData<UIMessage>> =
         map {
             it.map { message ->
                 if (message.messageContent is UIMessageContent.AudioAssetMessage) {

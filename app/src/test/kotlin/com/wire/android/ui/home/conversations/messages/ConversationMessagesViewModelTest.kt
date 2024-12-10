@@ -20,12 +20,14 @@ package com.wire.android.ui.home.conversations.messages
 
 import androidx.paging.PagingData
 import androidx.paging.map
+import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.GENERIC_ASSET_CONTENT
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.composer.mockUIAudioMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.composer.mockUITextMessage
@@ -37,6 +39,8 @@ import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.internal.assertEquals
@@ -298,4 +302,26 @@ class ConversationMessagesViewModelTest {
             )
             assertEquals(expectedState, viewModel.deleteMessageDialogsState)
         }
+
+
+    @Test
+    fun `given the AudioMessage in list, when getting paging flow, then fetching the waveMask for AudioMessage is called`() = runTest {
+        // Given
+        val firstMessage = mockUITextMessage(id = "firstId")
+        val secondMessage = mockUIAudioMessage(id = "secondId")
+        val pagingData = PagingData.from(listOf(firstMessage, secondMessage))
+
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withPaginatedMessagesReturning(pagingData)
+            .arrange()
+
+        val job = launch { viewModel.conversationViewState.messages.asSnapshot() }
+        job.start()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.conversationAudioMessagePlayer.fetchWavesMask(any(), any()) }
+
+        job.cancel()
+    }
 }

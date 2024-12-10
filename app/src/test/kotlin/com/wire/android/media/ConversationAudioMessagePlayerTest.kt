@@ -19,10 +19,12 @@ package com.wire.android.media
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.media.PlaybackParams
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
+import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.AudioWavesMaskHelper
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -501,6 +503,22 @@ class ConversationAudioMessagePlayerTest {
             }
         }
 
+    @Test
+    fun givenTheSuccessFullAssetFetch_whenAudioSpeedChanged_thenMediaPlayerParamsWereUpdated() = runTest {
+        val params = PlaybackParams()
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement()
+            .withSuccessFullAssetFetch()
+            .withCurrentSession()
+            .withAudioMediaPlayerReturningParams(params)
+            .arrange()
+
+        //when
+        conversationAudioMessagePlayer.setSpeed(AudioSpeed.MAX)
+
+        //then
+        verify(exactly = 1) { arrangement.mediaPlayer.playbackParams = params.setSpeed(2F) }
+    }
+
     private suspend fun <T> TurbineTestContext<T>.awaitAndAssertStateUpdate(assertion: (T) -> Unit) {
         val state = awaitItem()
         assert(state != null)
@@ -567,6 +585,10 @@ class Arrangement {
 
     fun withAudioMediaPlayerReturningTotalTime(total: Int) = apply {
         every { mediaPlayer.duration } returns total
+    }
+
+    fun withAudioMediaPlayerReturningParams(params: PlaybackParams = PlaybackParams()) = apply {
+        every { mediaPlayer.playbackParams } returns params
     }
 
     fun arrange() = this to conversationAudioMessagePlayer

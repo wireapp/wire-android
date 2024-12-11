@@ -29,15 +29,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -52,7 +51,6 @@ import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -68,7 +66,6 @@ import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
-import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModel
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
@@ -86,9 +83,7 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 fun ActiveMessageComposerInput(
     conversationId: ConversationId,
     messageComposition: MessageComposition,
-    messageTextFieldValue: State<TextFieldValue>,
-    onValueChange: (TextFieldValue) -> Unit,
-    mentions: List<UIMention>,
+    messageTextState: TextFieldState,
     isTextExpanded: Boolean,
     inputType: InputType,
     focusRequester: FocusRequester,
@@ -131,9 +126,7 @@ fun ActiveMessageComposerInput(
 
         InputContent(
             conversationId = conversationId,
-            messageTextFieldValue = messageTextFieldValue,
-            onValueChange = onValueChange,
-            mentions = mentions,
+            messageTextState = messageTextState,
             isTextExpanded = isTextExpanded,
             inputType = inputType,
             focusRequester = focusRequester,
@@ -170,9 +163,7 @@ fun ActiveMessageComposerInput(
 @Composable
 private fun InputContent(
     conversationId: ConversationId,
-    messageTextFieldValue: State<TextFieldValue>,
-    onValueChange: (TextFieldValue) -> Unit,
-    mentions: List<UIMention>,
+    messageTextState: TextFieldState,
     isTextExpanded: Boolean,
     inputType: InputType,
     focusRequester: FocusRequester,
@@ -215,9 +206,7 @@ private fun InputContent(
             isTextExpanded = isTextExpanded,
             focusRequester = focusRequester,
             colors = inputType.inputTextColor(isSelfDeleting = viewModel.state().duration != null),
-            messageTextFieldValue = messageTextFieldValue,
-            onValueChange = onValueChange,
-            mentions = mentions,
+            messageTextState = messageTextState,
             placeHolderText = viewModel.state().duration?.let { stringResource(id = R.string.self_deleting_message_label) }
                 ?: inputType.labelText(),
             onFocused = onFocused,
@@ -274,12 +263,10 @@ private fun InputContent(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun MessageComposerTextInput(
-    mentions: List<UIMention>,
+    messageTextState: TextFieldState,
     isTextExpanded: Boolean,
     focusRequester: FocusRequester,
     colors: WireTextFieldColors,
-    messageTextFieldValue: State<TextFieldValue>,
-    onValueChange: (TextFieldValue) -> Unit,
     placeHolderText: String,
     onTextCollapse: () -> Unit,
     onFocused: () -> Unit,
@@ -297,9 +284,7 @@ private fun MessageComposerTextInput(
     }
 
     WireTextField(
-        textFieldValue = messageTextFieldValue,
-        onValueChange = onValueChange,
-        mentions = mentions,
+        textState = messageTextState,
         colors = colors,
         textStyle = MaterialTheme.wireTypography.body01,
         // Add an extra space so that the cursor is placed one space before "Type a message"
@@ -366,9 +351,7 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
     ActiveMessageComposerInput(
         conversationId = ConversationId("conversationId", "domain"),
         messageComposition = MessageComposition(ConversationId("conversationId", "domain")),
-        mentions = emptyList(),
-        messageTextFieldValue = remember { mutableStateOf(TextFieldValue()) },
-        onValueChange = {},
+        messageTextState = TextFieldState(""),
         isTextExpanded = isTextExpanded,
         inputType = inputType,
         focusRequester = FocusRequester(),

@@ -80,10 +80,9 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -131,24 +130,19 @@ class WireActivityViewModel @Inject constructor(
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
-    private val userIdDeferred: Deferred<UserId?> = viewModelScope.async(dispatchers.io()) {
-        currentSessionFlow.get().invoke()
-            .distinctUntilChanged()
-            .map { result ->
-                if (result is CurrentSessionResult.Success) {
-                    if (result.accountInfo.isValid()) {
-                        result.accountInfo.userId
-                    } else {
-                        null
-                    }
-                } else {
-                    null
-                }
-            }
-            .distinctUntilChanged()
-            .flowOn(dispatchers.io())
-            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1).first()
-    }
+    private val observeCurrentAccountInfo: SharedFlow<AccountInfo?> = currentSessionFlow.get().invoke()
+        .map { (it as? CurrentSessionResult.Success)?.accountInfo }
+        .distinctUntilChanged()
+        .flowOn(dispatchers.io())
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+
+    private val observeCurrentValidUserId: SharedFlow<UserId?> = observeCurrentAccountInfo
+        .map {
+            if (it?.isValid() == true) it.userId else null
+        }
+        .distinctUntilChanged()
+        .flowOn(dispatchers.io())
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     init {
         observeSyncState()
@@ -159,21 +153,10 @@ class WireActivityViewModel @Inject constructor(
         observeLogoutState()
     }
 
-    @Suppress("TooGenericExceptionCaught")
-    private fun shouldEnrollToE2ei() = viewModelScope.async(dispatchers.io()) {
-        try {
-            val userId = userIdDeferred.await()
-            if (userId != null) {
-                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(userId)
-                    .observeIfE2EIIsRequiredDuringLogin().first() ?: false
-            } else {
-                false
-            }
-        } catch (e: NullPointerException) {
-            appLogger.e("Error while observing E2EI state: $e")
-            false
-        }
-    }
+    private suspend fun shouldEnrollToE2ei(): Boolean = observeCurrentValidUserId.first()?.let {
+        observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it)
+            .observeIfE2EIIsRequiredDuringLogin().first() ?: false
+    } ?: false
 
     private fun observeAppThemeState() {
         viewModelScope.launch(dispatchers.io()) {
@@ -185,33 +168,28 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    @Suppress("TooGenericExceptionCaught")
     private fun observeSyncState() {
         viewModelScope.launch(dispatchers.io()) {
-            try {
-                val userId = userIdDeferred.await()
-                if (userId != null) {
-                    observeSyncStateUseCaseProviderFactory.create(userId).observeSyncState()
-                } else {
-                    flowOf(null)
-                        .distinctUntilChanged()
-                        .collect { _observeSyncFlowState.emit(it) }
+            observeCurrentValidUserId
+                .flatMapLatest { userId ->
+                    userId?.let {
+                        observeSyncStateUseCaseProviderFactory.create(userId).observeSyncState()
+                    } ?: flowOf(null)
                 }
-            } catch (e: NullPointerException) {
-                appLogger.e("Error while observing sync state: $e")
-            }
+                .distinctUntilChanged()
+                .flowOn(dispatchers.io())
+                .collect {
+                    _observeSyncFlowState.emit(it)
+                }
         }
     }
 
     private fun observeLogoutState() {
         viewModelScope.launch(dispatchers.io()) {
-            currentSessionFlow.get().invoke()
-                .distinctUntilChanged()
+            observeCurrentAccountInfo
                 .collect {
-                    if (it is CurrentSessionResult.Success) {
-                        if (it.accountInfo.isValid().not()) {
-                            handleInvalidSession((it.accountInfo as AccountInfo.Invalid).logoutReason)
-                        }
+                    if (it is AccountInfo.Invalid) {
+                        handleInvalidSession(it.logoutReason)
                     }
                 }
         }
@@ -244,43 +222,29 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    @Suppress("TooGenericExceptionCaught")
     private fun observeScreenshotCensoringConfigState() {
         viewModelScope.launch(dispatchers.io()) {
-            try {
-                val userId = userIdDeferred.await()
-                if (userId != null) {
-                    observeScreenshotCensoringConfigUseCaseProviderFactory.create(userId)
-                        .observeScreenshotCensoringConfig().collect { result ->
-                            globalAppState = globalAppState.copy(
-                                screenshotCensoringEnabled = result is ObserveScreenshotCensoringConfigResult.Enabled
-                            )
-                        }
-                } else {
-                    globalAppState = globalAppState.copy(
-                        screenshotCensoringEnabled = false
-                    )
+            observeCurrentValidUserId
+                .flatMapLatest { currentValidUserId ->
+                    currentValidUserId?.let {
+                        observeScreenshotCensoringConfigUseCaseProviderFactory.create(it)
+                            .observeScreenshotCensoringConfig()
+                            .map { result ->
+                                result is ObserveScreenshotCensoringConfigResult.Enabled
+                            }
+                    } ?: flowOf(false)
                 }
-            } catch (exception: NullPointerException) {
-                globalAppState = globalAppState.copy(
-                    screenshotCensoringEnabled = false
-                )
-            }
+                .collect {
+                    globalAppState = globalAppState.copy(screenshotCensoringEnabled = it)
+                }
         }
     }
 
-    suspend fun initialAppState(): InitialAppState {
-        val shouldMigrate = viewModelScope.async(dispatchers.io()) {
-            shouldMigrate()
-        }
-        val shouldLogin = viewModelScope.async(dispatchers.io()) {
-            shouldLogIn()
-        }
-        val shouldEnrollToE2ei = shouldEnrollToE2ei()
-        return when {
-            shouldMigrate.await() -> InitialAppState.NOT_MIGRATED
-            shouldLogin.await() -> InitialAppState.NOT_LOGGED_IN
-            shouldEnrollToE2ei.await() -> InitialAppState.ENROLL_E2EI
+    suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
+        when {
+            shouldMigrate() -> InitialAppState.NOT_MIGRATED
+            shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
+            shouldEnrollToE2ei() -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
         }
     }
@@ -517,17 +481,7 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    private suspend fun shouldLogIn(): Boolean = !hasValidCurrentSession()
-
-    private suspend fun hasValidCurrentSession(): Boolean =
-        // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
-        currentSessionFlow.get().invoke().first().let {
-            when (it) {
-                is CurrentSessionResult.Failure.Generic -> false
-                CurrentSessionResult.Failure.SessionNotFound -> false
-                is CurrentSessionResult.Success -> true
-            }
-        }
+    private suspend fun shouldLogIn(): Boolean = observeCurrentValidUserId.first() == null
 
     private suspend fun shouldMigrate(): Boolean = migrationManager.get().shouldMigrate()
 

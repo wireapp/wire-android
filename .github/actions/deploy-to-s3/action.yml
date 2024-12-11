@@ -72,7 +72,7 @@ runs:
         
         # Extract version (v4.11.0) and version code (50753)
         version=$(echo "$filename" | sed -E 's/.*-v([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-        version_code=$(echo "$filename" | sed -E 's/.*-([0-9]+)-dev-debug\.apk/\1/')
+        version_code=$(echo "$filename" | sed -E 's/.*-([0-9]+)-${{ inputs.build-flavour }}-${{ inputs.build-variant }}\.apk/\1/')
         
         # Print the extracted version and version code
         echo "Extracted version: v$version"

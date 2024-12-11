@@ -28,9 +28,9 @@ import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.GENERIC_ASSET_CONTENT
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.composer.mockUIAudioMessage
+import com.wire.android.ui.home.conversations.composer.mockUITextMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
-import com.wire.android.ui.home.conversations.composer.mockUITextMessage
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
@@ -302,7 +302,6 @@ class ConversationMessagesViewModelTest {
             )
             assertEquals(expectedState, viewModel.deleteMessageDialogsState)
         }
-
 
     @Test
     fun `given the AudioMessage in list, when getting paging flow, then fetching the waveMask for AudioMessage is called`() = runTest {

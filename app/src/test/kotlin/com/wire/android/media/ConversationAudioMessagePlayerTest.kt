@@ -512,10 +512,10 @@ class ConversationAudioMessagePlayerTest {
             .withAudioMediaPlayerReturningParams(params)
             .arrange()
 
-        //when
+        // when
         conversationAudioMessagePlayer.setSpeed(AudioSpeed.MAX)
 
-        //then
+        // then
         verify(exactly = 1) { arrangement.mediaPlayer.playbackParams = params.setSpeed(2F) }
     }
 

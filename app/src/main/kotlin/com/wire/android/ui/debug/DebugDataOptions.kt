@@ -161,6 +161,21 @@ fun DebugDataOptionsContent(
                 )
             )
 
+            Column {
+                SettingsItem(
+                    title = stringResource(R.string.debug_federation_enabled),
+                    text = state.isFederationEnabled.toString(),
+                )
+                SettingsItem(
+                    title = stringResource(R.string.debug_default_backend_protocol),
+                    text = state.defaultProtocol,
+                )
+                SettingsItem(
+                    title = stringResource(R.string.debug_current_api_version),
+                    text = state.currentApiVersion,
+                )
+            }
+
             if (BuildConfig.DEBUG) {
                 GetE2EICertificateSwitch(
                     enrollE2EI = enrollE2EICertificate

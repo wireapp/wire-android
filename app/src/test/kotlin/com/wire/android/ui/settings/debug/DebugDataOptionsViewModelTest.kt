@@ -31,7 +31,11 @@ import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.configuration.server.CommonApiVersionType
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
@@ -39,6 +43,8 @@ import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
@@ -46,6 +52,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -128,6 +135,77 @@ class DebugDataOptionsViewModelTest {
             assertEquals(UIText.DynamicString("Can't register token, error: error message"), result)
         }
     }
+
+    @Test
+    fun `given that Proteus protocol is used, view state should have Proteus protocol name`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withProteusProtocolSetup()
+            .arrange()
+
+        assertEquals("Proteus", viewModel.state.defaultProtocol)
+    }
+
+    @Test
+    fun `given that Mls protocol is used, view state should have proteus Mls name`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withMlsProtocolSetup()
+            .arrange()
+
+        assertEquals("MLS", viewModel.state.defaultProtocol)
+    }
+
+    @Test
+    fun `given that federation is disabled, view state should have federation value of false`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withFederationDisabled()
+            .arrange()
+
+        assertEquals(false, viewModel.state.isFederationEnabled)
+    }
+
+    @Test
+    fun `given that federation is enabled, view state should have federation value of true`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withFederationEnabled()
+            .arrange()
+
+        assertEquals(true, viewModel.state.isFederationEnabled)
+    }
+
+    @Test
+    fun `given that api version is unknown, view state should have api version unknown`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withApiVersionUnknown()
+            .arrange()
+
+        assertEquals("Unknown", viewModel.state.currentApiVersion)
+    }
+
+    @Test
+    fun `given that api version is set, view state should have api version set`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withApiVersionSet(7)
+            .arrange()
+
+        assertEquals("7", viewModel.state.currentApiVersion)
+    }
+
+    @Test
+    fun `given server config failure, view state should have default values`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withServerConfigError()
+            .arrange()
+
+        assertEquals("null", viewModel.state.currentApiVersion)
+        assertEquals(false, viewModel.state.isFederationEnabled)
+    }
 }
 
 internal class DebugDataOptionsHiltArrangement {
@@ -156,6 +234,12 @@ internal class DebugDataOptionsHiltArrangement {
     lateinit var getCurrentAnalyticsTrackingIdentifier: GetCurrentAnalyticsTrackingIdentifierUseCase
 
     @MockK
+    lateinit var selfServerConfigUseCase: SelfServerConfigUseCase
+
+    @MockK
+    lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
+
+    @MockK
     lateinit var sendFCMToken: SendFCMTokenUseCase
 
     private val viewModel by lazy {
@@ -170,6 +254,8 @@ internal class DebugDataOptionsHiltArrangement {
             getCurrentAnalyticsTrackingIdentifier = getCurrentAnalyticsTrackingIdentifier,
             sendFCMToken = sendFCMToken,
             dispatcherProvider = TestDispatcherProvider(),
+            selfServerConfigUseCase = selfServerConfigUseCase,
+            getDefaultProtocolUseCase = getDefaultProtocolUseCase,
         )
     }
 
@@ -196,6 +282,22 @@ internal class DebugDataOptionsHiltArrangement {
         coEvery {
             globalDataStore.getUserMigrationStatus(TestUser.SELF_USER_ID.value)
         } returns flowOf(UserMigrationStatus.NoNeed)
+        coEvery {
+            selfServerConfigUseCase()
+        } returns SelfServerConfigUseCase.Result.Success(
+            ServerConfig(
+                id = "id",
+                links = mockk(),
+                metaData = ServerConfig.MetaData(
+                    federation = true,
+                    commonApiVersion = CommonApiVersionType.Unknown,
+                    domain = null,
+                )
+            )
+        )
+        every {
+            getDefaultProtocolUseCase()
+        } returns SupportedProtocol.PROTEUS
     }
 
     fun arrange() = this to viewModel
@@ -222,5 +324,89 @@ internal class DebugDataOptionsHiltArrangement {
         coEvery {
             sendFCMToken()
         } returns Either.Left(SendFCMTokenError(SendFCMTokenError.Reason.CANT_REGISTER_TOKEN, "error message"))
+    }
+
+    fun withProteusProtocolSetup() = apply {
+        every {
+            getDefaultProtocolUseCase()
+        } returns SupportedProtocol.PROTEUS
+    }
+
+    fun withMlsProtocolSetup() = apply {
+        every {
+            getDefaultProtocolUseCase()
+        } returns SupportedProtocol.MLS
+    }
+
+    fun withFederationEnabled() = apply {
+        coEvery {
+            selfServerConfigUseCase()
+        } returns SelfServerConfigUseCase.Result.Success(
+            ServerConfig(
+                id = "id",
+                links = mockk(),
+                metaData = ServerConfig.MetaData(
+                    federation = true,
+                    commonApiVersion = CommonApiVersionType.Unknown,
+                    domain = null,
+                )
+            )
+        )
+    }
+
+    fun withFederationDisabled() = apply {
+        coEvery {
+            selfServerConfigUseCase()
+        } returns SelfServerConfigUseCase.Result.Success(
+            ServerConfig(
+                id = "id",
+                links = mockk(),
+                metaData = ServerConfig.MetaData(
+                    federation = false,
+                    commonApiVersion = CommonApiVersionType.Unknown,
+                    domain = null,
+                )
+            )
+        )
+    }
+
+    fun withApiVersionUnknown() = apply {
+        coEvery {
+            selfServerConfigUseCase()
+        } returns SelfServerConfigUseCase.Result.Success(
+            ServerConfig(
+                id = "id",
+                links = mockk(),
+                metaData = ServerConfig.MetaData(
+                    federation = true,
+                    commonApiVersion = CommonApiVersionType.Unknown,
+                    domain = null,
+                )
+            )
+        )
+    }
+
+    fun withApiVersionSet(version: Int) = apply {
+        coEvery {
+            selfServerConfigUseCase()
+        } returns SelfServerConfigUseCase.Result.Success(
+            ServerConfig(
+                id = "id",
+                links = mockk(),
+                metaData = ServerConfig.MetaData(
+                    federation = true,
+                    commonApiVersion = CommonApiVersionType.Valid(version),
+                    domain = null,
+                )
+            )
+        )
+    }
+
+    fun withServerConfigError() = apply {
+        coEvery {
+            selfServerConfigUseCase()
+        } returns SelfServerConfigUseCase.Result.Failure(
+            CoreFailure.Unknown(IllegalStateException())
+        )
     }
 }

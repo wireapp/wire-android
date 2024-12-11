@@ -31,6 +31,6 @@ data class DebugDataOptionsState(
     val startGettingE2EICertificate: Boolean = false,
     val analyticsTrackingId: String = "null",
     val isFederationEnabled: Boolean = false,
-    val currentApiVersion: Int = 0,
+    val currentApiVersion: String = "null",
     val defaultProtocol: String = "null",
 )

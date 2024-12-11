@@ -163,16 +163,16 @@ fun DebugDataOptionsContent(
 
             Column {
                 SettingsItem(
-                    title = "Federation Enabled",
+                    title = stringResource(R.string.debug_federation_enabled),
                     text = state.isFederationEnabled.toString(),
                 )
                 SettingsItem(
-                    title = "Default Backend Protocol",
+                    title = stringResource(R.string.debug_default_backend_protocol),
                     text = state.defaultProtocol,
                 )
                 SettingsItem(
-                    title = "Current API Version",
-                    text = state.currentApiVersion.toString(),
+                    title = stringResource(R.string.debug_current_api_version),
+                    text = state.currentApiVersion,
                 )
             }
 

@@ -34,6 +34,7 @@ import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
+import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
@@ -128,7 +129,10 @@ class DebugDataOptionsViewModelImpl
             if (result is SelfServerConfigUseCase.Result.Success) {
                 state = state.copy(
                     isFederationEnabled = result.serverLinks.metaData.federation,
-                    currentApiVersion = result.serverLinks.metaData.commonApiVersion.version,
+                    currentApiVersion = when (result.serverLinks.metaData.commonApiVersion) {
+                        CommonApiVersionType.Unknown -> "Unknown"
+                        else -> result.serverLinks.metaData.commonApiVersion.version.toString()
+                    },
                 )
             }
         }

@@ -33,6 +33,7 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions
@@ -261,6 +262,8 @@ class TeamMigrationViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            coEvery { getSelfUser() } returns flowOf()
+            coEvery { getTeamUrl() } returns "TeamUrl"
         }
 
         fun arrange() = this to TeamMigrationViewModel(

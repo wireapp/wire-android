@@ -140,7 +140,7 @@ internal fun WireTextField(
         ),
         onTap = onTap,
         testTag = testTag,
-        innerBasicTextField = { decorator, textFieldModifier, _ ->
+        innerBasicTextField = { decorator, textFieldModifier ->
             BasicTextField(
                 state = textState,
                 textStyle = textStyle.copy(
@@ -167,97 +167,6 @@ internal fun WireTextField(
             )
         }
     )
-}
-
-@Composable
-internal fun WireTextField(
-    textFieldValue: State<TextFieldValue>,
-    onValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier,
-    mentions: List<UIMention> = emptyList(),
-    placeholderText: String? = null,
-    labelText: String? = null,
-    labelMandatoryIcon: Boolean = false,
-    descriptionText: String? = null,
-    semanticDescription: String? = null,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    state: WireTextFieldState = WireTextFieldState.Default,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.DefaultText,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    singleLine: Boolean = false,
-    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
-    minLines: Int = 1,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    textStyle: TextStyle = MaterialTheme.wireTypography.body01,
-    placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
-    placeholderAlignment: Alignment.Horizontal = Alignment.Start,
-    inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
-    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
-    colors: WireTextFieldColors = wireTextFieldColors(),
-    onSelectedLineIndexChanged: (Int) -> Unit = { },
-    onLineBottomYCoordinateChanged: (Float) -> Unit = { },
-    onTap: ((Offset) -> Unit)? = null,
-    testTag: String = String.EMPTY
-) {
-    WireTextFieldLayout(
-        modifier = modifier,
-        shouldShowPlaceholder = textFieldValue.value.text.isEmpty(),
-        placeholderText = placeholderText,
-        labelText = labelText,
-        labelMandatoryIcon = labelMandatoryIcon,
-        descriptionText = descriptionText,
-        semanticDescription = semanticDescription,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        state = state,
-        interactionSource = interactionSource,
-        placeholderTextStyle = placeholderTextStyle,
-        placeholderAlignment = placeholderAlignment,
-        inputMinHeight = inputMinHeight,
-        shape = shape,
-        colors = colors,
-        onTap = onTap,
-        testTag = testTag,
-        innerBasicTextField = { _, textFieldModifier, decoratorBox ->
-            BasicTextField(
-                value = textFieldValue.value,
-                onValueChange = onValueChange,
-                textStyle = textStyle.copy(
-                    color = colors.textColor(state = state).value,
-                    textDirection = TextDirection.ContentOrLtr
-                ),
-                keyboardOptions = keyboardOptions,
-                keyboardActions = keyboardActions,
-                readOnly = state is WireTextFieldState.ReadOnly,
-                enabled = state !is WireTextFieldState.Disabled,
-                singleLine = singleLine,
-                maxLines = maxLines,
-                minLines = minLines,
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                interactionSource = interactionSource,
-                modifier = textFieldModifier,
-                decorationBox = decoratorBox,
-                onTextLayout = onTextLayout(
-                    textFieldValue,
-                    onSelectedLineIndexChanged,
-                    onLineBottomYCoordinateChanged
-                ),
-                visualTransformation = MentionVisualTransformation(colorsScheme().primary, mentions),
-            )
-        }
-    )
-}
-
-private fun onTextLayout(
-    textFieldValue: State<TextFieldValue>,
-    onSelectedLineIndexChanged: (Int) -> Unit = { },
-    onLineBottomYCoordinateChanged: (Float) -> Unit = { },
-): (TextLayoutResult) -> Unit = {
-    val lineOfText = it.getLineForOffset(textFieldValue.value.selection.end)
-    val bottomYCoordinate = it.getLineBottom(lineOfText)
-    onSelectedLineIndexChanged(lineOfText)
-    onLineBottomYCoordinateChanged(bottomYCoordinate)
 }
 
 private fun onTextLayout(
@@ -297,16 +206,6 @@ private fun KeyboardOptions.Companion.defaultEmail(imeAction: ImeAction): Keyboa
         imeAction = imeAction,
         autoCorrectEnabled = false,
         capitalization = KeyboardCapitalization.None,
-    )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewWireTextFieldWithTextFieldValue() = WireTheme {
-    WireTextField(
-        modifier = Modifier.padding(16.dp),
-        textFieldValue = remember { mutableStateOf(TextFieldValue("text")) },
-        onValueChange = {}
     )
 }
 

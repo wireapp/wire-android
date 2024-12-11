@@ -41,6 +41,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.DEFAULT_WEIGHT
 import com.wire.android.ui.theme.wireColorScheme
@@ -55,6 +56,7 @@ fun SelectableMenuBottomSheetItem(
     titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02,
     titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02,
     subLine: String? = null,
+    description: String? = null,
     icon: @Composable () -> Unit = { },
     onItemClick: Clickable = Clickable(enabled = false) {},
     state: RichMenuItemState = RichMenuItemState.DEFAULT
@@ -77,12 +79,30 @@ fun SelectableMenuBottomSheetItem(
             modifier = Modifier
                 .weight(DEFAULT_WEIGHT),
         ) {
-            MenuItemHeading(
-                title = title, color = titleColor,
-                titleStyleUnselected = titleStyleUnselected,
-                titleStyleSelected = titleStyleSelected,
-                state = state
-            )
+            Row {
+                MenuItemHeading(
+                    title = title,
+                    color = titleColor,
+                    titleStyleUnselected = titleStyleUnselected,
+                    titleStyleSelected = titleStyleSelected,
+                    state = state,
+                    modifier = if (description != null) {
+                        Modifier
+                    } else {
+                        Modifier.weight(1F)
+                    }
+                )
+                if (description != null) {
+                    Text(
+                        text = description,
+                        style = MaterialTheme.wireTypography.body01,
+                        color = colorsScheme().secondaryText,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = dimensions().spacing16x)
+                    )
+                }
+            }
             if (subLine != null) {
                 MenuItemSubLine(
                     subLine = subLine,
@@ -106,7 +126,7 @@ fun SelectableMenuBottomSheetItem(
 @Composable
 fun MenuItemHeading(
     title: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02,
     titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02,
     state: RichMenuItemState = RichMenuItemState.DEFAULT,
@@ -116,7 +136,7 @@ fun MenuItemHeading(
         style = if (isSelectedItem(state)) titleStyleSelected else titleStyleUnselected,
         color = if (isSelectedItem(state)) MaterialTheme.wireColorScheme.primary else color ?: MaterialTheme.wireColorScheme.onBackground,
         text = title,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
     )
 }
 

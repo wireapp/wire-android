@@ -307,13 +307,22 @@ fun LoginErrorDialog(
             dismissOnClickOutside = false
         )
 
-        LoginState.Error.DialogError.PasswordNeededToRegisterClient -> TODO()
-
-        else -> LoginDialogErrorData(
-            title = stringResource(R.string.error_unknown_title),
-            body = AnnotatedString(stringResource(R.string.error_unknown_message)),
-            onDismiss = onDialogDismiss
-        )
+        LoginState.Error.DialogError.Request2FAWithHandle -> {
+            LoginDialogErrorData(
+                title = stringResource(R.string.login_error_request_2fa_with_handle_title),
+                body = AnnotatedString(stringResource(R.string.login_error_request_2fa_with_handle_message)),
+                onDismiss = onDialogDismiss
+            )
+        }
+        LoginState.Error.TextFieldError.InvalidValue,
+        LoginState.Error.DialogError.PasswordNeededToRegisterClient,
+        LoginState.Error.TooManyDevicesError -> {
+            LoginDialogErrorData(
+                title = stringResource(R.string.error_unknown_title),
+                body = AnnotatedString(stringResource(R.string.error_unknown_message)),
+                onDismiss = onDialogDismiss
+            )
+        }
     }
 
     WireDialog(

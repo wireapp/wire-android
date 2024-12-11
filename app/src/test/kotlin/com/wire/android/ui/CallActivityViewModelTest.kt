@@ -20,6 +20,7 @@ package com.wire.android.ui
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.ui.calling.CallActivityViewModel
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -87,7 +88,7 @@ class CallActivityViewModelTest {
                 .withAccountSwitch(SwitchAccountResult.Failure)
                 .arrange()
 
-            viewModel.switchAccountIfNeeded(userId)
+            viewModel.switchAccountIfNeeded(userId, arrangement.switchAccountActions)
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.accountSwitch(any()) }
@@ -101,7 +102,7 @@ class CallActivityViewModelTest {
                 .withAccountSwitch(SwitchAccountResult.SwitchedToAnotherAccount)
                 .arrange()
 
-            viewModel.switchAccountIfNeeded(UserId("anotherUserId", "domain"))
+            viewModel.switchAccountIfNeeded(UserId("anotherUserId", "domain"), arrangement.switchAccountActions)
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.accountSwitch(any()) }
@@ -115,10 +116,58 @@ class CallActivityViewModelTest {
                 .withAccountSwitch(SwitchAccountResult.SwitchedToAnotherAccount)
                 .arrange()
 
-            viewModel.switchAccountIfNeeded(userId)
+            viewModel.switchAccountIfNeeded(userId, arrangement.switchAccountActions)
 
             coVerify(inverse = true) { arrangement.accountSwitch(any()) }
         }
+
+    private fun testCallingSwitchAccountActions(
+        switchAccountResult: SwitchAccountResult,
+        switchedToAnotherAccountCalled: Boolean = false,
+        noOtherAccountToSwitchCalled: Boolean = false,
+    ) = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(UserId("user", "domain"))))
+            .withAccountSwitch(switchAccountResult)
+            .arrange()
+
+        viewModel.switchAccountIfNeeded(UserId("anotherUser", "domain"), arrangement.switchAccountActions)
+
+        coVerify(exactly = if (switchedToAnotherAccountCalled) 1 else 0) {
+            arrangement.switchAccountActions.switchedToAnotherAccount()
+        }
+        coVerify(exactly = if (noOtherAccountToSwitchCalled) 1 else 0) {
+            arrangement.switchAccountActions.noOtherAccountToSwitch()
+        }
+    }
+
+    @Test
+    fun `given no other account to switch, when switching, then call proper action`() = testCallingSwitchAccountActions(
+        switchAccountResult = SwitchAccountResult.NoOtherAccountToSwitch,
+        switchedToAnotherAccountCalled = false,
+        noOtherAccountToSwitchCalled = true,
+    )
+
+    @Test
+    fun `given account switched, when switching, then call proper action`() = testCallingSwitchAccountActions(
+        switchAccountResult = SwitchAccountResult.SwitchedToAnotherAccount,
+        switchedToAnotherAccountCalled = true,
+        noOtherAccountToSwitchCalled = false,
+    )
+
+    @Test
+    fun `given invalid account, when switching, then do not call any action`() = testCallingSwitchAccountActions(
+        switchAccountResult = SwitchAccountResult.GivenAccountIsInvalid,
+        switchedToAnotherAccountCalled = false,
+        noOtherAccountToSwitchCalled = false,
+    )
+
+    @Test
+    fun `given failure, when switching, then do not call any action`() = testCallingSwitchAccountActions(
+        switchAccountResult = SwitchAccountResult.Failure,
+        switchedToAnotherAccountCalled = false,
+        noOtherAccountToSwitchCalled = false,
+    )
 
     private class Arrangement {
 
@@ -134,6 +183,9 @@ class CallActivityViewModelTest {
 
         @MockK
         private lateinit var observeScreenshotCensoringConfig: ObserveScreenshotCensoringConfigUseCase
+
+        @MockK
+        lateinit var switchAccountActions: SwitchAccountActions
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

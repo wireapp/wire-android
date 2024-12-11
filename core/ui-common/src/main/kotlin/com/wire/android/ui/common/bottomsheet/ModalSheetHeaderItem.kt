@@ -38,17 +38,20 @@ import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun ModalSheetHeaderItem(header: MenuModalSheetHeader = MenuModalSheetHeader.Gone) {
+fun ModalSheetHeaderItem(
+    modifier: Modifier = Modifier,
+    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone,
+) {
     when (header) {
         MenuModalSheetHeader.Gone -> {
-            Spacer(modifier = Modifier.height(dimensions().modalBottomSheetNoHeaderVerticalPadding))
+            Spacer(modifier = modifier.height(dimensions().modalBottomSheetNoHeaderVerticalPadding))
         }
 
         is MenuModalSheetHeader.Visible -> {
             CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(
+                    modifier = modifier.padding(
                         start = dimensions().modalBottomSheetHeaderHorizontalPadding,
                         end = dimensions().modalBottomSheetHeaderHorizontalPadding,
                         top = header.customVerticalPadding ?: dimensions().modalBottomSheetHeaderVerticalPadding,
@@ -63,7 +66,9 @@ fun ModalSheetHeaderItem(header: MenuModalSheetHeader = MenuModalSheetHeader.Gon
                         modifier = Modifier.semantics { heading() }
                     )
                 }
-                WireDivider()
+                if (header.includeDivider) {
+                    WireDivider()
+                }
             }
         }
     }
@@ -74,7 +79,8 @@ sealed class MenuModalSheetHeader {
     data class Visible(
         val title: String,
         val leadingIcon: @Composable () -> Unit = {},
-        val customVerticalPadding: Dp? = null
+        val customVerticalPadding: Dp? = null,
+        val includeDivider: Boolean = true
     ) : MenuModalSheetHeader()
 
     object Gone : MenuModalSheetHeader()

@@ -40,7 +40,7 @@ fun ConversationFilterSheetContent(
             customVerticalPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
-            ConversationFilter.entries.forEach { filter ->
+            ConversationFilter.entries.filter { it != ConversationFilter.FAVORITES }.forEach { filter ->
                 add {
                     MenuBottomSheetItem(
                         title = stringResource(filter.getResource()),

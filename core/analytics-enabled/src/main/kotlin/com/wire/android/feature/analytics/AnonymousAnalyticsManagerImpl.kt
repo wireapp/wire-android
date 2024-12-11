@@ -42,6 +42,9 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     private val mutex = Mutex()
     private lateinit var coroutineScope: CoroutineScope
 
+    // TODO: Sync with product, when we want to enable view tracking, var for testing purposes
+    internal var VIEW_TRACKING_ENABLED: Boolean = false
+
     override fun <T> init(
         context: Context,
         analyticsSettings: AnalyticsSettings,
@@ -172,6 +175,10 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         }
 
     override fun recordView(screen: String) {
+        if (!VIEW_TRACKING_ENABLED) {
+            Log.d(TAG, "View tracking is disabled for this build.")
+            return
+        }
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock
@@ -181,6 +188,10 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     }
 
     override fun stopView(screen: String) {
+        if (!VIEW_TRACKING_ENABLED) {
+            Log.d(TAG, "View tracking is disabled for this build.")
+            return
+        }
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock

@@ -141,7 +141,7 @@ fun DrawerItem(
         )
         Text(
             style = MaterialTheme.wireTypography.button02,
-            text = stringResource(id = destination.title),
+            text = destination.title.asString(),
             textAlign = TextAlign.Start,
             color = contentColor,
             modifier = Modifier

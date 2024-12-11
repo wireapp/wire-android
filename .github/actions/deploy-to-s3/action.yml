@@ -64,21 +64,32 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       run: |
         gh pr comment "${{ github.event.pull_request.number }}" --body "Built [wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk](${{ steps.upload.outputs.file-url }}) is available for download"
-    - name: Generate version file
-      if: github.event.pull_request.number != ''
+    - name: Extract version and version code from APK filename
       shell: bash
-      run: ./gradlew generateVersionFile
+      run: |
+        # Filename of the APK
+        filename=${{ steps.path.outputs.apk_full_path }}
+        
+        # Extract version (v4.11.0) and version code (50753)
+        version=$(echo "$filename" | sed -E 's/.*-v([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+        version_code=$(echo "$filename" | sed -E 's/.*-([0-9]+)-dev-debug\.apk/\1/')
+        
+        # Print the extracted version and version code
+        echo "Extracted version: v$version"
+        echo "Extracted version code: $version_code"
+        
+        # set them as environment variables for later use
+        echo "VERSION=v$version" >> $GITHUB_ENV
+        echo "VERSION_CODE=$version_code" >> $GITHUB_ENV
     - name: Rename mapping file
       if: github.event.pull_request.number != '' && ${{ inputs.build-variant }} != 'debug'
       shell: bash
       id: mapping
       run: |
-        version_code=$(cat app/version.txt | grep 'VersionCode' | sed 's/VersionCode: //')
-        version_name=$(cat app/version.txt | grep 'VersionName' | sed 's/VersionName: //')
         capitalized_variant=$(echo "${{ inputs.build-variant }}" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
         echo "Capitalized Variant: $capitalized_variant"
         mapping_full_path="app/build/outputs/mapping/${{ inputs.build-flavour }}$capitalized_variant/mapping.txt"
-        new_mapping_file_name="mapping-$capitalized_variant-$version_name-$version_code.txt"
+        new_mapping_file_name="mapping-$capitalized_variant-${{ env.VERSION }}-${{ env.VERSION_CODE }}.txt"
         mv "$mapping_full_path" "$new_mapping_file_name"
         # Set the new mapping file name as an environment variable
         echo "new_mapping_file_name=$new_mapping_file_name" >> $GITHUB_ENV

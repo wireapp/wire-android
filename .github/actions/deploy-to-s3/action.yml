@@ -81,22 +81,8 @@ runs:
         # set them as environment variables for later use
         echo "VERSION=v$version" >> $GITHUB_ENV
         echo "VERSION_CODE=$version_code" >> $GITHUB_ENV
-    - name: Debug GitHub event
-      shell: bash
-      run: |
-        echo "Event name: ${{ github.event_name }}"
-        echo "Pull Request number: ${{ github.event.pull_request.number }}"
-    - name: Debug build variant input
-      shell: bash
-      run: |
-        echo "Build variant: '${{ inputs.build-variant }}'"
-    - name: Test condition
-      if: ${{ github.event.pull_request.number != '' && inputs.build-variant != 'debug' }}
-      shell: bash
-      run: |
-        echo "This should run only if it's a pull request and the variant is not 'debug'."
     - name: Rename mapping file
-      if: ${{ github.event.pull_request.number != '' && inputs.build-variant != 'debug' }}
+      if: ${{ inputs.build-variant != 'debug' }}
       shell: bash
       id: mapping
       run: |
@@ -108,7 +94,7 @@ runs:
         # Set the new mapping file name as an environment variable
         echo "new_mapping_file_name=$new_mapping_file_name" >> $GITHUB_ENV
     - name: Upload mapping file to S3 from branch
-      if: github.event.pull_request.number != '' && ${{ inputs.build-variant }} != 'debug'
+      if: ${{ github.event.pull_request.number == '' && inputs.build-variant != 'debug' }}
       id: upload-mapping-from-branch
       uses: hkusu/s3-upload-action@v2.1.0
       with:
@@ -117,6 +103,19 @@ runs:
         aws-region: 'eu-central-1'
         aws-bucket: ${{ inputs.aws-bucket }}
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/"
+        file-path: ${{ env.new_mapping_file_name }}
+        output-file-url: 'true'
+        public: true
+    - name: Upload mapping file to S3 from PR
+      if: ${{ github.event.pull_request.number != '' && inputs.build-variant != 'debug' }}
+      id: upload-mapping-from-PR
+      uses: hkusu/s3-upload-action@v2.1.0
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: 'eu-central-1'
+        aws-bucket: ${{ inputs.aws-bucket }}
+        destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/PR-${{ github.event.pull_request.number }}/"
         file-path: ${{ env.new_mapping_file_name }}
         output-file-url: 'true'
         public: true

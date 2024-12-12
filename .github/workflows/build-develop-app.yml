@@ -16,15 +16,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-#  code-analysis:
-#    uses: ./.github/workflows/code-analysis.yml
-#  ui-tests:
-#    uses: ./.github/workflows/gradle-run-ui-tests.yml
-#  unit-tests:
-#    uses: ./.github/workflows/gradle-run-unit-tests.yml
-#    secrets: inherit
+  code-analysis:
+    uses: ./.github/workflows/code-analysis.yml
+  ui-tests:
+    uses: ./.github/workflows/gradle-run-ui-tests.yml
+  unit-tests:
+    uses: ./.github/workflows/gradle-run-unit-tests.yml
+    secrets: inherit
   build-app:
-#    needs: [ code-analysis, ui-tests, unit-tests ]
+    needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -112,7 +112,6 @@ class MessageCompositionHolder(
             .distinctUntilChanged()
             .collectLatest { (messageText, selection) ->
                 updateTypingEvent(messageText)
-                updateMentionsIfNeeded(messageText)
                 requestMentionSuggestionIfNeeded(messageText, selection)
                 onSaveDraft(messageComposition.value.toDraft(messageText))
             }
@@ -123,10 +122,6 @@ class MessageCompositionHolder(
             messageText.isEmpty() -> onTypingEvent(TypingIndicatorMode.STOPPED)
             messageText.isNotEmpty() && messageComposition.value.draftText != messageText -> onTypingEvent(TypingIndicatorMode.STARTED)
         }
-    }
-
-    private fun updateMentionsIfNeeded(messageText: String) {
-        messageComposition.update { it.copy(selectedMentions = it.getSelectedMentions(messageText)) }
     }
 
     private fun requestMentionSuggestionIfNeeded(messageText: String, selection: TextRange) {
@@ -192,17 +187,24 @@ class MessageCompositionHolder(
     }
 
     fun addMention(contact: Contact) {
-        val mention = UIMention(
+        val mentionToAdd = UIMention(
             start = currentMentionStartIndex(messageTextFieldValue.value.text, messageTextFieldValue.value.selection),
             length = contact.name.length + 1, // +1 cause there is an "@" before it
             userId = UserId(contact.id, contact.domain),
             handler = String.MENTION_SYMBOL + contact.name
         )
-        insertMentionIntoText(mention)
+        val updatedList = mutableListOf<UIMention>()
+        messageComposition.value.selectedMentions.forEach { mention ->
+            if (messageTextFieldValue.value.selection.start < mention.start) {
+                updatedList.add(mention.copy(start = mention.start + mentionToAdd.length))
+            } else {
+                updatedList.add(mention)
+            }
+        }
+        updatedList.add(mentionToAdd)
+        insertMentionIntoText(mentionToAdd)
         messageComposition.update {
-            it.copy(
-                selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }
-            )
+            it.copy(selectedMentions = updatedList.sortedBy { it.start })
         }
     }
 
@@ -298,7 +300,8 @@ class MessageCompositionHolder(
             it.copy(
                 quotedMessageId = null,
                 quotedMessage = null,
-                editMessageId = null
+                editMessageId = null,
+                selectedMentions = emptyList()
             )
         }
         onSaveDraft(messageComposition.value.toDraft(String.EMPTY))

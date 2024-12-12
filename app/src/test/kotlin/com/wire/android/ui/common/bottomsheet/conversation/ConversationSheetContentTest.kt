@@ -191,7 +191,7 @@ class ConversationSheetContentTest {
             title = title,
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
-            conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
+            conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, false),
             selfRole = Conversation.Member.Role.Member,
             isTeamConversation = details.conversation.isTeamGroup(),
             isArchived = false,

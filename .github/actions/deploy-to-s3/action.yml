@@ -70,7 +70,7 @@ runs:
         # Filename of the APK
         filename=${{ steps.path.outputs.apk_full_path }}
         
-        # Extract version (v4.11.0) and version code (50753)
+        # Extract version name and version code
         version=$(echo "$filename" | sed -E 's/.*-v([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
         version_code=$(echo "$filename" | sed -E 's/.*-([0-9]+)-${{ inputs.build-flavour }}-${{ inputs.build-variant }}\.apk/\1/')
         
@@ -82,7 +82,7 @@ runs:
         echo "VERSION=v$version" >> $GITHUB_ENV
         echo "VERSION_CODE=$version_code" >> $GITHUB_ENV
     - name: Rename mapping file
-      if: github.event.pull_request.number != '' && ${{ inputs.build-variant }} != 'debug'
+      if: ${{ inputs.build-variant }} != 'debug'
       shell: bash
       id: mapping
       run: |
@@ -94,7 +94,7 @@ runs:
         # Set the new mapping file name as an environment variable
         echo "new_mapping_file_name=$new_mapping_file_name" >> $GITHUB_ENV
     - name: Upload mapping file to S3 from branch
-      if: github.event.pull_request.number != '' && ${{ inputs.build-variant }} != 'debug'
+      if: ${{ inputs.build-variant }} != 'debug'
       id: upload-mapping-from-branch
       uses: hkusu/s3-upload-action@v2.1.0
       with:

@@ -314,8 +314,8 @@ fun ConversationsScreenContent(
                         )
                     },
                     changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
-                    moveConversationToFolder = { currentFolderId ->
-                        navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(currentFolderId)))
+                    moveConversationToFolder = { navArgs ->
+                        navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(navArgs)))
                     },
                     updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
                     clearConversationContent = clearContentDialogState::show,

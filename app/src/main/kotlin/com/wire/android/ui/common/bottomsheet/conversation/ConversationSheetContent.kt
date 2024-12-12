@@ -23,8 +23,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.navigation.FolderNavArgs
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
@@ -38,7 +40,7 @@ fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
     onMutingConversationStatusChange: () -> Unit,
     changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
-    moveConversationToFolder: (currentFolderId: String?) -> Unit,
+    moveConversationToFolder: (ConversationFoldersNavArgs) -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,

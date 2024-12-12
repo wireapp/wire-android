@@ -96,6 +96,7 @@ import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestinat
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
@@ -248,7 +249,7 @@ fun OtherProfileScreenContent(
     onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {},
     onLegalHoldLearnMoreClick: () -> Unit = {},
-    onMoveToFolder: (String?) -> Unit = {},
+    onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     changeConversationFavoriteViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
             ChangeConversationFavoriteStateArgs

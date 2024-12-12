@@ -43,6 +43,7 @@ import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
@@ -59,7 +60,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
     changeFavoriteState: (dialogState: GroupDialogState, addToFavorite: Boolean) -> Unit,
-    moveConversationToFolder: (currentFolder: String?) -> Unit,
+    moveConversationToFolder: (ConversationFoldersNavArgs) -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
@@ -150,8 +151,13 @@ internal fun ConversationMainSheetContent(
                     },
                     title = stringResource(R.string.label_move_to_folder),
                     onItemClick = {
-                        // TODO KBX - add current folder id
-                        moveConversationToFolder(null)
+                        moveConversationToFolder(
+                            ConversationFoldersNavArgs(
+                                conversationId = conversationSheetContent.conversationId,
+                                conversationName = conversationSheetContent.title,
+                                currentFolderId = null
+                            )
+                        )
                     }
                 )
             }

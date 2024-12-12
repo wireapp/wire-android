@@ -25,19 +25,28 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.model.Clickable
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.WireTabRow
+import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
+import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.common.bottomsheet.RichMenuItemState
+import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -48,6 +57,9 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @RootNavGraph
 @WireDestination(
@@ -58,20 +70,33 @@ import com.wire.android.ui.common.typography
 fun ConversationFoldersScreen(
     navigator: Navigator,
 ) {
+    val currentFolderId = remember {
+        navigator.navController.currentBackStackEntry?.let {
+            ConversationFoldersScreenDestination.argsFrom(it).currentFolderId
+        }
+    }
+
     Content(
+        currentFolderId = currentFolderId,
         onNavigationPressed = { navigator.navigateBack() },
     )
 }
 
 @Composable
 private fun Content(
+    currentFolderId : String?,
     onNavigationPressed: () -> Unit = {},
+    foldersViewModel: ConversationFoldersVM =
+        hiltViewModelScoped<ConversationFoldersVMImpl, ConversationFoldersVM, ConversationFoldersStateArgs>(
+            ConversationFoldersStateArgs
+        )
 ) {
     val resources = LocalContext.current.resources
     val context = LocalContext.current
+    val lazyListState = rememberLazyListState()
     WireScaffold(
         modifier = Modifier
-            .background(color = colorsScheme().surfaceContainerLow),
+            .background(color = colorsScheme().background),
 
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -87,11 +112,11 @@ private fun Content(
                     state = WireButtonState.Default,
                     text = stringResource(id = R.string.label_new_folder),
                     onClick = {
-                            Toast.makeText(
-                                context,
-                                "Not implemented yet",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        Toast.makeText(
+                            context,
+                            "Not implemented yet",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 )
                 VerticalSpace.x8()
@@ -104,18 +129,36 @@ private fun Content(
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-          if(true) { // TODO KBX implement fetching folders
-              Text(
-                  stringResource(R.string.folder_create_description),
-                  modifier = Modifier.align(Alignment.Center),
-                  style = typography().body01,
-                  color = colorsScheme().secondaryText)
-
-          } else {
-              LazyColumn(Modifier.fillMaxHeight()) {
-
-              }
-          }
+            if (foldersViewModel.state().folders.isEmpty()) {
+                Text(
+                    stringResource(R.string.folder_create_description),
+                    modifier = Modifier.align(Alignment.Center),
+                    style = typography().body01,
+                    color = colorsScheme().secondaryText
+                )
+            } else {
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier.fillMaxHeight()
+                ) {
+                    items(foldersViewModel.state().folders) { folder ->
+                       val state =  if (currentFolderId == folder.id) {
+                            RichMenuItemState.SELECTED
+                        } else {
+                            RichMenuItemState.DEFAULT
+                        }
+                    SelectableMenuBottomSheetItem(
+                        title = folder.name,
+                        onItemClick = Clickable(
+                            enabled = state == RichMenuItemState.DEFAULT,
+                            onClickDescription = stringResource(id = R.string.content_description_select_label),
+                            onClick = { }
+                        ),
+                        state = state
+                    )
+                    }
+                }
+            }
         }
     }
 }

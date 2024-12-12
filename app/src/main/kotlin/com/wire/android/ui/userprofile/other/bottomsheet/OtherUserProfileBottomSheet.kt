@@ -23,6 +23,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetCont
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.userprofile.other.OtherUserProfileBottomSheetEventsHandler
@@ -38,7 +39,7 @@ fun OtherUserProfileBottomSheetContent(
     changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
     closeBottomSheet: () -> Unit,
     getBottomSheetVisibility: () -> Boolean,
-    onMoveToFolder: (String?) -> Unit
+    onMoveToFolder: (ConversationFoldersNavArgs) -> Unit
 ) {
     when (val state = bottomSheetState.bottomSheetContentState) {
         is BottomSheetContent.Conversation -> {

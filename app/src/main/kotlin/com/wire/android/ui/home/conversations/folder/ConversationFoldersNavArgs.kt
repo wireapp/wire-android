@@ -17,4 +17,10 @@
  */
 package com.wire.android.ui.home.conversations.folder
 
-data class ConversationFoldersNavArgs(val currentFolderId: String?)
+import com.wire.kalium.logic.data.id.ConversationId
+
+data class ConversationFoldersNavArgs(
+    val conversationId: ConversationId,
+    val conversationName: String,
+    val currentFolderId: String?
+)

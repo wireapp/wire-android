@@ -88,7 +88,7 @@ runs:
       run: |
         capitalized_variant=$(echo "${{ inputs.build-variant }}" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
         echo "Capitalized Variant: $capitalized_variant"
-        mapping_full_path="app/build/outputs/mapping/${{ inputs.build-flavour }}$capitalized_variant/mapping.txt"
+        mapping_full_path="app/build/outputs/mapping/${{ inputs.build-flavour }}${capitalized_variant}/mapping.txt"
         new_mapping_file_name="mapping-$capitalized_variant-${{ env.VERSION }}-${{ env.VERSION_CODE }}.txt"
         mv "$mapping_full_path" "$new_mapping_file_name"
         # Set the new mapping file name as an environment variable

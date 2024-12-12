@@ -96,7 +96,7 @@ runs:
       run: |
         echo "This should run only if it's a pull request and the variant is not 'debug'."
     - name: Rename mapping file
-      if: github.event.pull_request.number != '' && ${{ inputs.build-variant }} != 'debug'
+      if: ${{ github.event.pull_request.number != '' && inputs.build-variant != 'debug' }}
       shell: bash
       id: mapping
       run: |

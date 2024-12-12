@@ -28,7 +28,6 @@ import com.wire.kalium.logic.data.conversation.ConversationFilter
 fun ConversationFilterSheetContent(
     filterSheetState: ConversationFilterSheetState,
     onChangeFilter: (ConversationFilter) -> Unit,
-    onChangeFolder: (ConversationFilter.Folder) -> Unit,
     isBottomSheetVisible: () -> Boolean = { true }
 ) {
     when (filterSheetState.currentData.tab) {
@@ -45,7 +44,7 @@ fun ConversationFilterSheetContent(
         FilterTab.FOLDERS -> {
             ConversationFoldersSheetContent(
                 sheetData = filterSheetState.currentData,
-                onChangeFolder = onChangeFolder,
+                onChangeFolder = onChangeFilter,
                 onBackClick = {
                     filterSheetState.toFilters()
                 }
@@ -77,5 +76,5 @@ fun ConversationFilter.uiText(): UIText = when (this) {
     ConversationFilter.Favorites -> UIText.StringResource(R.string.label_filter_favorites)
     ConversationFilter.Groups -> UIText.StringResource(R.string.label_filter_group)
     ConversationFilter.OneOnOne -> UIText.StringResource(R.string.label_filter_one_on_one)
-    is ConversationFilter.Folder -> UIText.StringResource(R.string.label_filter_folders, this.folderName)
+    is ConversationFilter.Folder -> UIText.DynamicString(this.folderName)
 }

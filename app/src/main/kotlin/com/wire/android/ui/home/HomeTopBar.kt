@@ -28,7 +28,6 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.currentFilter
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.android.ui.common.button.WireButtonState
@@ -42,6 +41,8 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Composable
 fun HomeTopBar(
+    title: String,
+    currentFilter: ConversationFilter,
     navigationItem: HomeDestination,
     userAvatarData: UserAvatarData,
     elevation: Dp,
@@ -52,7 +53,7 @@ fun HomeTopBar(
     onOpenConversationFilter: (filter: ConversationFilter) -> Unit
 ) {
     WireCenterAlignedTopAppBar(
-        title = navigationItem.title.asString(),
+        title = title,
         onNavigationPressed = onHamburgerMenuClick,
         navigationIconType = NavigationIconType.Menu,
         actions = {
@@ -60,12 +61,12 @@ fun HomeTopBar(
                 WireTertiaryIconButton(
                     iconResource = R.drawable.ic_filter,
                     contentDescription = R.string.label_filter_conversations,
-                    state = if (navigationItem.currentFilter() == ConversationFilter.All) {
+                    state = if (currentFilter == ConversationFilter.All) {
                         WireButtonState.Default
                     } else {
                         WireButtonState.Selected
                     },
-                    onButtonClicked = { onOpenConversationFilter(navigationItem.currentFilter()) }
+                    onButtonClicked = { onOpenConversationFilter(currentFilter) }
                 )
             }
             if (navigationItem.withUserAvatar) {
@@ -100,7 +101,9 @@ fun HomeTopBar(
 fun PreviewTopBar() {
     WireTheme {
         HomeTopBar(
+            title = "Conversations",
             navigationItem = HomeDestination.Conversations,
+            currentFilter = ConversationFilter.All,
             userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
             elevation = 0.dp,
             withLegalHoldIndicator = false,
@@ -117,7 +120,9 @@ fun PreviewTopBar() {
 fun PreviewSettingsTopBarWithoutAvatar() {
     WireTheme {
         HomeTopBar(
+            title = "Settings",
             navigationItem = HomeDestination.Settings,
+            currentFilter = ConversationFilter.All,
             userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
             elevation = 0.dp,
             withLegalHoldIndicator = false,
@@ -134,7 +139,9 @@ fun PreviewSettingsTopBarWithoutAvatar() {
 fun PreviewTopBarWithNameBasedAvatar() {
     WireTheme {
         HomeTopBar(
+            title = "Conversations",
             navigationItem = HomeDestination.Conversations,
+            currentFilter = ConversationFilter.All,
             userAvatarData = UserAvatarData(
                 asset = null,
                 availabilityStatus = UserAvailabilityStatus.AVAILABLE,
@@ -155,7 +162,9 @@ fun PreviewTopBarWithNameBasedAvatar() {
 fun PreviewTopBarWithLegalHold() {
     WireTheme {
         HomeTopBar(
+            title = "Archive",
             navigationItem = HomeDestination.Archive,
+            currentFilter = ConversationFilter.All,
             userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
             elevation = 0.dp,
             withLegalHoldIndicator = true,

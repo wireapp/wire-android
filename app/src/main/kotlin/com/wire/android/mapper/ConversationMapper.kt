@@ -96,6 +96,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             ),
             userId = conversationDetails.otherUser.id,
             blockingState = conversationDetails.otherUser.BlockState,
+            isUserDeleted = conversationDetails.otherUser.deleted,
             teamId = conversationDetails.otherUser.teamId,
             isArchived = conversationDetails.conversation.archived,
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,

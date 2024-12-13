@@ -117,6 +117,7 @@ class CallActivityViewModelTest {
                 .arrange()
 
             viewModel.switchAccountIfNeeded(userId, arrangement.switchAccountActions)
+            advanceUntilIdle()
 
             coVerify(inverse = true) { arrangement.accountSwitch(any()) }
         }
@@ -132,6 +133,7 @@ class CallActivityViewModelTest {
             .arrange()
 
         viewModel.switchAccountIfNeeded(UserId("anotherUser", "domain"), arrangement.switchAccountActions)
+        advanceUntilIdle()
 
         coVerify(exactly = if (switchedToAnotherAccountCalled) 1 else 0) {
             arrangement.switchAccountActions.switchedToAnotherAccount()

@@ -75,6 +75,7 @@ sealed class ConversationItem : ConversationFolderItem {
         val conversationInfo: ConversationInfo,
         val userId: UserId,
         val blockingState: BlockingState,
+        val isUserDeleted: Boolean,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val showLegalHoldIndicator: Boolean = false,

@@ -125,7 +125,12 @@ fun SelfUserProfileScreen(
 
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
-        onCloseClick = navigator::navigateBack,
+        onCloseClick = {
+            if (viewModelSelf.userProfileState.isAbleToMigrateToTeamAccount) {
+                viewModelSelf.sendPersonalToTeamMigrationDismissed()
+            }
+            navigator.navigateBack()
+        },
         logout = { viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate)) },
         onChangeUserProfilePicture = {
             navigator.navigate(
@@ -154,7 +159,7 @@ fun SelfUserProfileScreen(
             navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName)))
         },
         onCreateAccount = {
-            viewModelSelf.sendPersonalToTeamMigrationEvent()
+            viewModelSelf.sendPersonalToTeamMigrationEventCTAClicked()
             navigator.navigate(NavigationCommand(TeamMigrationScreenDestination))
         },
         onAccountDetailsClick = { navigator.navigate(NavigationCommand(MyAccountScreenDestination)) },

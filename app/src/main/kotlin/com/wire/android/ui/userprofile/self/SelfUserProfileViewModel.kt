@@ -317,10 +317,18 @@ class SelfUserProfileViewModel @Inject constructor(
         anonymousAnalyticsManager.sendEvent(AnalyticsEvent.QrCode.Click(!userProfileState.teamName.isNullOrBlank()))
     }
 
-    fun sendPersonalToTeamMigrationEvent() {
+    fun sendPersonalToTeamMigrationEventCTAClicked() {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
                 createTeamButtonClicked = true
+            )
+        )
+    }
+
+    fun sendPersonalToTeamMigrationDismissed() {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
+                dismissCreateTeamButtonClicked = true
             )
         )
     }

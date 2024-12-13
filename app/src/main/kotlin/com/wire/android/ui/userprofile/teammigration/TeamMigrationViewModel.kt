@@ -57,14 +57,6 @@ class TeamMigrationViewModel @Inject constructor(
         teamMigrationState = teamMigrationState.copy(shouldShowMigrationLeaveDialog = false)
     }
 
-    fun sendPersonalToTeamMigrationDismissed() {
-        anonymousAnalyticsManager.sendEvent(
-            AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                dismissCreateTeamButtonClicked = true
-            )
-        )
-    }
-
     fun sendPersonalTeamCreationFlowStartedEvent(step: Int) {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(step)
@@ -81,9 +73,22 @@ class TeamMigrationViewModel @Inject constructor(
     ) {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
-                teamName = teamMigrationState.teamNameTextState.text.toString(),
                 modalLeaveClicked = modalLeaveClicked,
                 modalContinueClicked = modalContinueClicked
+            )
+        )
+    }
+
+    fun sendPersonalTeamCreationFlowStoppedEvent(
+        isOnDisclaimerStep: Boolean? = null,
+        isOnTeamNameStep: Boolean? = null,
+        isOnConfirmationStep: Boolean? = null
+    ) {
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStopped(
+                isOnTeamNameStep = isOnTeamNameStep,
+                isOnConfirmationStep = isOnConfirmationStep,
+                isOnDisclaimerStep = isOnDisclaimerStep
             )
         )
     }
@@ -94,7 +99,6 @@ class TeamMigrationViewModel @Inject constructor(
     ) {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
-                teamName = teamMigrationState.teamNameTextState.text.toString(),
                 modalOpenTeamManagementButtonClicked = modalOpenTeamManagementButtonClicked,
                 backToWireButtonClicked = backToWireButtonClicked
             )

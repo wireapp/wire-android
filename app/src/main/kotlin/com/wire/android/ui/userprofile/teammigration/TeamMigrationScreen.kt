@@ -113,7 +113,6 @@ fun TeamMigrationScreen(
                 if (navController.currentDestination?.route == NavGraphs.personalToTeamMigration.destinations.last().route) {
                     navigator.navigateBack()
                 } else {
-                    teamMigrationViewModel.sendPersonalToTeamMigrationDismissed()
                     teamMigrationViewModel.showMigrationLeaveDialog()
                 }
             }
@@ -150,6 +149,23 @@ fun TeamMigrationScreen(
             teamMigrationViewModel.sendPersonalTeamCreationFlowCanceledEvent(
                 modalLeaveClicked = true
             )
+            when (teamMigrationViewModel.teamMigrationState.currentStep) {
+                TEAM_MIGRATION_TEAM_PLAN_STEP -> {
+                    teamMigrationViewModel.sendPersonalTeamCreationFlowStoppedEvent(isOnDisclaimerStep = true)
+                }
+
+                TEAM_MIGRATION_TEAM_NAME_STEP -> {
+                    teamMigrationViewModel.sendPersonalTeamCreationFlowStoppedEvent(isOnTeamNameStep = true)
+                }
+
+                TEAM_MIGRATION_CONFIRMATION_STEP -> {
+                    teamMigrationViewModel.sendPersonalTeamCreationFlowStoppedEvent(isOnConfirmationStep = true)
+                }
+
+                else -> {
+                    // Nothing to send
+                }
+            }
             navigator.navigateBack()
         }
     }

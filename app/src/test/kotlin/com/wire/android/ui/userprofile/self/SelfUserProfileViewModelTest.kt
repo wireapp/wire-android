@@ -72,12 +72,30 @@ class SelfUserProfileViewModelTest {
                 .withLegalHoldStatus(LegalHoldStateForSelfUser.Disabled)
                 .arrange()
 
-            viewModel.sendPersonalToTeamMigrationEvent()
+            viewModel.sendPersonalToTeamMigrationEventCTAClicked()
 
             verify(exactly = 1) {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
                         createTeamButtonClicked = true
+                    )
+                )
+            }
+        }
+
+    @Test
+    fun `given close modal event, when sendPersonalToTeamMigrationDismissed is called, then send the event`() =
+        runTest {
+            val (arrangement, viewModel) = SelfUserProfileViewModelArrangement()
+                .withLegalHoldStatus(LegalHoldStateForSelfUser.Disabled)
+                .arrange()
+
+            viewModel.sendPersonalToTeamMigrationDismissed()
+
+            verify(exactly = 1) {
+                arrangement.anonymousAnalyticsManager.sendEvent(
+                    AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
+                        dismissCreateTeamButtonClicked = true
                     )
                 )
             }

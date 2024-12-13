@@ -199,7 +199,7 @@ class DeviceDetailsViewModel @Inject constructor(
                             isCurrentDevice = result.isCurrentClient,
                             removeDeviceDialogState = RemoveDeviceDialogState.Hidden,
                             canBeRemoved = !result.isCurrentClient && isSelfClient && result.client.type != ClientType.LegalHold,
-                            mlsCipherSuite = MLSPublicKeyType.from(
+                            mlsCipherSuiteSignature = MLSPublicKeyType.from(
                                 result.client.mlsPublicKeys?.keys?.firstOrNull().orEmpty()
                             ).value.toString()
                         )

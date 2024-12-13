@@ -67,7 +67,6 @@ runs:
     - name: Extract version and version code from APK filename
       shell: bash
       run: |
-        # Filename of the APK
         filename=${{ steps.path.outputs.apk_full_path }}
         
         # Extract version name and version code
@@ -89,7 +88,7 @@ runs:
         capitalized_variant=$(echo "${{ inputs.build-variant }}" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
         echo "Capitalized Variant: $capitalized_variant"
         mapping_full_path="app/build/outputs/mapping/${{ inputs.build-flavour }}${capitalized_variant}/mapping.txt"
-        new_mapping_file_name="mapping-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-${{ env.VERSION }}-${{ env.VERSION_CODE }}.txt"
+        new_mapping_file_name="mapping-${{ env.VERSION }}-${{ env.VERSION_CODE }}-${{ inputs.build-flavour }}-${{ inputs.build-variant }}.txt"
         mv "$mapping_full_path" "$new_mapping_file_name"
         # Set the new mapping file name as an environment variable
         echo "new_mapping_file_name=$new_mapping_file_name" >> $GITHUB_ENV

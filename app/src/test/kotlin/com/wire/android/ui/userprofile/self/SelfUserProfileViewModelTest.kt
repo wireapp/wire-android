@@ -82,6 +82,7 @@ class SelfUserProfileViewModelTest {
                 )
             }
         }
+
     @Test
     fun `given close modal event, when sendPersonalToTeamMigrationDismissed is called, then send the event`() =
         runTest {

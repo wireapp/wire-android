@@ -26,6 +26,7 @@ import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.mls.MLSPublicKeys
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.util.inWholeWeeks
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString

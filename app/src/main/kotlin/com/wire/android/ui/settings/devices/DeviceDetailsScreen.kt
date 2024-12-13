@@ -204,6 +204,12 @@ fun DeviceDetailsContent(
         ) {
             state.device.mlsClientIdentity?.let { identity ->
                 item {
+                    FolderHeader(
+                        name = stringResource(id = R.string.label_mls_signature, state.mlsCipherSuite.orEmpty()).uppercase(),
+                        modifier = Modifier
+                            .background(MaterialTheme.wireColorScheme.background)
+                            .fillMaxWidth()
+                    )
                     DeviceMLSSignatureItem(identity.thumbprint, screenState::copyMessage)
                     HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }

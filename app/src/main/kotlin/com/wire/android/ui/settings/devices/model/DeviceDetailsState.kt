@@ -37,5 +37,6 @@ data class DeviceDetailsState(
     val isE2EICertificateEnrollSuccess: Boolean = false,
     val isE2EICertificateEnrollError: Boolean = false,
     val isE2EIEnabled: Boolean = false,
-    val startGettingE2EICertificate: Boolean = false
+    val startGettingE2EICertificate: Boolean = false,
+    val mlsCipherSuite: String? = null,
 )

@@ -398,15 +398,17 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             isUnderLegalHold = otherUser.isUnderLegalHold,
             expiresAt = otherUser.expiresAt,
             accentId = otherUser.accentId,
+            isDeletedUser = otherUser.deleted,
             conversationSheetContent = conversation?.let {
                 ConversationSheetContent(
                     title = otherUser.name.orEmpty(),
                     conversationId = conversation.id,
                     mutingConversationState = conversation.mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Private(
-                        userAvatarAsset,
-                        userId,
-                        otherUser.BlockState
+                        avatarAsset = userAvatarAsset,
+                        userId = userId,
+                        blockingState = otherUser.BlockState,
+                        isUserDeleted = otherUser.deleted
                     ),
                     isTeamConversation = conversation.isTeamGroup(),
                     selfRole = Conversation.Member.Role.Member,

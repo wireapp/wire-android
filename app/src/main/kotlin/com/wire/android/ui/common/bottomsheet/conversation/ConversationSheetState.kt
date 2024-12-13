@@ -93,9 +93,10 @@ fun rememberConversationSheetState(
                     } else conversationInfo.name,
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Private(
-                        userAvatarData.asset,
-                        userId,
-                        blockingState
+                        avatarAsset = userAvatarData.asset,
+                        userId = userId,
+                        blockingState = blockingState,
+                        isUserDeleted = isUserDeleted
                     ),
                     isTeamConversation = isTeamConversation,
                     selfRole = Conversation.Member.Role.Member,

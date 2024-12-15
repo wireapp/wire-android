@@ -85,7 +85,7 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
 
     override fun halt() {
         isConfigured = false
-        Countly.sharedInstance().halt()
+        Countly.sharedInstance().consent().removeConsentAll()
     }
 
     override suspend fun setTrackingIdentifierWithMerge(

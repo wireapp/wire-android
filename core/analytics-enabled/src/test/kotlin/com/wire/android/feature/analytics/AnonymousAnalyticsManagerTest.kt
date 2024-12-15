@@ -295,6 +295,37 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
+    fun givenManagerInitialized_whenRecordingViewAndFlagDisabled_thenScreenIsNOTRecorded() = runTest(dispatcher) {
+        // given
+        val (arrangement, manager) = Arrangement()
+            .withAnonymousAnalyticsRecorderConfigure()
+            .arrange(shouldTrackViews = false)
+
+        val screen = "screen"
+        arrangement.withAnalyticsResult(Arrangement.existingIdentifierResult)
+
+        // when
+        manager.init(
+            context = arrangement.context,
+            analyticsSettings = Arrangement.analyticsSettings,
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
+            anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
+            dispatcher = dispatcher
+        )
+        advanceUntilIdle()
+
+        manager.recordView(screen)
+        advanceUntilIdle()
+
+        // then
+        verify(exactly = 0) {
+            arrangement.anonymousAnalyticsRecorder.recordView(eq(screen))
+        }
+    }
+
+    @Test
     fun givenManagerInitialized_whenStoppingView_thenScreenIsStoppedToRecord() = runTest(dispatcher) {
         // given
         val (arrangement, manager) = Arrangement()
@@ -387,7 +418,7 @@ class AnonymousAnalyticsManagerTest {
             AnonymousAnalyticsManagerImpl
         }
 
-        fun arrange() = this to manager
+        fun arrange(shouldTrackViews: Boolean = true) = this to manager.apply { VIEW_TRACKING_ENABLED = shouldTrackViews }
 
         fun withAnonymousAnalyticsRecorderConfigure() = apply {
             every { anonymousAnalyticsRecorder.configure(any(), any()) } returns Unit

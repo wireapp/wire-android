@@ -107,7 +107,10 @@ import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
+import com.wire.android.ui.common.dialogs.calling.CallingFeatureActivatedDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
+import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableTeamAdminDialog
+import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableTeamMemberDialog
 import com.wire.android.ui.common.dialogs.calling.ConfirmStartCallDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
@@ -183,6 +186,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
@@ -309,6 +313,12 @@ fun ConversationScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        conversationListCallViewModel.callingEnabled.collect {
+            showDialog.value = ConversationScreenDialogType.CALLING_FEATURE_ACTIVATED
+        }
+    }
+
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(
             NavigationCommand(
@@ -397,9 +407,30 @@ fun ConversationScreen(
         }
 
         ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE -> {
-            CallingFeatureUnavailableDialog(onDialogDismiss = {
+            CallingFeatureUnavailableDialog {
                 showDialog.value = ConversationScreenDialogType.NONE
-            })
+            }
+        }
+
+        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER -> {
+            CallingFeatureUnavailableTeamMemberDialog {
+                showDialog.value = ConversationScreenDialogType.NONE
+            }
+        }
+
+        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN -> {
+            CallingFeatureUnavailableTeamAdminDialog(
+                onUpgradeAction = uriHandler::openUri,
+                onDialogDismiss = {
+                    showDialog.value = ConversationScreenDialogType.NONE
+                }
+            )
+        }
+
+        ConversationScreenDialogType.CALLING_FEATURE_ACTIVATED -> {
+            CallingFeatureActivatedDialog {
+                showDialog.value = ConversationScreenDialogType.NONE
+            }
         }
 
         ConversationScreenDialogType.VERIFICATION_DEGRADED -> {
@@ -782,7 +813,16 @@ private fun startCallIfPossible(
                 }
 
                 ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
-                ConferenceCallingResult.Disabled.Unavailable -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
+                ConferenceCallingResult.Disabled.Unavailable -> {
+                    when (conversationListCallViewModel.selfTeamRole.value) {
+                        UserType.INTERNAL -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER
+                        UserType.OWNER,
+                        UserType.ADMIN -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN
+
+                        else -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
+                    }
+                }
+
                 else -> ConversationScreenDialogType.NONE
             }
             showDialog.value = dialogValue

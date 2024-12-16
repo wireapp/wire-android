@@ -86,7 +86,11 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
 
     override fun halt() = wrapCountlyRequest {
         isConfigured = false
+<<<<<<< HEAD
         Countly.sharedInstance().consent().removeConsentAll()
+=======
+        Countly.sharedInstance()?.consent()?.removeConsentAll()
+>>>>>>> 5e643acf0 (fix: countly sdk integration replace halt and bump to latest (WPB-15007) (#3748))
     }
 
     override suspend fun setTrackingIdentifierWithMerge(

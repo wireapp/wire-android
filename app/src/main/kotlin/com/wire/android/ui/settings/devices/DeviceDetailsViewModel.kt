@@ -37,6 +37,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.mlspublickeys.MLSPublicKeyType
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
@@ -198,6 +199,9 @@ class DeviceDetailsViewModel @Inject constructor(
                             isCurrentDevice = result.isCurrentClient,
                             removeDeviceDialogState = RemoveDeviceDialogState.Hidden,
                             canBeRemoved = !result.isCurrentClient && isSelfClient && result.client.type != ClientType.LegalHold,
+                            mlsCipherSuiteSignature = MLSPublicKeyType.from(
+                                result.client.mlsPublicKeys?.keys?.firstOrNull().orEmpty()
+                            ).value.toString()
                         )
                     }
                 }

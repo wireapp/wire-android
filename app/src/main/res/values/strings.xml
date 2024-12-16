@@ -23,6 +23,11 @@
     <string name="debug_analytics_tracking_identifier_title" translatable="false">
         Analytics Tracking Identifier
     </string>
+    <string name="debug_federation_enabled" translatable="false">Federation Enabled</string>
+    <string name="debug_default_backend_protocol" translatable="false">
+        Default Backend Protocol
+    </string>
+    <string name="debug_current_api_version" translatable="false">Current API Version</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>

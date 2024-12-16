@@ -21,6 +21,7 @@ package com.wire.android.ui.common.dialogs.calling
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.DialogTextSuffixLink
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -35,6 +36,50 @@ fun CallingFeatureUnavailableDialog(onDialogDismiss: () -> Unit) {
             onClick = onDialogDismiss,
             text = stringResource(id = R.string.label_ok),
             type = WireDialogButtonType.Primary
+        )
+    )
+}
+
+@Composable
+fun CallingFeatureUnavailableTeamMemberDialog(onDialogDismiss: () -> Unit) {
+    WireDialog(
+        title = stringResource(id = R.string.calling_feature_unavailable_title_alert),
+        text = stringResource(id = R.string.calling_feature_unavailable_team_member_message_alert),
+        onDismiss = onDialogDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onDialogDismiss,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Primary
+        )
+    )
+}
+
+@Composable
+fun CallingFeatureUnavailableTeamAdminDialog(
+    onUpgradeAction: (String) -> Unit,
+    onDialogDismiss: () -> Unit
+) {
+    val upgradeLink = stringResource(R.string.url_team_management_login)
+    WireDialog(
+        title = stringResource(id = R.string.calling_feature_unavailable_team_admin_title_alert),
+        text = stringResource(id = R.string.calling_feature_unavailable_team_admin_message_alert),
+        onDismiss = onDialogDismiss,
+        textSuffixLink = DialogTextSuffixLink(
+            linkText = stringResource(R.string.calling_feature_unavailable_team_admin_message_link_alert),
+            linkUrl = stringResource(R.string.url_team_management_login)
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = {
+                onUpgradeAction(upgradeLink)
+                onDialogDismiss()
+            },
+            text = stringResource(id = R.string.calling_feature_unavailable_team_admin_upgrade_action_alert),
+            type = WireDialogButtonType.Primary
+        ),
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onDialogDismiss,
+            text = stringResource(id = R.string.label_cancel),
+            type = WireDialogButtonType.Secondary
         )
     )
 }

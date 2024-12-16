@@ -280,6 +280,8 @@
     <string name="url_how_to_add_folders" translatable="false">https://support.wire.com/hc/articles/360002855817</string>
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
     <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
+    <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
+    <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -981,6 +983,14 @@
     <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
+    <string name="calling_feature_unavailable_team_member_message_alert">To start a conference call, your team needs to upgrade to the Enterprise plan.</string>
+    <string name="calling_feature_unavailable_team_admin_title_alert">Upgrade to Enterprise</string>
+    <string name="calling_feature_unavailable_team_admin_message_alert">Your team is currently on the free Basic plan. Upgrade to Enterprise for access to features such as starting conferences and more.</string>
+    <string name="calling_feature_unavailable_team_admin_message_link_alert">Learn more about Wire\'s pricing</string>
+    <string name="calling_feature_unavailable_team_admin_upgrade_action_alert">Upgrade now</string>
+    <string name="calling_feature_enabled_title_alert">Wire Enterprise</string>
+    <string name="calling_feature_enabled_message_alert">Your team was upgraded to Wire Enterprise, which gives you access to features such as conference calls and more.</string>
+    <string name="calling_feature_enabled_message_link_alert">Learn more about Wire Enterprise</string>
     <string name="calling_screen_connecting_until_call_established">Connecting…</string>
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>

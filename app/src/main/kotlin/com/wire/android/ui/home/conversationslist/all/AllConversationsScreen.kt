@@ -18,9 +18,9 @@
 
 package com.wire.android.ui.home.conversationslist.all
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
-import com.wire.android.navigation.FolderNavArgs
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.WireDestination
@@ -41,72 +41,24 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
     with(homeStateHolder) {
-        ConversationsScreenContent(
-            navigator = navigator,
-            searchBarState = searchBarState,
-            conversationsSource = ConversationsSource.MAIN,
-            lazyListState = lazyListStateFor(HomeDestination.Conversations),
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.All) }
-        )
-    }
-}
-
-@HomeNavGraph
-@WireDestination
-@Composable
-fun FavoritesConversationsScreen(homeStateHolder: HomeStateHolder) {
-    with(homeStateHolder) {
-        ConversationsScreenContent(
-            navigator = navigator,
-            searchBarState = searchBarState,
-            conversationsSource = ConversationsSource.FAVORITES,
-            lazyListState = lazyListStateFor(HomeDestination.Favorites),
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.Favorites) }
-        )
-    }
-}
-
-@HomeNavGraph
-@WireDestination(navArgsDelegate = FolderNavArgs::class)
-@Composable
-fun FolderConversationsScreen(homeStateHolder: HomeStateHolder, args: FolderNavArgs) {
-    with(homeStateHolder) {
-        ConversationsScreenContent(
-            navigator = navigator,
-            searchBarState = searchBarState,
-            conversationsSource = ConversationsSource.FOLDER(args.folderId, args.folderName),
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.Folder(args.folderId, args.folderName)) }
-        )
-    }
-}
-
-@HomeNavGraph
-@WireDestination
-@Composable
-fun GroupConversationsScreen(homeStateHolder: HomeStateHolder) {
-    with(homeStateHolder) {
-        ConversationsScreenContent(
-            navigator = navigator,
-            searchBarState = searchBarState,
-            conversationsSource = ConversationsSource.GROUPS,
-            lazyListState = lazyListStateFor(HomeDestination.Group),
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.Groups) }
-        )
-    }
-}
-
-@HomeNavGraph
-@WireDestination
-@Composable
-fun OneOnOneConversationsScreen(homeStateHolder: HomeStateHolder) {
-    with(homeStateHolder) {
-        ConversationsScreenContent(
-            navigator = navigator,
-            searchBarState = searchBarState,
-            conversationsSource = ConversationsSource.ONE_ON_ONE,
-            lazyListState = lazyListStateFor(HomeDestination.OneOnOne),
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.OneOnOne, domain = it) }
-        )
+        Crossfade(
+            targetState = homeStateHolder.currentConversationFilter,
+            label = "Conversation filter change animation",
+        ) { filter ->
+            ConversationsScreenContent(
+                navigator = navigator,
+                searchBarState = searchBarState,
+                conversationsSource = when (filter) {
+                    is ConversationFilter.All -> ConversationsSource.MAIN
+                    is ConversationFilter.Favorites -> ConversationsSource.FAVORITES
+                    is ConversationFilter.Groups -> ConversationsSource.GROUPS
+                    is ConversationFilter.OneOnOne -> ConversationsSource.ONE_ON_ONE
+                    is ConversationFilter.Folder -> ConversationsSource.FOLDER(filter.folderId, filter.folderName)
+                },
+                lazyListState = lazyListStateFor(HomeDestination.Conversations, filter),
+                emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.All) }
+            )
+        }
     }
 }
 

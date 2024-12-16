@@ -30,7 +30,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -61,7 +60,7 @@ class CallActivityViewModel @Inject constructor(
         }
 
     fun switchAccountIfNeeded(userId: UserId, actions: SwitchAccountActions) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.io()) {
             val shouldSwitchAccount = when (val result = currentSession()) {
                 is CurrentSessionResult.Failure.Generic -> true
                 CurrentSessionResult.Failure.SessionNotFound -> true

@@ -25,6 +25,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
@@ -43,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -208,6 +210,7 @@ private fun SelfUserProfileContent(
     isUserInCall: () -> Boolean
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
+    val uriHandler = LocalUriHandler.current
 
     state.errorMessageCode?.let { errorCode ->
         val errorMessage = mapErrorCodeToString(errorCode)
@@ -345,7 +348,13 @@ private fun SelfUserProfileContent(
 
                 Divider(color = MaterialTheme.wireColorScheme.outline)
 
-                Box(modifier = Modifier.padding(dimensions().spacing16x)) {
+                Column(
+                    modifier = Modifier.padding(dimensions().spacing16x),
+                    verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+                ) {
+                    if (isTeamAdminOrOwner) {
+                        ManageTeamButton(uriHandler::openUri)
+                    }
                     NewTeamButton(onAddAccountClick, isUserInCall, context)
                 }
             }
@@ -438,6 +447,22 @@ private fun CurrentSelfUserStatus(
             onStatusClicked(items[selectedIndex])
         }
     }
+}
+
+@Composable
+private fun ManageTeamButton(
+    onManageTeamClick: (String) -> Unit
+) {
+    val teamManagementLink = stringResource(R.string.url_team_management_login)
+    WireSecondaryButton(
+        modifier = Modifier
+            .testTag("Manage team"),
+        text = stringResource(R.string.user_profile_account_management),
+        onClickDescription = stringResource(R.string.content_description_self_profile_manage_team_btn),
+        onClick = {
+            onManageTeamClick(teamManagementLink)
+        }
+    )
 }
 
 @Composable

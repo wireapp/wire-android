@@ -48,6 +48,7 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -176,6 +177,7 @@ class SelfUserProfileViewModel @Inject constructor(
                             fullName = name.orEmpty(),
                             userName = handle.orEmpty(),
                             teamName = selfTeam?.name,
+                            isTeamAdminOrOwner = userType == UserType.OWNER || userType == UserType.ADMIN,
                             otherAccounts = otherAccounts,
                             avatarAsset = userProfileState.avatarAsset,
                             isAvatarLoading = false,

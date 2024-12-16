@@ -104,7 +104,7 @@ internal constructor(
             extraBufferCapacity = 1
         )
 
-    private val audioSpeedFlow = MutableSharedFlow<AudioSpeed>(
+    private val _audioSpeed = MutableSharedFlow<AudioSpeed>(
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
         extraBufferCapacity = 1,
         replay = 1
@@ -191,7 +191,7 @@ internal constructor(
             audioMessageStateHistory
         }.onStart { emit(audioMessageStateHistory) }
 
-    val audioSpeed: Flow<AudioSpeed> = audioSpeedFlow.onStart { emit(AudioSpeed.NORMAL) }
+    val audioSpeed: Flow<AudioSpeed> = _audioSpeed.onStart { emit(AudioSpeed.NORMAL) }
 
     private var currentAudioMessageId: String? = null
 
@@ -381,7 +381,7 @@ internal constructor(
 
     private suspend fun updateSpeedFlow() {
         val currentSpeed = AudioSpeed.fromFloat(audioMediaPlayer.playbackParams.speed)
-        audioSpeedFlow.emit(currentSpeed)
+        _audioSpeed.emit(currentSpeed)
     }
 
     internal fun close() {

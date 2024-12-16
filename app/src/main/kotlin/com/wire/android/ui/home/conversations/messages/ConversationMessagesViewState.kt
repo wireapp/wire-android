@@ -37,12 +37,19 @@ data class ConversationMessagesViewState(
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
     val audioMessagesState: AudioMessagesState = AudioMessagesState(),
     val assetStatuses: PersistentMap<String, MessageAssetStatus> = persistentMapOf(),
-    val searchedMessageId: String? = null
+    val searchedMessageId: String? = null,
+    val playingAudiMessage: PlayingAudiMessage? = null
 )
 
 data class AudioMessagesState(
     val audioStates: PersistentMap<String, AudioState> = persistentMapOf(),
     val audioSpeed: AudioSpeed = AudioSpeed.NORMAL
+)
+
+data class PlayingAudiMessage(
+    val messageId: String,
+    val authorName: String,
+    val currentTimeMs: Int
 )
 
 sealed class DownloadedAssetDialogVisibilityState {

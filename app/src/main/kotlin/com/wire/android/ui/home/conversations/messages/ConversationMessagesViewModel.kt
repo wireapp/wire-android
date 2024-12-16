@@ -28,6 +28,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayerProvider
 import com.wire.android.model.SnackBarMessage
@@ -67,7 +68,6 @@ import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePosit
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
-import com.wire.kalium.logic.functional.combine
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentMap
@@ -78,6 +78,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -186,12 +189,40 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     private fun observeAudioPlayerState() {
+        val observableAudioMessagesState = conversationAudioMessagePlayer.observableAudioMessagesState
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+
+        val playingMessageData = observableAudioMessagesState
+            .map { audioMessageStates ->
+                audioMessageStates.firstNotNullOfOrNull { (messageId, audioState) ->
+                    if (audioState.audioMediaPlayingState == AudioMediaPlayingState.Playing) messageId
+                    else null
+                }
+            }.distinctUntilChanged()
+            .map { messageId -> messageId?.let { getMessageByIdUseCase(conversationId, it) } }
+            .filterIsInstance<GetMessageByIdUseCase.Result.Success?>()
+            .map { it?.message }
+
         viewModelScope.launch {
-            conversationAudioMessagePlayer.observableAudioMessagesState
-                .combine(conversationAudioMessagePlayer.audioSpeed)
-                .collect { (audioMessageStates, audioSpeed) ->
+            combine(
+                observableAudioMessagesState,
+                conversationAudioMessagePlayer.audioSpeed,
+                playingMessageData
+            ) { audioMessageStates, audioSpeed, playingMessage ->
+                val audioMessagesState = AudioMessagesState(audioMessageStates.toPersistentMap(), audioSpeed)
+                val playingAudiMessage = playingMessage?.let {
+                    PlayingAudiMessage(
+                        messageId = playingMessage.id,
+                        authorName = playingMessage.sender?.name ?: "",
+                        currentTimeMs = audioMessageStates[playingMessage.id]?.currentPositionInMs ?: 0
+                    )
+                }
+                audioMessagesState to playingAudiMessage
+            }
+                .collect { (audioMessagesState, playingAudiMessage) ->
                     conversationViewState = conversationViewState.copy(
-                        audioMessagesState = AudioMessagesState(audioMessageStates.toPersistentMap(), audioSpeed)
+                        audioMessagesState = audioMessagesState,
+                        playingAudiMessage = playingAudiMessage
                     )
                 }
         }

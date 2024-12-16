@@ -70,6 +70,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -364,50 +365,18 @@ private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): 
 @Suppress("MagicNumber")
 private fun getDefaultWaveMask(): List<Int> = List(75) { 1 }
 
-// helper wrapper class to format the time that is left
+// helper wrapper class to format the time
 private data class AudioDuration(val totalDurationInMs: AudioState.TotalTimeInMs, val currentPositionInMs: Int) {
     companion object {
-        const val totalMsInSec = 1000
-        const val totalSecInMin = 60
         const val UNKNOWN_DURATION_LABEL = "-:--"
     }
 
-    fun formattedTimeLeft(): String {
-        if (totalDurationInMs is AudioState.TotalTimeInMs.Known) {
-            val totalTimeInSec = totalDurationInMs.value / totalMsInSec
-            val currentPositionInSec = currentPositionInMs / totalMsInSec
-
-            val isTotalTimeInSecKnown = totalTimeInSec > 0
-
-            val timeLeft = if (!isTotalTimeInSecKnown) {
-                currentPositionInSec
-            } else {
-                totalTimeInSec - currentPositionInSec
-            }
-
-            return formattedTime(timeLeft)
-        }
-
-        return UNKNOWN_DURATION_LABEL
-    }
-
-    fun formattedCurrentTime(): String =
-        formattedTime(currentPositionInMs / totalMsInSec)
+    fun formattedCurrentTime(): String = DateAndTimeParsers.audioMessageTime(currentPositionInMs.toLong())
 
     fun formattedTotalTime(): String = if (totalDurationInMs is AudioState.TotalTimeInMs.Known) {
-        formattedTime(totalDurationInMs.value / totalMsInSec)
+        DateAndTimeParsers.audioMessageTime(totalDurationInMs.value.toLong())
     } else {
         UNKNOWN_DURATION_LABEL
-    }
-
-    private fun formattedTime(timeSeconds: Int): String {
-        // sanity check, timeLeft, should not be smaller, however if the back-end makes mistake we
-        // will display a negative values, which we do not want
-        val minutes = if (timeSeconds < 0) 0 else timeSeconds / totalSecInMin
-        val seconds = if (timeSeconds < 0) 0 else timeSeconds % totalSecInMin
-        val formattedSeconds = String.format("%02d", seconds)
-
-        return "$minutes:$formattedSeconds"
     }
 }
 

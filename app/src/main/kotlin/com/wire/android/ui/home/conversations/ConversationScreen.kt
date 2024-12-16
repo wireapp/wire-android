@@ -27,19 +27,24 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -65,6 +70,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
@@ -137,6 +143,7 @@ import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBack
 import com.wire.android.ui.home.conversations.messages.AudioMessagesState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
+import com.wire.android.ui.home.conversations.messages.PlayingAudiMessage
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
@@ -160,7 +167,9 @@ import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerSta
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -888,6 +897,7 @@ private fun ConversationScreen(
                         selectedMessageId = conversationMessagesViewState.searchedMessageId,
                         messageComposerStateHolder = messageComposerStateHolder,
                         messages = conversationMessagesViewState.messages,
+                        playingAudiMessage = conversationMessagesViewState.playingAudiMessage,
                         onSendMessage = onSendMessage,
                         onPingOptionClicked = onPingOptionClicked,
                         onImagesPicked = onImagesPicked,
@@ -994,6 +1004,7 @@ private fun ConversationScreenContent(
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
     openDrawingCanvas: () -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
+    playingAudiMessage: PlayingAudiMessage?,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -1033,7 +1044,8 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
-                currentTimeInMillisFlow = currentTimeInMillisFlow
+                currentTimeInMillisFlow = currentTimeInMillisFlow,
+                playingAudiMessage = playingAudiMessage
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1099,7 +1111,8 @@ fun MessageList(
     interactionAvailability: InteractionAvailability,
     clickActions: MessageClickActions.Content,
     modifier: Modifier = Modifier,
-    currentTimeInMillisFlow: Flow<Long> = flow { }
+    currentTimeInMillisFlow: Flow<Long> = flow { },
+    playingAudiMessage: PlayingAudiMessage?
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1227,6 +1240,11 @@ fun MessageList(
                     }
                 }
             }
+            JumpToPlayingAudioButton(
+                lazyPagingMessages = lazyPagingMessages,
+                lazyListState = lazyListState,
+                playingAudiMessage = playingAudiMessage
+            )
             JumpToLastMessageButton(lazyListState = lazyListState)
         }
     )
@@ -1358,6 +1376,62 @@ fun JumpToLastMessageButton(
                 Modifier.size(dimensions().spacing32x)
             )
         }
+    }
+}
+
+@Composable
+fun BoxScope.JumpToPlayingAudioButton(
+    lazyListState: LazyListState,
+    playingAudiMessage: PlayingAudiMessage?,
+    modifier: Modifier = Modifier,
+    lazyPagingMessages: LazyPagingItems<UIMessage>,
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
+) {
+    val indexOfPlayedMessage = playingAudiMessage?.let {
+        lazyPagingMessages.itemSnapshotList
+            .indexOfFirst { playingAudiMessage.messageId == it?.header?.messageId }
+    } ?: -1
+
+    if (indexOfPlayedMessage < 0) return
+
+    // todo cyka try to remember indexes
+    val visible = playingAudiMessage?.let {
+        val firstVisibleIndex = lazyListState.firstVisibleItemIndex
+        val lastVisibleIndex = firstVisibleIndex + lazyListState.layoutInfo.visibleItemsInfo.size
+        indexOfPlayedMessage in firstVisibleIndex..lastVisibleIndex
+    } ?: false
+
+    if (!visible) return
+
+    Row(
+        modifier = modifier
+            .align(Alignment.TopCenter)
+            .clickable { coroutineScope.launch { lazyListState.animateScrollToItem(indexOfPlayedMessage) } }
+            .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x)
+            .background(
+                color = colorsScheme().secondaryText,
+                shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize)
+            )
+    ) {
+        Icon(
+            modifier = Modifier.weight(1f),
+            painter = painterResource(id = R.drawable.ic_play),
+            contentDescription = null,
+            tint = MaterialTheme.wireColorScheme.onPrimaryButtonEnabled
+        )
+        Spacer(Modifier.width(dimensions().spacing8x))
+        Text(
+            text = playingAudiMessage!!.authorName,
+            color = colorsScheme().onPrimaryButtonEnabled,
+            style = MaterialTheme.wireTypography.body04,
+        )
+        Spacer(Modifier.width(dimensions().spacing8x))
+        Text(
+            modifier = Modifier.weight(1f),
+            text = DateAndTimeParsers.audioMessageTime(playingAudiMessage.currentTimeMs.toLong()),
+            color = colorsScheme().onPrimaryButtonEnabled,
+            style = MaterialTheme.wireTypography.body04,
+        )
     }
 }
 

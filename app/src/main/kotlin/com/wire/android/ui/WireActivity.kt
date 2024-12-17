@@ -29,7 +29,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -40,10 +42,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -161,7 +166,12 @@ class WireActivity : AppCompatActivity() {
         // It's an API limitation, at some point we may need to remove it
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
+
+        setContent {
+            SplashScreen {
+                splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
+            }
+        }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -210,6 +220,17 @@ class WireActivity : AppCompatActivity() {
              */
             handleDeepLink(intent)
         }
+    }
+
+    @Composable
+    fun SplashScreen(onTimeout: () -> Unit) {
+        val image: Painter = painterResource(id = R.drawable.waves)
+        Image(
+            painter = image,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            alignment = Alignment.Center
+        )
     }
 
     @Suppress("LongMethod")

@@ -177,6 +177,8 @@ fun OngoingCallScreen(
         clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
         onCollapse = onCollapse,
         requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
+        onSelectedParticipant = ongoingCallViewModel::onSelectedParticipant,
+        selectedParticipantForFullScreen = ongoingCallViewModel.selectedParticipant,
         hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
         onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
         participants = sharedCallingViewModel.participantsState,
@@ -289,6 +291,8 @@ private fun OngoingCallContent(
     hideDoubleTapToast: () -> Unit,
     onCameraPermissionPermanentlyDenied: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
+    onSelectedParticipant: (selectedParticipant: SelectedParticipant) -> Unit,
+    selectedParticipantForFullScreen: SelectedParticipant,
     participants: PersistentList<UICallParticipant>,
     inPictureInPictureMode: Boolean,
     currentUserId: UserId,
@@ -303,7 +307,6 @@ private fun OngoingCallContent(
     )
 
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
-    var selectedParticipantForFullScreen by remember { mutableStateOf(SelectedParticipant()) }
 
     WireBottomSheetScaffold(
         sheetDragHandle = null,
@@ -391,11 +394,14 @@ private fun OngoingCallContent(
                             selectedParticipant = selectedParticipantForFullScreen,
                             height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x,
                             closeFullScreen = {
+                                onSelectedParticipant(SelectedParticipant())
                                 shouldOpenFullScreen = !shouldOpenFullScreen
                             },
                             onBackButtonClicked = {
+                                onSelectedParticipant(SelectedParticipant())
                                 shouldOpenFullScreen = !shouldOpenFullScreen
                             },
+                            requestVideoStreams = requestVideoStreams,
                             setVideoPreview = setVideoPreview,
                             clearVideoPreview = clearVideoPreview,
                             participants = participants
@@ -412,7 +418,7 @@ private fun OngoingCallContent(
                             requestVideoStreams = requestVideoStreams,
                             currentUserId = currentUserId,
                             onDoubleTap = { selectedParticipant ->
-                                selectedParticipantForFullScreen = selectedParticipant
+                                onSelectedParticipant(selectedParticipant)
                                 shouldOpenFullScreen = !shouldOpenFullScreen
                             },
                         )
@@ -580,6 +586,8 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>) {
         participants = participants,
         inPictureInPictureMode = false,
         currentUserId = UserId("userId", "domain"),
+        onSelectedParticipant = {},
+        selectedParticipantForFullScreen = SelectedParticipant(),
     )
 }
 

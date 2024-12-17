@@ -304,9 +304,8 @@ class DebugDataOptionsViewModelImpl
                     }
 
                     is MLSKeyPackageCountResult.Failure.Generic -> {}
-
                     MLSKeyPackageCountResult.Failure.NotEnabled -> {
-                        // TODO
+                        state = state.copy(mlsErrorMessage = "Not Enabled!")
                     }
                 }
             }

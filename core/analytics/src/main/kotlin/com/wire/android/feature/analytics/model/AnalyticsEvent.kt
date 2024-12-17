@@ -17,6 +17,21 @@
  */
 package com.wire.android.feature.analytics.model
 
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_AV_SWITCH_TOGGLE
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_DIRECTION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_DURATION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_PARTICIPANTS
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_SCREEN_SHARE
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_VIDEO
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_GUESTS
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_GUESTS_PRO
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_SERVICES
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_SIZE
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_TYPE
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_END_REASON
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_IS_TEAM_MEMBER
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_UNIQUE_SCREEN_SHARE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_ANSWERED
@@ -29,8 +44,6 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_PERSONAL_MIGRATION_CTA_EVENT
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBUTED_LOCATION
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_TEAM
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MIGRATION_DOT_ACTIVE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_BACK_TO_WIRE_CLICKED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_CONTINUE_CLICKED
@@ -40,8 +53,12 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_TE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_CANCELLED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_COMPLETED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_STARTED_EVENT
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_TEAM
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.STEP_MODAL_CREATE_TEAM
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.USER_PROFILE_OPENED
+import com.wire.kalium.logic.data.call.RecentlyEndedCallMetadata
+import com.wire.kalium.logic.data.conversation.Conversation
 
 interface AnalyticsEvent {
     /**
@@ -126,6 +143,45 @@ interface AnalyticsEvent {
         data object Dismissed : CallQualityFeedback {
             override val label: String
                 get() = CALLING_QUALITY_REVIEW_LABEL_DISMISSED
+        }
+    }
+
+    data class RecentlyEndedCallEvent(val metadata: RecentlyEndedCallMetadata) : AnalyticsEvent {
+        override val key: String = CALLING_ENDED
+
+        override fun toSegmentation(): Map<String, Any> {
+            return mapOf(
+                CALLING_ENDED_IS_TEAM_MEMBER to metadata.isTeamMember,
+                CALLING_ENDED_CALL_SCREEN_SHARE to metadata.callDetails.screenShareDurationInSeconds,
+                CALLING_ENDED_UNIQUE_SCREEN_SHARE to metadata.callDetails.callScreenShareUniques,
+                CALLING_ENDED_CALL_DIRECTION to metadata.toCallDirection(),
+                CALLING_ENDED_CALL_DURATION to metadata.callDetails.callDurationInSeconds,
+                CALLING_ENDED_CONVERSATION_TYPE to metadata.toConversationType(),
+                CALLING_ENDED_CONVERSATION_SIZE to metadata.conversationDetails.conversationSize,
+                CALLING_ENDED_CONVERSATION_GUESTS to metadata.conversationDetails.conversationGuests,
+                CALLING_ENDED_CONVERSATION_GUESTS_PRO to metadata.conversationDetails.conversationGuestsPro,
+                CALLING_ENDED_CALL_PARTICIPANTS to metadata.callDetails.callParticipantsCount,
+                CALLING_ENDED_END_REASON to metadata.callEndReason,
+                CALLING_ENDED_CONVERSATION_SERVICES to metadata.callDetails.conversationServices,
+                CALLING_ENDED_AV_SWITCH_TOGGLE to metadata.callDetails.callAVSwitchToggle,
+                CALLING_ENDED_CALL_VIDEO to metadata.callDetails.callVideoEnabled,
+            )
+        }
+
+        private fun RecentlyEndedCallMetadata.toCallDirection(): String {
+            return if (callDetails.isOutgoingCall) {
+                "outgoing"
+            } else {
+                "incoming"
+            }
+        }
+
+        private fun RecentlyEndedCallMetadata.toConversationType(): String {
+            return when (conversationDetails.conversationType) {
+                Conversation.Type.ONE_ON_ONE -> "one_to_one"
+                Conversation.Type.GROUP -> "group"
+                else -> "unknown"
+            }
         }
     }
 
@@ -336,6 +392,7 @@ object AnalyticsEventConstants {
      */
     const val CALLING_INITIATED = "calling.initiated_call"
     const val CALLING_JOINED = "calling.joined_call"
+    const val CALLING_ENDED = "calling.ended_call"
 
     const val CALLING_QUALITY_REVIEW = "calling.call_quality_review"
     const val CALLING_QUALITY_REVIEW_LABEL_KEY = "label"
@@ -345,6 +402,24 @@ object AnalyticsEventConstants {
     const val CALLING_QUALITY_REVIEW_SCORE_KEY = "score"
     const val CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY = "ignore-reason"
     const val CALLING_QUALITY_REVIEW_IGNORE_REASON = "muted"
+
+    /**
+     * Call ended
+     */
+    const val CALLING_ENDED_IS_TEAM_MEMBER = "is_team_member"
+    const val CALLING_ENDED_CALL_SCREEN_SHARE = "call_screen_share_duration"
+    const val CALLING_ENDED_UNIQUE_SCREEN_SHARE = "call_screen_share_unique"
+    const val CALLING_ENDED_CALL_DIRECTION = "call_direction"
+    const val CALLING_ENDED_CALL_DURATION = "call_duration"
+    const val CALLING_ENDED_CONVERSATION_TYPE = "conversation_type"
+    const val CALLING_ENDED_CONVERSATION_SIZE = "conversation_size"
+    const val CALLING_ENDED_CONVERSATION_GUESTS = "conversation_guests"
+    const val CALLING_ENDED_CONVERSATION_GUESTS_PRO = "conversation_guest_pro"
+    const val CALLING_ENDED_CALL_PARTICIPANTS = "call_participants"
+    const val CALLING_ENDED_END_REASON = "call_end_reason"
+    const val CALLING_ENDED_CONVERSATION_SERVICES = "conversation_services"
+    const val CALLING_ENDED_AV_SWITCH_TOGGLE = "call_av_switch_toggle"
+    const val CALLING_ENDED_CALL_VIDEO = "call_video"
 
     /**
      * Backup

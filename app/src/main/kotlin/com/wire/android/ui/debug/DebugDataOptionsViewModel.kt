@@ -304,6 +304,10 @@ class DebugDataOptionsViewModelImpl
                     }
 
                     is MLSKeyPackageCountResult.Failure.Generic -> {}
+
+                    MLSKeyPackageCountResult.Failure.NotEnabled -> {
+                        // TODO
+                    }
                 }
             }
         }

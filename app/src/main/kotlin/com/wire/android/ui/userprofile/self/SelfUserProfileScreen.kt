@@ -455,8 +455,6 @@ private fun ManageTeamButton(
 ) {
     val teamManagementLink = stringResource(R.string.url_team_management_login)
     WireSecondaryButton(
-        modifier = Modifier
-            .testTag("Manage team"),
         text = stringResource(R.string.user_profile_account_management),
         onClickDescription = stringResource(R.string.content_description_self_profile_manage_team_btn),
         onClick = {

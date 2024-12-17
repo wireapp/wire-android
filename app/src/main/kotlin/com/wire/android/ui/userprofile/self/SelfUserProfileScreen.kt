@@ -352,8 +352,8 @@ private fun SelfUserProfileContent(
                     modifier = Modifier.padding(dimensions().spacing16x),
                     verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
                 ) {
-                    if (isTeamAdminOrOwner) {
-                        ManageTeamButton(uriHandler::openUri)
+                    if (teamUrl != null) {
+                        ManageTeamButton { uriHandler.openUri(teamUrl) }
                     }
                     NewTeamButton(onAddAccountClick, isUserInCall, context)
                 }
@@ -451,15 +451,12 @@ private fun CurrentSelfUserStatus(
 
 @Composable
 private fun ManageTeamButton(
-    onManageTeamClick: (String) -> Unit
+    onManageTeamClick: () -> Unit
 ) {
-    val teamManagementLink = stringResource(R.string.url_team_management_login)
     WireSecondaryButton(
         text = stringResource(R.string.user_profile_account_management),
         onClickDescription = stringResource(R.string.content_description_self_profile_manage_team_btn),
-        onClick = {
-            onManageTeamClick(teamManagementLink)
-        }
+        onClick = onManageTeamClick
     )
 }
 

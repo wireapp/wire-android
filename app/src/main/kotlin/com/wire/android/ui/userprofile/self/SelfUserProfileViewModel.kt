@@ -55,6 +55,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -99,7 +100,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val notificationManager: WireNotificationManager,
     private val globalDataStore: GlobalDataStore,
     private val qualifiedIdMapper: QualifiedIdMapper,
-    private val anonymousAnalyticsManager: AnonymousAnalyticsManager
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
+    private val getTeamUrl: GetTeamUrlUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
@@ -177,7 +179,7 @@ class SelfUserProfileViewModel @Inject constructor(
                             fullName = name.orEmpty(),
                             userName = handle.orEmpty(),
                             teamName = selfTeam?.name,
-                            isTeamAdminOrOwner = userType == UserType.OWNER || userType == UserType.ADMIN,
+                            teamUrl = getTeamUrl().takeIf { userType == UserType.OWNER || userType == UserType.ADMIN },
                             otherAccounts = otherAccounts,
                             avatarAsset = userProfileState.avatarAsset,
                             isAvatarLoading = false,

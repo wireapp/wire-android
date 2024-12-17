@@ -66,13 +66,8 @@ class AudioWavesMaskHelper @Inject constructor(
     }
 
     private fun List<Int>.averageInt(): Double {
-        var sum = 0.0
-        var count = 0
-        for (element in this) {
-            sum += element
-            ++count
-        }
-        return if (count == 0) 0.0 else sum / count
+        if (isEmpty()) return 0.0
+        return sum().toDouble() / size
     }
 
     fun clear() {

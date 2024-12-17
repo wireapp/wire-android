@@ -516,7 +516,8 @@ fun PreviewPrivateConversationItemWithBlockedBadge() = WireTheme {
             isArchived = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            isFavorite = false
+            isFavorite = false,
+            isUserDeleted = false
         ),
         modifier = Modifier,
         isSelectableItem = false,

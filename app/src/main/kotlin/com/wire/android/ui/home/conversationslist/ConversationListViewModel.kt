@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.wire.android.BuildConfig
@@ -211,17 +212,15 @@ class ConversationListViewModelImpl @AssistedInject constructor(
             }
         }
         .flowOn(dispatcher.io())
+        .cachedIn(viewModelScope)
 
-    private var notPaginatedConversationListState by mutableStateOf(ConversationListState.NotPaginated())
-    override val conversationListState: ConversationListState
-        get() = if (usePagination) {
-            ConversationListState.Paginated(
-                conversations = conversationsPaginatedFlow,
-                domain = currentAccount.domain
-            )
-        } else {
-            notPaginatedConversationListState
+    override var conversationListState by mutableStateOf(
+        when (usePagination) {
+            true -> ConversationListState.Paginated(conversations = conversationsPaginatedFlow, domain = currentAccount.domain)
+            false -> ConversationListState.NotPaginated()
         }
+    )
+        private set
 
     init {
         if (!usePagination) {
@@ -256,7 +255,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                     }
                     .flowOn(dispatcher.io())
                     .collect {
-                        notPaginatedConversationListState = notPaginatedConversationListState.copy(
+                        conversationListState = ConversationListState.NotPaginated(
                             isLoading = false,
                             conversations = it,
                             domain = currentAccount.domain

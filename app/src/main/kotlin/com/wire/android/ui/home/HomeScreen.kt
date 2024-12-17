@@ -38,7 +38,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -64,13 +63,11 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.hiltViewModelScoped
-import com.wire.android.navigation.FolderNavArgs
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.handleNavigation
-import com.wire.android.navigation.toDestination
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
@@ -121,14 +118,8 @@ fun HomeScreen(
         )
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
-    val homeDestinations = remember(foldersViewModel.state().folders) {
-        HomeDestination.values()
-        .plus(
-            foldersViewModel.state().folders.map { HomeDestination.Folder(FolderNavArgs(it.id, it.name)) }
-        )
-    }
 
-    val homeScreenState = rememberHomeScreenState(navigator, homeDestinations = homeDestinations)
+    val homeScreenState = rememberHomeScreenState(navigator)
     val notificationsPermissionDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val showNotificationsPermissionDeniedDialog = {
         notificationsPermissionDeniedDialogState.show(
@@ -318,6 +309,8 @@ fun HomeContent(
                             exit = shrinkVertically() + fadeOut(),
                         ) {
                             HomeTopBar(
+                                title = currentTitle.asString(),
+                                currentFilter = currentConversationFilter,
                                 navigationItem = currentNavigationItem,
                                 userAvatarData = homeState.userAvatarData,
                                 elevation = dimensions().spacing0x, // CollapsingTopBarScaffold manages applied elevation
@@ -347,7 +340,7 @@ fun HomeContent(
                         }
                     },
                     collapsingEnabled = !searchBarState.isSearchActive,
-                    contentLazyListState = homeStateHolder.nullAbleLazyListStateFor(currentNavigationItem),
+                    contentLazyListState = homeStateHolder.lazyListStateFor(currentNavigationItem),
                     content = {
                         /**
                          * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
@@ -407,11 +400,7 @@ fun HomeContent(
                 ConversationFilterSheetContent(
                     onChangeFilter = { filter ->
                         filterSheetState.hide()
-                        openHomeDestination(filter.toDestination())
-                    },
-                    onChangeFolder = {
-                        filterSheetState.hide()
-                        openHomeDestination(it.toDestination())
+                        homeStateHolder.changeFilter(filter)
                     },
                     filterSheetState = sheetContentState
                 )

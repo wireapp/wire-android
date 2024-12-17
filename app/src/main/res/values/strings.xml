@@ -23,6 +23,11 @@
     <string name="debug_analytics_tracking_identifier_title" translatable="false">
         Analytics Tracking Identifier
     </string>
+    <string name="debug_federation_enabled" translatable="false">Federation Enabled</string>
+    <string name="debug_default_backend_protocol" translatable="false">
+        Default Backend Protocol
+    </string>
+    <string name="debug_current_api_version" translatable="false">Current API Version</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -975,6 +980,14 @@
     <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
+    <string name="calling_feature_unavailable_team_member_message_alert">To start a conference call, your team needs to upgrade to the Enterprise plan.</string>
+    <string name="calling_feature_unavailable_team_admin_title_alert">Upgrade to Enterprise</string>
+    <string name="calling_feature_unavailable_team_admin_message_alert">Your team is currently on the free Basic plan. Upgrade to Enterprise for access to features such as starting conferences and more.</string>
+    <string name="calling_feature_unavailable_team_admin_message_link_alert">Learn more about Wire\'s pricing</string>
+    <string name="calling_feature_unavailable_team_admin_upgrade_action_alert">Upgrade now</string>
+    <string name="calling_feature_enabled_title_alert">Wire Enterprise</string>
+    <string name="calling_feature_enabled_message_alert">Your team was upgraded to Wire Enterprise, which gives you access to features such as conference calls and more.</string>
+    <string name="calling_feature_enabled_message_link_alert">Learn more about Wire Enterprise</string>
     <string name="calling_screen_connecting_until_call_established">Connecting…</string>
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
@@ -1167,8 +1180,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
     <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
-    <string name="custom_backend_invalid_deeplink_data_title">An error occurred</string>
-    <string name="custom_backend_invalid_deeplink_data_body">Redirecting to an on-premises backend was not possible, as there was an invalid configuration in the JSON file.\n\nContact your admin or check the deeplink that brought you here.</string>
+    <string name="custom_backend_error_title">An error occurred</string>
+    <string name="custom_backend_error_no_internet_connection_body">Redirecting to an on-premises backend was not possible, you don’t seem to be connected to the internet.\n\nEstablish an internet connection and try again.</string>
+    <string name="custom_backend_error_no_internet_connection_try_again">Try again</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>

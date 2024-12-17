@@ -20,6 +20,7 @@ package com.wire.android.feature.analytics
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants
 import com.wire.android.feature.analytics.model.AnalyticsSettings
@@ -34,8 +35,8 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
     override fun configure(
         context: Context,
         analyticsSettings: AnalyticsSettings
-    ) {
-        if (isConfigured) return
+    ) = wrapCountlyRequest {
+        if (isConfigured) return@wrapCountlyRequest
 
         val countlyConfig = CountlyConfig(
             context,
@@ -54,24 +55,24 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
             }
         }
 
-        Countly.sharedInstance().init(countlyConfig)
-        Countly.sharedInstance().consent().giveConsent(arrayOf("apm"))
+        Countly.sharedInstance()?.init(countlyConfig)
+        Countly.sharedInstance()?.consent()?.giveConsent(arrayOf("apm"))
 
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         val globalSegmentations = mapOf<String, Any>(
             AnalyticsEventConstants.APP_NAME to AnalyticsEventConstants.APP_NAME_ANDROID,
             AnalyticsEventConstants.APP_VERSION to packageInfo.versionName
         )
-        Countly.sharedInstance().views().setGlobalViewSegmentation(globalSegmentations)
+        Countly.sharedInstance()?.views()?.setGlobalViewSegmentation(globalSegmentations)
         isConfigured = true
     }
 
-    override fun onStart(activity: Activity) {
-        Countly.sharedInstance().onStart(activity)
+    override fun onStart(activity: Activity) = wrapCountlyRequest {
+        Countly.sharedInstance()?.onStart(activity)
     }
 
-    override fun onStop() {
-        Countly.sharedInstance().onStop()
+    override fun onStop() = wrapCountlyRequest {
+        Countly.sharedInstance()?.onStop()
     }
 
     /**
@@ -79,13 +80,13 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
      * Countly is doing additional operations on it.
      * See [UtilsInternalLimits.removeUnsupportedDataTypes]
      */
-    override fun sendEvent(event: AnalyticsEvent) {
-        Countly.sharedInstance().events().recordEvent(event.key, event.toSegmentation().toMutableMap())
+    override fun sendEvent(event: AnalyticsEvent) = wrapCountlyRequest {
+        Countly.sharedInstance()?.events()?.recordEvent(event.key, event.toSegmentation().toMutableMap())
     }
 
-    override fun halt() {
+    override fun halt() = wrapCountlyRequest {
         isConfigured = false
-        Countly.sharedInstance().halt()
+        Countly.sharedInstance().consent().removeConsentAll()
     }
 
     override suspend fun setTrackingIdentifierWithMerge(
@@ -93,7 +94,9 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
         isTeamMember: Boolean,
         migrationComplete: suspend () -> Unit
     ) {
-        Countly.sharedInstance().deviceId().changeWithMerge(identifier).also {
+        wrapCountlyRequest {
+            Countly.sharedInstance()?.deviceId()?.changeWithMerge(identifier)
+        }.also {
             migrationComplete()
         }
 
@@ -106,7 +109,9 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
         isTeamMember: Boolean,
         propagateIdentifier: suspend () -> Unit
     ) {
-        Countly.sharedInstance().deviceId().changeWithoutMerge(identifier)
+        wrapCountlyRequest {
+            Countly.sharedInstance()?.deviceId()?.changeWithoutMerge(identifier)
+        }
 
         setUserProfileProperties(isTeamMember = isTeamMember)
 
@@ -115,27 +120,42 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
         }
     }
 
-    private fun setUserProfileProperties(isTeamMember: Boolean) {
-        Countly.sharedInstance().userProfile().setProperty(
+    private fun setUserProfileProperties(isTeamMember: Boolean) = wrapCountlyRequest {
+        Countly.sharedInstance()?.userProfile()?.setProperty(
             AnalyticsEventConstants.TEAM_IS_TEAM,
             isTeamMember
         )
-        Countly.sharedInstance().userProfile().save()
+        Countly.sharedInstance()?.userProfile()?.save()
     }
 
     override fun isAnalyticsInitialized(): Boolean = Countly.sharedInstance().isInitialized
 
-    override fun applicationOnCreate() {
-        if (isConfigured) return
+    override fun applicationOnCreate() = wrapCountlyRequest {
+        if (isConfigured) return@wrapCountlyRequest
 
         Countly.applicationOnCreate()
     }
 
-    override fun recordView(screen: String) {
-        Countly.sharedInstance().views().startAutoStoppedView(screen)
+    override fun recordView(screen: String) = wrapCountlyRequest {
+        Countly.sharedInstance()?.views()?.startAutoStoppedView(screen)
     }
 
-    override fun stopView(screen: String) {
-        Countly.sharedInstance().views().stopViewWithName(screen)
+    override fun stopView(screen: String) = wrapCountlyRequest {
+        Countly.sharedInstance()?.views()?.stopViewWithName(screen)
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun wrapCountlyRequest(block: () -> Unit) {
+        try {
+            block()
+        } catch (e: Exception) {
+            // Countly SDK throws exceptions on some cases, just log it
+            // We don't want to crash the app because of that.
+            Log.wtf(TAG, "Countly SDK request failed", e)
+        }
+    }
+
+    companion object {
+        private const val TAG = "AnonymousAnalyticsRecorderImpl"
     }
 }

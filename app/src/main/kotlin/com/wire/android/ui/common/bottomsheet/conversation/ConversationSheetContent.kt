@@ -104,7 +104,8 @@ sealed class ConversationTypeDetail {
     data class Private(
         val avatarAsset: UserAvatarAsset?,
         val userId: UserId,
-        val blockingState: BlockingState
+        val blockingState: BlockingState,
+        val isUserDeleted: Boolean
     ) : ConversationTypeDetail()
 
     data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
@@ -132,7 +133,8 @@ data class ConversationSheetContent(
 
     fun canEditNotifications(): Boolean = isSelfUserMember
             && ((conversationTypeDetail is ConversationTypeDetail.Private
-            && (conversationTypeDetail.blockingState != BlockingState.BLOCKED))
+            && (conversationTypeDetail.blockingState != BlockingState.BLOCKED)
+            && !conversationTypeDetail.isUserDeleted)
             || conversationTypeDetail is ConversationTypeDetail.Group)
 
     fun canDeleteGroup(): Boolean {
@@ -143,8 +145,11 @@ data class ConversationSheetContent(
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
 
-    fun canBlockUser(): Boolean =
-        conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED
+    fun canBlockUser(): Boolean {
+       return conversationTypeDetail is ConversationTypeDetail.Private
+               && conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED
+               && !conversationTypeDetail.isUserDeleted
+    }
 
     fun canUnblockUser(): Boolean =
         conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.BLOCKED

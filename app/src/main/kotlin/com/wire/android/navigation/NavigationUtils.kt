@@ -45,7 +45,7 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
 
     fun lastDestinationFromOtherGraph(graph: NavGraphSpec) = currentBackStack.value.lastOrNull { it.navGraph() != graph }
 
-    appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()}")
+    appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()} backStackMode:${command.backStackMode}")
     navigate(command.destination) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {

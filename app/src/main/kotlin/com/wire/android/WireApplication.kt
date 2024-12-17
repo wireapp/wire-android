@@ -29,6 +29,7 @@ import co.touchlab.kermit.platformLogWriter
 import com.wire.android.analytics.ObserveCurrentSessionAnalyticsUseCase
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.debug.DatabaseProfilingManager
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -88,6 +89,9 @@ class WireApplication : BaseApp() {
 
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
+
+    @Inject
+    lateinit var databaseProfilingManager: DatabaseProfilingManager
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -183,6 +187,10 @@ class WireApplication : BaseApp() {
         logDeviceInformation()
         // 5. Verify if we can initialize Anonymous Analytics
         initializeAnonymousAnalytics()
+        // 6. Observe and update profiling when needed
+        globalAppScope.launch {
+            databaseProfilingManager.observeAndUpdateProfiling()
+        }
     }
 
     private fun initializeAnonymousAnalytics() {

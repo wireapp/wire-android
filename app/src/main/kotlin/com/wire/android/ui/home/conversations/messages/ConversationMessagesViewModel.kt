@@ -201,9 +201,10 @@ class ConversationMessagesViewModel @Inject constructor(
             }
             .distinctUntilChanged()
             .map { messageId ->
-                val senderNameResult = messageId?.let { getSenderNameByMessageId(conversationId, it) }
-                val senderName = if (senderNameResult is GetSenderNameByMessageIdUseCase.Result.Success) senderNameResult.name
-                else null
+                val senderName = messageId?.let {
+                    val result = getSenderNameByMessageId(conversationId, it)
+                    if (result is GetSenderNameByMessageIdUseCase.Result.Success) result.name else null
+                }
 
                 messageId to senderName
             }

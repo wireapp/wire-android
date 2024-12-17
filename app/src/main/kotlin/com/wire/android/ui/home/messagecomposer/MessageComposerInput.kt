@@ -29,6 +29,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
+<<<<<<< HEAD
+=======
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+>>>>>>> bd79bceaa (fix: new line can not be added to message composer (#3754))
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -327,7 +332,8 @@ private fun MessageComposerTextInput(
             },
         interactionSource = interactionSource,
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
-        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
+        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
+        lineLimits = TextFieldLineLimits.MultiLine()
     )
 }
 

@@ -33,14 +33,13 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -72,6 +71,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -170,7 +170,6 @@ import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerSta
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.normalizeLink
@@ -937,7 +936,6 @@ private fun ConversationScreen(
                         selectedMessageId = conversationMessagesViewState.searchedMessageId,
                         messageComposerStateHolder = messageComposerStateHolder,
                         messages = conversationMessagesViewState.messages,
-                        playingAudiMessage = conversationMessagesViewState.playingAudiMessage,
                         onSendMessage = onSendMessage,
                         onPingOptionClicked = onPingOptionClicked,
                         onImagesPicked = onImagesPicked,
@@ -1044,7 +1042,6 @@ private fun ConversationScreenContent(
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
     openDrawingCanvas: () -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
-    playingAudiMessage: PlayingAudiMessage?,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -1084,8 +1081,7 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
-                currentTimeInMillisFlow = currentTimeInMillisFlow,
-                playingAudiMessage = playingAudiMessage
+                currentTimeInMillisFlow = currentTimeInMillisFlow
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1151,8 +1147,7 @@ fun MessageList(
     interactionAvailability: InteractionAvailability,
     clickActions: MessageClickActions.Content,
     modifier: Modifier = Modifier,
-    currentTimeInMillisFlow: Flow<Long> = flow { },
-    playingAudiMessage: PlayingAudiMessage?
+    currentTimeInMillisFlow: Flow<Long> = flow { }
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1281,9 +1276,9 @@ fun MessageList(
                 }
             }
             JumpToPlayingAudioButton(
-                lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
-                playingAudiMessage = playingAudiMessage
+                lazyPagingMessages = lazyPagingMessages,
+                playingAudiMessage = audioMessagesState.playingAudiMessage
             )
             JumpToLastMessageButton(lazyListState = lazyListState)
         }
@@ -1423,8 +1418,8 @@ fun JumpToLastMessageButton(
 fun BoxScope.JumpToPlayingAudioButton(
     lazyListState: LazyListState,
     playingAudiMessage: PlayingAudiMessage?,
-    modifier: Modifier = Modifier,
     lazyPagingMessages: LazyPagingItems<UIMessage>,
+    modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
     val indexOfPlayedMessage = playingAudiMessage?.let {
@@ -1434,43 +1429,45 @@ fun BoxScope.JumpToPlayingAudioButton(
 
     if (indexOfPlayedMessage < 0) return
 
-    // todo cyka try to remember indexes
-    val visible = playingAudiMessage?.let {
-        val firstVisibleIndex = lazyListState.firstVisibleItemIndex
-        val lastVisibleIndex = firstVisibleIndex + lazyListState.layoutInfo.visibleItemsInfo.size
-        indexOfPlayedMessage in firstVisibleIndex..lastVisibleIndex
-    } ?: false
+    val firstVisibleIndex = lazyListState.firstVisibleItemIndex
+    val lastVisibleIndex = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: firstVisibleIndex
 
-    if (!visible) return
+    if (indexOfPlayedMessage in firstVisibleIndex..lastVisibleIndex) return
 
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .wrapContentWidth()
             .align(Alignment.TopCenter)
+            .padding(all = dimensions().spacing8x)
             .clickable { coroutineScope.launch { lazyListState.animateScrollToItem(indexOfPlayedMessage) } }
-            .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x)
             .background(
                 color = colorsScheme().secondaryText,
-                shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize)
+                shape = RoundedCornerShape(dimensions().corner16x)
             )
+            .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x)
     ) {
         Icon(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.size(dimensions().systemMessageIconSize),
             painter = painterResource(id = R.drawable.ic_play),
             contentDescription = null,
             tint = MaterialTheme.wireColorScheme.onPrimaryButtonEnabled
         )
-        Spacer(Modifier.width(dimensions().spacing8x))
         Text(
+            modifier = Modifier
+                .padding(horizontal = dimensions().spacing8x)
+                .weight(1f, fill = false),
             text = playingAudiMessage!!.authorName,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             color = colorsScheme().onPrimaryButtonEnabled,
             style = MaterialTheme.wireTypography.body04,
         )
-        Spacer(Modifier.width(dimensions().spacing8x))
         Text(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier,
             text = DateAndTimeParsers.audioMessageTime(playingAudiMessage.currentTimeMs.toLong()),
             color = colorsScheme().onPrimaryButtonEnabled,
-            style = MaterialTheme.wireTypography.body04,
+            style = MaterialTheme.wireTypography.label03,
         )
     }
 }

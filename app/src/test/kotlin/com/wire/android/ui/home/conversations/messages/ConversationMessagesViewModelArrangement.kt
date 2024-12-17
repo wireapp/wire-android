@@ -47,6 +47,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
+import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
@@ -116,6 +117,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var deleteMessage: DeleteMessageUseCase
 
+    @MockK
+    lateinit var getSenderNameByMessageId: GetSenderNameByMessageIdUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -133,7 +137,8 @@ class ConversationMessagesViewModelArrangement {
             getConversationUnreadEventsCount,
             clearUsersTypingEvents,
             getSearchedConversationMessagePosition,
-            deleteMessage
+            deleteMessage,
+            getSenderNameByMessageId
         )
     }
 
@@ -158,6 +163,7 @@ class ConversationMessagesViewModelArrangement {
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
         coEvery { conversationAudioMessagePlayer.fetchWavesMask(any(), any()) } returns Unit
+        coEvery { getSenderNameByMessageId(any(), any()) } returns GetSenderNameByMessageIdUseCase.Result.Success("User Name")
     }
 
     fun withSuccessfulViewModelInit() = apply {
@@ -229,6 +235,10 @@ class ConversationMessagesViewModelArrangement {
     fun withFailureOnDeletingMessages() = apply {
         coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
         return this
+    }
+
+    fun withGetSenderNameByMessageId(result: GetSenderNameByMessageIdUseCase.Result) = apply {
+        coEvery { getSenderNameByMessageId(any(), any()) } returns result
     }
 
     fun arrange() = this to viewModel

@@ -65,6 +65,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
+import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
@@ -80,7 +81,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -110,7 +110,8 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase,
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
-    private val deleteMessage: DeleteMessageUseCase
+    private val deleteMessage: DeleteMessageUseCase,
+    private val getSenderNameByMessageId: GetSenderNameByMessageIdUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -195,36 +196,34 @@ class ConversationMessagesViewModel @Inject constructor(
         val playingMessageData = observableAudioMessagesState
             .map { audioMessageStates ->
                 audioMessageStates.firstNotNullOfOrNull { (messageId, audioState) ->
-                    if (audioState.audioMediaPlayingState == AudioMediaPlayingState.Playing) messageId
-                    else null
+                    if (audioState.audioMediaPlayingState == AudioMediaPlayingState.Playing) messageId else null
                 }
-            }.distinctUntilChanged()
-            .map { messageId -> messageId?.let { getMessageByIdUseCase(conversationId, it) } }
-            .filterIsInstance<GetMessageByIdUseCase.Result.Success?>()
-            .map { it?.message }
+            }
+            .distinctUntilChanged()
+            .map { messageId ->
+                val senderNameResult = messageId?.let { getSenderNameByMessageId(conversationId, it) }
+                val senderName = if (senderNameResult is GetSenderNameByMessageIdUseCase.Result.Success) senderNameResult.name
+                else null
+
+                messageId to senderName
+            }
 
         viewModelScope.launch {
             combine(
                 observableAudioMessagesState,
                 conversationAudioMessagePlayer.audioSpeed,
                 playingMessageData
-            ) { audioMessageStates, audioSpeed, playingMessage ->
-                val audioMessagesState = AudioMessagesState(audioMessageStates.toPersistentMap(), audioSpeed)
-                val playingAudiMessage = playingMessage?.let {
+            ) { audioMessageStates, audioSpeed, (playingMessageId, playingMessageSenderName) ->
+                val playingAudiMessage = playingMessageId?.let {
                     PlayingAudiMessage(
-                        messageId = playingMessage.id,
-                        authorName = playingMessage.sender?.name ?: "",
-                        currentTimeMs = audioMessageStates[playingMessage.id]?.currentPositionInMs ?: 0
+                        messageId = playingMessageId,
+                        authorName = playingMessageSenderName.orEmpty(),
+                        currentTimeMs = audioMessageStates[playingMessageId]?.currentPositionInMs ?: 0
                     )
                 }
-                audioMessagesState to playingAudiMessage
+                AudioMessagesState(audioMessageStates.toPersistentMap(), audioSpeed, playingAudiMessage)
             }
-                .collect { (audioMessagesState, playingAudiMessage) ->
-                    conversationViewState = conversationViewState.copy(
-                        audioMessagesState = audioMessagesState,
-                        playingAudiMessage = playingAudiMessage
-                    )
-                }
+                .collect { conversationViewState = conversationViewState.copy(audioMessagesState = it) }
         }
     }
 

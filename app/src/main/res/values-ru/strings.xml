@@ -632,8 +632,10 @@
     <string name="label_filter_conversations">Отфильтровать беседы</string>
     <string name="label_filter_all">Все беседы</string>
     <string name="label_filter_favorites">Избранное</string>
+    <string name="label_filter_folders">Папки</string>
     <string name="label_filter_group">Группы</string>
     <string name="label_filter_one_on_one">Беседы 1:1</string>
+    <string name="label_folders">Папки</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Все</string>
     <string name="muting_option_all_allowed_text">Получать уведомления в этой беседе обо всем (включая аудио- и видеозвонки)</string>
@@ -975,6 +977,14 @@
     <string name="calling_ongoing_double_tap_to_go_back">Двойное нажатие для возврата назад</string>
     <string name="calling_feature_unavailable_title_alert">Возможность недоступна</string>
     <string name="calling_feature_unavailable_message_alert">Возможность инициировать групповой вызов доступна только в платной версии Wire.</string>
+    <string name="calling_feature_unavailable_team_member_message_alert">Чтобы выполнить групповой вызов вашей команде необходимо перейти на план Enterprise.</string>
+    <string name="calling_feature_unavailable_team_admin_title_alert">Перейти на Enterprise</string>
+    <string name="calling_feature_unavailable_team_admin_message_alert">В настоящее время ваша команда использует бесплатный тарифный план Basic. Перейдите на тарифный план Enterprise, чтобы получить доступ к таким возможностям, как проведение конференций и многим другим.</string>
+    <string name="calling_feature_unavailable_team_admin_message_link_alert">Узнайте больше о тарифах Wire</string>
+    <string name="calling_feature_unavailable_team_admin_upgrade_action_alert">Перейти сейчас</string>
+    <string name="calling_feature_enabled_title_alert">Wire Enterprise</string>
+    <string name="calling_feature_enabled_message_alert">Ваша команда перешла на тариф Wire Enterprise, который дает вам доступ к таким возможностям, как конференц-связь и многое другое.</string>
+    <string name="calling_feature_enabled_message_link_alert">Узнайте больше о Wire Enterprise</string>
     <string name="calling_screen_connecting_until_call_established">Подключение…</string>
     <string name="calling_confirm_start_call_title_dialog">Начать звонок</string>
     <string name="calling_confirm_start_call_description_dialog">Вы действительно хотите позвонить %1$s пользователям?</string>
@@ -1172,6 +1182,8 @@
     <string name="custom_backend_dialog_body_backend_website">URL веб-сайта:</string>
     <string name="custom_backend_dialog_body_backend_websocket">WSURL бэкэнда:</string>
     <string name="custom_backend_error_title">Произошла ошибка</string>
+    <string name="custom_backend_error_no_internet_connection_body">Перенаправление на локальный бэкэнд не удалось, вероятно, вы не подключены к интернету.\n\nПодключитесь к интернету и повторите попытку.</string>
+    <string name="custom_backend_error_no_internet_connection_try_again">Повторить</string>
     <string name="label_fetching_your_messages">Получение новых сообщений</string>
     <string name="label_text_copied">Текст скопирован в буфер обмена</string>
     <string name="label_logs_option_title">Журналы</string>
@@ -1201,6 +1213,8 @@
     <string name="group_empty_list_description">Вы еще не участвуете ни в одной групповой беседе.\nНачните новую!</string>
     <string name="one_on_one_empty_list_description">У вас пока нет контактов.\nИщите друзей в %1$s и общайтесь.</string>
     <string name="favorites_empty_list_how_to_label">Как помечать беседы как избранные</string>
+    <string name="folders_empty_list_description">Добавляйте беседы в папки, чтобы сохранять их упорядоченность.</string>
+    <string name="folders_empty_list_how_to_add">Как добавить беседу в папку</string>
     <string name="conversation_empty_list_title">Добро пожаловать 👋</string>
     <string name="label_no_conversation_found">Беседы не найдены.</string>
     <string name="label_connect_with_new_users">Общайтесь с новыми пользователями или начните новую беседу</string>

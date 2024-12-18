@@ -579,8 +579,10 @@
     <string name="label_leave_group">Gruppe verlassen</string>
     <string name="label_delete_group">Gruppe löschen</string>
     <!-- Conversation filter BottomSheet -->
+    <string name="label_filter_folders">Ordner</string>
     <string name="label_filter_group">Gruppen</string>
     <string name="label_filter_one_on_one">1:1 Unterhaltungen</string>
+    <string name="label_folders">Ordner</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Alles</string>
     <string name="muting_option_all_allowed_text">Sie erhalten alle Benachrichtigungen für diese Unterhaltung, einschließlich Audio- und Videoanrufe</string>
@@ -879,6 +881,14 @@
     <string name="calling_ongoing_double_tap_to_go_back">Zum Zurückgehen doppeltippen</string>
     <string name="calling_feature_unavailable_title_alert">Funktion nicht verfügbar</string>
     <string name="calling_feature_unavailable_message_alert">Die Option, eine Telefonkonferenz zu starten, ist nur in der kostenpflichtigen Version verfügbar.</string>
+    <string name="calling_feature_unavailable_team_member_message_alert">Um eine Telefonkonferenz zu starten, muss Ihr Team auf das Enterprise-Abo upgraden.</string>
+    <string name="calling_feature_unavailable_team_admin_title_alert">Auf Enterprise upgraden</string>
+    <string name="calling_feature_unavailable_team_admin_message_alert">Ihr Team nutzt derzeit das kostenlose Basis-Abo. Upgraden Sie auf Enterprise für den Zugriff auf weitere Funktionen wie das Starten von Telefonkonferenzen.</string>
+    <string name="calling_feature_unavailable_team_admin_message_link_alert">Erfahren Sie mehr über Wires Preise</string>
+    <string name="calling_feature_unavailable_team_admin_upgrade_action_alert">Jetzt upgraden</string>
+    <string name="calling_feature_enabled_title_alert">Wire Enterprise</string>
+    <string name="calling_feature_enabled_message_alert">Ihr Team nutzt jetzt Wire Enterprise. Dadurch haben Sie Zugriff auf Funktionen wie beispielsweise Telefonkonferenzen. </string>
+    <string name="calling_feature_enabled_message_link_alert">Erfahren Sie mehr über das Enterprise-Abo</string>
     <string name="calling_screen_connecting_until_call_established">Verbinden…</string>
     <string name="calling_confirm_start_call_title_dialog">Anruf starten</string>
     <string name="calling_confirm_start_call_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anrufen möchten?</string>
@@ -1092,6 +1102,8 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="label_key_packages_count">Anzahl der Schlüssel-Pakete</string>
     <string name="label_mls_client_id">MLS Client-ID</string>
     <string name="conversation_empty_list_description">Verbinden Sie sich mit anderen oder erstellen Sie eine neue Gruppe, um zu kommunizieren!</string>
+    <string name="folders_empty_list_description">Fügen Sie Ihre Unterhaltungen Ordnern hinzu, um organisiert zu bleiben.</string>
+    <string name="folders_empty_list_how_to_add">Hinzufügen einer Unterhaltung zu einem Ordner</string>
     <string name="conversation_empty_list_title">Willkommen 👋</string>
     <string name="label_no_conversation_found">Keine Unterhaltungen gefunden.</string>
     <string name="label_connect_with_new_users">Mit neuen Personen verbinden oder eine neue Unterhaltung beginnen</string>

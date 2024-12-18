@@ -32,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -40,6 +39,7 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.PreviewMultipleThemes
 
 @Composable
 fun WireTertiaryButton(
@@ -93,13 +93,13 @@ fun WireTertiaryButton(
     description = description
 )
 
-@Preview(name = "Default WireSecondaryButton")
+@PreviewMultipleThemes
 @Composable
 fun PreviewWireTertiaryButton() {
     WireTertiaryButton(onClick = { }, text = "text")
 }
 
-@Preview(name = "Default narrow WireTertiaryButton with icon")
+@PreviewMultipleThemes
 @Composable
 fun PreviewWireTertiaryButtonNarrowWithIcons() {
     WireTertiaryButton(
@@ -111,7 +111,7 @@ fun PreviewWireTertiaryButtonNarrowWithIcons() {
     )
 }
 
-@Preview(name = "Default narrow WireTertiaryButton only icon")
+@PreviewMultipleThemes
 @Composable
 fun PreviewWireTertiaryButtonNarrowOnlyIcons() {
     WireTertiaryButton(
@@ -122,19 +122,19 @@ fun PreviewWireTertiaryButtonNarrowOnlyIcons() {
     )
 }
 
-@Preview(name = "Default narrow Disabled WireSecondaryButton")
+@PreviewMultipleThemes
 @Composable
 fun PreviewWireTertiaryButtonDisabled() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text", fillMaxWidth = false)
 }
 
-@Preview(name = "Selected narrow WireSecondaryButton")
+@PreviewMultipleThemes
 @Composable
 fun PreviewWireTertiaryButtonSelected() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Selected, text = "text", fillMaxWidth = false)
 }
 
-@Preview(name = "Error narrow WireSecondaryButton")
+@PreviewMultipleThemes
 @Composable
 fun PreviewWireTertiaryButtonError() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Error, text = "text", fillMaxWidth = false)

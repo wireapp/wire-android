@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -62,6 +63,8 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.hiltAssistedViewModelScoped
+import com.wire.android.di.hiltViewModelFactory
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
@@ -89,6 +92,9 @@ import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNa
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
+import com.wire.android.ui.home.conversationslist.ConversationListViewModel
+import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
+import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
 import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent
 import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetData
 import com.wire.android.ui.home.conversationslist.filter.rememberFilterSheetState
@@ -112,12 +118,15 @@ fun HomeScreen(
     appSyncViewModel: AppSyncViewModel = hiltViewModel(),
     homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
     analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
-    foldersViewModel: ConversationFoldersVM =
-        hiltViewModelScoped<ConversationFoldersVMImpl, ConversationFoldersVM, ConversationFoldersStateArgs>(
-            ConversationFoldersStateArgs
-        )
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
+    val context = LocalContext.current
+
+    val foldersViewModel: ConversationFoldersVM =
+    hiltAssistedViewModelScoped(
+        arguments = ConversationFoldersStateArgs,
+        factoryProvider = { hiltViewModelFactory<ConversationFoldersVMImpl.Factory>(context = context) }
+    )
 
     val homeScreenState = rememberHomeScreenState(navigator)
     val notificationsPermissionDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -137,7 +146,6 @@ fun HomeScreen(
         )
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
 

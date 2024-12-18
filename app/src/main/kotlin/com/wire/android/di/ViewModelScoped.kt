@@ -17,13 +17,19 @@
  */
 package com.wire.android.di
 
+import android.content.Context
 import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
+import dagger.hilt.android.EntryPointAccessors
 import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
@@ -70,6 +76,36 @@ inline fun <reified T, reified S, reified R : ScopedArgs> hiltViewModelScoped(ar
     else -> hiltViewModelScoped<T>(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
 }
 
+@Composable
+inline fun <reified VM : ViewModel, R : ScopedArgs> hiltAssistedViewModelScoped(
+    arguments: R,
+    crossinline factoryProvider: () -> AssistedViewModelFactory<VM, R>
+): VM {
+    val key = arguments.key.toString()
+    val factory = factoryProvider()
+    val viewModelStoreOwner = LocalViewModelStoreOwner.current
+    val context = LocalContext.current
+
+    return remember(key) {
+        ViewModelProvider(
+            viewModelStoreOwner ?: throw IllegalStateException("ViewModelStoreOwner not found"),
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    if (modelClass.isAssignableFrom(VM::class.java)) {
+                        return factory.create(arguments) as T
+                    }
+                    throw IllegalArgumentException("Unknown ViewModel class")
+                }
+            }
+        )[VM::class.java]
+    }
+}
+
+inline fun <reified F> hiltViewModelFactory(context: Context): F {
+    return EntryPointAccessors.fromApplication(context, F::class.java)
+}
+
 /**
  * Creates a [Bundle] with all key-values from the given [SavedStateHandle].
  */
@@ -87,3 +123,8 @@ interface ScopedArgs {
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 annotation class ViewModelScopedPreview
+
+
+interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
+    fun create(args: R): VM
+}

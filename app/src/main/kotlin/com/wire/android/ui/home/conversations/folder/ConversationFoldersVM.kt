@@ -22,10 +22,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
@@ -39,10 +44,16 @@ interface ConversationFoldersVM {
     fun state(): ConversationFoldersState = ConversationFoldersState(persistentListOf())
 }
 
-@HiltViewModel
-class ConversationFoldersVMImpl @Inject constructor(
+@HiltViewModel(assistedFactory = ConversationFoldersVMImpl.Factory::class)
+class ConversationFoldersVMImpl @AssistedInject constructor(
+    @Assisted val args: ConversationFoldersStateArgs,
     private val observeUserFoldersUseCase: ObserveUserFoldersUseCase,
 ) : ConversationFoldersVM, ViewModel() {
+
+    @AssistedFactory
+    interface Factory: AssistedViewModelFactory<ConversationFoldersVMImpl, ConversationFoldersStateArgs> {
+        override fun create(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl
+    }
 
     private var state by mutableStateOf(ConversationFoldersState(persistentListOf()))
 

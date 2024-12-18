@@ -236,14 +236,15 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
 fun previewConversationFoldersFlow(
     searchQuery: String = "",
     list: List<ConversationFolderItem> = previewConversationFolders(searchQuery = searchQuery)
-) = flowOf(PagingData.from(
-    data = list,
-    sourceLoadStates = LoadStates(
-        prepend = LoadState.NotLoading(true),
-        append = LoadState.NotLoading(true),
-        refresh = LoadState.NotLoading(true),
+) = flowOf(
+    PagingData.from(
+        data = list,
+        sourceLoadStates = LoadStates(
+            prepend = LoadState.NotLoading(true),
+            append = LoadState.NotLoading(true),
+            refresh = LoadState.NotLoading(true),
+        )
     )
-)
 )
 
 fun previewConversationFolders(withFolders: Boolean = true, searchQuery: String = "", unreadCount: Int = 3, readCount: Int = 6) =

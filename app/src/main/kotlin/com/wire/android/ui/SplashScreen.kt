@@ -32,6 +32,16 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun SplashScreen(onStart: () -> Unit) {
+    MainBackgroundContent()
+}
+
+@Composable
+fun MainBackgroundComponent() {
+    MainBackgroundContent()
+}
+
+@Composable
+private fun MainBackgroundContent() {
     val image: Painter = painterResource(id = R.drawable.bg_waves)
     Image(
         painter = image,
@@ -46,5 +56,5 @@ fun SplashScreen(onStart: () -> Unit) {
 @PreviewMultipleThemes
 @Composable
 private fun PreviewSplashScreen() = WireTheme {
-    SplashScreen() {}
+    MainBackgroundContent()
 }

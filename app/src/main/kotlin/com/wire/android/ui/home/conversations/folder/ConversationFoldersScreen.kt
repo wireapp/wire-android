@@ -86,9 +86,9 @@ fun ConversationFoldersScreen(
 private fun Content(
     currentFolderId : String?,
     onNavigationPressed: () -> Unit = {},
-    foldersViewModel: ConversationFoldersVM =
-        hiltViewModelScoped<ConversationFoldersVMImpl, ConversationFoldersVM, ConversationFoldersStateArgs>(
-            ConversationFoldersStateArgs
+    foldersViewModel: SelectConversationFoldersVM =
+        hiltViewModelScoped<SelectConversationFoldersVMImpl, SelectConversationFoldersVM, SelectConversationFoldersStateArgs>(
+            SelectConversationFoldersStateArgs(currentFolderId)
         )
 ) {
     val resources = LocalContext.current.resources

@@ -29,11 +29,12 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun rememberSearchbarState(
+    initialIsSearchActive: Boolean = false,
     searchQueryTextState: TextFieldState = rememberTextFieldState()
 ): SearchBarState = rememberSaveable(
-    saver = SearchBarState.saver(searchQueryTextState)
+    saver = SearchBarState.saver()
 ) {
-    SearchBarState(searchQueryTextState = searchQueryTextState)
+    SearchBarState(isSearchActive = initialIsSearchActive, searchQueryTextState = searchQueryTextState)
 }
 
 class SearchBarState(
@@ -57,16 +58,26 @@ class SearchBarState(
     }
 
     companion object {
-        fun saver(searchQueryTextState: TextFieldState): Saver<SearchBarState, *> = Saver(
+        fun saver(): Saver<SearchBarState, *> = Saver(
             save = {
-                listOf(it.isSearchActive)
+                listOf(
+                    it.isSearchActive,
+                    with(TextFieldState.Saver) {
+                        save(it.searchQueryTextState)
+                    }
+                )
             },
             restore = {
                 SearchBarState(
-                    isSearchActive = it[0],
-                    searchQueryTextState = searchQueryTextState
+                    isSearchActive = it[0] as Boolean,
+                    searchQueryTextState = it[1]?.let {
+                        with(TextFieldState.Saver) {
+                            restore(it)
+                        }
+                    } ?: TextFieldState()
                 )
             }
         )
     }
 }
+

@@ -166,12 +166,8 @@ class WireActivity : AppCompatActivity() {
         // It's an API limitation, at some point we may need to remove it
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        setContent {
-            SplashScreen {
-                splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
-            }
-        }
+        splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
+        setContent { SplashScreen() }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -220,17 +216,6 @@ class WireActivity : AppCompatActivity() {
              */
             handleDeepLink(intent)
         }
-    }
-
-    @Composable
-    fun SplashScreen(onTimeout: () -> Unit) {
-        val image: Painter = painterResource(id = R.drawable.waves)
-        Image(
-            painter = image,
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            alignment = Alignment.Center
-        )
     }
 
     @Suppress("LongMethod")

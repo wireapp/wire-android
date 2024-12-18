@@ -33,6 +33,7 @@ import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.MigrationManager
@@ -53,6 +54,7 @@ import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.call.RecentlyEndedCallMetadata
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -61,6 +63,7 @@ import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveRecentlyEndedCallMetadataUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -729,6 +732,7 @@ class WireActivityViewModelTest {
                     flowOf(false)
             every { workManager.cancelAllWorkByTag(any()) } returns OperationImpl()
             every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns OperationImpl()
+            coEvery { observeRecentlyEndedCallMetadata() } returns flowOf(recentlyEndedCallMetadata)
         }
 
         @MockK
@@ -794,6 +798,12 @@ class WireActivityViewModelTest {
         lateinit var workManager: WorkManager
 
         @MockK
+        lateinit var observeRecentlyEndedCallMetadata: ObserveRecentlyEndedCallMetadataUseCase
+
+        @MockK
+        lateinit var analyticsManager: AnonymousAnalyticsManager
+
+        @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
         @MockK(relaxed = true)
@@ -826,7 +836,9 @@ class WireActivityViewModelTest {
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
                 globalDataStore = { globalDataStore },
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
-                workManager = { workManager }
+                workManager = { workManager },
+                observeRecentlyEndedCallMetadata = observeRecentlyEndedCallMetadata,
+                analyticsManager = analyticsManager
             )
         }
 
@@ -972,6 +984,28 @@ class WireActivityViewModelTest {
             conversationType = Conversation.Type.ONE_ON_ONE,
             callerName = "otherUsername",
             callerTeamName = "team1"
+        )
+
+        val recentlyEndedCallMetadata = RecentlyEndedCallMetadata(
+            callEndReason = 1,
+            callDetails = RecentlyEndedCallMetadata.CallDetails(
+                isCallScreenShare = false,
+                screenShareDurationInSeconds = 20L,
+                callScreenShareUniques = 5,
+                isOutgoingCall = true,
+                callDurationInSeconds = 100L,
+                callParticipantsCount = 5,
+                conversationServices = 1,
+                callAVSwitchToggle = false,
+                callVideoEnabled = false
+            ),
+            conversationDetails = RecentlyEndedCallMetadata.ConversationDetails(
+                conversationType = Conversation.Type.ONE_ON_ONE,
+                conversationSize = 5,
+                conversationGuests = 2,
+                conversationGuestsPro = 1
+            ),
+            isTeamMember = true
         )
 
         fun invalidAccountInfo(logoutReason: LogoutReason): AccountInfo.Invalid = AccountInfo.Invalid(USER_ID, logoutReason)

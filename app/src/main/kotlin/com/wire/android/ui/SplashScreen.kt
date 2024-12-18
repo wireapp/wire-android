@@ -18,10 +18,12 @@
 package com.wire.android.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import com.wire.android.R
@@ -29,20 +31,20 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun SplashScreen() {
+fun SplashScreen(onStart: () -> Unit) {
     val image: Painter = painterResource(id = R.drawable.bg_waves)
     Image(
         painter = image,
         contentDescription = null,
-        modifier = Modifier.fillMaxSize(),
-        alignment = Alignment.Center
+        alignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Black)
     )
 }
 
 @PreviewMultipleThemes
 @Composable
 private fun PreviewSplashScreen() = WireTheme {
-    WireTheme {
-        SplashScreen()
-    }
+    SplashScreen() {}
 }

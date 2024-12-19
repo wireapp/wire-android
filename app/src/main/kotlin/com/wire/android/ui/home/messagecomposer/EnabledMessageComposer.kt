@@ -366,13 +366,15 @@ fun EnabledMessageComposer(
                                         color = rippleColor,
                                         style = Fill
                                     )
-                                    drawPath(
-                                        path = path,
-                                        color = borderColor,
-                                        style = Stroke(
-                                            width = borderWidthPx * 2f // double to make it inner stroke, outer half is clipped anyway
+                                    if (borderWidthPx > 0f) {
+                                        drawPath(
+                                            path = path,
+                                            color = borderColor,
+                                            style = Stroke(
+                                                width = borderWidthPx * 2f // double to make it inner stroke, outer half is clipped anyway
+                                            )
                                         )
-                                    )
+                                    }
                                 }
                             }
 

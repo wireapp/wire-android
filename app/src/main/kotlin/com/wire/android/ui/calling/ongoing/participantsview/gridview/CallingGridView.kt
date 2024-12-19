@@ -51,13 +51,16 @@ fun GroupCallGrid(
     isSelfUserCameraOn: Boolean,
     contentHeight: Dp,
     currentUserId: UserId,
+    isOnFrontCamera: Boolean,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
+    flipCamera: () -> Unit,
+    isInPictureInPictureMode: Boolean,
+    recentReactions: Map<UserId, String>,
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
     spacedBy: Dp = dimensions().spacing2x,
-    isInPictureInPictureMode: Boolean,
 ) {
     // We need the number of tiles rows needed to calculate their height
     val numberOfTilesRows = remember(participants.size) {
@@ -107,7 +110,10 @@ fun GroupCallGrid(
                 isSelfUserMuted = isSelfUserMuted,
                 isSelfUserCameraOn = isSelfUserCameraOn,
                 onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
-                onClearSelfUserVideoPreview = onSelfClearVideoPreview
+                onClearSelfUserVideoPreview = onSelfClearVideoPreview,
+                recentReaction = recentReactions[participant.id],
+                isOnFrontCamera = isOnFrontCamera,
+                flipCamera = flipCamera,
             )
         }
     }
@@ -141,6 +147,9 @@ private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier
             onDoubleTap = { },
             currentUserId = UserId("id", "domain"),
             isInPictureInPictureMode = false,
+            recentReactions = emptyMap(),
+            isOnFrontCamera = false,
+            flipCamera = {},
         )
     }
 }

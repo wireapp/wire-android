@@ -52,7 +52,10 @@ fun CallingHorizontalView(
     currentUserId: UserId,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
+    recentReactions: Map<UserId, String>,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
+    isOnFrontCamera: Boolean,
+    flipCamera: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
     spacedBy: Dp = dimensions().spacing2x,
@@ -95,6 +98,9 @@ fun CallingHorizontalView(
                 isSelfUserCameraOn = isSelfUserCameraOn,
                 onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
                 onClearSelfUserVideoPreview = onSelfClearVideoPreview,
+                recentReaction = recentReactions[participant.id],
+                isOnFrontCamera = isOnFrontCamera,
+                flipCamera = flipCamera,
             )
         }
     }
@@ -112,9 +118,12 @@ fun PreviewCallingHorizontalView(
             isSelfUserCameraOn = false,
             contentHeight = 800.dp,
             currentUserId = UserId("id", "domain"),
+            recentReactions = emptyMap(),
             onSelfVideoPreviewCreated = {},
             onSelfClearVideoPreview = {},
             onDoubleTap = { },
+            isOnFrontCamera = false,
+            flipCamera = { },
         )
     }
 }

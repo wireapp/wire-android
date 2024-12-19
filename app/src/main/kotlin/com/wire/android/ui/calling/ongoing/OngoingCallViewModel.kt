@@ -20,6 +20,7 @@ package com.wire.android.ui.calling.ongoing
 
 import android.os.CountDownTimer
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -27,8 +28,12 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
+import com.wire.android.ui.calling.model.InCallReaction
+import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
+import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions
+import com.wire.android.util.ExpiringMap
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.CallQuality
@@ -36,18 +41,29 @@ import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
+import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.logic.functional.onSuccess
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel(assistedFactory = OngoingCallViewModel.Factory::class)
 class OngoingCallViewModel @AssistedInject constructor(
     @Assisted
@@ -58,6 +74,8 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val setVideoSendState: SetVideoSendStateUseCase,
+    private val observeInCallReactionsUseCase: ObserveInCallReactionsUseCase,
+    private val sendInCallReactionUseCase: SendInCallReactionUseCase,
 ) : ViewModel() {
     var shouldShowDoubleTapToast: Boolean by mutableStateOf(false)
         private set
@@ -68,6 +86,15 @@ class OngoingCallViewModel @AssistedInject constructor(
     var selectedParticipant by mutableStateOf(SelectedParticipant())
         private set
 
+    private val _inCallReactions = Channel<InCallReaction>(
+        capacity = 300, // Max reactions to keep in queue
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+
+    val inCallReactions = _inCallReactions.receiveAsFlow().withDelayAfterFirst(InCallReactions.reactionsThrottleDelayMs)
+
+    val recentReactions = recentInCallReactionMap()
+
     init {
         viewModelScope.launch {
             establishedCalls().first { it.isNotEmpty() }.run {
@@ -76,6 +103,7 @@ class OngoingCallViewModel @AssistedInject constructor(
                 observeCurrentCall()
             }
         }
+        observeInCallReactions()
         showDoubleTapToast()
     }
 
@@ -192,6 +220,33 @@ class OngoingCallViewModel @AssistedInject constructor(
         this.selectedParticipant = selectedParticipant
     }
 
+    private fun observeInCallReactions() {
+        observeInCallReactionsUseCase().onEach { message ->
+            message.emojis.forEach { emoji ->
+                val sender = message.senderUserName?.let { ReactionSender.Other(it) } ?: ReactionSender.Unknown
+                _inCallReactions.send(InCallReaction(emoji, sender))
+            }
+            if (message.emojis.isNotEmpty()) {
+                recentReactions.put(message.senderUserId, message.emojis.last())
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun onReactionClick(emoji: String) {
+        viewModelScope.launch {
+            sendInCallReactionUseCase(conversationId, emoji).onSuccess {
+                _inCallReactions.send(InCallReaction(emoji, ReactionSender.You))
+            }
+        }
+    }
+
+    private fun recentInCallReactionMap(): MutableMap<UserId, String> =
+        ExpiringMap<UserId, String>(
+            scope = viewModelScope,
+            expiration = InCallReactions.recentReactionShowDurationMs,
+            delegate = mutableStateMapOf<UserId, String>()
+        )
+
     companion object {
         const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L
         const val COUNT_DOWN_INTERVAL = 1000L
@@ -204,3 +259,9 @@ class OngoingCallViewModel @AssistedInject constructor(
         fun create(conversationId: ConversationId): OngoingCallViewModel
     }
 }
+
+private fun <T> Flow<T>.withDelayAfterFirst(timeMillis: Long): Flow<T> = withIndex()
+    .map { (index, value) ->
+        if (index > 0) delay(timeMillis)
+        value
+    }

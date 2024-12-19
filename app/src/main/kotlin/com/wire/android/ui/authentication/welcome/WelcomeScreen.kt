@@ -52,7 +52,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -84,6 +83,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @RootNavGraph(start = true)
@@ -142,7 +142,7 @@ private fun WelcomeContent(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(topEnd = dimensions().spacing8x, topStart = dimensions().spacing8x))
                     .align(Alignment.BottomCenter)
-                    .background(colorsScheme().surface)
+                    .background(colorsScheme().background)
                     .padding(16.dp)
             ) {
                 VerticalSpace.x16()
@@ -298,7 +298,7 @@ private fun WelcomeFooter(onPrivateAccountClick: () -> Unit, modifier: Modifier 
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewWelcomeScreen() {
     WireTheme {

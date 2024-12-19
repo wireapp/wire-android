@@ -53,6 +53,7 @@ import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.call.RecentlyEndedCallMetadata
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -972,6 +973,28 @@ class WireActivityViewModelTest {
             conversationType = Conversation.Type.ONE_ON_ONE,
             callerName = "otherUsername",
             callerTeamName = "team1"
+        )
+
+        val recentlyEndedCallMetadata = RecentlyEndedCallMetadata(
+            callEndReason = 1,
+            callDetails = RecentlyEndedCallMetadata.CallDetails(
+                isCallScreenShare = false,
+                screenShareDurationInSeconds = 20L,
+                callScreenShareUniques = 5,
+                isOutgoingCall = true,
+                callDurationInSeconds = 100L,
+                callParticipantsCount = 5,
+                conversationServices = 1,
+                callAVSwitchToggle = false,
+                callVideoEnabled = false
+            ),
+            conversationDetails = RecentlyEndedCallMetadata.ConversationDetails(
+                conversationType = Conversation.Type.ONE_ON_ONE,
+                conversationSize = 5,
+                conversationGuests = 2,
+                conversationGuestsPro = 1
+            ),
+            isTeamMember = true
         )
 
         fun invalidAccountInfo(logoutReason: LogoutReason): AccountInfo.Invalid = AccountInfo.Invalid(USER_ID, logoutReason)

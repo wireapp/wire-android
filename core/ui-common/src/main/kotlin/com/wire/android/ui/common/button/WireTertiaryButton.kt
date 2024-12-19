@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.Icon
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.PreviewMultipleThemes
@@ -95,13 +96,13 @@ fun WireTertiaryButton(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewWireTertiaryButton() {
+fun PreviewWireTertiaryButton() = WireTheme {
     WireTertiaryButton(onClick = { }, text = "text")
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewWireTertiaryButtonNarrowWithIcons() {
+fun PreviewWireTertiaryButtonNarrowWithIcons() = WireTheme {
     WireTertiaryButton(
         onClick = { },
         text = "text",
@@ -113,7 +114,7 @@ fun PreviewWireTertiaryButtonNarrowWithIcons() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewWireTertiaryButtonNarrowOnlyIcons() {
+fun PreviewWireTertiaryButtonNarrowOnlyIcons() = WireTheme {
     WireTertiaryButton(
         onClick = { },
         leadingIcon = Icons.Filled.Search.Icon(),
@@ -124,18 +125,18 @@ fun PreviewWireTertiaryButtonNarrowOnlyIcons() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewWireTertiaryButtonDisabled() {
+fun PreviewWireTertiaryButtonDisabled() = WireTheme {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text", fillMaxWidth = false)
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewWireTertiaryButtonSelected() {
+fun PreviewWireTertiaryButtonSelected() = WireTheme {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Selected, text = "text", fillMaxWidth = false)
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewWireTertiaryButtonError() {
+fun PreviewWireTertiaryButtonError() = WireTheme {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Error, text = "text", fillMaxWidth = false)
 }

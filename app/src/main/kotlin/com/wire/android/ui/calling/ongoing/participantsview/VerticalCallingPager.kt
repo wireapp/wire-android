@@ -61,12 +61,15 @@ fun VerticalCallingPager(
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     isInPictureInPictureMode: Boolean,
+    isOnFrontCamera: Boolean,
     contentHeight: Dp,
     currentUserId: UserId,
+    recentReactions: Map<UserId, String>,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
+    flipCamera: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -107,6 +110,9 @@ fun VerticalCallingPager(
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap,
                             currentUserId = currentUserId,
+                            recentReactions = recentReactions,
+                            isOnFrontCamera = isOnFrontCamera,
+                            flipCamera = flipCamera,
                         )
                     } else {
                         GroupCallGrid(
@@ -120,6 +126,9 @@ fun VerticalCallingPager(
                             onDoubleTap = onDoubleTap,
                             currentUserId = currentUserId,
                             isInPictureInPictureMode = isInPictureInPictureMode,
+                            recentReactions = recentReactions,
+                            isOnFrontCamera = isOnFrontCamera,
+                            flipCamera = flipCamera,
                         )
                     }
 
@@ -177,8 +186,11 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         onSelfClearVideoPreview = {},
         requestVideoStreams = {},
         onDoubleTap = { },
+        flipCamera = { },
         isInPictureInPictureMode = false,
         currentUserId = participants[0].id,
+        recentReactions = emptyMap(),
+        isOnFrontCamera = false,
     )
 }
 

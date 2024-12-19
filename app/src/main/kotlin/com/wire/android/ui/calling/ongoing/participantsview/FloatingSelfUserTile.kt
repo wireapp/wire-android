@@ -60,9 +60,11 @@ fun FloatingSelfUserTile(
     contentHeight: Dp,
     contentWidth: Dp,
     participant: UICallParticipant,
+    isOnFrontCamera: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
+    onClearSelfUserVideoPreview: () -> Unit,
+    flipCamera: () -> Unit,
     modifier: Modifier = Modifier,
-    onClearSelfUserVideoPreview: () -> Unit
 ) {
     var selfVideoTileHeight by remember {
         mutableStateOf(contentHeight / 4)
@@ -170,6 +172,8 @@ fun FloatingSelfUserTile(
             isSelfUserCameraOn = participant.isCameraOn,
             onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
             onClearSelfUserVideoPreview = onClearSelfUserVideoPreview,
+            isOnFrontCamera = isOnFrontCamera,
+            flipCamera = flipCamera,
         )
     }
 }

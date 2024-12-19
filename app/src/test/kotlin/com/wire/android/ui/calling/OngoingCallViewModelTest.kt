@@ -18,30 +18,43 @@
 
 package com.wire.android.ui.calling
 
+import app.cash.turbine.test
+import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.framework.TestUser
+import com.wire.android.ui.calling.OngoingCallViewModelTest.Arrangement
+import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.call.InCallReactionMessage
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
+import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -59,6 +72,8 @@ class OngoingCallViewModelTest {
             .withCall(provideCall())
             .withShouldShowDoubleTapToastReturning(false)
             .withSetVideoSendState()
+            .withReactionSendSuccess()
+            .withNoIncomingReactions()
             .arrange()
 
         ongoingCallViewModel.startSendingVideoFeed()
@@ -72,6 +87,8 @@ class OngoingCallViewModelTest {
             .withCall(provideCall())
             .withShouldShowDoubleTapToastReturning(false)
             .withSetVideoSendState()
+            .withReactionSendSuccess()
+            .withNoIncomingReactions()
             .arrange()
 
         ongoingCallViewModel.stopSendingVideoFeed()
@@ -92,6 +109,8 @@ class OngoingCallViewModelTest {
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
                 .withRequestVideoStreams(conversationId, expectedClients)
+                .withReactionSendSuccess()
+                .withNoIncomingReactions()
                 .arrange()
 
             ongoingCallViewModel.requestVideoStreams(participants)
@@ -111,6 +130,8 @@ class OngoingCallViewModelTest {
             .withShouldShowDoubleTapToastReturning(false)
             .withSetVideoSendState()
             .withSetShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
+            .withReactionSendSuccess()
+            .withNoIncomingReactions()
             .arrange()
 
         ongoingCallViewModel.hideDoubleTapToast()
@@ -131,6 +152,8 @@ class OngoingCallViewModelTest {
                 .withCall(provideCall())
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
+                .withReactionSendSuccess()
+                .withNoIncomingReactions()
                 .arrange()
 
             ongoingCallViewModel.startSendingVideoFeed()
@@ -147,6 +170,8 @@ class OngoingCallViewModelTest {
                 .withCall(provideCall())
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
+                .withReactionSendSuccess()
+                .withNoIncomingReactions()
                 .arrange()
 
             ongoingCallViewModel.pauseSendingVideoFeed()
@@ -163,6 +188,8 @@ class OngoingCallViewModelTest {
                 .withCall(provideCall().copy(isCameraOn = true))
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
+                .withReactionSendSuccess()
+                .withNoIncomingReactions()
                 .arrange()
 
             ongoingCallViewModel.stopSendingVideoFeed()
@@ -179,6 +206,8 @@ class OngoingCallViewModelTest {
                 .withCall(provideCall().copy(isCameraOn = true))
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
+                .withReactionSendSuccess()
+                .withNoIncomingReactions()
                 .arrange()
 
             ongoingCallViewModel.onSelectedParticipant(selectedParticipant3)
@@ -199,6 +228,8 @@ class OngoingCallViewModelTest {
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
                 .withRequestVideoStreams(conversationId, expectedClients)
+                .withReactionSendSuccess()
+                .withNoIncomingReactions()
                 .arrange()
 
             ongoingCallViewModel.onSelectedParticipant(selectedParticipant3)
@@ -225,6 +256,8 @@ class OngoingCallViewModelTest {
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
                 .withRequestVideoStreams(conversationId, expectedClients)
+                .withReactionSendSuccess()
+                .withNoIncomingReactions()
                 .arrange()
 
             ongoingCallViewModel.onSelectedParticipant(SelectedParticipant())
@@ -237,6 +270,145 @@ class OngoingCallViewModelTest {
                 )
             }
         }
+
+    @Test
+    fun givenAnOngoingCall_WhenInCallReactionIsReceived_ThenNewEmojiIsEmitted() = runTest {
+
+        val reactionsFlow = MutableSharedFlow<InCallReactionMessage>()
+
+        // given
+        val (_, ongoingCallViewModel) = Arrangement()
+            .withCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .withReactionSendSuccess()
+            .withInCallReactions(reactionsFlow)
+            .arrange()
+
+        ongoingCallViewModel.inCallReactions.test {
+
+            // when
+            reactionsFlow.emit(InCallReactionMessage(emojis = setOf("👍", "🎉"), senderUserId = TestUser.USER_ID, "Test User"))
+
+            val reaction1 = awaitItem()
+            val reaction2 = awaitItem()
+
+            // then
+            assertEquals("👍", reaction1.emoji)
+            assertEquals("Test User", (reaction1.sender as ReactionSender.Other).name)
+            assertEquals("🎉", reaction2.emoji)
+            assertEquals("Test User", (reaction2.sender as ReactionSender.Other).name)
+        }
+    }
+
+    @Test
+    fun givenAnOngoingCall_WhenInCallReactionIsReceived_ThenNewRecentReactionEmitted() = runTest {
+
+        val reactionsFlow = MutableSharedFlow<InCallReactionMessage>()
+
+        // given
+        val (_, ongoingCallViewModel) = Arrangement()
+            .withCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .withReactionSendSuccess()
+            .withInCallReactions(reactionsFlow)
+            .arrange()
+
+        // when
+        reactionsFlow.emit(InCallReactionMessage(emojis = setOf("👍"), senderUserId = TestUser.USER_ID, "Test User"))
+
+        val recentReaction = ongoingCallViewModel.recentReactions.getValue(TestUser.USER_ID)
+
+        // then
+        assertEquals("👍", recentReaction)
+    }
+
+    @Test
+    fun givenAnOngoingCall_WhenNewInCallReactionIsReceived_ThenRecentReactionUpdated() = runTest {
+
+        val reactionsFlow = MutableSharedFlow<InCallReactionMessage>()
+
+        // given
+        val (_, ongoingCallViewModel) = Arrangement()
+            .withCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .withReactionSendSuccess()
+            .withInCallReactions(reactionsFlow)
+            .arrange()
+
+        // when
+        reactionsFlow.emit(InCallReactionMessage(emojis = setOf("👍", "🎉"), senderUserId = TestUser.USER_ID, "Test User"))
+
+        val recentReaction = ongoingCallViewModel.recentReactions.getValue(TestUser.USER_ID)
+
+        // then
+        assertEquals("🎉", recentReaction)
+    }
+
+    @Test
+    fun givenAnOngoingCall_WhenInCallReactionIsSent_ThenReactionMessageIsSent() = runTest {
+        // given
+        val (arrangement, ongoingCallViewModel) = Arrangement()
+            .withCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .withReactionSendSuccess()
+            .withNoIncomingReactions()
+            .arrange()
+
+        // when
+        ongoingCallViewModel.onReactionClick("👍")
+
+        // then
+        coVerify(exactly = 1) {
+            arrangement.sendInCallReactionUseCase(conversationId, "👍")
+        }
+    }
+
+    @Test
+    fun givenAnOngoingCall_WhenInCallReactionIsSent_ThenNewEmojiIsEmitted() = runTest {
+        // given
+        val (_, ongoingCallViewModel) = Arrangement()
+            .withCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .withReactionSendSuccess()
+            .withNoIncomingReactions()
+            .arrange()
+
+        ongoingCallViewModel.inCallReactions.test {
+            // when
+            ongoingCallViewModel.onReactionClick("👍")
+
+            val reaction = awaitItem()
+
+            // then
+            assertEquals("👍", reaction.emoji)
+            assertIs<ReactionSender.You>(reaction.sender)
+        }
+    }
+
+    @Test
+    fun givenAnOngoingCall_WhenInCallReactionSentFails_ThenNoEmojiIsEmitted() = runTest {
+        // given
+        val (_, ongoingCallViewModel) = Arrangement()
+            .withCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .withReactionSendFailure()
+            .withNoIncomingReactions()
+            .arrange()
+
+        ongoingCallViewModel.inCallReactions.test {
+            // when
+            ongoingCallViewModel.onReactionClick("👍")
+
+            // then
+            expectNoEvents()
+        }
+    }
 
     private class Arrangement {
 
@@ -252,6 +424,12 @@ class OngoingCallViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
+        @MockK
+        lateinit var observeInCallReactionsUseCase: ObserveInCallReactionsUseCase
+
+        @MockK
+        lateinit var sendInCallReactionUseCase: SendInCallReactionUseCase
+
         private val ongoingCallViewModel by lazy {
             OngoingCallViewModel(
                 conversationId = conversationId,
@@ -260,6 +438,8 @@ class OngoingCallViewModelTest {
                 currentUserId = currentUserId,
                 setVideoSendState = setVideoSendState,
                 globalDataStore = globalDataStore,
+                observeInCallReactionsUseCase = observeInCallReactionsUseCase,
+                sendInCallReactionUseCase = sendInCallReactionUseCase,
             )
         }
 
@@ -293,6 +473,30 @@ class OngoingCallViewModelTest {
                     shouldShow
                 )
             } returns Unit
+        }
+
+        fun withReactionSendSuccess() = apply {
+            coEvery {
+                sendInCallReactionUseCase(conversationId, any())
+            } returns Either.Right(Unit)
+        }
+
+        fun withReactionSendFailure() = apply {
+            coEvery {
+                sendInCallReactionUseCase(conversationId, any())
+            } returns Either.Left(NetworkFailure.NoNetworkConnection(IllegalStateException()))
+        }
+
+        fun withNoIncomingReactions() = apply {
+            coEvery {
+                observeInCallReactionsUseCase()
+            } returns emptyFlow()
+        }
+
+        fun withInCallReactions(flow: Flow<InCallReactionMessage>) = apply {
+            coEvery {
+                observeInCallReactionsUseCase()
+            } returns flow
         }
     }
 

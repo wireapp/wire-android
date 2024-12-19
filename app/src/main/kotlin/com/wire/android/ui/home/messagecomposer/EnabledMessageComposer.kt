@@ -336,7 +336,7 @@ fun EnabledMessageComposer(
                 ) {
                     val rippleColor = colorsScheme().surfaceContainerLowest
                     val borderColor = colorsScheme().divider
-                    val borderWidthPx = dimensions().spacing1x.toPx(density)
+                    val borderWidthPx = if (isImeVisible) 0f else dimensions().spacing1x.toPx(density)
                     val cornerRadiusPx = if (isImeVisible) 0f else dimensions().corner14x.toPx(density)
                     val shape = GenericShape { size, _ ->
                         addPath(calculateOptionsPath(cornerRadiusPx, rippleProgress.value, isImeVisible, size))

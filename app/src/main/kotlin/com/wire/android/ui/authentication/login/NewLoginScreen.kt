@@ -43,12 +43,16 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun NewLoginScreen() {
-    NewLoginContent()
+fun NewLoginScreen(
+    content: @Composable () -> Unit
+) {
+    NewLoginContent(content)
 }
 
 @Composable
-private fun NewLoginContent() {
+private fun NewLoginContent(
+    content: @Composable () -> Unit = { }
+) {
     WireScaffold(
         topBar = { }
     ) { internalPadding ->
@@ -73,7 +77,7 @@ private fun NewLoginContent() {
                     .background(colorsScheme().surface)
                     .padding(16.dp)
             ) {
-                CredentialsComponent()
+                content()
             }
         }
     }
@@ -107,5 +111,5 @@ private fun CredentialsComponent() {
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginContent() = WireTheme {
-    NewLoginContent()
+    NewLoginContent { CredentialsComponent() }
 }

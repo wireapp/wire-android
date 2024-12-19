@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
+import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
@@ -216,4 +217,9 @@ class MessageModule {
     @Provides
     fun provideRemoveMessageDraftUseCase(messageScope: MessageScope): RemoveMessageDraftUseCase =
         messageScope.removeMessageDraftUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideSendInCallReactionUseCase(messageScope: MessageScope): SendInCallReactionUseCase =
+        messageScope.sendInCallReactionUseCase
 }

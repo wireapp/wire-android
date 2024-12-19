@@ -207,7 +207,7 @@ private val DarkWireColorScheme = WireColorScheme(
     surfaceVariant = WireColorPalette.Gray90, onSurfaceVariant = Color.White,
     inverseSurface = Color.White, inverseOnSurface = Color.Black,
     surfaceBright = WireColorPalette.Gray70, surfaceDim = WireColorPalette.Gray95,
-    surfaceContainerLowest = Color.Black,
+    surfaceContainerLowest = WireColorPalette.Gray100,
     surfaceContainerLow = WireColorPalette.Gray95,
     surfaceContainer = WireColorPalette.Gray90,
     surfaceContainerHigh = WireColorPalette.Gray80,

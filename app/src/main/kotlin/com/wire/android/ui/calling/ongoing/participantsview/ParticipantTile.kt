@@ -390,7 +390,7 @@ private fun UsernameTile(
     modifier: Modifier = Modifier,
 ) {
     val color =
-        if (isSpeaking) colorsScheme().primary else darkColorsScheme().surfaceContainerLowest
+        if (isSpeaking) colorsScheme().primary else darkColorsScheme().inverseOnSurface
     val nameLabelColor =
         when {
             isSpeaking -> colorsScheme().onPrimary

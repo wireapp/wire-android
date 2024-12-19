@@ -37,8 +37,6 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
-import com.wire.android.feature.analytics.AnonymousAnalyticsManager
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
@@ -64,7 +62,6 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveRecentlyEndedCallMetadataUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -124,9 +121,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
-    private val workManager: Lazy<WorkManager>,
-    private val observeRecentlyEndedCallMetadata: ObserveRecentlyEndedCallMetadataUseCase,
-    private val analyticsManager: AnonymousAnalyticsManager
+    private val workManager: Lazy<WorkManager>
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -156,16 +151,6 @@ class WireActivityViewModel @Inject constructor(
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
         observeLogoutState()
-        trackRecentlyEndedCall()
-    }
-
-    private fun trackRecentlyEndedCall() {
-        viewModelScope.launch {
-            observeRecentlyEndedCallMetadata()
-                .collect { metadata ->
-                    analyticsManager.sendEvent(AnalyticsEvent.RecentlyEndedCallEvent(metadata))
-                }
-        }
     }
 
     private suspend fun shouldEnrollToE2ei(): Boolean = observeCurrentValidUserId.first()?.let {

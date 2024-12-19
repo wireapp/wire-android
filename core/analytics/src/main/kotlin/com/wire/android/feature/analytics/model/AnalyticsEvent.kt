@@ -180,7 +180,7 @@ interface AnalyticsEvent {
             return when (conversationDetails.conversationType) {
                 Conversation.Type.ONE_ON_ONE -> "one_to_one"
                 Conversation.Type.GROUP -> "group"
-                else -> "unknown"
+                else -> throw IllegalStateException("Call should not happen for ${conversationDetails.conversationType}")
             }
         }
     }

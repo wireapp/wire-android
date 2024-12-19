@@ -360,7 +360,9 @@ fun EnabledMessageComposer(
                             .clip(shape)
                             .drawBehind {
                                 if (!hideRipple || rippleProgress.value > 0f) {
-                                    val path = calculateOptionsPath(cornerRadiusPx, rippleProgress.value, isImeVisible, size)
+                                    val path = calculateOptionsPath(
+                                        cornerRadiusPx, rippleProgress.value, isImeVisible, size
+                                    )
                                     drawPath(
                                         path = path,
                                         color = rippleColor,

@@ -51,16 +51,16 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun NewLoginContainer(
-    isThereActiveSession: Boolean,
+    canNavigateBack: Boolean = false,
     onNavigateBack: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    NewLoginContent(isThereActiveSession, onNavigateBack, content)
+    NewLoginContent(canNavigateBack, onNavigateBack, content)
 }
 
 @Composable
 private fun NewLoginContent(
-    isThereActiveSession: Boolean,
+    canNavigateBack: Boolean,
     onNavigateBack: () -> Unit,
     content: @Composable () -> Unit = { }
 ) {
@@ -88,7 +88,7 @@ private fun NewLoginContent(
                     .background(colorsScheme().background)
                     .padding(dimensions().spacing16x)
             ) {
-                if (isThereActiveSession) {
+                if (canNavigateBack) {
                     IconButton(
                         onClick = onNavigateBack,
                         modifier = Modifier.size(dimensions().buttonCircleMinSize)

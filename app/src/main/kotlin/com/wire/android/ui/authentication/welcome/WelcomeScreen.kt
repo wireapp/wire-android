@@ -101,7 +101,7 @@ private fun WelcomeContent(
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
 ) {
-    NewLoginContainer(isThereActiveSession, navigateBack) {
+    NewLoginContainer(canNavigateBack = isThereActiveSession, onNavigateBack = navigateBack) {
         NewWelcomeExperienceContent(
             navigateBack = navigateBack,
             maxAccountsReached = maxAccountsReached,

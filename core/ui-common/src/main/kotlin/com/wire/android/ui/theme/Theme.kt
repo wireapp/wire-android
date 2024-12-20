@@ -19,6 +19,7 @@
 package com.wire.android.ui.theme
 
 //import com.wire.android.navigation.rememberNavigator
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -114,11 +115,19 @@ fun ResetStatusBarColor() {
 @Composable
 fun SetStatusBarColorForWavesBackground() {
     val systemUiController = rememberSystemUiController()
-    DisposableEffect(systemUiController) {
+    val backgroundColor = MaterialTheme.wireColorScheme.background
+    val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
+    val isDarkMod = isSystemInDarkTheme()
+    DisposableEffect(isDarkMod) {
         systemUiController.setStatusBarColor(
             color = WireColorPalette.Gray100,
             darkIcons = false
         )
-        onDispose { }
+        onDispose {
+            systemUiController.setStatusBarColor(
+                color = backgroundColor,
+                darkIcons = darkIcons
+            )
+        }
     }
 }

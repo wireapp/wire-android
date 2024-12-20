@@ -64,9 +64,7 @@ private fun NewLoginContent(
     onNavigateBack: () -> Unit,
     content: @Composable () -> Unit = { }
 ) {
-    WireScaffold(topBar = {
-        SetStatusBarColorForWavesBackground()
-    }) { internalPadding ->
+    WireScaffold(topBar = { SetStatusBarColorForWavesBackground() }) { internalPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()

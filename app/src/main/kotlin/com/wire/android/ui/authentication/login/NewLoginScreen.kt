@@ -18,44 +18,55 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 import com.wire.android.ui.MainBackgroundComponent
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.theme.SetStatusBarColorForWavesBackground
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun NewLoginScreen(
+fun NewLoginContainer(
+    isThereActiveSession: Boolean,
+    onNavigateBack: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    NewLoginContent(content)
+    NewLoginContent(isThereActiveSession, onNavigateBack, content)
 }
 
 @Composable
 private fun NewLoginContent(
+    isThereActiveSession: Boolean,
+    onNavigateBack: () -> Unit,
     content: @Composable () -> Unit = { }
 ) {
-    WireScaffold(
-        topBar = { }
-    ) { internalPadding ->
+    WireScaffold(topBar = {
+        SetStatusBarColorForWavesBackground()
+    }) { internalPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -69,41 +80,30 @@ private fun NewLoginContent(
             ) {
                 MainBackgroundComponent()
             }
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(topEnd = dimensions().spacing8x, topStart = dimensions().spacing8x))
                     .align(Alignment.BottomCenter)
-                    .background(colorsScheme().surface)
-                    .padding(16.dp)
+                    .background(colorsScheme().background)
+                    .padding(dimensions().spacing16x)
             ) {
+                if (isThereActiveSession) {
+                    IconButton(
+                        onClick = onNavigateBack,
+                        modifier = Modifier.size(dimensions().buttonCircleMinSize)
+                    ) {
+                        Icon(
+                            painter = rememberVectorPainter(image = Icons.Filled.ArrowBack),
+                            contentDescription = stringResource(id = R.string.content_description_back_button),
+                            tint = MaterialTheme.wireColorScheme.onBackground,
+                        )
+                    }
+                } else {
+                    VerticalSpace.x16()
+                }
                 content()
             }
-        }
-    }
-}
-
-@Composable
-private fun CredentialsComponent() {
-    Column {
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Text(
-                text = "Close",
-                modifier = Modifier
-                    .clickable { }
-                    .padding(8.dp)
-            )
         }
     }
 }
@@ -111,5 +111,5 @@ private fun CredentialsComponent() {
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginContent() = WireTheme {
-    NewLoginContent { CredentialsComponent() }
+    NewLoginContent(true, {}) { Text(text = "EMPTY") }
 }

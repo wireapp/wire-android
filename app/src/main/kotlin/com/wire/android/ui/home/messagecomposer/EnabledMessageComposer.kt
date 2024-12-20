@@ -360,22 +360,21 @@ fun EnabledMessageComposer(
                             .clip(shape)
                             .drawBehind {
                                 if (!hideRipple || rippleProgress.value > 0f) {
-                                    val path = calculateOptionsPath(
-                                        cornerRadiusPx, rippleProgress.value, isImeVisible, size
-                                    )
-                                    drawPath(
-                                        path = path,
-                                        color = rippleColor,
-                                        style = Fill
-                                    )
-                                    if (borderWidthPx > 0f) {
+                                    calculateOptionsPath(cornerRadiusPx, rippleProgress.value, isImeVisible, size).let {
                                         drawPath(
-                                            path = path,
-                                            color = borderColor,
-                                            style = Stroke(
-                                                width = borderWidthPx * 2f // double to make it inner stroke, outer half is clipped anyway
-                                            )
+                                            path = it,
+                                            color = rippleColor,
+                                            style = Fill
                                         )
+                                        if (borderWidthPx > 0f) {
+                                            drawPath(
+                                                path = it,
+                                                color = borderColor,
+                                                style = Stroke(
+                                                    width = borderWidthPx * 2f // double to make inner stroke, outer half is clipped anyway
+                                                )
+                                            )
+                                        }
                                     }
                                 }
                             }

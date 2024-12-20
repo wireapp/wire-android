@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.IntSize
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.ui.theme.ResetStatusBarColor
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -119,7 +120,7 @@ private fun ConnectivityStatusBar(
             )
         }
     } else {
-        ClearStatusBarColor()
+        ResetStatusBarColor()
     }
 
     AnimatedVisibility(
@@ -378,17 +379,6 @@ private fun MicrophoneIcon(
             else R.string.content_description_calling_call_unmuted
         ),
         tint = tint
-    )
-}
-
-@Composable
-private fun ClearStatusBarColor() {
-    val backgroundColor = MaterialTheme.wireColorScheme.background
-    val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
-
-    rememberSystemUiController().setSystemBarsColor(
-        color = backgroundColor,
-        darkIcons = darkIcons
     )
 }
 

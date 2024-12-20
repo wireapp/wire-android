@@ -52,6 +52,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -73,12 +74,11 @@ import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.topappbar.NavigationIconType
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.theme.SetStatusBarColorForWavesBackground
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -113,16 +113,17 @@ private fun WelcomeContent(
     navigate: (NavigationCommand) -> Unit
 ) {
     WireScaffold(topBar = {
-        if (isThereActiveSession) {
-            WireCenterAlignedTopAppBar(
-                elevation = dimensions().spacing0x,
-                title = "",
-                navigationIconType = NavigationIconType.Close(R.string.content_description_welcome_screen_close_btn),
-                onNavigationPressed = navigateBack
-            )
-        } else {
-//            Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.welcomeVerticalPadding))
-        }
+        SetStatusBarColorForWavesBackground()
+//        if (isThereActiveSession) {
+//            WireCenterAlignedTopAppBar(
+//                elevation = dimensions().spacing0x,
+//                title = "",
+//                navigationIconType = NavigationIconType.Close(R.string.content_description_welcome_screen_close_btn),
+//                onNavigationPressed = navigateBack
+//            )
+//        } else {
+////            Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.welcomeVerticalPadding))
+//        }
     }) { internalPadding ->
         Box(
             modifier = Modifier
@@ -300,6 +301,7 @@ private fun WelcomeFooter(onPrivateAccountClick: () -> Unit, modifier: Modifier 
 
 @PreviewMultipleThemes
 @Composable
+@Preview(showSystemUi = true)
 fun PreviewWelcomeScreen() {
     WireTheme {
         WelcomeContent(

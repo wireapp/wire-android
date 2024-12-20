@@ -17,18 +17,18 @@
  */
 package com.wire.android.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import com.wire.android.R
+import com.wire.android.ui.theme.WireColorPalette
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -42,6 +42,7 @@ fun MainBackgroundComponent() {
     MainBackgroundContent()
 }
 
+@SuppressLint("PackagePrivateId")
 @Composable
 private fun MainBackgroundContent() {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -52,7 +53,7 @@ private fun MainBackgroundContent() {
             alignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color.Black)
+                .background(color = WireColorPalette.Gray100)
         )
     }
 }

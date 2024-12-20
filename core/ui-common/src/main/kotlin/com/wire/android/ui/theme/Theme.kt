@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -98,3 +99,26 @@ val MaterialTheme.wireTypography
 val MaterialTheme.wireDimensions
     @Composable
     get() = LocalWireDimensions.current
+
+@Composable
+fun ResetStatusBarColor() {
+    val backgroundColor = MaterialTheme.wireColorScheme.background
+    val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
+
+    rememberSystemUiController().setSystemBarsColor(
+        color = backgroundColor,
+        darkIcons = darkIcons
+    )
+}
+
+@Composable
+fun SetStatusBarColorForWavesBackground() {
+    val systemUiController = rememberSystemUiController()
+    DisposableEffect(systemUiController) {
+        systemUiController.setStatusBarColor(
+            color = WireColorPalette.Gray100,
+            darkIcons = false
+        )
+        onDispose { }
+    }
+}

@@ -54,9 +54,10 @@ import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -133,14 +134,14 @@ class WireApplication : BaseApp() {
     }
 
     private suspend fun observeRecentlyEndedCall() {
-        coreLogic.get().getGlobalScope().session.currentSessionFlow().collectLatest { sessionResult ->
-            if (sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid()) {
-                coreLogic.get().getSessionScope(sessionResult.accountInfo.userId).calls.observeRecentlyEndedCallMetadata()
-                    .collect { metadata ->
-                        analyticsManager.get().sendEvent(AnalyticsEvent.RecentlyEndedCallEvent(metadata))
-                    }
+        coreLogic.get().getGlobalScope().session.currentSessionFlow().filterIsInstance(CurrentSessionResult.Success::class)
+            .filter { session -> session.accountInfo.isValid() }
+            .flatMapLatest { session ->
+                coreLogic.get().getSessionScope(session.accountInfo.userId).calls.observeRecentlyEndedCallMetadata()
             }
-        }
+            .collect { metadata ->
+                analyticsManager.get().sendEvent(AnalyticsEvent.RecentlyEndedCallEvent(metadata))
+            }
     }
 
     private fun enableStrictMode() {

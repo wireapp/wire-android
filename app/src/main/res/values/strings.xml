@@ -244,6 +244,7 @@
     <string name="content_description_self_profile_team">Team name, %s</string>
     <string name="content_description_self_profile_change_status">change availability status</string>
     <string name="content_description_self_profile_new_account_btn">Create a new team or personal account or log in</string>
+    <string name="content_description_self_profile_manage_team_btn">Manage team</string>
     <string name="content_description_change_picture_back_btn">Go back to your profile overview</string>
     <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
     <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
@@ -614,6 +615,7 @@
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Add Account</string>
+    <string name="user_profile_account_management">Manage Team</string>
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Devices</string>
     <string name="user_profile_group_tab">Group</string>

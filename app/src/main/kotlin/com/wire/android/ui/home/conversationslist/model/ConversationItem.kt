@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversationslist.model
 
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
@@ -45,6 +46,7 @@ sealed class ConversationItem : ConversationFolderItem {
     abstract val proteusVerificationStatus: Conversation.VerificationStatus
     abstract val hasNewActivitiesToShow: Boolean
     abstract val searchQuery: String
+    abstract val playingAudio: PlayingAudioInConversation?
 
     val isTeamConversation get() = teamId != null
 
@@ -67,6 +69,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
+        override val playingAudio: PlayingAudioInConversation?
     ) : ConversationItem()
 
     @Serializable
@@ -88,6 +91,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
+        override val playingAudio: PlayingAudioInConversation?
     ) : ConversationItem()
 
     @Serializable
@@ -107,6 +111,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val teamId: TeamId? = null
         override val mlsVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         override val proteusVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        override val playingAudio: PlayingAudioInConversation? = null
     }
 }
 
@@ -115,6 +120,12 @@ data class ConversationInfo(
     val name: String,
     val membership: Membership = Membership.None,
     val isSenderUnavailable: Boolean = false
+)
+
+@Serializable
+data class PlayingAudioInConversation(
+    val messageId: String,
+    val isPaused: Boolean
 )
 
 enum class BlockingState {

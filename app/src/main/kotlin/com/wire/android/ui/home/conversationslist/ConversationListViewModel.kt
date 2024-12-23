@@ -32,6 +32,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayerProvider
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -114,6 +115,8 @@ interface ConversationListViewModel {
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
     fun moveConversationToFolder() {}
     fun searchQueryChanged(searchQuery: String) {}
+    fun playPauseCurrentAudio(conversationId: ConversationId, messageId: String) {}
+    fun stopCurrentAudio() {}
 }
 
 class ConversationListViewModelPreview(
@@ -140,6 +143,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
+    private val audioMessagePlayerProvider: ConversationAudioMessagePlayerProvider,
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
     private val observeSelfUser: GetSelfUserUseCase
@@ -153,6 +157,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         ): ConversationListViewModelImpl
     }
 
+    private val audioMessagePlayer = audioMessagePlayerProvider.provide()
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     override val infoMessage = _infoMessage.asSharedFlow()
 
@@ -230,15 +235,20 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                     .onStart { emit("") }
                     .distinctUntilChanged()
                     .flatMapLatest { searchQuery: String ->
-                        observeConversationListDetailsWithEvents(
-                            fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
-                            conversationFilter = conversationsSource.toFilter()
-                        ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
+                        combine(
+                            observeConversationListDetailsWithEvents(
+                                fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
+                                conversationFilter = conversationsSource.toFilter()
+                            ),
+                            observeLegalHoldStateForSelfUser(),
+                            audioMessagePlayer.playingAudioMessageFlow
+                        ) { conversations, selfUserLegalHoldStatus, playingAudioMessage ->
                             conversations.map { conversationDetails ->
                                 conversationDetails.toConversationItem(
                                     userTypeMapper = userTypeMapper,
                                     searchQuery = searchQuery,
-                                    selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
+                                    selfUserTeamId = observeSelfUser().firstOrNull()?.teamId,
+                                    playingAudioMessage = playingAudioMessage
                                 ).hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
                             } to searchQuery
                         }
@@ -417,6 +427,14 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         }
     }
 
+    override fun playPauseCurrentAudio(conversationId: ConversationId, messageId: String) {
+        audioMessagePlayer.resumeOrPauseCurrentlyPlayingAudioMessage(conversationId, messageId)
+    }
+
+    override fun stopCurrentAudio() {
+        audioMessagePlayer.stopCurrentlyPlayingAudioMessage()
+    }
+
     @Suppress("MultiLineIfElse")
     private suspend fun clearContentSnackbarResult(
         clearContentResult: ClearConversationContentUseCase.Result,
@@ -448,7 +466,7 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
 }
 
 private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus: LegalHoldStateForSelfUser) =
-    // if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
+// if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
     // the indication is shown in the header of the conversation list for self user in that case and it's enough
     when (selfUserLegalHoldStatus) {
         is LegalHoldStateForSelfUser.Enabled -> when (this) {

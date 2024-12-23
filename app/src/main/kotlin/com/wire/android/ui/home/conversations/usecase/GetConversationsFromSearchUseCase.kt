@@ -25,6 +25,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
+import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
@@ -96,7 +97,8 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     it.toConversationItem(
                         userTypeMapper = userTypeMapper,
                         searchQuery = searchQuery,
-                        selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
+                        selfUserTeamId = observeSelfUser().firstOrNull()?.teamId,
+                        playingAudioMessage = PlayingAudioMessage.None
                     )
                 }
             }.flowOn(dispatchers.io())

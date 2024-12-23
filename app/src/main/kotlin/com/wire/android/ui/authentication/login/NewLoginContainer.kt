@@ -83,7 +83,7 @@ private fun NewLoginContent(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(topEnd = dimensions().spacing8x, topStart = dimensions().spacing8x))
                     .align(Alignment.BottomCenter)
-                    .background(colorsScheme().background)
+                    .background(colorsScheme().surface)
                     .padding(dimensions().spacing16x)
             ) {
                 if (canNavigateBack) {

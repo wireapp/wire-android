@@ -32,6 +32,7 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.debug.DatabaseProfilingManager
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
 import com.wire.android.feature.analytics.globalAnalyticsManager
@@ -48,12 +49,15 @@ import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -93,6 +97,9 @@ class WireApplication : BaseApp() {
     @Inject
     lateinit var databaseProfilingManager: DatabaseProfilingManager
 
+    @Inject
+    lateinit var analyticsManager: Lazy<AnonymousAnalyticsManager>
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(wireWorkerFactory.get())
@@ -121,7 +128,20 @@ class WireApplication : BaseApp() {
 
             appLogger.i("$TAG global observers")
             globalObserversManager.get().observe()
+
+            observeRecentlyEndedCall()
         }
+    }
+
+    private suspend fun observeRecentlyEndedCall() {
+        coreLogic.get().getGlobalScope().session.currentSessionFlow().filterIsInstance(CurrentSessionResult.Success::class)
+            .filter { session -> session.accountInfo.isValid() }
+            .flatMapLatest { session ->
+                coreLogic.get().getSessionScope(session.accountInfo.userId).calls.observeRecentlyEndedCallMetadata()
+            }
+            .collect { metadata ->
+                analyticsManager.get().sendEvent(AnalyticsEvent.RecentlyEndedCallEvent(metadata))
+            }
     }
 
     private fun enableStrictMode() {

@@ -18,10 +18,7 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,7 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -64,25 +60,13 @@ private fun NewLoginContent(
     onNavigateBack: () -> Unit,
     content: @Composable () -> Unit = { }
 ) {
-    WireScaffold(topBar = { SetStatusBarColorForWavesBackground() }) { internalPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(internalPadding)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                MainBackgroundComponent()
-            }
+    WireScaffold(
+        topBar = { SetStatusBarColorForWavesBackground() },
+        bottomBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(topEnd = dimensions().spacing8x, topStart = dimensions().spacing8x))
-                    .align(Alignment.BottomCenter)
                     .background(colorsScheme().surface)
                     .padding(dimensions().spacing16x)
             ) {
@@ -102,6 +86,9 @@ private fun NewLoginContent(
                 }
                 content()
             }
+        }) { _ ->
+        Column {
+            MainBackgroundComponent()
         }
     }
 }

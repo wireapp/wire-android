@@ -27,14 +27,11 @@
 
     <!-- This theme is only used as the splash screen -->
     <style name="AppTheme.SplashScreen" parent="Theme.SplashScreen">
-        <item name="android:statusBarColor">@color/background</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:navigationBarColor">@color/background</item>
-        <item name="android:windowLightStatusBar">@bool/is_light_theme</item>
-        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">@bool/is_light_theme
-        </item>
-        <item name="windowSplashScreenBackground">@color/background</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">false</item>
         <item name="windowSplashScreenAnimationDuration">@integer/splashscreen_animation_ms</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_wire_logo</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 

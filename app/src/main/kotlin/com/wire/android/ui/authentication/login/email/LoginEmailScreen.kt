@@ -196,7 +196,7 @@ private fun LoginEmailContent(
 
         Surface(
             shadowElevation = scrollState.rememberBottomBarElevationState().value,
-            color = MaterialTheme.wireColorScheme.background,
+            color = MaterialTheme.wireColorScheme.surface,
             modifier = Modifier.semantics {
                 testTagsAsResourceId = true
             }

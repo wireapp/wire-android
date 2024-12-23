@@ -162,11 +162,7 @@ class WireActivity : AppCompatActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        setContent {
-            SplashScreen {
-                splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
-            }
-        }
+        splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
 
         lifecycleScope.launch {
 

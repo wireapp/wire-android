@@ -23,10 +23,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.theme.WireColorPalette
 import com.wire.android.ui.theme.WireTheme
@@ -50,7 +51,7 @@ private fun MainBackgroundContent() {
         Image(
             painter = image,
             contentDescription = null,
-            alignment = Alignment.Center,
+            contentScale = ContentScale.FillBounds,
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = WireColorPalette.Gray100)
@@ -59,6 +60,7 @@ private fun MainBackgroundContent() {
 }
 
 @PreviewMultipleThemes
+@Preview(showSystemUi = true)
 @Composable
 private fun PreviewSplashScreen() = WireTheme {
     MainBackgroundContent()

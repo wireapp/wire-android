@@ -35,10 +35,11 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun HangUpButton(
+fun HangUpOngoingButton(
     onHangUpButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    size: Dp = dimensions().defaultCallingControlsHeight,
+    width: Dp = dimensions().defaultCallingControlsWidth,
+    height: Dp = dimensions().defaultCallingControlsHeight,
     iconSize: Dp = dimensions().bigCallingHangUpButtonIconSize,
 ) {
     WirePrimaryIconButton(
@@ -46,8 +47,8 @@ fun HangUpButton(
         contentDescription = R.string.content_description_calling_hang_up_call,
         state = WireButtonState.Error,
         shape = CircleShape,
-        minSize = DpSize(size, size),
-        minClickableSize = DpSize(size, size),
+        minSize = DpSize(width, height),
+        minClickableSize = DpSize(width, height),
         iconSize = iconSize,
         onButtonClicked = onHangUpButtonClicked,
         modifier = modifier,
@@ -56,8 +57,8 @@ fun HangUpButton(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewComposableHangUpButton() = WireTheme {
-    HangUpButton(
+fun PreviewComposableHangUpOngoingButton() = WireTheme {
+    HangUpOngoingButton(
         modifier = Modifier
             .width(MaterialTheme.wireDimensions.bigCallingControlsSize)
             .height(MaterialTheme.wireDimensions.bigCallingControlsSize),

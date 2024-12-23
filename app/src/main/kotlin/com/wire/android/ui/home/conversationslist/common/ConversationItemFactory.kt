@@ -305,13 +305,10 @@ fun AudioControlButtons(
         val rightBtnShape = RoundedCornerShape(topEnd = dimensions().corner16x, bottomEnd = dimensions().corner16x)
         Image(
             painter = painterResource(id = playPauseIconId),
-            contentDescription = null,
+            contentDescription = null, // TODO
             modifier = Modifier
                 .clip(leftBtnShape)
-                .clickable(
-                    onClickLabel = "", // TODO
-                    role = Role.Button
-                ) { onPlayPauseCurrentAudio(playingAudio.messageId) }
+                .clickable(role = Role.Button) { onPlayPauseCurrentAudio(playingAudio.messageId) }
                 .border(
                     width = dimensions().spacing1x,
                     shape = leftBtnShape,
@@ -324,13 +321,10 @@ fun AudioControlButtons(
 
         Image(
             painter = painterResource(id = R.drawable.ic_stop),
-            contentDescription = null,
+            contentDescription = null, // TODO
             modifier = Modifier
                 .clip(rightBtnShape)
-                .clickable(
-                    onClickLabel = "", // TODO
-                    role = Role.Button
-                ) { onStopCurrentAudio() }
+                .clickable(role = Role.Button) { onStopCurrentAudio() }
                 .border(
                     width = dimensions().spacing1x,
                     shape = rightBtnShape,

@@ -72,6 +72,7 @@ import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCa
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.functional.combine
 import com.wire.kalium.util.DateTimeUtil
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -182,18 +183,16 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
         .distinctUntilChanged()
-        .flatMapLatest { searchQuery ->
+        .combine(audioMessagePlayer.playingAudioMessageFlow)
+        .flatMapLatest { (searchQuery, playingAudioMessage) ->
             getConversationsPaginated(
                 searchQuery = searchQuery,
                 fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
                 conversationFilter = conversationsSource.toFilter(),
                 onlyInteractionEnabled = false,
                 newActivitiesOnTop = containsNewActivitiesSection,
-            ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
-                conversations.map {
-                    it.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
-                }
-            }.map {
+                playingAudioMessage = playingAudioMessage
+            ).map {
                 it.insertSeparators { before, after ->
                     when {
                         // do not add separators if the list shouldn't show conversations grouped into different folders

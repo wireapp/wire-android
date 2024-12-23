@@ -55,7 +55,8 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         fromArchive: Boolean = false,
         newActivitiesOnTop: Boolean = false,
         onlyInteractionEnabled: Boolean = false,
-        conversationFilter: ConversationFilter = ConversationFilter.All
+        conversationFilter: ConversationFilter = ConversationFilter.All,
+        playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None
     ): Flow<PagingData<ConversationItem>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
@@ -98,7 +99,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                         userTypeMapper = userTypeMapper,
                         searchQuery = searchQuery,
                         selfUserTeamId = observeSelfUser().firstOrNull()?.teamId,
-                        playingAudioMessage = PlayingAudioMessage.None
+                        playingAudioMessage = playingAudioMessage
                     )
                 }
             }.flowOn(dispatchers.io())

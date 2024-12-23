@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -300,17 +301,20 @@ fun AudioControlButtons(
     Row(modifier = modifier.padding(end = dimensions().spacing8x)) {
         val playPauseIconId = if (playingAudio.isPaused) R.drawable.ic_play else R.drawable.ic_pause
 
+        val leftBtnShape = RoundedCornerShape(topStart = dimensions().corner16x, bottomStart = dimensions().corner16x)
+        val rightBtnShape = RoundedCornerShape(topEnd = dimensions().corner16x, bottomEnd = dimensions().corner16x)
         Image(
             painter = painterResource(id = playPauseIconId),
             contentDescription = null,
             modifier = Modifier
-                .clickable { onPlayPauseCurrentAudio(playingAudio.messageId) }
+                .clip(leftBtnShape)
+                .clickable(
+                    onClickLabel = "", // TODO
+                    role = Role.Button
+                ) { onPlayPauseCurrentAudio(playingAudio.messageId) }
                 .border(
                     width = dimensions().spacing1x,
-                    shape = RoundedCornerShape(
-                        topStart = dimensions().corner16x,
-                        bottomStart = dimensions().corner16x
-                    ),
+                    shape = leftBtnShape,
                     color = colorsScheme().secondaryButtonDisabledOutline
                 )
                 .size(dimensions().buttonSmallMinSize)
@@ -322,13 +326,14 @@ fun AudioControlButtons(
             painter = painterResource(id = R.drawable.ic_stop),
             contentDescription = null,
             modifier = Modifier
-                .clickable { onStopCurrentAudio() }
+                .clip(rightBtnShape)
+                .clickable(
+                    onClickLabel = "", // TODO
+                    role = Role.Button
+                ) { onStopCurrentAudio() }
                 .border(
                     width = dimensions().spacing1x,
-                    shape = RoundedCornerShape(
-                        topEnd = dimensions().corner16x,
-                        bottomEnd = dimensions().corner16x
-                    ),
+                    shape = rightBtnShape,
                     color = colorsScheme().secondaryButtonDisabledOutline
                 )
                 .size(dimensions().buttonSmallMinSize)

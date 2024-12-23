@@ -161,8 +161,9 @@ class WireActivity : AppCompatActivity() {
         // It's an API limitation, at some point we may need to remove it
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         lifecycleScope.launch {
 

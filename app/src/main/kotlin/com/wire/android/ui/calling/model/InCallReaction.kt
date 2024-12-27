@@ -15,24 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.calling.model
 
-import com.wire.android.model.ImageAsset
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.data.id.QualifiedID
-
-data class UICallParticipant(
-    val id: QualifiedID,
-    val clientId: String,
-    val isSelfUser: Boolean,
-    val name: String? = null,
-    val isMuted: Boolean,
-    val isSpeaking: Boolean = false,
-    val isCameraOn: Boolean,
-    val isSharingScreen: Boolean,
-    val avatar: ImageAsset.UserAvatarAsset? = null,
-    val membership: Membership,
-    val hasEstablishedAudio: Boolean,
-    val accentId: Int
+data class InCallReaction(
+    val emoji: String,
+    val sender: ReactionSender,
 )
+
+sealed interface ReactionSender {
+    data object You : ReactionSender
+    data class Other(val name: String) : ReactionSender
+    data object Unknown : ReactionSender
+}

@@ -46,11 +46,8 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
     private val coreLogic: CoreLogic
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result = coroutineScope {
-        val conversationId = inputData.getString(CONVERSATION_ID)?.let { conversationId ->
-            QualifiedIdMapperImpl(null).fromStringToQualifiedID(conversationId)
-        }
-
-        conversationId?.let {
+        inputData.getString(CONVERSATION_ID)?.let { id ->
+            val conversationId = QualifiedIdMapperImpl(null).fromStringToQualifiedID(id)
             val currentSession = coreLogic.getGlobalScope().session.currentSession()
             if (currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid()) {
                 val deleteConversationLocally =

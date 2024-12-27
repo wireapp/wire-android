@@ -148,6 +148,8 @@
     <string name="content_description_more_options">More options</string>
     <string name="content_description_add_contact">Add contact</string>
     <string name="content_description_image_message">Image message</string>
+    <string name="content_description_pause_audio">Pause audio</string>
+    <string name="content_description_play_audio">Play audio</string>
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping</string>
     <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
@@ -1334,6 +1336,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="guest_link_button_revoke_link">Revoke Link</string>
     <string name="audio_not_available">Audio not available</string>
     <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
+    <string name="audio_speed_1">1x</string>
+    <string name="audio_speed_1_5">1.5x</string>
+    <string name="audio_speed_2">2x</string>
     <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
     <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>

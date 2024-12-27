@@ -50,6 +50,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val observeSelfUser: GetSelfUserUseCase
 ) {
+    @Suppress("LongParameterList")
     suspend operator fun invoke(
         searchQuery: String = "",
         fromArchive: Boolean = false,

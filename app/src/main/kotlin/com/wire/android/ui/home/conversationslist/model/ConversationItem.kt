@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversationslist.model
 
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel

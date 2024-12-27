@@ -173,7 +173,8 @@ internal constructor(
     // The audio message position can be either updated by the user manually by for example a Slider component or by the player itself.
     val observableAudioMessagesState: Flow<Map<MessageIdWrapper, AudioState>> =
         merge(positionChangedUpdate, audioMessageStateUpdate).map { audioMessageStateUpdate ->
-            val messageIdKey = MessageIdWrapper(audioMessageStateUpdate.conversationId, audioMessageStateUpdate.messageId)
+            val messageIdKey =
+                MessageIdWrapper(audioMessageStateUpdate.conversationId, audioMessageStateUpdate.messageId)
             val currentState = audioMessageStateHistory.getOrDefault(
                 messageIdKey,
                 AudioState.DEFAULT

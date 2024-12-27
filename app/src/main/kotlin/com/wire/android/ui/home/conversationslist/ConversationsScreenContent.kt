@@ -79,7 +79,7 @@ import com.wire.kalium.logic.data.user.UserId
  * This is a base for creating screens for displaying list of conversations.
  * Can be used to create proper navigation destination for different sources of conversations, like archive.
  */
-@Suppress("ComplexMethod", "NestedBlockDepth")
+@Suppress("ComplexMethod", "NestedBlockDepth", "Wrapping")
 @Composable
 fun ConversationsScreenContent(
     navigator: Navigator,
@@ -193,7 +193,9 @@ fun ConversationsScreenContent(
         }
 
         val onStopCurrentAudio: () -> Unit = remember {
-            { conversationListViewModel.stopCurrentAudio() }
+            {
+                conversationListViewModel.stopCurrentAudio()
+            }
         }
 
         when (val state = conversationListViewModel.conversationListState) {

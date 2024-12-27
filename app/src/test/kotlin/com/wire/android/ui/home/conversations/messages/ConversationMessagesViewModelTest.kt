@@ -37,12 +37,10 @@ import com.wire.android.ui.home.conversations.composer.mockUITextMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
-import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.collections.immutable.persistentMapOf

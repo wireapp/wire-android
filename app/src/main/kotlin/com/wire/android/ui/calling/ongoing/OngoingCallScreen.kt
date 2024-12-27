@@ -21,6 +21,7 @@ package com.wire.android.ui.calling.ongoing
 import android.content.pm.PackageManager
 import android.view.View
 import androidx.activity.compose.BackHandler
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -56,6 +57,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.app.PictureInPictureModeChangedInfo
+import androidx.core.util.Consumer
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -130,10 +133,14 @@ fun OngoingCallScreen(
 
     val inCallReactionsState = rememberInCallReactionsState()
 
-    val activity = LocalActivity.current
-    val isPiPAvailableOnThisDevice =
-        activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+    val activity = LocalActivity.current as AppCompatActivity
+    val isPiPAvailableOnThisDevice = activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
     val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice
+    var inPictureInPictureMode by remember { mutableStateOf(shouldUsePiPMode && activity.isInPictureInPictureMode) }
+
+    if (shouldUsePiPMode) {
+        activity.observePictureInPictureMode { inPictureInPictureMode = it }
+    }
 
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {
@@ -183,7 +190,6 @@ fun OngoingCallScreen(
         }
     }
 
-    val inPictureInPictureMode = activity.isInPictureInPictureMode
     OngoingCallContent(
         callState = sharedCallingViewModel.callState,
         inCallReactionsState = inCallReactionsState,
@@ -621,6 +627,23 @@ private fun CallingControls(
         }
         Spacer(modifier = Modifier.weight(1F))
         SecurityClassificationBannerForConversation(conversationId)
+    }
+}
+
+@Composable
+private fun AppCompatActivity.observePictureInPictureMode(onChanged: (Boolean) -> Unit) {
+    DisposableEffect(Unit) {
+        val consumer = object : Consumer<PictureInPictureModeChangedInfo> {
+            override fun accept(info: PictureInPictureModeChangedInfo) {
+                onChanged(info.isInPictureInPictureMode)
+            }
+        }
+
+        addOnPictureInPictureModeChangedListener(consumer)
+
+        onDispose {
+            removeOnPictureInPictureModeChangedListener(consumer)
+        }
     }
 }
 

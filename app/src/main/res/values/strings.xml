@@ -164,6 +164,8 @@
     <string name="content_description_calling_turn_camera_off">Turn camera off</string>
     <string name="content_description_calling_turn_speaker_on">Turn speaker on</string>
     <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
+    <string name="content_description_calling_in_call_reactions_show">Show in call reactions panel</string>
+    <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
     <string name="content_description_show_more_options">Show more options</string>
     <string name="content_description_reply_to_messge">Reply to the message</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
@@ -244,6 +246,7 @@
     <string name="content_description_self_profile_team">Team name, %s</string>
     <string name="content_description_self_profile_change_status">change availability status</string>
     <string name="content_description_self_profile_new_account_btn">Create a new team or personal account or log in</string>
+    <string name="content_description_self_profile_manage_team_btn">Manage team</string>
     <string name="content_description_change_picture_back_btn">Go back to your profile overview</string>
     <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
     <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
@@ -614,6 +617,7 @@
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Add Account</string>
+    <string name="user_profile_account_management">Manage Team</string>
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Devices</string>
     <string name="user_profile_group_tab">Group</string>
@@ -1665,4 +1669,5 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_error_message_already_in_team">You\'ve created or joined a team with this email address on another device.</string>
     <string name="personal_to_team_migration_error_message_slow_network">Wire could not complete your team creation due to a slow internet connection.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
+    <string name="reaction_sender_self">You</string>
 </resources>

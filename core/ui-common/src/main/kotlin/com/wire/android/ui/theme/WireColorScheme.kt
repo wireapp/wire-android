@@ -81,6 +81,8 @@ class WireColorScheme(
     // accents
     val groupAvatarColors: List<Color>,
     val wireAccentColors: WireAccentColors,
+
+    val emojiBackgroundColor: Color,
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
@@ -182,6 +184,7 @@ private val LightWireColorScheme = WireColorScheme(
             Accent.Unknown -> WireColorPalette.LightBlue500
         }
     },
+    emojiBackgroundColor = Color.White,
 )
 
 // Dark WireColorScheme
@@ -207,7 +210,7 @@ private val DarkWireColorScheme = WireColorScheme(
     surfaceVariant = WireColorPalette.Gray90, onSurfaceVariant = Color.White,
     inverseSurface = Color.White, inverseOnSurface = Color.Black,
     surfaceBright = WireColorPalette.Gray70, surfaceDim = WireColorPalette.Gray95,
-    surfaceContainerLowest = Color.Black,
+    surfaceContainerLowest = WireColorPalette.Gray100,
     surfaceContainerLow = WireColorPalette.Gray95,
     surfaceContainer = WireColorPalette.Gray90,
     surfaceContainerHigh = WireColorPalette.Gray80,
@@ -257,6 +260,7 @@ private val DarkWireColorScheme = WireColorScheme(
             Accent.Unknown -> WireColorPalette.DarkBlue500
         }
     },
+    emojiBackgroundColor = Color.White,
 )
 
 @PackagePrivate

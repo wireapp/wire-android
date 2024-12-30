@@ -26,7 +26,6 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import androidx.work.await
 import androidx.work.workDataOf
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
@@ -74,15 +73,16 @@ enum class ConversationDeletionLocallyStatus {
     IDLE, RUNNING, SUCCEEDED, FAILED
 }
 
-suspend fun WorkManager.enqueueConversationDeletionLocally(conversationId: ConversationId): Flow<ConversationDeletionLocallyStatus> {
+fun WorkManager.enqueueConversationDeletionLocally(conversationId: ConversationId): Flow<ConversationDeletionLocallyStatus> {
     val workName = DeleteConversationLocallyWorker.createUniqueWorkName(conversationId.toString())
     val request = OneTimeWorkRequestBuilder<DeleteConversationLocallyWorker>()
         .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .setInputData(workDataOf(DeleteConversationLocallyWorker.CONVERSATION_ID to conversationId.toString()))
         .build()
-    val isAlreadyRunning = getWorkInfosForUniqueWork(workName)
-        .await()
-        .let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }
+    val isAlreadyRunning = getWorkInfosForUniqueWorkLiveData(workName)
+        .value
+        ?.firstOrNull()
+        ?.state == WorkInfo.State.RUNNING
     enqueueUniqueWork(
         workName,
         if (isAlreadyRunning) ExistingWorkPolicy.KEEP else ExistingWorkPolicy.REPLACE,

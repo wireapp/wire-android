@@ -31,6 +31,7 @@ import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -129,12 +130,21 @@ class OngoingCallViewModel @AssistedInject constructor(
                         val clients: List<CallClient> = it.map { uiParticipant ->
                             CallClient(
                                 userId = uiParticipant.id.toString(),
+                                quality = mapQualityStream(uiParticipant),
                                 clientId = uiParticipant.clientId
                             )
                         }
                         requestVideoStreams(conversationId, clients)
                     }
                 }
+        }
+    }
+
+    private fun mapQualityStream(uiParticipant: UICallParticipant): CallQuality {
+        return if (uiParticipant.clientId == selectedParticipant.clientId) {
+            CallQuality.HIGH
+        } else {
+            CallQuality.LOW
         }
     }
 

@@ -35,6 +35,7 @@ import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
+import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
@@ -222,4 +223,9 @@ class MessageModule {
     @Provides
     fun provideSendInCallReactionUseCase(messageScope: MessageScope): SendInCallReactionUseCase =
         messageScope.sendInCallReactionUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetSenderNameByMessageIdUseCase(messageScope: MessageScope): GetSenderNameByMessageIdUseCase =
+        messageScope.getSenderNameByMessageId
 }

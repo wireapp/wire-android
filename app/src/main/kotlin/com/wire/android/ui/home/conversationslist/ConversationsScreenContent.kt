@@ -88,7 +88,6 @@ fun ConversationsScreenContent(
     lazyListState: LazyListState = rememberLazyListState(),
     loadingListContent: @Composable (LazyListState) -> Unit = { ConversationListLoadingContent(it) },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
-    initiallyLoaded: Boolean = LocalInspectionMode.current,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
         else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
@@ -189,10 +188,7 @@ fun ConversationsScreenContent(
         when (val state = conversationListViewModel.conversationListState) {
             is ConversationListState.Paginated -> {
                 val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
-                var showLoading by remember(conversationsSource) { mutableStateOf(!initiallyLoaded) }
-                if (lazyPagingItems.loadState.refresh != LoadState.Loading && showLoading) {
-                    showLoading = false
-                }
+                val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
 
                 when {
                     // when conversation list is not yet fetched, show loading indicator

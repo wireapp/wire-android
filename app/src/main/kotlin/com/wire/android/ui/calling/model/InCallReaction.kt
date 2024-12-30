@@ -15,18 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling.ongoing.fullscreen
+package com.wire.android.ui.calling.model
 
-import com.wire.kalium.logger.obfuscateId
-import com.wire.kalium.logic.data.user.UserId
+data class InCallReaction(
+    val emoji: String,
+    val sender: ReactionSender,
+)
 
-data class SelectedParticipant(
-    val userId: UserId = UserId("", ""),
-    val clientId: String = "",
-    val isSelfUser: Boolean = false
-) {
-
-    fun toLogString(): String {
-        return "SelectedParticipant(userId=${userId.toLogString()}, clientId=${clientId.obfuscateId()}, isSelfUser=$isSelfUser)"
-    }
+sealed interface ReactionSender {
+    data object You : ReactionSender
+    data class Other(val name: String) : ReactionSender
+    data object Unknown : ReactionSender
 }

@@ -28,8 +28,10 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -45,7 +47,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel(assistedFactory = OngoingCallViewModel.Factory::class)
 class OngoingCallViewModel @AssistedInject constructor(
     @Assisted
@@ -62,6 +64,8 @@ class OngoingCallViewModel @AssistedInject constructor(
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
 
     var state by mutableStateOf(OngoingCallState())
+        private set
+    var selectedParticipant by mutableStateOf(SelectedParticipant())
         private set
 
     init {
@@ -124,11 +128,23 @@ class OngoingCallViewModel @AssistedInject constructor(
                 .also {
                     if (it.isNotEmpty()) {
                         val clients: List<CallClient> = it.map { uiParticipant ->
-                            CallClient(uiParticipant.id.toString(), uiParticipant.clientId)
+                            CallClient(
+                                userId = uiParticipant.id.toString(),
+                                clientId = uiParticipant.clientId,
+                                quality = mapQualityStream(uiParticipant)
+                            )
                         }
                         requestVideoStreams(conversationId, clients)
                     }
                 }
+        }
+    }
+
+    private fun mapQualityStream(uiParticipant: UICallParticipant): CallQuality {
+        return if (uiParticipant.clientId == selectedParticipant.clientId) {
+            CallQuality.HIGH
+        } else {
+            CallQuality.LOW
         }
     }
 
@@ -137,7 +153,7 @@ class OngoingCallViewModel @AssistedInject constructor(
         doubleTapIndicatorCountDownTimer =
             object : CountDownTimer(DOUBLE_TAP_TOAST_DISPLAY_TIME, COUNT_DOWN_INTERVAL) {
                 override fun onTick(p0: Long) {
-                    appLogger.i("startDoubleTapToastDisplayCountDown: $p0")
+                    appLogger.d("$TAG - startDoubleTapToastDisplayCountDown: $p0")
                 }
 
                 override fun onFinish() {
@@ -171,10 +187,16 @@ class OngoingCallViewModel @AssistedInject constructor(
         }
     }
 
+    fun onSelectedParticipant(selectedParticipant: SelectedParticipant) {
+        appLogger.d("$TAG - Selected participant: ${selectedParticipant.toLogString()}")
+        this.selectedParticipant = selectedParticipant
+    }
+
     companion object {
         const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L
         const val COUNT_DOWN_INTERVAL = 1000L
         const val DELAY_TO_SHOW_DOUBLE_TAP_TOAST = 500L
+        const val TAG = "OngoingCallViewModel"
     }
 
     @AssistedFactory

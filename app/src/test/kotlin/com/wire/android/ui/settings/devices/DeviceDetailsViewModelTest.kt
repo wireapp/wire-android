@@ -377,7 +377,7 @@ class DeviceDetailsViewModelTest {
                 updateClientVerificationStatus = updateClientVerificationStatus,
                 currentUserId = currentUserId,
                 observeUserInfo = observeUserInfo,
-                e2eiCertificate = getE2eiCertificate,
+                mlsClientIdentity = getE2eiCertificate,
                 isE2EIEnabledUseCase = isE2EIEnabledUseCase,
                 breakSession = breakSession
             )

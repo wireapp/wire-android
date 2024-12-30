@@ -37,6 +37,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.mlspublickeys.MLSPublicKeyType
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
@@ -72,7 +73,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private val fingerprintUseCase: ClientFingerprintUseCase,
     private val updateClientVerificationStatus: UpdateClientVerificationStatusUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
-    private val e2eiCertificate: GetMLSClientIdentityUseCase,
+    private val mlsClientIdentity: GetMLSClientIdentityUseCase,
     private val breakSession: BreakSessionUseCase,
     isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : SavedStateViewModel(savedStateHandle) {
@@ -133,7 +134,7 @@ class DeviceDetailsViewModel @Inject constructor(
 
     private fun getE2eiCertificate() {
         viewModelScope.launch {
-            state = e2eiCertificate(deviceId).fold({
+            state = mlsClientIdentity(deviceId).fold({
                 state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
             }, { mlsClientIdentity ->
                 state.copy(
@@ -198,6 +199,9 @@ class DeviceDetailsViewModel @Inject constructor(
                             isCurrentDevice = result.isCurrentClient,
                             removeDeviceDialogState = RemoveDeviceDialogState.Hidden,
                             canBeRemoved = !result.isCurrentClient && isSelfClient && result.client.type != ClientType.LegalHold,
+                            mlsCipherSuiteSignature = MLSPublicKeyType.from(
+                                result.client.mlsPublicKeys?.keys?.firstOrNull().orEmpty()
+                            ).value.toString()
                         )
                     }
                 }

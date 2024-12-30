@@ -35,6 +35,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -101,6 +102,9 @@ class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
+    @MockK
+    lateinit var getTeamUrl: GetTeamUrlUseCase
+
     private val viewModel by lazy {
         SelfUserProfileViewModel(
             selfUserId = TestUser.SELF_USER.id,
@@ -121,7 +125,8 @@ class SelfUserProfileViewModelArrangement {
             globalDataStore = globalDataStore,
             qualifiedIdMapper = qualifiedIdMapper,
             anonymousAnalyticsManager = anonymousAnalyticsManager,
-            canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam
+            canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
+            getTeamUrl = getTeamUrl
         )
     }
 
@@ -136,6 +141,7 @@ class SelfUserProfileViewModelArrangement {
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
         coEvery { canMigrateFromPersonalToTeam.invoke() } returns true
+        coEvery { getTeamUrl.invoke() } returns ""
     }
 
     fun withLegalHoldStatus(result: LegalHoldStateForSelfUser) = apply {

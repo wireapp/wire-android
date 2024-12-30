@@ -22,11 +22,21 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class ConversationsSource {
 
+    @Serializable
     data object MAIN : ConversationsSource()
+
+    @Serializable
     data object ARCHIVE : ConversationsSource()
+
+    @Serializable
     data object FAVORITES : ConversationsSource()
+
+    @Serializable
     data object GROUPS : ConversationsSource()
+
+    @Serializable
     data object ONE_ON_ONE : ConversationsSource()
 
+    @Serializable
     data class FOLDER(val folderId: String, val folderName: String) : ConversationsSource()
 }

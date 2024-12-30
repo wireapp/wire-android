@@ -19,8 +19,6 @@ package com.wire.android.di.accountScoped
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
-import dagger.Module
-import dagger.Provides
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.CallsScope
@@ -40,6 +38,8 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
+import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
@@ -197,4 +197,14 @@ class CallsModule {
     @Provides
     fun provideIsEligibleToStartCall(callsScope: CallsScope) =
         callsScope.isEligibleToStartCall
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveConferenceCallingEnabledUseCase(callsScope: CallsScope) =
+        callsScope.observeConferenceCallingEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveInCallReactionsUseCase(callsScope: CallsScope) =
+        callsScope.observeInCallReactions
 }

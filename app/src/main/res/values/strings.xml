@@ -23,6 +23,11 @@
     <string name="debug_analytics_tracking_identifier_title" translatable="false">
         Analytics Tracking Identifier
     </string>
+    <string name="debug_federation_enabled" translatable="false">Federation Enabled</string>
+    <string name="debug_default_backend_protocol" translatable="false">
+        Default Backend Protocol
+    </string>
+    <string name="debug_current_api_version" translatable="false">Current API Version</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -143,6 +148,8 @@
     <string name="content_description_more_options">More options</string>
     <string name="content_description_add_contact">Add contact</string>
     <string name="content_description_image_message">Image message</string>
+    <string name="content_description_pause_audio">Pause audio</string>
+    <string name="content_description_play_audio">Play audio</string>
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping</string>
     <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
@@ -157,6 +164,8 @@
     <string name="content_description_calling_turn_camera_off">Turn camera off</string>
     <string name="content_description_calling_turn_speaker_on">Turn speaker on</string>
     <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
+    <string name="content_description_calling_in_call_reactions_show">Show in call reactions panel</string>
+    <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
     <string name="content_description_show_more_options">Show more options</string>
     <string name="content_description_reply_to_messge">Reply to the message</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
@@ -237,6 +246,7 @@
     <string name="content_description_self_profile_team">Team name, %s</string>
     <string name="content_description_self_profile_change_status">change availability status</string>
     <string name="content_description_self_profile_new_account_btn">Create a new team or personal account or log in</string>
+    <string name="content_description_self_profile_manage_team_btn">Manage team</string>
     <string name="content_description_change_picture_back_btn">Go back to your profile overview</string>
     <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
     <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
@@ -275,6 +285,8 @@
     <string name="url_how_to_add_folders" translatable="false">https://support.wire.com/hc/articles/360002855817</string>
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
     <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
+    <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
+    <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -605,6 +617,7 @@
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Add Account</string>
+    <string name="user_profile_account_management">Manage Team</string>
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Devices</string>
     <string name="user_profile_group_tab">Group</string>
@@ -976,6 +989,14 @@
     <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
+    <string name="calling_feature_unavailable_team_member_message_alert">To start a conference call, your team needs to upgrade to the Enterprise plan.</string>
+    <string name="calling_feature_unavailable_team_admin_title_alert">Upgrade to Enterprise</string>
+    <string name="calling_feature_unavailable_team_admin_message_alert">Your team is currently on the free Basic plan. Upgrade to Enterprise for access to features such as starting conferences and more.</string>
+    <string name="calling_feature_unavailable_team_admin_message_link_alert">Learn more about Wire\'s pricing</string>
+    <string name="calling_feature_unavailable_team_admin_upgrade_action_alert">Upgrade now</string>
+    <string name="calling_feature_enabled_title_alert">Wire Enterprise</string>
+    <string name="calling_feature_enabled_message_alert">Your team was upgraded to Wire Enterprise, which gives you access to features such as conference calls and more.</string>
+    <string name="calling_feature_enabled_message_link_alert">Learn more about Wire Enterprise</string>
     <string name="calling_screen_connecting_until_call_established">Connecting…</string>
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
@@ -1168,8 +1189,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
     <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
-    <string name="custom_backend_invalid_deeplink_data_title">An error occurred</string>
-    <string name="custom_backend_invalid_deeplink_data_body">Redirecting to an on-premises backend was not possible, as there was an invalid configuration in the JSON file.\n\nContact your admin or check the deeplink that brought you here.</string>
+    <string name="custom_backend_error_title">An error occurred</string>
+    <string name="custom_backend_error_no_internet_connection_body">Redirecting to an on-premises backend was not possible, you don’t seem to be connected to the internet.\n\nEstablish an internet connection and try again.</string>
+    <string name="custom_backend_error_no_internet_connection_try_again">Try again</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>
@@ -1314,6 +1336,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="guest_link_button_revoke_link">Revoke Link</string>
     <string name="audio_not_available">Audio not available</string>
     <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
+    <string name="audio_speed_1">1x</string>
+    <string name="audio_speed_1_5">1.5x</string>
+    <string name="audio_speed_2">2x</string>
     <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
     <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
@@ -1644,4 +1669,5 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_error_message_already_in_team">You\'ve created or joined a team with this email address on another device.</string>
     <string name="personal_to_team_migration_error_message_slow_network">Wire could not complete your team creation due to a slow internet connection.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
+    <string name="reaction_sender_self">You</string>
 </resources>

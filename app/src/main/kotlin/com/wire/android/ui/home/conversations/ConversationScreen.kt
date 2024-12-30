@@ -27,7 +27,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -37,9 +39,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -65,7 +69,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -86,7 +92,7 @@ import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestinati
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
-import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -101,7 +107,10 @@ import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
+import com.wire.android.ui.common.dialogs.calling.CallingFeatureActivatedDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
+import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableTeamAdminDialog
+import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableTeamMemberDialog
 import com.wire.android.ui.common.dialogs.calling.ConfirmStartCallDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
@@ -134,8 +143,10 @@ import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBackArgs
+import com.wire.android.ui.home.conversations.messages.AudioMessagesState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
+import com.wire.android.ui.home.conversations.messages.PlayingAudiMessage
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
@@ -160,6 +171,7 @@ import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialo
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -173,6 +185,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
@@ -299,6 +312,12 @@ fun ConversationScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        conversationListCallViewModel.callingEnabled.collect {
+            showDialog.value = ConversationScreenDialogType.CALLING_FEATURE_ACTIVATED
+        }
+    }
+
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(
             NavigationCommand(
@@ -387,9 +406,30 @@ fun ConversationScreen(
         }
 
         ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE -> {
-            CallingFeatureUnavailableDialog(onDialogDismiss = {
+            CallingFeatureUnavailableDialog {
                 showDialog.value = ConversationScreenDialogType.NONE
-            })
+            }
+        }
+
+        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER -> {
+            CallingFeatureUnavailableTeamMemberDialog {
+                showDialog.value = ConversationScreenDialogType.NONE
+            }
+        }
+
+        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN -> {
+            CallingFeatureUnavailableTeamAdminDialog(
+                onUpgradeAction = uriHandler::openUri,
+                onDialogDismiss = {
+                    showDialog.value = ConversationScreenDialogType.NONE
+                }
+            )
+        }
+
+        ConversationScreenDialogType.CALLING_FEATURE_ACTIVATED -> {
+            CallingFeatureActivatedDialog {
+                showDialog.value = ConversationScreenDialogType.NONE
+            }
         }
 
         ConversationScreenDialogType.VERIFICATION_DEGRADED -> {
@@ -511,6 +551,7 @@ fun ConversationScreen(
         },
         onAudioClick = conversationMessagesViewModel::audioClick,
         onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
+        onChangeAudioSpeed = conversationMessagesViewModel::changeAudioSpeed,
         onResetSessionClick = conversationMessagesViewModel::onResetSession,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = {
@@ -771,7 +812,16 @@ private fun startCallIfPossible(
                 }
 
                 ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
-                ConferenceCallingResult.Disabled.Unavailable -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
+                ConferenceCallingResult.Disabled.Unavailable -> {
+                    when (conversationListCallViewModel.selfTeamRole.value) {
+                        UserType.INTERNAL -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER
+                        UserType.OWNER,
+                        UserType.ADMIN -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN
+
+                        else -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
+                    }
+                }
+
                 else -> ConversationScreenDialogType.NONE
             }
             showDialog.value = dialogValue
@@ -796,6 +846,7 @@ private fun ConversationScreen(
     onDeleteMessage: (String, Boolean) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
+    onChangeAudioSpeed: (AudioSpeed) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onStartCall: () -> Unit,
@@ -880,7 +931,7 @@ private fun ConversationScreen(
                         audioMessagesState = conversationMessagesViewState.audioMessagesState,
                         assetStatuses = conversationMessagesViewState.assetStatuses,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
-                        unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
+                        unreadEventCount = conversationMessagesViewState.firstUnreadEventIndex,
                         conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                         selectedMessageId = conversationMessagesViewState.searchedMessageId,
                         messageComposerStateHolder = messageComposerStateHolder,
@@ -891,6 +942,7 @@ private fun ConversationScreen(
                         onAssetItemClicked = onAssetItemClicked,
                         onAudioItemClicked = onAudioClick,
                         onChangeAudioPosition = onChangeAudioPosition,
+                        onChangeAudioSpeed = onChangeAudioSpeed,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
                         onResetSessionClicked = onResetSessionClick,
@@ -957,7 +1009,7 @@ private fun ConversationScreenContent(
     bottomSheetVisible: Boolean,
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
-    audioMessagesState: PersistentMap<String, AudioState>,
+    audioMessagesState: AudioMessagesState,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
@@ -968,6 +1020,7 @@ private fun ConversationScreenContent(
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
+    onChangeAudioSpeed: (AudioSpeed) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
@@ -1015,6 +1068,7 @@ private fun ConversationScreenContent(
                     onAssetClicked = onAssetItemClicked,
                     onPlayAudioClicked = onAudioItemClicked,
                     onAudioPositionChanged = onChangeAudioPosition,
+                    onAudioSpeedChange = onChangeAudioSpeed,
                     onImageClicked = onImageFullScreenMode,
                     onLinkClicked = onLinkClick,
                     onReplyClicked = onNavigateToReplyOriginalMessage,
@@ -1083,7 +1137,7 @@ fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
-    audioMessagesState: PersistentMap<String, AudioState>,
+    audioMessagesState: AudioMessagesState,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onUpdateConversationReadDate: (String) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
@@ -1197,7 +1251,8 @@ fun MessageList(
                         conversationDetailsData = conversationDetailsData,
                         showAuthor = showAuthor,
                         useSmallBottomPadding = useSmallBottomPadding,
-                        audioState = audioMessagesState[message.header.messageId],
+                        audioState = audioMessagesState.audioStates[message.header.messageId],
+                        audioSpeed = audioMessagesState.audioSpeed,
                         assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                         clickActions = clickActions,
                         swipableMessageConfiguration = swipableConfiguration,
@@ -1220,6 +1275,11 @@ fun MessageList(
                     }
                 }
             }
+            JumpToPlayingAudioButton(
+                lazyListState = lazyListState,
+                lazyPagingMessages = lazyPagingMessages,
+                playingAudiMessage = audioMessagesState.playingAudiMessage
+            )
             JumpToLastMessageButton(lazyListState = lazyListState)
         }
     )
@@ -1354,6 +1414,64 @@ fun JumpToLastMessageButton(
     }
 }
 
+@Composable
+fun BoxScope.JumpToPlayingAudioButton(
+    lazyListState: LazyListState,
+    playingAudiMessage: PlayingAudiMessage?,
+    lazyPagingMessages: LazyPagingItems<UIMessage>,
+    modifier: Modifier = Modifier,
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
+) {
+    val indexOfPlayedMessage = playingAudiMessage?.let {
+        lazyPagingMessages.itemSnapshotList
+            .indexOfFirst { playingAudiMessage.messageId == it?.header?.messageId }
+    } ?: -1
+
+    if (indexOfPlayedMessage < 0) return
+
+    val firstVisibleIndex = lazyListState.firstVisibleItemIndex
+    val lastVisibleIndex = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: firstVisibleIndex
+
+    if (indexOfPlayedMessage in firstVisibleIndex..lastVisibleIndex) return
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .wrapContentWidth()
+            .align(Alignment.TopCenter)
+            .padding(all = dimensions().spacing8x)
+            .clickable { coroutineScope.launch { lazyListState.animateScrollToItem(indexOfPlayedMessage) } }
+            .background(
+                color = colorsScheme().secondaryText,
+                shape = RoundedCornerShape(dimensions().corner16x)
+            )
+            .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x)
+    ) {
+        Icon(
+            modifier = Modifier.size(dimensions().systemMessageIconSize),
+            painter = painterResource(id = R.drawable.ic_play),
+            contentDescription = null,
+            tint = MaterialTheme.wireColorScheme.onPrimaryButtonEnabled
+        )
+        Text(
+            modifier = Modifier
+                .padding(horizontal = dimensions().spacing8x)
+                .weight(1f, fill = false),
+            text = playingAudiMessage!!.authorName,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = colorsScheme().onPrimaryButtonEnabled,
+            style = MaterialTheme.wireTypography.body04,
+        )
+        Text(
+            modifier = Modifier,
+            text = DateAndTimeParsers.audioMessageTime(playingAudiMessage.currentTimeMs.toLong()),
+            color = colorsScheme().onPrimaryButtonEnabled,
+            style = MaterialTheme.wireTypography.label03,
+        )
+    }
+}
+
 private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
     val smoothAnimationDuration = 200.milliseconds
     delay(smoothAnimationDuration) // we wait a bit until the whole screen is loaded to show the animation properly
@@ -1424,5 +1542,6 @@ fun PreviewConversationScreen() = WireTheme {
         onLinkClick = { _ -> },
         openDrawingCanvas = {},
         onImagesPicked = {},
+        onChangeAudioSpeed = {}
     )
 }

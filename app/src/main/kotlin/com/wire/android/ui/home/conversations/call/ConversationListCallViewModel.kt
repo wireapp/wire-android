@@ -32,18 +32,22 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnabledUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -64,7 +68,9 @@ class ConversationListCallViewModel @Inject constructor(
     private val isConferenceCallingEnabled: IsEligibleToStartCallUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
-    private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase
+    private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
+    private val observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase,
+    private val getSelf: GetSelfUserUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -72,6 +78,8 @@ class ConversationListCallViewModel @Inject constructor(
 
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
     val shouldInformAboutVerification = mutableStateOf(false)
+    val selfTeamRole = mutableStateOf(UserType.GUEST)
+    val callingEnabled = MutableSharedFlow<Unit>(replay = 1)
 
     var establishedCallConversationId: QualifiedID? = null
 
@@ -80,6 +88,15 @@ class ConversationListCallViewModel @Inject constructor(
         observeEstablishedCall()
         observeParticipantsForConversation()
         observeInformedAboutDegradedVerification()
+        observeSelfTeamRole()
+        observeCallingActivatedEvent()
+    }
+
+    private fun observeCallingActivatedEvent() {
+        viewModelScope.launch {
+            observeConferenceCallingEnabled()
+                .collectLatest { callingEnabled.emit(Unit) }
+        }
     }
 
     private fun observeParticipantsForConversation() {
@@ -88,6 +105,14 @@ class ConversationListCallViewModel @Inject constructor(
                 .collectLatest {
                     conversationCallViewState = conversationCallViewState.copy(participantsCount = it.allCount)
                 }
+        }
+    }
+
+    private fun observeSelfTeamRole() {
+        viewModelScope.launch {
+            getSelf().collectLatest { self ->
+                selfTeamRole.value = self.userType
+            }
         }
     }
 

@@ -69,8 +69,8 @@ class SearchBarState(
             },
             restore = {
                 SearchBarState(
-                    isSearchActive = it[0] as Boolean,
-                    searchQueryTextState = it[1]?.let {
+                    isSearchActive = (it.getOrNull(0) as? Boolean) ?: false,
+                    searchQueryTextState = it.getOrNull(1)?.let {
                         with(TextFieldState.Saver) {
                             restore(it)
                         }

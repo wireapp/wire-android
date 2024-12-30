@@ -60,7 +60,10 @@ fun FullScreenTile(
     closeFullScreen: (offset: Offset) -> Unit,
     onBackButtonClicked: () -> Unit,
     setVideoPreview: (View) -> Unit,
+    requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     clearVideoPreview: () -> Unit,
+    isOnFrontCamera: Boolean,
+    flipCamera: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
 ) {
@@ -86,7 +89,6 @@ fun FullScreenTile(
                     .height(height)
                     .padding(contentPadding),
                 participantTitleState = it,
-                isSelfUser = selectedParticipant.isSelfUser,
                 isSelfUserCameraOn = if (selectedParticipant.isSelfUser) {
                     callState.isCameraOn
                 } else {
@@ -100,7 +102,9 @@ fun FullScreenTile(
                 shouldFillOthersVideoPreview = false,
                 isZoomingEnabled = true,
                 onSelfUserVideoPreviewCreated = setVideoPreview,
-                onClearSelfUserVideoPreview = clearVideoPreview
+                onClearSelfUserVideoPreview = clearVideoPreview,
+                isOnFrontCamera = isOnFrontCamera,
+                flipCamera = flipCamera,
             )
             LaunchedEffect(Unit) {
                 delay(200)
@@ -118,6 +122,10 @@ fun FullScreenTile(
                     shouldShowDoubleTapToast = false
                 }
             )
+        }
+
+        LaunchedEffect(selectedParticipant.userId) {
+            requestVideoStreams(listOf(it))
         }
     }
 }
@@ -139,7 +147,10 @@ fun PreviewFullScreenTile() = WireTheme {
         closeFullScreen = {},
         onBackButtonClicked = {},
         setVideoPreview = {},
+        requestVideoStreams = {},
         clearVideoPreview = {},
         participants = participants,
+        isOnFrontCamera = false,
+        flipCamera = {},
     )
 }

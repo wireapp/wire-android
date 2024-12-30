@@ -238,9 +238,16 @@ class MessageCompositionHolder(
         messageTextState.setTextAndPlaceCursorAtEnd(editMessageText)
         messageComposition.update {
             it.copy(
-                selectedMentions = mentions.mapNotNull { it.toUiMention(editMessageText) },
+                selectedMentions = mentions.mapNotNull { mention -> mention.toUiMention(editMessageText) },
                 editMessageId = messageId
             )
+        }
+        onSaveDraft(messageComposition.value.toDraft(editMessageText))
+    }
+
+    fun setMentions(editMessageText: String, mentions: List<MessageMention>) {
+        messageComposition.update {
+            it.copy(selectedMentions = mentions.mapNotNull { mention -> mention.toUiMention(editMessageText) })
         }
         onSaveDraft(messageComposition.value.toDraft(editMessageText))
     }

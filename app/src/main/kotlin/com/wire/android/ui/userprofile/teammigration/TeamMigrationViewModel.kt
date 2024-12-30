@@ -108,7 +108,7 @@ class TeamMigrationViewModel @Inject constructor(
     fun migrateFromPersonalToTeamAccount(onSuccess: () -> Unit) {
         viewModelScope.launch {
             migrateFromPersonalToTeam.invoke(
-                teamMigrationState.teamNameTextState.text.toString(),
+                teamMigrationState.teamNameTextState.text.trim().toString(),
             ).let { result ->
                 when (result) {
                     is MigrateFromPersonalToTeamResult.Success -> {

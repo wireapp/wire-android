@@ -225,6 +225,22 @@ class TeamMigrationViewModelTest {
             Assertions.assertNull(viewModel.teamMigrationState.migrationFailure)
         }
 
+    @Test
+    fun `given team name with spaces at start or end, when invoking migration, then trim the name`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withMigrateFromPersonalToTeamSuccess()
+            .arrange()
+        val onSuccess = {}
+        viewModel.teamMigrationState.teamNameTextState.setTextAndPlaceCursorAtEnd(" ${Arrangement.TEAM_NAME} ")
+        // when
+        viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+        // then
+        coVerify(exactly = 1) {
+            arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)
+        }
+    }
+
     private class Arrangement {
 
         @MockK

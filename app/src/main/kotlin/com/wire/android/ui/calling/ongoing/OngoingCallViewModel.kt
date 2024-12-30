@@ -130,8 +130,8 @@ class OngoingCallViewModel @AssistedInject constructor(
                         val clients: List<CallClient> = it.map { uiParticipant ->
                             CallClient(
                                 userId = uiParticipant.id.toString(),
-                                quality = mapQualityStream(uiParticipant),
-                                clientId = uiParticipant.clientId
+                                clientId = uiParticipant.clientId,
+                                quality = mapQualityStream(uiParticipant)
                             )
                         }
                         requestVideoStreams(conversationId, clients)

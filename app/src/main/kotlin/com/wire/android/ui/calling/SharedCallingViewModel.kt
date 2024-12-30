@@ -30,6 +30,7 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
@@ -40,6 +41,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
@@ -49,6 +51,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.util.PlatformView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -86,9 +89,9 @@ class SharedCallingViewModel @AssistedInject constructor(
     private val callRinger: CallRinger,
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val userTypeMapper: UserTypeMapper,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val getCurrentClientIdUseCase: GetCurrentClientIdUseCase
 ) : ViewModel() {
-
     var callState by mutableStateOf(CallState(conversationId))
 
     var participantsState by mutableStateOf(persistentListOf<UICallParticipant>())
@@ -110,6 +113,18 @@ class SharedCallingViewModel @AssistedInject constructor(
             launch {
                 observeOnSpeaker(this)
             }
+            launch {
+                getCurrentClientId()
+            }
+        }
+    }
+
+    private fun getCurrentClientId() {
+        viewModelScope.launch {
+            callState = callState.copy(
+                currentClientId = getCurrentClientIdUseCase()
+                    .fold({ String.EMPTY }, { it.value })
+            )
         }
     }
 

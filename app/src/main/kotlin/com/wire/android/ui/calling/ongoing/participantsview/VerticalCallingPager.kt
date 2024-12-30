@@ -63,6 +63,7 @@ fun VerticalCallingPager(
     isInPictureInPictureMode: Boolean,
     contentHeight: Dp,
     currentUserId: UserId,
+    currentClientId: String,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
@@ -107,6 +108,7 @@ fun VerticalCallingPager(
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap,
                             currentUserId = currentUserId,
+                            currentClientId = currentClientId
                         )
                     } else {
                         GroupCallGrid(
@@ -119,6 +121,7 @@ fun VerticalCallingPager(
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap,
                             currentUserId = currentUserId,
+                            currentClientId = currentClientId,
                             isInPictureInPictureMode = isInPictureInPictureMode,
                         )
                     }
@@ -179,6 +182,7 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         onDoubleTap = { },
         isInPictureInPictureMode = false,
         currentUserId = participants[0].id,
+        currentClientId = "clientId"
     )
 }
 

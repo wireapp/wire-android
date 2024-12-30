@@ -202,4 +202,8 @@ class CallsModule {
     @Provides
     fun provideObserveConferenceCallingEnabledUseCase(callsScope: CallsScope) =
         callsScope.observeConferenceCallingEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun provideCurrentClientIdUseCase(callsScope: CallsScope) = callsScope.getCurrentClientIdUseCase
 }

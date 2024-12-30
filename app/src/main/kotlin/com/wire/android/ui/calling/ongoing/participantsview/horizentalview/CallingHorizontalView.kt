@@ -34,6 +34,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.wire.android.BuildConfig
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -50,6 +51,7 @@ fun CallingHorizontalView(
     isSelfUserCameraOn: Boolean,
     contentHeight: Dp,
     currentUserId: UserId,
+    currentClientId: String,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
@@ -70,7 +72,12 @@ fun CallingHorizontalView(
     ) {
         items(items = participants, key = { it.id.toString() + it.clientId }) { participant ->
             // API returns only id.value, without domain, till this get changed compare only id.value
-            val isSelfUser = participant.id.equalsIgnoringBlankDomain(currentUserId)
+            // We also check the client ID because if we are using two devices and one is screen sharing,
+            // the second device cannot be marked as the owner. Otherwise, the shared screen preview will not be visible.
+            val isCurrentUserOwner = participant.id.equalsIgnoringBlankDomain(currentUserId)
+                    && participant.clientId == currentClientId
+                    && !BuildConfig.PICTURE_IN_PICTURE_ENABLED
+
             ParticipantTile(
                 modifier = Modifier
                     .pointerInput(Unit) {
@@ -80,7 +87,7 @@ fun CallingHorizontalView(
                                     SelectedParticipant(
                                         userId = participant.id,
                                         clientId = participant.clientId,
-                                        isSelfUser = isSelfUser
+                                        isSelfUser = isCurrentUserOwner
                                     )
                                 )
                             }
@@ -90,7 +97,7 @@ fun CallingHorizontalView(
                     .height(tileHeight)
                     .animateItem(),
                 participantTitleState = participant,
-                isSelfUser = isSelfUser,
+                isSelfUser = isCurrentUserOwner,
                 isSelfUserMuted = isSelfUserMuted,
                 isSelfUserCameraOn = isSelfUserCameraOn,
                 onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
@@ -112,6 +119,7 @@ fun PreviewCallingHorizontalView(
             isSelfUserCameraOn = false,
             contentHeight = 800.dp,
             currentUserId = UserId("id", "domain"),
+            currentClientId = "clientId",
             onSelfVideoPreviewCreated = {},
             onSelfClearVideoPreview = {},
             onDoubleTap = { },

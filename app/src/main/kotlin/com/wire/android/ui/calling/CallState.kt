@@ -21,6 +21,7 @@ package com.wire.android.ui.calling
 import androidx.compose.runtime.Stable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -43,5 +44,6 @@ data class CallState(
     val membership: Membership = Membership.None,
     val protocolInfo: Conversation.ProtocolInfo? = null,
     val mlsVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-    val proteusVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+    val proteusVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    val currentClientId: String = String.EMPTY
 )

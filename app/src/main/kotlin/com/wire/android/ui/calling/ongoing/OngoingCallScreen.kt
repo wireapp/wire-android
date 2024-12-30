@@ -183,7 +183,7 @@ fun OngoingCallScreen(
         onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
         participants = sharedCallingViewModel.participantsState,
         inPictureInPictureMode = inPictureInPictureMode,
-        currentUserId = ongoingCallViewModel.currentUserId,
+        currentUserId = ongoingCallViewModel.currentUserId
     )
 
     BackHandler {
@@ -417,6 +417,7 @@ private fun OngoingCallContent(
                             onSelfClearVideoPreview = clearVideoPreview,
                             requestVideoStreams = requestVideoStreams,
                             currentUserId = currentUserId,
+                            currentClientId = callState.currentClientId,
                             onDoubleTap = { selectedParticipant ->
                                 onSelectedParticipant(selectedParticipant)
                                 shouldOpenFullScreen = !shouldOpenFullScreen

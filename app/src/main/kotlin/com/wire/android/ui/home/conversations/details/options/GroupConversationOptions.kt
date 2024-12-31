@@ -184,12 +184,13 @@ fun ConversationProtocolDetails(
 ) {
     Column(modifier = modifier) {
         FolderHeader(name = stringResource(R.string.folder_label_protocol_details))
-        if (protocolInfo is Conversation.ProtocolInfo.MLS) {
-            ProtocolDetails(
-                label = UIText.StringResource(R.string.protocol),
-                text = UIText.DynamicString(protocolInfo.name())
-            )
 
+        ProtocolDetails(
+            label = UIText.StringResource(R.string.protocol),
+            text = UIText.DynamicString(protocolInfo.name())
+        )
+
+        if (protocolInfo is Conversation.ProtocolInfo.MLS) {
             ProtocolDetails(
                 label = UIText.StringResource(R.string.cipher_suite),
                 text = UIText.DynamicString(protocolInfo.cipherSuite.toString())

@@ -38,6 +38,18 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 
+/**
+ * A worker responsible for performing local deletion of conversations in the background.
+ *
+ * This worker is used to delete conversations along with their associated assets. Since the
+ * deletion process can involve large amounts of data (e.g., clearing files, database entries),
+ * it is executed as a background task to avoid blocking the main thread or user interactions.
+ *
+ * @param appContext The application context, provided by WorkManager.
+ * @param workerParams Parameters associated with this work request, including input data.
+ * @param coreLogic A utility object that handles core application logic, such as session and
+ * conversation management.
+ */
 @HiltWorker
 class DeleteConversationLocallyWorker @AssistedInject constructor(
     @Assisted appContext: Context,
@@ -73,6 +85,21 @@ enum class ConversationDeletionLocallyStatus {
     IDLE, RUNNING, SUCCEEDED, FAILED
 }
 
+/**
+ * Enqueues a background task to delete a conversation and its associated assets locally.
+ *
+ * This function uses the WorkManager API to create and enqueue a one-time work request for
+ * the `DeleteConversationLocallyWorker`. The work request is configured to run either as
+ * expedited (if quota allows) or as non-expedited work. If a deletion task for the same
+ * conversation is already running, the existing task will be kept or replaced based on the
+ * work policy.
+ *
+ * Additionally, this function returns a [Flow] that allows observing the status of the
+ * conversation deletion process.
+ *
+ * *Not having a Backoff criteria is intentional.* If there is an error during the process,
+ * it will be displayed to the users immediately rather than retrying silently in the background.
+ */
 fun WorkManager.enqueueConversationDeletionLocally(conversationId: ConversationId): Flow<ConversationDeletionLocallyStatus> {
     val workName = DeleteConversationLocallyWorker.createUniqueWorkName(conversationId.toString())
     val request = OneTimeWorkRequestBuilder<DeleteConversationLocallyWorker>()
@@ -92,6 +119,19 @@ fun WorkManager.enqueueConversationDeletionLocally(conversationId: ConversationI
     return observeConversationDeletionStatusLocally(conversationId)
 }
 
+/**
+ * Observes the status of a conversation deletion task running locally.
+ *
+ * This function returns a [Flow] that emits the current status of the conversation deletion
+ * process for the given conversation ID. The status is determined by monitoring the
+ * [WorkInfo] associated with the unique work name of the `DeleteConversationLocallyWorker`.
+ *
+ * The returned statuses include:
+ * - [ConversationDeletionLocallyStatus.RUNNING]: The deletion task is currently in progress.
+ * - [ConversationDeletionLocallyStatus.SUCCEEDED]: The deletion task completed successfully.
+ * - [ConversationDeletionLocallyStatus.FAILED]: The deletion task failed, was blocked, or cancelled.
+ * - [ConversationDeletionLocallyStatus.IDLE]: No active work is found for the given conversation ID.
+ */
 fun WorkManager.observeConversationDeletionStatusLocally(conversationId: ConversationId): Flow<ConversationDeletionLocallyStatus> {
     return getWorkInfosForUniqueWorkFlow(DeleteConversationLocallyWorker.createUniqueWorkName(conversationId.toString()))
         .mapNotNull { workInfos ->

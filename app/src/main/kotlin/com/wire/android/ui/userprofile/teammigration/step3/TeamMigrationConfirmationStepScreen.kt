@@ -80,10 +80,10 @@ fun TeamMigrationConfirmationStepScreen(
     TeamMigrationConfirmationStepScreenContent(
         isMigrating = state.isMigrating,
         onContinueButtonClicked = {
-            teamMigrationViewModel.setLoadingState(true)
+            teamMigrationViewModel.setIsMigratingState(true)
             teamMigrationViewModel.migrateFromPersonalToTeamAccount(
                 onSuccess = {
-                    teamMigrationViewModel.setLoadingState(false)
+                    teamMigrationViewModel.setIsMigratingState(false)
                     navigator.navigate(TeamMigrationDoneStepScreenDestination)
                 }
             )

@@ -118,15 +118,12 @@ fun HomeScreen(
     appSyncViewModel: AppSyncViewModel = hiltViewModel(),
     homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
     analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
+    foldersViewModel: ConversationFoldersVM = hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
+        creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
+    )
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
     val context = LocalContext.current
-
-    val foldersViewModel: ConversationFoldersVM =
-    hiltAssistedViewModelScoped(
-        arguments = ConversationFoldersStateArgs,
-        factoryProvider = { hiltViewModelFactory<ConversationFoldersVMImpl.Factory>(context = context) }
-    )
 
     val homeScreenState = rememberHomeScreenState(navigator)
     val notificationsPermissionDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()

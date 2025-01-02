@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -126,7 +127,8 @@ data class ConversationSheetContent(
     val mlsVerificationStatus: Conversation.VerificationStatus,
     val proteusVerificationStatus: Conversation.VerificationStatus,
     val isUnderLegalHold: Boolean,
-    val isFavorite: Boolean?
+    val isFavorite: Boolean?,
+    val folder: ConversationFolder?
 ) {
 
     private val isSelfUserMember: Boolean get() = selfRole != null

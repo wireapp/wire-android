@@ -616,7 +616,8 @@ fun PreviewGroupConversationDetails() {
                 mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                 isUnderLegalHold = false,
                 proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-                isFavorite = false
+                isFavorite = false,
+                folder = null
             ),
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},

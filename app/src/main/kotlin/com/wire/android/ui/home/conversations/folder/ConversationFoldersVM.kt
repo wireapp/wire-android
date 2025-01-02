@@ -42,6 +42,7 @@ import javax.inject.Inject
 @ViewModelScopedPreview
 interface ConversationFoldersVM {
     fun state(): ConversationFoldersState = ConversationFoldersState(persistentListOf())
+    fun onFolderSelected(folderId: String) {}
 }
 
 @HiltViewModel(assistedFactory = ConversationFoldersVMImpl.Factory::class)
@@ -51,11 +52,11 @@ class ConversationFoldersVMImpl @AssistedInject constructor(
 ) : ConversationFoldersVM, ViewModel() {
 
     @AssistedFactory
-    interface Factory: AssistedViewModelFactory<ConversationFoldersVMImpl, ConversationFoldersStateArgs> {
+    interface Factory : AssistedViewModelFactory<ConversationFoldersVMImpl, ConversationFoldersStateArgs> {
         override fun create(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl
     }
 
-    private var state by mutableStateOf(ConversationFoldersState(persistentListOf()))
+    private var state by mutableStateOf(ConversationFoldersState(persistentListOf(), args.selectedFolderId))
 
     override fun state(): ConversationFoldersState = state
 
@@ -66,14 +67,23 @@ class ConversationFoldersVMImpl @AssistedInject constructor(
     private fun observeUserFolders() = viewModelScope.launch {
         observeUserFoldersUseCase()
             .collect { folders ->
-                state = ConversationFoldersState(folders.toPersistentList())
+                state = state.copy(folders = folders.toPersistentList())
             }
+    }
+
+    override fun onFolderSelected(folderId: String) {
+        state = state.copy(selectedFolderId = folderId)
     }
 }
 
-data class ConversationFoldersState(val folders: PersistentList<ConversationFolder>)
+data class ConversationFoldersState(val folders: PersistentList<ConversationFolder>, val selectedFolderId: String? = null)
 
 @Serializable
-object ConversationFoldersStateArgs : ScopedArgs {
-    override val key = "ConversationFoldersStateArgsKey"
+data class ConversationFoldersStateArgs(val selectedFolderId: String?) : ScopedArgs {
+
+    override val key = "$ARGS_KEY:$selectedFolderId"
+
+    companion object {
+        const val ARGS_KEY = "ConversationFoldersStateArgsKey"
+    }
 }

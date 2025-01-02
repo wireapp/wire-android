@@ -23,11 +23,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,16 +35,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.common.WireTabRow
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.button.WireButton
@@ -58,8 +55,6 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
-import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @RootNavGraph
 @WireDestination(
@@ -84,15 +79,15 @@ fun ConversationFoldersScreen(
 
 @Composable
 private fun Content(
-    currentFolderId : String?,
+    currentFolderId: String?,
     onNavigationPressed: () -> Unit = {},
-    foldersViewModel: SelectConversationFoldersVM =
-        hiltViewModelScoped<SelectConversationFoldersVMImpl, SelectConversationFoldersVM, SelectConversationFoldersStateArgs>(
-            SelectConversationFoldersStateArgs(currentFolderId)
-        )
+    foldersViewModel: ConversationFoldersVM = hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
+        creationCallback = { it.create(ConversationFoldersStateArgs(currentFolderId)) }
+    )
 ) {
     val resources = LocalContext.current.resources
     val context = LocalContext.current
+
     val lazyListState = rememberLazyListState()
     WireScaffold(
         modifier = Modifier
@@ -128,7 +123,11 @@ private fun Content(
             }
         }
     ) { padding ->
-        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
             if (foldersViewModel.state().folders.isEmpty()) {
                 Text(
                     stringResource(R.string.folder_create_description),
@@ -142,20 +141,21 @@ private fun Content(
                     modifier = Modifier.fillMaxHeight()
                 ) {
                     items(foldersViewModel.state().folders) { folder ->
-                       val state =  if (currentFolderId == folder.id) {
+                        val state = if (foldersViewModel.state().selectedFolderId == folder.id) {
                             RichMenuItemState.SELECTED
                         } else {
                             RichMenuItemState.DEFAULT
                         }
-                    SelectableMenuBottomSheetItem(
-                        title = folder.name,
-                        onItemClick = Clickable(
-                            enabled = state == RichMenuItemState.DEFAULT,
-                            onClickDescription = stringResource(id = R.string.content_description_select_label),
-                            onClick = { }
-                        ),
-                        state = state
-                    )
+                        SelectableMenuBottomSheetItem(
+                            title = folder.name,
+                            onItemClick = Clickable(
+                                enabled = state == RichMenuItemState.DEFAULT,
+                                onClickDescription = stringResource(id = R.string.content_description_select_label),
+                                onClick = { foldersViewModel.onFolderSelected(folder.id) }
+                            ),
+                            state = state,
+                            modifier = Modifier.height(dimensions().spacing48x)
+                        )
                     }
                 }
             }

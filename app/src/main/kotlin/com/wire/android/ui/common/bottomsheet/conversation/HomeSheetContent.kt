@@ -155,7 +155,7 @@ internal fun ConversationMainSheetContent(
                             ConversationFoldersNavArgs(
                                 conversationId = conversationSheetContent.conversationId,
                                 conversationName = conversationSheetContent.title,
-                                currentFolderId = null
+                                currentFolderId = conversationSheetContent.folder?.id
                             )
                         )
                     }

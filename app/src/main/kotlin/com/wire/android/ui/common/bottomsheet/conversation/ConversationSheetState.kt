@@ -79,7 +79,8 @@ fun rememberConversationSheetState(
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
-                    isFavorite = isFavorite
+                    isFavorite = isFavorite,
+                    folder = folder
                 )
             }
         }
@@ -105,7 +106,8 @@ fun rememberConversationSheetState(
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
-                    isFavorite = isFavorite
+                    isFavorite = isFavorite,
+                    folder = folder
                 )
             }
         }
@@ -126,7 +128,8 @@ fun rememberConversationSheetState(
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
-                    isFavorite = null
+                    isFavorite = null,
+                    folder = null
                 )
             }
         }

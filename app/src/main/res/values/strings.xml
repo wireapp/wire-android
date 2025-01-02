@@ -574,6 +574,9 @@
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
+    <string name="delete_group_locally_conversation_dialog_title">Delete “%s” group for me?</string>
+    <string name="delete_group_locally_conversation_dialog_description">You won’t be able to access the group and its content. There is no option to restore it.</string>
+    <string name="delete_group_locally_delete_for_me_label">Delete for Me</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
@@ -667,6 +670,7 @@
     <string name="label_block">Block</string>
     <string name="label_unblock">Unblock</string>
     <string name="label_leave_group">Leave Group</string>
+    <string name="label_delete_group_locally">Delete Group For Me</string>
     <string name="label_delete_group">Delete Group</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Filter Conversations</string>
@@ -916,6 +920,7 @@
     <string name="error_blocking_user">User could not be blocked</string>
     <string name="blocking_user_success">%s blocked</string>
     <string name="conversation_group_removed_success">“%s” removed</string>
+    <string name="conversation_group_removed_locally_success">“%s” deleted for me</string>
     <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
     <string name="joined_conversation_group_success">You joined the conversation.</string>
     <string name="left_conversation_group_success">You left the conversation.</string>

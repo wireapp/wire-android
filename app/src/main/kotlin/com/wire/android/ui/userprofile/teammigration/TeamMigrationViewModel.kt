@@ -105,6 +105,10 @@ class TeamMigrationViewModel @Inject constructor(
         )
     }
 
+    fun setLoadingState(isLoading: Boolean) {
+        teamMigrationState = teamMigrationState.copy(isMigrating = isLoading)
+    }
+
     fun migrateFromPersonalToTeamAccount(onSuccess: () -> Unit) {
         viewModelScope.launch {
             migrateFromPersonalToTeam.invoke(

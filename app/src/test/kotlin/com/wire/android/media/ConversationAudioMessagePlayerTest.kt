@@ -42,6 +42,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path
 import org.amshove.kluent.internal.assertEquals
@@ -69,6 +70,7 @@ class ConversationAudioMessagePlayerTest {
                 conversationId,
                 testAudioMessageId
             )
+            advanceUntilIdle()
 
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[messageIdWrapper]
@@ -132,6 +134,7 @@ class ConversationAudioMessagePlayerTest {
                 conversationId,
                 testAudioMessageId
             )
+            advanceUntilIdle()
 
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[messageIdWrapper]
@@ -167,6 +170,7 @@ class ConversationAudioMessagePlayerTest {
                 conversationId,
                 testAudioMessageId
             )
+            advanceUntilIdle()
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[messageIdWrapper]
                 assert(currentState != null)
@@ -209,6 +213,7 @@ class ConversationAudioMessagePlayerTest {
                     conversationId,
                     firstAudioMessageId
                 )
+                advanceUntilIdle()
 
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageIdWrapper]
@@ -306,6 +311,7 @@ class ConversationAudioMessagePlayerTest {
                     conversationId,
                     firstAudioMessageId
                 )
+                advanceUntilIdle()
 
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageIdWrapper]
@@ -341,6 +347,7 @@ class ConversationAudioMessagePlayerTest {
                     ConversationId("some-dummy-value", "some.dummy.domain"),
                     secondAudioMessageId
                 )
+                advanceUntilIdle()
 
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageIdWrapper]
@@ -383,6 +390,7 @@ class ConversationAudioMessagePlayerTest {
                     ConversationId("some-dummy-value", "some.dummy.domain"),
                     firstAudioMessageId
                 )
+                advanceUntilIdle()
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[secondAudioMessageIdWrapper]
                     assert(currentState != null)
@@ -450,6 +458,7 @@ class ConversationAudioMessagePlayerTest {
                     conversationId,
                     testAudioMessageId
                 )
+                advanceUntilIdle()
 
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[messageIdWrapper]
@@ -484,6 +493,7 @@ class ConversationAudioMessagePlayerTest {
                     conversationId,
                     testAudioMessageId
                 )
+                advanceUntilIdle()
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[messageIdWrapper]
                     assert(currentState != null)
@@ -498,6 +508,7 @@ class ConversationAudioMessagePlayerTest {
                     conversationId,
                     testAudioMessageId
                 )
+                advanceUntilIdle()
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[messageIdWrapper]
                     assert(currentState != null)
@@ -520,7 +531,7 @@ class ConversationAudioMessagePlayerTest {
     @Test
     fun givenTheSuccessFullAssetFetch_whenAudioSpeedChanged_thenMediaPlayerParamsWereUpdated() = runTest {
         val params = PlaybackParams()
-        val (arrangement, conversationAudioMessagePlayer) = Arrangement(this)
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(this.backgroundScope)
             .withSuccessFullAssetFetch()
             .withCurrentSession()
             .withAudioMediaPlayerReturningParams(params)

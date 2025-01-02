@@ -160,6 +160,7 @@ class ConversationMessagesViewModelArrangement {
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
         coEvery { conversationAudioMessagePlayer.fetchWavesMask(any(), any()) } returns Unit
+        coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
     }
 
     fun withSuccessfulViewModelInit() = apply {

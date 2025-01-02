@@ -23,6 +23,7 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
+import androidx.work.WorkManager
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -279,6 +280,9 @@ class ConversationListViewModelTest {
         private lateinit var observeSelfUser: GetSelfUserUseCase
 
         @MockK
+        private lateinit var workManager: WorkManager
+
+        @MockK
         lateinit var audioMessagePlayer: ConversationAudioMessagePlayer
 
         @MockK
@@ -357,7 +361,8 @@ class ConversationListViewModelTest {
             userTypeMapper = UserTypeMapper(),
             observeSelfUser = observeSelfUser,
             usePagination = true,
-            audioMessagePlayerProvider = audioMessagePlayerProvider
+            audioMessagePlayerProvider = audioMessagePlayerProvider,
+            workManager = workManager
         )
     }
 

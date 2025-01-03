@@ -38,7 +38,7 @@ class TeamMigrationViewModel @Inject constructor(
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase,
     private val getSelfUser: GetSelfUserUseCase,
-    private val getTeamUrl: GetTeamUrlUseCase,
+    private val getTeamUrl: GetTeamUrlUseCase
 ) : ViewModel() {
 
     var teamMigrationState by mutableStateOf(TeamMigrationState())

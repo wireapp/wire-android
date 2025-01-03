@@ -194,11 +194,6 @@ class UserModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetTeamUrlUseCase(userScope: UserScope): GetTeamUrlUseCase =
-        userScope.getTeamUrl
-
-    @ViewModelScoped
-    @Provides
     fun provideGetAvatarAssetUseCase(userScope: UserScope): GetAvatarAssetUseCase =
         userScope.getPublicAsset
 

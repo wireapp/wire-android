@@ -486,6 +486,9 @@
     <string name="delete_group_conversation_menu_item">Gruppe löschen…</string>
     <string name="delete_group_conversation_dialog_title">\"%s\" entfernen?</string>
     <string name="delete_group_conversation_dialog_description">Die Gruppe wird auf allen Geräten aus der Liste Ihrer Unterhaltungen entfernt. Sie können dann nicht mehr auf die Gruppe und ihren Inhalt zugreifen.</string>
+    <string name="delete_group_locally_conversation_dialog_title">Gruppe \"%s\" für mich löschen?</string>
+    <string name="delete_group_locally_conversation_dialog_description">Sie können dann nicht mehr auf die Gruppe und ihren Inhalt zugreifen. Es gibt keine Möglichkeit, sie wiederherzustellen.</string>
+    <string name="delete_group_locally_delete_for_me_label">Für mich löschen</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Mit Wire teilen</string>
     <string name="import_media_searchbar_title">Nach Unterhaltung suchen</string>
@@ -579,6 +582,7 @@
     <string name="label_block">Blockieren</string>
     <string name="label_unblock">Freigeben</string>
     <string name="label_leave_group">Gruppe verlassen</string>
+    <string name="label_delete_group_locally">Gruppe für mich löschen</string>
     <string name="label_delete_group">Gruppe löschen</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_folders">Ordner</string>
@@ -814,6 +818,7 @@
     <string name="error_blocking_user">Benutzer konnte nicht blockiert werden</string>
     <string name="blocking_user_success">%s blockiert</string>
     <string name="conversation_group_removed_success">“%s” entfernt</string>
+    <string name="conversation_group_removed_locally_success">“%s” für mich gelöscht</string>
     <string name="leave_group_conversation_error">Beim Verlassen der Unterhaltung ist ein Fehler aufgetreten</string>
     <string name="joined_conversation_group_success">Sie sind der Unterhaltung beigetreten.</string>
     <string name="left_conversation_group_success">Sie haben die Unterhaltung verlassen.</string>
@@ -1512,4 +1517,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="personal_to_team_migration_error_message_already_in_team">Sie haben ein Team mit dieser E-Mail-Adresse auf einem anderen Gerät erstellt oder sind einem Team beigetreten.</string>
     <string name="personal_to_team_migration_error_message_slow_network">Wire konnte die Erstellung Ihres Teams aufgrund einer langsamen Internetverbindung nicht abschließen.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire konnte die Erstellung Ihres Teams aufgrund eines unbekannten Fehlers nicht abschließen.</string>
+    <string name="reaction_sender_self">Sie</string>
 </resources>

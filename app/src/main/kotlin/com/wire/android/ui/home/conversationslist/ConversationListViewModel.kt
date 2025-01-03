@@ -201,28 +201,30 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 onlyInteractionEnabled = false,
                 newActivitiesOnTop = containsNewActivitiesSection,
                 playingAudioMessage = playingAudioMessage
-            ).map {
-                it.insertSeparators { before, after ->
-                    when {
-                        // do not add separators if the list shouldn't show conversations grouped into different folders
-                        !containsNewActivitiesSection -> null
+            ).combine(observeLegalHoldStateForSelfUser())
+                .map { (conversations, selfUserLegalHoldStatus) ->
+                    conversations.map { it.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus) }
+                        .insertSeparators { before, after ->
+                            when {
+                                // do not add separators if the list shouldn't show conversations grouped into different folders
+                                !containsNewActivitiesSection -> null
 
-                        before == null && after != null && after.hasNewActivitiesToShow ->
-                            // list starts with items with "new activities"
-                            ConversationFolder.Predefined.NewActivities
+                                before == null && after != null && after.hasNewActivitiesToShow ->
+                                    // list starts with items with "new activities"
+                                    ConversationFolder.Predefined.NewActivities
 
-                        before == null && after != null && !after.hasNewActivitiesToShow ->
-                            // list doesn't contain any items with "new activities"
-                            ConversationFolder.Predefined.Conversations
+                                before == null && after != null && !after.hasNewActivitiesToShow ->
+                                    // list doesn't contain any items with "new activities"
+                                    ConversationFolder.Predefined.Conversations
 
-                        before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
-                            // end of "new activities" section and beginning of "conversations" section
-                            ConversationFolder.Predefined.Conversations
+                                before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
+                                    // end of "new activities" section and beginning of "conversations" section
+                                    ConversationFolder.Predefined.Conversations
 
-                        else -> null
-                    }
+                                else -> null
+                            }
+                        }
                 }
-            }
         }
         .flowOn(dispatcher.io())
         .cachedIn(viewModelScope)
@@ -465,11 +467,15 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     }
 
     override fun playPauseCurrentAudio(conversationId: ConversationId, messageId: String) {
-        audioMessagePlayer.resumeOrPauseCurrentlyPlayingAudioMessage(conversationId, messageId)
+        viewModelScope.launch {
+            audioMessagePlayer.resumeOrPauseCurrentlyPlayingAudioMessage(conversationId, messageId)
+        }
     }
 
     override fun stopCurrentAudio() {
-        audioMessagePlayer.stopCurrentlyPlayingAudioMessage()
+        viewModelScope.launch {
+            audioMessagePlayer.stopCurrentlyPlayingAudioMessage()
+        }
     }
 
     @Suppress("MultiLineIfElse")

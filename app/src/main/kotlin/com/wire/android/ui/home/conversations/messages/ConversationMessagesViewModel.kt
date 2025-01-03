@@ -398,7 +398,9 @@ class ConversationMessagesViewModel @Inject constructor(
         }
 
     fun audioClick(messageId: String) {
-        audioMessagePlayer.playAudio(conversationId, messageId)
+        viewModelScope.launch {
+            audioMessagePlayer.playAudio(conversationId, messageId)
+        }
     }
 
     fun changeAudioPosition(messageId: String, position: Int) {

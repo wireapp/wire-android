@@ -207,7 +207,7 @@ private val DarkWireColorScheme = WireColorScheme(
     surfaceVariant = WireColorPalette.Gray90, onSurfaceVariant = Color.White,
     inverseSurface = Color.White, inverseOnSurface = Color.Black,
     surfaceBright = WireColorPalette.Gray70, surfaceDim = WireColorPalette.Gray95,
-    surfaceContainerLowest = Color.Black,
+    surfaceContainerLowest = WireColorPalette.Gray100,
     surfaceContainerLow = WireColorPalette.Gray95,
     surfaceContainer = WireColorPalette.Gray90,
     surfaceContainerHigh = WireColorPalette.Gray80,
@@ -227,8 +227,8 @@ private val DarkWireColorScheme = WireColorScheme(
     secondaryButtonRipple = Color.White,
     tertiaryButtonEnabled = Color.Transparent, onTertiaryButtonEnabled = Color.White,
     tertiaryButtonDisabled = Color.Transparent, onTertiaryButtonDisabled = WireColorPalette.Gray60,
-    tertiaryButtonSelected = WireColorPalette.DarkBlue50, onTertiaryButtonSelected = WireColorPalette.DarkBlue500,
-    tertiaryButtonSelectedOutline = WireColorPalette.DarkBlue300,
+    tertiaryButtonSelected = WireColorPalette.DarkBlue800, onTertiaryButtonSelected = WireColorPalette.DarkBlue500,
+    tertiaryButtonSelectedOutline = WireColorPalette.DarkBlue800,
     tertiaryButtonRipple = Color.White,
 
     // strokes and shadows

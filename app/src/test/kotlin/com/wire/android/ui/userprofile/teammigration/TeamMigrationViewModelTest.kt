@@ -66,23 +66,6 @@ class TeamMigrationViewModelTest {
         }
 
     @Test
-    fun `given close modal event, when sendPersonalToTeamMigrationDismissed is called, then send the event`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .arrange()
-
-            viewModel.sendPersonalToTeamMigrationDismissed()
-
-            verify(exactly = 1) {
-                arrangement.anonymousAnalyticsManager.sendEvent(
-                    AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                        dismissCreateTeamButtonClicked = true
-                    )
-                )
-            }
-        }
-
-    @Test
     fun `given the step of migration flow, when sendPersonalTeamCreationFlowStartedEvent is called, then send the event`() =
         runTest {
             val step = 2
@@ -109,7 +92,6 @@ class TeamMigrationViewModelTest {
             verify(exactly = 1) {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
-                        teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
                         modalLeaveClicked = true
                     )
                 )
@@ -127,7 +109,6 @@ class TeamMigrationViewModelTest {
             verify(exactly = 1) {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
-                        teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
                         modalContinueClicked = true
                     )
                 )
@@ -147,7 +128,6 @@ class TeamMigrationViewModelTest {
             verify(exactly = 1) {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
-                        teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
                         modalOpenTeamManagementButtonClicked = true
                     )
                 )
@@ -165,7 +145,6 @@ class TeamMigrationViewModelTest {
             verify(exactly = 1) {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
-                        teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
                         backToWireButtonClicked = true
                     )
                 )
@@ -245,6 +224,22 @@ class TeamMigrationViewModelTest {
             viewModel.failureHandled()
             Assertions.assertNull(viewModel.teamMigrationState.migrationFailure)
         }
+
+    @Test
+    fun `given team name with spaces at start or end, when invoking migration, then trim the name`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withMigrateFromPersonalToTeamSuccess()
+            .arrange()
+        val onSuccess = {}
+        viewModel.teamMigrationState.teamNameTextState.setTextAndPlaceCursorAtEnd(" ${Arrangement.TEAM_NAME} ")
+        // when
+        viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+        // then
+        coVerify(exactly = 1) {
+            arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)
+        }
+    }
 
     private class Arrangement {
 

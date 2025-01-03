@@ -33,6 +33,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayerProvider
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -75,6 +76,7 @@ import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCa
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.functional.combine
 import com.wire.kalium.util.DateTimeUtil
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -99,6 +101,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.util.Date
 
+@Suppress("TooManyFunctions")
 interface ConversationListViewModel {
     val infoMessage: SharedFlow<SnackBarMessage> get() = MutableSharedFlow()
     val closeBottomSheet: SharedFlow<Unit> get() = MutableSharedFlow()
@@ -121,8 +124,11 @@ interface ConversationListViewModel {
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
     fun moveConversationToFolder() {}
     fun searchQueryChanged(searchQuery: String) {}
+    fun playPauseCurrentAudio(conversationId: ConversationId, messageId: String) {}
+    fun stopCurrentAudio() {}
 }
 
+@Suppress("TooManyFunctions")
 class ConversationListViewModelPreview(
     foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = previewConversationFoldersFlow(),
 ) : ConversationListViewModel {
@@ -148,6 +154,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
+    private val audioMessagePlayerProvider: ConversationAudioMessagePlayerProvider,
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
     private val observeSelfUser: GetSelfUserUseCase,
@@ -162,6 +169,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         ): ConversationListViewModelImpl
     }
 
+    private val audioMessagePlayer = audioMessagePlayerProvider.provide()
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     override val infoMessage = _infoMessage.asSharedFlow()
 
@@ -186,39 +194,39 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
         .distinctUntilChanged()
-        .flatMapLatest { searchQuery ->
+        .combine(audioMessagePlayer.playingAudioMessageFlow)
+        .flatMapLatest { (searchQuery, playingAudioMessage) ->
             getConversationsPaginated(
                 searchQuery = searchQuery,
                 fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
                 conversationFilter = conversationsSource.toFilter(),
                 onlyInteractionEnabled = false,
                 newActivitiesOnTop = containsNewActivitiesSection,
-            ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
-                conversations.map {
-                    it.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
+                playingAudioMessage = playingAudioMessage
+            ).combine(observeLegalHoldStateForSelfUser())
+                .map { (conversations, selfUserLegalHoldStatus) ->
+                    conversations.map { it.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus) }
+                        .insertSeparators { before, after ->
+                            when {
+                                // do not add separators if the list shouldn't show conversations grouped into different folders
+                                !containsNewActivitiesSection -> null
+
+                                before == null && after != null && after.hasNewActivitiesToShow ->
+                                    // list starts with items with "new activities"
+                                    ConversationFolder.Predefined.NewActivities
+
+                                before == null && after != null && !after.hasNewActivitiesToShow ->
+                                    // list doesn't contain any items with "new activities"
+                                    ConversationFolder.Predefined.Conversations
+
+                                before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
+                                    // end of "new activities" section and beginning of "conversations" section
+                                    ConversationFolder.Predefined.Conversations
+
+                                else -> null
+                            }
+                        }
                 }
-            }.map {
-                it.insertSeparators { before, after ->
-                    when {
-                        // do not add separators if the list shouldn't show conversations grouped into different folders
-                        !containsNewActivitiesSection -> null
-
-                        before == null && after != null && after.hasNewActivitiesToShow ->
-                            // list starts with items with "new activities"
-                            ConversationFolder.Predefined.NewActivities
-
-                        before == null && after != null && !after.hasNewActivitiesToShow ->
-                            // list doesn't contain any items with "new activities"
-                            ConversationFolder.Predefined.Conversations
-
-                        before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
-                            // end of "new activities" section and beginning of "conversations" section
-                            ConversationFolder.Predefined.Conversations
-
-                        else -> null
-                    }
-                }
-            }
         }
         .flowOn(dispatcher.io())
         .cachedIn(viewModelScope)
@@ -239,15 +247,20 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                     .onStart { emit("") }
                     .distinctUntilChanged()
                     .flatMapLatest { searchQuery: String ->
-                        observeConversationListDetailsWithEvents(
-                            fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
-                            conversationFilter = conversationsSource.toFilter()
-                        ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
+                        combine(
+                            observeConversationListDetailsWithEvents(
+                                fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
+                                conversationFilter = conversationsSource.toFilter()
+                            ),
+                            observeLegalHoldStateForSelfUser(),
+                            audioMessagePlayer.playingAudioMessageFlow
+                        ) { conversations, selfUserLegalHoldStatus, playingAudioMessage ->
                             conversations.map { conversationDetails ->
                                 conversationDetails.toConversationItem(
                                     userTypeMapper = userTypeMapper,
                                     searchQuery = searchQuery,
-                                    selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
+                                    selfUserTeamId = observeSelfUser().firstOrNull()?.teamId,
+                                    playingAudioMessage = playingAudioMessage
                                 ).hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
                             } to searchQuery
                         }
@@ -455,6 +468,18 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         }
     }
 
+    override fun playPauseCurrentAudio(conversationId: ConversationId, messageId: String) {
+        viewModelScope.launch {
+            audioMessagePlayer.resumeOrPauseCurrentlyPlayingAudioMessage(conversationId, messageId)
+        }
+    }
+
+    override fun stopCurrentAudio() {
+        viewModelScope.launch {
+            audioMessagePlayer.stopCurrentlyPlayingAudioMessage()
+        }
+    }
+
     @Suppress("MultiLineIfElse")
     private suspend fun clearContentSnackbarResult(
         clearContentResult: ClearConversationContentUseCase.Result,
@@ -486,7 +511,7 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
 }
 
 private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus: LegalHoldStateForSelfUser) =
-    // if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
+// if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
     // the indication is shown in the header of the conversation list for self user in that case and it's enough
     when (selfUserLegalHoldStatus) {
         is LegalHoldStateForSelfUser.Enabled -> when (this) {

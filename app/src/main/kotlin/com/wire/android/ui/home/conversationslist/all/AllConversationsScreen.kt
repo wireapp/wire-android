@@ -34,7 +34,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ConversationFilter
-import kotlinx.coroutines.flow.flowOf
 
 @HomeNavGraph(start = true)
 @WireDestination
@@ -70,7 +69,7 @@ fun PreviewAllConversationsEmptyScreen() = WireTheme {
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { ConversationsEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(flowOf()),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(list = listOf())),
     )
 }
 
@@ -79,10 +78,10 @@ fun PreviewAllConversationsEmptyScreen() = WireTheme {
 fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
     ConversationsScreenContent(
         navigator = rememberNavigator {},
-        searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
+        searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { ConversationsEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(flowOf()),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(searchQuery = "er", list = listOf())),
     )
 }
 
@@ -91,7 +90,7 @@ fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
 fun PreviewAllConversationsSearchScreen() = WireTheme {
     ConversationsScreenContent(
         navigator = rememberNavigator {},
-        searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
+        searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { ConversationsEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow("er")),

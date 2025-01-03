@@ -20,41 +20,100 @@ package com.wire.android.ui.home.conversations.folder
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.R
+import com.wire.android.di.AssistedViewModelFactory
+import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.ConversationFolder
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.conversation.folder.MoveConversationToFolderUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import javax.inject.Inject
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 
 @ViewModelScopedPreview
 interface MoveConversationToFolderVM {
     val infoMessage: SharedFlow<UIText>
         get() = MutableSharedFlow()
+
     fun actionableState(): MoveConversationToFolderState = MoveConversationToFolderState()
+    fun moveConversationToFolder(folder: ConversationFolder) {}
 }
 
-@Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class MoveConversationToFolderVMImpl @Inject constructor(
+@HiltViewModel(assistedFactory = MoveConversationToFolderVMImpl.Factory::class)
+class MoveConversationToFolderVMImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
-    savedStateHandle: SavedStateHandle
+    @Assisted val args: MoveConversationToFolderArgs,
+    private val moveConversationToFolder: MoveConversationToFolderUseCase,
 ) : MoveConversationToFolderVM, ViewModel() {
 
     var state: MoveConversationToFolderState by mutableStateOf(MoveConversationToFolderState())
+
+    @AssistedFactory
+    interface Factory : AssistedViewModelFactory<MoveConversationToFolderVMImpl, MoveConversationToFolderArgs> {
+        override fun create(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl
+    }
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     override val infoMessage = _infoMessage.asSharedFlow()
 
     override fun actionableState(): MoveConversationToFolderState = state
+    override fun moveConversationToFolder(folder: ConversationFolder) {
+        viewModelScope.launch {
+            state = state.copy(isPerformingAction = true)
+            when (withContext(dispatchers.io()) {
+                moveConversationToFolder.invoke(
+                    args.conversationId,
+                    folder.id,
+                    args.currentFolderId
+                )
+            }) {
+                is MoveConversationToFolderUseCase.Result.Failure -> _infoMessage.emit(
+                    UIText.StringResource(
+                        R.string.move_to_folder_failed,
+                        args.conversationName,
+                    )
+                )
+
+                MoveConversationToFolderUseCase.Result.Success -> _infoMessage.emit(
+                    UIText.StringResource(
+                        R.string.move_to_folder_success,
+                        args.conversationName,
+                        folder.name
+                    )
+                )
+            }
+            state = state.copy(isPerformingAction = false)
+        }
+    }
 
 }
 
 data class MoveConversationToFolderState(
-    val isPerformingAction: Boolean = false
+    val isPerformingAction: Boolean = false,
 )
+
+@Serializable
+data class MoveConversationToFolderArgs(
+    val conversationId: ConversationId,
+    val conversationName: String,
+    val currentFolderId: String?,
+) : ScopedArgs {
+    override val key = "$ARGS_KEY:$conversationId$currentFolderId"
+
+    companion object {
+        const val ARGS_KEY = "MoveConversationToFolderArgsKey"
+    }
+}
 

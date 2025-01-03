@@ -1663,4 +1663,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_error_message_already_in_team">You\'ve created or joined a team with this email address on another device.</string>
     <string name="personal_to_team_migration_error_message_slow_network">Wire could not complete your team creation due to a slow internet connection.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
+
+    <!-- Move to Folder -->
+    <string name="move_to_folder_success">“%1$s” was moved to “%2$s”</string>
+    <string name="move_to_folder_failed">“%1$s” could not be moved</string>
 </resources>

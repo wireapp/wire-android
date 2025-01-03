@@ -17,10 +17,15 @@
  */
 package com.wire.android.ui.home.conversations.folder
 
+import android.os.Parcelable
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.parcelize.Parcelize
 
 data class ConversationFoldersNavArgs(
     val conversationId: ConversationId,
     val conversationName: String,
     val currentFolderId: String?
 )
+
+@Parcelize
+data class ConversationFoldersNavBackArgs(val message: String) : Parcelable

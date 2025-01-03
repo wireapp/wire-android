@@ -555,7 +555,7 @@ class ConversationAudioMessagePlayerTest {
     }
 }
 
-class Arrangement() {
+class Arrangement {
 
     @MockK
     lateinit var context: Context

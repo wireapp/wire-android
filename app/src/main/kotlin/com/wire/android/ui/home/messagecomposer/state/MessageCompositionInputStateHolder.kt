@@ -145,7 +145,7 @@ class MessageCompositionInputStateHolder(
     }
 
     fun calculateOptionsMenuHeight(additionalOptionsSubMenuState: AdditionalOptionSubMenuState): Dp {
-        return max(optionsHeight, 250.dp) + if (additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
+        return max(optionsHeight, 200.dp) + if (additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
             0.dp
         } else {
             composeTextHeight

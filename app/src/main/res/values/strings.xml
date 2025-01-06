@@ -284,7 +284,6 @@
     <string name="url_how_to_add_favorites" translatable="false">https://support.wire.com/hc/articles/360002855557</string>
     <string name="url_how_to_add_folders" translatable="false">https://support.wire.com/hc/articles/360002855817</string>
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
-    <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
     <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
     <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
     <!-- Navigation -->

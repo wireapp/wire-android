@@ -330,7 +330,7 @@ private fun MessageComposerTextInput(
         interactionSource = interactionSource,
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
-        lineLimits = TextFieldLineLimits.MultiLine()
+        singleLine = false,
     )
 }
 

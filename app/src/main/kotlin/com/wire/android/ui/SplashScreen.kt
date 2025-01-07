@@ -35,11 +35,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun SplashScreen(onStart: () -> Unit) {
-    MainBackgroundContent()
-}
-
-@Composable
 fun MainBackgroundComponent() {
     MainBackgroundContent()
 }

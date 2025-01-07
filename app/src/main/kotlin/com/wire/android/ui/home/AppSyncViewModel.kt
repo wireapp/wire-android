@@ -20,6 +20,7 @@ package com.wire.android.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.kalium.logic.feature.e2ei.CertificateRevocationListCheckWorker
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
@@ -36,7 +37,7 @@ import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class AppSyncViewModel @Inject constructor(
-    private val syncCertificateRevocationListUseCase: CheckCrlRevocationListUseCase,
+    private val syncCertificateRevocationListUseCase: CertificateRevocationListCheckWorker,
     private val observeCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase,
     private val featureFlagsSyncWorker: FeatureFlagsSyncWorker,
     private val updateApiVersions: UpdateApiVersionsUseCase

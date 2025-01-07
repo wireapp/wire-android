@@ -39,7 +39,7 @@ fun OtherUserProfileBottomSheetContent(
     changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
     closeBottomSheet: () -> Unit,
     getBottomSheetVisibility: () -> Boolean,
-    onMoveToFolder: (ConversationFoldersNavArgs) -> Unit
+    onMoveToFolder: ((ConversationFoldersNavArgs) -> Unit)?
 ) {
     when (val state = bottomSheetState.bottomSheetContentState) {
         is BottomSheetContent.Conversation -> {

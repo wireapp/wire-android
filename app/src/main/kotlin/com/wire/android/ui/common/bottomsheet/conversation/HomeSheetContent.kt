@@ -60,7 +60,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
     changeFavoriteState: (dialogState: GroupDialogState, addToFavorite: Boolean) -> Unit,
-    moveConversationToFolder: (ConversationFoldersNavArgs) -> Unit,
+    moveConversationToFolder: ((ConversationFoldersNavArgs) -> Unit)?,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
@@ -141,25 +141,27 @@ internal fun ConversationMainSheetContent(
                     }
                 }
             }
-            add {
-                MenuBottomSheetItem(
-                    leading = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_folder,
-                            contentDescription = null,
-                        )
-                    },
-                    title = stringResource(R.string.label_move_to_folder),
-                    onItemClick = {
-                        moveConversationToFolder(
-                            ConversationFoldersNavArgs(
-                                conversationId = conversationSheetContent.conversationId,
-                                conversationName = conversationSheetContent.title,
-                                currentFolderId = conversationSheetContent.folder?.id
+            if (moveConversationToFolder != null) {
+                add {
+                    MenuBottomSheetItem(
+                        leading = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_folder,
+                                contentDescription = null,
                             )
-                        )
-                    }
-                )
+                        },
+                        title = stringResource(R.string.label_move_to_folder),
+                        onItemClick = {
+                            moveConversationToFolder(
+                                ConversationFoldersNavArgs(
+                                    conversationId = conversationSheetContent.conversationId,
+                                    conversationName = conversationSheetContent.title,
+                                    currentFolderId = conversationSheetContent.folder?.id
+                                )
+                            )
+                        }
+                    )
+                }
             }
             add {
                 MenuBottomSheetItem(

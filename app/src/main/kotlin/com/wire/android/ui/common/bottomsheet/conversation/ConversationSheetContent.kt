@@ -40,7 +40,7 @@ fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
     onMutingConversationStatusChange: () -> Unit,
     changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
-    moveConversationToFolder: (ConversationFoldersNavArgs) -> Unit,
+    moveConversationToFolder: ((ConversationFoldersNavArgs) -> Unit)?,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,

@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.kalium.logic.feature.e2ei.CertificateRevocationListCheckWorker
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
+import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
 import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
@@ -37,7 +38,7 @@ import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class AppSyncViewModel @Inject constructor(
-    private val syncCertificateRevocationListUseCase: CertificateRevocationListCheckWorker,
+    private val syncCertificateRevocationListUseCase: SyncCertificateRevocationListUseCase,
     private val observeCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase,
     private val featureFlagsSyncWorker: FeatureFlagsSyncWorker,
     private val updateApiVersions: UpdateApiVersionsUseCase
@@ -74,7 +75,7 @@ class AppSyncViewModel @Inject constructor(
     private suspend fun runSyncTasks() {
         try {
             listOf(
-                viewModelScope.launch { syncCertificateRevocationListUseCase(false) },
+                viewModelScope.launch { syncCertificateRevocationListUseCase() },
                 viewModelScope.launch { featureFlagsSyncWorker.execute() },
                 viewModelScope.launch { observeCertificateRevocationForSelfClient.invoke() },
                 viewModelScope.launch { updateApiVersions() },

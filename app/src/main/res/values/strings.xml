@@ -284,7 +284,6 @@
     <string name="url_how_to_add_favorites" translatable="false">https://support.wire.com/hc/articles/360002855557</string>
     <string name="url_how_to_add_folders" translatable="false">https://support.wire.com/hc/articles/360002855817</string>
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
-    <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
     <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
     <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
     <!-- Navigation -->
@@ -1675,4 +1674,5 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_error_message_slow_network">Wire could not complete your team creation due to a slow internet connection.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
     <string name="reaction_sender_self">You</string>
+    <string name="emoji_picker_select_reaction">Select Reaction</string>
 </resources>

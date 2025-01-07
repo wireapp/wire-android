@@ -17,12 +17,13 @@
  */
 package com.wire.android.ui.emoji
 
-import android.widget.LinearLayout
+import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.emoji2.emojipicker.EmojiPickerView
 import com.google.android.material.bottomsheet.BottomSheetDragHandleView
+import com.wire.android.R
 
 @Composable
 fun EmojiPickerBottomSheet(
@@ -33,21 +34,18 @@ fun EmojiPickerBottomSheet(
     val context = LocalContext.current
     val dialog = remember {
         HandleDraggableBottomSheetDialog(context).apply {
-            setContentView(
-                LinearLayout(context).apply {
-                    orientation = LinearLayout.VERTICAL
-                    val handle = BottomSheetDragHandleView(context)
-                    getBehavior().dragHandle = handle
-                    addView(handle)
-                    addView(
-                        EmojiPickerView(context).apply {
-                            setOnEmojiPickedListener { emojiViewItem ->
-                                onEmojiSelected(emojiViewItem.emoji)
-                            }
-                        }
-                    )
+            setContentView(R.layout.view_emoji_picker).run {
+                findViewById<View>(R.id.emoji_picker_back_button)?.setOnClickListener {
+                    dismiss()
+                    onDismiss.invoke()
                 }
-            )
+                findViewById<EmojiPickerView>(R.id.emoji_picker)?.setOnEmojiPickedListener { emojiViewItem ->
+                    onEmojiSelected(emojiViewItem.emoji)
+                }
+                findViewById<BottomSheetDragHandleView>(R.id.handle)?.let { handle ->
+                    getBehavior().dragHandle = handle
+                }
+            }
             setOnCancelListener { onDismiss.invoke() }
         }
     }

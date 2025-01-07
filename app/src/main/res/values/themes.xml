@@ -24,6 +24,11 @@
         <item name="colorPrimary">@color/background</item>
     </style>
 
+    <style name="EmojiPickerViewStyle" >
+        <item name="colorControlNormal">@color/emoji_picker_icon_color</item>
+        <item name="android:textColorPrimary">@color/emoji_picker_text_color</item>
+    </style>
+
     <!-- This theme is only used as the splash screen -->
     <style name="AppTheme.SplashScreen" parent="Theme.SplashScreen">
         <item name="android:windowLightStatusBar">@bool/is_light_theme</item>

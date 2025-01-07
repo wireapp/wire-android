@@ -18,7 +18,10 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,15 +29,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.res.stringResource
-import com.wire.android.R
+import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.ui.MainBackgroundComponent
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -42,20 +43,22 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.SetStatusBarColorForWavesBackground
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun NewLoginContainer(
+    title: String = "",
     canNavigateBack: Boolean = false,
     onNavigateBack: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    NewLoginContent(canNavigateBack, onNavigateBack, content)
+    NewLoginContent(title, canNavigateBack, onNavigateBack, content)
 }
 
 @Composable
 private fun NewLoginContent(
+    title: String = "",
     canNavigateBack: Boolean,
     onNavigateBack: () -> Unit,
     content: @Composable () -> Unit = { }
@@ -70,21 +73,31 @@ private fun NewLoginContent(
                     .background(colorsScheme().surface)
                     .padding(dimensions().spacing16x)
             ) {
-                if (canNavigateBack) {
-                    IconButton(
-                        onClick = onNavigateBack,
-                        modifier = Modifier.size(dimensions().buttonCircleMinSize)
-                    ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (canNavigateBack) {
                         Icon(
-                            painter = rememberVectorPainter(image = Icons.Filled.ArrowBack),
-                            contentDescription = stringResource(id = R.string.content_description_back_button),
-                            tint = MaterialTheme.wireColorScheme.onBackground,
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = Modifier.clickable(onClick = onNavigateBack)
                         )
                     }
-                } else {
-                    VerticalSpace.x16()
+                    if (title.isBlank().not()) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.wireTypography.body01,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(dimensions().spacing8x))
                 }
-                content()
+                Column {
+                    VerticalSpace.x16()
+                    content()
+                }
             }
         }) { _ ->
         Column {
@@ -96,5 +109,5 @@ private fun NewLoginContent(
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginContent() = WireTheme {
-    NewLoginContent(true, {}) { Text(text = "EMPTY") }
+    NewLoginContent("Enter your password to log in", true, {}) { Text(text = "EMPTY") }
 }

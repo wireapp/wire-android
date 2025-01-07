@@ -25,11 +25,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -76,7 +73,11 @@ fun LoginScreen(
     loginNavArgs: LoginNavArgs,
     loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 ) {
-    NewLoginContainer(canNavigateBack = true, onNavigateBack = navigator::navigateBack) {
+    NewLoginContainer(
+        title = stringResource(id = R.string.enterprise_login_title),
+        canNavigateBack = true,
+        onNavigateBack = navigator::navigateBack
+    ) {
         LoginContent(
             onBackPressed = navigator::navigateBack,
             onSuccess = { initialSyncCompleted, isE2EIRequired ->

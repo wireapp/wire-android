@@ -16,14 +16,11 @@
 package com.wire.android.ui.emoji
 
 import android.content.Context
-import android.os.Build
-import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.annotation.StyleRes
@@ -84,21 +81,7 @@ class HandleDraggableBottomSheetDialog : AppCompatDialog {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val window = window
-        if (window != null) {
-            if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-                // The status bar should always be transparent because of the window animation.
-                window.statusBarColor = 0
-
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                if (Build.VERSION.SDK_INT < VERSION_CODES.M) {
-                    // It can be transparent for API 23 and above because we will handle switching the status
-                    // bar icons to light or dark as appropriate. For API 21 and API 22 we just set the
-                    // translucent status bar.
-                    window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                }
-            }
-            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        }
+        window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
     }
 
     override fun setContentView(view: View) {
@@ -268,19 +251,6 @@ class HandleDraggableBottomSheetDialog : AppCompatDialog {
                 }
             }
             return themeId
-        }
-
-        @Deprecated("use {@link EdgeToEdgeUtils#setLightStatusBar(Window, boolean)} instead")
-        fun setLightStatusBar(view: View, isLight: Boolean) {
-            if (Build.VERSION.SDK_INT >= VERSION_CODES.M) {
-                var flags = view.systemUiVisibility
-                flags = if (isLight) {
-                    flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                } else {
-                    flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-                }
-                view.systemUiVisibility = flags
-            }
         }
     }
 }

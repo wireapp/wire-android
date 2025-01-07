@@ -33,10 +33,10 @@ import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -84,37 +84,43 @@ class CommonTopAppBarViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             coreLogic.globalScope {
-                session.currentSessionFlow().flatMapLatest {
-                    when (it) {
-                        is CurrentSessionResult.Failure.Generic,
-                        is CurrentSessionResult.Failure.SessionNotFound -> flowOf(
-                            ConnectivityUIState.None
-                        )
+                session.currentSessionFlow()
+                    .flatMapLatest {
+                        when (it) {
+                            is CurrentSessionResult.Failure.Generic,
+                            is CurrentSessionResult.Failure.SessionNotFound -> flowOf(
+                                ConnectivityUIState.None
+                            )
 
-                        is CurrentSessionResult.Success -> {
-                            val userId = it.accountInfo.userId
-                            combine(
-                                activeCallsFlow(userId),
-                                currentScreenFlow(),
-                                connectivityFlow(userId),
-                            ) { activeCalls, currentScreen, connectivity ->
-                                mapToConnectivityUIState(currentScreen, connectivity, activeCalls)
+                            is CurrentSessionResult.Success -> {
+                                val userId = it.accountInfo.userId
+                                combine(
+                                    activeCallsFlow(userId),
+                                    currentScreenFlow(),
+                                    connectivityFlow(userId),
+                                ) { activeCalls, currentScreen, connectivity ->
+                                    mapToConnectivityUIState(currentScreen, connectivity, activeCalls)
+                                }
                             }
                         }
                     }
-                }.collectLatest { connectivityUIState ->
-                    /**
-                     * Adding some delay here to avoid some bad UX : ongoing call banner displayed and
-                     * hided in a short time when the user hangs up the call
-                     * Call events could take some time to be received and this function
-                     * could be called when the screen is changed, so we delayed
-                     * showing the banner until getting the correct calling values
-                     */
-                    if (connectivityUIState is ConnectivityUIState.Calls && connectivityUIState.hasOngoingCall) {
-                        delay(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)
+                    .debounce { connectivityUIState ->
+                        /**
+                         * Adding some debounce here to avoid some bad UX and prevent from having blinking effect when the state changes
+                         * quickly, e.g. when displaying ongoing call banner and hiding it in a short time when the user hangs up the call.
+                         * Call events could take some time to be received and this function could be called when the screen is changed,
+                         * so we delayed showing the banner until getting the correct calling values and for calls this debounce is bigger
+                         * than for other states in order to allow for the correct handling of hanging up a call.
+                         */
+                        if (connectivityUIState is ConnectivityUIState.Calls && connectivityUIState.hasOngoingCall) {
+                            CONNECTIVITY_STATE_DEBOUNCE_ONGOING_CALL
+                        } else {
+                            CONNECTIVITY_STATE_DEBOUNCE_DEFAULT
+                        }
                     }
-                    state = state.copy(connectivityState = connectivityUIState)
-                }
+                    .collectLatest { connectivityUIState ->
+                        state = state.copy(connectivityState = connectivityUIState)
+                    }
             }
             coreLogic.networkStateObserver.observeNetworkState().collectLatest {
                 state = state.copy(networkState = it)
@@ -160,6 +166,7 @@ class CommonTopAppBarViewModel @Inject constructor(
     }
 
     private companion object {
-        const val WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER = 600L
+        const val CONNECTIVITY_STATE_DEBOUNCE_ONGOING_CALL = 600L
+        const val CONNECTIVITY_STATE_DEBOUNCE_DEFAULT = 200L
     }
 }

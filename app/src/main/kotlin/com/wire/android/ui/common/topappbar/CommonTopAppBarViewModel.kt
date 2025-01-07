@@ -115,18 +115,19 @@ class CommonTopAppBarViewModel @Inject constructor(
                             }
                         }
                     }
-                    .debounce { connectivityUIState ->
+                    .debounce { state ->
                         /**
                          * Adding some debounce here to avoid some bad UX and prevent from having blinking effect when the state changes
                          * quickly, e.g. when displaying ongoing call banner and hiding it in a short time when the user hangs up the call.
                          * Call events could take some time to be received and this function could be called when the screen is changed,
                          * so we delayed showing the banner until getting the correct calling values and for calls this debounce is bigger
                          * than for other states in order to allow for the correct handling of hanging up a call.
+                         * When state changes to None, handle it immediately, that's why we return 0L debounce time in this case.
                          */
-                        if (connectivityUIState is ConnectivityUIState.Calls && connectivityUIState.hasOngoingCall) {
-                            CONNECTIVITY_STATE_DEBOUNCE_ONGOING_CALL
-                        } else {
-                            CONNECTIVITY_STATE_DEBOUNCE_DEFAULT
+                        when {
+                            state is ConnectivityUIState.None -> 0L
+                            state is ConnectivityUIState.Calls && state.hasOngoingCall -> CONNECTIVITY_STATE_DEBOUNCE_ONGOING_CALL
+                            else -> CONNECTIVITY_STATE_DEBOUNCE_DEFAULT
                         }
                     }
                     .collectLatest { connectivityUIState ->

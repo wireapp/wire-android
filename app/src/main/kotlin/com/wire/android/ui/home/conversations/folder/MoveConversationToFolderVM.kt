@@ -72,13 +72,14 @@ class MoveConversationToFolderVMImpl @AssistedInject constructor(
     override fun moveConversationToFolder(folder: ConversationFolder) {
         viewModelScope.launch {
             state = state.copy(isPerformingAction = true)
-            when (withContext(dispatchers.io()) {
+            val result = withContext(dispatchers.io()) {
                 moveConversationToFolder.invoke(
                     args.conversationId,
                     folder.id,
                     args.currentFolderId
                 )
-            }) {
+            }
+            when (result) {
                 is MoveConversationToFolderUseCase.Result.Failure -> _infoMessage.emit(
                     UIText.StringResource(
                         R.string.move_to_folder_failed,
@@ -97,7 +98,6 @@ class MoveConversationToFolderVMImpl @AssistedInject constructor(
             state = state.copy(isPerformingAction = false)
         }
     }
-
 }
 
 data class MoveConversationToFolderState(
@@ -116,4 +116,3 @@ data class MoveConversationToFolderArgs(
         const val ARGS_KEY = "MoveConversationToFolderArgsKey"
     }
 }
-

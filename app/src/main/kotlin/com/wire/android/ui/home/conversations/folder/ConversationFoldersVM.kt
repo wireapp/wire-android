@@ -25,7 +25,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
 import dagger.assisted.Assisted
@@ -37,7 +36,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface ConversationFoldersVM {

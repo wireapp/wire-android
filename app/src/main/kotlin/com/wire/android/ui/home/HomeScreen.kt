@@ -109,14 +109,16 @@ fun HomeScreen(
     navigator: Navigator,
     groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
-    conversationFoldersScreenResultRecipient: ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
+    conversationFoldersScreenResultRecipient:
+    ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
     homeViewModel: HomeViewModel = hiltViewModel(),
     appSyncViewModel: AppSyncViewModel = hiltViewModel(),
     homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
     analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
-    foldersViewModel: ConversationFoldersVM = hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
-        creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
-    )
+    foldersViewModel: ConversationFoldersVM =
+        hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
+            creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
+        )
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
     val context = LocalContext.current
@@ -239,7 +241,7 @@ fun HomeScreen(
     }
 
     conversationFoldersScreenResultRecipient.onNavResult { result ->
-        when(result) {
+        when (result) {
             NavResult.Canceled -> {}
             is NavResult.Value -> {
                 coroutineScope.launch {

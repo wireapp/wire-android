@@ -23,7 +23,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.FolderNavArgs
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs

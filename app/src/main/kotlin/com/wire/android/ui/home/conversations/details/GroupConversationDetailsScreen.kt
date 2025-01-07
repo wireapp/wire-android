@@ -478,9 +478,7 @@ private fun GroupConversationDetailsContent(
                     }
                 },
                 changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
-                moveConversationToFolder = {
-
-                },
+                moveConversationToFolder = onMoveToFolder,
                 updateConversationArchiveStatus = {
                     // Only show the confirmation dialog if the conversation is not archived
                     if (!it.isArchived) {

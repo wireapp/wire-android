@@ -89,18 +89,22 @@ private fun Content(
     args: ConversationFoldersNavArgs,
     onNavigationPressed: () -> Unit = {},
     onMoveToFolderMessage: (String) -> Unit = {},
-    foldersViewModel: ConversationFoldersVM = hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
-        creationCallback = { it.create(ConversationFoldersStateArgs(args.currentFolderId)) }
-    ),
-    moveConversationToFolderVM: MoveConversationToFolderVM = hiltViewModel<MoveConversationToFolderVMImpl, MoveConversationToFolderVMImpl.Factory>(
-        creationCallback = { it.create(MoveConversationToFolderArgs(args.conversationId, args.conversationName, args.currentFolderId)) }
-    )
+    foldersViewModel: ConversationFoldersVM =
+        hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
+            creationCallback = { it.create(ConversationFoldersStateArgs(args.currentFolderId)) }
+        ),
+    moveToFolderVM: MoveConversationToFolderVM =
+        hiltViewModel<MoveConversationToFolderVMImpl, MoveConversationToFolderVMImpl.Factory>(
+            creationCallback = {
+                it.create(MoveConversationToFolderArgs(args.conversationId, args.conversationName, args.currentFolderId))
+            }
+        )
 ) {
     val resources = LocalContext.current.resources
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        moveConversationToFolderVM.infoMessage.collect {
+        moveToFolderVM.infoMessage.collect {
             onMoveToFolderMessage(it.asString(resources))
         }
     }
@@ -143,7 +147,7 @@ private fun Content(
                     state = state,
                     text = stringResource(id = R.string.label_done),
                     onClick = {
-                        moveConversationToFolderVM.moveConversationToFolder(
+                        moveToFolderVM.moveConversationToFolder(
                             foldersViewModel.state().folders.first { it.id == foldersViewModel.state().selectedFolderId!! }
                         )
                     }

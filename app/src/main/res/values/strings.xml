@@ -1674,4 +1674,5 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_error_message_slow_network">Wire could not complete your team creation due to a slow internet connection.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
     <string name="reaction_sender_self">You</string>
+    <string name="emoji_picker_select_reaction">Select Reaction</string>
 </resources>

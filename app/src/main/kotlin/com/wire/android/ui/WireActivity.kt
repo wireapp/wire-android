@@ -262,7 +262,7 @@ class WireActivity : AppCompatActivity() {
     @Composable
     private fun WireTopAppBar(
         commonTopAppBarState: CommonTopAppBarState,
-        modifier:  Modifier = Modifier,
+        modifier: Modifier = Modifier,
     ) {
         CommonTopAppBar(
             modifier = modifier,

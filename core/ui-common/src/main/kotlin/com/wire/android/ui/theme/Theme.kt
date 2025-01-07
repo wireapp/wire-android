@@ -27,7 +27,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalInspectionMode
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 
 @Composable
@@ -39,7 +38,6 @@ fun WireTheme(
     content: @Composable () -> Unit
 ) {
     val isPreview = LocalInspectionMode.current
-    val systemUiController = rememberSystemUiController()
     @Suppress("SpreadOperator")
     CompositionLocalProvider(
         LocalWireColors provides wireColorScheme,

@@ -36,7 +36,7 @@ import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.StartLoginScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -46,6 +46,7 @@ import kotlinx.coroutines.delay
 @RootNavGraph(start = true)
 @WireDestination(
     style = PopUpNavigationAnimation::class,
+    navArgsDelegate = WelcomeScreenNavArgs::class,
 )
 @Composable
 fun WelcomeScreen(
@@ -84,10 +85,13 @@ private fun WelcomeContent(
 
     LaunchedEffect(Unit) {
         if (state.maxAccountsReached.not()) {
-            delay(1_000) // small delay to resolve
             when (state.startLoginDestination) {
-                StartLoginDestination.Default -> navigate(NavigationCommand(LoginScreenDestination()))
-                StartLoginDestination.CustomBackend -> navigate(NavigationCommand(LoginScreenDestination())) // todo pass parameter from deeplink processor
+                StartLoginDestination.Default -> {
+                    delay(1_000) // small delay to resolve
+                    navigate(NavigationCommand(StartLoginScreenDestination))
+                }
+
+                StartLoginDestination.CustomBackend -> navigate(NavigationCommand(StartLoginScreenDestination())) // todo pass parameter from deeplink processor
             }
         }
     }

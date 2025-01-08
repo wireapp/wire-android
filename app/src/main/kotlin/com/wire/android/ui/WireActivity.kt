@@ -67,6 +67,7 @@ import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.authentication.welcome.WelcomeScreenNavArgs
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
@@ -520,7 +521,7 @@ class WireActivity : AppCompatActivity() {
                     viewModel::dismissCustomBackendDialog,
                     onConfirm = {
                         viewModel.customBackendDialogProceedButtonClicked {
-                            navigate(NavigationCommand(WelcomeScreenDestination))
+                            navigate(NavigationCommand(WelcomeScreenDestination(WelcomeScreenNavArgs(isCustomBackend = true))))
                         }
                     },
                     onTryAgain = viewModel::onCustomServerConfig

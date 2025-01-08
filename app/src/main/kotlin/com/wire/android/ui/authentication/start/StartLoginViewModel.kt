@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.authentication.welcome
+package com.wire.android.ui.authentication.start
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,18 +34,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class WelcomeViewModel @Inject constructor(
+class StartLoginViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
-    private val getSessions: GetSessionsUseCase,
+    private val getSessions: GetSessionsUseCase
 ) : ViewModel() {
 
-    var state by mutableStateOf(WelcomeScreenState(ServerConfig.DEFAULT))
+    var state by mutableStateOf(StartLoginScreenState(ServerConfig.DEFAULT))
         private set
 
     init {
         observerAuthServer()
         checkNumberOfSessions()
-        resolveNavigationToStartLogin()
     }
 
     private fun observerAuthServer() {
@@ -73,14 +72,6 @@ class WelcomeViewModel @Inject constructor(
                     }
                 }
             }
-        }
-    }
-
-    private fun resolveNavigationToStartLogin() {
-        if (state.links == ServerConfig.DEFAULT) {
-            state = state.copy(startLoginDestination = StartLoginDestination.Default)
-        } else {
-            state = state.copy(startLoginDestination = StartLoginDestination.CustomBackend)
         }
     }
 }

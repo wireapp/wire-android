@@ -106,7 +106,7 @@ private fun LoginContent(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxHeight(0.7f)
+            .fillMaxHeight(0.6f)
             .fillMaxWidth()
     ) {
         /*

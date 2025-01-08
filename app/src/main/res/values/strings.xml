@@ -358,6 +358,7 @@
     <string name="migration_cancel_title">Cancel migration</string>
     <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Enterprise Login -->
+    <string name="enterprise_login_welcome">Enter your email to start!</string>
     <string name="enterprise_login_title">Enter your password to log in</string>
     <!-- Login -->
     <string name="login_title">Log in</string>

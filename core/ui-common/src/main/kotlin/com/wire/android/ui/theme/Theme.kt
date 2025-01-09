@@ -24,11 +24,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalInspectionMode
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 
 @Composable
@@ -40,7 +38,6 @@ fun WireTheme(
     content: @Composable () -> Unit
 ) {
     val isPreview = LocalInspectionMode.current
-    val systemUiController = rememberSystemUiController()
     @Suppress("SpreadOperator")
     CompositionLocalProvider(
         LocalWireColors provides wireColorScheme,
@@ -61,9 +58,7 @@ fun WireTheme(
             typography = wireTypography.toTypography()
         ) {
             if (!isPreview) {
-                val backgroundColor = MaterialTheme.wireColorScheme.background
-                val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
-                SideEffect { systemUiController.setSystemBarsColor(color = backgroundColor, darkIcons = darkIcons) }
+                updateSystemBarIconsAppearance(wireColorScheme.useDarkSystemBarIcons)
             }
             content()
         }

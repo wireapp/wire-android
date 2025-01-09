@@ -21,8 +21,6 @@
 
     <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
         <item name="android:windowBackground">@color/background</item>
-        <item name="android:statusBarColor">@color/background</item>
-        <item name="android:navigationBarColor">@color/background</item>
         <item name="colorPrimary">@color/background</item>
     </style>
 
@@ -33,8 +31,6 @@
 
     <!-- This theme is only used as the splash screen -->
     <style name="AppTheme.SplashScreen" parent="Theme.SplashScreen">
-        <item name="android:statusBarColor">@color/background</item>
-        <item name="android:navigationBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">@bool/is_light_theme</item>
         <item name="android:windowLightNavigationBar" tools:ignore="NewApi">@bool/is_light_theme
         </item>

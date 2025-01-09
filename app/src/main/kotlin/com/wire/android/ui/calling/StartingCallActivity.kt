@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarHostState
@@ -33,7 +34,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.LocalActivity
@@ -87,7 +87,7 @@ class StartingCallActivity : CallActivity() {
         setUpScreenshotPreventionFlag()
         setUpCallingFlags()
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
 
         handleNewIntent(intent)
 

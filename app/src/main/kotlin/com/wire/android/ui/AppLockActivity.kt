@@ -19,12 +19,12 @@ package com.wire.android.ui
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.rememberNavigator
@@ -39,7 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class AppLockActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
             CompositionLocalProvider(

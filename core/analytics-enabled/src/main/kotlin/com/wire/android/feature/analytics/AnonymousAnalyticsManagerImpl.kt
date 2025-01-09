@@ -43,7 +43,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     private lateinit var coroutineScope: CoroutineScope
 
     // TODO: Sync with product, when we want to enable view tracking, var for testing purposes
-    internal var VIEW_TRACKING_ENABLED: Boolean = true
+    internal var VIEW_TRACKING_ENABLED: Boolean = false
 
     override fun <T> init(
         context: Context,

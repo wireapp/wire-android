@@ -120,7 +120,9 @@ fun PreviewTopBar() {
 fun PreviewTopBarWithSelectedFilter() {
     WireTheme {
         HomeTopBar(
-            navigationItem = HomeDestination.Group,
+            title = "Conversations",
+            currentFilter = ConversationFilter.Groups,
+            navigationItem = HomeDestination.Conversations,
             userAvatarData = UserAvatarData(
                 asset = null,
                 availabilityStatus = UserAvailabilityStatus.AVAILABLE,

@@ -47,6 +47,7 @@ fun ConversationSheetContent(
     unblockUser: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
+    deleteGroupLocally: (GroupDialogState) -> Unit,
     isBottomSheetVisible: () -> Boolean = { true }
 ) {
     // it may be null as initial state
@@ -64,6 +65,7 @@ fun ConversationSheetContent(
                 unblockUserClick = unblockUser,
                 leaveGroup = leaveGroup,
                 deleteGroup = deleteGroup,
+                deleteGroupLocally = deleteGroupLocally,
                 navigateToNotification = conversationSheetState::toMutingNotificationOption
             )
         }
@@ -127,7 +129,8 @@ data class ConversationSheetContent(
     val proteusVerificationStatus: Conversation.VerificationStatus,
     val isUnderLegalHold: Boolean,
     val isFavorite: Boolean?,
-    val folder: ConversationFolder?
+    val folder: ConversationFolder?,
+    val isDeletingConversationLocallyRunning: Boolean
 ) {
 
     private val isSelfUserMember: Boolean get() = selfRole != null
@@ -145,6 +148,8 @@ data class ConversationSheetContent(
     }
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
+
+    fun canDeleteGroupLocally(): Boolean = !isSelfUserMember && !isDeletingConversationLocallyRunning
 
     fun canBlockUser(): Boolean {
        return conversationTypeDetail is ConversationTypeDetail.Private

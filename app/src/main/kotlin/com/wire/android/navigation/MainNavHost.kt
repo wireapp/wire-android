@@ -21,6 +21,7 @@ package com.wire.android.navigation
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
@@ -44,6 +45,7 @@ import com.wire.android.ui.home.newconversation.NewConversationViewModel
 fun MainNavHost(
     navigator: Navigator,
     startDestination: Route,
+    modifier: Modifier = Modifier,
 ) {
     val navHostEngine = rememberAnimatedNavHostEngine(
         rootDefaultAnimations = DefaultRootNavGraphAnimations,
@@ -55,6 +57,7 @@ fun MainNavHost(
     )
 
     DestinationsNavHost(
+        modifier = modifier,
         navGraph = WireMainNavGraph,
         engine = navHostEngine,
         startRoute = startDestination,

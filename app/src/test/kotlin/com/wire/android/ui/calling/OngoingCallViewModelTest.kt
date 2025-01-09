@@ -21,11 +21,14 @@ package com.wire.android.ui.calling
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.ui.calling.OngoingCallViewModelTest.Arrangement
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
+import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -170,6 +173,72 @@ class OngoingCallViewModelTest {
             }
         }
 
+    @Test
+    fun givenAUserIsSelected_whenRequestedFullScreen_thenSetTheUserAsSelected() =
+        runTest {
+            val (_, ongoingCallViewModel) = Arrangement()
+                .withCall(provideCall().copy(isCameraOn = true))
+                .withShouldShowDoubleTapToastReturning(false)
+                .withSetVideoSendState()
+                .arrange()
+
+            ongoingCallViewModel.onSelectedParticipant(selectedParticipant3)
+
+            assertEquals(selectedParticipant3, ongoingCallViewModel.selectedParticipant)
+        }
+
+    @Test
+    fun givenParticipantsList_WhenRequestingVideoStreamForFullScreenParticipant_ThenRequestItInHighQuality() =
+        runTest {
+            val expectedClients = listOf(
+                CallClient(participant1.id.toString(), participant1.clientId, false, CallQuality.LOW),
+                CallClient(participant3.id.toString(), participant3.clientId, false, CallQuality.HIGH)
+            )
+
+            val (arrangement, ongoingCallViewModel) = Arrangement()
+                .withCall(provideCall())
+                .withShouldShowDoubleTapToastReturning(false)
+                .withSetVideoSendState()
+                .withRequestVideoStreams(conversationId, expectedClients)
+                .arrange()
+
+            ongoingCallViewModel.onSelectedParticipant(selectedParticipant3)
+            ongoingCallViewModel.requestVideoStreams(participants)
+
+            coVerify(exactly = 1) {
+                arrangement.requestVideoStreams(
+                    conversationId,
+                    expectedClients
+                )
+            }
+        }
+
+    @Test
+    fun givenParticipantsList_WhenRequestingVideoStreamForAllParticipant_ThenRequestItInLowQuality() =
+        runTest {
+            val expectedClients = listOf(
+                CallClient(participant1.id.toString(), participant1.clientId, false, CallQuality.LOW),
+                CallClient(participant3.id.toString(), participant3.clientId, false, CallQuality.LOW)
+            )
+
+            val (arrangement, ongoingCallViewModel) = Arrangement()
+                .withCall(provideCall())
+                .withShouldShowDoubleTapToastReturning(false)
+                .withSetVideoSendState()
+                .withRequestVideoStreams(conversationId, expectedClients)
+                .arrange()
+
+            ongoingCallViewModel.onSelectedParticipant(SelectedParticipant())
+            ongoingCallViewModel.requestVideoStreams(participants)
+
+            coVerify(exactly = 1) {
+                arrangement.requestVideoStreams(
+                    conversationId,
+                    expectedClients
+                )
+            }
+        }
+
     private class Arrangement {
 
         @MockK
@@ -234,6 +303,7 @@ class OngoingCallViewModelTest {
         private val participant1 = UICallParticipant(
             id = QualifiedID("value1", "domain"),
             clientId = "client-id1",
+            isSelfUser = false,
             name = "name1",
             isMuted = false,
             isSpeaking = false,
@@ -246,6 +316,7 @@ class OngoingCallViewModelTest {
         private val participant2 = UICallParticipant(
             id = QualifiedID("value2", "domain"),
             clientId = "client-id2",
+            isSelfUser = false,
             name = "name2",
             isMuted = false,
             isSpeaking = false,
@@ -258,6 +329,7 @@ class OngoingCallViewModelTest {
         private val participant3 = UICallParticipant(
             id = QualifiedID("value3", "domain"),
             clientId = "client-id3",
+            isSelfUser = false,
             name = "name3",
             isMuted = false,
             isSpeaking = false,
@@ -268,6 +340,7 @@ class OngoingCallViewModelTest {
             accentId = -1
         )
         val participants = listOf(participant1, participant2, participant3)
+        val selectedParticipant3 = SelectedParticipant(participant3.id, participant3.clientId, false)
     }
 
     private fun provideCall(

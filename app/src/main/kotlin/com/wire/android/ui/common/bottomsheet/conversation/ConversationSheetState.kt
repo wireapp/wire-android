@@ -59,7 +59,8 @@ class ConversationSheetState(
 @Composable
 fun rememberConversationSheetState(
     conversationItem: ConversationItem,
-    conversationOptionNavigation: ConversationOptionNavigation
+    conversationOptionNavigation: ConversationOptionNavigation,
+    isConversationDeletionLocallyRunning: Boolean
 ): ConversationSheetState {
     val conversationSheetContent: ConversationSheetContent = when (conversationItem) {
         is ConversationItem.GroupConversation -> {
@@ -80,7 +81,8 @@ fun rememberConversationSheetState(
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
                     isFavorite = isFavorite,
-                    folder = folder
+                    folder = folder,
+                    isDeletingConversationLocallyRunning = isConversationDeletionLocallyRunning
                 )
             }
         }
@@ -107,7 +109,8 @@ fun rememberConversationSheetState(
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
                     isFavorite = isFavorite,
-                    folder = folder
+                    folder = folder,
+                    isDeletingConversationLocallyRunning = false
                 )
             }
         }
@@ -129,13 +132,14 @@ fun rememberConversationSheetState(
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
                     isFavorite = null,
-                    folder = null
+                    folder = null,
+                    isDeletingConversationLocallyRunning = false
                 )
             }
         }
     }
 
-    return remember(conversationItem, conversationOptionNavigation) {
+    return remember(conversationItem, conversationOptionNavigation, isConversationDeletionLocallyRunning) {
         ConversationSheetState(
             conversationSheetContent = conversationSheetContent,
             conversationOptionNavigation = conversationOptionNavigation

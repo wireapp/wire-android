@@ -43,7 +43,7 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,12 +55,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -69,11 +77,9 @@ import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversa
 import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.textfield.mention.MentionUpdateCoordinator
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.messagecomposer.model.update
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
@@ -207,19 +213,7 @@ fun EnabledMessageComposer(
                         ActiveMessageComposerInput(
                             conversationId = conversationId,
                             messageComposition = messageComposition.value,
-                            messageTextFieldValue = inputStateHolder.messageTextFieldValue,
-                            onValueChange = { newTextField ->
-                                val updatedTextField = MentionUpdateCoordinator().handle(
-                                    inputStateHolder.messageTextFieldValue.value,
-                                    newTextField,
-                                    messageComposition.value.selectedMentions,
-                                    updateMentions = { mentions ->
-                                        messageComposition.update { it.copy(selectedMentions = mentions) }
-                                    }
-                                )
-                                inputStateHolder.messageTextFieldValue.value = updatedTextField
-                            },
-                            mentions = messageComposition.value.selectedMentions,
+                            messageTextState = inputStateHolder.messageTextState,
                             isTextExpanded = inputStateHolder.isTextExpanded,
                             inputType = messageCompositionInputStateHolder.inputType,
                             focusRequester = messageCompositionInputStateHolder.focusRequester,
@@ -340,11 +334,12 @@ fun EnabledMessageComposer(
                         showAttachments(false)
                     }
                 ) {
-                    val rippleColor = colorsScheme().surface
-                    val shape = if (isImeVisible) {
-                        RectangleShape
-                    } else {
-                        RoundedCornerShape(dimensions().corner14x)
+                    val rippleColor = colorsScheme().surfaceContainerLowest
+                    val borderColor = colorsScheme().divider
+                    val borderWidthPx = if (isImeVisible) 0f else dimensions().spacing1x.toPx(density)
+                    val cornerRadiusPx = if (isImeVisible) 0f else dimensions().corner14x.toPx(density)
+                    val shape = GenericShape { size, _ ->
+                        addPath(calculateOptionsPath(cornerRadiusPx, rippleProgress.value, isImeVisible, size))
                     }
 
                     Box(
@@ -365,21 +360,22 @@ fun EnabledMessageComposer(
                             .clip(shape)
                             .drawBehind {
                                 if (!hideRipple || rippleProgress.value > 0f) {
-                                    val maxRadius = size.getDistanceToCorner(Offset(0f, 0f))
-                                    val currentRadius = maxRadius * rippleProgress.value
-
-                                    drawCircle(
-                                        color = rippleColor,
-                                        radius = currentRadius,
-                                        center = Offset(
-                                            0f,
-                                            if (isImeVisible) {
-                                                0f
-                                            } else {
-                                                size.height
-                                            }
+                                    calculateOptionsPath(cornerRadiusPx, rippleProgress.value, isImeVisible, size).let {
+                                        drawPath(
+                                            path = it,
+                                            color = rippleColor,
+                                            style = Fill
                                         )
-                                    )
+                                        if (borderWidthPx > 0f) {
+                                            drawPath(
+                                                path = it,
+                                                color = borderColor,
+                                                style = Stroke(
+                                                    width = borderWidthPx * 2f // double to make inner stroke, outer half is clipped anyway
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
                             }
 
@@ -416,7 +412,30 @@ fun EnabledMessageComposer(
     }
 }
 
-fun Size.getDistanceToCorner(corner: Offset): Float {
+private fun Size.getDistanceToCorner(corner: Offset): Float {
     val cornerOffset = Offset(width - corner.x, height - corner.y)
     return cornerOffset.getDistance()
 }
+
+private fun calculateOptionsPath(cornerRadiusPx: Float, rippleProgress: Float, isImeVisible: Boolean, size: Size): Path {
+    val ripplePath = Path()
+    ripplePath.addOval(
+        oval = Rect(
+            center = Offset(
+                x = 0f,
+                y = if (isImeVisible) 0f else size.height
+            ),
+            radius = rippleProgress * size.getDistanceToCorner(Offset(0f, 0f))
+        )
+    )
+    val shapePath = Path()
+    shapePath.addRoundRect(
+        roundRect = RoundRect(
+            rect = size.toRect(),
+            cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)
+        )
+    )
+    return ripplePath.and(shapePath)
+}
+
+private fun Dp.toPx(density: Density) = with(density) { toPx() }

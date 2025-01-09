@@ -163,7 +163,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
                     isUnderLegalHold = groupDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
                     isFavorite = groupDetails.isFavorite,
-                    folder = groupDetails.folder
+                    folder = groupDetails.folder,
+                    isDeletingConversationLocallyRunning = false
                 )
 
                 updateState(

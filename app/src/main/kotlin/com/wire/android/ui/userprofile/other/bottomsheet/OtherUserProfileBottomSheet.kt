@@ -67,7 +67,8 @@ fun OtherUserProfileBottomSheetContent(
                 blockUser = blockUser,
                 unblockUser = unblockUser,
                 leaveGroup = { },
-                deleteGroup = { }
+                deleteGroup = { },
+                deleteGroupLocally = { }
             )
         }
 

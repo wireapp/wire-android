@@ -418,7 +418,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     proteusVerificationStatus = conversation.proteusVerificationStatus,
                     isUnderLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
                     isFavorite = null, // TODO check if we need to pass isFavorite
-                    folder = null // TODO check if we need to pass folder
+                    folder = null, // TODO check if we need to pass folder
+                    isDeletingConversationLocallyRunning = false
                 )
             }
         )

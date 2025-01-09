@@ -26,6 +26,7 @@ import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.util.Rational
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarHostState
@@ -38,7 +39,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.core.view.WindowCompat
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
@@ -90,7 +90,7 @@ class OngoingCallActivity : CallActivity() {
         setUpScreenshotPreventionFlag()
         setUpCallingFlags()
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
 
         handleNewIntent(intent)
 

@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.R
@@ -64,6 +65,7 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupLocallyDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -274,6 +276,15 @@ fun ConversationsScreenContent(
             onDeleteGroup = conversationListViewModel::deleteGroup
         )
 
+        DeleteConversationGroupLocallyDialog(
+            isLoading = requestInProgress,
+            dialogState = deleteGroupLocallyDialogState,
+            onDeleteGroupLocally = { state ->
+                conversationListViewModel.deleteGroupLocally(state)
+                deleteGroupLocallyDialogState.dismiss()
+            }
+        )
+
         LeaveConversationGroupDialog(
             dialogState = leaveGroupDialogState,
             isLoading = requestInProgress,
@@ -300,9 +311,12 @@ fun ConversationsScreenContent(
         WireModalSheetLayout(
             sheetState = sheetState,
             sheetContent = {
+                val conversationDeletionInProgress by conversationListViewModel.observeIsDeletingConversationLocally(it.conversationId)
+                    .collectAsStateWithLifecycle(false)
                 val conversationState = rememberConversationSheetState(
                     conversationItem = it,
-                    conversationOptionNavigation = currentConversationOptionNavigation
+                    conversationOptionNavigation = currentConversationOptionNavigation,
+                    isConversationDeletionLocallyRunning = conversationDeletionInProgress
                 )
 
                 ConversationSheetContent(
@@ -323,6 +337,7 @@ fun ConversationsScreenContent(
                     unblockUser = unblockUserDialogState::show,
                     leaveGroup = leaveGroupDialogState::show,
                     deleteGroup = deleteGroupDialogState::show,
+                    deleteGroupLocally = deleteGroupLocallyDialogState::show
                 )
             },
         )

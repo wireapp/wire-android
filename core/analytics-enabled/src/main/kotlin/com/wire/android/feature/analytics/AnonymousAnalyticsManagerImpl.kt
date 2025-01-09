@@ -43,7 +43,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     private lateinit var coroutineScope: CoroutineScope
 
     // TODO: Sync with product, when we want to enable view tracking, var for testing purposes
-    internal var VIEW_TRACKING_ENABLED: Boolean = false
+    internal var VIEW_TRACKING_ENABLED: Boolean = true
 
     override fun <T> init(
         context: Context,
@@ -182,7 +182,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock
-                anonymousAnalyticsRecorder?.recordView(screen)
+                anonymousAnalyticsRecorder?.recordView(screen.convertToCamelCase())
             }
         }
     }
@@ -195,7 +195,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock
-                anonymousAnalyticsRecorder?.stopView(screen)
+                anonymousAnalyticsRecorder?.stopView(screen.convertToCamelCase())
             }
         }
     }

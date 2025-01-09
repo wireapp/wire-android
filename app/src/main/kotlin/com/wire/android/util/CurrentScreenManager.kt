@@ -123,8 +123,10 @@ class CurrentScreenManager @Inject constructor(
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-        val currentView = currentScreenState.value.toString()
-        AnonymousAnalyticsManagerImpl.stopView(currentView)
+        val currentView = currentScreenState.value
+        handleViewAction(currentView) { screenName ->
+            AnonymousAnalyticsManagerImpl.stopView(screenName)
+        }
         val currentItem = destination.toDestination()
         currentScreenState.value = CurrentScreen.fromDestination(
             currentItem,
@@ -132,8 +134,15 @@ class CurrentScreenManager @Inject constructor(
             isApplicationVisibleFlow.value
         )
 
-        val newView = currentScreenState.value.toString()
-        AnonymousAnalyticsManagerImpl.recordView(newView)
+        val newView = currentScreenState.value
+        handleViewAction(newView) { screenName ->
+            AnonymousAnalyticsManagerImpl.recordView(screenName)
+        }
+    }
+
+    private fun handleViewAction(screen: CurrentScreen, action: (String) -> Unit) {
+        val screenName = (screen as? CurrentScreen.SomeOther)?.route ?: screen.javaClass.simpleName
+        action(screenName)
     }
 
     override fun onCreate(owner: LifecycleOwner) {

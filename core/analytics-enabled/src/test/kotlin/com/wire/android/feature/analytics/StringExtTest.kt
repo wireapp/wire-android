@@ -23,27 +23,27 @@ import org.junit.Test
 class StringExtTest {
 
     @Test
-    fun `given single word string when converted then same string`() {
+    fun `given single word string when converted then return same string`() {
         assertEquals("Username", "username".convertToCamelCase())
     }
 
     @Test
-    fun `given string with multiple underscores when converted then camel case string`() {
+    fun `given string with multiple underscores when converted then return camel case string`() {
         assertEquals("ThisIsATestCase", ("this_is_a_test_case").convertToCamelCase())
     }
 
     @Test
-    fun `given empty string when converted then empty string`() {
+    fun `given empty string when converted then return empty string`() {
         assertEquals("", ("").convertToCamelCase())
     }
 
     @Test
-    fun `given string with leading and trailing underscores when converted then camel case string`() {
+    fun `given string with leading and trailing underscores when converted then return camel case string`() {
         assertEquals("LeadingAndTrailing", ("_leading_and_trailing_").convertToCamelCase())
     }
 
     @Test
-    fun `given string with numbers when converted then camel case string`() {
+    fun `given string with numbers when converted then return camel case string`() {
         assertEquals("User123Name", ("user_123_name").convertToCamelCase())
     }
 }

@@ -18,33 +18,53 @@
 
 package com.wire.android.ui.authentication.start
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.email.LoginEmailState
+import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.data.auth.AccountInfo
-import com.wire.kalium.logic.feature.session.GetAllSessionsResult
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class StartLoginViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
-    private val getSessions: GetSessionsUseCase
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     var state by mutableStateOf(StartLoginScreenState(ServerConfig.DEFAULT))
         private set
+    val userIdentifierTextState: TextFieldState = TextFieldState()
+    var loginState by mutableStateOf(LoginEmailState())
 
     init {
         observerAuthServer()
-        checkNumberOfSessions()
+        viewModelScope.launch {
+            userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
+                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
+            }.collectLatest {
+                updateEmailFlowState(loginState.flowState)
+            }
+        }
+    }
+
+    private fun updateEmailFlowState(flowState: LoginState) {
+        loginState = loginState.copy(
+            flowState = flowState,
+            loginEnabled = userIdentifierTextState.text.isNotEmpty() && flowState !is LoginState.Loading
+        )
     }
 
     private fun observerAuthServer() {
@@ -54,26 +74,4 @@ class StartLoginViewModel @Inject constructor(
             }
         }
     }
-
-    private fun checkNumberOfSessions() {
-        viewModelScope.launch {
-            getSessions().let {
-                when (it) {
-                    is GetAllSessionsResult.Success -> {
-                        state = state.copy(
-                            isThereActiveSession = it.sessions.filterIsInstance<AccountInfo.Valid>().isEmpty().not(),
-                            maxAccountsReached = it.sessions.filterIsInstance<AccountInfo.Valid>().size >= BuildConfig.MAX_ACCOUNTS
-                        )
-                    }
-
-                    is GetAllSessionsResult.Failure.Generic -> {}
-                    GetAllSessionsResult.Failure.NoSessionFound -> {
-                        state = state.copy(isThereActiveSession = false)
-                    }
-                }
-            }
-        }
-    }
 }
-
-fun ServerConfig.Links.isProxyEnabled() = this.apiProxy != null

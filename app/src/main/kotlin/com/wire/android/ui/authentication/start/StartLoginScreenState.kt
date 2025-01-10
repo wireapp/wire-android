@@ -21,6 +21,5 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 
 data class StartLoginScreenState(
     val links: ServerConfig.Links,
-    val isThereActiveSession: Boolean = false,
-    val maxAccountsReached: Boolean = false
+    val isThereActiveSession: Boolean = false
 )

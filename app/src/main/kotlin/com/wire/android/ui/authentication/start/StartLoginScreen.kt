@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -54,18 +56,17 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.authentication.ServerTitle
+import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.NewLoginContainer
+import com.wire.android.ui.authentication.login.email.LoginEmailState
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
-import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
-import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog
-import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
-import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
+import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.common.textfield.DefaultEmailNext
+import com.wire.android.ui.common.textfield.WireAutoFillType
+import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -84,8 +85,9 @@ fun StartLoginScreen(
 ) {
     WelcomeContent(
         viewModel.state.isThereActiveSession,
-        viewModel.state.maxAccountsReached,
+        viewModel.loginState,
         viewModel.state.links,
+        viewModel.userIdentifierTextState,
         navigator::navigateBack,
         navigator::navigate
     )
@@ -94,8 +96,9 @@ fun StartLoginScreen(
 @Composable
 private fun WelcomeContent(
     isThereActiveSession: Boolean,
-    maxAccountsReached: Boolean,
+    loginEmailState: LoginEmailState,
     state: ServerConfig.Links,
+    userIdentifierState: TextFieldState,
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
 ) {
@@ -104,9 +107,10 @@ private fun WelcomeContent(
         onNavigateBack = navigateBack
     ) {
         NewWelcomeExperienceContent(
+            loginEmailState = loginEmailState,
+            links = state,
+            userIdentifierState = userIdentifierState,
             navigateBack = navigateBack,
-            maxAccountsReached = maxAccountsReached,
-            state = state,
             navigate = navigate
         )
     }
@@ -115,35 +119,24 @@ private fun WelcomeContent(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun NewWelcomeExperienceContent(
+    loginEmailState: LoginEmailState,
+    links: ServerConfig.Links,
+    userIdentifierState: TextFieldState,
     navigateBack: () -> Unit,
-    maxAccountsReached: Boolean,
-    state: ServerConfig.Links,
     navigate: (NavigationCommand) -> Unit,
 ) {
-    val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
-    val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val context = LocalContext.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
     ) {
-        val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
-        MaxAccountsReachedDialog(dialogState = maxAccountsReachedDialogState) { navigateBack() }
-        if (maxAccountsReached) {
-            maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
-        }
-
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
             tint = MaterialTheme.colorScheme.onBackground,
             contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
             modifier = Modifier.size(dimensions().spacing120x)
         )
-
-        if (state.isOnPremises) {
-            ServerTitle(serverLinks = state, modifier = Modifier.padding(top = dimensions().spacing16x))
-        }
 
         Column(
             modifier = Modifier
@@ -155,94 +148,94 @@ private fun NewWelcomeExperienceContent(
                     testTagsAsResourceId = true
                 }
         ) {
-            LoginButton(onClick = { navigate(NavigationCommand(LoginScreenDestination())) })
-            FeatureDisabledWithProxyDialogContent(
-                dialogState = enterpriseDisabledWithProxyDialogState,
-                onActionButtonClicked = {
-                    CustomTabsHelper.launchUrl(context, state.teams)
-                }
-            )
-            FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
-
-            if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
-                CreateEnterpriseAccountButton {
-                    if (state.isProxyEnabled()) {
-                        enterpriseDisabledWithProxyDialogState.show(
-                            enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                                R.string.create_team_not_supported_dialog_description,
-                                state.teams
-                            )
-                        )
-                    } else {
-                        navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination))
-                    }
-                }
+            val error = when (loginEmailState.flowState) {
+                is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
+                else -> null
             }
+            EmailOrSSOCodeInput(userIdentifierState, loginEmailState, error)
+            VerticalSpace.x8()
+            LoginNextButton(
+                loading = loginEmailState.flowState is LoginState.Loading,
+                enabled = loginEmailState.loginEnabled,
+                onClick = { navigate(NavigationCommand(LoginScreenDestination())) })
         }
 
         if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
+            val termsUrl = stringResource(id = R.string.url_terms_of_use_legal)
             WelcomeFooter(
                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
-                onPrivateAccountClick = {
-                    if (state.isProxyEnabled()) {
-                        createPersonalAccountDisabledWithProxyDialogState.show(
-                            createPersonalAccountDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                                R.string.create_personal_account_not_supported_dialog_description
-                            )
-                        )
-                    } else {
-                        navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination))
-                    }
-                }
+                onTermsAndConditionClick = { CustomTabsHelper.launchUrl(context, termsUrl) }
             )
         }
     }
 }
 
 @Composable
-private fun LoginButton(onClick: () -> Unit) {
-    WirePrimaryButton(
-        onClick = onClick,
-        text = stringResource(R.string.label_login),
-        modifier = Modifier
-            .padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
-            .testTag("loginButton")
+private fun LoginNextButton(
+    loading: Boolean,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Column(modifier = modifier) {
+        val text = if (loading) stringResource(R.string.label_logging_in) else stringResource(R.string.enterprise_login_next)
+        WirePrimaryButton(
+            text = text,
+            onClick = onClick,
+            state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
+            loading = loading,
+            interactionSource = interactionSource,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("loginButton")
+        )
+    }
+}
+
+@Composable
+private fun EmailOrSSOCodeInput(
+    userIdentifierState: TextFieldState,
+    loginEmailState: LoginEmailState,
+    error: String?
+) {
+    WireTextField(
+        autoFillType = WireAutoFillType.Login,
+        textState = userIdentifierState,
+        placeholderText = stringResource(R.string.enterprise_login_user_identifier_label_placeholder),
+        labelText = stringResource(R.string.enterprise_login_user_identifier_label),
+        state = when {
+            error != null -> WireTextFieldState.Error(error)
+            else -> WireTextFieldState.Default
+        },
+        semanticDescription = stringResource(R.string.content_description_login_email_field),
+        keyboardOptions = KeyboardOptions.DefaultEmailNext,
+        modifier = Modifier.testTag("emailField"),
+        testTag = "userIdentifierInput",
     )
 }
 
 @Composable
-private fun CreateEnterpriseAccountButton(onClick: () -> Unit) {
-    WireSecondaryButton(
-        onClick = onClick,
-        text = stringResource(R.string.welcome_button_create_team),
-        modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
-    )
-}
-
-@Composable
-private fun WelcomeFooter(onPrivateAccountClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun WelcomeFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(
-            text = stringResource(R.string.welcome_footer_text),
-            style = MaterialTheme.wireTypography.body02,
+            text = stringResource(R.string.enterprise_login_title_terms_description),
+            style = MaterialTheme.wireTypography.subline01,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
 
         Text(
-            text = stringResource(R.string.welcome_button_create_personal_account),
-            style = MaterialTheme.wireTypography.body02.copy(
-                textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.primary
-            ),
+            text = stringResource(R.string.enterprise_login_title_terms_link),
+            style = MaterialTheme.wireTypography.subline01.copy(textDecoration = TextDecoration.Underline),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = onPrivateAccountClick,
-                    onClickLabel = stringResource(R.string.content_description_open_link_label)
+                    onClick = onTermsAndConditionClick,
+                    onClickLabel = stringResource(R.string.enterprise_login_title_terms_link)
                 )
         )
 
@@ -257,9 +250,11 @@ fun PreviewWelcomeScreen() {
     WireTheme {
         WelcomeContent(
             isThereActiveSession = false,
-            maxAccountsReached = false,
             state = ServerConfig.DEFAULT,
+            loginEmailState = LoginEmailState(),
+            userIdentifierState = TextFieldState(),
             navigateBack = {},
-            navigate = {})
+            navigate = {}
+        )
     }
 }

@@ -152,12 +152,12 @@ private fun NewWelcomeExperienceContent(
                 is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                 else -> null
             }
-            EmailOrSSOCodeInput(userIdentifierState, loginEmailState, error)
+            EmailOrSSOCodeInput(userIdentifierState, error)
             VerticalSpace.x8()
             LoginNextButton(
                 loading = loginEmailState.flowState is LoginState.Loading,
                 enabled = loginEmailState.loginEnabled,
-                onClick = { navigate(NavigationCommand(LoginScreenDestination())) })
+                onClick = { navigate(NavigationCommand(LoginScreenDestination(userHandle = userIdentifierState.text.toString()))) })
         }
 
         if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
@@ -196,7 +196,6 @@ private fun LoginNextButton(
 @Composable
 private fun EmailOrSSOCodeInput(
     userIdentifierState: TextFieldState,
-    loginEmailState: LoginEmailState,
     error: String?
 ) {
     WireTextField(

@@ -124,7 +124,9 @@ class CurrentScreenManager @Inject constructor(
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
         val currentScreenName = currentScreenName()
-        AnonymousAnalyticsManagerImpl.stopView(currentScreenName)
+        currentScreenName?.let {
+            AnonymousAnalyticsManagerImpl.stopView(it)
+        }
 
         val currentItem = destination.toDestination()
         currentScreenState.value = CurrentScreen.fromDestination(
@@ -134,11 +136,21 @@ class CurrentScreenManager @Inject constructor(
         )
 
         val newScreenName = currentScreenName()
-        AnonymousAnalyticsManagerImpl.recordView(newScreenName)
+        newScreenName?.let {
+            AnonymousAnalyticsManagerImpl.recordView(it)
+        }
     }
 
     private fun currentScreenName() = currentScreenState.value.let { currentScreen ->
-        (currentScreen as? CurrentScreen.SomeOther)?.route ?: currentScreen.javaClass.simpleName
+        when (currentScreen) {
+            is CurrentScreen.Home,
+            is CurrentScreen.Conversation,
+            is CurrentScreen.OtherUserProfile,
+            is CurrentScreen.ImportMedia,
+            is CurrentScreen.DeviceManager -> return@let currentScreen.toScreenName()
+
+            else -> return@let (currentScreen as? CurrentScreen.SomeOther)?.route
+        }
     }
 
     override fun onCreate(owner: LifecycleOwner) {
@@ -169,23 +181,31 @@ class CurrentScreenManager @Inject constructor(
 sealed class CurrentScreen {
 
     // Home Screen is being displayed
-    data object Home : CurrentScreen()
+    data object Home : CurrentScreen() {
+        override fun toScreenName() = "HomeScreen"
+    }
 
     // Some Conversation is opened
     data class Conversation(val id: ConversationId) : CurrentScreen() {
         override fun toString(): String = "Conversation(${id.toString().obfuscateId()})"
+        override fun toScreenName() = "ConversationScreen"
     }
 
     // Another User Profile Screen is opened
     data class OtherUserProfile(val id: ConversationId) : CurrentScreen() {
         override fun toString(): String = "OtherUserProfile(${id.toString().obfuscateId()})"
+        override fun toScreenName() = "OtherUserProfileScreen"
     }
 
     // Import media screen is opened
-    data object ImportMedia : CurrentScreen()
+    data object ImportMedia : CurrentScreen() {
+        override fun toScreenName() = "ImportMediaScreen"
+    }
 
     // SelfDevices screen is opened
-    data object DeviceManager : CurrentScreen()
+    data object DeviceManager : CurrentScreen() {
+        override fun toScreenName() = "DeviceManagerScreen"
+    }
 
     // Auth related screen is opened
     data class AuthRelated(val route: String?) : CurrentScreen()
@@ -195,6 +215,8 @@ sealed class CurrentScreen {
 
     // App is in background (screen is turned off, or covered by another app), non of the screens is visible
     data object InBackground : CurrentScreen()
+
+    open fun toScreenName(): String = "UnknownScreen"
 
     companion object {
         @SuppressLint("RestrictedApi")

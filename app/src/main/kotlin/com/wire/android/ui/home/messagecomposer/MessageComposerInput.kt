@@ -277,6 +277,22 @@ private fun MessageComposerTextInput(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
+<<<<<<< HEAD
+=======
+    var isReadOnly by remember { mutableStateOf(false) }
+
+    LaunchedEffect(inputFocused) {
+        if (inputFocused) {
+            isReadOnly = false
+            keyboardController?.show()
+            focusRequester.requestFocus()
+        } else {
+            isReadOnly = true
+            keyboardController?.hide()
+            focusRequester.freeFocus()
+        }
+    }
+>>>>>>> fa7fdbe8f (fix: reappearing keyboard [WPB-10889] (#3791))
 
     LaunchedEffect(isPressed) {
         if (isPressed) {
@@ -295,9 +311,13 @@ private fun MessageComposerTextInput(
         modifier = modifier
             .focusRequester(focusRequester)
             .onFocusChanged { focusState ->
+<<<<<<< HEAD
                 if (focusState.isFocused) {
                     onFocused()
                 }
+=======
+                onFocusChanged(focusState.isFocused)
+>>>>>>> fa7fdbe8f (fix: reappearing keyboard [WPB-10889] (#3791))
             }
             .onPreInterceptKeyBeforeSoftKeyboard { event ->
                 if (event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_BACK) {

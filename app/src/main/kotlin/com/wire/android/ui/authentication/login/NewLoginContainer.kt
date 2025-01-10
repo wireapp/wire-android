@@ -41,7 +41,6 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.theme.SetStatusBarColorForWavesBackground
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -64,7 +63,6 @@ private fun NewLoginContent(
     content: @Composable () -> Unit = { }
 ) {
     WireScaffold(
-        topBar = { SetStatusBarColorForWavesBackground() },
         bottomBar = {
             Column(
                 modifier = Modifier

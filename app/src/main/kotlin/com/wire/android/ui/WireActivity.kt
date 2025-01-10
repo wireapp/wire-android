@@ -26,11 +26,14 @@ import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -47,7 +50,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -164,7 +166,7 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
 
         lifecycleScope.launch {
 
@@ -233,18 +235,17 @@ class WireActivity : AppCompatActivity() {
                 WireTheme {
                     Column(
                         modifier = Modifier
-                            .statusBarsPadding()
                             .semantics { testTagsAsResourceId = true }
                     ) {
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         WireTopAppBar(
-                            themeOption = viewModel.globalAppState.themeOption,
                             commonTopAppBarState = commonTopAppBarViewModel.state,
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
                             MainNavHost(
                                 navigator = navigator,
-                                startDestination = startDestination
+                                startDestination = startDestination,
+                                modifier = Modifier.consumeWindowInsets(WindowInsets.statusBars)
                             )
                         }
 
@@ -261,11 +262,11 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun WireTopAppBar(
-        themeOption: ThemeOption,
-        commonTopAppBarState: CommonTopAppBarState
+        commonTopAppBarState: CommonTopAppBarState,
+        modifier: Modifier = Modifier,
     ) {
         CommonTopAppBar(
-            themeOption = themeOption,
+            modifier = modifier,
             commonTopAppBarState = commonTopAppBarState,
             onReturnToCallClick = { establishedCall ->
                 getOngoingCallIntent(

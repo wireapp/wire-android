@@ -135,7 +135,7 @@ class ConversationListViewModelPreview(
 class ConversationListViewModelImpl @AssistedInject constructor(
     @Assisted val conversationsSource: ConversationsSource,
     @Assisted private val usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
-    dispatcher: DispatcherProvider,
+    private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val observeConversationListDetailsWithEvents: ObserveConversationListDetailsWithEventsUseCase,
@@ -171,6 +171,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     override val closeBottomSheet = MutableSharedFlow<Unit>()
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
+    private val isSelfUserUnderLegalHoldFlow = MutableSharedFlow<Boolean>(replay = 1)
 
     private val containsNewActivitiesSection = when (conversationsSource) {
         ConversationsSource.MAIN,
@@ -185,39 +186,38 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val conversationsPaginatedFlow: Flow<PagingData<ConversationFolderItem>> = searchQueryFlow
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
+        .combine(isSelfUserUnderLegalHoldFlow, ::Pair)
         .distinctUntilChanged()
-        .flatMapLatest { searchQuery ->
+        .flatMapLatest { (searchQuery, isSelfUserUnderLegalHold) ->
             getConversationsPaginated(
                 searchQuery = searchQuery,
                 fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
                 conversationFilter = conversationsSource.toFilter(),
                 onlyInteractionEnabled = false,
                 newActivitiesOnTop = containsNewActivitiesSection,
-            ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
-                conversations.map {
-                    it.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
-                }
-            }.map {
-                it.insertSeparators { before, after ->
-                    when {
-                        // do not add separators if the list shouldn't show conversations grouped into different folders
-                        !containsNewActivitiesSection -> null
+            ).map { pagingData ->
+                pagingData
+                    .map { it.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold) }
+                    .insertSeparators { before, after ->
+                        when {
+                            // do not add separators if the list shouldn't show conversations grouped into different folders
+                            !containsNewActivitiesSection -> null
 
-                        before == null && after != null && after.hasNewActivitiesToShow ->
-                            // list starts with items with "new activities"
-                            ConversationFolder.Predefined.NewActivities
+                            before == null && after != null && after.hasNewActivitiesToShow ->
+                                // list starts with items with "new activities"
+                                ConversationFolder.Predefined.NewActivities
 
-                        before == null && after != null && !after.hasNewActivitiesToShow ->
-                            // list doesn't contain any items with "new activities"
-                            ConversationFolder.Predefined.Conversations
+                            before == null && after != null && !after.hasNewActivitiesToShow ->
+                                // list doesn't contain any items with "new activities"
+                                ConversationFolder.Predefined.Conversations
 
-                        before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
-                            // end of "new activities" section and beginning of "conversations" section
-                            ConversationFolder.Predefined.Conversations
+                            before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
+                                // end of "new activities" section and beginning of "conversations" section
+                                ConversationFolder.Predefined.Conversations
 
-                        else -> null
+                            else -> null
+                        }
                     }
-                }
             }
         }
         .flowOn(dispatcher.io())
@@ -232,45 +232,59 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         private set
 
     init {
+        observeSelfUserLegalHoldState()
         if (!usePagination) {
-            viewModelScope.launch {
-                searchQueryFlow
-                    .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
-                    .onStart { emit("") }
-                    .distinctUntilChanged()
-                    .flatMapLatest { searchQuery: String ->
-                        observeConversationListDetailsWithEvents(
-                            fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
-                            conversationFilter = conversationsSource.toFilter()
-                        ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
-                            conversations.map { conversationDetails ->
-                                conversationDetails.toConversationItem(
-                                    userTypeMapper = userTypeMapper,
-                                    searchQuery = searchQuery,
-                                    selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
-                                ).hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
-                            } to searchQuery
-                        }
+            observeNonPaginatedSearchConversationList()
+        }
+    }
+
+    private fun observeSelfUserLegalHoldState() {
+        viewModelScope.launch {
+            observeLegalHoldStateForSelfUser()
+                .map { it is LegalHoldStateForSelfUser.Enabled }
+                .flowOn(dispatcher.io())
+                .collect { isSelfUserUnderLegalHoldFlow.emit(it) }
+        }
+    }
+
+    private fun observeNonPaginatedSearchConversationList() {
+        viewModelScope.launch {
+            searchQueryFlow
+                .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
+                .onStart { emit("") }
+                .distinctUntilChanged()
+                .flatMapLatest { searchQuery: String ->
+                    observeConversationListDetailsWithEvents(
+                        fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
+                        conversationFilter = conversationsSource.toFilter()
+                    ).combine(isSelfUserUnderLegalHoldFlow) { conversations, isSelfUserUnderLegalHold ->
+                        conversations.map { conversationDetails ->
+                            conversationDetails.toConversationItem(
+                                userTypeMapper = userTypeMapper,
+                                searchQuery = searchQuery,
+                                selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
+                            ).hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
+                        } to searchQuery
                     }
-                    .map { (conversationItems, searchQuery) ->
-                        if (searchQuery.isEmpty()) {
-                            conversationItems.withFolders(source = conversationsSource).toImmutableMap()
-                        } else {
-                            searchConversation(
-                                conversationDetails = conversationItems,
-                                searchQuery = searchQuery
-                            ).withFolders(source = conversationsSource).toImmutableMap()
-                        }
+                }
+                .map { (conversationItems, searchQuery) ->
+                    if (searchQuery.isEmpty()) {
+                        conversationItems.withFolders(source = conversationsSource).toImmutableMap()
+                    } else {
+                        searchConversation(
+                            conversationDetails = conversationItems,
+                            searchQuery = searchQuery
+                        ).withFolders(source = conversationsSource).toImmutableMap()
                     }
-                    .flowOn(dispatcher.io())
-                    .collect {
-                        conversationListState = ConversationListState.NotPaginated(
-                            isLoading = false,
-                            conversations = it,
-                            domain = currentAccount.domain
-                        )
-                    }
-            }
+                }
+                .flowOn(dispatcher.io())
+                .collect {
+                    conversationListState = ConversationListState.NotPaginated(
+                        isLoading = false,
+                        conversations = it,
+                        domain = currentAccount.domain
+                    )
+                }
         }
     }
 
@@ -485,11 +499,13 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
     is ConversationsSource.FOLDER -> ConversationFilter.Folder(folderId = folderId, folderName = folderName)
 }
 
-private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus: LegalHoldStateForSelfUser) =
-    // if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
-    // the indication is shown in the header of the conversation list for self user in that case and it's enough
-    when (selfUserLegalHoldStatus) {
-        is LegalHoldStateForSelfUser.Enabled -> when (this) {
+/**
+ * If self user is under legal hold then we shouldn't show legal hold indicator next to every conversation as in that case
+ * the legal hold indication is shown in the header of the conversation list for self user in that case and it's enough.
+ */
+private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold: Boolean) =
+    when (isSelfUserUnderLegalHold) {
+        true -> when (this) {
             is ConversationItem.ConnectionConversation -> this.copy(showLegalHoldIndicator = false)
             is ConversationItem.GroupConversation -> this.copy(showLegalHoldIndicator = false)
             is ConversationItem.PrivateConversation -> this.copy(showLegalHoldIndicator = false)

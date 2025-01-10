@@ -20,11 +20,10 @@
 
 package com.wire.android.ui.common.topappbar
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.shrinkOut
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,28 +31,27 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntSize
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.ui.theme.ResetStatusBarColor
-import com.wire.android.ui.theme.ThemeOption
+import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.updateSystemBarIconsAppearance
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -63,114 +61,111 @@ import com.wire.kalium.network.NetworkState
 
 @Composable
 fun CommonTopAppBar(
-    themeOption: ThemeOption,
     commonTopAppBarState: CommonTopAppBarState,
     onReturnToCallClick: (ConnectivityUIState.Call.Established) -> Unit,
     onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
     onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) {
+    val transition = updateTransition(
+        targetState = MaterialTheme.wireColorScheme to commonTopAppBarState.connectivityState.toColorType(),
+        label = "connectivity state transition"
+    )
+    val backgroundColor = transition.animateColor(label = "top app bar background color") { (colorScheme, colorType) ->
+        colorScheme.getBackgroundColor(colorType)
+    }
+    val systemBarIconsAppearance = transition.animateFloat(label = "system bar icons appearance") { (colorScheme, colorType) ->
+        if (colorScheme.getStatusBarIconsAppearance(colorType)) 1f else 0f
+    }
+
+    updateSystemBarIconsAppearance(systemBarIconsAppearance.value > 0.5f)
+
+    Column(
+        modifier = modifier
+            .drawBehind { drawRect(backgroundColor.value) }
+            .statusBarsPadding()
+    ) {
         ConnectivityStatusBar(
-            themeOption = themeOption,
             networkState = commonTopAppBarState.networkState,
             connectivityInfo = commonTopAppBarState.connectivityState,
             onReturnToCallClick = onReturnToCallClick,
             onReturnToIncomingCallClick = onReturnToIncomingCallClick,
-            onReturnToOutgoingCallClick = onReturnToOutgoingCallClick
+            onReturnToOutgoingCallClick = onReturnToOutgoingCallClick,
+            modifier = modifier,
         )
     }
 }
 
-@Composable
-fun getBackgroundColor(connectivityInfo: ConnectivityUIState): Color {
-    return when (connectivityInfo) {
-        is ConnectivityUIState.Calls -> MaterialTheme.wireColorScheme.positive
+private enum class ConnectivityStatusColorType { Calls, Connection, None }
 
-        is ConnectivityUIState.WaitingConnection,
-        ConnectivityUIState.Connecting -> MaterialTheme.wireColorScheme.primary
+private fun ConnectivityUIState.toColorType() = when (this) {
+    is ConnectivityUIState.Calls -> ConnectivityStatusColorType.Calls
+    is ConnectivityUIState.Connecting,
+    is ConnectivityUIState.WaitingConnection -> ConnectivityStatusColorType.Connection
+    is ConnectivityUIState.None -> ConnectivityStatusColorType.None
+}
 
-        ConnectivityUIState.None -> MaterialTheme.wireColorScheme.background
-    }
+private fun WireColorScheme.getBackgroundColor(statusColorType: ConnectivityStatusColorType): Color = when (statusColorType) {
+    ConnectivityStatusColorType.Calls -> positive
+    ConnectivityStatusColorType.Connection -> primary
+    ConnectivityStatusColorType.None -> background
+}
+
+private fun WireColorScheme.getStatusBarIconsAppearance(statusColorType: ConnectivityStatusColorType): Boolean = when (statusColorType) {
+    ConnectivityStatusColorType.Calls,
+    ConnectivityStatusColorType.Connection -> connectivityBarShouldUseDarkIcons
+    ConnectivityStatusColorType.None -> useDarkSystemBarIcons
 }
 
 @Composable
 private fun ConnectivityStatusBar(
-    themeOption: ThemeOption,
     connectivityInfo: ConnectivityUIState,
     networkState: NetworkState,
     onReturnToCallClick: (ConnectivityUIState.Call.Established) -> Unit,
     onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
     onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val isVisible = connectivityInfo !is ConnectivityUIState.None
-    val backgroundColor = getBackgroundColor(connectivityInfo)
-
-    if (isVisible) {
-        val darkIcons = MaterialTheme.wireColorScheme.connectivityBarShouldUseDarkIcons
-        val systemUiController = rememberSystemUiController()
-        systemUiController.setStatusBarColor(
-            color = backgroundColor,
-            darkIcons = darkIcons
-        )
-        LaunchedEffect(themeOption) {
-            systemUiController.setStatusBarColor(
-                color = backgroundColor,
-                darkIcons = darkIcons
-            )
-        }
-    } else {
-        ResetStatusBarColor()
-    }
-
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = expandIn(initialSize = { fullSize -> IntSize(fullSize.width, 0) }),
-        exit = shrinkOut(targetSize = { fullSize -> IntSize(fullSize.width, 0) })
+    Column(
+        modifier = modifier
+            .animateContentSize()
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
-            modifier = Modifier
-                .animateContentSize()
-                .fillMaxWidth()
-                .heightIn(min = MaterialTheme.wireDimensions.ongoingCallLabelHeight)
-                .background(backgroundColor),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            when (connectivityInfo) {
-                is ConnectivityUIState.Calls ->
-                    CallsContent(
-                        calls = connectivityInfo.calls,
-                        onReturnToCallClick = onReturnToCallClick,
-                        onReturnToIncomingCallClick = onReturnToIncomingCallClick,
-                        onReturnToOutgoingCallClick = onReturnToOutgoingCallClick
-                    )
+        when (connectivityInfo) {
+            is ConnectivityUIState.Calls ->
+                CallsContent(
+                    calls = connectivityInfo.calls,
+                    onReturnToCallClick = onReturnToCallClick,
+                    onReturnToIncomingCallClick = onReturnToIncomingCallClick,
+                    onReturnToOutgoingCallClick = onReturnToOutgoingCallClick
+                )
 
-                ConnectivityUIState.Connecting ->
+            ConnectivityUIState.Connecting ->
+                StatusLabel(
+                    R.string.connectivity_status_bar_connecting,
+                    MaterialTheme.wireColorScheme.onPrimary
+                )
+
+            is ConnectivityUIState.WaitingConnection -> {
+                val color = MaterialTheme.wireColorScheme.onPrimary
+                val waitingStatus: @Composable () -> Unit = {
                     StatusLabel(
-                        R.string.connectivity_status_bar_connecting,
-                        MaterialTheme.wireColorScheme.onPrimary
+                        stringResource = R.string.connectivity_status_bar_waiting_for_network,
+                        color
                     )
-
-                is ConnectivityUIState.WaitingConnection -> {
-                    val color = MaterialTheme.wireColorScheme.onPrimary
-                    val waitingStatus: @Composable () -> Unit = {
-                        StatusLabel(
-                            stringResource = R.string.connectivity_status_bar_waiting_for_network,
-                            color
-                        )
-                    }
-
-                    if (!BuildConfig.PRIVATE_BUILD) {
-                        waitingStatus()
-                        return@Column
-                    }
-
-                    WaitingStatusLabelInternal(connectivityInfo, networkState, waitingStatus)
                 }
 
-                ConnectivityUIState.None -> {}
+                if (!BuildConfig.PRIVATE_BUILD) {
+                    waitingStatus()
+                    return@Column
+                }
+
+                WaitingStatusLabelInternal(connectivityInfo, networkState, waitingStatus)
             }
+
+            ConnectivityUIState.None -> {}
         }
     }
 }
@@ -384,7 +379,7 @@ private fun MicrophoneIcon(
 
 @Composable
 private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState) = WireTheme {
-    CommonTopAppBar(ThemeOption.SYSTEM, CommonTopAppBarState(connectivityUIState), {}, {}, {})
+    CommonTopAppBar(CommonTopAppBarState(connectivityUIState), {}, {}, {})
 }
 
 @PreviewMultipleThemes

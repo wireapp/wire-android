@@ -29,6 +29,7 @@ import androidx.navigation.NavDestination
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.toDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
@@ -149,7 +150,7 @@ class CurrentScreenManager @Inject constructor(
             is CurrentScreen.ImportMedia,
             is CurrentScreen.DeviceManager -> return@let currentScreen.toScreenName()
 
-            else -> return@let (currentScreen as? CurrentScreen.SomeOther)?.route
+            else -> return@let (currentScreen as? CurrentScreen.SomeOther)?.route?.getBaseRoute()
         }
     }
 

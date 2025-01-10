@@ -138,6 +138,12 @@ private fun NewWelcomeExperienceContent(
             modifier = Modifier.size(dimensions().spacing120x)
         )
 
+        Text(
+            text = stringResource(id = R.string.enterprise_login_welcome),
+            style = MaterialTheme.wireTypography.body01,
+            textAlign = TextAlign.Center
+        )
+
         Column(
             modifier = Modifier
                 .padding(

@@ -40,12 +40,10 @@ class DebugModule {
         @CurrentAccount currentAccount: UserId
     ): DebugScope = coreLogic.getSessionScope(currentAccount).debug
 
-
     @ViewModelScoped
     @Provides
     fun provideDisableEventProcessing(debugScope: DebugScope) =
         debugScope.disableEventProcessing
-
 
     @ViewModelScoped
     @Provides

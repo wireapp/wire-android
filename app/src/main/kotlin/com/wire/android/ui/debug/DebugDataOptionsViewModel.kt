@@ -38,7 +38,6 @@ import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
-import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -94,7 +93,6 @@ class DebugDataOptionsViewModelImpl
     private val dispatcherProvider: DispatcherProvider,
     private val selfServerConfigUseCase: SelfServerConfigUseCase,
     private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
-    private val changeProfiling: ChangeProfilingUseCase,
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     var state by mutableStateOf(

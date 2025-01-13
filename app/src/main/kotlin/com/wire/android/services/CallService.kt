@@ -115,12 +115,12 @@ class CallService : Service() {
                             val userSessionScope = coreLogic.getSessionScope(userId)
                             val outgoingCallsFlow = userSessionScope.calls.observeOutgoingCall()
                             val establishedCallsFlow = userSessionScope.calls.establishedCall()
-                            val answeringCallFlow = userSessionScope.calls.observeIncomingCall(action)
+                            val callCurrentlyBeingAnsweredFlow = userSessionScope.calls.observeCallCurrentlyBeingAnswered(action)
 
                             combine(
                                 outgoingCallsFlow,
                                 establishedCallsFlow,
-                                answeringCallFlow
+                                callCurrentlyBeingAnsweredFlow
                             ) { outgoingCalls, establishedCalls, answeringCall ->
                                 val calls = outgoingCalls + establishedCalls + answeringCall
                                 calls.firstOrNull()?.let { call ->
@@ -192,7 +192,7 @@ class CallService : Service() {
         appLogger.i("$TAG: started foreground with placeholder notification")
     }
 
-    private suspend fun CallsScope.observeIncomingCall(action: Action?) = when (action) {
+    private suspend fun CallsScope.observeCallCurrentlyBeingAnswered(action: Action?) = when (action) {
         is Action.AnswerCall -> getIncomingCalls().map { it.filter { it.conversationId == action.conversationId } }
         else -> flowOf(emptyList())
     }

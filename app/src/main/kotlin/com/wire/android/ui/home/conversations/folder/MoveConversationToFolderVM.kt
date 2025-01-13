@@ -58,7 +58,7 @@ class MoveConversationToFolderVMImpl @AssistedInject constructor(
     private val moveConversationToFolder: MoveConversationToFolderUseCase,
 ) : MoveConversationToFolderVM, ViewModel() {
 
-    var state: MoveConversationToFolderState by mutableStateOf(MoveConversationToFolderState())
+    private var state: MoveConversationToFolderState by mutableStateOf(MoveConversationToFolderState())
 
     @AssistedFactory
     interface Factory : AssistedViewModelFactory<MoveConversationToFolderVMImpl, MoveConversationToFolderArgs> {

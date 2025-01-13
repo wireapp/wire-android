@@ -31,7 +31,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -56,7 +55,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
+import com.wire.kalium.logic.data.conversation.ConversationFolder
 
 @RootNavGraph
 @WireDestination(
@@ -65,30 +64,9 @@ import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 )
 @Composable
 fun ConversationFoldersScreen(
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<ConversationFoldersNavBackArgs>
-) {
-    val args = remember {
-        navigator.navController.currentBackStackEntry?.let {
-            ConversationFoldersScreenDestination.argsFrom(it)
-        }
-    }
-
-    Content(
-        args = args!!,
-        onNavigationPressed = { navigator.navigateBack() },
-        onMoveToFolderMessage = { message ->
-            resultNavigator.setResult(ConversationFoldersNavBackArgs(message = message))
-            resultNavigator.navigateBack()
-        }
-    )
-}
-
-@Composable
-private fun Content(
     args: ConversationFoldersNavArgs,
-    onNavigationPressed: () -> Unit = {},
-    onMoveToFolderMessage: (String) -> Unit = {},
+    navigator: Navigator,
+    resultNavigator: ResultBackNavigator<ConversationFoldersNavBackArgs>,
     foldersViewModel: ConversationFoldersVM =
         hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
             creationCallback = { it.create(ConversationFoldersStateArgs(args.currentFolderId)) }
@@ -101,13 +79,32 @@ private fun Content(
         )
 ) {
     val resources = LocalContext.current.resources
-    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         moveToFolderVM.infoMessage.collect {
-            onMoveToFolderMessage(it.asString(resources))
+            resultNavigator.setResult(ConversationFoldersNavBackArgs(message = it.asString(resources)))
+            resultNavigator.navigateBack()
         }
     }
+
+    Content(
+        args = args,
+        foldersState = foldersViewModel.state(),
+        onNavigationPressed = { navigator.navigateBack() },
+        moveConversationToFolder = moveToFolderVM::moveConversationToFolder,
+        onFolderSelected = foldersViewModel::onFolderSelected
+    )
+}
+
+@Composable
+private fun Content(
+    args: ConversationFoldersNavArgs,
+    foldersState: ConversationFoldersState,
+    onNavigationPressed: () -> Unit = {},
+    moveConversationToFolder: (folder: ConversationFolder) -> Unit = {},
+    onFolderSelected: (folderId: String) -> Unit = {},
+) {
+    val context = LocalContext.current
 
     val lazyListState = rememberLazyListState()
     WireScaffold(
@@ -136,8 +133,8 @@ private fun Content(
                     }
                 )
                 VerticalSpace.x8()
-                val state = if (foldersViewModel.state().selectedFolderId != null
-                    && foldersViewModel.state().selectedFolderId != args.currentFolderId
+                val state = if (foldersState.selectedFolderId != null
+                    && foldersState.selectedFolderId != args.currentFolderId
                 ) {
                     WireButtonState.Default
                 } else {
@@ -147,8 +144,8 @@ private fun Content(
                     state = state,
                     text = stringResource(id = R.string.label_done),
                     onClick = {
-                        moveToFolderVM.moveConversationToFolder(
-                            foldersViewModel.state().folders.first { it.id == foldersViewModel.state().selectedFolderId!! }
+                        moveConversationToFolder(
+                            foldersState.folders.first { it.id == foldersState.selectedFolderId!! }
                         )
                     }
                 )
@@ -160,7 +157,7 @@ private fun Content(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            if (foldersViewModel.state().folders.isEmpty()) {
+            if (foldersState.folders.isEmpty()) {
                 Text(
                     stringResource(R.string.folder_create_description),
                     modifier = Modifier.align(Alignment.Center),
@@ -172,8 +169,8 @@ private fun Content(
                     state = lazyListState,
                     modifier = Modifier.fillMaxHeight()
                 ) {
-                    items(foldersViewModel.state().folders) { folder ->
-                        val state = if (foldersViewModel.state().selectedFolderId == folder.id) {
+                    items(foldersState.folders) { folder ->
+                        val state = if (foldersState.selectedFolderId == folder.id) {
                             RichMenuItemState.SELECTED
                         } else {
                             RichMenuItemState.DEFAULT
@@ -183,7 +180,7 @@ private fun Content(
                             onItemClick = Clickable(
                                 enabled = state == RichMenuItemState.DEFAULT,
                                 onClickDescription = stringResource(id = R.string.content_description_select_label),
-                                onClick = { foldersViewModel.onFolderSelected(folder.id) }
+                                onClick = { onFolderSelected(folder.id) }
                             ),
                             state = state,
                             modifier = Modifier.height(dimensions().spacing48x)

@@ -453,7 +453,8 @@ class GroupConversationDetailsViewModelTest {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isUnderLegalHold = true,
             isFavorite = false,
-            isDeletingConversationLocallyRunning = false
+            isDeletingConversationLocallyRunning = false,
+            folder = null
         )
         // When - Then
         assertEquals(expected, viewModel.conversationSheetContent)

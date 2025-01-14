@@ -225,4 +225,7 @@ class CallService : Service() {
 }
 
 private fun Intent.putExtra(name: String, actionType: Action): Intent = putExtra(name, Bundlizer.bundle(Action.serializer(), actionType))
-private fun Intent.getActionTypeExtra(name: String): Action? = getBundleExtra(name)?.let { Bundlizer.unbundle(Action.serializer(), it) }
+
+private fun Intent.getActionTypeExtra(name: String): Action? = getBundleExtra(name)?.let {
+        Bundlizer.unbundle(Action.serializer(), it)
+    }

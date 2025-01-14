@@ -22,29 +22,39 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface ConversationFoldersVM {
     fun state(): ConversationFoldersState = ConversationFoldersState(persistentListOf())
+    fun onFolderSelected(folderId: String) {}
 }
 
-@HiltViewModel
-class ConversationFoldersVMImpl @Inject constructor(
+@HiltViewModel(assistedFactory = ConversationFoldersVMImpl.Factory::class)
+class ConversationFoldersVMImpl @AssistedInject constructor(
+    @Assisted val args: ConversationFoldersStateArgs,
     private val observeUserFoldersUseCase: ObserveUserFoldersUseCase,
 ) : ConversationFoldersVM, ViewModel() {
 
-    private var state by mutableStateOf(ConversationFoldersState(persistentListOf()))
+    @AssistedFactory
+    interface Factory : AssistedViewModelFactory<ConversationFoldersVMImpl, ConversationFoldersStateArgs> {
+        override fun create(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl
+    }
+
+    private var state by mutableStateOf(ConversationFoldersState(persistentListOf(), args.selectedFolderId))
 
     override fun state(): ConversationFoldersState = state
 
@@ -55,14 +65,23 @@ class ConversationFoldersVMImpl @Inject constructor(
     private fun observeUserFolders() = viewModelScope.launch {
         observeUserFoldersUseCase()
             .collect { folders ->
-                state = ConversationFoldersState(folders.toPersistentList())
+                state = state.copy(folders = folders.toPersistentList())
             }
+    }
+
+    override fun onFolderSelected(folderId: String) {
+        state = state.copy(selectedFolderId = folderId)
     }
 }
 
-data class ConversationFoldersState(val folders: PersistentList<ConversationFolder>)
+data class ConversationFoldersState(val folders: PersistentList<ConversationFolder>, val selectedFolderId: String? = null)
 
 @Serializable
-object ConversationFoldersStateArgs : ScopedArgs {
-    override val key = "ConversationFoldersStateArgsKey"
+data class ConversationFoldersStateArgs(val selectedFolderId: String?) : ScopedArgs {
+
+    override val key = "$ARGS_KEY:$selectedFolderId"
+
+    companion object {
+        const val ARGS_KEY = "ConversationFoldersStateArgsKey"
+    }
 }

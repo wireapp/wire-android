@@ -66,6 +66,7 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -122,16 +123,17 @@ class GroupConversationDetailsViewModel @Inject constructor(
         observeConversationDetails()
     }
 
+    private suspend fun groupDetailsFlow(): Flow<ConversationDetails.Group> = observeConversationDetails(conversationId)
+        .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+        .map { it.conversationDetails }
+        .filterIsInstance<ConversationDetails.Group>()
+        .distinctUntilChanged()
+        .flowOn(dispatcher.io())
+
     private fun observeConversationDetails() {
         viewModelScope.launch {
-            val groupDetailsFlow =
-                observeConversationDetails(conversationId)
-                    .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
-                    .map { it.conversationDetails }
-                    .filterIsInstance<ConversationDetails.Group>()
-                    .distinctUntilChanged()
-                    .flowOn(dispatcher.io())
-                    .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+            val groupDetailsFlow = groupDetailsFlow()
+                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
             val selfTeam = getSelfTeam().getOrNull()
             val selfUser = observerSelfUser().first()
@@ -141,7 +143,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 groupDetailsFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
             ) { groupDetails, selfDeletionTimer ->
-
                 val isSelfInOwnerTeam = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
                 val isSelfExternalMember = selfUser.userType == UserType.EXTERNAL
                 val isSelfAnAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
@@ -163,6 +164,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
                     isUnderLegalHold = groupDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
                     isFavorite = groupDetails.isFavorite,
+                    folder = groupDetails.folder,
                     isDeletingConversationLocallyRunning = false
                 )
 

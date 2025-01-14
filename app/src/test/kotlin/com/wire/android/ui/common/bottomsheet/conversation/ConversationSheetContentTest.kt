@@ -216,7 +216,8 @@ class ConversationSheetContentTest {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isUnderLegalHold = false,
             isFavorite = false,
-            isDeletingConversationLocallyRunning = false
+            isDeletingConversationLocallyRunning = false,
+            folder = null
         )
     }
 
@@ -240,7 +241,8 @@ class ConversationSheetContentTest {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isUnderLegalHold = false,
             isFavorite = false,
-            isDeletingConversationLocallyRunning = conversationDeletionLocallyRunning
+            isDeletingConversationLocallyRunning = conversationDeletionLocallyRunning,
+            folder = null
         )
     }
 }

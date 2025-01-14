@@ -65,7 +65,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
             searchQuery = searchQuery,
-            isFavorite = conversationDetails.isFavorite
+            isFavorite = conversationDetails.isFavorite,
+            folder = conversationDetails.folder
         )
     }
 
@@ -103,7 +104,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
             searchQuery = searchQuery,
-            isFavorite = conversationDetails.isFavorite
+            isFavorite = conversationDetails.isFavorite,
+            folder = conversationDetails.folder
         )
     }
 

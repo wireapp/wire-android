@@ -58,6 +58,7 @@ import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
@@ -323,7 +324,9 @@ fun ConversationsScreenContent(
                         )
                     },
                     changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
-                    moveConversationToFolder = conversationListViewModel::moveConversationToFolder,
+                    moveConversationToFolder = { navArgs ->
+                        navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(navArgs)))
+                    },
                     updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
                     clearConversationContent = clearContentDialogState::show,
                     blockUser = blockUserDialogState::show,

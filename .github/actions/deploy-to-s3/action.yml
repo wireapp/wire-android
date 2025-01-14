@@ -116,5 +116,5 @@ runs:
         aws-bucket: ${{ inputs.aws-bucket }}
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/PR-${{ github.event.pull_request.number }}/"
         file-path: ${{ env.new_mapping_file_name }}
-        output-file-url: 'true'
-        public: true
+        output-file-url: 'false'
+        public: false

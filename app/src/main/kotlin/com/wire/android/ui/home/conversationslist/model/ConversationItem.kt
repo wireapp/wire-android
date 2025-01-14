@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.isTeammate
 import kotlinx.serialization.Serializable
+import com.wire.kalium.logic.data.conversation.ConversationFolder as CurrentFolder
 
 @Serializable
 sealed class ConversationItem : ConversationFolderItem {
@@ -41,6 +42,7 @@ sealed class ConversationItem : ConversationFolderItem {
     abstract val teamId: TeamId?
     abstract val isArchived: Boolean
     abstract val isFavorite: Boolean
+    abstract val folder: CurrentFolder?
     abstract val mlsVerificationStatus: Conversation.VerificationStatus
     abstract val proteusVerificationStatus: Conversation.VerificationStatus
     abstract val hasNewActivitiesToShow: Boolean
@@ -63,6 +65,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val teamId: TeamId?,
         override val isArchived: Boolean,
         override val isFavorite: Boolean,
+        override val folder: CurrentFolder?,
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
@@ -84,6 +87,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val teamId: TeamId?,
         override val isArchived: Boolean,
         override val isFavorite: Boolean,
+        override val folder: CurrentFolder?,
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
@@ -101,6 +105,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val badgeEventType: BadgeEventType,
         override val isArchived: Boolean = false,
         override val isFavorite: Boolean = false,
+        override val folder: CurrentFolder? = null,
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
     ) : ConversationItem() {

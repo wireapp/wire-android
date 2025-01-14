@@ -207,7 +207,8 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
                     mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                     searchQuery = searchQuery,
-                    isFavorite = false
+                    isFavorite = false,
+                    folder = null
                 )
             )
 
@@ -227,7 +228,8 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
                     proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                     searchQuery = searchQuery,
                     isFavorite = false,
-                    isUserDeleted = false
+                    isUserDeleted = false,
+                    folder = null
                 )
             )
         }

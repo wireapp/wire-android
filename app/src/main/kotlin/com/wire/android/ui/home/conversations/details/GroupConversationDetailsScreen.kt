@@ -94,6 +94,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
+import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
 import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
@@ -111,6 +112,8 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectConversationDialog
@@ -138,6 +141,8 @@ fun GroupConversationDetailsScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
+    conversationFoldersScreenResultRecipient:
+    ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
     viewModel: GroupConversationDetailsViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
@@ -246,8 +251,10 @@ fun GroupConversationDetailsScreen(
         onConversationMediaClick = onConversationMediaClick,
         isAbandonedOneOnOneConversation = viewModel.conversationSheetContent?.isAbandonedOneOnOneConversation(
             viewModel.groupParticipantsState.data.allCount
-        ) ?: false
-
+        ) ?: false,
+        onMoveToFolder = {
+            navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
+        }
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -266,6 +273,17 @@ fun GroupConversationDetailsScreen(
                     } else {
                         snackbarHostState.showSnackbar(tryAgainSnackBarMessage)
                     }
+                }
+            }
+        }
+    }
+
+    conversationFoldersScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            NavResult.Canceled -> {}
+            is NavResult.Value -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(result.value.message)
                 }
             }
         }
@@ -290,6 +308,7 @@ private fun GroupConversationDetailsContent(
     isAbandonedOneOnOneConversation: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
+    onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
@@ -473,7 +492,7 @@ private fun GroupConversationDetailsContent(
                     }
                 },
                 changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
-                moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
+                moveConversationToFolder = onMoveToFolder,
                 updateConversationArchiveStatus = {
                     // Only show the confirmation dialog if the conversation is not archived
                     if (!it.isArchived) {
@@ -611,6 +630,7 @@ fun PreviewGroupConversationDetails() {
                 isUnderLegalHold = false,
                 proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                 isFavorite = false,
+                folder = null,
                 isDeletingConversationLocallyRunning = false
             ),
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,

@@ -50,6 +50,7 @@
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_try_again">Try Again</string>
+    <string name="label_done">Done</string>
     <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
@@ -662,7 +663,9 @@
     <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_remove_from_favourites">Remove from Favorites</string>
-    <string name="label_move_to_folder">Move to Folder</string>
+    <string name="label_move_to_folder">Move to Folder...</string>
+    <string name="label_new_folder">New Folder</string>
+    <string name="folder_create_description">Create a new folder by pressing the\n“New Folder” button</string>
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_unarchive">Unarchive</string>
     <string name="label_clear_content">Clear Content…</string>
@@ -1675,4 +1678,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
     <string name="reaction_sender_self">You</string>
     <string name="emoji_picker_select_reaction">Select Reaction</string>
+
+    <!-- Move to Folder -->
+    <string name="move_to_folder_success">“%1$s” was moved to “%2$s”</string>
+    <string name="move_to_folder_failed">“%1$s” could not be moved</string>
 </resources>

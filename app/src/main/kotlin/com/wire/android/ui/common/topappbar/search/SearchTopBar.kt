@@ -22,6 +22,7 @@ package com.wire.android.ui.common.topappbar.search
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -144,6 +145,7 @@ fun SearchTopBar(
             interactionSource = interactionSource,
             modifier = Modifier
                 .padding(dimensions().spacing8x)
+                .focusable(true)
                 .focusRequester(focusRequester)
                 .onFocusEvent { onActiveChanged(it.isFocused) }
         )

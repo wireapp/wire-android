@@ -103,8 +103,8 @@ runs:
         aws-bucket: ${{ inputs.aws-bucket }}
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/"
         file-path: ${{ env.new_mapping_file_name }}
-        output-file-url: 'true'
-        public: true
+        output-file-url: 'false'
+        public: false
     - name: Upload mapping file to S3 from PR
       if: ${{ github.event.pull_request.number != '' && inputs.build-variant != 'debug' }}
       id: upload-mapping-from-PR

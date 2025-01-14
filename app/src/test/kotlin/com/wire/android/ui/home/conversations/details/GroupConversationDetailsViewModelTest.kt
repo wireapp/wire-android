@@ -59,7 +59,7 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTim
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
@@ -706,7 +706,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var removeMemberFromConversation: RemoveMemberFromConversationUseCase
 
     @MockK
-    lateinit var observerSelfUser: GetSelfUserUseCase
+    lateinit var observerSelfUser: ObserveSelfUserUseCase
 
     @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase

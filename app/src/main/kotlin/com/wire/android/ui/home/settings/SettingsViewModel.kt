@@ -26,7 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -39,7 +39,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val observeIsAppLockEditable: ObserveIsAppLockEditableUseCase,
-    private val getSelf: GetSelfUserUseCase,
+    private val getSelf: ObserveSelfUserUseCase,
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
     var state by mutableStateOf(SettingsState())

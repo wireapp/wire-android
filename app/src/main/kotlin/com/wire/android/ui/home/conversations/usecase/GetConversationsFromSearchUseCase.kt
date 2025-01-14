@@ -35,7 +35,6 @@ import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCas
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -47,7 +46,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     private val observeConversationsFromFromFolder: ObserveConversationsFromFolderUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
-    private val observeSelfUser: GetSelfUserUseCase
+    private val getSelfUser: GetSelfUserUseCase
 ) {
     suspend operator fun invoke(
         searchQuery: String = "",
@@ -96,7 +95,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     it.toConversationItem(
                         userTypeMapper = userTypeMapper,
                         searchQuery = searchQuery,
-                        selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
+                        selfUserTeamId = getSelfUser()?.teamId
                     )
                 }
             }.flowOn(dispatchers.io())

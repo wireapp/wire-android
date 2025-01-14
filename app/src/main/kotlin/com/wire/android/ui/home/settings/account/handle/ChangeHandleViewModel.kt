@@ -34,7 +34,6 @@ import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -52,7 +51,7 @@ class ChangeHandleViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getSelf().firstOrNull()?.handle.orEmpty().let { currentHandle ->
+            getSelf()?.handle.orEmpty().let { currentHandle ->
                 textState.setTextAndPlaceCursorAtEnd(currentHandle)
                 textState.textAsFlow().collectLatest { newHandle ->
                     state = when (validateHandle(newHandle.toString())) {

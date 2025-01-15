@@ -62,7 +62,6 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -79,6 +78,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
@@ -86,6 +86,7 @@ import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
@@ -108,16 +109,19 @@ fun HomeScreen(
     navigator: Navigator,
     groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
+    conversationFoldersScreenResultRecipient:
+    ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
     homeViewModel: HomeViewModel = hiltViewModel(),
     appSyncViewModel: AppSyncViewModel = hiltViewModel(),
     homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
     analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
     foldersViewModel: ConversationFoldersVM =
-        hiltViewModelScoped<ConversationFoldersVMImpl, ConversationFoldersVM, ConversationFoldersStateArgs>(
-            ConversationFoldersStateArgs
+        hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
+            creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
         )
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
+    val context = LocalContext.current
 
     val homeScreenState = rememberHomeScreenState(navigator)
     val notificationsPermissionDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -137,7 +141,6 @@ fun HomeScreen(
         )
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -232,6 +235,17 @@ fun HomeScreen(
                     snackbarHostState.showSnackbar(
                         HomeSnackBarMessage.SuccessConnectionIgnoreRequest(result.value).uiText.asString(context.resources)
                     )
+                }
+            }
+        }
+    }
+
+    conversationFoldersScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            NavResult.Canceled -> {}
+            is NavResult.Value -> {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(result.value.message)
                 }
             }
         }

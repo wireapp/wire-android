@@ -58,6 +58,7 @@ import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
@@ -90,7 +91,6 @@ fun ConversationsScreenContent(
     lazyListState: LazyListState = rememberLazyListState(),
     loadingListContent: @Composable (LazyListState) -> Unit = { ConversationListLoadingContent(it) },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
-    initiallyLoaded: Boolean = LocalInspectionMode.current,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
         else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
@@ -203,10 +203,7 @@ fun ConversationsScreenContent(
         when (val state = conversationListViewModel.conversationListState) {
             is ConversationListState.Paginated -> {
                 val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
-                var showLoading by remember(conversationsSource) { mutableStateOf(!initiallyLoaded) }
-                if (lazyPagingItems.loadState.refresh != LoadState.Loading && showLoading) {
-                    showLoading = false
-                }
+                val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
 
                 when {
                     // when conversation list is not yet fetched, show loading indicator
@@ -344,7 +341,9 @@ fun ConversationsScreenContent(
                         )
                     },
                     changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
-                    moveConversationToFolder = conversationListViewModel::moveConversationToFolder,
+                    moveConversationToFolder = { navArgs ->
+                        navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(navArgs)))
+                    },
                     updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
                     clearConversationContent = clearContentDialogState::show,
                     blockUser = blockUserDialogState::show,

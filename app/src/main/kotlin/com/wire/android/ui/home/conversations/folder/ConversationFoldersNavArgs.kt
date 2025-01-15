@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.userprofile.teammigration
+package com.wire.android.ui.home.conversations.folder
 
-import androidx.compose.foundation.text.input.TextFieldState
-import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
+import android.os.Parcelable
+import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.parcelize.Parcelize
 
-data class TeamMigrationState(
-    val teamNameTextState: TextFieldState = TextFieldState(),
-    val shouldShowMigrationLeaveDialog: Boolean = false,
-    val isMigrating: Boolean = false,
-    val currentStep: Int = 0,
-    val username: String = "",
-    val teamUrl: String = "",
-    val migrationFailure: MigrateFromPersonalToTeamFailure? = null
+data class ConversationFoldersNavArgs(
+    val conversationId: ConversationId,
+    val conversationName: String,
+    val currentFolderId: String?
 )
+
+@Parcelize
+data class ConversationFoldersNavBackArgs(val message: String) : Parcelable

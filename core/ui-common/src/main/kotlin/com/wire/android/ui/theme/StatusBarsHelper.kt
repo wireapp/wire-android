@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.userprofile.teammigration
+package com.wire.android.ui.theme
 
-import androidx.compose.foundation.text.input.TextFieldState
-import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
+import android.app.Activity
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
-data class TeamMigrationState(
-    val teamNameTextState: TextFieldState = TextFieldState(),
-    val shouldShowMigrationLeaveDialog: Boolean = false,
-    val isMigrating: Boolean = false,
-    val currentStep: Int = 0,
-    val username: String = "",
-    val teamUrl: String = "",
-    val migrationFailure: MigrateFromPersonalToTeamFailure? = null
-)
+@Composable
+fun updateSystemBarIconsAppearance(useDarkSystemBarIcons: Boolean) {
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = useDarkSystemBarIcons
+        }
+    }
+}

@@ -347,4 +347,9 @@ class ConversationModule {
     @Provides
     fun provideMoveConversationToFolderUseCase(conversationScope: ConversationScope) =
         conversationScope.moveConversationToFolder
+
+    @ViewModelScoped
+    @Provides
+    fun provideRemoveConversationFromFolderUseCase(conversationScope: ConversationScope) =
+        conversationScope.removeConversationFromFolder
 }

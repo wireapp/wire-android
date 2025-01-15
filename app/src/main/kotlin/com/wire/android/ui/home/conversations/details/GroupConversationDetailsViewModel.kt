@@ -382,10 +382,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToFolder(conversationId: ConversationId?) {
-    }
-
     override fun updateConversationArchiveStatus(
         dialogState: DialogState,
         timestamp: Long,

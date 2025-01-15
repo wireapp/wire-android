@@ -664,6 +664,7 @@
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_remove_from_favourites">Remove from Favorites</string>
     <string name="label_move_to_folder">Move to Folder...</string>
+    <string name="label_remove_from_folder">Remove from Folder “%1$s”</string>
     <string name="label_new_folder">New Folder</string>
     <string name="folder_create_description">Create a new folder by pressing the\n“New Folder” button</string>
     <string name="label_move_to_archive">Move to Archive</string>
@@ -1683,4 +1684,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!-- Move to Folder -->
     <string name="move_to_folder_success">“%1$s” was moved to “%2$s”</string>
     <string name="move_to_folder_failed">“%1$s” could not be moved</string>
+    <string name="remove_from_folder_success">“%1$s” was removed from “%2$s”</string>
+    <string name="remove_from_folder_failed">“%1$s” could not be removed</string>
+
 </resources>

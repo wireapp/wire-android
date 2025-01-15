@@ -29,18 +29,22 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
-import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.data.sync.SyncState.Failed
+import com.wire.kalium.logic.data.sync.SyncState.GatheringPendingEvents
+import com.wire.kalium.logic.data.sync.SyncState.Live
+import com.wire.kalium.logic.data.sync.SyncState.SlowSync
+import com.wire.kalium.logic.data.sync.SyncState.Waiting
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.network.NetworkState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
@@ -59,12 +63,19 @@ class CommonTopAppBarViewModel @Inject constructor(
 
     private fun connectivityFlow(userId: UserId): Flow<Connectivity> =
         coreLogic.sessionScope(userId) {
-            observeSyncState().map {
-                when (it) {
-                    SyncState.Waiting -> Connectivity.WaitingConnection(null, null)
-                    is SyncState.Failed -> Connectivity.WaitingConnection(it.cause, it.retryDelay)
-                    SyncState.GatheringPendingEvents, SyncState.SlowSync -> Connectivity.Connecting
-                    SyncState.Live -> Connectivity.Connected
+            combine(observeSyncState(), coreLogic.networkStateObserver.observeNetworkState()) { syncState, networkState ->
+                when (syncState) {
+                    is Waiting -> Connectivity.WaitingConnection(null, null)
+                    is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
+                    is GatheringPendingEvents,
+                    is SlowSync -> Connectivity.Connecting
+
+                    is Live ->
+                        if (networkState is NetworkState.ConnectedWithInternet) {
+                            Connectivity.Connected
+                        } else {
+                            Connectivity.WaitingConnection(null, null)
+                        }
                 }
             }
         }
@@ -84,37 +95,44 @@ class CommonTopAppBarViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             coreLogic.globalScope {
-                session.currentSessionFlow().flatMapLatest {
-                    when (it) {
-                        is CurrentSessionResult.Failure.Generic,
-                        is CurrentSessionResult.Failure.SessionNotFound -> flowOf(
-                            ConnectivityUIState.None
-                        )
+                session.currentSessionFlow()
+                    .flatMapLatest {
+                        when (it) {
+                            is CurrentSessionResult.Failure.Generic,
+                            is CurrentSessionResult.Failure.SessionNotFound -> flowOf(
+                                ConnectivityUIState.None
+                            )
 
-                        is CurrentSessionResult.Success -> {
-                            val userId = it.accountInfo.userId
-                            combine(
-                                activeCallsFlow(userId),
-                                currentScreenFlow(),
-                                connectivityFlow(userId),
-                            ) { activeCalls, currentScreen, connectivity ->
-                                mapToConnectivityUIState(currentScreen, connectivity, activeCalls)
+                            is CurrentSessionResult.Success -> {
+                                val userId = it.accountInfo.userId
+                                combine(
+                                    activeCallsFlow(userId),
+                                    currentScreenFlow(),
+                                    connectivityFlow(userId),
+                                ) { activeCalls, currentScreen, connectivity ->
+                                    mapToConnectivityUIState(currentScreen, connectivity, activeCalls)
+                                }
                             }
                         }
                     }
-                }.collectLatest { connectivityUIState ->
-                    /**
-                     * Adding some delay here to avoid some bad UX : ongoing call banner displayed and
-                     * hided in a short time when the user hangs up the call
-                     * Call events could take some time to be received and this function
-                     * could be called when the screen is changed, so we delayed
-                     * showing the banner until getting the correct calling values
-                     */
-                    if (connectivityUIState is ConnectivityUIState.Calls && connectivityUIState.hasOngoingCall) {
-                        delay(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)
+                    .debounce { state ->
+                        /**
+                         * Adding some debounce here to avoid some bad UX and prevent from having blinking effect when the state changes
+                         * quickly, e.g. when displaying ongoing call banner and hiding it in a short time when the user hangs up the call.
+                         * Call events could take some time to be received and this function could be called when the screen is changed,
+                         * so we delayed showing the banner until getting the correct calling values and for calls this debounce is bigger
+                         * than for other states in order to allow for the correct handling of hanging up a call.
+                         * When state changes to None, handle it immediately, that's why we return 0L debounce time in this case.
+                         */
+                        when {
+                            state is ConnectivityUIState.None -> 0L
+                            state is ConnectivityUIState.Calls && state.hasOngoingCall -> CONNECTIVITY_STATE_DEBOUNCE_ONGOING_CALL
+                            else -> CONNECTIVITY_STATE_DEBOUNCE_DEFAULT
+                        }
                     }
-                    state = state.copy(connectivityState = connectivityUIState)
-                }
+                    .collectLatest { connectivityUIState ->
+                        state = state.copy(connectivityState = connectivityUIState)
+                    }
             }
             coreLogic.networkStateObserver.observeNetworkState().collectLatest {
                 state = state.copy(networkState = it)
@@ -160,6 +178,7 @@ class CommonTopAppBarViewModel @Inject constructor(
     }
 
     private companion object {
-        const val WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER = 600L
+        const val CONNECTIVITY_STATE_DEBOUNCE_ONGOING_CALL = 600L
+        const val CONNECTIVITY_STATE_DEBOUNCE_DEFAULT = 200L
     }
 }

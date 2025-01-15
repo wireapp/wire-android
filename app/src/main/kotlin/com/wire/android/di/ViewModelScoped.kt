@@ -87,3 +87,7 @@ interface ScopedArgs {
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 annotation class ViewModelScopedPreview
+
+interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
+    fun create(args: R): VM
+}

@@ -81,6 +81,7 @@ fun rememberConversationSheetState(
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
                     isFavorite = isFavorite,
+                    folder = folder,
                     isDeletingConversationLocallyRunning = isConversationDeletionLocallyRunning
                 )
             }
@@ -108,6 +109,7 @@ fun rememberConversationSheetState(
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
                     isFavorite = isFavorite,
+                    folder = folder,
                     isDeletingConversationLocallyRunning = false
                 )
             }
@@ -130,6 +132,7 @@ fun rememberConversationSheetState(
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
                     isFavorite = null,
+                    folder = null,
                     isDeletingConversationLocallyRunning = false
                 )
             }

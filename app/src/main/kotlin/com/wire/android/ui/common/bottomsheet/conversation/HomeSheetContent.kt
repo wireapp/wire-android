@@ -43,6 +43,7 @@ import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
@@ -59,8 +60,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
     changeFavoriteState: (dialogState: GroupDialogState, addToFavorite: Boolean) -> Unit,
-    // TODO(profile): enable when implemented
-    // moveConversationToFolder: () -> Unit,
+    moveConversationToFolder: ((ConversationFoldersNavArgs) -> Unit)?,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
@@ -142,19 +142,28 @@ internal fun ConversationMainSheetContent(
                     }
                 }
             }
-// TODO(profile): enable when implemented
-//            add {
-//                MenuBottomSheetItem(
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_folder,
-//                            contentDescription = stringResource(R.string.content_description_move_to_folder),
-//                        )
-//                    },
-//                    title = stringResource(R.string.label_move_to_folder),
-//                    onItemClick = moveConversationToFolder
-//                )
-//            }
+            if (moveConversationToFolder != null) {
+                add {
+                    MenuBottomSheetItem(
+                        leading = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_folder,
+                                contentDescription = null,
+                            )
+                        },
+                        title = stringResource(R.string.label_move_to_folder),
+                        onItemClick = {
+                            moveConversationToFolder(
+                                ConversationFoldersNavArgs(
+                                    conversationId = conversationSheetContent.conversationId,
+                                    conversationName = conversationSheetContent.title,
+                                    currentFolderId = conversationSheetContent.folder?.id
+                                )
+                            )
+                        }
+                    )
+                }
+            }
             add {
                 MenuBottomSheetItem(
                     leading = {

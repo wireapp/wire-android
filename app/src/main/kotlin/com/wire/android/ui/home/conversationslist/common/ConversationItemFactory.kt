@@ -399,6 +399,7 @@ fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
+            folder = null,
             playingAudio = null
         ),
         modifier = Modifier,
@@ -427,6 +428,7 @@ fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
+            folder = null,
             playingAudio = null
         ),
         modifier = Modifier,
@@ -457,6 +459,7 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
+            folder = null,
             playingAudio = null
         ),
         modifier = Modifier,
@@ -485,6 +488,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireThem
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
+            folder = null,
             playingAudio = null
         ),
         modifier = Modifier,
@@ -514,6 +518,7 @@ fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
+            folder = null,
             playingAudio = null
         ),
         modifier = Modifier,
@@ -599,6 +604,7 @@ fun PreviewPrivateConversationItemWithBlockedBadge() = WireTheme {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
             isUserDeleted = false,
+            folder = null,
             playingAudio = null
         ),
         modifier = Modifier,
@@ -627,6 +633,7 @@ fun PreviewPrivateConversationItemWithPlayingAudio() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
+            folder = null,
             playingAudio = PlayingAudioInConversation("some_id", true)
         ),
         modifier = Modifier,

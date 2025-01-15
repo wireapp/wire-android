@@ -342,4 +342,9 @@ class ConversationModule {
     @Provides
     fun provideObserveUserFoldersUseCase(conversationScope: ConversationScope) =
         conversationScope.observeUserFolders
+
+    @ViewModelScoped
+    @Provides
+    fun provideMoveConversationToFolderUseCase(conversationScope: ConversationScope) =
+        conversationScope.moveConversationToFolder
 }

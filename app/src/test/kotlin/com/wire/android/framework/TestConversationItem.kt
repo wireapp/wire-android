@@ -47,6 +47,7 @@ object TestConversationItem {
         proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         isFavorite = false,
         isUserDeleted = false,
+        folder = null,
         playingAudio = null
     )
 
@@ -65,6 +66,7 @@ object TestConversationItem {
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         isFavorite = false,
+        folder = null,
         playingAudio = null
     )
 

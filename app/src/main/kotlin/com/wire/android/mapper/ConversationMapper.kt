@@ -71,6 +71,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             hasNewActivitiesToShow = hasNewActivitiesToShow,
             searchQuery = searchQuery,
             isFavorite = conversationDetails.isFavorite,
+            folder = conversationDetails.folder,
             playingAudio = getPlayingAudioInConversation(playingAudioMessage, conversationDetails)
         )
     }
@@ -110,6 +111,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             hasNewActivitiesToShow = hasNewActivitiesToShow,
             searchQuery = searchQuery,
             isFavorite = conversationDetails.isFavorite,
+            folder = conversationDetails.folder,
             playingAudio = getPlayingAudioInConversation(playingAudioMessage, conversationDetails)
         )
     }

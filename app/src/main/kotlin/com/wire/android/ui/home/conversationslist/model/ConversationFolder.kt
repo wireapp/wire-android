@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversationslist.model
 import androidx.annotation.StringRes
 import com.wire.android.R
 
+// TODO needs renaming
 sealed class ConversationFolder : ConversationFolderItem {
     sealed class Predefined(@StringRes val folderNameResId: Int) : ConversationFolder() {
         data object Conversations : Predefined(R.string.conversation_label_conversations)

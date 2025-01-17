@@ -101,7 +101,7 @@ class ForgotLockScreenViewModel @Inject constructor(
                 is IsPasswordRequiredUseCase.Result.Success -> {
                     state.copy(
                         dialogState = ForgotLockCodeDialogState.Visible(
-                            username = getSelf().firstOrNull()?.name ?: "",
+                            username = getSelf()?.name ?: "",
                             passwordRequired = isPasswordRequiredResult.value,
                             resetDeviceEnabled = !isPasswordRequiredResult.value,
                         )

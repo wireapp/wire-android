@@ -30,7 +30,7 @@ import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearch
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -72,7 +72,7 @@ class ImportMediaAuthenticatedViewModelTest {
     inner class Arrangement {
 
         @MockK
-        lateinit var getSelfUser: GetSelfUserUseCase
+        lateinit var getSelfUser: ObserveSelfUserUseCase
 
         @MockK
         lateinit var getConversationsPaginated: GetConversationsFromSearchUseCase

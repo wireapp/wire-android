@@ -19,7 +19,6 @@ package com.wire.android.ui.home.conversations.folder
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,11 +27,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -115,34 +114,28 @@ private fun Content(
                     .padding(internalPadding)
                     .fillMaxSize()
             ) {
-                Column(
+                val keyboardController = LocalSoftwareKeyboardController.current
+
+                Box(
                     modifier = Modifier
                         .weight(weight = 1f, fill = true)
                         .fillMaxWidth()
-                        .verticalScroll(scrollState)
                 ) {
-                    val keyboardController = LocalSoftwareKeyboardController.current
-
-                    Spacer(modifier = Modifier.weight(0.5f))
-
-                    Box {
-                        ShakeAnimation { animate ->
-                            WireTextField(
-                                textState = textState,
-                                labelText = stringResource(R.string.new_folder_folder_name).uppercase(),
-                                inputTransformation = InputTransformation.maxLengthWithCallback(NAME_MAX_COUNT, animate),
-                                lineLimits = TextFieldLineLimits.SingleLine,
-                                state = computeNameErrorState(error),
-                                keyboardOptions = KeyboardOptions.DefaultText,
-                                descriptionText = stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error),
-                                onKeyboardAction = { keyboardController?.hide() },
-                                modifier = Modifier.padding(
-                                    horizontal = MaterialTheme.wireDimensions.spacing16x
-                                )
+                    ShakeAnimation(modifier = Modifier.align(Alignment.Center)) { animate ->
+                        WireTextField(
+                            textState = textState,
+                            labelText = stringResource(R.string.new_folder_folder_name).uppercase(),
+                            inputTransformation = InputTransformation.maxLengthWithCallback(NAME_MAX_COUNT, animate),
+                            lineLimits = TextFieldLineLimits.SingleLine,
+                            state = computeNameErrorState(error),
+                            keyboardOptions = KeyboardOptions.DefaultText,
+                            descriptionText = stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error),
+                            onKeyboardAction = { keyboardController?.hide() },
+                            modifier = Modifier.padding(
+                                horizontal = MaterialTheme.wireDimensions.spacing16x
                             )
-                        }
+                        )
                     }
-                    Spacer(modifier = Modifier.weight(1f))
                 }
 
                 Surface(

@@ -31,7 +31,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -147,7 +146,7 @@ class ChangeDisplayNameViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { getSelfUserUseCase() } returns flowOf(TestUser.SELF_USER)
+            coEvery { getSelfUserUseCase() } returns TestUser.SELF_USER
         }
 
         fun withUserSaveNameResult(result: DisplayNameUpdateResult) = apply {

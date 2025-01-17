@@ -62,7 +62,7 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -91,7 +91,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
-    private val observerSelfUser: GetSelfUserUseCase,
+    private val observerSelfUser: ObserveSelfUserUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,

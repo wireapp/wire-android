@@ -51,7 +51,7 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELET
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -74,7 +74,7 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class)
 @Suppress("LongParameterList", "TooManyFunctions")
 class ImportMediaAuthenticatedViewModel @Inject constructor(
-    private val getSelf: GetSelfUserUseCase,
+    private val getSelf: ObserveSelfUserUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,

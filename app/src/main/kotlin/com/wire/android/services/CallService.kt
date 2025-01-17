@@ -112,7 +112,7 @@ class CallService : Service() {
                             ) { outgoingCalls, establishedCalls ->
                                 val calls = outgoingCalls + establishedCalls
                                 calls.firstOrNull()?.let { call ->
-                                    val userName = userSessionScope.users.getSelfUser().first()
+                                    val userName = userSessionScope.users.observeSelfUser().first()
                                         .also { it.logIfEmptyUserName() }
                                         .let { it.handle ?: it.name ?: "" }
                                     Either.Right(CallNotificationData(userId, call, userName))

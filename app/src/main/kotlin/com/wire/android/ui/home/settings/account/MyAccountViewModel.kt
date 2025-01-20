@@ -29,7 +29,7 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -50,7 +50,7 @@ import kotlin.properties.Delegates
 @HiltViewModel
 class MyAccountViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getSelf: GetSelfUserUseCase,
+    private val getSelf: ObserveSelfUserUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
     private val isSelfATeamMember: IsSelfATeamMemberUseCase,
     private val serverConfig: SelfServerConfigUseCase,
@@ -123,7 +123,7 @@ class MyAccountViewModel @Inject constructor(
         }
     }
 
-    private suspend fun fetchSelfUser() {
+    private fun fetchSelfUser() {
         viewModelScope.launch {
             val self = getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
 

@@ -38,7 +38,8 @@ class DebugScreenComposeTest {
                         onManualMigrationPressed = {},
                         state = UserDebugState(logPath = "logPath"),
                         onLoggingEnabledChange = {},
-                        onDeleteLogs = {}
+                        onDeleteLogs = {},
+                        onDatabaseLoggerEnabledChanged = {},
                     )
             }
         }

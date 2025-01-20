@@ -52,7 +52,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.navigation.BackStackMode
@@ -93,8 +95,14 @@ import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
+import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
@@ -128,6 +136,8 @@ fun OtherUserProfileScreen(
     navigator: Navigator,
     navArgs: OtherUserProfileNavArgs,
     resultNavigator: ResultBackNavigator<String>,
+    conversationFoldersScreenResultRecipient:
+    ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
     viewModel: OtherUserProfileScreenViewModel = hiltViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -200,6 +210,7 @@ fun OtherUserProfileScreen(
         navigateBack = navigator::navigateBack,
         onConversationMediaClick = onConversationMediaClick,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
+        onMoveToFolder = null // TODO implement when conversation details will be available in OtherUserProfileScreenViewModel
     )
 
     LaunchedEffect(Unit) {
@@ -224,6 +235,17 @@ fun OtherUserProfileScreen(
     if (viewModel.state.errorLoadingUser != null) {
         UserNotFoundDialog(onActionButtonClicked = navigator::navigateBack)
     }
+
+    conversationFoldersScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            NavResult.Canceled -> {}
+            is NavResult.Value -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(result.value.message)
+                }
+            }
+        }
+    }
 }
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
@@ -244,9 +266,14 @@ fun OtherProfileScreenContent(
     onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {},
     onLegalHoldLearnMoreClick: () -> Unit = {},
+    onMoveToFolder: ((ConversationFoldersNavArgs) -> Unit)? = null,
     changeConversationFavoriteViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
             ChangeConversationFavoriteStateArgs
+        ),
+    removeConversationFromFolderViewModel: RemoveConversationFromFolderVM =
+        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
+            RemoveConversationFromFolderArgs
         )
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
@@ -283,6 +310,7 @@ fun OtherProfileScreenContent(
         })
     }
 
+    SnackBarMessageHandler(removeConversationFromFolderViewModel.infoMessage, onEmitted = closeBottomSheet)
     SnackBarMessageHandler(changeConversationFavoriteViewModel.infoMessage, onEmitted = closeBottomSheet)
 
     val tabItems by remember(state) {
@@ -372,6 +400,8 @@ fun OtherProfileScreenContent(
                 archivingStatusState = archivingConversationDialogState::show,
                 changeFavoriteState = changeConversationFavoriteViewModel::changeFavoriteState,
                 closeBottomSheet = closeBottomSheet,
+                onMoveToFolder = onMoveToFolder,
+                removeFromFolder = removeConversationFromFolderViewModel::removeFromFolder
             )
         }
     )

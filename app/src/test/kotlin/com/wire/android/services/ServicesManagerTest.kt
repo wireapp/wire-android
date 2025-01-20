@@ -20,10 +20,13 @@ package com.wire.android.services
 import android.content.Context
 import android.content.Intent
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import io.mockk.MockKAnnotations
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -139,6 +142,93 @@ class ServicesManagerTest {
             verify(exactly = 0) { arrangement.context.stopService(arrangement.callServiceIntent) }
         }
 
+    @Test
+    fun `given ongoing call service running, when start called again with the same action, then do not start the service again`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val (arrangement, servicesManager) = Arrangement()
+                .withServiceState(CallService.ServiceState.FOREGROUND)
+                .arrange()
+            servicesManager.startCallService()
+            advanceUntilIdle()
+            arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
+            // when
+            servicesManager.startCallService() // start again with the same action
+            advanceUntilIdle()
+            // then
+            verify(exactly = 0) { arrangement.context.startService(arrangement.callServiceIntent) } // not called again
+        }
+
+    @Test
+    fun `given ongoing call service not started, when answering call, then start with proper action`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val userId = UserId("userId", "domain")
+            val conversationId = ConversationId("conversationId", "domain")
+            val action = CallService.Action.AnswerCall(userId, conversationId)
+            val intentForAction = mockk<Intent>()
+            val (arrangement, servicesManager) = Arrangement()
+                .withServiceState(CallService.ServiceState.NOT_STARTED)
+                .callServiceIntentForAction(action, intentForAction)
+                .arrange()
+            advanceUntilIdle()
+            // when
+            servicesManager.startCallServiceToAnswer(userId, conversationId)
+            // then
+            verify(exactly = 1) { arrangement.context.startService(intentForAction) }
+            verify(exactly = 0) { arrangement.context.startService(arrangement.callServiceIntent) }
+            verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
+            verify(exactly = 0) { arrangement.context.stopService(arrangement.callServiceIntent) }
+        }
+
+    @Test
+    fun `given ongoing call service already started, when answering different call, then start again with proper action`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val userId = UserId("userId", "domain")
+            val conversationId = ConversationId("conversationId", "domain")
+            val action = CallService.Action.AnswerCall(userId, conversationId)
+            val intentForAction = mockk<Intent>()
+            val (arrangement, servicesManager) = Arrangement()
+                .withServiceState(CallService.ServiceState.NOT_STARTED)
+                .callServiceIntentForAction(action, intentForAction)
+                .arrange()
+            servicesManager.startCallService()
+            advanceUntilIdle()
+            arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
+            // when
+            servicesManager.startCallServiceToAnswer(userId, conversationId)
+            // then
+            verify(exactly = 1) { arrangement.context.startService(intentForAction) }
+            verify(exactly = 0) { arrangement.context.startService(arrangement.callServiceIntent) }
+            verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
+            verify(exactly = 0) { arrangement.context.stopService(arrangement.callServiceIntent) }
+        }
+
+    @Test
+    fun `given ongoing call service already started, when needs to answer the same call, then do not start again`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val userId = UserId("userId", "domain")
+            val conversationId = ConversationId("conversationId", "domain")
+            val action = CallService.Action.AnswerCall(userId, conversationId)
+            val intentForAction = mockk<Intent>()
+            val (arrangement, servicesManager) = Arrangement()
+                .withServiceState(CallService.ServiceState.NOT_STARTED)
+                .callServiceIntentForAction(action, intentForAction)
+                .arrange()
+            servicesManager.startCallServiceToAnswer(userId, conversationId)
+            advanceUntilIdle()
+            arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
+            // when
+            servicesManager.startCallServiceToAnswer(userId, conversationId)
+            // then
+            verify(exactly = 0) { arrangement.context.startService(intentForAction) }
+            verify(exactly = 0) { arrangement.context.startService(arrangement.callServiceIntent) }
+            verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
+            verify(exactly = 0) { arrangement.context.stopService(arrangement.callServiceIntent) }
+        }
+
     private inner class Arrangement {
 
         @MockK(relaxed = true)
@@ -155,8 +245,8 @@ class ServicesManagerTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkObject(CallService.Companion)
-            every { CallService.Companion.newIntent(context) } returns callServiceIntent
-            every { CallService.Companion.newIntentToStop(context) } returns ongoingCallServiceIntentWithStopArgument
+            callServiceIntentForAction(CallService.Action.Default, callServiceIntent)
+            callServiceIntentForAction(CallService.Action.Stop, ongoingCallServiceIntentWithStopArgument)
         }
 
         fun clearRecordedCallsForContext() {
@@ -173,6 +263,10 @@ class ServicesManagerTest {
         fun withServiceState(state: CallService.ServiceState) = apply {
             every { CallService.Companion.serviceState.get() } returns state
             every { CallService.serviceState.get() } returns state
+        }
+
+        fun callServiceIntentForAction(action: CallService.Action, intent: Intent) = apply {
+            every { CallService.Companion.newIntent(context, action) } returns intent
         }
 
         fun arrange() = this to servicesManager

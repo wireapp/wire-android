@@ -26,6 +26,7 @@ import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.notification.CallNotificationManager
+import com.wire.android.services.ServicesManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
@@ -59,6 +60,9 @@ class IncomingCallActionReceiver : BroadcastReceiver() {
     @Inject
     lateinit var callNotificationManager: CallNotificationManager
 
+    @Inject
+    lateinit var servicesManager: ServicesManager
+
     @Suppress("ReturnCount")
     override fun onReceive(context: Context, intent: Intent) {
         val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: run {
@@ -77,9 +81,10 @@ class IncomingCallActionReceiver : BroadcastReceiver() {
 
         coroutineScope.launch(Dispatchers.Default) {
             with(coreLogic.getSessionScope(userId)) {
+                val conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationIdString)
                 when (action) {
-                    ACTION_DECLINE_CALL -> calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationIdString))
-                    ACTION_ANSWER_CALL -> calls.answerCall(qualifiedIdMapper.fromStringToQualifiedID(conversationIdString))
+                    ACTION_DECLINE_CALL -> calls.rejectCall(conversationId)
+                    ACTION_ANSWER_CALL -> servicesManager.startCallServiceToAnswer(userId, conversationId)
                 }
             }
             callNotificationManager.hideIncomingCallNotification(userId.toString(), conversationIdString)

@@ -347,7 +347,7 @@ class ConversationListViewModelTest {
         private lateinit var observeLegalHoldStateForSelfUserUseCase: ObserveLegalHoldStateForSelfUserUseCase
 
         @MockK
-        private lateinit var observeSelfUser: GetSelfUserUseCase
+        private lateinit var getSelfUser: GetSelfUserUseCase
 
         @MockK
         private lateinit var workManager: WorkManager
@@ -424,7 +424,7 @@ class ConversationListViewModelTest {
             observeConversationListDetailsWithEvents = observeConversationListDetailsWithEventsUseCase,
             observeLegalHoldStateForSelfUser = observeLegalHoldStateForSelfUserUseCase,
             userTypeMapper = UserTypeMapper(),
-            observeSelfUser = observeSelfUser,
+            getSelfUser = getSelfUser,
             usePagination = true,
             workManager = workManager
         )

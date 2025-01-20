@@ -73,7 +73,8 @@ fun DebugScreen(navigator: Navigator, userDebugViewModel: UserDebugViewModel = h
         },
         state = userDebugViewModel.state,
         onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
-        onDeleteLogs = userDebugViewModel::deleteLogs
+        onDeleteLogs = userDebugViewModel::deleteLogs,
+        onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState
     )
 }
 
@@ -83,6 +84,7 @@ internal fun UserDebugContent(
     onNavigationPressed: () -> Unit,
     onManualMigrationPressed: (currentAccount: UserId) -> Unit,
     onLoggingEnabledChange: (Boolean) -> Unit,
+    onDatabaseLoggerEnabledChanged: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
@@ -109,6 +111,9 @@ internal fun UserDebugContent(
                     onLoggingEnabledChange = onLoggingEnabledChange,
                     onDeleteLogs = onDeleteLogs,
                     onShareLogs = debugContentState::shareLogs,
+                    isDBLoggerEnabled = state.isDBLoggingEnabled,
+                    onDBLoggerEnabledChange = onDatabaseLoggerEnabledChanged,
+                    isPrivateBuild = BuildConfig.PRIVATE_BUILD,
                 )
                 DebugDataOptions(
                     appVersion = AppNameUtil.createAppName(),
@@ -178,6 +183,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onNavigationPressed = {},
         onManualMigrationPressed = {},
         onLoggingEnabledChange = {},
-        onDeleteLogs = {}
+        onDeleteLogs = {},
+        onDatabaseLoggerEnabledChanged = {}
     )
 }

@@ -36,7 +36,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -187,7 +187,7 @@ class ConversationListCallViewModelTest {
         lateinit var observeDegradedConversationNotifiedUseCase: ObserveDegradedConversationNotifiedUseCase
 
         @MockK
-        lateinit var getSelfUserUseCase: GetSelfUserUseCase
+        lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
 
         @MockK
         lateinit var observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase
@@ -205,12 +205,12 @@ class ConversationListCallViewModelTest {
             coEvery { observeParticipantsForConversation(any()) } returns flowOf()
             coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
             coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(false)
-            coEvery { getSelfUserUseCase() } returns flowOf()
+            coEvery { observeSelfUserUseCase() } returns flowOf()
             coEvery { observeConferenceCallingEnabled() } returns flowOf()
         }
 
         suspend fun withSelfAsAdmin() = apply {
-            coEvery { getSelfUserUseCase.invoke() } returns flowOf(TestUser.SELF_USER.copy(userType = UserType.ADMIN))
+            coEvery { observeSelfUserUseCase.invoke() } returns flowOf(TestUser.SELF_USER.copy(userType = UserType.ADMIN))
         }
 
         suspend fun withConferenceCallingEnabledResponse() = apply {
@@ -238,7 +238,7 @@ class ConversationListCallViewModelTest {
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
             observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
             observeConferenceCallingEnabled = observeConferenceCallingEnabled,
-            getSelf = getSelfUserUseCase
+            observeSelf = observeSelfUserUseCase
         )
     }
 }

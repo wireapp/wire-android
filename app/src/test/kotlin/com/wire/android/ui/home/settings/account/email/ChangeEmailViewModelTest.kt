@@ -32,13 +32,12 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import okio.IOException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
@@ -123,7 +122,7 @@ class ChangeEmailViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
 
-            coEvery { self() } returns flowOf(TestUser.SELF_USER)
+            coEvery { self() } returns TestUser.SELF_USER
         }
 
         private val viewModel = ChangeEmailViewModel(

@@ -25,10 +25,12 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -38,7 +40,8 @@ fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
     onMutingConversationStatusChange: () -> Unit,
     changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
-    moveConversationToFolder: () -> Unit,
+    moveConversationToFolder: ((ConversationFoldersNavArgs) -> Unit)?,
+    removeFromFolder: (conversationId: ConversationId, conversationName: String, folder: ConversationFolder) -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
@@ -56,8 +59,8 @@ fun ConversationSheetContent(
             ConversationMainSheetContent(
                 conversationSheetContent = conversationSheetState.conversationSheetContent!!,
                 changeFavoriteState = changeFavoriteState,
-// TODO(profile): enable when implemented
-//                moveConversationToFolder = moveConversationToFolder,
+                moveConversationToFolder = moveConversationToFolder,
+                removeFromFolder = removeFromFolder,
                 updateConversationArchiveStatus = updateConversationArchiveStatus,
                 clearConversationContent = clearConversationContent,
                 blockUserClick = blockUser,
@@ -128,6 +131,7 @@ data class ConversationSheetContent(
     val proteusVerificationStatus: Conversation.VerificationStatus,
     val isUnderLegalHold: Boolean,
     val isFavorite: Boolean?,
+    val folder: ConversationFolder?,
     val isDeletingConversationLocallyRunning: Boolean
 ) {
 

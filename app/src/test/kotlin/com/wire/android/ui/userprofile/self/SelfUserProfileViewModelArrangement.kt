@@ -37,7 +37,7 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserU
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
@@ -52,7 +52,7 @@ class SelfUserProfileViewModelArrangement {
     lateinit var userDataStore: UserDataStore
 
     @MockK
-    lateinit var getSelf: GetSelfUserUseCase
+    lateinit var getSelf: ObserveSelfUserUseCase
 
     @MockK
     lateinit var getSelfTeam: GetUpdatedSelfTeamUseCase
@@ -109,7 +109,7 @@ class SelfUserProfileViewModelArrangement {
         SelfUserProfileViewModel(
             selfUserId = TestUser.SELF_USER.id,
             dataStore = userDataStore,
-            getSelf = getSelf,
+            observeSelf = getSelf,
             getSelfTeam = getSelfTeam,
             observeValidAccounts = observeValidAccounts,
             updateStatus = updateStatus,

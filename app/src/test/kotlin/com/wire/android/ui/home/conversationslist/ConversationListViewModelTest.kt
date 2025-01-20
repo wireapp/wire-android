@@ -62,6 +62,9 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -234,6 +237,77 @@ class ConversationListViewModelTest {
         coVerify(exactly = 1) { arrangement.unblockUser(userId) }
     }
 
+    @Test
+    fun `given cached PagingData, when self user legal hold changes, then should call paginated use case again`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val conversations = listOf(
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", "")),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", "")),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", "")),
+            ).associateBy { it.conversationId }
+            val selfUserLegalHoldStateFlow = MutableSharedFlow<LegalHoldStateForSelfUser>()
+            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
+                .withConversationsPaginated(conversations.values.toList())
+                .withSelfUserLegalHoldStateFlow(selfUserLegalHoldStateFlow)
+                .arrange()
+            advanceUntilIdle()
+
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
+                // initial legal hold state
+                selfUserLegalHoldStateFlow.emit(LegalHoldStateForSelfUser.Disabled)
+                advanceUntilIdle()
+
+                // use case is called initially
+                coVerify(exactly = 1) {
+                    arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+                }
+
+                // when legal hold state is changed
+                selfUserLegalHoldStateFlow.emit(LegalHoldStateForSelfUser.Enabled)
+                advanceUntilIdle()
+
+                // then use case should be called again (in total 2 executions) to create new PagingData
+                coVerify(exactly = 2) {
+                    arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+                }
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `given cached PagingData, when observing twice, then paginated use case should not be called again`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val conversations = listOf(
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", "")),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", "")),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", "")),
+            ).associateBy { it.conversationId }
+            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
+                .withConversationsPaginated(conversations.values.toList())
+                .withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Disabled)
+                .arrange()
+            advanceUntilIdle()
+
+            // flow is collected first time
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.first()
+
+            // use case is called initially
+            coVerify(exactly = 1) {
+                arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+            }
+
+            // flow is collected second time
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.first()
+
+            // use case should NOT be called again, there should be still only one call
+            coVerify(exactly = 1) {
+                arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+            }
+        }
+
     inner class Arrangement(val conversationsSource: ConversationsSource = ConversationsSource.MAIN) {
         @MockK
         lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
@@ -273,7 +347,7 @@ class ConversationListViewModelTest {
         private lateinit var observeLegalHoldStateForSelfUserUseCase: ObserveLegalHoldStateForSelfUserUseCase
 
         @MockK
-        private lateinit var observeSelfUser: GetSelfUserUseCase
+        private lateinit var getSelfUser: GetSelfUserUseCase
 
         @MockK
         private lateinit var workManager: WorkManager
@@ -325,8 +399,12 @@ class ConversationListViewModelTest {
             )
         }
 
-        fun withSelfUserLegalHoldState(LegalHoldStateForSelfUser: LegalHoldStateForSelfUser) = apply {
-            coEvery { observeLegalHoldStateForSelfUserUseCase() } returns flowOf(LegalHoldStateForSelfUser)
+        fun withSelfUserLegalHoldState(legalHoldStateForSelfUser: LegalHoldStateForSelfUser) = apply {
+            coEvery { observeLegalHoldStateForSelfUserUseCase() } returns flowOf(legalHoldStateForSelfUser)
+        }
+
+        fun withSelfUserLegalHoldStateFlow(legalHoldStateForSelfUserFlow: Flow<LegalHoldStateForSelfUser>) = apply {
+            coEvery { observeLegalHoldStateForSelfUserUseCase() } returns legalHoldStateForSelfUserFlow
         }
 
         fun arrange() = this to ConversationListViewModelImpl(
@@ -346,7 +424,7 @@ class ConversationListViewModelTest {
             observeConversationListDetailsWithEvents = observeConversationListDetailsWithEventsUseCase,
             observeLegalHoldStateForSelfUser = observeLegalHoldStateForSelfUserUseCase,
             userTypeMapper = UserTypeMapper(),
-            observeSelfUser = observeSelfUser,
+            getSelfUser = getSelfUser,
             usePagination = true,
             workManager = workManager
         )

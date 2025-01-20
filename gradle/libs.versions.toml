@@ -47,7 +47,7 @@ compose-qr = "1.0.1"
 amplituda = "2.2.2"
 
 # Compose
-composeBom = "2024.11.00"
+composeBom = "2024.12.01"
 compose-activity = "1.9.3"
 compose-compiler = "1.5.13"
 compose-constraint = "1.1.0"

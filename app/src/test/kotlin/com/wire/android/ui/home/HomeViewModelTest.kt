@@ -31,7 +31,7 @@ import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -126,7 +126,7 @@ class HomeViewModelTest {
         lateinit var dataStore: UserDataStore
 
         @MockK
-        lateinit var getSelf: GetSelfUserUseCase
+        lateinit var getSelf: ObserveSelfUserUseCase
 
         @MockK
         lateinit var needsToRegisterClient: NeedsToRegisterClientUseCase
@@ -148,7 +148,7 @@ class HomeViewModelTest {
                 savedStateHandle = savedStateHandle,
                 globalDataStore = globalDataStore,
                 dataStore = dataStore,
-                getSelf = getSelf,
+                observeSelf = getSelf,
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser,

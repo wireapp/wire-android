@@ -350,7 +350,7 @@ class WireNotificationManager @Inject constructor(
                     } else {
                         userSessionScope.calls.getIncomingCalls()
                     }.map { calls ->
-                        userSessionScope.users.getSelfUser().first()
+                        userSessionScope.users.observeSelfUser().first()
                             .also { it.logIfEmptyUserName() }
                             .let { it.handle ?: it.name ?: "" } to calls
                     }
@@ -374,7 +374,7 @@ class WireNotificationManager @Inject constructor(
     ) {
         val selfUserNameState = coreLogic.getSessionScope(userId)
             .users
-            .getSelfUser()
+            .observeSelfUser()
             .onEach { it.logIfEmptyUserName() }
             .map { it.handle ?: it.name ?: "" }
             .distinctUntilChanged()

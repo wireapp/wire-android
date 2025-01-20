@@ -27,7 +27,6 @@ import com.wire.kalium.util.DateTimeUtil
 @Suppress("TooManyFunctions")
 interface GroupConversationDetailsBottomSheetEventsHandler {
     fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus, onMessage: (UIText) -> Unit)
-    fun onMoveConversationToFolder(conversationId: ConversationId? = null)
     fun updateConversationArchiveStatus(
         dialogState: DialogState,
         timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds(),
@@ -46,7 +45,6 @@ interface GroupConversationDetailsBottomSheetEventsHandler {
             ) {
             }
 
-            override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
             override fun updateConversationArchiveStatus(
                 dialogState: DialogState,
                 timestamp: Long,

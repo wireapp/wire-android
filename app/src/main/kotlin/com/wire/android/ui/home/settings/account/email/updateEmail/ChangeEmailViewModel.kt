@@ -31,7 +31,6 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -48,7 +47,7 @@ class ChangeEmailViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getSelf().firstOrNull()?.email?.let { currentEmail ->
+            getSelf()?.email?.let { currentEmail ->
                 textState.setTextAndPlaceCursorAtEnd(currentEmail)
                 textState.textAsFlow().collectLatest {
                     val isValidEmail = Patterns.EMAIL_ADDRESS.matcher(it.trim()).matches()

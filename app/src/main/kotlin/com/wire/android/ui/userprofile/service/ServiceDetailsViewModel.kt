@@ -38,7 +38,7 @@ import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCas
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.nullableFold
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -57,7 +57,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ServiceDetailsViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
-    private val observeSelfUser: GetSelfUserUseCase,
+    private val observeSelfUser: ObserveSelfUserUseCase,
     private val getServiceById: GetServiceByIdUseCase,
     private val observeIsServiceMember: ObserveIsServiceMemberUseCase,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,

@@ -214,7 +214,7 @@ private fun ImportMediaAuthenticatedContent(
                                     NavigationCommand(
                                         ConversationScreenDestination(
                                             ConversationNavArgs(
-                                                conversationId = conversationItem.conversationId,
+                                                conversationId = conversationItem,
                                                 pendingBundles = ArrayList(it),
                                                 pendingTextBundle = importedText
                                             )

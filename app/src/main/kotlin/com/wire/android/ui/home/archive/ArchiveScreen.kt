@@ -32,7 +32,6 @@ import com.wire.android.ui.home.conversationslist.common.previewConversationFold
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import kotlinx.coroutines.flow.flowOf
 
 @HomeNavGraph
 @WireDestination
@@ -57,7 +56,7 @@ fun PreviewArchiveEmptyScreen() = WireTheme {
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(flowOf()),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(list = listOf())),
     )
 }
 
@@ -66,10 +65,10 @@ fun PreviewArchiveEmptyScreen() = WireTheme {
 fun PreviewArchiveEmptySearchScreen() = WireTheme {
     ConversationsScreenContent(
         navigator = rememberNavigator {},
-        searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
+        searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(flowOf()),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(searchQuery = "er", list = listOf())),
     )
 }
 
@@ -78,7 +77,7 @@ fun PreviewArchiveEmptySearchScreen() = WireTheme {
 fun PreviewArchiveScreen() = WireTheme {
     ConversationsScreenContent(
         navigator = rememberNavigator {},
-        searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
+        searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(searchQuery = "er")),

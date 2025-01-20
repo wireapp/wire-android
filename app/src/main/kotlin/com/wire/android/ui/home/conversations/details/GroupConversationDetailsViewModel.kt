@@ -62,10 +62,11 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -90,7 +91,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
-    private val observerSelfUser: GetSelfUserUseCase,
+    private val observerSelfUser: ObserveSelfUserUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
@@ -122,16 +123,17 @@ class GroupConversationDetailsViewModel @Inject constructor(
         observeConversationDetails()
     }
 
+    private suspend fun groupDetailsFlow(): Flow<ConversationDetails.Group> = observeConversationDetails(conversationId)
+        .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+        .map { it.conversationDetails }
+        .filterIsInstance<ConversationDetails.Group>()
+        .distinctUntilChanged()
+        .flowOn(dispatcher.io())
+
     private fun observeConversationDetails() {
         viewModelScope.launch {
-            val groupDetailsFlow =
-                observeConversationDetails(conversationId)
-                    .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
-                    .map { it.conversationDetails }
-                    .filterIsInstance<ConversationDetails.Group>()
-                    .distinctUntilChanged()
-                    .flowOn(dispatcher.io())
-                    .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+            val groupDetailsFlow = groupDetailsFlow()
+                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
             val selfTeam = getSelfTeam().getOrNull()
             val selfUser = observerSelfUser().first()
@@ -141,7 +143,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 groupDetailsFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
             ) { groupDetails, selfDeletionTimer ->
-
                 val isSelfInOwnerTeam = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
                 val isSelfExternalMember = selfUser.userType == UserType.EXTERNAL
                 val isSelfAnAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
@@ -163,6 +164,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
                     isUnderLegalHold = groupDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
                     isFavorite = groupDetails.isFavorite,
+                    folder = groupDetails.folder,
                     isDeletingConversationLocallyRunning = false
                 )
 
@@ -378,10 +380,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         } else {
             onMessage(UIText.StringResource(R.string.group_content_deleted))
         }
-    }
-
-    @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
     override fun updateConversationArchiveStatus(

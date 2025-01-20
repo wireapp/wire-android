@@ -40,6 +40,7 @@ fun EmojiPickerBottomSheet(
                     onDismiss.invoke()
                 }
                 findViewById<EmojiPickerView>(R.id.emoji_picker)?.setOnEmojiPickedListener { emojiViewItem ->
+                    dismiss()
                     onEmojiSelected(emojiViewItem.emoji)
                 }
                 findViewById<BottomSheetDragHandleView>(R.id.handle)?.let { handle ->

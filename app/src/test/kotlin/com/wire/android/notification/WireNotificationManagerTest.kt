@@ -60,7 +60,7 @@ import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveE2EIRequiredUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
@@ -1084,7 +1084,7 @@ class WireNotificationManagerTest {
         lateinit var servicesManager: ServicesManager
 
         @MockK
-        lateinit var getSelfUser: GetSelfUserUseCase
+        lateinit var getSelfUser: ObserveSelfUserUseCase
 
         @MockK
         lateinit var currentSessionFlowUseCase: CurrentSessionFlowUseCase
@@ -1121,7 +1121,7 @@ class WireNotificationManagerTest {
             coEvery { userSessionScope.users } returns userScope
             coEvery { userSessionScope.observeE2EIRequired } returns observeE2EIRequired
             coEvery { conversationScope.markConnectionRequestAsNotified } returns markConnectionRequestAsNotified
-            coEvery { userScope.getSelfUser } returns getSelfUser
+            coEvery { userScope.observeSelfUser } returns getSelfUser
             coEvery { markConnectionRequestAsNotified(any()) } returns Unit
             coEvery { syncManager.waitUntilLive() } returns Unit
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
@@ -1169,7 +1169,7 @@ class WireNotificationManagerTest {
                     coEvery { markMessagesAsNotified } returns this@Arrangement.markMessagesAsNotified
                 }
                 coEvery { users } returns mockk {
-                    coEvery { getSelfUser() } returns flowOf(selfUser)
+                    coEvery { observeSelfUser() } returns flowOf(selfUser)
                 }
                 coEvery { observeE2EIRequired } returns this@Arrangement.observeE2EIRequired
             }

@@ -60,7 +60,7 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTim
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
@@ -529,7 +529,7 @@ class GroupConversationDetailsViewModelTest {
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withObserveSelfUserReturns(self)
+            .withGetSelfUserReturns(self)
             .withSelfTeamUseCaseReturns(selfTeamId?.let { Team(it.value, "team_name", "icon") })
             .arrange()
         assertResult(viewModel.groupOptionsState.value)
@@ -707,7 +707,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var removeMemberFromConversation: RemoveMemberFromConversationUseCase
 
     @MockK
-    lateinit var observerSelfUser: ObserveSelfUserUseCase
+    lateinit var getSelfUser: GetSelfUserUseCase
 
     @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
@@ -753,7 +753,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
             dispatcher = TestDispatcherProvider(),
-            observerSelfUser = observerSelfUser,
+            getSelfUser = getSelfUser,
             observeConversationDetails = observeConversationDetails,
             deleteTeamConversation = deleteTeamConversation,
             removeMemberFromConversation = removeMemberFromConversation,
@@ -789,7 +789,7 @@ internal class GroupConversationDetailsViewModelArrangement {
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
+        coEvery { getSelfUser() } returns TestUser.SELF_USER
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
         coEvery { getSelfTeamUseCase() } returns Either.Right(null)
         coEvery { isMLSEnabledUseCase() } returns true
@@ -799,8 +799,8 @@ internal class GroupConversationDetailsViewModelArrangement {
         every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
     }
 
-    suspend fun withObserveSelfUserReturns(user: SelfUser) = apply {
-        coEvery { observerSelfUser() } returns flowOf(user)
+    suspend fun withGetSelfUserReturns(user: SelfUser) = apply {
+        coEvery { getSelfUser() } returns user
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

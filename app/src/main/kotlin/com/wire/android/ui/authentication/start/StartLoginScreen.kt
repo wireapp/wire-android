@@ -77,13 +77,15 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
+    navArgsDelegate = StartLoginScreenNavArgs::class,
 )
 @Composable
 fun StartLoginScreen(
     navigator: Navigator,
     viewModel: StartLoginViewModel = hiltViewModel()
 ) {
-    WelcomeContent(
+    StartLoginContent(
+        viewModel.state.isCustomBackend,
         viewModel.state.isThereActiveSession,
         viewModel.loginState,
         viewModel.state.links,
@@ -94,7 +96,8 @@ fun StartLoginScreen(
 }
 
 @Composable
-private fun WelcomeContent(
+private fun StartLoginContent(
+    isCustomBackend: Boolean,
     isThereActiveSession: Boolean,
     loginEmailState: LoginEmailState,
     state: ServerConfig.Links,
@@ -106,13 +109,15 @@ private fun WelcomeContent(
         canNavigateBack = isThereActiveSession,
         onNavigateBack = navigateBack
     ) {
-        NewWelcomeExperienceContent(
-            loginEmailState = loginEmailState,
-            links = state,
-            userIdentifierState = userIdentifierState,
-            navigateBack = navigateBack,
-            navigate = navigate
-        )
+        if (!isCustomBackend) {
+            NewWelcomeExperienceContent(
+                loginEmailState = loginEmailState,
+                links = state,
+                userIdentifierState = userIdentifierState,
+                navigateBack = navigateBack,
+                navigate = navigate
+            )
+        }
     }
 }
 
@@ -253,7 +258,8 @@ private fun WelcomeFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifi
 @Preview(showSystemUi = true)
 fun PreviewWelcomeScreen() {
     WireTheme {
-        WelcomeContent(
+        StartLoginContent(
+            isCustomBackend = false,
             isThereActiveSession = false,
             state = ServerConfig.DEFAULT,
             loginEmailState = LoginEmailState(),

@@ -35,7 +35,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.authentication.welcome.WelcomeScreenNavArgs
 import com.wire.android.ui.common.SettingUpWireScreenContent
 import com.wire.android.ui.common.SettingUpWireScreenType
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -62,7 +61,7 @@ fun MigrationScreen(
 
         is MigrationState.Success -> navigator.navigate(
             NavigationCommand(
-                if (state.currentSessionAvailable) HomeScreenDestination else WelcomeScreenDestination(WelcomeScreenNavArgs()),
+                if (state.currentSessionAvailable) HomeScreenDestination else WelcomeScreenDestination,
                 BackStackMode.CLEAR_WHOLE
             )
         )

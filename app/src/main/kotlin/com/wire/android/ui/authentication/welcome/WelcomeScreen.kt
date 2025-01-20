@@ -45,8 +45,7 @@ import kotlinx.coroutines.delay
 
 @RootNavGraph(start = true)
 @WireDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgsDelegate = WelcomeScreenNavArgs::class,
+    style = PopUpNavigationAnimation::class
 )
 @Composable
 fun WelcomeScreen(
@@ -83,16 +82,19 @@ private fun WelcomeContent(
     )
     FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
 
-    LaunchedEffect(Unit) {
-        if (state.maxAccountsReached.not()) {
-            when (state.startLoginDestination) {
-                StartLoginDestination.Default -> {
-                    delay(1_000) // small delay to resolve
-                    navigate(NavigationCommand(StartLoginScreenDestination))
-                }
+    with(state.startLoginDestination) {
+        LaunchedEffect(this) {
+            if (state.maxAccountsReached.not()) {
+                delay(1_000) // small delay to resolve the navigation
+                when (state.startLoginDestination) {
+                    StartLoginDestination.Default -> {
+                        navigate(NavigationCommand(StartLoginScreenDestination()))
+                    }
 
-                StartLoginDestination.CustomBackend -> navigate(NavigationCommand(StartLoginScreenDestination())) // todo pass parameter from deeplink processor
+                    StartLoginDestination.CustomBackend -> navigate(NavigationCommand(StartLoginScreenDestination(isCustomBackend = true)))
+                }
             }
+
         }
     }
 }

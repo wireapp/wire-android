@@ -15,6 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.authentication.welcome
+package com.wire.android.ui.authentication.start
 
-data class WelcomeScreenNavArgs(val isCustomBackend: Boolean = false)
+data class StartLoginScreenNavArgs(val isCustomBackend: Boolean = false)

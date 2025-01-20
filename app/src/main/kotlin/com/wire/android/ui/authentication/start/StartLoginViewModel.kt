@@ -30,6 +30,7 @@ import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -44,7 +45,13 @@ class StartLoginViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    var state by mutableStateOf(StartLoginScreenState(ServerConfig.DEFAULT))
+    private val startLoginScreenNavArgs: StartLoginScreenNavArgs = savedStateHandle.navArgs()
+    var state by mutableStateOf(
+        StartLoginScreenState(
+            links = ServerConfig.DEFAULT,
+            isCustomBackend = startLoginScreenNavArgs.isCustomBackend
+        )
+    )
         private set
     val userIdentifierTextState: TextFieldState = TextFieldState()
     var loginState by mutableStateOf(LoginEmailState())

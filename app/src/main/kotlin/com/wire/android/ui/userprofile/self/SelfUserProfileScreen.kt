@@ -63,7 +63,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.authentication.welcome.WelcomeScreenNavArgs
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.avatar.UserStatusIndicator
@@ -139,7 +138,7 @@ fun SelfUserProfileScreen(
         },
         onEditClick = { navigator.navigate(NavigationCommand(AppSettingsScreenDestination)) },
         onStatusClicked = viewModelSelf::changeStatusClick,
-        onAddAccountClick = { navigator.navigate(NavigationCommand(WelcomeScreenDestination(WelcomeScreenNavArgs()))) },
+        onAddAccountClick = { navigator.navigate(NavigationCommand(WelcomeScreenDestination)) },
         dismissStatusDialog = viewModelSelf::dismissStatusDialog,
         onStatusChange = viewModelSelf::changeStatus,
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,

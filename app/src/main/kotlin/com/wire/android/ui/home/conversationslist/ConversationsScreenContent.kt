@@ -67,6 +67,9 @@ import com.wire.android.ui.home.conversations.details.dialog.ClearConversationCo
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupLocallyDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
@@ -108,6 +111,10 @@ fun ConversationsScreenContent(
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
             ChangeConversationFavoriteStateArgs
         ),
+    removeConversationFromFolderViewModel: RemoveConversationFromFolderVM =
+        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
+            RemoveConversationFromFolderArgs
+        )
 ) {
     var currentConversationOptionNavigation by remember {
         mutableStateOf<ConversationOptionNavigation>(ConversationOptionNavigation.Home)
@@ -118,12 +125,6 @@ fun ConversationsScreenContent(
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val context = LocalContext.current
-
-    LaunchedEffect(Unit) {
-        conversationListViewModel.infoMessage.collect {
-            sheetState.hide()
-        }
-    }
 
     LaunchedEffect(Unit) {
         conversationListViewModel.closeBottomSheet.collect {
@@ -327,6 +328,7 @@ fun ConversationsScreenContent(
                     moveConversationToFolder = { navArgs ->
                         navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(navArgs)))
                     },
+                    removeFromFolder = removeConversationFromFolderViewModel::removeFromFolder,
                     updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
                     clearConversationContent = clearContentDialogState::show,
                     blockUser = blockUserDialogState::show,
@@ -339,7 +341,12 @@ fun ConversationsScreenContent(
         )
     }
 
-    SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage)
+    SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage, onEmitted = {
+        sheetState.hide()
+    })
+    SnackBarMessageHandler(infoMessages = removeConversationFromFolderViewModel.infoMessage, onEmitted = {
+        sheetState.hide()
+    })
     SnackBarMessageHandler(infoMessages = changeConversationFavoriteStateViewModel.infoMessage, onEmitted = {
         sheetState.hide()
     })

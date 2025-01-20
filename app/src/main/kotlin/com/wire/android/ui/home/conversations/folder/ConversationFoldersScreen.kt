@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.folder
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,9 +36,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -55,6 +57,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.destinations.NewConversationFolderScreenDestination
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 
 @RootNavGraph
@@ -67,6 +70,7 @@ fun ConversationFoldersScreen(
     args: ConversationFoldersNavArgs,
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<ConversationFoldersNavBackArgs>,
+    resultRecipient: ResultRecipient<NewConversationFolderScreenDestination, String>,
     foldersViewModel: ConversationFoldersVM =
         hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
             creationCallback = { it.create(ConversationFoldersStateArgs(args.currentFolderId)) }
@@ -92,8 +96,18 @@ fun ConversationFoldersScreen(
         foldersState = foldersViewModel.state(),
         onNavigationPressed = { navigator.navigateBack() },
         moveConversationToFolder = moveToFolderVM::moveConversationToFolder,
-        onFolderSelected = foldersViewModel::onFolderSelected
+        onFolderSelected = foldersViewModel::onFolderSelected,
+        onCreateFolderPressed = { navigator.navigate(NavigationCommand(NewConversationFolderScreenDestination())) }
     )
+
+    resultRecipient.onNavResult {
+        when (it) {
+            NavResult.Canceled -> {}
+            is NavResult.Value -> {
+                foldersViewModel.onFolderSelected(it.value)
+            }
+        }
+    }
 }
 
 @Composable
@@ -103,9 +117,8 @@ private fun Content(
     onNavigationPressed: () -> Unit = {},
     moveConversationToFolder: (folder: ConversationFolder) -> Unit = {},
     onFolderSelected: (folderId: String) -> Unit = {},
+    onCreateFolderPressed: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-
     val lazyListState = rememberLazyListState()
     WireScaffold(
         modifier = Modifier
@@ -124,13 +137,7 @@ private fun Content(
                 WireSecondaryButton(
                     state = WireButtonState.Default,
                     text = stringResource(id = R.string.label_new_folder),
-                    onClick = {
-                        Toast.makeText(
-                            context,
-                            "Not implemented yet",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    onClick = onCreateFolderPressed
                 )
                 VerticalSpace.x8()
                 val state = if (foldersState.selectedFolderId != null

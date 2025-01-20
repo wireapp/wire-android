@@ -91,7 +91,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -151,7 +150,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
-    private val observeSelfUser: GetSelfUserUseCase,
+    private val getSelfUser: GetSelfUserUseCase,
     private val workManager: WorkManager
 ) : ConversationListViewModel, ViewModel() {
 
@@ -263,7 +262,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                             conversationDetails.toConversationItem(
                                 userTypeMapper = userTypeMapper,
                                 searchQuery = searchQuery,
-                                selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
+                                selfUserTeamId = getSelfUser()?.teamId
                             ).hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
                         } to searchQuery
                     }

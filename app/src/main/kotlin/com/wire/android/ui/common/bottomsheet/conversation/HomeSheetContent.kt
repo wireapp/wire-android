@@ -52,7 +52,9 @@ import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 
 // items cannot be simplified
@@ -62,6 +64,7 @@ internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
     changeFavoriteState: (dialogState: GroupDialogState, addToFavorite: Boolean) -> Unit,
     moveConversationToFolder: ((ConversationFoldersNavArgs) -> Unit)?,
+    removeFromFolder: (conversationId: ConversationId, conversationName: String, folder: ConversationFolder) -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
@@ -160,6 +163,26 @@ internal fun ConversationMainSheetContent(
                                     conversationName = conversationSheetContent.title,
                                     currentFolderId = conversationSheetContent.folder?.id
                                 )
+                            )
+                        }
+                    )
+                }
+            }
+            if (conversationSheetContent.folder != null) {
+                add {
+                    MenuBottomSheetItem(
+                        leading = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_folder,
+                                contentDescription = null,
+                            )
+                        },
+                        title = stringResource(R.string.label_remove_from_folder, conversationSheetContent.folder.name),
+                        onItemClick = {
+                            removeFromFolder(
+                                conversationSheetContent.conversationId,
+                                conversationSheetContent.title,
+                                conversationSheetContent.folder
                             )
                         }
                     )

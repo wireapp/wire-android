@@ -41,7 +41,7 @@ import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCas
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -283,7 +283,7 @@ class ServiceDetailsViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var observeSelfUser: GetSelfUserUseCase
+        lateinit var observeSelfUser: ObserveSelfUserUseCase
 
         @MockK
         lateinit var getServiceById: GetServiceByIdUseCase

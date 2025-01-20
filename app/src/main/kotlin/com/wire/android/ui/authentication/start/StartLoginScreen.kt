@@ -90,6 +90,7 @@ fun StartLoginScreen(
         viewModel.loginState,
         viewModel.state.links,
         viewModel.userIdentifierTextState,
+        viewModel::onLoginStarted,
         navigator::navigateBack,
         navigator::navigate
     )
@@ -102,6 +103,7 @@ private fun StartLoginContent(
     loginEmailState: LoginEmailState,
     state: ServerConfig.Links,
     userIdentifierState: TextFieldState,
+    onNextClicked: (() -> Unit) -> Unit,
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
 ) {
@@ -114,6 +116,7 @@ private fun StartLoginContent(
                 loginEmailState = loginEmailState,
                 links = state,
                 userIdentifierState = userIdentifierState,
+                onNextClicked = onNextClicked,
                 navigateBack = navigateBack,
                 navigate = navigate
             )
@@ -127,6 +130,7 @@ private fun NewWelcomeExperienceContent(
     loginEmailState: LoginEmailState,
     links: ServerConfig.Links,
     userIdentifierState: TextFieldState,
+    onNextClicked: (() -> Unit) -> Unit,
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit,
 ) {
@@ -168,7 +172,11 @@ private fun NewWelcomeExperienceContent(
             LoginNextButton(
                 loading = loginEmailState.flowState is LoginState.Loading,
                 enabled = loginEmailState.loginEnabled,
-                onClick = { navigate(NavigationCommand(LoginScreenDestination(userHandle = userIdentifierState.text.toString()))) })
+                onClick = {
+                    onNextClicked {
+                        navigate(NavigationCommand(LoginScreenDestination(userHandle = userIdentifierState.text.toString())))
+                    }
+                })
         }
 
         if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
@@ -190,9 +198,8 @@ private fun LoginNextButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
-        val text = if (loading) stringResource(R.string.label_logging_in) else stringResource(R.string.enterprise_login_next)
         WirePrimaryButton(
-            text = text,
+            text = stringResource(R.string.enterprise_login_next),
             onClick = onClick,
             state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             loading = loading,
@@ -264,6 +271,7 @@ fun PreviewWelcomeScreen() {
             state = ServerConfig.DEFAULT,
             loginEmailState = LoginEmailState(),
             userIdentifierState = TextFieldState(),
+            onNextClicked = {},
             navigateBack = {},
             navigate = {}
         )

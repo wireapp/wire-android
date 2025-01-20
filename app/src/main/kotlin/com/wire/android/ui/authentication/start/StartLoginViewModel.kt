@@ -33,6 +33,7 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
@@ -62,15 +63,31 @@ class StartLoginViewModel @Inject constructor(
             userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
             }.collectLatest {
-                updateEmailFlowState(loginState.flowState)
+                updateEmailFlowState(it)
             }
         }
     }
 
-    private fun updateEmailFlowState(flowState: LoginState) {
+    /**
+     * Starts the login flow, this will check against BE if email or sso code and relay to the corresponding flow afterwards.
+     */
+    fun onLoginStarted(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            loginState = loginState.copy(flowState = LoginState.Loading)
+            delay(1000) //TODO(ym): here the call to the use case should be done.
+            loginState = loginState.copy(flowState = LoginState.Default)
+            onSuccess()
+        }
+    }
+
+    /**
+     * Update the state based on the input.
+     * TODO(ym): Check if we need to validate the email, since this an SSO code can also be valid in this input.
+     */
+    private fun updateEmailFlowState(email: CharSequence) {
         loginState = loginState.copy(
-            flowState = flowState,
-            loginEnabled = userIdentifierTextState.text.isNotEmpty() && flowState !is LoginState.Loading
+            flowState = LoginState.Default,
+            loginEnabled = email.isNotEmpty() && loginState.flowState !is LoginState.Loading
         )
     }
 

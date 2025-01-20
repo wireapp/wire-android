@@ -74,7 +74,7 @@ class StartLoginViewModel @Inject constructor(
     fun onLoginStarted(onSuccess: () -> Unit) {
         viewModelScope.launch {
             loginState = loginState.copy(flowState = LoginState.Loading)
-            delay(1000) //TODO(ym): here the call to the use case should be done.
+            @Suppress("MagicNumber") delay(1000) // TODO(ym): here the call to the use case should be done.
             loginState = loginState.copy(flowState = LoginState.Default)
             onSuccess()
         }

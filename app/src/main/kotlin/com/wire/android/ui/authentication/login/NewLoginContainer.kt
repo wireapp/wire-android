@@ -36,10 +36,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.ui.SplashBackgroundLayout
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetDefaults
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -124,7 +124,7 @@ private fun NavigationBarBackground() = Box(
 @Composable
 private fun PreviewNewLoginContent() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
-        SplashBackgroundLayout {
+        WireAuthBackgroundLayout {
             NewLoginContent("Enter your password to log in", true, {}) {
                 Text(
                     text = "EMPTY",

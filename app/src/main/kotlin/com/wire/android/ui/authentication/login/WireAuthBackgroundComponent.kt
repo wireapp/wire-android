@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui
+package com.wire.android.ui.authentication.login
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -36,9 +36,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDarkColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@SuppressLint("PackagePrivateId")
 @Composable
-fun SplashBackgroundLayout(
+fun  WireAuthBackgroundLayout(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit = {},
 ) {
@@ -63,6 +62,6 @@ fun SplashBackgroundLayout(
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewSplashScreen() = WireTheme {
-    SplashBackgroundLayout {}
+private fun PreviewWireAuthBackgroundLayout() = WireTheme {
+    WireAuthBackgroundLayout {}
 }

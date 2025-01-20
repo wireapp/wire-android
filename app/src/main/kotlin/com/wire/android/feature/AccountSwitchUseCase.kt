@@ -212,5 +212,5 @@ interface SwitchAccountActions {
 
 class NavigationSwitchAccountActions(val navigate: (NavigationCommand) -> Unit) : SwitchAccountActions {
     override fun switchedToAnotherAccount() = navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-    override fun noOtherAccountToSwitch() = navigate(NavigationCommand(WelcomeScreenDestination(), BackStackMode.CLEAR_WHOLE))
+    override fun noOtherAccountToSwitch() = navigate(NavigationCommand(WelcomeScreenDestination, BackStackMode.CLEAR_WHOLE))
 }

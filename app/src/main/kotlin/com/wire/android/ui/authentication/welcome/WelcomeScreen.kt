@@ -32,7 +32,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpSplashNavigationAnimation
-import com.wire.android.ui.SplashBackgroundLayout
+import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog
@@ -99,7 +99,6 @@ private fun WelcomeContent(
                     StartLoginDestination.CustomBackend -> navigate(NavigationCommand(StartLoginScreenDestination(isCustomBackend = true)))
                 }
             }
-
         }
     }
 }
@@ -112,6 +111,7 @@ fun PreviewWelcomeScreen() = WireTheme {
         WelcomeContent(
             state = WelcomeScreenState(ServerConfig.DEFAULT),
             navigateBack = {},
-            navigate = {})
+            navigate = {}
+        )
     }
 }

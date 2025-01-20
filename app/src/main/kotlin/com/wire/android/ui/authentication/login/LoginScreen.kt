@@ -122,6 +122,7 @@ private fun LoginContent(
     }
 }
 
+@Suppress("UnusedParameter")
 @Composable
 private fun MainLoginContent(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,

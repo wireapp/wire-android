@@ -31,15 +31,20 @@ import com.wire.android.di.NoSession
 import com.wire.android.notification.CallNotificationData
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationIds
+import com.wire.android.services.CallService.Action
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.logIfEmptyUserName
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.CallsScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
+import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -50,7 +55,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
@@ -90,14 +97,17 @@ class CallService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         appLogger.i("$TAG: onStartCommand")
-        val stopService = intent?.getBooleanExtra(EXTRA_STOP_SERVICE, false)
+        val action = intent?.getActionTypeExtra(EXTRA_ACTION_TYPE)
         generatePlaceholderForegroundNotification()
         serviceState.set(ServiceState.FOREGROUND)
-        if (stopService == true) {
+        if (action is Action.Stop) {
             appLogger.i("$TAG: stopSelf. Reason: stopService was called")
             stopSelf()
         } else {
             scope.launch {
+                if (action is Action.AnswerCall) {
+                    coreLogic.getSessionScope(action.userId).calls.answerCall(action.conversationId)
+                }
                 coreLogic.getGlobalScope().session.currentSessionFlow()
                     .flatMapLatest {
                         if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
@@ -105,12 +115,14 @@ class CallService : Service() {
                             val userSessionScope = coreLogic.getSessionScope(userId)
                             val outgoingCallsFlow = userSessionScope.calls.observeOutgoingCall()
                             val establishedCallsFlow = userSessionScope.calls.establishedCall()
+                            val callCurrentlyBeingAnsweredFlow = userSessionScope.calls.observeCallCurrentlyBeingAnswered(action)
 
                             combine(
                                 outgoingCallsFlow,
-                                establishedCallsFlow
-                            ) { outgoingCalls, establishedCalls ->
-                                val calls = outgoingCalls + establishedCalls
+                                establishedCallsFlow,
+                                callCurrentlyBeingAnsweredFlow
+                            ) { outgoingCalls, establishedCalls, answeringCall ->
+                                val calls = outgoingCalls + establishedCalls + answeringCall
                                 calls.firstOrNull()?.let { call ->
                                     val userName = userSessionScope.users.observeSelfUser().first()
                                         .also { it.logIfEmptyUserName() }
@@ -180,22 +192,40 @@ class CallService : Service() {
         appLogger.i("$TAG: started foreground with placeholder notification")
     }
 
+    private suspend fun CallsScope.observeCallCurrentlyBeingAnswered(action: Action?) = when (action) {
+        is Action.AnswerCall -> getIncomingCalls().map { it.filter { it.conversationId == action.conversationId } }
+        else -> flowOf(emptyList())
+    }
+
     companion object {
         private const val TAG = "CallService"
-        private const val EXTRA_STOP_SERVICE = "stop_service"
+        private const val EXTRA_ACTION_TYPE = "action_type"
 
-        fun newIntent(context: Context): Intent = Intent(context, CallService::class.java)
+        fun newIntent(context: Context, actionType: Action = Action.Default): Intent = Intent(context, CallService::class.java)
+            .putExtra(EXTRA_ACTION_TYPE, actionType)
 
-        fun newIntentToStop(context: Context): Intent =
-            Intent(context, CallService::class.java).apply {
-                putExtra(EXTRA_STOP_SERVICE, true)
-            }
-
-        var serviceState: AtomicReference<ServiceState> = AtomicReference(ServiceState.NOT_STARTED)
-            private set
+        val serviceState: AtomicReference<ServiceState> = AtomicReference(ServiceState.NOT_STARTED)
     }
 
     enum class ServiceState {
         NOT_STARTED, STARTED, FOREGROUND
     }
+
+    @Serializable
+    sealed class Action {
+        @Serializable
+        data object Default : Action()
+
+        @Serializable
+        data class AnswerCall(val userId: UserId, val conversationId: ConversationId) : Action()
+
+        @Serializable
+        data object Stop : Action()
+    }
 }
+
+private fun Intent.putExtra(name: String, actionType: Action): Intent = putExtra(name, Bundlizer.bundle(Action.serializer(), actionType))
+
+private fun Intent.getActionTypeExtra(name: String): Action? = getBundleExtra(name)?.let {
+        Bundlizer.unbundle(Action.serializer(), it)
+    }

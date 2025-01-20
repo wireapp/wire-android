@@ -64,7 +64,7 @@ import javax.inject.Inject
 @ViewModelScopedPreview
 interface DebugDataOptionsViewModel {
     val infoMessage: SharedFlow<UIText> get() = MutableSharedFlow()
-    val state: DebugDataOptionsState
+    val state: DebugDataOptionsState get() = DebugDataOptionsState()
     fun currentAccount(): UserId = UserId("value", "domain")
     fun checkCrlRevocationList() {}
     fun restartSlowSyncForRecovery() {}
@@ -157,7 +157,6 @@ class DebugDataOptionsViewModelImpl
         }
     }
 
-    override fun state() = state
     override fun currentAccount(): UserId = currentAccount
 
     override fun checkCrlRevocationList() {

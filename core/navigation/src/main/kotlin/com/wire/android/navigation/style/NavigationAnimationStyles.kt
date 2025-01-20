@@ -30,10 +30,10 @@ object PopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle 
 
 object SlideSplashNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
-    override fun backgroundType(): BackgroundType  = BackgroundType.Splash
+    override fun backgroundType(): BackgroundType  = BackgroundType.Auth
 }
 
 object PopUpSplashNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
-    override fun backgroundType(): BackgroundType  = BackgroundType.Splash
+    override fun backgroundType(): BackgroundType  = BackgroundType.Auth
 }

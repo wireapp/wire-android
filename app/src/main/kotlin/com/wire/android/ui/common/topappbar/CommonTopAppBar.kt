@@ -100,14 +100,14 @@ fun CommonTopAppBar(
     }
 }
 
-private enum class ConnectivityStatusColorType { Calls, Connection, Splash, Default }
+private enum class ConnectivityStatusColorType { Calls, Connection, Auth, Default }
 
 private fun getColorType(connectivityState: ConnectivityUIState, backgroundType: BackgroundType) = when (connectivityState) {
     is ConnectivityUIState.Calls -> ConnectivityStatusColorType.Calls
     is ConnectivityUIState.Connecting,
     is ConnectivityUIState.WaitingConnection -> ConnectivityStatusColorType.Connection
     is ConnectivityUIState.None -> when (backgroundType) {
-        BackgroundType.Splash -> ConnectivityStatusColorType.Splash
+        BackgroundType.Auth -> ConnectivityStatusColorType.Auth
         BackgroundType.Default -> ConnectivityStatusColorType.Default
     }
 }
@@ -116,14 +116,14 @@ private fun getColorType(connectivityState: ConnectivityUIState, backgroundType:
 private fun WireColorScheme.getBackgroundColor(statusColorType: ConnectivityStatusColorType): Color = when (statusColorType) {
     ConnectivityStatusColorType.Calls -> positive
     ConnectivityStatusColorType.Connection -> primary
-    ConnectivityStatusColorType.Splash,
+    ConnectivityStatusColorType.Auth,
     ConnectivityStatusColorType.Default -> Color.Transparent
 }
 
 private fun WireColorScheme.getStatusBarUseDarkIcons(statusColorType: ConnectivityStatusColorType): Boolean = when (statusColorType) {
     ConnectivityStatusColorType.Calls,
     ConnectivityStatusColorType.Connection -> connectivityBarShouldUseDarkIcons
-    ConnectivityStatusColorType.Splash -> false // splash is always dark so use light icons
+    ConnectivityStatusColorType.Auth -> false // splash is always dark so use light icons
     ConnectivityStatusColorType.Default -> useDarkSystemBarIcons
 }
 
@@ -458,5 +458,5 @@ fun PreviewCommonTopAppBar_ConnectivityNone() =
 @Composable
 fun PreviewCommonTopAppBar_ConnectivityNone_Splash() =
     WireAuthBackgroundLayout {
-        PreviewCommonTopAppBar(ConnectivityUIState.None, BackgroundType.Splash)
+        PreviewCommonTopAppBar(ConnectivityUIState.None, BackgroundType.Auth)
     }

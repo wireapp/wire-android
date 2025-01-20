@@ -22,5 +22,5 @@ interface BackgroundStyle {
 }
 
 enum class BackgroundType {
-    Default, Splash
+    Default, Auth
 }

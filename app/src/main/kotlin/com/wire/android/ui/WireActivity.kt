@@ -247,7 +247,7 @@ class WireActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    if (backgroundType == BackgroundType.Splash) {
+                    if (backgroundType == BackgroundType.Auth) {
                         WireAuthBackgroundLayout()
                     }
                     Column(

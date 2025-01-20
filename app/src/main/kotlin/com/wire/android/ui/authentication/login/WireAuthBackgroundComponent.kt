@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui
+package com.wire.android.ui.authentication.login
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -35,7 +35,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun MainBackgroundComponent() {
+fun WireAuthBackgroundComponent() {
     MainBackgroundContent()
 }
 
@@ -58,6 +58,6 @@ private fun MainBackgroundContent() {
 @PreviewMultipleThemes
 @Preview(showSystemUi = true)
 @Composable
-private fun PreviewSplashScreen() = WireTheme {
+private fun PreviewWireAuthBackgroundComponent() = WireTheme {
     MainBackgroundContent()
 }

@@ -36,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.ui.MainBackgroundComponent
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -100,7 +99,7 @@ private fun NewLoginContent(
         }
     ) { _ ->
         Column {
-            MainBackgroundComponent()
+            WireAuthBackgroundComponent()
         }
     }
 }

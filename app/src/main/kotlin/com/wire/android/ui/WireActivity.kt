@@ -74,6 +74,7 @@ import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
@@ -247,7 +248,7 @@ class WireActivity : AppCompatActivity() {
                         }
                     }
                     if (backgroundType == BackgroundType.Splash) {
-                        SplashBackgroundLayout()
+                        WireAuthBackgroundLayout()
                     }
                     Column(
                         modifier = Modifier

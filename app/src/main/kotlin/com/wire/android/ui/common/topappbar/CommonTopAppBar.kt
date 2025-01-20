@@ -50,7 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.style.BackgroundType
-import com.wire.android.ui.SplashBackgroundLayout
+import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireTheme
@@ -457,6 +457,6 @@ fun PreviewCommonTopAppBar_ConnectivityNone() =
 @PreviewMultipleThemes
 @Composable
 fun PreviewCommonTopAppBar_ConnectivityNone_Splash() =
-    SplashBackgroundLayout {
+    WireAuthBackgroundLayout {
         PreviewCommonTopAppBar(ConnectivityUIState.None, BackgroundType.Splash)
     }

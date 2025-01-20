@@ -107,7 +107,7 @@ private fun WelcomeContent(
 @Composable
 fun PreviewWelcomeScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
-        SplashBackgroundLayout()
+        WireAuthBackgroundLayout()
         WelcomeContent(
             state = WelcomeScreenState(ServerConfig.DEFAULT),
             navigateBack = {},

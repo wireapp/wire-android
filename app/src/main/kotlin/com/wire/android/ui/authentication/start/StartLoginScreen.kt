@@ -257,13 +257,12 @@ private fun WelcomeFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifi
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewWelcomeScreen() = WireTheme {
+fun PreviewStartLoginScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             StartLoginContent(
                 isCustomBackend = false,
                 isThereActiveSession = false,
-                state = ServerConfig.DEFAULT,
                 loginEmailState = LoginEmailState(),
                 userIdentifierState = TextFieldState(),
                 onNextClicked = {},

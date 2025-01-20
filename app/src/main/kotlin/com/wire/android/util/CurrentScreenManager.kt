@@ -125,9 +125,8 @@ class CurrentScreenManager @Inject constructor(
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
         val currentScreenName = currentScreenName()
-        currentScreenName?.let {
-            AnonymousAnalyticsManagerImpl.stopView(it)
-        }
+        AnonymousAnalyticsManagerImpl.stopView(currentScreenName)
+
 
         val currentItem = destination.toDestination()
         currentScreenState.value = CurrentScreen.fromDestination(
@@ -137,9 +136,7 @@ class CurrentScreenManager @Inject constructor(
         )
 
         val newScreenName = currentScreenName()
-        newScreenName?.let {
-            AnonymousAnalyticsManagerImpl.recordView(it)
-        }
+        AnonymousAnalyticsManagerImpl.recordView(newScreenName)
     }
 
     private fun currentScreenName() = currentScreenState.value.let { currentScreen ->

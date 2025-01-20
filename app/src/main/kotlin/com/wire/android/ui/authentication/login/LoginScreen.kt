@@ -21,7 +21,6 @@ package com.wire.android.ui.authentication.login
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,7 +43,6 @@ import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
-import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -61,7 +59,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.util.ui.UIText
 
 @RootNavGraph
 @WireDestination(
@@ -127,7 +124,7 @@ private fun LoginContent(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@Suppress("UnusedParameter")
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,
@@ -140,10 +137,6 @@ private fun MainLoginContent(
     val ssoDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     FeatureDisabledWithProxyDialogContent(dialogState = ssoDisabledWithProxyDialogState)
 
-//    var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-//    val keyboardController = LocalSoftwareKeyboardController.current
-//    val focusManager = LocalFocusManager.current
-
     if (loginEmailViewModel.serverConfig.isOnPremises) {
         ServerTitle(
             serverLinks = loginEmailViewModel.serverConfig,
@@ -152,51 +145,6 @@ private fun MainLoginContent(
         VerticalSpace.x8()
     }
     LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel)
-
-
-//    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-//        HorizontalPager(
-//            state = pagerState,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//        ) { pageIndex ->
-//            when (LoginTabItem.values()[pageIndex]) {
-//                LoginTabItem.EMAIL ->
-//                LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult)
-//            }
-//        }
-//        if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-//            LaunchedEffect(Unit) {
-//                keyboardController?.hide()
-//                focusManager.clearFocus()
-//                focusedTabIndex = pagerState.currentPage
-//            }
-//        }
-//    }
-
-//    WireScaffold(
-//        topBar = {
-//            WireCenterAlignedTopAppBar(
-//                elevation = scrollState.rememberTopBarElevationState().value,
-//                title = stringResource(R.string.login_title),
-//                subtitleContent = {
-//                    if (loginEmailViewModel.serverConfig.isOnPremises) {
-//                        ServerTitle(
-//                            serverLinks = loginEmailViewModel.serverConfig,
-//                            style = MaterialTheme.wireTypography.body01
-//                        )
-//                    }
-//                },
-//                onNavigationPressed = onBackPressed,
-//                navigationIconType = NavigationIconType.Back(R.string.content_description_login_back_btn)
-//            ) {
-//
-//            }
-//        },
-//        modifier = Modifier.fillMaxHeight(),
-//    ) { internalPadding ->
-//
-//    }
 }
 
 @Composable
@@ -319,13 +267,6 @@ data class LoginDialogErrorData(
     val onAction: () -> Unit = onDismiss,
     val dismissOnClickOutside: Boolean = true
 )
-
-enum class LoginTabItem(@StringRes val titleResId: Int) : TabItem {
-    EMAIL(R.string.login_tab_email),
-    SSO(R.string.login_tab_sso);
-
-    override val title: UIText = UIText.StringResource(titleResId)
-}
 
 @PreviewMultipleThemes
 @Composable

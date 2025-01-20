@@ -97,7 +97,8 @@ private fun NewLoginContent(
                     content()
                 }
             }
-        }) { _ ->
+        }
+    ) { _ ->
         Column {
             MainBackgroundComponent()
         }

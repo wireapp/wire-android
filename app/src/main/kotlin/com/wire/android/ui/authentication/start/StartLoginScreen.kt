@@ -73,7 +73,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -88,7 +87,6 @@ fun StartLoginScreen(
         viewModel.state.isCustomBackend,
         viewModel.state.isThereActiveSession,
         viewModel.loginState,
-        viewModel.state.links,
         viewModel.userIdentifierTextState,
         viewModel::onLoginStarted,
         navigator::navigateBack,
@@ -101,7 +99,6 @@ private fun StartLoginContent(
     isCustomBackend: Boolean,
     isThereActiveSession: Boolean,
     loginEmailState: LoginEmailState,
-    state: ServerConfig.Links,
     userIdentifierState: TextFieldState,
     onNextClicked: (() -> Unit) -> Unit,
     navigateBack: () -> Unit,
@@ -114,10 +111,8 @@ private fun StartLoginContent(
         if (!isCustomBackend) {
             NewWelcomeExperienceContent(
                 loginEmailState = loginEmailState,
-                links = state,
                 userIdentifierState = userIdentifierState,
                 onNextClicked = onNextClicked,
-                navigateBack = navigateBack,
                 navigate = navigate
             )
         }
@@ -128,10 +123,8 @@ private fun StartLoginContent(
 @Composable
 private fun NewWelcomeExperienceContent(
     loginEmailState: LoginEmailState,
-    links: ServerConfig.Links,
     userIdentifierState: TextFieldState,
     onNextClicked: (() -> Unit) -> Unit,
-    navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit,
 ) {
     val context = LocalContext.current
@@ -176,7 +169,8 @@ private fun NewWelcomeExperienceContent(
                     onNextClicked {
                         navigate(NavigationCommand(LoginScreenDestination(userHandle = userIdentifierState.text.toString())))
                     }
-                })
+                }
+            )
         }
 
         if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
@@ -268,7 +262,6 @@ fun PreviewWelcomeScreen() {
         StartLoginContent(
             isCustomBackend = false,
             isThereActiveSession = false,
-            state = ServerConfig.DEFAULT,
             loginEmailState = LoginEmailState(),
             userIdentifierState = TextFieldState(),
             onNextClicked = {},

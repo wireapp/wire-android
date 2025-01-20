@@ -94,7 +94,6 @@ private fun WelcomeContent(
                     StartLoginDestination.CustomBackend -> navigate(NavigationCommand(StartLoginScreenDestination(isCustomBackend = true)))
                 }
             }
-
         }
     }
 }
@@ -107,6 +106,7 @@ fun PreviewWelcomeScreen() {
         WelcomeContent(
             state = WelcomeScreenState(ServerConfig.DEFAULT),
             navigateBack = {},
-            navigate = {})
+            navigate = {}
+        )
     }
 }

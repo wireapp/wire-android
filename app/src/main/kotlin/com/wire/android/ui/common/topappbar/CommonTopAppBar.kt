@@ -49,6 +49,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.navigation.style.BackgroundType
+import com.wire.android.ui.SplashBackgroundLayout
+import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.updateSystemBarIconsAppearance
@@ -62,23 +65,24 @@ import com.wire.kalium.network.NetworkState
 @Composable
 fun CommonTopAppBar(
     commonTopAppBarState: CommonTopAppBarState,
+    backgroundType: BackgroundType,
     onReturnToCallClick: (ConnectivityUIState.Call.Established) -> Unit,
     onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
     onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val transition = updateTransition(
-        targetState = MaterialTheme.wireColorScheme to commonTopAppBarState.connectivityState.toColorType(),
+        targetState = MaterialTheme.wireColorScheme to getColorType(commonTopAppBarState.connectivityState, backgroundType),
         label = "connectivity state transition"
     )
     val backgroundColor = transition.animateColor(label = "top app bar background color") { (colorScheme, colorType) ->
         colorScheme.getBackgroundColor(colorType)
     }
-    val systemBarIconsAppearance = transition.animateFloat(label = "system bar icons appearance") { (colorScheme, colorType) ->
-        if (colorScheme.getStatusBarIconsAppearance(colorType)) 1f else 0f
+    val systemBarUseDarkIcons = transition.animateFloat(label = "system bar icons appearance") { (colorScheme, colorType) ->
+        if (colorScheme.getStatusBarUseDarkIcons(colorType)) 1f else 0f
     }
 
-    updateSystemBarIconsAppearance(systemBarIconsAppearance.value > 0.5f)
+    updateSystemBarIconsAppearance(systemBarUseDarkIcons.value > 0.5f)
 
     Column(
         modifier = modifier
@@ -96,25 +100,31 @@ fun CommonTopAppBar(
     }
 }
 
-private enum class ConnectivityStatusColorType { Calls, Connection, None }
+private enum class ConnectivityStatusColorType { Calls, Connection, Splash, Default }
 
-private fun ConnectivityUIState.toColorType() = when (this) {
+private fun getColorType(connectivityState: ConnectivityUIState, backgroundType: BackgroundType) = when (connectivityState) {
     is ConnectivityUIState.Calls -> ConnectivityStatusColorType.Calls
     is ConnectivityUIState.Connecting,
     is ConnectivityUIState.WaitingConnection -> ConnectivityStatusColorType.Connection
-    is ConnectivityUIState.None -> ConnectivityStatusColorType.None
+    is ConnectivityUIState.None -> when (backgroundType) {
+        BackgroundType.Splash -> ConnectivityStatusColorType.Splash
+        BackgroundType.Default -> ConnectivityStatusColorType.Default
+    }
 }
 
+@Composable
 private fun WireColorScheme.getBackgroundColor(statusColorType: ConnectivityStatusColorType): Color = when (statusColorType) {
     ConnectivityStatusColorType.Calls -> positive
     ConnectivityStatusColorType.Connection -> primary
-    ConnectivityStatusColorType.None -> background
+    ConnectivityStatusColorType.Splash,
+    ConnectivityStatusColorType.Default -> Color.Transparent
 }
 
-private fun WireColorScheme.getStatusBarIconsAppearance(statusColorType: ConnectivityStatusColorType): Boolean = when (statusColorType) {
+private fun WireColorScheme.getStatusBarUseDarkIcons(statusColorType: ConnectivityStatusColorType): Boolean = when (statusColorType) {
     ConnectivityStatusColorType.Calls,
     ConnectivityStatusColorType.Connection -> connectivityBarShouldUseDarkIcons
-    ConnectivityStatusColorType.None -> useDarkSystemBarIcons
+    ConnectivityStatusColorType.Splash -> false // splash is always dark so use light icons
+    ConnectivityStatusColorType.Default -> useDarkSystemBarIcons
 }
 
 @Composable
@@ -378,8 +388,17 @@ private fun MicrophoneIcon(
 }
 
 @Composable
-private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState) = WireTheme {
-    CommonTopAppBar(CommonTopAppBarState(connectivityUIState), {}, {}, {})
+private fun PreviewCommonTopAppBar(
+    connectivityUIState: ConnectivityUIState,
+    backgroundType: BackgroundType = BackgroundType.Default,
+    content: @Composable () -> Unit = {},
+) = WireTheme {
+    EdgeToEdgePreview(
+        useDarkIcons = MaterialTheme.wireColorScheme.getStatusBarUseDarkIcons(getColorType(connectivityUIState, backgroundType))
+    ) {
+        CommonTopAppBar(CommonTopAppBarState(connectivityUIState), backgroundType, {}, {}, {})
+        content()
+    }
 }
 
 @PreviewMultipleThemes
@@ -434,3 +453,10 @@ fun PreviewCommonTopAppBar_ConnectivityWaitingConnection() =
 @Composable
 fun PreviewCommonTopAppBar_ConnectivityNone() =
     PreviewCommonTopAppBar(ConnectivityUIState.None)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityNone_Splash() =
+    SplashBackgroundLayout {
+        PreviewCommonTopAppBar(ConnectivityUIState.None, BackgroundType.Splash)
+    }

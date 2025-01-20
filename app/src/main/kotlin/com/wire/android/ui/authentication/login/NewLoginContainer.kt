@@ -19,15 +19,17 @@ package com.wire.android.ui.authentication.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,10 +37,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.ui.MainBackgroundComponent
+import com.wire.android.ui.SplashBackgroundLayout
+import com.wire.android.ui.common.bottomsheet.WireBottomSheetDefaults
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.WireTheme
@@ -62,22 +67,24 @@ private fun NewLoginContent(
     onNavigateBack: () -> Unit,
     content: @Composable () -> Unit = { }
 ) {
+    NavigationBarBackground()
     WireScaffold(
+        containerColor = Color.Transparent,
         bottomBar = {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(topEnd = dimensions().spacing8x, topStart = dimensions().spacing8x))
-                    .background(colorsScheme().surface)
-                    .padding(dimensions().spacing16x)
+                    .clip(WireBottomSheetDefaults.WireBottomSheetShape)
+                    .background(WireBottomSheetDefaults.WireSheetContainerColor)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensions().spacing16x),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (canNavigateBack) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
                             modifier = Modifier.clickable(onClick = onNavigateBack)
                         )
@@ -97,15 +104,33 @@ private fun NewLoginContent(
                     content()
                 }
             }
-        }) { _ ->
-        Column {
-            MainBackgroundComponent()
-        }
-    }
+        }) { _ -> }
+}
+
+@Composable
+private fun NavigationBarBackground() = Box(
+    contentAlignment = Alignment.BottomCenter,
+    modifier = Modifier.fillMaxSize()
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorsScheme().background)
+            .navigationBarsPadding()
+    )
 }
 
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginContent() = WireTheme {
-    NewLoginContent("Enter your password to log in", true, {}) { Text(text = "EMPTY") }
+    EdgeToEdgePreview(useDarkIcons = false) {
+        SplashBackgroundLayout {
+            NewLoginContent("Enter your password to log in", true, {}) {
+                Text(
+                    text = "EMPTY",
+                    modifier = Modifier.padding(dimensions().spacing24x)
+                )
+            }
+        }
+    }
 }

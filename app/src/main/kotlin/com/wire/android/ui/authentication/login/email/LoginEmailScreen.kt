@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
@@ -80,7 +81,8 @@ fun LoginEmailScreen(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
-    scrollState: ScrollState = rememberScrollState()
+    scrollState: ScrollState = rememberScrollState(),
+    fillMaxHeight: Boolean = true,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -103,7 +105,8 @@ fun LoginEmailScreen(
         onLoginButtonClick = loginEmailViewModel::login,
         onUpdateApp = loginEmailViewModel::updateTheApp,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
-        scope = scope
+        scope = scope,
+        fillMaxHeight = fillMaxHeight,
     )
 
     LaunchedEffect(loginEmailViewModel.loginState.flowState) {
@@ -129,16 +132,20 @@ private fun LoginEmailContent(
     onLoginButtonClick: () -> Unit,
     onUpdateApp: () -> Unit,
     forgotPasswordUrl: String,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    fillMaxHeight: Boolean = true,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxHeight()
+        modifier = Modifier.let {
+            if (fillMaxHeight) it.fillMaxHeight() else it.wrapContentHeight()
+        }
     ) {
 
         Column(
             modifier = Modifier
-                .weight(weight = 1f, fill = true)
+                .let {
+                    if (fillMaxHeight) it.weight(weight = 1f, fill = true) else it
+                }
                 .verticalScroll(scrollState)
                 .padding(MaterialTheme.wireDimensions.spacing16x)
                 .semantics {

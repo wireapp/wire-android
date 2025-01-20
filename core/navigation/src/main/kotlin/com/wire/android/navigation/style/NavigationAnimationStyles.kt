@@ -20,10 +20,20 @@ package com.wire.android.navigation.style
 
 typealias DefaultNavigationAnimation = SlideNavigationAnimation
 
-object SlideNavigationAnimation : WireDestinationStyleAnimated {
+object SlideNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
 }
 
-object PopUpNavigationAnimation : WireDestinationStyleAnimated {
+object PopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
+}
+
+object SlideSplashNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+    override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
+    override fun backgroundType(): BackgroundType  = BackgroundType.Splash
+}
+
+object PopUpSplashNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+    override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
+    override fun backgroundType(): BackgroundType  = BackgroundType.Splash
 }

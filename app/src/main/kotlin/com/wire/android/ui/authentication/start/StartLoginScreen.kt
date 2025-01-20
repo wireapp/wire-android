@@ -48,20 +48,21 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.style.PopUpSplashNavigationAnimation
+import com.wire.android.ui.SplashBackgroundLayout
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.NewLoginContainer
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.DefaultEmailNext
 import com.wire.android.ui.common.textfield.WireAutoFillType
@@ -76,7 +77,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @WireDestination(
-    style = PopUpNavigationAnimation::class,
+    style = PopUpSplashNavigationAnimation::class,
     navArgsDelegate = StartLoginScreenNavArgs::class,
 )
 @Composable
@@ -262,18 +263,19 @@ private fun WelcomeFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifi
 
 @PreviewMultipleThemes
 @Composable
-@Preview(showSystemUi = true)
-fun PreviewWelcomeScreen() {
-    WireTheme {
-        StartLoginContent(
-            isCustomBackend = false,
-            isThereActiveSession = false,
-            state = ServerConfig.DEFAULT,
-            loginEmailState = LoginEmailState(),
-            userIdentifierState = TextFieldState(),
-            onNextClicked = {},
-            navigateBack = {},
-            navigate = {}
-        )
+fun PreviewWelcomeScreen() = WireTheme {
+    EdgeToEdgePreview(useDarkIcons = false) {
+        SplashBackgroundLayout {
+            StartLoginContent(
+                isCustomBackend = false,
+                isThereActiveSession = false,
+                state = ServerConfig.DEFAULT,
+                loginEmailState = LoginEmailState(),
+                userIdentifierState = TextFieldState(),
+                onNextClicked = {},
+                navigateBack = {},
+                navigate = {}
+            )
+        }
     }
 }

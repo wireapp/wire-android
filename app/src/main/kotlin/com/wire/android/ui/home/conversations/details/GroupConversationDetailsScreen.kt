@@ -116,6 +116,7 @@ import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectConversationDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -301,7 +302,7 @@ private fun GroupConversationDetailsContent(
     onEditGuestAccess: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     onEditGroupName: () -> Unit,
-    onLeaveGroup: (GroupDialogState) -> Unit,
+    onLeaveGroup: (LeaveGroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
@@ -338,7 +339,7 @@ private fun GroupConversationDetailsContent(
     val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
 
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
-    val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
+    val leaveGroupDialogState = rememberVisibilityState<LeaveGroupDialogState>()
     val clearConversationDialogState = rememberVisibilityState<DialogState>()
     val archiveConversationDialogState = rememberVisibilityState<DialogState>()
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()

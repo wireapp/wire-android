@@ -47,6 +47,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
@@ -116,7 +117,7 @@ interface ConversationListViewModel {
     fun deleteGroup(groupDialogState: GroupDialogState) {}
     fun deleteGroupLocally(groupDialogState: GroupDialogState) {}
     fun observeIsDeletingConversationLocally(conversationId: ConversationId): Flow<Boolean>
-    fun leaveGroup(leaveGroupState: GroupDialogState) {}
+    fun leaveGroup(leaveGroupState: LeaveGroupDialogState) {}
     fun clearConversationContent(dialogState: DialogState) {}
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
     fun moveConversationToFolder() {}
@@ -360,7 +361,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         }
     }
 
-    override fun leaveGroup(leaveGroupState: GroupDialogState) {
+    override fun leaveGroup(leaveGroupState: LeaveGroupDialogState) {
         viewModelScope.launch {
             _requestInProgress = true
             val response = leaveConversation(leaveGroupState.conversationId)
@@ -369,7 +370,11 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                     _infoMessage.emit(HomeSnackBarMessage.LeaveConversationError)
 
                 RemoveMemberFromConversationUseCase.Result.Success -> {
-                    _infoMessage.emit(HomeSnackBarMessage.LeftConversationSuccess)
+                    if (leaveGroupState.shouldDelete) {
+                        deleteGroupLocally(leaveGroupState)
+                    } else {
+                        _infoMessage.emit(HomeSnackBarMessage.LeftConversationSuccess)
+                    }
                 }
             }
             _requestInProgress = false

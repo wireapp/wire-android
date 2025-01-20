@@ -23,21 +23,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
+import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
+import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
+import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -102,6 +107,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
+    private val workManager: WorkManager,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata
@@ -190,7 +196,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     fun leaveGroup(
-        leaveGroupState: GroupDialogState,
+        leaveGroupState: LeaveGroupDialogState,
         onSuccess: () -> Unit,
         onFailure: (UIText) -> Unit
     ) {
@@ -204,7 +210,13 @@ class GroupConversationDetailsViewModel @Inject constructor(
             }
             when (response) {
                 is RemoveMemberFromConversationUseCase.Result.Failure -> onFailure(response.cause.uiText())
-                RemoveMemberFromConversationUseCase.Result.Success -> onSuccess()
+                RemoveMemberFromConversationUseCase.Result.Success -> {
+                    if (leaveGroupState.shouldDelete) {
+                        deleteGroupLocally(leaveGroupState, onSuccess, onFailure)
+                    } else {
+                        onSuccess()
+                    }
+                }
             }
             requestInProgress = false
         }
@@ -223,6 +235,29 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 Result.Success -> onSuccess()
             }
             requestInProgress = false
+        }
+    }
+
+    fun deleteGroupLocally(
+        groupDialogState: GroupDialogState,
+        onSuccess: () -> Unit,
+        onFailure: (UIText) -> Unit
+    ) {
+        viewModelScope.launch {
+            workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
+                .collect { status ->
+                    when (status) {
+                        ConversationDeletionLocallyStatus.SUCCEEDED -> onSuccess()
+
+                        ConversationDeletionLocallyStatus.FAILED ->
+                            onFailure(UIText.StringResource(R.string.delete_group_conversation_error))
+
+                        ConversationDeletionLocallyStatus.RUNNING,
+                        ConversationDeletionLocallyStatus.IDLE -> {
+                            // nop
+                        }
+                    }
+                }
         }
     }
 

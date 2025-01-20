@@ -150,7 +150,8 @@ class CurrentScreenManager @Inject constructor(
             is CurrentScreen.ImportMedia,
             is CurrentScreen.DeviceManager -> return@let currentScreen.toScreenName()
 
-            else -> return@let (currentScreen as? CurrentScreen.SomeOther)?.route?.getBaseRoute()
+            is CurrentScreen.AuthRelated -> return@let currentScreen.route?.getBaseRoute() ?: currentScreen.toString()
+            else -> return@let (currentScreen as? CurrentScreen.SomeOther)?.route?.getBaseRoute() ?: currentScreen.toString()
         }
     }
 

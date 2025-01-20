@@ -65,7 +65,7 @@ fun DebugDataOptions(
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     DebugDataOptionsContent(
-        state = viewModel.state(),
+        state = viewModel.state,
         appVersion = appVersion,
         buildVariant = buildVariant,
         onCopyText = onCopyText,

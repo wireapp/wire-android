@@ -306,10 +306,7 @@ private fun MLSOptions(
         SettingsItem(
             title = "Error Message",
             text = mlsErrorMessage,
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = false
-            )
+            trailingIcon = null
         )
         SettingsItem(
             title = stringResource(R.string.label_key_packages_count),

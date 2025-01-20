@@ -67,7 +67,6 @@ interface DebugDataOptionsViewModel {
     fun state(): DebugDataOptionsState = DebugDataOptionsState()
     fun currentAccount(): UserId = UserId("value", "domain")
     fun checkCrlRevocationList() {}
-    fun enableEncryptedProteusStorage(enabled: Boolean) {}
     fun restartSlowSyncForRecovery() {}
     fun enrollE2EICertificate() {}
     fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {}
@@ -103,7 +102,6 @@ class DebugDataOptionsViewModelImpl
     override val infoMessage = _infoMessage.asSharedFlow()
 
     init {
-        observeEncryptedProteusStorageState()
         observeMlsMetadata()
         checkIfCanTriggerManualMigration()
         setGitHashAndDeviceId()
@@ -167,14 +165,6 @@ class DebugDataOptionsViewModelImpl
             checkCrlRevocationList(
                 forceUpdate = true
             )
-        }
-    }
-
-    override fun enableEncryptedProteusStorage(enabled: Boolean) {
-        if (enabled) {
-            viewModelScope.launch {
-                globalDataStore.setEncryptedProteusStorageEnabled(true)
-            }
         }
     }
 
@@ -253,15 +243,6 @@ class DebugDataOptionsViewModelImpl
                         _infoMessage.emit(UIText.DynamicString("Token registered"))
                     }
                 )
-            }
-        }
-    }
-
-    //region Private
-    private fun observeEncryptedProteusStorageState() {
-        viewModelScope.launch {
-            globalDataStore.isEncryptedProteusStorageEnabled().collect {
-                state = state.copy(isEncryptedProteusStorageEnabled = it)
             }
         }
     }

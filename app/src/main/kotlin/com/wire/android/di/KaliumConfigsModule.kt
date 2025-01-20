@@ -29,15 +29,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
 @Module
 @InstallIn(SingletonComponent::class)
 class KaliumConfigsModule {
 
     @Provides
-    fun provideKaliumConfigs(globalDataStore: GlobalDataStore, context: Context): KaliumConfigs {
+    fun provideKaliumConfigs(context: Context): KaliumConfigs {
         val fileRestriction: BuildFileRestrictionState = if (BuildConfig.FILE_RESTRICTION_ENABLED) {
             BuildConfig.FILE_RESTRICTION_LIST.split(",").map { it.trim() }.let {
                 BuildFileRestrictionState.AllowSome(it)
@@ -55,7 +53,7 @@ class KaliumConfigsModule {
             lowerKeyingMaterialsUpdateThreshold = BuildConfig.PRIVATE_BUILD,
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
             ignoreSSLCertificatesForUnboundCalls = BuildConfig.IGNORE_SSL_CERTIFICATES,
-            encryptProteusStorage = runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() },
+            encryptProteusStorage = true,
             guestRoomLink = BuildConfig.ENABLE_GUEST_ROOM_LINK,
             selfDeletingMessages = BuildConfig.SELF_DELETING_MESSAGES,
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,

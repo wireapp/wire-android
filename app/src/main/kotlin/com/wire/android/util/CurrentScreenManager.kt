@@ -127,7 +127,6 @@ class CurrentScreenManager @Inject constructor(
         val currentScreenName = currentScreenName()
         AnonymousAnalyticsManagerImpl.stopView(currentScreenName)
 
-
         val currentItem = destination.toDestination()
         currentScreenState.value = CurrentScreen.fromDestination(
             currentItem,

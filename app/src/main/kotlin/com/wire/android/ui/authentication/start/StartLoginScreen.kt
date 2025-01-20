@@ -54,7 +54,7 @@ import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.PopUpSplashNavigationAnimation
+import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.NewLoginContainer
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
@@ -76,7 +76,7 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @WireDestination(
-    style = PopUpSplashNavigationAnimation::class,
+    style = AuthPopUpNavigationAnimation::class,
     navArgsDelegate = StartLoginScreenNavArgs::class,
 )
 @Composable

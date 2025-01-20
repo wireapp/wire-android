@@ -28,12 +28,12 @@ object PopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle 
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
 }
 
-object SlideSplashNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+object AuthSlideNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
     override fun backgroundType(): BackgroundType  = BackgroundType.Auth
 }
 
-object PopUpSplashNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+object AuthPopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
     override fun backgroundType(): BackgroundType  = BackgroundType.Auth
 }

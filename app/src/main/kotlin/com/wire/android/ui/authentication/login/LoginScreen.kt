@@ -38,7 +38,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.SlideSplashNavigationAnimation
+import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
@@ -64,7 +64,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @RootNavGraph
 @WireDestination(
     navArgsDelegate = LoginNavArgs::class,
-    style = SlideSplashNavigationAnimation::class,
+    style = AuthSlideNavigationAnimation::class,
 )
 @Composable
 fun LoginScreen(

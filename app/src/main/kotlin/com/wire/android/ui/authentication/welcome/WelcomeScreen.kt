@@ -31,7 +31,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.PopUpSplashNavigationAnimation
+import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
@@ -48,7 +48,7 @@ import kotlinx.coroutines.delay
 
 @RootNavGraph(start = true)
 @WireDestination(
-    style = PopUpSplashNavigationAnimation::class,
+    style = AuthPopUpNavigationAnimation::class,
 )
 @Composable
 fun WelcomeScreen(

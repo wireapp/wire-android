@@ -417,7 +417,10 @@ private fun OngoingCallContent(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .drawInCallReactions(state = inCallReactionsState)
+                            .drawInCallReactions(
+                                state = inCallReactionsState,
+                                enabled = !inPictureInPictureMode,
+                            )
                     ) {
 
                         // if there is only one in the call, do not allow full screen
@@ -494,7 +497,7 @@ private fun OngoingCallContent(
             }
 
             AnimatedContent(
-                targetState = showInCallReactionsPanel,
+                targetState = showInCallReactionsPanel && !inPictureInPictureMode,
                 transitionSpec = {
                     val enter = slideInVertically(initialOffsetY = { it })
                     val exit = slideOutVertically(targetOffsetY = { it })

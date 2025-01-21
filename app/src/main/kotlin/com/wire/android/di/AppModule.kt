@@ -49,6 +49,7 @@ annotation class CurrentAppVersion
 
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("TooManyFunctions")
 object AppModule {
 
     @CurrentAppVersion

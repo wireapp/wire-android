@@ -83,7 +83,8 @@ class ConversationAudioMessagePlayer
 
         audioFocusHelper.setListener(
             onPauseCurrentAudio = { scope.launch { pauseCurrentAudioMessage() } },
-            onResumeCurrentAudio = { scope.launch { resumeCurrentAudioMessage() } })
+            onResumeCurrentAudio = { scope.launch { resumeCurrentAudioMessage() } }
+        )
     }
 
     private var audioMessageStateHistory: Map<MessageIdWrapper, AudioState> = emptyMap()
@@ -463,16 +464,16 @@ class ConversationAudioMessagePlayer
         val (conversationId, currentMessageId) = currentMessageIdWrapper
 
         val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
-        if (currentAccountResult is CurrentSessionResult.Failure) return false
-
-        val nextAudio = coreLogic
-            .getSessionScope((currentAccountResult as CurrentSessionResult.Success).accountInfo.userId)
-            .messages
-            .getNextAudioMessageInConversation(conversationId, currentMessageId)
-
-        if (nextAudio is GetNextAudioMessageInConversationUseCase.Result.Success) {
-            playAudio(conversationId, nextAudio.messageId)
-            return true
+        if (currentAccountResult is CurrentSessionResult.Success) {
+            coreLogic
+                .getSessionScope((currentAccountResult).accountInfo.userId)
+                .messages
+                .getNextAudioMessageInConversation(conversationId, currentMessageId).let { nextAudio ->
+                    if (nextAudio is GetNextAudioMessageInConversationUseCase.Result.Success) {
+                        playAudio(conversationId, nextAudio.messageId)
+                        return true
+                    }
+                }
         }
         return false
     }

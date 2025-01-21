@@ -242,7 +242,6 @@ fun stopAudioPendingIntent(context: Context): PendingIntent {
         intent,
         PendingIntent.FLAG_IMMUTABLE
     )
-
 }
 
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0

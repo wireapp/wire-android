@@ -80,7 +80,6 @@ class AudioFocusHelper @Inject constructor(private val audioManager: AudioManage
             override fun onResumeCurrentAudio() {
                 onResumeCurrentAudio()
             }
-
         }
     }
 

@@ -100,6 +100,9 @@ import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
@@ -267,6 +270,10 @@ fun OtherProfileScreenContent(
     changeConversationFavoriteViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
             ChangeConversationFavoriteStateArgs
+        ),
+    removeConversationFromFolderViewModel: RemoveConversationFromFolderVM =
+        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
+            RemoveConversationFromFolderArgs
         )
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
@@ -303,6 +310,7 @@ fun OtherProfileScreenContent(
         })
     }
 
+    SnackBarMessageHandler(removeConversationFromFolderViewModel.infoMessage, onEmitted = closeBottomSheet)
     SnackBarMessageHandler(changeConversationFavoriteViewModel.infoMessage, onEmitted = closeBottomSheet)
 
     val tabItems by remember(state) {
@@ -392,7 +400,8 @@ fun OtherProfileScreenContent(
                 archivingStatusState = archivingConversationDialogState::show,
                 changeFavoriteState = changeConversationFavoriteViewModel::changeFavoriteState,
                 closeBottomSheet = closeBottomSheet,
-                onMoveToFolder = onMoveToFolder
+                onMoveToFolder = onMoveToFolder,
+                removeFromFolder = removeConversationFromFolderViewModel::removeFromFolder
             )
         }
     )

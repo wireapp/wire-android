@@ -23,9 +23,11 @@ import android.content.Intent
 import android.os.Build
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -45,15 +47,17 @@ class ServicesManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
-    private val callServiceEvents = MutableStateFlow(false)
+    private val callServiceEvents = MutableSharedFlow<CallService.Action>()
 
     init {
         scope.launch {
             callServiceEvents
-                .debounce { if (it) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
+                .debounce { action ->
+                    if (action is CallService.Action.Stop) DEBOUNCE_TIME else 0 // debounce to avoid stopping and starting service too fast
+                }
                 .distinctUntilChanged()
-                .collectLatest { shouldBeStarted ->
-                    if (!shouldBeStarted) {
+                .collectLatest { action ->
+                    if (action is CallService.Action.Stop) {
                         appLogger.i("ServicesManager: stopping CallService because there are no calls")
                         when (CallService.serviceState.get()) {
                             CallService.ServiceState.STARTED -> {
@@ -62,7 +66,7 @@ class ServicesManager @Inject constructor(
                                 // or some specific argument that tells the service that it should stop itself right after startForeground.
                                 // This way, when this service is killed and recreated by the system, it will stop itself right after
                                 // recreating so it won't cause any problems.
-                                startService(CallService.newIntentToStop(context))
+                                startService(CallService.newIntent(context, CallService.Action.Stop))
                                 appLogger.i("ServicesManager: CallService stopped by passing stop argument")
                             }
 
@@ -78,7 +82,7 @@ class ServicesManager @Inject constructor(
                         }
                     } else {
                         appLogger.i("ServicesManager: starting CallService")
-                        startService(CallService.newIntent(context))
+                        startService(CallService.newIntent(context, action))
                     }
                 }
         }
@@ -87,14 +91,21 @@ class ServicesManager @Inject constructor(
     fun startCallService() {
         appLogger.i("ServicesManager: start CallService event")
         scope.launch {
-            callServiceEvents.emit(true)
+            callServiceEvents.emit(CallService.Action.Default)
+        }
+    }
+
+    fun startCallServiceToAnswer(userId: UserId, conversationId: ConversationId) {
+        appLogger.i("ServicesManager: start CallService event")
+        scope.launch {
+            callServiceEvents.emit(CallService.Action.AnswerCall(userId, conversationId))
         }
     }
 
     fun stopCallService() {
         appLogger.i("ServicesManager: stop CallService event")
         scope.launch {
-            callServiceEvents.emit(false)
+            callServiceEvents.emit(CallService.Action.Stop)
         }
     }
 

@@ -20,7 +20,7 @@ package com.wire.android.ui.sharing
 import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
 import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
-import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
@@ -33,7 +33,7 @@ data class ImportMediaAuthenticatedState(
     val importedText: String? = null,
     val isImporting: Boolean = false,
     val conversations: Flow<PagingData<ConversationFolderItem>> = emptyFlow(),
-    val selectedConversationItem: List<ConversationItem> = persistentListOf(),
+    val selectedConversationItem: List<ConversationId> = persistentListOf(),
     val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
 ) {
     @Stable

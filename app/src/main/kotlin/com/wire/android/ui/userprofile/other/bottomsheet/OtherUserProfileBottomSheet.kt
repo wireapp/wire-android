@@ -27,6 +27,8 @@ import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.userprofile.other.OtherUserProfileBottomSheetEventsHandler
+import com.wire.kalium.logic.data.conversation.ConversationFolder
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun OtherUserProfileBottomSheetContent(
@@ -39,6 +41,7 @@ fun OtherUserProfileBottomSheetContent(
     changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
     closeBottomSheet: () -> Unit,
     getBottomSheetVisibility: () -> Boolean,
+    removeFromFolder: (conversationId: ConversationId, conversationName: String, folder: ConversationFolder) -> Unit,
     onMoveToFolder: ((ConversationFoldersNavArgs) -> Unit)?
 ) {
     when (val state = bottomSheetState.bottomSheetContentState) {
@@ -56,6 +59,7 @@ fun OtherUserProfileBottomSheetContent(
                 },
                 changeFavoriteState = changeFavoriteState,
                 moveConversationToFolder = onMoveToFolder,
+                removeFromFolder = removeFromFolder,
                 updateConversationArchiveStatus = {
                     if (!it.isArchived) {
                         archivingStatusState(it)

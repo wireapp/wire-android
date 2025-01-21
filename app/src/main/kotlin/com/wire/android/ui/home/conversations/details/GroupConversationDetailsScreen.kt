@@ -114,6 +114,7 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectConversationDialog
@@ -124,6 +125,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.GroupID
@@ -143,7 +145,8 @@ fun GroupConversationDetailsScreen(
     groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    viewModel: GroupConversationDetailsViewModel = hiltViewModel()
+    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
+    removeConversationFromFolderVM: RemoveConversationFromFolderVM = hiltViewModel(),
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
@@ -254,7 +257,8 @@ fun GroupConversationDetailsScreen(
         ) ?: false,
         onMoveToFolder = {
             navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
-        }
+        },
+        removeFromFolder = removeConversationFromFolderVM::removeFromFolder
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -308,6 +312,7 @@ private fun GroupConversationDetailsContent(
     isAbandonedOneOnOneConversation: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
+    removeFromFolder: (conversationId: ConversationId, conversationName: String, folder: ConversationFolder) -> Unit,
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
@@ -493,6 +498,7 @@ private fun GroupConversationDetailsContent(
                 },
                 changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
                 moveConversationToFolder = onMoveToFolder,
+                removeFromFolder = removeFromFolder,
                 updateConversationArchiveStatus = {
                     // Only show the confirmation dialog if the conversation is not archived
                     if (!it.isArchived) {
@@ -648,6 +654,7 @@ fun PreviewGroupConversationDetails() {
             onConversationMediaClick = {},
             isAbandonedOneOnOneConversation = false,
             initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS,
+            removeFromFolder = { _, _, _ -> }
         )
     }
 }

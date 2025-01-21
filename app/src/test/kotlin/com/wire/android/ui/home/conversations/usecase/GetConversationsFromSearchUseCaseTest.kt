@@ -182,7 +182,7 @@ class GetConversationsFromSearchUseCaseTest {
         lateinit var userTypeMapper: UserTypeMapper
 
         @MockK
-        lateinit var observeSelfUser: GetSelfUserUseCase
+        lateinit var getSelfUser: GetSelfUserUseCase
 
         val queryConfig = ConversationQueryConfig(
             searchQuery = "search",
@@ -214,7 +214,7 @@ class GetConversationsFromSearchUseCaseTest {
         }
 
         fun withSelfUser() = apply {
-            coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
+            coEvery { getSelfUser() } returns TestUser.SELF_USER
         }
 
         fun arrange() = this to GetConversationsFromSearchUseCase(
@@ -223,7 +223,7 @@ class GetConversationsFromSearchUseCaseTest {
             observeConversationsFromFolderUseCase,
             userTypeMapper,
             dispatcherProvider,
-            observeSelfUser
+            getSelfUser
         )
     }
 }

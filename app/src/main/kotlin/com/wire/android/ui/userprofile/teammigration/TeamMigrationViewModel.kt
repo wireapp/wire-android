@@ -25,7 +25,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
@@ -37,7 +37,7 @@ import javax.inject.Inject
 class TeamMigrationViewModel @Inject constructor(
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase,
-    private val getSelfUser: GetSelfUserUseCase,
+    private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase
 ) : ViewModel() {
 
@@ -133,7 +133,7 @@ class TeamMigrationViewModel @Inject constructor(
 
     private fun setUsername() {
         viewModelScope.launch {
-            getSelfUser().collect { selfUser ->
+            observeSelfUser().collect { selfUser ->
                 selfUser.name?.let {
                     teamMigrationState = teamMigrationState.copy(username = it)
                 }

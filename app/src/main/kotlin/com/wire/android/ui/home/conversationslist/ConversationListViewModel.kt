@@ -33,7 +33,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
-import com.wire.android.media.audiomessage.ConversationAudioMessagePlayerProvider
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -122,7 +122,7 @@ interface ConversationListViewModel {
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
     fun moveConversationToFolder() {}
     fun searchQueryChanged(searchQuery: String) {}
-    fun playPauseCurrentAudio(conversationId: ConversationId, messageId: String) {}
+    fun playPauseCurrentAudio() {}
     fun stopCurrentAudio() {}
 }
 
@@ -152,7 +152,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
-    private val audioMessagePlayerProvider: ConversationAudioMessagePlayerProvider,
+    private val audioMessagePlayer: ConversationAudioMessagePlayer,
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
     private val getSelfUser: GetSelfUserUseCase,
@@ -167,7 +167,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         ): ConversationListViewModelImpl
     }
 
-    private val audioMessagePlayer = audioMessagePlayerProvider.provide()
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     override val infoMessage = _infoMessage.asSharedFlow()
 
@@ -484,15 +483,15 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         }
     }
 
-    override fun playPauseCurrentAudio(conversationId: ConversationId, messageId: String) {
+    override fun playPauseCurrentAudio() {
         viewModelScope.launch {
-            audioMessagePlayer.resumeOrPauseCurrentlyPlayingAudioMessage(conversationId, messageId)
+            audioMessagePlayer.resumeOrPauseCurrentAudioMessage()
         }
     }
 
     override fun stopCurrentAudio() {
         viewModelScope.launch {
-            audioMessagePlayer.stopCurrentlyPlayingAudioMessage()
+            audioMessagePlayer.forceToStopCurrentAudioMessage()
         }
     }
 

@@ -36,7 +36,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
-    private val getSessions: GetSessionsUseCase
+    private val getSessions: GetSessionsUseCase,
 ) : ViewModel() {
 
     var state by mutableStateOf(WelcomeScreenState(ServerConfig.DEFAULT))

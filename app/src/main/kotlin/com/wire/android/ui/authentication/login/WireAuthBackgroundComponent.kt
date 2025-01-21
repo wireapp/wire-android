@@ -20,44 +20,48 @@ package com.wire.android.ui.authentication.login
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.ui.theme.WireColorPalette
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireDarkColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun WireAuthBackgroundComponent() {
-    MainBackgroundContent()
-}
-
-@SuppressLint("PackagePrivateId")
-@Composable
-private fun MainBackgroundContent() {
-    Column(modifier = Modifier.fillMaxSize()) {
+fun  WireAuthBackgroundLayout(
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit = {},
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.wireDarkColorScheme.background), // splash is always dark
+    ) {
         val image: Painter = painterResource(id = R.drawable.bg_waves)
         Image(
             painter = image,
             contentDescription = null,
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.FillWidth,
+            alignment = Alignment.BottomCenter,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = WireColorPalette.Gray100)
+                .align(Alignment.BottomCenter)
         )
+        content()
     }
 }
 
 @PreviewMultipleThemes
-@Preview(showSystemUi = true)
 @Composable
-private fun PreviewWireAuthBackgroundComponent() = WireTheme {
-    MainBackgroundContent()
+private fun PreviewWireAuthBackgroundLayout() = WireTheme {
+    WireAuthBackgroundLayout {}
 }

@@ -20,21 +20,24 @@
 
 package com.wire.android.ui.authentication.welcome
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.authentication.login.WireAuthBackgroundComponent
+import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
+import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
+import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.StartLoginScreenDestination
 import com.wire.android.ui.theme.WireTheme
@@ -45,7 +48,7 @@ import kotlinx.coroutines.delay
 
 @RootNavGraph(start = true)
 @WireDestination(
-    style = PopUpNavigationAnimation::class
+    style = AuthPopUpNavigationAnimation::class,
 )
 @Composable
 fun WelcomeScreen(
@@ -65,7 +68,6 @@ private fun WelcomeContent(
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
 ) {
-    WireAuthBackgroundComponent()
     val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val context = LocalContext.current
@@ -81,6 +83,9 @@ private fun WelcomeContent(
         }
     )
     FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
+
+    // empty Box to keep proper bounds of the screen for transition animation to the next screen
+    Box(modifier = Modifier.fillMaxSize())
 
     with(state.startLoginDestination) {
         LaunchedEffect(this) {
@@ -100,9 +105,9 @@ private fun WelcomeContent(
 
 @PreviewMultipleThemes
 @Composable
-@Preview(showSystemUi = true)
-fun PreviewWelcomeScreen() {
-    WireTheme {
+fun PreviewWelcomeScreen() = WireTheme {
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout()
         WelcomeContent(
             state = WelcomeScreenState(ServerConfig.DEFAULT),
             navigateBack = {},

@@ -22,8 +22,8 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,6 +38,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
@@ -62,7 +63,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @WireDestination(
-    navArgsDelegate = LoginNavArgs::class
+    navArgsDelegate = LoginNavArgs::class,
+    style = AuthSlideNavigationAnimation::class,
 )
 @Composable
 fun LoginScreen(
@@ -76,7 +78,6 @@ fun LoginScreen(
         onNavigateBack = navigator::navigateBack
     ) {
         LoginContent(
-            onBackPressed = navigator::navigateBack,
             onSuccess = { initialSyncCompleted, isE2EIRequired ->
                 val destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
                 else if (initialSyncCompleted) HomeScreenDestination
@@ -88,22 +89,19 @@ fun LoginScreen(
                 navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
             },
             loginEmailViewModel = loginEmailViewModel,
-            ssoLoginResult = loginNavArgs.ssoLoginResult
         )
     }
 }
 
 @Composable
 private fun LoginContent(
-    onBackPressed: () -> Unit,
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
-    ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
     Column(
         modifier = Modifier
-            .fillMaxHeight(0.6f)
+            .wrapContentHeight()
             .fillMaxWidth()
     ) {
         /*
@@ -118,7 +116,7 @@ private fun LoginContent(
             if (isCodeInputNecessary) {
                 LoginEmailVerificationCodeScreen(loginEmailViewModel)
             } else {
-                MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, ssoLoginResult)
+                MainLoginContent(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel)
             }
         }
     }
@@ -127,13 +125,10 @@ private fun LoginContent(
 @Suppress("UnusedParameter")
 @Composable
 private fun MainLoginContent(
-    onBackPressed: () -> Unit,
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
-    ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
-
     val ssoDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     FeatureDisabledWithProxyDialogContent(dialogState = ssoDisabledWithProxyDialogState)
 
@@ -144,7 +139,12 @@ private fun MainLoginContent(
         )
         VerticalSpace.x8()
     }
-    LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel)
+    LoginEmailScreen(
+        onSuccess = onSuccess,
+        onRemoveDeviceNeeded = onRemoveDeviceNeeded,
+        loginEmailViewModel = loginEmailViewModel,
+        fillMaxHeight = false,
+    )
 }
 
 @Composable
@@ -270,14 +270,12 @@ data class LoginDialogErrorData(
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewLoginScreen() = WireTheme {
+private fun PreviewNewLoginEmailScreen() = WireTheme {
     WireTheme {
         MainLoginContent(
-            onBackPressed = {},
             onSuccess = { _, _ -> },
             onRemoveDeviceNeeded = {},
             loginEmailViewModel = hiltViewModel(),
-            ssoLoginResult = null
         )
     }
 }

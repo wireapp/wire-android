@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -55,6 +56,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -69,7 +71,10 @@ import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.navigation.style.BackgroundStyle
+import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
@@ -233,13 +238,25 @@ class WireActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
+                    val navigator = rememberNavigator(this@WireActivity::finish)
+                    val currentBackStackEntryState = navigator.navController.currentBackStackEntryAsState()
+                    val backgroundType by remember {
+                        derivedStateOf {
+                            currentBackStackEntryState.value?.appDestination()?.style.let {
+                                (it as? BackgroundStyle)?.backgroundType() ?: BackgroundType.Default
+                            }
+                        }
+                    }
+                    if (backgroundType == BackgroundType.Auth) {
+                        WireAuthBackgroundLayout()
+                    }
                     Column(
                         modifier = Modifier
                             .semantics { testTagsAsResourceId = true }
                     ) {
-                        val navigator = rememberNavigator(this@WireActivity::finish)
                         WireTopAppBar(
                             commonTopAppBarState = commonTopAppBarViewModel.state,
+                            backgroundType = backgroundType,
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
                             MainNavHost(
@@ -263,11 +280,13 @@ class WireActivity : AppCompatActivity() {
     @Composable
     private fun WireTopAppBar(
         commonTopAppBarState: CommonTopAppBarState,
+        backgroundType: BackgroundType,
         modifier: Modifier = Modifier,
     ) {
         CommonTopAppBar(
             modifier = modifier,
             commonTopAppBarState = commonTopAppBarState,
+            backgroundType = backgroundType,
             onReturnToCallClick = { establishedCall ->
                 getOngoingCallIntent(
                     this@WireActivity,

@@ -246,16 +246,14 @@ private fun InputContent(
                     UsersTypingIndicatorForConversation(conversationId = conversationId)
                 }
             }
-            if (showOptions) {
-                if (inputType is InputType.Composing) {
-                    MessageSendActions(
-                        onSendButtonClicked = onSendButtonClicked,
-                        sendButtonEnabled = inputType.isSendButtonEnabled,
-                        selfDeletionTimer = viewModel.state(),
-                        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                        modifier = Modifier.padding(end = dimensions().spacing8x)
-                    )
-                }
+            if (inputType is InputType.Composing && (showOptions || inputType.isSendButtonEnabled)) {
+                MessageSendActions(
+                    onSendButtonClicked = onSendButtonClicked,
+                    sendButtonEnabled = inputType.isSendButtonEnabled,
+                    selfDeletionTimer = viewModel.state(),
+                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    modifier = Modifier.padding(end = dimensions().spacing8x)
+                )
             }
         }
     }

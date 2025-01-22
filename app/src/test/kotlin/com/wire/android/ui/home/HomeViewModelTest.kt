@@ -17,7 +17,9 @@
  */
 package com.wire.android.ui.home
 
+import android.os.Build
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.BuildConfig
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
@@ -108,7 +110,10 @@ class HomeViewModelTest {
             verify(exactly = 1) {
                 arrangement.analyticsManager.sendEvent(
                     AnalyticsEvent.UserProfileOpened(
-                        isMigrationDotActive = viewModel.homeState.shouldShowCreateTeamUnreadIndicator
+                        isMigrationDotActive = viewModel.homeState.shouldShowCreateTeamUnreadIndicator,
+                        appVersion = BuildConfig.VERSION_NAME,
+                        deviceModel = Build.MODEL,
+                        osVersion = Build.VERSION.RELEASE
                     )
                 )
             }

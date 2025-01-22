@@ -18,12 +18,14 @@
 
 package com.wire.android.ui.home
 
+import android.os.Build
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
@@ -142,6 +144,13 @@ class HomeViewModel @Inject constructor(
     }
 
     fun sendOpenProfileEvent() {
-        analyticsManager.sendEvent(AnalyticsEvent.UserProfileOpened(homeState.shouldShowCreateTeamUnreadIndicator))
+        analyticsManager.sendEvent(
+            AnalyticsEvent.UserProfileOpened(
+                isMigrationDotActive = homeState.shouldShowCreateTeamUnreadIndicator,
+                appVersion = BuildConfig.VERSION_NAME,
+                deviceModel = Build.MODEL,
+                osVersion = Build.VERSION.RELEASE
+            )
+        )
     }
 }

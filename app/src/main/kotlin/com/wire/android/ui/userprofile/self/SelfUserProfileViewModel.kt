@@ -18,11 +18,13 @@
 
 package com.wire.android.ui.userprofile.self
 
+import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
@@ -57,8 +59,8 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserU
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.functional.getOrNull
@@ -318,13 +320,22 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     fun trackQrCodeClick() {
-        anonymousAnalyticsManager.sendEvent(AnalyticsEvent.QrCode.Click(!userProfileState.teamName.isNullOrBlank()))
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.QrCode.Click(
+                isTeam = !userProfileState.teamName.isNullOrBlank(),
+                appVersion = BuildConfig.VERSION_NAME,
+                deviceModel = Build.MODEL,
+                osVersion = Build.VERSION.RELEASE
+            )
+        )
     }
 
     fun sendPersonalToTeamMigrationEvent() {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                createTeamButtonClicked = true
+                createTeamButtonClicked = true,
+                appVersion = BuildConfig.VERSION_NAME,
+                appName = BuildConfig.APP_NAME
             )
         )
     }

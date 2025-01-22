@@ -84,7 +84,7 @@ fun NewLoginScreen(
     navigator: Navigator,
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
-    StartLoginContent(
+    LoginContent(
         viewModel.state.isThereActiveSession,
         viewModel.loginState,
         viewModel.userIdentifierTextState,
@@ -94,8 +94,9 @@ fun NewLoginScreen(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun StartLoginContent(
+private fun LoginContent(
     isThereActiveSession: Boolean,
     loginEmailState: LoginEmailState,
     userIdentifierState: TextFieldState,
@@ -107,75 +108,59 @@ private fun StartLoginContent(
         canNavigateBack = isThereActiveSession,
         onNavigateBack = navigateBack
     ) {
-        NewWelcomeExperienceContent(
-            loginEmailState = loginEmailState,
-            userIdentifierState = userIdentifierState,
-            onNextClicked = onNextClicked,
-            navigate = navigate
-        )
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun NewWelcomeExperienceContent(
-    loginEmailState: LoginEmailState,
-    userIdentifierState: TextFieldState,
-    onNextClicked: (() -> Unit) -> Unit,
-    navigate: (NavigationCommand) -> Unit,
-) {
-    val context = LocalContext.current
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-    ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-            tint = MaterialTheme.colorScheme.onBackground,
-            contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
-            modifier = Modifier.size(dimensions().spacing120x)
-        )
-
-        Text(
-            text = stringResource(id = R.string.enterprise_login_welcome),
-            style = MaterialTheme.wireTypography.body01,
-            textAlign = TextAlign.Center
-        )
-
+        val context = LocalContext.current
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .padding(
-                    vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
-                    horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
-                )
-                .semantics {
-                    testTagsAsResourceId = true
-                }
         ) {
-            val error = when (loginEmailState.flowState) {
-                is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
-                else -> null
-            }
-            EmailOrSSOCodeInput(userIdentifierState, error)
-            VerticalSpace.x8()
-            LoginNextButton(
-                loading = loginEmailState.flowState is LoginState.Loading,
-                enabled = loginEmailState.loginEnabled,
-                onClick = {
-                    onNextClicked {
-                        navigate(NavigationCommand(NewLoginPasswordScreenDestination(userHandle = userIdentifierState.text.toString())))
-                    }
-                }
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
+                tint = MaterialTheme.colorScheme.onBackground,
+                contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
+                modifier = Modifier.size(dimensions().spacing120x)
             )
-        }
 
-        if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
-            val termsUrl = stringResource(id = R.string.url_terms_of_use_legal)
-            WelcomeFooter(
-                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
-                onTermsAndConditionClick = { CustomTabsHelper.launchUrl(context, termsUrl) }
+            Text(
+                text = stringResource(id = R.string.enterprise_login_welcome),
+                style = MaterialTheme.wireTypography.body01,
+                textAlign = TextAlign.Center
             )
+
+            Column(
+                modifier = Modifier
+                    .padding(
+                        vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
+                        horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
+                    )
+                    .semantics {
+                        testTagsAsResourceId = true
+                    }
+            ) {
+                val error = when (loginEmailState.flowState) {
+                    is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
+                    else -> null
+                }
+                EmailOrSSOCodeInput(userIdentifierState, error)
+                VerticalSpace.x8()
+                LoginNextButton(
+                    loading = loginEmailState.flowState is LoginState.Loading,
+                    enabled = loginEmailState.loginEnabled,
+                    onClick = {
+                        onNextClicked {
+                            navigate(NavigationCommand(NewLoginPasswordScreenDestination(userHandle = userIdentifierState.text.toString())))
+                        }
+                    }
+                )
+            }
+
+            if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
+                val termsUrl = stringResource(id = R.string.url_terms_of_use_legal)
+                LoginFooter(
+                    modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
+                    onTermsAndConditionClick = { CustomTabsHelper.launchUrl(context, termsUrl) }
+                )
+            }
         }
     }
 }
@@ -224,7 +209,7 @@ private fun EmailOrSSOCodeInput(
 }
 
 @Composable
-private fun WelcomeFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun LoginFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(
             text = stringResource(R.string.enterprise_login_title_terms_description),
@@ -256,7 +241,7 @@ private fun WelcomeFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifi
 fun PreviewNewLoginScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
-            StartLoginContent(
+            LoginContent(
                 isThereActiveSession = false,
                 loginEmailState = LoginEmailState(),
                 userIdentifierState = TextFieldState(),

@@ -35,7 +35,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
-import com.wire.kalium.logic.feature.backup.CreateUnEncryptedCopyUseCase
+import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.util.DelicateKaliumApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -44,7 +44,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ExportObfuscatedCopyViewModel @OptIn(DelicateKaliumApi::class) @Inject constructor(
-    private val createUnencryptedCopy: CreateUnEncryptedCopyUseCase,
+    private val createUnencryptedCopy: CreateObfuscatedCopyUseCase,
     private val dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     private val fileManager: FileManager,
 ) : ViewModel() {
@@ -55,7 +55,6 @@ class ExportObfuscatedCopyViewModel @OptIn(DelicateKaliumApi::class) @Inject con
 
     @VisibleForTesting
     internal var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
-
 
     @OptIn(DelicateKaliumApi::class)
     fun createObfuscatedCopy() = viewModelScope.launch {
@@ -78,7 +77,6 @@ class ExportObfuscatedCopyViewModel @OptIn(DelicateKaliumApi::class) @Inject con
             }
         }
     }
-
 
     fun shareCopy() = viewModelScope.launch {
         latestCreatedBackup?.let { backupData ->
@@ -103,18 +101,4 @@ class ExportObfuscatedCopyViewModel @OptIn(DelicateKaliumApi::class) @Inject con
     fun cancelBackupCreation() = viewModelScope.launch(dispatcher.main()) {
         createBackupPasswordState.clearText()
     }
-
 }
-//
-//data class ObfuscatedCopyState(
-//    val backupCreationProgress: BackupCreationProgress,
-//) {
-//
-//    data class CreatedBackup(val path: Path, val assetName: String, val assetSize: Long, val isEncrypted: Boolean)
-//
-//    companion object {
-//        val INITIAL_STATE = ObfuscatedCopyState(
-//            backupCreationProgress = BackupCreationProgress.InProgress(),
-//        )
-//    }
-//}

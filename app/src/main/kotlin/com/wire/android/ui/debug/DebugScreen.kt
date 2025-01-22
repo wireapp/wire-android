@@ -171,10 +171,11 @@ fun DangerOptions(
                     )
                 }
 
-                BackupAndRestoreDialog.None -> {/*no-op*/
+                BackupAndRestoreDialog.None -> {
+                    /*no-op*/
                 }
 
-                BackupAndRestoreDialog.RestoreBackup -> TODO()
+                BackupAndRestoreDialog.RestoreBackup -> TODO("Restore backup not implemented")
             }
         }
     }

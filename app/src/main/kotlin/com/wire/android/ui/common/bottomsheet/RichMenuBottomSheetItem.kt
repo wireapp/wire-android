@@ -67,7 +67,13 @@ fun SelectableMenuBottomSheetItem(
             .wrapContentHeight()
             .wrapContentWidth()
             .defaultMinSize(minHeight = dimensions().spacing48x)
-            .let { if (isSelectedItem(state)) it.background(MaterialTheme.wireColorScheme.secondaryButtonSelected) else it }
+            .background(
+                if (isSelectedItem(state)) {
+                    MaterialTheme.wireColorScheme.secondaryButtonSelected
+                } else {
+                    MaterialTheme.wireColorScheme.surface
+                }
+            )
             .clickable(onItemClick)
             .semantics { if (isSelectedItem(state)) selected = true }
             .padding(vertical = dimensions().spacing12x, horizontal = dimensions().spacing16x)

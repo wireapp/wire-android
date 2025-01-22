@@ -45,7 +45,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import io.mockk.MockKAnnotations
@@ -78,7 +78,7 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var removeMemberFromConversationUseCase: RemoveMemberFromConversationUseCase
 
     @MockK
-    lateinit var observeSelfUser: GetSelfUserUseCase
+    lateinit var observeSelfUser: ObserveSelfUserUseCase
 
     @MockK
     lateinit var blockUser: BlockUserUseCase

@@ -33,12 +33,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import okio.IOException
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
@@ -158,7 +157,7 @@ class ChangeHandleViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { getSelf() } returns flowOf(TestUser.SELF_USER)
+            coEvery { getSelf() } returns TestUser.SELF_USER
         }
 
         private val viewModel by lazy { ChangeHandleViewModel(setHandle, validateHandle, getSelf) }

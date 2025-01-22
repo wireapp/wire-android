@@ -43,7 +43,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -345,7 +345,7 @@ internal class ConnectionActionButtonHiltArrangement {
     lateinit var unblockUser: UnblockUserUseCase
 
     @MockK
-    lateinit var observeSelfUser: GetSelfUserUseCase
+    lateinit var observeSelfUser: ObserveSelfUserUseCase
 
     @MockK(relaxed = true)
     lateinit var onIgnoreSuccess: (userName: String) -> Unit

@@ -71,11 +71,11 @@ fun HomeTopBar(
             }
             if (navigationItem.withUserAvatar) {
                 val openLabel = stringResource(R.string.content_description_open_label)
-            val contentDescription = if (shouldShowCreateTeamUnreadIndicator) {
-                stringResource(R.string.content_description_home_profile_btn_with_notification)
-            } else {
-                stringResource(R.string.content_description_home_profile_btn)
-            }
+                val contentDescription = if (shouldShowCreateTeamUnreadIndicator) {
+                    stringResource(R.string.content_description_home_profile_btn_with_notification)
+                } else {
+                    stringResource(R.string.content_description_home_profile_btn)
+                }
                 UserProfileAvatar(
                     avatarData = userAvatarData,
                     clickable = remember {
@@ -88,7 +88,7 @@ fun HomeTopBar(
                         legalHoldIndicatorVisible = withLegalHoldIndicator
                     ),
                     shouldShowCreateTeamUnreadIndicator = shouldShowCreateTeamUnreadIndicator,
-                contentDescription = contentDescription
+                    contentDescription = contentDescription
                 )
             }
         },
@@ -105,6 +105,29 @@ fun PreviewTopBar() {
             navigationItem = HomeDestination.Conversations,
             currentFilter = ConversationFilter.All,
             userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+            elevation = 0.dp,
+            withLegalHoldIndicator = false,
+            shouldShowCreateTeamUnreadIndicator = false,
+            onHamburgerMenuClick = {},
+            onNavigateToSelfUserProfile = {},
+            onOpenConversationFilter = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewTopBarWithSelectedFilter() {
+    WireTheme {
+        HomeTopBar(
+            title = "Conversations",
+            currentFilter = ConversationFilter.Groups,
+            navigationItem = HomeDestination.Conversations,
+            userAvatarData = UserAvatarData(
+                asset = null,
+                availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+                nameBasedAvatar = NameBasedAvatar("Jon Doe", -1)
+            ),
             elevation = 0.dp,
             withLegalHoldIndicator = false,
             shouldShowCreateTeamUnreadIndicator = false,

@@ -67,7 +67,7 @@ fun ConversationList(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     isSelectableList: Boolean = false,
-    selectedConversations: List<ConversationItem> = emptyList(),
+    selectedConversations: List<ConversationId> = emptyList(),
     onOpenConversation: (ConversationItem) -> Unit = {},
     onEditConversation: (ConversationItem) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit = {},
@@ -116,7 +116,7 @@ fun ConversationList(
                         ConversationItemFactory(
                             conversation = item,
                             isSelectableItem = isSelectableList,
-                            isChecked = selectedConversations.contains(item),
+                            isChecked = selectedConversations.contains(item.conversationId),
                             onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(item) },
                             openConversation = onOpenConversation,
                             openMenu = onEditConversation,
@@ -207,7 +207,8 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
                     mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                     searchQuery = searchQuery,
-                    isFavorite = false
+                    isFavorite = false,
+                    folder = null
                 )
             )
 
@@ -227,7 +228,8 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
                     proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                     searchQuery = searchQuery,
                     isFavorite = false,
-                    isUserDeleted = false
+                    isUserDeleted = false,
+                    folder = null
                 )
             )
         }
@@ -281,6 +283,7 @@ fun PreviewConversationListSelect() = WireTheme {
     ConversationList(
         lazyPagingConversations = previewConversationFoldersFlow(list = conversationFolders).collectAsLazyPagingItems(),
         isSelectableList = true,
-        selectedConversations = conversationFolders.filterIsInstance<ConversationItem>().filterIndexed { index, _ -> index % 3 == 0 },
+        selectedConversations = conversationFolders.filterIsInstance<ConversationItem>().filterIndexed { index, _ -> index % 3 == 0 }
+            .map { it.conversationId },
     )
 }

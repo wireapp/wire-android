@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 @file:Suppress("TooManyFunctions")
 
-package com.wire.android.ui.authentication.start
+package com.wire.android.ui.newauthentication.login
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -55,8 +55,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
-import com.wire.android.ui.authentication.login.NewLoginContainer
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.common.button.WireButtonState
@@ -68,7 +68,7 @@ import com.wire.android.ui.common.textfield.DefaultEmailNext
 import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -77,15 +77,14 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @WireDestination(
     style = AuthPopUpNavigationAnimation::class,
-    navArgsDelegate = StartLoginScreenNavArgs::class,
+    navArgsDelegate = LoginNavArgs::class,
 )
 @Composable
-fun StartLoginScreen(
+fun NewLoginScreen(
     navigator: Navigator,
-    viewModel: StartLoginViewModel = hiltViewModel()
+    viewModel: NewLoginViewModel = hiltViewModel()
 ) {
     StartLoginContent(
-        viewModel.state.isCustomBackend,
         viewModel.state.isThereActiveSession,
         viewModel.loginState,
         viewModel.userIdentifierTextState,
@@ -97,7 +96,6 @@ fun StartLoginScreen(
 
 @Composable
 private fun StartLoginContent(
-    isCustomBackend: Boolean,
     isThereActiveSession: Boolean,
     loginEmailState: LoginEmailState,
     userIdentifierState: TextFieldState,
@@ -109,14 +107,12 @@ private fun StartLoginContent(
         canNavigateBack = isThereActiveSession,
         onNavigateBack = navigateBack
     ) {
-        if (!isCustomBackend) {
-            NewWelcomeExperienceContent(
-                loginEmailState = loginEmailState,
-                userIdentifierState = userIdentifierState,
-                onNextClicked = onNextClicked,
-                navigate = navigate
-            )
-        }
+        NewWelcomeExperienceContent(
+            loginEmailState = loginEmailState,
+            userIdentifierState = userIdentifierState,
+            onNextClicked = onNextClicked,
+            navigate = navigate
+        )
     }
 }
 
@@ -168,7 +164,7 @@ private fun NewWelcomeExperienceContent(
                 enabled = loginEmailState.loginEnabled,
                 onClick = {
                     onNextClicked {
-                        navigate(NavigationCommand(LoginScreenDestination(userHandle = userIdentifierState.text.toString())))
+                        navigate(NavigationCommand(NewLoginPasswordScreenDestination(userHandle = userIdentifierState.text.toString())))
                     }
                 }
             )
@@ -257,11 +253,10 @@ private fun WelcomeFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifi
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewStartLoginScreen() = WireTheme {
+fun PreviewNewLoginScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             StartLoginContent(
-                isCustomBackend = false,
                 isThereActiveSession = false,
                 loginEmailState = LoginEmailState(),
                 userIdentifierState = TextFieldState(),

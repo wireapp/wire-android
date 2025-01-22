@@ -29,6 +29,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.migration.MigrationData
 import com.wire.android.navigation.BackStackMode
@@ -39,6 +40,8 @@ import com.wire.android.ui.common.SettingUpWireScreenContent
 import com.wire.android.ui.common.SettingUpWireScreenType
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.NewLoginScreenDestination
+import com.wire.android.ui.destinations.NewWelcomeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -56,12 +59,23 @@ fun MigrationScreen(
 ) {
 
     when (val state = viewModel.state) {
-        is MigrationState.LoginRequired ->
-            navigator.navigate(NavigationCommand(LoginScreenDestination(state.userHandle), BackStackMode.CLEAR_WHOLE))
+        is MigrationState.LoginRequired -> navigator.navigate(
+            NavigationCommand(
+                when {
+                    BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination(userHandle = state.userHandle)
+                    else -> LoginScreenDestination(userHandle = state.userHandle)
+                },
+                BackStackMode.CLEAR_WHOLE
+            )
+        )
 
         is MigrationState.Success -> navigator.navigate(
             NavigationCommand(
-                if (state.currentSessionAvailable) HomeScreenDestination else WelcomeScreenDestination,
+                when {
+                    state.currentSessionAvailable -> HomeScreenDestination
+                    BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewWelcomeScreenDestination
+                    else -> WelcomeScreenDestination
+                },
                 BackStackMode.CLEAR_WHOLE
             )
         )

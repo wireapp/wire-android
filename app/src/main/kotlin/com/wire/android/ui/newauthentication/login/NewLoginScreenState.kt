@@ -15,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.authentication.start
+package com.wire.android.ui.newauthentication.login
 
-data class StartLoginScreenNavArgs(val isCustomBackend: Boolean = false)
+import com.wire.kalium.logic.configuration.server.ServerConfig
+
+data class NewLoginScreenState(
+    val links: ServerConfig.Links,
+    val isThereActiveSession: Boolean = false,
+)

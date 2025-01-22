@@ -104,7 +104,7 @@ class AvatarPickerViewModelTest {
                 coVerify {
                     uploadUserAvatarUseCase(any(), any())
                 }
-                coVerify(exactly = 0) {
+                coVerify(exactly = 1) {
                     avatarImageManager.getWritableAvatarUri(any())
                 }
                 verify(exactly = 0) { onSuccess(any()) }

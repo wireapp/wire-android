@@ -272,7 +272,7 @@ class ConnectionActionButtonViewModelTest {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
             verify { arrangement.onOpenConversation(any()) }
-            verify(exactly = 0) { arrangement.onMissingKeyPackages }
+            verify(exactly = 0) { arrangement.onMissingKeyPackages.invoke(any()) }
             assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
@@ -291,7 +291,7 @@ class ConnectionActionButtonViewModelTest {
             coVerify {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
-            verify(exactly = 0) { arrangement.onOpenConversation }
+            verify(exactly = 0) { arrangement.onOpenConversation.invoke(any()) }
             verify(exactly = 0) { arrangement.onMissingKeyPackages }
             assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
@@ -311,7 +311,7 @@ class ConnectionActionButtonViewModelTest {
             coVerify {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
-            verify(exactly = 0) { arrangement.onOpenConversation }
+            verify(exactly = 0) { arrangement.onOpenConversation.invoke(any()) }
             verify { arrangement.onMissingKeyPackages() }
             assertEquals(false, viewModel.actionableState().isPerformingAction)
         }

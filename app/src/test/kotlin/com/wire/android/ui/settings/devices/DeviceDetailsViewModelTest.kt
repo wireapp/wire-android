@@ -134,7 +134,7 @@ class DeviceDetailsViewModelTest {
         coVerify(exactly = 0) {
             arrangement.deleteClientUseCase(any())
         }
-        verify(exactly = 0) { arrangement.onSuccess }
+        verify(exactly = 0) { arrangement.onSuccess.invoke() }
         assertIs<RemoveDeviceDialogState.Visible>(viewModel.state.removeDeviceDialogState)
         assertIs<RemoveDeviceError.None>(viewModel.state.error)
     }
@@ -153,7 +153,7 @@ class DeviceDetailsViewModelTest {
             coVerify(exactly = 0) {
                 arrangement.deleteClientUseCase(any())
             }
-            verify(exactly = 0) { arrangement.onSuccess }
+            verify(exactly = 0) { arrangement.onSuccess.invoke() }
             assertIs<RemoveDeviceDialogState.Hidden>(viewModel.state.removeDeviceDialogState)
             assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }
@@ -174,7 +174,7 @@ class DeviceDetailsViewModelTest {
             coVerify(exactly = 0) {
                 arrangement.deleteClientUseCase.invoke(any())
             }
-            verify(exactly = 0) { arrangement.onSuccess }
+            verify(exactly = 0) { arrangement.onSuccess.invoke() }
             assertIs<RemoveDeviceDialogState.Visible>(viewModel.state.removeDeviceDialogState)
             assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }

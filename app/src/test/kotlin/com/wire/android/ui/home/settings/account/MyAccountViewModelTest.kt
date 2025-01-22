@@ -118,7 +118,7 @@ class MyAccountViewModelTest {
             .arrange()
 
         verify(exactly = 0) {
-            arrangement.selfServerConfigUseCase
+            arrangement.selfServerConfigUseCase.invoke(any())
         }
     }
 

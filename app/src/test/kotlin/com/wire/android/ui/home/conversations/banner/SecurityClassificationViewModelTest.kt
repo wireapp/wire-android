@@ -64,8 +64,8 @@ class SecurityClassificationViewModelTest {
         // Then
         assertEquals(SecurityClassificationType.CLASSIFIED, viewModel.state())
 
-        coVerify {
-            arrangement.getOtherUserSecurityClassificationLabel(any()) wasNot called
+        coVerify(exactly = 0) {
+            arrangement.getOtherUserSecurityClassificationLabel(any())
         }
     }
 
@@ -85,8 +85,8 @@ class SecurityClassificationViewModelTest {
         // Then
         assertEquals(SecurityClassificationType.CLASSIFIED, viewModel.state())
 
-        coVerify {
-            arrangement.observeSecurityClassificationLabel(any()) wasNot called
+        coVerify(exactly = 0) {
+            arrangement.observeSecurityClassificationLabel(any())
         }
     }
 

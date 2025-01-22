@@ -132,10 +132,10 @@ class DeviceDetailsViewModelTest {
 
         viewModel.removeDevice(arrangement.onSuccess)
 
-        coVerify {
-            arrangement.deleteClientUseCase(any()) wasNot Called
+        coVerify(exactly = 0) {
+            arrangement.deleteClientUseCase(any())
         }
-        verify { arrangement.onSuccess wasNot Called }
+        verify(exactly = 0) { arrangement.onSuccess }
         assertIs<RemoveDeviceDialogState.Visible>(viewModel.state.removeDeviceDialogState)
         assertIs<RemoveDeviceError.None>(viewModel.state.error)
     }
@@ -151,10 +151,10 @@ class DeviceDetailsViewModelTest {
 
             viewModel.onDialogDismissed()
 
-            coVerify {
-                arrangement.deleteClientUseCase(any()) wasNot Called
+            coVerify(exactly = 0) {
+                arrangement.deleteClientUseCase(any())
             }
-            verify { arrangement.onSuccess wasNot Called }
+            verify(exactly = 0) { arrangement.onSuccess }
             assertIs<RemoveDeviceDialogState.Hidden>(viewModel.state.removeDeviceDialogState)
             assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }
@@ -172,10 +172,10 @@ class DeviceDetailsViewModelTest {
             viewModel.removeDevice(arrangement.onSuccess)
             viewModel.clearDeleteClientError()
 
-            coVerify {
-                arrangement.deleteClientUseCase.invoke(any()) wasNot Called
+            coVerify(exactly = 0) {
+                arrangement.deleteClientUseCase.invoke(any())
             }
-            verify { arrangement.onSuccess wasNot Called }
+            verify(exactly = 0) { arrangement.onSuccess }
             assertIs<RemoveDeviceDialogState.Visible>(viewModel.state.removeDeviceDialogState)
             assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }

@@ -77,7 +77,7 @@ class ForgotLockScreenViewModelTest {
             val (result, resultPassword) = viewModel.validatePasswordIfNeeded("password")
             assert(result is ForgotLockScreenViewModel.Result.Success)
             assertEquals("", resultPassword)
-            verify { arrangement.validatePasswordUseCase(any()) wasNot Called }
+            verify(exactly = 0) { arrangement.validatePasswordUseCase(any()) }
         }
     @Test
     fun `given password required and valid, when validating password, then return Success with given password`() =
@@ -118,7 +118,7 @@ class ForgotLockScreenViewModelTest {
                 .arrange()
             val (result, _) = viewModel.validatePasswordIfNeeded("password")
             assert(result is ForgotLockScreenViewModel.Result.Failure)
-            verify { arrangement.validatePasswordUseCase(any()) wasNot Called }
+            verify(exactly = 0) { arrangement.validatePasswordUseCase(any()) }
         }
 
     // current client deletion

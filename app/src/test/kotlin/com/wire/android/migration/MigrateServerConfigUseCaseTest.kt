@@ -99,7 +99,7 @@ class MigrateServerConfigUseCaseTest {
             .withScalaServerConfig(ScalaServerConfig.NoData)
             .arrange()
         val result = useCase()
-        coVerify { arrangement.globalKaliumScope.storeServerConfig(any(), any()) wasNot Called }
+        coVerify(exactly = 0) { arrangement.globalKaliumScope.storeServerConfig(any(), any()) }
         assert(result.isLeft())
         assertEquals(StorageFailure.DataNotFound, (result as Either.Left).value)
     }

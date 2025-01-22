@@ -87,8 +87,8 @@ class OtherUserProfileScreenViewModelTest {
         val groupState = viewModel.state.groupState
 
         // then
-        coVerify {
-            arrangement.observeConversationRoleForUserUseCase(any(), any()) wasNot Called
+        coVerify(exactly = 0) {
+            arrangement.observeConversationRoleForUserUseCase(any(), any())
         }
         assertEquals(groupState, null)
     }

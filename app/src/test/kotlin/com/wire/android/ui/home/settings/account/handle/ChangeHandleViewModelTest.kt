@@ -85,8 +85,8 @@ class ChangeHandleViewModelTest {
         viewModel.onSaveClicked(arrangement.onSuccess)
 
         assertEquals(viewModel.state.error, HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
-        coVerify {
-            arrangement.validateHandle("handle") wasNot Called
+        coVerify(exactly = 0) {
+            arrangement.validateHandle("handle")
         }
     }
 

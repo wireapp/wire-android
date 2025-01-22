@@ -118,8 +118,8 @@ class MyAccountViewModelTest {
             .withE2EIEnabledResult(false)
             .arrange()
 
-        verify {
-            arrangement.selfServerConfigUseCase wasNot Called
+        verify(exactly = 0) {
+            arrangement.selfServerConfigUseCase
         }
     }
 

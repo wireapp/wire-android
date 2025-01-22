@@ -20,6 +20,7 @@ package com.wire.android.ui.userprofile.qr
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -58,6 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeView
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.Navigator
@@ -109,7 +111,14 @@ private fun SelfQRCodeContent(
     val context = LocalContext.current
 
     BackHandler {
-        trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.Back)
+        trackAnalyticsEvent(
+            AnalyticsEvent.QrCode.Modal.Back(
+                isTeam = state.isTeamMember,
+                appVersion = BuildConfig.VERSION_NAME,
+                deviceModel = Build.MODEL,
+                osVersion = Build.VERSION.RELEASE
+            )
+        )
         onBackClick()
     }
 
@@ -118,7 +127,14 @@ private fun SelfQRCodeContent(
             WireCenterAlignedTopAppBar(
                 title = stringResource(id = R.string.user_profile_qr_code_title),
                 onNavigationPressed = {
-                    trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.Back)
+                    trackAnalyticsEvent(
+                        AnalyticsEvent.QrCode.Modal.Back(
+                            isTeam = state.isTeamMember,
+                            appVersion = BuildConfig.VERSION_NAME,
+                            deviceModel = Build.MODEL,
+                            osVersion = Build.VERSION.RELEASE
+                        )
+                    )
                     onBackClick()
                 },
                 elevation = 0.dp
@@ -127,26 +143,26 @@ private fun SelfQRCodeContent(
     ) { internalPadding ->
         Column(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .background(colorsScheme().background)
-                .padding(internalPadding),
+                Modifier
+                    .fillMaxSize()
+                    .background(colorsScheme().background)
+                    .padding(internalPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             VerticalSpace.x24()
             Column(
                 modifier =
-                Modifier
-                    .padding(horizontal = dimensions().spacing16x)
-                    .clip(RoundedCornerShape(dimensions().spacing8x))
-                    .fillMaxWidth()
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
+                    Modifier
+                        .padding(horizontal = dimensions().spacing16x)
+                        .clip(RoundedCornerShape(dimensions().spacing8x))
+                        .fillMaxWidth()
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+                            drawLayer(graphicsLayer)
                         }
-                        drawLayer(graphicsLayer)
-                    }
-                    .background(Color.White),
+                        .background(Color.White),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 VerticalSpace.x16()
@@ -159,14 +175,14 @@ private fun SelfQRCodeContent(
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier =
-                        Modifier
-                            .clip(CircleShape)
-                            .border(
-                                width = dimensions().spacing2x,
-                                shape = CircleShape,
-                                color = Color.White
-                            )
-                            .background(colorsScheme().primary)
+                            Modifier
+                                .clip(CircleShape)
+                                .border(
+                                    width = dimensions().spacing2x,
+                                    shape = CircleShape,
+                                    color = Color.White
+                                )
+                                .background(colorsScheme().primary)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_launcher_foreground),
@@ -203,10 +219,17 @@ private fun SelfQRCodeContent(
                 color = colorsScheme().secondaryText
             )
             Spacer(modifier = Modifier.weight(1f))
-            ShareLinkButton(state.userAccountProfileLink, trackAnalyticsEvent)
+            ShareLinkButton(state.isTeamMember, state.userAccountProfileLink, trackAnalyticsEvent)
             VerticalSpace.x8()
             ShareQRCodeButton {
-                trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.ShareQrCode)
+                trackAnalyticsEvent(
+                    AnalyticsEvent.QrCode.Modal.ShareQrCode(
+                        isTeam = state.isTeamMember,
+                        appVersion = BuildConfig.VERSION_NAME,
+                        deviceModel = Build.MODEL,
+                        osVersion = Build.VERSION.RELEASE
+                    )
+                )
                 coroutineScope.launch {
                     val bitmap = graphicsLayer.toImageBitmap()
                     val qrUri = shareQRAssetClick(bitmap.asAndroidBitmap())
@@ -222,11 +245,11 @@ private fun SelfQRCodeContent(
 fun ShareQRCodeButton(shareQRAssetClick: () -> Unit) {
     WirePrimaryButton(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = dimensions().spacing16x)
-            .testTag("Share QR link"),
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = dimensions().spacing16x)
+                .testTag("Share QR link"),
         text = stringResource(R.string.user_profile_qr_code_share_image_link),
         onClick = shareQRAssetClick
     )
@@ -234,20 +257,28 @@ fun ShareQRCodeButton(shareQRAssetClick: () -> Unit) {
 
 @Composable
 private fun ShareLinkButton(
+    isTeamMember: Boolean,
     selfProfileUrl: String,
     trackAnalyticsEvent: (AnalyticsEvent.QrCode.Modal) -> Unit
 ) {
     val context = LocalContext.current
     WirePrimaryButton(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = dimensions().spacing16x)
-            .testTag("Share link"),
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = dimensions().spacing16x)
+                .testTag("Share link"),
         text = stringResource(R.string.user_profile_qr_code_share_link),
         onClick = {
-            trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.ShareProfileLink)
+            trackAnalyticsEvent(
+                AnalyticsEvent.QrCode.Modal.ShareProfileLink(
+                    isTeam = isTeamMember,
+                    appVersion = BuildConfig.VERSION_NAME,
+                    deviceModel = Build.MODEL,
+                    osVersion = Build.VERSION.RELEASE
+                )
+            )
             context.shareLinkToProfile(selfProfileUrl)
         }
     )

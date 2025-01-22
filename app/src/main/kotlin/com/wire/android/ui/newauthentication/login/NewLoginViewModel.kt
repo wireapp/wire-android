@@ -47,6 +47,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewLoginViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
+    private val emailOrSSOCodeValidator: EmailOrSSOCodeValidator,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
@@ -76,7 +77,7 @@ class NewLoginViewModel @Inject constructor(
             userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
             }.collectLatest {
-                updateEmailFlowState(it)
+                updateUserIdentifierFlowState(it)
             }
         }
     }
@@ -97,10 +98,10 @@ class NewLoginViewModel @Inject constructor(
      * Update the state based on the input.
      * TODO(ym): Check if we need to validate the email, since this an SSO code can also be valid in this input.
      */
-    private fun updateEmailFlowState(email: CharSequence) {
+    private fun updateUserIdentifierFlowState(emailOrSSOCode: CharSequence) {
         loginState = loginState.copy(
             flowState = LoginState.Default,
-            loginEnabled = email.isNotEmpty() && loginState.flowState !is LoginState.Loading
+            loginEnabled = emailOrSSOCodeValidator.validate(emailOrSSOCode) && loginState.flowState !is LoginState.Loading
         )
     }
 

@@ -48,7 +48,6 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

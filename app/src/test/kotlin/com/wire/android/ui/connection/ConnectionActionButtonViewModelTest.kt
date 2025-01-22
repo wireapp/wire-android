@@ -44,7 +44,6 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

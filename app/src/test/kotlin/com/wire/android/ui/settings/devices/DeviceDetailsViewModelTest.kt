@@ -55,7 +55,6 @@ import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.right
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

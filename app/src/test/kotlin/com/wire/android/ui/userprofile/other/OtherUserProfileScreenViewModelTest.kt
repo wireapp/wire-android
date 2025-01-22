@@ -41,7 +41,6 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
-import io.mockk.Called
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest

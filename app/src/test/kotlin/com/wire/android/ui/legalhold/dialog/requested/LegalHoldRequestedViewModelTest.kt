@@ -32,7 +32,6 @@ import com.wire.kalium.logic.feature.legalhold.ApproveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

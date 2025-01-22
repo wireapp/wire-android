@@ -34,7 +34,6 @@ import com.wire.kalium.logic.feature.server.StoreServerConfigResult
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.isLeft
 import com.wire.kalium.logic.functional.isRight
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

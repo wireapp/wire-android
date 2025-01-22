@@ -38,7 +38,6 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

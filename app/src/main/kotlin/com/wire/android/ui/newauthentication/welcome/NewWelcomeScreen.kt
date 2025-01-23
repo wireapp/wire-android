@@ -48,6 +48,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 @RootNavGraph(start = true)
 @WireDestination(
@@ -95,7 +96,7 @@ private fun WelcomeContent(
 
     LaunchedEffect(Unit) {
         if (state.maxAccountsReached.not()) {
-            delay(5_000) // small delay to resolve the navigation
+            delay(1.seconds) // small delay to resolve the navigation
             navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
         }
     }

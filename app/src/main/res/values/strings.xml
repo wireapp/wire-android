@@ -366,6 +366,7 @@
     <string name="enterprise_login_next">Next</string>
     <string name="enterprise_login_user_identifier_label">EMAIL OR SSO CODE</string>
     <string name="enterprise_login_user_identifier_label_placeholder">Enter Email or SSO Code</string>
+    <string name="enterprise_login_error_invalid_user_identifier">Please enter a valid email or SSO code</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>

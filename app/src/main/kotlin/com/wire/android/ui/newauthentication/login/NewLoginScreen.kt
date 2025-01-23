@@ -154,7 +154,7 @@ private fun NewWelcomeExperienceContent(
                 }
         ) {
             val error = when (loginEmailState.flowState) {
-                is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
+                is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.enterprise_login_error_invalid_user_identifier)
                 else -> null
             }
             EmailOrSSOCodeInput(userIdentifierState, error)

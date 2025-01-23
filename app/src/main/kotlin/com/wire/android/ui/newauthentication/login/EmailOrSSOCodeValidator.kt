@@ -36,7 +36,6 @@ class EmailOrSSOCodeValidator @Inject constructor(
      */
     fun validate(input: CharSequence): Boolean {
         return when {
-            input.isEmpty() -> false
             input.startsWith(ValidateSSOCodeUseCase.SSO_CODE_WIRE_PREFIX) -> {
                 validateSSOCode(input.toString()) is ValidateSSOCodeResult.Valid
             }

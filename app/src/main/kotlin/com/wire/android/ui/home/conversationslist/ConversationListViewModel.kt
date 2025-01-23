@@ -33,6 +33,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -99,6 +100,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.util.Date
 
+@Suppress("TooManyFunctions")
 interface ConversationListViewModel {
     val infoMessage: SharedFlow<SnackBarMessage> get() = MutableSharedFlow()
     val closeBottomSheet: SharedFlow<Unit> get() = MutableSharedFlow()
@@ -121,8 +123,11 @@ interface ConversationListViewModel {
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
     fun moveConversationToFolder() {}
     fun searchQueryChanged(searchQuery: String) {}
+    fun playPauseCurrentAudio() {}
+    fun stopCurrentAudio() {}
 }
 
+@Suppress("TooManyFunctions")
 class ConversationListViewModelPreview(
     foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = previewConversationFoldersFlow(),
 ) : ConversationListViewModel {
@@ -148,6 +153,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
+    private val audioMessagePlayer: ConversationAudioMessagePlayer,
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
     private val getSelfUser: GetSelfUserUseCase,
@@ -188,13 +194,17 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         .onStart { emit("") }
         .combine(isSelfUserUnderLegalHoldFlow, ::Pair)
         .distinctUntilChanged()
-        .flatMapLatest { (searchQuery, isSelfUserUnderLegalHold) ->
+        .combine(audioMessagePlayer.playingAudioMessageFlow) { (searchQuery, isSelfUserUnderLegalHold), playingAudioMessage ->
+            Triple(searchQuery, isSelfUserUnderLegalHold, playingAudioMessage)
+        }
+        .flatMapLatest { (searchQuery, isSelfUserUnderLegalHold, playingAudioMessage) ->
             getConversationsPaginated(
                 searchQuery = searchQuery,
                 fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
                 conversationFilter = conversationsSource.toFilter(),
                 onlyInteractionEnabled = false,
                 newActivitiesOnTop = containsNewActivitiesSection,
+                playingAudioMessage = playingAudioMessage
             ).map { pagingData ->
                 pagingData
                     .map { it.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold) }
@@ -254,15 +264,20 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 .onStart { emit("") }
                 .distinctUntilChanged()
                 .flatMapLatest { searchQuery: String ->
-                    observeConversationListDetailsWithEvents(
-                        fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
-                        conversationFilter = conversationsSource.toFilter()
-                    ).combine(isSelfUserUnderLegalHoldFlow) { conversations, isSelfUserUnderLegalHold ->
+                    combine(
+                        observeConversationListDetailsWithEvents(
+                            fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
+                            conversationFilter = conversationsSource.toFilter()
+                        ),
+                        isSelfUserUnderLegalHoldFlow,
+                        audioMessagePlayer.playingAudioMessageFlow
+                    ) { conversations, isSelfUserUnderLegalHold, playingAudioMessage ->
                         conversations.map { conversationDetails ->
                             conversationDetails.toConversationItem(
                                 userTypeMapper = userTypeMapper,
                                 searchQuery = searchQuery,
-                                selfUserTeamId = getSelfUser()?.teamId
+                                selfUserTeamId = getSelfUser()?.teamId,
+                                playingAudioMessage = playingAudioMessage
                             ).hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
                         } to searchQuery
                     }
@@ -470,6 +485,18 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 _requestInProgress = false
                 clearContentSnackbarResult(result, conversationTypeDetail)
             }
+        }
+    }
+
+    override fun playPauseCurrentAudio() {
+        viewModelScope.launch {
+            audioMessagePlayer.resumeOrPauseCurrentAudioMessage()
+        }
+    }
+
+    override fun stopCurrentAudio() {
+        viewModelScope.launch {
+            audioMessagePlayer.forceToStopCurrentAudioMessage()
         }
     }
 

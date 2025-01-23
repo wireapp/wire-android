@@ -251,7 +251,8 @@
     <string name="content_description_change_picture_back_btn">Go back to your profile overview</string>
     <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
     <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
-    <string name="content_description_login_email_field">enter your email or sso code</string>
+    <string name="content_description_login_email_field">enter your email or username</string>
+    <string name="content_description_enterprise_login_email_field">enter your email or sso code</string>
     <string name="content_description_login_password_field">enter your password</string>
     <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
     <string name="content_description_whats_new_welcome_item">Welcome to Wire\'s New Android App, link to support page</string>

@@ -84,7 +84,7 @@ fun NewLoginScreen(
     navigator: Navigator,
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
-    StartLoginContent(
+    LoginContent(
         viewModel.loginState,
         viewModel.userIdentifierTextState,
         viewModel::onLoginStarted,
@@ -92,8 +92,9 @@ fun NewLoginScreen(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun StartLoginContent(
+private fun LoginContent(
     loginEmailState: LoginEmailState,
     userIdentifierState: TextFieldState,
     onNextClicked: (() -> Unit) -> Unit,
@@ -162,7 +163,7 @@ private fun NewWelcomeExperienceContent(
 
         if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
             val termsUrl = stringResource(id = R.string.url_terms_of_use_legal)
-            WelcomeFooter(
+            LoginFooter(
                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                 onTermsAndConditionClick = { CustomTabsHelper.launchUrl(context, termsUrl) }
             )
@@ -206,7 +207,7 @@ private fun EmailOrSSOCodeInput(
             error != null -> WireTextFieldState.Error(error)
             else -> WireTextFieldState.Default
         },
-        semanticDescription = stringResource(R.string.content_description_login_email_field),
+        semanticDescription = stringResource(R.string.content_description_enterprise_login_email_field),
         keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = Modifier.testTag("emailField"),
         testTag = "userIdentifierInput",
@@ -214,7 +215,7 @@ private fun EmailOrSSOCodeInput(
 }
 
 @Composable
-private fun WelcomeFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun LoginFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(
             text = stringResource(R.string.enterprise_login_title_terms_description),
@@ -246,7 +247,7 @@ private fun WelcomeFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifi
 fun PreviewNewLoginScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
-            StartLoginContent(
+            LoginContent(
                 loginEmailState = LoginEmailState(),
                 userIdentifierState = TextFieldState(),
                 onNextClicked = {},

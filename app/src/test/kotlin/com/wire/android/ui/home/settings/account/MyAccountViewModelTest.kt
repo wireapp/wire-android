@@ -27,12 +27,12 @@ import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase.Result.Success
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
@@ -41,7 +41,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockkObject
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -117,8 +116,8 @@ class MyAccountViewModelTest {
             .withE2EIEnabledResult(false)
             .arrange()
 
-        verify(exactly = 0) {
-            arrangement.selfServerConfigUseCase.invoke(any())
+        coVerify(exactly = 0) {
+            arrangement.selfServerConfigUseCase.invoke()
         }
     }
 

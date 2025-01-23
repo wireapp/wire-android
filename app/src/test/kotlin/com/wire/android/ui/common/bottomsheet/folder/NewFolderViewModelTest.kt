@@ -157,6 +157,24 @@ class NewFolderViewModelTest {
         assertEquals(folderId, viewModel.folderNameState.folderId)
     }
 
+    @Test
+    fun `when folder creation succeeds, then state will not show NameAlreadyExistError`() = runTest {
+        val folderId = "123"
+        val (arrangement, viewModel) = Arrangement()
+            .withCreateFolderResult(CreateConversationFolderUseCase.Result.Success(folderId))
+            .arrange {}
+
+        arrangement.userFoldersChannel.send(listOf())
+        arrangement.updateTextState("NewFolder")
+
+        viewModel.createFolder("NewFolder")
+        arrangement.userFoldersChannel.send(listOf(ConversationFolder(id = folderId, name = "NewFolder", type = FolderType.USER)))
+        advanceUntilIdle()
+
+        assertEquals(FolderNameState.NameError.None, viewModel.folderNameState.error)
+        assertTrue(viewModel.folderNameState.loading)
+    }
+
     private class Arrangement {
 
         @MockK

@@ -38,7 +38,6 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -104,7 +103,9 @@ class AvatarPickerViewModelTest {
             with(arrangement) {
                 coVerify {
                     uploadUserAvatarUseCase(any(), any())
-                    avatarImageManager.getWritableAvatarUri(any()) wasNot Called
+                }
+                coVerify(exactly = 1) {
+                    avatarImageManager.getWritableAvatarUri(any())
                 }
                 verify(exactly = 0) { onSuccess(any()) }
             }

@@ -108,6 +108,7 @@ okio = "3.9.0"
 turbine = "1.2.0"
 robolectric = "4.12.2"
 hamcrest = "3.0"
+jetbrainsKotlinJvm = "1.9.24"
 
 [plugins]
 # 3rd Party plugins
@@ -125,6 +126,7 @@ wire-android-library = { id = "com.wire.android.library" }
 wire-hilt = { id = "com.wire.android.hilt" }
 wire-kover = { id = "com.wire.android.kover" }
 wire-versionizer = { id = "com.wire.android.versionizer" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 [bundles]
 #android = ["appCompat", "activityCompose", "work", "composeMaterial", "coroutinesAndroid", "ktor", "ktor-okHttp"]
 

@@ -1693,4 +1693,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="new_folder_error_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
     <string name="new_folder_failure">“%1$s” folder could not be added</string>
 
+    <string name="cells_screen_title">Wire Cell</string>
+
 </resources>

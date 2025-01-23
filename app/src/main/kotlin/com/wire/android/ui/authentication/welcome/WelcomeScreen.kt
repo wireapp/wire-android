@@ -73,7 +73,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.authentication.ServerTitle
+import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
@@ -162,7 +162,11 @@ private fun WelcomeContent(
             )
 
             if (state.isOnPremises) {
-                ServerTitle(serverLinks = state, modifier = Modifier.padding(top = dimensions().spacing16x))
+                ServerTitle(
+                    serverLinks = state,
+                    modifier = Modifier
+                        .padding(top = dimensions().spacing16x, start = dimensions().spacing32x, end = dimensions().spacing32x)
+                )
             }
 
             WelcomeCarousel(modifier = Modifier.weight(1f, true))

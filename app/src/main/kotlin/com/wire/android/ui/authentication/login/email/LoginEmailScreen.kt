@@ -43,6 +43,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -228,7 +229,7 @@ private fun LoginEmailContent(
 }
 
 @Composable
-private fun UserIdentifierInput(
+fun UserIdentifierInput(
     userIdentifierState: TextFieldState,
     error: String?,
     isEnabled: Boolean,
@@ -252,7 +253,7 @@ private fun UserIdentifierInput(
 }
 
 @Composable
-private fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
+fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,
@@ -266,14 +267,18 @@ private fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Mo
 }
 
 @Composable
-private fun ForgotPasswordLabel(forgotPasswordUrl: String, modifier: Modifier = Modifier) {
+fun ForgotPasswordLabel(
+    forgotPasswordUrl: String,
+    textColor: Color = colorsScheme().primary,
+    modifier: Modifier = Modifier
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
         Text(
             text = stringResource(R.string.login_forgot_password),
             style = MaterialTheme.wireTypography.body02.copy(
                 textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.primary
+                color = textColor,
             ),
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -295,19 +300,20 @@ private fun openForgotPasswordPage(context: Context, forgotPasswordUrl: String) 
 }
 
 @Composable
-private fun LoginButton(
+fun LoginButton(
     loading: Boolean,
     enabled: Boolean,
+    text: String = stringResource(R.string.label_login),
+    loadingText: String = stringResource(R.string.label_logging_in),
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
-        val text = if (loading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
         WirePrimaryButton(
-            text = text,
+            text = if (loading) loadingText else text,
             onClick = onClick,
-            state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
+            state = if (enabled && !loading) WireButtonState.Default else WireButtonState.Disabled,
             loading = loading,
             interactionSource = interactionSource,
             modifier = Modifier

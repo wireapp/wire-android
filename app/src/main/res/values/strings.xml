@@ -366,6 +366,9 @@
     <string name="enterprise_login_next">Next</string>
     <string name="enterprise_login_user_identifier_label">EMAIL OR SSO CODE</string>
     <string name="enterprise_login_user_identifier_label_placeholder">Enter Email or SSO Code</string>
+    <string name="enterprise_login_create_account_label">Don\'t have a Wire account?</string>
+    <string name="enterprise_login_create_account_text_button">Create account</string>
+    <string name="enterprise_login_on_prem_welcome_title">Welcome to Wire Enterprise for %s!</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>

@@ -18,55 +18,47 @@
 package com.wire.android.ui.newauthentication.login
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetDefaults
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
+import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.common.topappbar.NavigationIconButton
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun NewLoginContainer(
-    title: String = "",
-    canNavigateBack: Boolean = false,
-    onNavigateBack: () -> Unit = {},
+    header: @Composable () -> Unit = {},
+    contentPadding: Dp = dimensions().spacing24x,
     content: @Composable () -> Unit
 ) {
-    NewLoginContent(title, canNavigateBack, onNavigateBack, content)
-}
-
-@Composable
-private fun NewLoginContent(
-    title: String = "",
-    canNavigateBack: Boolean,
-    onNavigateBack: () -> Unit,
-    content: @Composable () -> Unit = { }
-) {
+    val scrollState = rememberScrollState()
     NavigationBarBackground()
     WireScaffold(
         containerColor = Color.Transparent,
@@ -76,35 +68,61 @@ private fun NewLoginContent(
                     .clip(WireBottomSheetDefaults.WireBottomSheetShape)
                     .background(WireBottomSheetDefaults.WireSheetContainerColor)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(dimensions().spacing16x),
-                    verticalAlignment = Alignment.CenterVertically,
+                Surface(
+                    color = WireBottomSheetDefaults.WireSheetContainerColor,
+                    shadowElevation = scrollState.rememberTopBarElevationState().value,
                 ) {
-                    if (canNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            modifier = Modifier.clickable(onClick = onNavigateBack)
-                        )
-                    }
-                    if (title.isBlank().not()) {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.wireTypography.body01,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.size(dimensions().spacing8x))
+                    header()
                 }
-                Column {
-                    VerticalSpace.x16()
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(scrollState)
+                        .padding(start = contentPadding, end = contentPadding, bottom = contentPadding)
+                ) {
                     content()
                 }
             }
         }) { _ -> }
+}
+
+@Composable
+fun NewLoginHeader(
+    title: String,
+    canNavigateBack: Boolean = false,
+    contentPadding: Dp = dimensions().spacing24x,
+    onNavigateBack: () -> Unit = {},
+) {
+    val iconClickablePadding = dimensions().spacing12x
+    val iconClickableWidth = dimensions().spacing48x
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = iconClickableWidth - iconClickablePadding.times(2) + contentPadding.times(2))
+            .padding(horizontal = contentPadding - iconClickablePadding),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (canNavigateBack) {
+            NavigationIconButton(
+                iconType = NavigationIconType.Back(),
+                onClick = onNavigateBack,
+                modifier = Modifier
+                    .width(iconClickableWidth)
+            )
+        }
+        if (title.isBlank().not()) {
+            Text(
+                text = title,
+                style = MaterialTheme.wireTypography.body01,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(horizontal = iconClickablePadding, vertical = contentPadding)
+                    .weight(1f)
+            )
+        }
+        if (canNavigateBack) {
+            Box(modifier = Modifier.width(iconClickableWidth)) // so that the title is centered when there is a navigation button
+        }
+    }
 }
 
 @Composable
@@ -122,15 +140,24 @@ private fun NavigationBarBackground() = Box(
 
 @PreviewMultipleThemes
 @Composable
+private fun PreviewNewLoginHeader() = WireTheme {
+    NewLoginHeader("Enter your password to log in", true) {}
+}
+
+
+@PreviewMultipleThemes
+@Composable
 private fun PreviewNewLoginContent() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
-            NewLoginContent("Enter your password to log in", true, {}) {
-                Text(
-                    text = "EMPTY",
-                    modifier = Modifier.padding(dimensions().spacing24x)
-                )
-            }
+            NewLoginContainer(
+                header = {
+                    NewLoginHeader("Enter your password to log in", true) {}
+                },
+                content = {
+                    Text(text = "EMPTY")
+                }
+            )
         }
     }
 }

@@ -52,7 +52,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.TransitionAnimationType
-import com.wire.android.ui.authentication.ServerTitle
+import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel

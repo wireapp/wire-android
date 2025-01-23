@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -84,6 +85,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.NewWelcomeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
@@ -136,7 +138,8 @@ fun ImportMediaScreen(
                 fileSharingRestrictedState = fileSharingRestrictedState,
                 navigateBack = navigator.finish,
                 openWireAction = {
-                    navigator.navigate(NavigationCommand(WelcomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                    val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewWelcomeScreenDestination else WelcomeScreenDestination
+                    navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
                 }
             )
         }

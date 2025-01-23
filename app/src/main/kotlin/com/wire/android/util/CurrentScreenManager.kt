@@ -43,10 +43,14 @@ import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
+import com.wire.android.ui.destinations.NewLoginScreenDestination
+import com.wire.android.ui.destinations.NewWelcomeScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
+import com.wire.android.ui.destinations.WelcomeChooserScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
@@ -211,7 +215,11 @@ sealed class CurrentScreen {
                 is SelfDevicesScreenDestination -> DeviceManager
 
                 is WelcomeScreenDestination,
+                is NewWelcomeScreenDestination,
+                is WelcomeChooserScreenDestination,
                 is LoginScreenDestination,
+                is NewLoginScreenDestination,
+                is NewLoginPasswordScreenDestination,
                 is CreatePersonalAccountOverviewScreenDestination,
                 is CreateTeamAccountOverviewScreenDestination,
                 is CreateAccountEmailScreenDestination,

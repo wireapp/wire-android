@@ -18,12 +18,14 @@
 
 package com.wire.android.feature
 
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.NewWelcomeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -212,5 +214,10 @@ interface SwitchAccountActions {
 
 class NavigationSwitchAccountActions(val navigate: (NavigationCommand) -> Unit) : SwitchAccountActions {
     override fun switchedToAnotherAccount() = navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-    override fun noOtherAccountToSwitch() = navigate(NavigationCommand(WelcomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+    override fun noOtherAccountToSwitch() = navigate(
+        NavigationCommand(
+            if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewWelcomeScreenDestination else WelcomeScreenDestination,
+            BackStackMode.CLEAR_WHOLE
+        )
+    )
 }

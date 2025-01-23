@@ -23,10 +23,4 @@ data class WelcomeScreenState(
     val links: ServerConfig.Links,
     val isThereActiveSession: Boolean = false,
     val maxAccountsReached: Boolean = false,
-    val startLoginDestination: StartLoginDestination = StartLoginDestination.Default,
 )
-
-enum class StartLoginDestination {
-    Default,
-    CustomBackend,
-}

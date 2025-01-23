@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,10 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.authentication.start
+package com.wire.android.ui.newauthentication.login
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,11 +27,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -41,16 +45,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class StartLoginViewModel @Inject constructor(
+class NewLoginViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
+        if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
+    }
 
-    private val startLoginScreenNavArgs: StartLoginScreenNavArgs = savedStateHandle.navArgs()
     var state by mutableStateOf(
-        StartLoginScreenState(
+        NewLoginScreenState(
             links = ServerConfig.DEFAULT,
-            isCustomBackend = startLoginScreenNavArgs.isCustomBackend
         )
     )
         private set
@@ -59,6 +65,13 @@ class StartLoginViewModel @Inject constructor(
 
     init {
         observerAuthServer()
+        userIdentifierTextState.setTextAndPlaceCursorAtEnd(
+            if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
+                preFilledUserIdentifier.userIdentifier
+            } else {
+                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+            }
+        )
         viewModelScope.launch {
             userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()

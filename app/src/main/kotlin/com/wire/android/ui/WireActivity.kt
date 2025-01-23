@@ -73,7 +73,6 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
-import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
@@ -92,6 +91,8 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.destinations.NewLoginScreenDestination
+import com.wire.android.ui.destinations.NewWelcomeScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
@@ -184,7 +185,10 @@ class WireActivity : AppCompatActivity() {
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
-                InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
+                InitialAppState.NOT_LOGGED_IN -> when {
+                    BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewWelcomeScreenDestination
+                    else -> WelcomeScreenDestination
+                }
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
                 InitialAppState.LOGGED_IN -> HomeScreenDestination
             }
@@ -541,7 +545,12 @@ class WireActivity : AppCompatActivity() {
                     viewModel::dismissCustomBackendDialog,
                     onConfirm = {
                         viewModel.customBackendDialogProceedButtonClicked {
-                            navigate(NavigationCommand(LoginScreenDestination(LoginNavArgs())))
+                            navigate(
+                                NavigationCommand(
+                                    if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewWelcomeScreenDestination else WelcomeScreenDestination,
+                                    BackStackMode.UPDATE_EXISTED
+                                )
+                            )
                         }
                     },
                     onTryAgain = viewModel::onCustomServerConfig
@@ -650,6 +659,10 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Suppress("ComplexCondition", "LongMethod")
+    /*
+     * This method is responsible for handling deep links from given intent
+     * @return true if there was any deep link in given intent to handle, false otherwise
+     */
     private fun handleDeepLink(
         intent: Intent?,
         savedInstanceState: Bundle? = null
@@ -711,7 +724,10 @@ class WireActivity : AppCompatActivity() {
                 onMigrationLogin = {
                     navigate(
                         NavigationCommand(
-                            LoginScreenDestination(it.userHandle),
+                            when {
+                                BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination(userHandle = it.userHandle)
+                                else -> LoginScreenDestination(userHandle = it.userHandle)
+                            },
                             BackStackMode.UPDATE_EXISTED
                         )
                     )
@@ -735,7 +751,10 @@ class WireActivity : AppCompatActivity() {
                 onSSOLogin = {
                     navigate(
                         NavigationCommand(
-                            LoginScreenDestination(ssoLoginResult = it),
+                            when {
+                                BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination(ssoLoginResult = it)
+                                else -> LoginScreenDestination(ssoLoginResult = it)
+                            },
                             BackStackMode.UPDATE_EXISTED
                         )
                     )

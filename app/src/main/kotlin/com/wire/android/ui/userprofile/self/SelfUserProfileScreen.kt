@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.NavigationSwitchAccountActions
@@ -80,6 +81,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AvatarPickerScreenDestination
 import com.wire.android.ui.destinations.MyAccountScreenDestination
+import com.wire.android.ui.destinations.NewWelcomeScreenDestination
 import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
 import com.wire.android.ui.destinations.TeamMigrationScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
@@ -138,7 +140,10 @@ fun SelfUserProfileScreen(
         },
         onEditClick = { navigator.navigate(NavigationCommand(AppSettingsScreenDestination)) },
         onStatusClicked = viewModelSelf::changeStatusClick,
-        onAddAccountClick = { navigator.navigate(NavigationCommand(WelcomeScreenDestination)) },
+        onAddAccountClick = {
+            val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewWelcomeScreenDestination else WelcomeScreenDestination
+            navigator.navigate(NavigationCommand(destination))
+        },
         dismissStatusDialog = viewModelSelf::dismissStatusDialog,
         onStatusChange = viewModelSelf::changeStatus,
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,

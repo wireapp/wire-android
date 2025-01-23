@@ -65,13 +65,10 @@ import com.wire.android.ui.authentication.login.email.UserIdentifierInput
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.welcome.isProxyEnabled
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
-import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -121,6 +118,7 @@ fun NewLoginPasswordScreen(
         onLoginButtonClick = loginEmailViewModel::login,
         onUpdateApp = loginEmailViewModel::updateTheApp,
         onCreateAccount = {
+            // TODO: should it open "create personal account" or "create team/enterprise account"?
             navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination))
         },
         navigateBack = navigator::navigateBack,
@@ -156,10 +154,6 @@ internal fun LoginPasswordContent(
     if (loginEmailState.flowState is LoginState.Error.DialogError) {
         LoginErrorDialog(loginEmailState.flowState, onDialogDismiss, onUpdateApp)
     }
-
-    // TODO: implement the logic of showing this sso disabled with proxy dialog
-    val ssoDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
-    FeatureDisabledWithProxyDialogContent(dialogState = ssoDisabledWithProxyDialogState)
 
     NewLoginContainer(
         header = {

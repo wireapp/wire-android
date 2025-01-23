@@ -238,7 +238,7 @@ internal fun LoginPasswordContent(
                     )
                 }
                 if (!serverConfig.isOnPremises && !serverConfig.isProxyEnabled()) {
-                    CreateAccountLabel(
+                    CreateAccountContent(
                         onCreateAccountClicked = onCreateAccount,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -287,7 +287,7 @@ private fun ProxyContent(
 }
 
 @Composable
-private fun CreateAccountLabel(onCreateAccountClicked: () -> Unit, modifier: Modifier = Modifier) {
+private fun CreateAccountContent(onCreateAccountClicked: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         shape = RoundedCornerShape(dimensions().buttonCornerSize),
         border = BorderStroke(width = dimensions().spacing1x, color = colorsScheme().outline),

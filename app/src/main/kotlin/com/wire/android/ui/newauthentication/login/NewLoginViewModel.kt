@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class NewLoginViewModel @Inject constructor(
@@ -89,7 +90,7 @@ class NewLoginViewModel @Inject constructor(
         viewModelScope.launch {
             if (emailOrSSOCodeValidator.validate(userIdentifierTextState.text.trim())) {
                 updateLoginFlowState(LoginState.Loading)
-                @Suppress("MagicNumber") delay(1000) // TODO(ym): here the call to the use case should be done.
+                delay(1.seconds) // TODO(ym): here the call to the use case should be done.
                 updateLoginFlowState(LoginState.Default)
                 onSuccess()
             } else {

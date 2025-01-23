@@ -118,9 +118,11 @@ fun NewLoginPasswordScreen(
         onLoginButtonClick = loginEmailViewModel::login,
         onUpdateApp = loginEmailViewModel::updateTheApp,
         onCreateAccount = {
-            // TODO: should it open "create personal account" or "create team/enterprise account"?
+            // TODO: Should it open CreatePersonalAccountScreen or CreateTeamAccountScreen?
+            //       Also, maybe open the second step directly - ...EmailScreen with e-mail already filled in instead of ...OverviewScreen
             navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination))
         },
+        canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = navigator::navigateBack,
     )
 }
@@ -140,6 +142,7 @@ internal fun LoginPasswordContent(
     onLoginButtonClick: () -> Unit,
     onUpdateApp: () -> Unit,
     onCreateAccount: () -> Unit,
+    canNavigateBack: Boolean,
     navigateBack: () -> Unit,
 ) {
     clearAutofillTree()
@@ -170,7 +173,7 @@ internal fun LoginPasswordContent(
                 }
                 NewLoginHeader(
                     title = stringResource(id = R.string.enterprise_login_title),
-                    canNavigateBack = true,
+                    canNavigateBack = canNavigateBack,
                     onNavigateBack = navigateBack
                 )
             }
@@ -339,6 +342,7 @@ private fun PreviewNewLoginPasswordScreen() = WireTheme {
                 onLoginButtonClick = {},
                 onUpdateApp = {},
                 onCreateAccount = {},
+                canNavigateBack = true,
                 navigateBack = {},
             )
         }
@@ -366,6 +370,7 @@ private fun PreviewNewLoginPasswordWithProxyScreen() = WireTheme {
                 onLoginButtonClick = {},
                 onUpdateApp = {},
                 onCreateAccount = {},
+                canNavigateBack = false,
                 navigateBack = {},
             )
         }

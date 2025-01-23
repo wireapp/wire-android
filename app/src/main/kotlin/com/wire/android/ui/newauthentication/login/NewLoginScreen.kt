@@ -201,7 +201,7 @@ private fun EmailOrSSOCodeInput(
             error != null -> WireTextFieldState.Error(error)
             else -> WireTextFieldState.Default
         },
-        semanticDescription = stringResource(R.string.content_description_login_email_field),
+        semanticDescription = stringResource(R.string.content_description_enterprise_login_email_field),
         keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = Modifier.testTag("emailField"),
         testTag = "userIdentifierInput",

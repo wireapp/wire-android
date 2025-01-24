@@ -94,7 +94,6 @@ private fun LoginContent(
     navigate: (NavigationCommand) -> Unit
 ) {
     NewLoginContainer {
-        val context = LocalContext.current
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,

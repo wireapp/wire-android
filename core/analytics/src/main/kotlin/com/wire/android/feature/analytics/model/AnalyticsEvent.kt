@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.analytics.model
 
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.APP_VERSION
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_AV_SWITCH_TOGGLE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_DIRECTION
@@ -44,7 +43,6 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_DISMISS_CTA
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_PERSONAL_MIGRATION_CTA_EVENT
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBUTED_LOCATION
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.DEVICE_MODEL
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MIGRATION_DOT_ACTIVE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_BACK_TO_WIRE_CLICKED
@@ -52,7 +50,6 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_CO
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_LEAVE_CLICKED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_OPEN_TEAM_MANAGEMENT_CLICKED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_TEAM_NAME
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.OS_VERSION
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_CANCELLED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_COMPLETED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_STARTED_EVENT
@@ -298,19 +295,13 @@ interface AnalyticsEvent {
     }
 
     data class UserProfileOpened(
-        val isMigrationDotActive: Boolean,
-        val appVersion: String,
-        val deviceModel: String,
-        val osVersion: String
+        val isMigrationDotActive: Boolean
     ) : AnalyticsEvent {
         override val key: String = USER_PROFILE_OPENED
 
         override fun toSegmentation(): Map<String, Any> {
             return mapOf(
-                MIGRATION_DOT_ACTIVE to isMigrationDotActive,
-                APP_VERSION to appVersion,
-                OS_VERSION to osVersion,
-                DEVICE_MODEL to deviceModel
+                MIGRATION_DOT_ACTIVE to isMigrationDotActive
             )
         }
     }

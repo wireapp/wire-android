@@ -17,4 +17,7 @@
  */
 package com.wire.android.feature.analytics
 
-class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorderStub()
+class AnonymousAnalyticsRecorderImpl(
+    private val appVersion: String,
+    private val appName: String
+) : AnonymousAnalyticsRecorderStub()

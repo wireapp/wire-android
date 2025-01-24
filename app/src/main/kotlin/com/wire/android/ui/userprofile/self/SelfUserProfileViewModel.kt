@@ -18,13 +18,11 @@
 
 package com.wire.android.ui.userprofile.self
 
-import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
@@ -322,10 +320,7 @@ class SelfUserProfileViewModel @Inject constructor(
     fun trackQrCodeClick() {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.QrCode.Click(
-                isTeam = !userProfileState.teamName.isNullOrBlank(),
-                appVersion = BuildConfig.VERSION_NAME,
-                deviceModel = Build.MODEL,
-                osVersion = Build.VERSION.RELEASE
+                isTeam = !userProfileState.teamName.isNullOrBlank()
             )
         )
     }
@@ -333,9 +328,7 @@ class SelfUserProfileViewModel @Inject constructor(
     fun sendPersonalToTeamMigrationEvent() {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                createTeamButtonClicked = true,
-                appVersion = BuildConfig.VERSION_NAME,
-                appName = BuildConfig.APP_NAME
+                createTeamButtonClicked = true
             )
         )
     }

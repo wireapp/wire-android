@@ -22,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
@@ -61,9 +60,7 @@ class TeamMigrationViewModel @Inject constructor(
     fun sendPersonalToTeamMigrationDismissed() {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                dismissCreateTeamButtonClicked = true,
-                appVersion = BuildConfig.VERSION_NAME,
-                appName = BuildConfig.APP_NAME
+                dismissCreateTeamButtonClicked = true
             )
         )
     }
@@ -71,9 +68,7 @@ class TeamMigrationViewModel @Inject constructor(
     fun sendPersonalTeamCreationFlowStartedEvent(step: Int) {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(
-                step = step,
-                appVersion = BuildConfig.VERSION_NAME,
-                appName = BuildConfig.APP_NAME,
+                step = step
             )
         )
     }
@@ -90,9 +85,7 @@ class TeamMigrationViewModel @Inject constructor(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
                 teamName = teamMigrationState.teamNameTextState.text.toString(),
                 modalLeaveClicked = modalLeaveClicked,
-                modalContinueClicked = modalContinueClicked,
-                appVersion = BuildConfig.VERSION_NAME,
-                appName = BuildConfig.APP_NAME
+                modalContinueClicked = modalContinueClicked
             )
         )
     }
@@ -105,9 +98,7 @@ class TeamMigrationViewModel @Inject constructor(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
                 teamName = teamMigrationState.teamNameTextState.text.toString(),
                 modalOpenTeamManagementButtonClicked = modalOpenTeamManagementButtonClicked,
-                backToWireButtonClicked = backToWireButtonClicked,
-                appVersion = BuildConfig.VERSION_NAME,
-                appName = BuildConfig.APP_NAME
+                backToWireButtonClicked = backToWireButtonClicked
             )
         )
     }

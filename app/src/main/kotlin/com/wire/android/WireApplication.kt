@@ -208,7 +208,7 @@ class WireApplication : BaseApp() {
     private fun initializeAnonymousAnalytics() {
         if (!BuildConfig.ANALYTICS_ENABLED) return
 
-        val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
+        val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl(BuildConfig.VERSION_NAME, BuildConfig.APP_NAME)
         val analyticsSettings = AnalyticsSettings(
             countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,
             countlyServerUrl = BuildConfig.ANALYTICS_SERVER_URL,

@@ -18,7 +18,6 @@
 package com.wire.android.ui.userprofile.teammigration
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import com.wire.android.BuildConfig
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
@@ -77,9 +76,7 @@ class TeamMigrationViewModelTest {
             verify(exactly = 1) {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                        dismissCreateTeamButtonClicked = true,
-                        appVersion = BuildConfig.VERSION_NAME,
-                        appName = BuildConfig.APP_NAME
+                        dismissCreateTeamButtonClicked = true
                     )
                 )
             }
@@ -97,9 +94,7 @@ class TeamMigrationViewModelTest {
             verify(exactly = 1) {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(
-                        step = step,
-                        appVersion = BuildConfig.VERSION_NAME,
-                        appName = BuildConfig.APP_NAME
+                        step = step
                     )
                 )
             }
@@ -117,9 +112,7 @@ class TeamMigrationViewModelTest {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
                         teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        modalLeaveClicked = true,
-                        appVersion = BuildConfig.VERSION_NAME,
-                        appName = BuildConfig.APP_NAME
+                        modalLeaveClicked = true
                     )
                 )
             }
@@ -137,9 +130,7 @@ class TeamMigrationViewModelTest {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
                         teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        modalContinueClicked = true,
-                        appVersion = BuildConfig.VERSION_NAME,
-                        appName = BuildConfig.APP_NAME
+                        modalContinueClicked = true
                     )
                 )
             }
@@ -159,9 +150,7 @@ class TeamMigrationViewModelTest {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
                         teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        modalOpenTeamManagementButtonClicked = true,
-                        appVersion = BuildConfig.VERSION_NAME,
-                        appName = BuildConfig.APP_NAME
+                        modalOpenTeamManagementButtonClicked = true
                     )
                 )
             }
@@ -179,9 +168,7 @@ class TeamMigrationViewModelTest {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
                         teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        backToWireButtonClicked = true,
-                        appVersion = BuildConfig.VERSION_NAME,
-                        appName = BuildConfig.APP_NAME
+                        backToWireButtonClicked = true
                     )
                 )
             }

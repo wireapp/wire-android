@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.analytics.model
 
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.APP_NAME
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.APP_VERSION
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_AV_SWITCH_TOGGLE
@@ -262,10 +261,7 @@ interface AnalyticsEvent {
 
     sealed class QrCode : AnalyticsEvent {
         data class Click(
-            val isTeam: Boolean,
-            val appVersion: String,
-            val deviceModel: String,
-            val osVersion: String
+            val isTeam: Boolean
         ) : QrCode() {
             override val key: String = AnalyticsEventConstants.QR_CODE_CLICK
 
@@ -277,10 +273,7 @@ interface AnalyticsEvent {
                 }
 
                 return mapOf(
-                    AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE to userType,
-                    APP_VERSION to appVersion,
-                    OS_VERSION to osVersion,
-                    DEVICE_MODEL to deviceModel
+                    AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE to userType
                 )
             }
         }
@@ -326,9 +319,7 @@ interface AnalyticsEvent {
 
         data class ClickedPersonalTeamMigrationCta(
             val createTeamButtonClicked: Boolean? = null,
-            val dismissCreateTeamButtonClicked: Boolean? = null,
-            val appVersion: String,
-            val appName: String,
+            val dismissCreateTeamButtonClicked: Boolean? = null
         ) : AnalyticsEvent {
             override val key: String = CLICKED_PERSONAL_MIGRATION_CTA_EVENT
 
@@ -340,24 +331,18 @@ interface AnalyticsEvent {
                 dismissCreateTeamButtonClicked?.let {
                     segmentations.put(CLICKED_DISMISS_CTA, it)
                 }
-                segmentations[APP_VERSION] = appVersion
-                segmentations[APP_NAME] = appName
                 return segmentations
             }
         }
 
         data class PersonalTeamCreationFlowStarted(
-            val step: Int,
-            val appVersion: String,
-            val appName: String
+            val step: Int
         ) : AnalyticsEvent {
             override val key: String = PERSONAL_TEAM_CREATION_FLOW_STARTED_EVENT
 
             override fun toSegmentation(): Map<String, Any> {
                 return mapOf(
-                    STEP_MODAL_CREATE_TEAM to step,
-                    APP_VERSION to appVersion,
-                    APP_NAME to appName
+                    STEP_MODAL_CREATE_TEAM to step
                 )
             }
         }
@@ -365,9 +350,7 @@ interface AnalyticsEvent {
         data class PersonalTeamCreationFlowCanceled(
             val teamName: String?,
             val modalLeaveClicked: Boolean? = null,
-            val modalContinueClicked: Boolean? = null,
-            val appVersion: String,
-            val appName: String
+            val modalContinueClicked: Boolean? = null
         ) : AnalyticsEvent {
             override val key: String = PERSONAL_TEAM_CREATION_FLOW_CANCELLED
 
@@ -382,8 +365,6 @@ interface AnalyticsEvent {
                 teamName?.let {
                     segmentations.put(MODAL_TEAM_NAME, it)
                 }
-                segmentations[APP_VERSION] = appVersion
-                segmentations[APP_NAME] = appName
                 return segmentations
             }
         }
@@ -391,9 +372,7 @@ interface AnalyticsEvent {
         data class PersonalTeamCreationFlowCompleted(
             val teamName: String? = null,
             val modalOpenTeamManagementButtonClicked: Boolean? = null,
-            val backToWireButtonClicked: Boolean? = null,
-            val appVersion: String,
-            val appName: String
+            val backToWireButtonClicked: Boolean? = null
         ) : AnalyticsEvent {
             override val key: String = PERSONAL_TEAM_CREATION_FLOW_COMPLETED
 
@@ -408,8 +387,6 @@ interface AnalyticsEvent {
                 backToWireButtonClicked?.let {
                     segmentations.put(MODAL_BACK_TO_WIRE_CLICKED, it)
                 }
-                segmentations[APP_VERSION] = appVersion
-                segmentations[APP_NAME] = appName
                 return segmentations
             }
         }

@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.userprofile.self
 
-import com.wire.android.BuildConfig
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.analytics.model.AnalyticsEvent
@@ -78,9 +77,7 @@ class SelfUserProfileViewModelTest {
             verify(exactly = 1) {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                        createTeamButtonClicked = true,
-                        appVersion = BuildConfig.VERSION_NAME,
-                        appName = BuildConfig.APP_NAME
+                        createTeamButtonClicked = true
                     )
                 )
             }

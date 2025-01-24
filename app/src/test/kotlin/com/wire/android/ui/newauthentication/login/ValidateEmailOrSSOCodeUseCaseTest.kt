@@ -94,5 +94,4 @@ class ValidateEmailOrSSOCodeUseCaseTest {
 
         fun arrange() = this to ValidateEmailOrSSOCodeUseCase(validateEmailUseCase, validateSSOCodeUseCase)
     }
-
 }

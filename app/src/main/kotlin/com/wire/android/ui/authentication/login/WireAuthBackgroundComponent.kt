@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.authentication.login
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -37,7 +36,7 @@ import com.wire.android.ui.theme.wireDarkColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun  WireAuthBackgroundLayout(
+fun WireAuthBackgroundLayout(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit = {},
 ) {

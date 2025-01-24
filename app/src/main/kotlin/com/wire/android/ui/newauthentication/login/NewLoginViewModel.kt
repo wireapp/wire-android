@@ -43,10 +43,12 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class NewLoginViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
+    private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
@@ -76,7 +78,7 @@ class NewLoginViewModel @Inject constructor(
             userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
             }.collectLatest {
-                updateEmailFlowState(it)
+                updateLoginFlowState(LoginState.Default)
             }
         }
     }
@@ -86,21 +88,27 @@ class NewLoginViewModel @Inject constructor(
      */
     fun onLoginStarted(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            loginState = loginState.copy(flowState = LoginState.Loading)
-            @Suppress("MagicNumber") delay(1000) // TODO(ym): here the call to the use case should be done.
-            loginState = loginState.copy(flowState = LoginState.Default)
-            onSuccess()
+            if (validateEmailOrSSOCode(userIdentifierTextState.text.trim())) {
+                updateLoginFlowState(LoginState.Loading)
+                delay(1.seconds) // TODO(ym): here the call to the use case should be done.
+                updateLoginFlowState(LoginState.Default)
+                onSuccess()
+            } else {
+                updateLoginFlowState(LoginState.Error.TextFieldError.InvalidValue)
+                return@launch
+            }
         }
     }
 
     /**
      * Update the state based on the input.
-     * TODO(ym): Check if we need to validate the email, since this an SSO code can also be valid in this input.
      */
-    private fun updateEmailFlowState(email: CharSequence) {
+    private fun updateLoginFlowState(flowState: LoginState) {
+        val currentUserLoginInput = userIdentifierTextState.text
         loginState = loginState.copy(
-            flowState = LoginState.Default,
-            loginEnabled = email.isNotEmpty() && loginState.flowState !is LoginState.Loading
+            flowState = flowState,
+            loginEnabled = loginState.flowState !is LoginState.Loading
+                    && currentUserLoginInput.isNotEmpty()
         )
     }
 

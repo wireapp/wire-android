@@ -85,11 +85,9 @@ fun NewLoginScreen(
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
     LoginContent(
-        viewModel.state.isThereActiveSession,
         viewModel.loginState,
         viewModel.userIdentifierTextState,
         viewModel::onLoginStarted,
-        navigator::navigateBack,
         navigator::navigate
     )
 }
@@ -97,17 +95,12 @@ fun NewLoginScreen(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginContent(
-    isThereActiveSession: Boolean,
     loginEmailState: LoginEmailState,
     userIdentifierState: TextFieldState,
     onNextClicked: (() -> Unit) -> Unit,
-    navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
 ) {
-    NewLoginContainer(
-        canNavigateBack = isThereActiveSession,
-        onNavigateBack = navigateBack
-    ) {
+    NewLoginContainer {
         val context = LocalContext.current
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -129,10 +122,7 @@ private fun LoginContent(
 
             Column(
                 modifier = Modifier
-                    .padding(
-                        vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
-                        horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
-                    )
+                    .padding(vertical = dimensions().spacing16x)
                     .semantics {
                         testTagsAsResourceId = true
                     }
@@ -242,11 +232,9 @@ fun PreviewNewLoginScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginContent(
-                isThereActiveSession = false,
                 loginEmailState = LoginEmailState(),
                 userIdentifierState = TextFieldState(),
                 onNextClicked = {},
-                navigateBack = {},
                 navigate = {}
             )
         }

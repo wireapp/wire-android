@@ -9,7 +9,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class EmailOrSSOCodeValidatorTest {
+class ValidateEmailOrSSOCodeUseCaseTest {
 
     @Test
     fun `given an input, when is an email and valid, then return true`() {
@@ -17,7 +17,7 @@ class EmailOrSSOCodeValidatorTest {
             .withValidateEmailUseCaseReturning(true)
             .arrange()
 
-        val result = sut.validate("user@wire.com")
+        val result = sut.invoke("user@wire.com")
 
         verify { arrangement.validateEmailUseCase(any()) }
         verify(exactly = 0) { arrangement.validateSSOCodeUseCase(any()) }
@@ -30,7 +30,7 @@ class EmailOrSSOCodeValidatorTest {
             .withValidateEmailUseCaseReturning(false)
             .arrange()
 
-        val result = sut.validate("user@")
+        val result = sut.invoke("user@")
 
         verify { arrangement.validateEmailUseCase(any()) }
         verify(exactly = 0) { arrangement.validateSSOCodeUseCase(any()) }
@@ -44,7 +44,7 @@ class EmailOrSSOCodeValidatorTest {
             .withValidateSSOCodeUseCaseReturning(ValidateSSOCodeResult.Valid(code))
             .arrange()
 
-        val result = sut.validate("wire-$code")
+        val result = sut.invoke("wire-$code")
 
         verify { arrangement.validateSSOCodeUseCase(any()) }
         verify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
@@ -58,7 +58,7 @@ class EmailOrSSOCodeValidatorTest {
             .withValidateSSOCodeUseCaseReturning(ValidateSSOCodeResult.Invalid)
             .arrange()
 
-        val result = sut.validate("wire-$code")
+        val result = sut.invoke("wire-$code")
 
         verify { arrangement.validateSSOCodeUseCase(any()) }
         verify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
@@ -72,7 +72,7 @@ class EmailOrSSOCodeValidatorTest {
             .withValidateEmailUseCaseReturning(false)
             .arrange()
 
-        val result = sut.validate("nothing-valid")
+        val result = sut.invoke("nothing-valid")
 
         verify(exactly = 1) { arrangement.validateEmailUseCase(any()) }
         verify(exactly = 0) { arrangement.validateSSOCodeUseCase(any()) }
@@ -92,7 +92,7 @@ class EmailOrSSOCodeValidatorTest {
             every { validateSSOCodeUseCase(any()) } returns result
         }
 
-        fun arrange() = this to EmailOrSSOCodeValidator(validateEmailUseCase, validateSSOCodeUseCase)
+        fun arrange() = this to ValidateEmailOrSSOCodeUseCase(validateEmailUseCase, validateSSOCodeUseCase)
     }
 
 }

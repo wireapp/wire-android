@@ -53,7 +53,7 @@ class NewLoginViewModelTest {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
         val authServerConfigProvider: AuthServerConfigProvider = mockk()
-        val emailOrSSOCodeValidator: EmailOrSSOCodeValidator = mockk()
+        val validateEmailOrSSOCodeUseCase: ValidateEmailOrSSOCodeUseCase = mockk()
 
         val onSuccess: () -> Unit = mockk()
 
@@ -66,12 +66,12 @@ class NewLoginViewModelTest {
         }
 
         fun withEmailOrSSOCodeValidatorReturning(result: Boolean = true) = apply {
-            every { emailOrSSOCodeValidator.validate(any()) } returns result
+            every { validateEmailOrSSOCodeUseCase(any()) } returns result
         }
 
         fun arrange() = this to NewLoginViewModel(
             authServerConfigProvider,
-            emailOrSSOCodeValidator,
+            validateEmailOrSSOCodeUseCase,
             savedStateHandle
         )
     }

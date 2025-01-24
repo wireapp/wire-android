@@ -48,7 +48,7 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 class NewLoginViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
-    private val emailOrSSOCodeValidator: EmailOrSSOCodeValidator,
+    private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
@@ -88,7 +88,7 @@ class NewLoginViewModel @Inject constructor(
      */
     fun onLoginStarted(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            if (emailOrSSOCodeValidator.validate(userIdentifierTextState.text.trim())) {
+            if (validateEmailOrSSOCode(userIdentifierTextState.text.trim())) {
                 updateLoginFlowState(LoginState.Loading)
                 delay(1.seconds) // TODO(ym): here the call to the use case should be done.
                 updateLoginFlowState(LoginState.Default)

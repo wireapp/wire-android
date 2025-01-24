@@ -27,14 +27,14 @@ import javax.inject.Inject
  * Validates the input for a SSO code or an email address valid format.
  */
 @ViewModelScoped
-class EmailOrSSOCodeValidator @Inject constructor(
+class ValidateEmailOrSSOCodeUseCase @Inject constructor(
     val validateEmail: ValidateEmailUseCase,
     val validateSSOCode: ValidateSSOCodeUseCase
 ) {
     /**
      * Validates the input for a SSO code or an email address valid format.
      */
-    fun validate(input: CharSequence): Boolean {
+    operator fun invoke(input: CharSequence): Boolean {
         return when {
             input.startsWith(ValidateSSOCodeUseCase.SSO_CODE_WIRE_PREFIX) -> {
                 validateSSOCode(input.toString()) is ValidateSSOCodeResult.Valid

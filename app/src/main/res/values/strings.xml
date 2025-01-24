@@ -362,8 +362,6 @@
     <!-- Enterprise Login -->
     <string name="enterprise_login_welcome">Enter your email to start!</string>
     <string name="enterprise_login_title">Enter your password to log in</string>
-    <string name="enterprise_login_title_terms_description">By pressing on \"Next\", you accept Wire\'s</string>
-    <string name="enterprise_login_title_terms_link">Terms and Conditions</string>
     <string name="enterprise_login_next">Next</string>
     <string name="enterprise_login_user_identifier_label">EMAIL OR SSO CODE</string>
     <string name="enterprise_login_user_identifier_label_placeholder">Enter Email or SSO Code</string>

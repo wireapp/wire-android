@@ -30,7 +30,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_SIZE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_TYPE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_END_REASON
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_IS_TEAM_MEMBER
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.IS_TEAM_MEMBER
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_UNIQUE_SCREEN_SHARE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY
@@ -151,7 +151,7 @@ interface AnalyticsEvent {
 
         override fun toSegmentation(): Map<String, Any> {
             return mapOf(
-                CALLING_ENDED_IS_TEAM_MEMBER to metadata.isTeamMember,
+                IS_TEAM_MEMBER to metadata.isTeamMember,
                 CALLING_ENDED_CALL_SCREEN_SHARE to metadata.callDetails.screenShareDurationInSeconds,
                 CALLING_ENDED_UNIQUE_SCREEN_SHARE to metadata.callDetails.callScreenShareUniques,
                 CALLING_ENDED_CALL_DIRECTION to metadata.toCallDirection(),
@@ -257,39 +257,48 @@ interface AnalyticsEvent {
     }
 
     sealed class QrCode : AnalyticsEvent {
+        fun createSegmentationMap(
+            isTeam: Boolean
+        ): Map<String, Any> {
+            val userType = if (isTeam) {
+                QR_CODE_SEGMENTATION_USER_TYPE_TEAM
+            } else {
+                QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
+            }
+
+            return mapOf(
+                AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE to userType,
+                IS_TEAM_MEMBER to isTeam,
+            )
+        }
+
         data class Click(
             val isTeam: Boolean
         ) : QrCode() {
             override val key: String = AnalyticsEventConstants.QR_CODE_CLICK
-
-            override fun toSegmentation(): Map<String, Any> {
-                val userType = if (isTeam) {
-                    QR_CODE_SEGMENTATION_USER_TYPE_TEAM
-                } else {
-                    QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
-                }
-
-                return mapOf(
-                    AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE to userType
-                )
-            }
+            override fun toSegmentation(): Map<String, Any> = createSegmentationMap(isTeam)
         }
 
         sealed class Modal : QrCode() {
-            data object Displayed : Modal() {
-                override val key: String = AnalyticsEventConstants.QR_CODE_MODAL
-            }
-
-            data object Back : Modal() {
+            data class Back(
+                val isTeam: Boolean
+            ) : Modal() {
                 override val key: String = AnalyticsEventConstants.QR_CODE_MODAL_BACK
+                override fun toSegmentation(): Map<String, Any> = createSegmentationMap(isTeam)
             }
 
-            data object ShareProfileLink : Modal() {
+            data class ShareProfileLink(
+                val isTeam: Boolean
+            ) : Modal() {
                 override val key: String = AnalyticsEventConstants.QR_CODE_SHARE_PROFILE_LINK
+                override fun toSegmentation(): Map<String, Any> = createSegmentationMap(isTeam)
             }
 
-            data object ShareQrCode : Modal() {
+            data class ShareQrCode(
+                val isTeam: Boolean
+            ) : Modal() {
                 override val key: String = AnalyticsEventConstants.QR_CODE_SHARE_QR_CODE
+                override fun toSegmentation(): Map<String, Any> = createSegmentationMap(isTeam)
             }
         }
     }
@@ -393,6 +402,8 @@ object AnalyticsEventConstants {
     const val TEAM_IS_TEAM = "team_is_team"
     const val APP_OPEN = "app.open"
 
+    const val IS_TEAM_MEMBER = "is_team_member"
+
     /**
      * Calling
      */
@@ -412,7 +423,6 @@ object AnalyticsEventConstants {
     /**
      * Call ended
      */
-    const val CALLING_ENDED_IS_TEAM_MEMBER = "is_team_member"
     const val CALLING_ENDED_CALL_SCREEN_SHARE = "call_screen_share_duration"
     const val CALLING_ENDED_UNIQUE_SCREEN_SHARE = "call_screen_share_unique"
     const val CALLING_ENDED_CALL_DIRECTION = "call_direction"
@@ -455,7 +465,6 @@ object AnalyticsEventConstants {
      * Qr code
      */
     const val QR_CODE_CLICK = "ui.QR-click"
-    const val QR_CODE_MODAL = "ui.share.profile"
     const val QR_CODE_MODAL_BACK = "user.back.share-profile"
     const val QR_CODE_SHARE_PROFILE_LINK = "user.share-profile"
     const val QR_CODE_SHARE_QR_CODE = "user.QR-code"

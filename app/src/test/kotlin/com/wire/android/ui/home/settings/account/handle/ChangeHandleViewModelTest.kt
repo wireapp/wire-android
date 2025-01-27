@@ -28,7 +28,6 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -84,8 +83,8 @@ class ChangeHandleViewModelTest {
         viewModel.onSaveClicked(arrangement.onSuccess)
 
         assertEquals(viewModel.state.error, HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
-        coVerify {
-            arrangement.validateHandle("handle") wasNot Called
+        coVerify(exactly = 1) {
+            arrangement.validateHandle("handle")
         }
     }
 

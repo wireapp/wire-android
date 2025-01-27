@@ -79,7 +79,7 @@ fun ReactionOption(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                listOf("❤️", "👍", "😁", "🙂", "☹️", "👎").forEach { emoji ->
+                listOf("👍", "🙂", "❤️", "☹️", "👎").forEach { emoji ->
                     CompositionLocalProvider(
                         LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
                     ) {

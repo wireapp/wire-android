@@ -82,7 +82,8 @@ fun NewLoginContainer(
                     content()
                 }
             }
-        }) { _ -> }
+        }
+    ) { _ -> }
 }
 
 @Composable
@@ -143,7 +144,6 @@ private fun NavigationBarBackground() = Box(
 private fun PreviewNewLoginHeader() = WireTheme {
     NewLoginHeader("Enter your password to log in", true) {}
 }
-
 
 @PreviewMultipleThemes
 @Composable

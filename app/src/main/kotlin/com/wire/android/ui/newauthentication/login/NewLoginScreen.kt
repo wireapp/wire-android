@@ -20,13 +20,10 @@
 
 package com.wire.android.ui.newauthentication.login
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,17 +37,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -70,9 +64,7 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @WireDestination(
@@ -101,7 +93,6 @@ private fun LoginContent(
     navigate: (NavigationCommand) -> Unit
 ) {
     NewLoginContainer {
-        val context = LocalContext.current
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
@@ -128,7 +119,9 @@ private fun LoginContent(
                     }
             ) {
                 val error = when (loginEmailState.flowState) {
-                    is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.enterprise_login_error_invalid_user_identifier)
+                    is LoginState.Error.TextFieldError.InvalidValue ->
+                        stringResource(R.string.enterprise_login_error_invalid_user_identifier)
+
                     else -> null
                 }
                 EmailOrSSOCodeInput(userIdentifierState, error)
@@ -141,14 +134,6 @@ private fun LoginContent(
                             navigate(NavigationCommand(NewLoginPasswordScreenDestination(userHandle = userIdentifierState.text.toString())))
                         }
                     }
-                )
-            }
-
-            if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
-                val termsUrl = stringResource(id = R.string.url_terms_of_use_legal)
-                LoginFooter(
-                    modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
-                    onTermsAndConditionClick = { CustomTabsHelper.launchUrl(context, termsUrl) }
                 )
             }
         }
@@ -196,34 +181,6 @@ private fun EmailOrSSOCodeInput(
         modifier = Modifier.testTag("emailField"),
         testTag = "userIdentifierInput",
     )
-}
-
-@Composable
-private fun LoginFooter(onTermsAndConditionClick: () -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(
-            text = stringResource(R.string.enterprise_login_title_terms_description),
-            style = MaterialTheme.wireTypography.subline01,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Text(
-            text = stringResource(R.string.enterprise_login_title_terms_link),
-            style = MaterialTheme.wireTypography.subline01.copy(textDecoration = TextDecoration.Underline),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onTermsAndConditionClick,
-                    onClickLabel = stringResource(R.string.enterprise_login_title_terms_link)
-                )
-        )
-
-        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.welcomeVerticalPadding))
-    }
 }
 
 @PreviewMultipleThemes

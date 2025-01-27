@@ -30,7 +30,6 @@ import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassi
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import io.mockk.MockKAnnotations
-import io.mockk.called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -64,8 +63,8 @@ class SecurityClassificationViewModelTest {
         // Then
         assertEquals(SecurityClassificationType.CLASSIFIED, viewModel.state())
 
-        coVerify {
-            arrangement.getOtherUserSecurityClassificationLabel(any()) wasNot called
+        coVerify(exactly = 0) {
+            arrangement.getOtherUserSecurityClassificationLabel(any())
         }
     }
 
@@ -85,8 +84,8 @@ class SecurityClassificationViewModelTest {
         // Then
         assertEquals(SecurityClassificationType.CLASSIFIED, viewModel.state())
 
-        coVerify {
-            arrangement.observeSecurityClassificationLabel(any()) wasNot called
+        coVerify(exactly = 0) {
+            arrangement.observeSecurityClassificationLabel(any())
         }
     }
 

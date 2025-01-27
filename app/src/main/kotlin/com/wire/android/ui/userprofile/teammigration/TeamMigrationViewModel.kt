@@ -67,7 +67,9 @@ class TeamMigrationViewModel @Inject constructor(
 
     fun sendPersonalTeamCreationFlowStartedEvent(step: Int) {
         anonymousAnalyticsManager.sendEvent(
-            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(step)
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(
+                step = step
+            )
         )
     }
 

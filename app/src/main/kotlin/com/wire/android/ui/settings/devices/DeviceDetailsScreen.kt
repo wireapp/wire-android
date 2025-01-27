@@ -204,8 +204,10 @@ fun DeviceDetailsContent(
         ) {
             state.device.mlsClientIdentity?.let { identity ->
                 item {
+                    val name = state.mlsCipherSuiteSignature?.let { stringResource(id = R.string.label_mls_signature, it).uppercase() }
+                        ?: stringResource(id = R.string.label_mls_no_signature_type)
                     FolderHeader(
-                        name = stringResource(id = R.string.label_mls_signature, state.mlsCipherSuiteSignature.orEmpty()).uppercase(),
+                        name = name,
                         modifier = Modifier
                             .background(MaterialTheme.wireColorScheme.background)
                             .fillMaxWidth()

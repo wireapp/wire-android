@@ -571,6 +571,7 @@
     <string name="leave_group_conversation_menu_item">Leave Group…</string>
     <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
     <string name="leave_group_conversation_dialog_description">You will then no longer be able to send or read messages in this group on any device.</string>
+    <string name="leave_group_conversation_dialog_delete_fully_check">Delete the group and its content for me on all my devices</string>
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
@@ -971,6 +972,7 @@
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Incoming group call</string>
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
+    <string name="notification_audio_message_body">Audio message</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -1243,6 +1245,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_textfield_optional_password">Password (optional)</string>
     <string name="label_proteus_details">Proteus Device Details</string>
     <string name="label_mls_signature">MLS with %1$s Signature</string>
+    <string name="label_mls_no_signature_type">MLS</string>
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>

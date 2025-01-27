@@ -30,7 +30,6 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_SIZE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_TYPE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_END_REASON
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.IS_TEAM_MEMBER
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_UNIQUE_SCREEN_SHARE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY
@@ -43,6 +42,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_DISMISS_CTA
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_PERSONAL_MIGRATION_CTA_EVENT
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBUTED_LOCATION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.IS_TEAM_MEMBER
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MIGRATION_DOT_ACTIVE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_BACK_TO_WIRE_CLICKED
@@ -87,8 +87,13 @@ interface AnalyticsEvent {
      */
     fun toSegmentation(): Map<String, Any> = mapOf()
 
-    data object AppOpen : AnalyticsEvent {
+    data class AppOpen(val isTeamMember: Boolean?) : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.APP_OPEN
+        override fun toSegmentation(): Map<String, Any> {
+            return isTeamMember?.let {
+                mapOf(IS_TEAM_MEMBER to it)
+            } ?: super.toSegmentation()
+        }
     }
 
     /**

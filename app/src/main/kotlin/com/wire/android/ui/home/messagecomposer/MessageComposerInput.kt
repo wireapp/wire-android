@@ -290,6 +290,7 @@ private fun MessageComposerTextInput(
         } else {
             isReadOnly = true
             keyboardController?.hide()
+            focusRequester.freeFocus()
         }
     }
 
@@ -312,9 +313,7 @@ private fun MessageComposerTextInput(
         modifier = modifier
             .focusRequester(focusRequester)
             .onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    onFocusChanged(focusState.isFocused)
-                }
+                onFocusChanged(focusState.isFocused)
             }
             .onPreInterceptKeyBeforeSoftKeyboard { event ->
                 if (event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_BACK) {

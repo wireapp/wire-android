@@ -23,6 +23,7 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
+import androidx.work.WorkManager
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -31,6 +32,8 @@ import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestConversationItem
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
+import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -59,8 +62,12 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -78,58 +85,58 @@ class ConversationListViewModelTest {
     @Test
     fun `given initial empty search query, when collecting conversations, then call use case with proper params`() =
         runTest(dispatcherProvider.main()) {
-        // Given
-        val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
+            // Given
+            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
 
-        // When
-        (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.getConversationsPaginated("", false, true, false)
+            // When
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
+                // Then
+                coVerify(exactly = 1) {
+                    arrangement.getConversationsPaginated("", false, true, false)
+                }
+                cancelAndIgnoreRemainingEvents()
             }
-            cancelAndIgnoreRemainingEvents()
         }
-    }
 
     @Test
     fun `given updated non-empty search query, when collecting conversations, then call use case with proper params`() =
         runTest(dispatcherProvider.main()) {
-        // Given
-        val searchQueryText = "search"
-        val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
+            // Given
+            val searchQueryText = "search"
+            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
 
-        // When
-        (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
-            conversationListViewModel.searchQueryChanged(searchQueryText)
-            advanceUntilIdle()
+            // When
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
+                conversationListViewModel.searchQueryChanged(searchQueryText)
+                advanceUntilIdle()
 
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.getConversationsPaginated(searchQueryText, false, true, false)
+                // Then
+                coVerify(exactly = 1) {
+                    arrangement.getConversationsPaginated(searchQueryText, false, true, false)
+                }
+                cancelAndIgnoreRemainingEvents()
             }
-            cancelAndIgnoreRemainingEvents()
         }
-    }
 
     @Test
     fun `given updated non-empty search query, when collecting archived, then call use case with proper params`() =
         runTest(dispatcherProvider.main()) {
-        // Given
-        val searchQueryText = "search"
-        val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.ARCHIVE).arrange()
+            // Given
+            val searchQueryText = "search"
+            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.ARCHIVE).arrange()
 
-        // When
-        (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
-            conversationListViewModel.searchQueryChanged(searchQueryText)
-            advanceUntilIdle()
+            // When
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
+                conversationListViewModel.searchQueryChanged(searchQueryText)
+                advanceUntilIdle()
 
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.getConversationsPaginated(searchQueryText, true, false, false)
+                // Then
+                coVerify(exactly = 1) {
+                    arrangement.getConversationsPaginated(searchQueryText, true, false, false)
+                }
+                cancelAndIgnoreRemainingEvents()
             }
-            cancelAndIgnoreRemainingEvents()
         }
-    }
 
     @Test
     fun `given self user is under legal hold, when collecting conversations, then hide LH indicators`() =
@@ -189,49 +196,120 @@ class ConversationListViewModelTest {
     @Test
     fun `given a valid conversation muting state, when calling muteConversation, then should call with call the UseCase`() =
         runTest(dispatcherProvider.main()) {
-        // Given
-        val (arrangement, conversationListViewModel) = Arrangement()
-            .updateConversationMutedStatusSuccess()
-            .arrange()
+            // Given
+            val (arrangement, conversationListViewModel) = Arrangement()
+                .updateConversationMutedStatusSuccess()
+                .arrange()
 
-        // When
-        conversationListViewModel.muteConversation(conversationId, MutedConversationStatus.AllMuted)
+            // When
+            conversationListViewModel.muteConversation(conversationId, MutedConversationStatus.AllMuted)
 
-        // Then
-        coVerify(exactly = 1) {
-            arrangement.updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any())
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any())
+            }
         }
-    }
 
     @Test
     fun `given a valid conversation muting state, when calling block user, then should call BlockUserUseCase`() =
         runTest(dispatcherProvider.main()) {
-        // Given
-        val (arrangement, conversationListViewModel) = Arrangement()
-            .blockUserSuccess()
-            .arrange()
+            // Given
+            val (arrangement, conversationListViewModel) = Arrangement()
+                .blockUserSuccess()
+                .arrange()
 
-        // When
-        conversationListViewModel.blockUser(BlockUserDialogState(userName = "someName", userId = userId))
+            // When
+            conversationListViewModel.blockUser(BlockUserDialogState(userName = "someName", userId = userId))
 
-        // Then
-        coVerify(exactly = 1) { arrangement.blockUser(userId) }
-    }
+            // Then
+            coVerify(exactly = 1) { arrangement.blockUser(userId) }
+        }
 
     @Test
     fun `given a valid conversation muting state, when calling unblock user, then should call BlockUserUseCase`() =
         runTest(dispatcherProvider.main()) {
-        // Given
-        val (arrangement, conversationListViewModel) = Arrangement()
-            .unblockUserSuccess()
-            .arrange()
+            // Given
+            val (arrangement, conversationListViewModel) = Arrangement()
+                .unblockUserSuccess()
+                .arrange()
 
-        // When
-        conversationListViewModel.unblockUser(userId)
+            // When
+            conversationListViewModel.unblockUser(userId)
 
-        // Then
-        coVerify(exactly = 1) { arrangement.unblockUser(userId) }
-    }
+            // Then
+            coVerify(exactly = 1) { arrangement.unblockUser(userId) }
+        }
+
+    @Test
+    fun `given cached PagingData, when self user legal hold changes, then should call paginated use case again`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val conversations = listOf(
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", "")),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", "")),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", "")),
+            ).associateBy { it.conversationId }
+            val selfUserLegalHoldStateFlow = MutableSharedFlow<LegalHoldStateForSelfUser>()
+            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
+                .withConversationsPaginated(conversations.values.toList())
+                .withSelfUserLegalHoldStateFlow(selfUserLegalHoldStateFlow)
+                .arrange()
+            advanceUntilIdle()
+
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
+                // initial legal hold state
+                selfUserLegalHoldStateFlow.emit(LegalHoldStateForSelfUser.Disabled)
+                advanceUntilIdle()
+
+                // use case is called initially
+                coVerify(exactly = 1) {
+                    arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+                }
+
+                // when legal hold state is changed
+                selfUserLegalHoldStateFlow.emit(LegalHoldStateForSelfUser.Enabled)
+                advanceUntilIdle()
+
+                // then use case should be called again (in total 2 executions) to create new PagingData
+                coVerify(exactly = 2) {
+                    arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+                }
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `given cached PagingData, when observing twice, then paginated use case should not be called again`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val conversations = listOf(
+                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", "")),
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", "")),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", "")),
+            ).associateBy { it.conversationId }
+            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
+                .withConversationsPaginated(conversations.values.toList())
+                .withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Disabled)
+                .arrange()
+            advanceUntilIdle()
+
+            // flow is collected first time
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.first()
+
+            // use case is called initially
+            coVerify(exactly = 1) {
+                arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+            }
+
+            // flow is collected second time
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.first()
+
+            // use case should NOT be called again, there should be still only one call
+            coVerify(exactly = 1) {
+                arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+            }
+        }
 
     inner class Arrangement(val conversationsSource: ConversationsSource = ConversationsSource.MAIN) {
         @MockK
@@ -272,7 +350,13 @@ class ConversationListViewModelTest {
         private lateinit var observeLegalHoldStateForSelfUserUseCase: ObserveLegalHoldStateForSelfUserUseCase
 
         @MockK
-        private lateinit var observeSelfUser: GetSelfUserUseCase
+        private lateinit var getSelfUser: GetSelfUserUseCase
+
+        @MockK
+        private lateinit var workManager: WorkManager
+
+        @MockK
+        lateinit var audioMessagePlayer: ConversationAudioMessagePlayer
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -289,6 +373,7 @@ class ConversationListViewModelTest {
                     )
                 }
             )
+            every { audioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
             mockUri()
         }
 
@@ -321,8 +406,12 @@ class ConversationListViewModelTest {
             )
         }
 
-        fun withSelfUserLegalHoldState(LegalHoldStateForSelfUser: LegalHoldStateForSelfUser) = apply {
-            coEvery { observeLegalHoldStateForSelfUserUseCase() } returns flowOf(LegalHoldStateForSelfUser)
+        fun withSelfUserLegalHoldState(legalHoldStateForSelfUser: LegalHoldStateForSelfUser) = apply {
+            coEvery { observeLegalHoldStateForSelfUserUseCase() } returns flowOf(legalHoldStateForSelfUser)
+        }
+
+        fun withSelfUserLegalHoldStateFlow(legalHoldStateForSelfUserFlow: Flow<LegalHoldStateForSelfUser>) = apply {
+            coEvery { observeLegalHoldStateForSelfUserUseCase() } returns legalHoldStateForSelfUserFlow
         }
 
         fun arrange() = this to ConversationListViewModelImpl(
@@ -342,8 +431,10 @@ class ConversationListViewModelTest {
             observeConversationListDetailsWithEvents = observeConversationListDetailsWithEventsUseCase,
             observeLegalHoldStateForSelfUser = observeLegalHoldStateForSelfUserUseCase,
             userTypeMapper = UserTypeMapper(),
-            observeSelfUser = observeSelfUser,
-            usePagination = true
+            getSelfUser = getSelfUser,
+            usePagination = true,
+            audioMessagePlayer = audioMessagePlayer,
+            workManager = workManager
         )
     }
 

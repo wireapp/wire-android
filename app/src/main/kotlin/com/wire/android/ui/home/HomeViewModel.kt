@@ -37,7 +37,7 @@ import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -50,7 +50,7 @@ class HomeViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val globalDataStore: GlobalDataStore,
     private val dataStore: UserDataStore,
-    private val getSelf: GetSelfUserUseCase,
+    private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
@@ -97,15 +97,15 @@ class HomeViewModel @Inject constructor(
 
     fun checkRequirements(onRequirement: (HomeRequirement) -> Unit) {
         viewModelScope.launch {
-            val userId = getSelf().first().id
+            val selfUser = observeSelf().first()
             when {
-                shouldTriggerMigrationForUser(userId) ->
-                    onRequirement(HomeRequirement.Migration(userId))
+                shouldTriggerMigrationForUser(selfUser.id) ->
+                    onRequirement(HomeRequirement.Migration(selfUser.id))
 
                 needsToRegisterClient() -> // check if the client has been registered and open the proper screen if not
                     onRequirement(HomeRequirement.RegisterDevice)
 
-                getSelf().first().handle.isNullOrEmpty() -> // check if the user handle has been set and open the proper screen if not
+                selfUser.handle.isNullOrEmpty() -> // check if the user handle has been set and open the proper screen if not
                     onRequirement(HomeRequirement.CreateAccountUsername)
 
                 shouldDisplayWelcomeToARScreen() -> {
@@ -120,7 +120,7 @@ class HomeViewModel @Inject constructor(
 
     private fun loadUserAvatar() {
         viewModelScope.launch {
-            getSelf().collect { selfUser ->
+            observeSelf().collect { selfUser ->
                 homeState = homeState.copy(
                     userAvatarData = UserAvatarData(
                         asset = selfUser.previewPicture?.let {
@@ -142,6 +142,10 @@ class HomeViewModel @Inject constructor(
     }
 
     fun sendOpenProfileEvent() {
-        analyticsManager.sendEvent(AnalyticsEvent.UserProfileOpened(homeState.shouldShowCreateTeamUnreadIndicator))
+        analyticsManager.sendEvent(
+            AnalyticsEvent.UserProfileOpened(
+                isMigrationDotActive = homeState.shouldShowCreateTeamUnreadIndicator
+            )
+        )
     }
 }

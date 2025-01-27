@@ -31,12 +31,15 @@ import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
+import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
+import com.wire.kalium.logic.feature.debug.ObserveDatabaseLoggerStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class UserDebugState(
     val isLoggingEnabled: Boolean = false,
+    val isDBLoggingEnabled: Boolean = false,
     val clientId: String = String.EMPTY,
     val commitish: String = String.EMPTY,
     val debugId: String = String.EMPTY,
@@ -50,7 +53,9 @@ class UserDebugViewModel
     @CurrentAccount val currentAccount: UserId,
     private val logFileWriter: LogFileWriter,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
-    private val globalDataStore: GlobalDataStore
+    private val globalDataStore: GlobalDataStore,
+    private val changeProfilingUseCase: ChangeProfilingUseCase,
+    private val observeDatabaseLoggerState: ObserveDatabaseLoggerStateUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(
@@ -60,6 +65,21 @@ class UserDebugViewModel
     init {
         observeLoggingState()
         observeCurrentClientId()
+        observeDBLoggingState()
+    }
+
+    fun setDatabaseLoggerEnabledState(isEnabled: Boolean) {
+        viewModelScope.launch {
+            changeProfilingUseCase(isEnabled)
+        }
+    }
+
+    fun observeDBLoggingState() {
+        viewModelScope.launch {
+            observeDatabaseLoggerState().collect {
+                state = state.copy(isDBLoggingEnabled = it)
+            }
+        }
     }
 
     fun deleteLogs() {

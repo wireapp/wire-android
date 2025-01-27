@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.colorsScheme
@@ -49,9 +50,12 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun LogOptions(
     isLoggingEnabled: Boolean,
     onLoggingEnabledChange: (Boolean) -> Unit,
+    isDBLoggerEnabled: Boolean,
+    onDBLoggerEnabledChange: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
     onShareLogs: () -> Unit,
-    modifier: Modifier = Modifier,
+    isPrivateBuild: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         FolderHeader(stringResource(R.string.label_logs_option_title))
@@ -59,6 +63,13 @@ fun LogOptions(
             isEnabled = isLoggingEnabled,
             onCheckedChange = onLoggingEnabledChange
         )
+
+        if (isPrivateBuild) {
+            UserDataBaseProfileSwitch(
+                isEnabled = isDBLoggerEnabled,
+                onCheckedChange = onDBLoggerEnabledChange
+            )
+        }
         if (isLoggingEnabled) {
             SettingsItem(
                 text = stringResource(R.string.label_share_logs),
@@ -123,13 +134,59 @@ private fun EnableLoggingSwitch(
     }
 }
 
+@Composable
+private fun UserDataBaseProfileSwitch(
+    isEnabled: Boolean,
+    onCheckedChange: ((Boolean) -> Unit),
+) {
+    RowItemTemplate(
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.label_user_database_profile),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                checked = isEnabled,
+                onCheckedChange = onCheckedChange,
+                modifier = Modifier
+                    .padding(end = dimensions().spacing8x)
+                    .size(
+                        width = dimensions().buttonSmallMinSize.width,
+                        height = dimensions().buttonSmallMinSize.height
+                    )
+            )
+        }
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
-fun PreviewLoggingOptions() {
+fun PreviewLoggingOptionsPublicBuild() {
     LogOptions(
         isLoggingEnabled = true,
         onLoggingEnabledChange = {},
+        isDBLoggerEnabled = true,
+        onDBLoggerEnabledChange = {},
         onDeleteLogs = {},
-        onShareLogs = {}
+        onShareLogs = {},
+        isPrivateBuild = false,
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewLoggingOptionsPrivateBuild() {
+    LogOptions(
+        isLoggingEnabled = true,
+        onLoggingEnabledChange = {},
+        isDBLoggerEnabled = true,
+        onDBLoggerEnabledChange = {},
+        onDeleteLogs = {},
+        onShareLogs = {},
+        isPrivateBuild = true,
     )
 }

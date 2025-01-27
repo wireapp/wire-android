@@ -41,6 +41,7 @@
     <string name="label_membership_service">Szolgáltatás</string>
     <string name="label_user_deleted">Törölve</string>
     <string name="label_try_again">Próbálja újra</string>
+    <string name="label_done">Kész</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Az üzenetet nem sikerült elküldeni kapcsolati problémák miatt.</string>
     <string name="label_message_sent_remotely_failure">Az üzenetet nem sikerült elküldeni, mivel a(z) %s kiszolgálót nem sikerült elérni.</string>
@@ -139,6 +140,8 @@
     <string name="content_description_more_options">További lehetőségek</string>
     <string name="content_description_add_contact">Kapcsolat hozzáadása</string>
     <string name="content_description_image_message">Képüzenet</string>
+    <string name="content_description_pause_audio">Hanganyag megállítása</string>
+    <string name="content_description_play_audio">Hanganyag lejátszása</string>
     <string name="content_description_file_message">Fájlüzenet</string>
     <string name="content_description_ping_everyone">Kopogás</string>
     <string name="content_description_self_deleting_message_timer">Időzítő beállítása az önmegsemmisítő üzenetekhez</string>
@@ -153,6 +156,8 @@
     <string name="content_description_calling_turn_camera_off">Kamera kikapcsolása</string>
     <string name="content_description_calling_turn_speaker_on">Hangszóró bekapcsolása</string>
     <string name="content_description_calling_turn_speaker_off">Hangszóró kikapcsolása</string>
+    <string name="content_description_calling_in_call_reactions_show">Mutassa a hívásreakciók panelen</string>
+    <string name="content_description_calling_in_call_reactions_hide">Rejtse el a hívásreakciók panelen</string>
     <string name="content_description_show_more_options">További lehetőségek megjelenítése</string>
     <string name="content_description_reply_to_messge">Válasz az üzenetre</string>
     <string name="content_description_reply_cancel">Mégsem válaszol az üzenetre</string>
@@ -233,6 +238,7 @@
     <string name="content_description_self_profile_team">Csapatnév, %s</string>
     <string name="content_description_self_profile_change_status">elérhetőségi állapot megváltoztatása</string>
     <string name="content_description_self_profile_new_account_btn">Hozzon létre új csapatot vagy személyes fiókot vagy jelentkezzen be</string>
+    <string name="content_description_self_profile_manage_team_btn">Csapat kezelése</string>
     <string name="content_description_change_picture_back_btn">Vissza a saját profil áttekintéséhez</string>
     <string name="content_description_welcome_screen_close_btn">Az új csapat létrehozása és bejelentkezés lap bezárása</string>
     <string name="content_description_login_back_btn">Vissza az új csapat létrehozása és bejelentkezés lapra</string>
@@ -528,9 +534,13 @@
     <string name="leave_group_conversation_menu_item">Kilépés a csoportból…</string>
     <string name="leave_group_conversation_dialog_title">Kilép “%s” beszélgetésből?</string>
     <string name="leave_group_conversation_dialog_description">A továbbiakban nem tud üzeneteket küldeni vagy fogadni ebben a csoportban egyik eszközön sem.</string>
+    <string name="leave_group_conversation_dialog_delete_fully_check">A csoport és annak tartalma törlése nálam és az összes eszközömön</string>
     <string name="delete_group_conversation_menu_item">Csoport törlése…</string>
     <string name="delete_group_conversation_dialog_title">Eltávolítja “%s” beszélgetést?</string>
     <string name="delete_group_conversation_dialog_description">Ez a csoport eltávolításra kerül a beszélgetések közül minden eszközön. Többé nem lesz hozzáférése a csoporthoz és annak tartalmához.</string>
+    <string name="delete_group_locally_conversation_dialog_title">Legyen \"%s\" csoport törölve nálam?</string>
+    <string name="delete_group_locally_conversation_dialog_description">Nem fog tudni hozzáférni a csoporthoz és annak tartalmához. Nincs lehetőség a visszaállításra.</string>
+    <string name="delete_group_locally_delete_for_me_label">Törlés nálam</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Megosztás Wire-rel</string>
     <string name="import_media_searchbar_title">Beszélgetés keresése</string>
@@ -574,6 +584,7 @@
     <string name="user_profile_status_away">Nincs a gépnél</string>
     <string name="user_profile_status_none">Semmi</string>
     <string name="user_profile_new_account_text">Új csapat, vagy fiók hozzáadása</string>
+    <string name="user_profile_account_management">Csapat kezelése</string>
     <string name="user_profile_details_tab">Részletek</string>
     <string name="user_profile_devices_tab">Eszközök</string>
     <string name="user_profile_group_tab">Csoport</string>
@@ -617,19 +628,25 @@
     <string name="label_add_to_favourites">Hozzáadás a kedvencekhez</string>
     <string name="label_remove_from_favourites">Eltávolítás a Kedvencek közül</string>
     <string name="label_move_to_folder">Áthelyezés mappába</string>
+    <string name="label_remove_from_folder">Eltávolítás \"%1$s\" mappából</string>
+    <string name="label_new_folder">Új mappa</string>
+    <string name="folder_create_description">Hozzon létre új mappát az\n\"Új mappa\" gomb megnyomásával</string>
     <string name="label_move_to_archive">Áthelyezés az archívumba</string>
     <string name="label_unarchive">Elővétel az archívumból</string>
     <string name="label_clear_content">Tartalom törlése…</string>
     <string name="label_block">Tiltás</string>
     <string name="label_unblock">Tiltás feloldása</string>
     <string name="label_leave_group">Kilépés a csoportból</string>
+    <string name="label_delete_group_locally">Csoport törlése nálam</string>
     <string name="label_delete_group">Csoport törlése</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Beszélgetések szűrése</string>
     <string name="label_filter_all">Az összes beszélgetés</string>
     <string name="label_filter_favorites">Kedvencek</string>
+    <string name="label_filter_folders">Mappák</string>
     <string name="label_filter_group">Csoportok</string>
     <string name="label_filter_one_on_one">Kétszemélyes beszélgetések</string>
+    <string name="label_folders">Mappák</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Minden</string>
     <string name="muting_option_all_allowed_text">Értesítsen ezen beszélgetéssel kapcsolatban mindenről (hang- és videóhívásokat is beleértve)</string>
@@ -870,6 +887,7 @@
     <string name="error_blocking_user">A felhasználót nem sikerült letiltani</string>
     <string name="blocking_user_success">%s letiltva</string>
     <string name="conversation_group_removed_success">“%s” eltávolítva</string>
+    <string name="conversation_group_removed_locally_success">\"%s\" törölve nálam</string>
     <string name="leave_group_conversation_error">Hiba történt a beszélgetésből kilépés során</string>
     <string name="joined_conversation_group_success">Ön csatlakozott a beszélgetéshez.</string>
     <string name="left_conversation_group_success">Ön kilépett a beszélgetésből.</string>
@@ -914,6 +932,7 @@
     <string name="notification_call_default_caller_name">Valaki</string>
     <string name="notification_call_default_group_name">Bejövő csoportos hívás</string>
     <string name="notification_outgoing_call_tap_to_return">Koppintásra visszatér a híváshoz - Hívás...</string>
+    <string name="notification_audio_message_body">Hangüzenet</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Állandó bitsebesség (CBR)</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -940,6 +959,14 @@
     <string name="calling_ongoing_double_tap_to_go_back">Visszalépéshez koppintson duplán</string>
     <string name="calling_feature_unavailable_title_alert">Ez a funkció nem érhető el</string>
     <string name="calling_feature_unavailable_message_alert">Konferenciahívás kezdeményezése lehetőség csak a Wire fizetős verziójában elérhető.</string>
+    <string name="calling_feature_unavailable_team_member_message_alert">Konferenciahívás indításához a csapatának Vállalati szintű előfizetésre kell váltania.</string>
+    <string name="calling_feature_unavailable_team_admin_title_alert">Vállalati szintre váltás</string>
+    <string name="calling_feature_unavailable_team_admin_message_alert">A csapata jelenleg az ingyenes Alap csomagot használja. Lépjen Vállalati szintre, hogy hozzáférjenek olyan lehetőségekhez, mint egyebek közt a konferenciahívás indítása.</string>
+    <string name="calling_feature_unavailable_team_admin_message_link_alert">Tudjon meg többet a Wire árairól</string>
+    <string name="calling_feature_unavailable_team_admin_upgrade_action_alert">Váltás magasabb csomagra</string>
+    <string name="calling_feature_enabled_title_alert">Wire Vállalati szint</string>
+    <string name="calling_feature_enabled_message_alert">Csapata Vállalati szintre lépett, ami hozzáférést biztosít olyan lehetőségekhez, mint egyebek közt a konferenciahívások.</string>
+    <string name="calling_feature_enabled_message_link_alert">Tudjon meg többet a Wire Vállalati szintről</string>
     <string name="calling_screen_connecting_until_call_established">Csatlakozás…</string>
     <string name="calling_confirm_start_call_title_dialog">Hívás indítása</string>
     <string name="calling_confirm_start_call_description_dialog">Biztosan hívni akarja ő(ke)t: %1$s?</string>
@@ -1134,6 +1161,8 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="custom_backend_dialog_body_backend_website">Honlap URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Kiszolgáló WSURL:</string>
     <string name="custom_backend_error_title">Hiba történt</string>
+    <string name="custom_backend_error_no_internet_connection_body">A helyi kiszolgálóra történő átirányítás nem volt lehetséges, úgy tűnik, nem kapcsolódik az internethez.\n\nKapcsolódjon az internetre, és próbálja meg újra.</string>
+    <string name="custom_backend_error_no_internet_connection_try_again">Próbálja meg újra</string>
     <string name="label_fetching_your_messages">Új üzenetek lekérdezése</string>
     <string name="label_text_copied">Szöveg a vágólapra másolva</string>
     <string name="label_logs_option_title">Naplók</string>
@@ -1163,6 +1192,8 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="group_empty_list_description">Ön még nem résztvevője csoportos beszélgetésnek.\nKezdjen el egyet!</string>
     <string name="one_on_one_empty_list_description">Önnek még nincsenek partnerei.\nKeressen személyeket %1$s tartományában és kapcsolódjon velük.</string>
     <string name="favorites_empty_list_how_to_label">Hogyan jelölhet meg kedvencként beszélgetéseket</string>
+    <string name="folders_empty_list_description">A rendezettség érdekében helyezze beszélgetéseit mappákba.</string>
+    <string name="folders_empty_list_how_to_add">Hogyan helyezzen egy beszélgetést egy mappába</string>
     <string name="conversation_empty_list_title">Üdvözöljük 👋</string>
     <string name="label_no_conversation_found">Nem található beszélgetés.</string>
     <string name="label_connect_with_new_users">Lépjen kapcsolatba új felhasználókkal, vagy kezdjen új beszélgetésbe</string>
@@ -1271,6 +1302,9 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="guest_link_button_revoke_link">Hivatkozás visszavonása</string>
     <string name="audio_not_available">Hang nem elérhető</string>
     <string name="audio_not_available_explanation">Hiba történt a hangfájl letöltése során. Kérje meg a küldőt, hogy töltse fel újra</string>
+    <string name="audio_speed_1">1x</string>
+    <string name="audio_speed_1_5">1.5x</string>
+    <string name="audio_speed_2">2x</string>
     <string name="guest_link_generate_error_message">A hivatkozást nem sikerült létrehozni. Próbálja újra</string>
     <string name="guest_link_revoke_error_message">A hivatkozást nem sikerült visszavonni. Próbálja újra</string>
     <string name="revoke_guest__room_link_dialog_text">Új vendégek nem tudnak ezzel a hivatkozással csatlakozni. A már meglévő vendégeknek továbbra is megmarad a hozzáférése.</string>
@@ -1559,7 +1593,7 @@ Kérjük, próbálja meg újra.</string>
     <string name="personal_to_team_migration_team_plan_larger_meetings_details">Szervezzen videókonferenciákat akár 150 résztvevővel.</string>
     <string name="personal_to_team_migration_team_plan_availability_status_label">Elérhetőségi állapot:</string>
     <string name="personal_to_team_migration_team_plan_availability_status_details">Tudassa csapatával, hogy elérhető, elfoglalt vagy távol van.</string>
-    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_label">Vállalati szintre lépés:</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_label">Vállalati szintre váltás:</string>
     <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_description">Jusson további funkciókhoz és kiemelt támogatáshoz.</string>
     <string name="personal_to_team_migration_team_plan_learn_more_about_wire_plan">Tudjon meg többet a Wire csomagjairól</string>
     <string name="personal_to_team_migration_team_name_step">Csapat neve</string>
@@ -1586,4 +1620,18 @@ Kérjük, próbálja meg újra.</string>
     <string name="personal_to_team_migration_error_message_already_in_team">Már létrehozott egy csapatot vagy csatlakozott egyhez ezzel az e-mail-címmel egy másik eszközön.</string>
     <string name="personal_to_team_migration_error_message_slow_network">A Wire nem tudta véghez vinni a csapat létrehozását a lassú internetkapcsolat miatt.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">A Wire nem tudta véghez vinni a csapat létrehozását ismeretlen hiba miatt.</string>
+    <string name="reaction_sender_self">Ön</string>
+    <string name="emoji_picker_select_reaction">Reakció kiválasztása</string>
+    <string name="label_user_database_profile">Adatbázis-naplózó</string>
+    <!-- Move to Folder -->
+    <string name="move_to_folder_success">\"%1$s\" áthelyezve ide: \"%2$s\"</string>
+    <string name="move_to_folder_failed">\"%1$s\" áthelyezése nem sikerült</string>
+    <string name="remove_from_folder_success">\"%1$s\" eltávolítva innen: \"%2$s\"</string>
+    <string name="remove_from_folder_failed">\"%1$s\" eltávolítása nem sikerült</string>
+    <string name="new_folder_folder_name">MAPPA NEVE</string>
+    <string name="new_folder_create_folder">Mappa létrehozása</string>
+    <string name="new_folder_error_name_exist">Már van ilyen nevű mappa. Válasszon másik nevet.</string>
+    <string name="new_folder_error_name_empty">Adja meg a mappa nevét.</string>
+    <string name="new_folder_error_name_exceeded_limit_error">Legalább 1, legfeljebb 64 karakter</string>
+    <string name="new_folder_failure">\"%1$s\" mappa létrehozása nem sikerült</string>
 </resources>

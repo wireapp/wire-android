@@ -50,6 +50,7 @@
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_try_again">Try Again</string>
+    <string name="label_done">Done</string>
     <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
@@ -148,6 +149,8 @@
     <string name="content_description_more_options">More options</string>
     <string name="content_description_add_contact">Add contact</string>
     <string name="content_description_image_message">Image message</string>
+    <string name="content_description_pause_audio">Pause audio</string>
+    <string name="content_description_play_audio">Play audio</string>
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping</string>
     <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
@@ -162,6 +165,8 @@
     <string name="content_description_calling_turn_camera_off">Turn camera off</string>
     <string name="content_description_calling_turn_speaker_on">Turn speaker on</string>
     <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
+    <string name="content_description_calling_in_call_reactions_show">Show in call reactions panel</string>
+    <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
     <string name="content_description_show_more_options">Show more options</string>
     <string name="content_description_reply_to_messge">Reply to the message</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
@@ -280,7 +285,6 @@
     <string name="url_how_to_add_favorites" translatable="false">https://support.wire.com/hc/articles/360002855557</string>
     <string name="url_how_to_add_folders" translatable="false">https://support.wire.com/hc/articles/360002855817</string>
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
-    <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
     <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
     <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
     <!-- Navigation -->
@@ -567,9 +571,13 @@
     <string name="leave_group_conversation_menu_item">Leave Group…</string>
     <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
     <string name="leave_group_conversation_dialog_description">You will then no longer be able to send or read messages in this group on any device.</string>
+    <string name="leave_group_conversation_dialog_delete_fully_check">Delete the group and its content for me on all my devices</string>
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
+    <string name="delete_group_locally_conversation_dialog_title">Delete “%s” group for me?</string>
+    <string name="delete_group_locally_conversation_dialog_description">You won’t be able to access the group and its content. There is no option to restore it.</string>
+    <string name="delete_group_locally_delete_for_me_label">Delete for Me</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
@@ -656,13 +664,17 @@
     <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_remove_from_favourites">Remove from Favorites</string>
-    <string name="label_move_to_folder">Move to Folder</string>
+    <string name="label_move_to_folder">Move to Folder...</string>
+    <string name="label_remove_from_folder">Remove from Folder “%1$s”</string>
+    <string name="label_new_folder">New Folder</string>
+    <string name="folder_create_description">Create a new folder by pressing the\n“New Folder” button</string>
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_unarchive">Unarchive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
     <string name="label_unblock">Unblock</string>
     <string name="label_leave_group">Leave Group</string>
+    <string name="label_delete_group_locally">Delete Group For Me</string>
     <string name="label_delete_group">Delete Group</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Filter Conversations</string>
@@ -912,6 +924,7 @@
     <string name="error_blocking_user">User could not be blocked</string>
     <string name="blocking_user_success">%s blocked</string>
     <string name="conversation_group_removed_success">“%s” removed</string>
+    <string name="conversation_group_removed_locally_success">“%s” deleted for me</string>
     <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
     <string name="joined_conversation_group_success">You joined the conversation.</string>
     <string name="left_conversation_group_success">You left the conversation.</string>
@@ -959,6 +972,7 @@
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Incoming group call</string>
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
+    <string name="notification_audio_message_body">Audio message</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -1231,6 +1245,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_textfield_optional_password">Password (optional)</string>
     <string name="label_proteus_details">Proteus Device Details</string>
     <string name="label_mls_signature">MLS with %1$s Signature</string>
+    <string name="label_mls_no_signature_type">MLS</string>
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>
@@ -1332,6 +1347,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="guest_link_button_revoke_link">Revoke Link</string>
     <string name="audio_not_available">Audio not available</string>
     <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
+    <string name="audio_speed_1">1x</string>
+    <string name="audio_speed_1_5">1.5x</string>
+    <string name="audio_speed_2">2x</string>
     <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
     <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
@@ -1662,4 +1680,20 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_error_message_already_in_team">You\'ve created or joined a team with this email address on another device.</string>
     <string name="personal_to_team_migration_error_message_slow_network">Wire could not complete your team creation due to a slow internet connection.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
+    <string name="reaction_sender_self">You</string>
+    <string name="emoji_picker_select_reaction">Select Reaction</string>
+    <string name="label_user_database_profile">Database Logger</string>
+
+    <!-- Move to Folder -->
+    <string name="move_to_folder_success">“%1$s” was moved to “%2$s”</string>
+    <string name="move_to_folder_failed">“%1$s” could not be moved</string>
+    <string name="remove_from_folder_success">“%1$s” was removed from “%2$s”</string>
+    <string name="remove_from_folder_failed">“%1$s” could not be removed</string>
+    <string name="new_folder_folder_name">FOLDER NAME</string>
+    <string name="new_folder_create_folder">Create Folder</string>
+    <string name="new_folder_error_name_exist">A folder with this name already exists. Please choose another name.</string>
+    <string name="new_folder_error_name_empty">Please enter folder name.</string>
+    <string name="new_folder_error_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
+    <string name="new_folder_failure">“%1$s” folder could not be added</string>
+
 </resources>

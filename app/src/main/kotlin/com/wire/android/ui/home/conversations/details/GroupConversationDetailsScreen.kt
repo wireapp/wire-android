@@ -94,6 +94,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
+import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
 import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
@@ -111,8 +112,14 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectConversationDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -121,6 +128,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.GroupID
@@ -138,7 +146,13 @@ fun GroupConversationDetailsScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
-    viewModel: GroupConversationDetailsViewModel = hiltViewModel()
+    conversationFoldersScreenResultRecipient:
+    ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
+    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
+    removeConversationFromFolderVM: RemoveConversationFromFolderVM =
+        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
+            RemoveConversationFromFolderArgs
+        ),
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
@@ -246,8 +260,11 @@ fun GroupConversationDetailsScreen(
         onConversationMediaClick = onConversationMediaClick,
         isAbandonedOneOnOneConversation = viewModel.conversationSheetContent?.isAbandonedOneOnOneConversation(
             viewModel.groupParticipantsState.data.allCount
-        ) ?: false
-
+        ) ?: false,
+        onMoveToFolder = {
+            navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
+        },
+        removeFromFolder = removeConversationFromFolderVM::removeFromFolder
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -270,6 +287,17 @@ fun GroupConversationDetailsScreen(
             }
         }
     }
+
+    conversationFoldersScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            NavResult.Canceled -> {}
+            is NavResult.Value -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(result.value.message)
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -283,13 +311,15 @@ private fun GroupConversationDetailsContent(
     onEditGuestAccess: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     onEditGroupName: () -> Unit,
-    onLeaveGroup: (GroupDialogState) -> Unit,
+    onLeaveGroup: (LeaveGroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
     isAbandonedOneOnOneConversation: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
+    removeFromFolder: (conversationId: ConversationId, conversationName: String, folder: ConversationFolder) -> Unit,
+    onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
@@ -319,7 +349,7 @@ private fun GroupConversationDetailsContent(
     val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
 
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
-    val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
+    val leaveGroupDialogState = rememberVisibilityState<LeaveGroupDialogState>()
     val clearConversationDialogState = rememberVisibilityState<DialogState>()
     val archiveConversationDialogState = rememberVisibilityState<DialogState>()
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
@@ -473,7 +503,8 @@ private fun GroupConversationDetailsContent(
                     }
                 },
                 changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
-                moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
+                moveConversationToFolder = onMoveToFolder,
+                removeFromFolder = removeFromFolder,
                 updateConversationArchiveStatus = {
                     // Only show the confirmation dialog if the conversation is not archived
                     if (!it.isArchived) {
@@ -489,7 +520,8 @@ private fun GroupConversationDetailsContent(
                 blockUser = {},
                 unblockUser = {},
                 leaveGroup = leaveGroupDialogState::show,
-                deleteGroup = deleteGroupDialogState::show
+                deleteGroup = deleteGroupDialogState::show,
+                deleteGroupLocally = {}
             )
         }
     )
@@ -609,7 +641,9 @@ fun PreviewGroupConversationDetails() {
                 mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                 isUnderLegalHold = false,
                 proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-                isFavorite = false
+                isFavorite = false,
+                folder = null,
+                isDeletingConversationLocallyRunning = false
             ),
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},
@@ -626,6 +660,7 @@ fun PreviewGroupConversationDetails() {
             onConversationMediaClick = {},
             isAbandonedOneOnOneConversation = false,
             initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS,
+            removeFromFolder = { _, _, _ -> }
         )
     }
 }

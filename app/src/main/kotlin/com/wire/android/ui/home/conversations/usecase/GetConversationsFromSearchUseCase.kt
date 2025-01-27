@@ -25,6 +25,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
+import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
@@ -35,7 +36,6 @@ import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCas
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -47,14 +47,16 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     private val observeConversationsFromFromFolder: ObserveConversationsFromFolderUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
-    private val observeSelfUser: GetSelfUserUseCase
+    private val getSelfUser: GetSelfUserUseCase
 ) {
+    @Suppress("LongParameterList")
     suspend operator fun invoke(
         searchQuery: String = "",
         fromArchive: Boolean = false,
         newActivitiesOnTop: Boolean = false,
         onlyInteractionEnabled: Boolean = false,
-        conversationFilter: ConversationFilter = ConversationFilter.All
+        conversationFilter: ConversationFilter = ConversationFilter.All,
+        playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None
     ): Flow<PagingData<ConversationItem>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
@@ -96,7 +98,8 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     it.toConversationItem(
                         userTypeMapper = userTypeMapper,
                         searchQuery = searchQuery,
-                        selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
+                        selfUserTeamId = getSelfUser()?.teamId,
+                        playingAudioMessage = playingAudioMessage
                     )
                 }
             }.flowOn(dispatchers.io())

@@ -46,7 +46,9 @@ object TestConversationItem {
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         isFavorite = false,
-        isUserDeleted = false
+        isUserDeleted = false,
+        folder = null,
+        playingAudio = null
     )
 
     val GROUP = ConversationItem.GroupConversation(
@@ -63,7 +65,9 @@ object TestConversationItem {
         isArchived = false,
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-        isFavorite = false
+        isFavorite = false,
+        folder = null,
+        playingAudio = null
     )
 
     val CONNECTION = ConversationItem.ConnectionConversation(

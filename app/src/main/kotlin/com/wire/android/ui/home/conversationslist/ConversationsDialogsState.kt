@@ -29,11 +29,13 @@ import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 
 @Suppress("LongParameterList")
 class ConversationsDialogsState(
-    val leaveGroupDialogState: VisibilityState<GroupDialogState>,
+    val leaveGroupDialogState: VisibilityState<LeaveGroupDialogState>,
     val deleteGroupDialogState: VisibilityState<GroupDialogState>,
+    val deleteGroupLocallyDialogState: VisibilityState<GroupDialogState>,
     val blockUserDialogState: VisibilityState<BlockUserDialogState>,
     val unblockUserDialogState: VisibilityState<UnblockUserDialogState>,
     val clearContentDialogState: VisibilityState<DialogState>,
@@ -46,8 +48,9 @@ class ConversationsDialogsState(
 @Composable
 fun rememberConversationsDialogsState(requestInProgress: Boolean): ConversationsDialogsState {
 
-    val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
+    val leaveGroupDialogState = rememberVisibilityState<LeaveGroupDialogState>()
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
+    val deleteGroupLocallyDialogState = rememberVisibilityState<GroupDialogState>()
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val clearContentDialogState = rememberVisibilityState<DialogState>()
@@ -57,6 +60,7 @@ fun rememberConversationsDialogsState(requestInProgress: Boolean): Conversations
         ConversationsDialogsState(
             leaveGroupDialogState,
             deleteGroupDialogState,
+            deleteGroupLocallyDialogState,
             blockUserDialogState,
             unblockUserDialogState,
             clearContentDialogState,

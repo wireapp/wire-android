@@ -59,7 +59,8 @@ class ConversationSheetState(
 @Composable
 fun rememberConversationSheetState(
     conversationItem: ConversationItem,
-    conversationOptionNavigation: ConversationOptionNavigation
+    conversationOptionNavigation: ConversationOptionNavigation,
+    isConversationDeletionLocallyRunning: Boolean
 ): ConversationSheetState {
     val conversationSheetContent: ConversationSheetContent = when (conversationItem) {
         is ConversationItem.GroupConversation -> {
@@ -79,7 +80,9 @@ fun rememberConversationSheetState(
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
-                    isFavorite = isFavorite
+                    isFavorite = isFavorite,
+                    folder = folder,
+                    isDeletingConversationLocallyRunning = isConversationDeletionLocallyRunning
                 )
             }
         }
@@ -105,7 +108,9 @@ fun rememberConversationSheetState(
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
-                    isFavorite = isFavorite
+                    isFavorite = isFavorite,
+                    folder = folder,
+                    isDeletingConversationLocallyRunning = false
                 )
             }
         }
@@ -126,13 +131,15 @@ fun rememberConversationSheetState(
                     mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                     isUnderLegalHold = showLegalHoldIndicator,
-                    isFavorite = null
+                    isFavorite = null,
+                    folder = null,
+                    isDeletingConversationLocallyRunning = false
                 )
             }
         }
     }
 
-    return remember(conversationItem, conversationOptionNavigation) {
+    return remember(conversationItem, conversationOptionNavigation, isConversationDeletionLocallyRunning) {
         ConversationSheetState(
             conversationSheetContent = conversationSheetContent,
             conversationOptionNavigation = conversationOptionNavigation

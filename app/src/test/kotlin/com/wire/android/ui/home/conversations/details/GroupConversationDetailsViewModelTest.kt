@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.work.WorkManager
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -452,7 +453,9 @@ class GroupConversationDetailsViewModelTest {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isUnderLegalHold = true,
-            isFavorite = false
+            isFavorite = false,
+            isDeletingConversationLocallyRunning = false,
+            folder = null
         )
         // When - Then
         assertEquals(expected, viewModel.conversationSheetContent)
@@ -526,7 +529,7 @@ class GroupConversationDetailsViewModelTest {
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withObserveSelfUserReturns(self)
+            .withGetSelfUserReturns(self)
             .withSelfTeamUseCaseReturns(selfTeamId?.let { Team(it.value, "team_name", "icon") })
             .arrange()
         assertResult(viewModel.groupOptionsState.value)
@@ -704,7 +707,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var removeMemberFromConversation: RemoveMemberFromConversationUseCase
 
     @MockK
-    lateinit var observerSelfUser: GetSelfUserUseCase
+    lateinit var getSelfUser: GetSelfUserUseCase
 
     @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
@@ -744,10 +747,13 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
 
+    @MockK
+    private lateinit var workManager: WorkManager
+
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
             dispatcher = TestDispatcherProvider(),
-            observerSelfUser = observerSelfUser,
+            getSelfUser = getSelfUser,
             observeConversationDetails = observeConversationDetails,
             deleteTeamConversation = deleteTeamConversation,
             removeMemberFromConversation = removeMemberFromConversation,
@@ -762,7 +768,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             updateConversationArchivedStatus = updateConversationArchivedStatus,
-            getDefaultProtocol = getDefaultProtocolUseCase
+            getDefaultProtocol = getDefaultProtocolUseCase,
+            workManager = workManager
         )
     }
 
@@ -782,7 +789,7 @@ internal class GroupConversationDetailsViewModelArrangement {
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
+        coEvery { getSelfUser() } returns TestUser.SELF_USER
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
         coEvery { getSelfTeamUseCase() } returns Either.Right(null)
         coEvery { isMLSEnabledUseCase() } returns true
@@ -792,8 +799,8 @@ internal class GroupConversationDetailsViewModelArrangement {
         every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
     }
 
-    suspend fun withObserveSelfUserReturns(user: SelfUser) = apply {
-        coEvery { observerSelfUser() } returns flowOf(user)
+    suspend fun withGetSelfUserReturns(user: SelfUser) = apply {
+        coEvery { getSelfUser() } returns user
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

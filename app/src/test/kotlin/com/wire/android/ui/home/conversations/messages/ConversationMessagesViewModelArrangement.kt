@@ -22,9 +22,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
-import com.wire.android.media.audiomessage.ConversationAudioMessagePlayerProvider
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
+import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -98,9 +100,6 @@ class ConversationMessagesViewModelArrangement {
     lateinit var conversationAudioMessagePlayer: ConversationAudioMessagePlayer
 
     @MockK
-    lateinit var conversationAudioMessagePlayerProvider: ConversationAudioMessagePlayerProvider
-
-    @MockK
     lateinit var getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase
 
     @MockK
@@ -128,11 +127,11 @@ class ConversationMessagesViewModelArrangement {
             getMessagesForConversationUseCase,
             toggleReaction,
             resetSession,
-            conversationAudioMessagePlayerProvider,
+            conversationAudioMessagePlayer,
             getConversationUnreadEventsCount,
             clearUsersTypingEvents,
             getSearchedConversationMessagePosition,
-            deleteMessage
+            deleteMessage,
         )
     }
 
@@ -147,13 +146,15 @@ class ConversationMessagesViewModelArrangement {
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit
-        every { conversationAudioMessagePlayerProvider.provide() } returns conversationAudioMessagePlayer
-        every { conversationAudioMessagePlayerProvider.onCleared() } returns Unit
         coEvery {
             getSearchedConversationMessagePosition(any(), any())
         } returns GetSearchedConversationMessagePositionUseCase.Result.Success(position = 0)
 
         coEvery { observeAssetStatuses(any()) } returns flowOf(mapOf())
+
+        coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
+        coEvery { conversationAudioMessagePlayer.fetchWavesMask(any(), any()) } returns Unit
+        coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
     }
 
     fun withSuccessfulViewModelInit() = apply {
@@ -193,8 +194,12 @@ class ConversationMessagesViewModelArrangement {
         )
     }
 
-    fun withObservableAudioMessagesState(audioFlow: Flow<Map<String, AudioState>>) = apply {
+    fun withObservableAudioMessagesState(audioFlow: Flow<Map<MessageIdWrapper, AudioState>>) = apply {
         coEvery { conversationAudioMessagePlayer.observableAudioMessagesState } returns audioFlow
+    }
+
+    fun withPlayingAudioMessageFlow(playingAudioMessageFlow: Flow<PlayingAudioMessage>) = apply {
+        coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns playingAudioMessageFlow
     }
 
     suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {

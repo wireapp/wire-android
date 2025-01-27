@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.R
@@ -57,13 +58,18 @@ import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupLocallyDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
+import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
@@ -79,7 +85,7 @@ import com.wire.kalium.logic.data.user.UserId
  * This is a base for creating screens for displaying list of conversations.
  * Can be used to create proper navigation destination for different sources of conversations, like archive.
  */
-@Suppress("ComplexMethod", "NestedBlockDepth")
+@Suppress("ComplexMethod", "NestedBlockDepth", "Wrapping")
 @Composable
 fun ConversationsScreenContent(
     navigator: Navigator,
@@ -88,7 +94,6 @@ fun ConversationsScreenContent(
     lazyListState: LazyListState = rememberLazyListState(),
     loadingListContent: @Composable (LazyListState) -> Unit = { ConversationListLoadingContent(it) },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
-    initiallyLoaded: Boolean = LocalInspectionMode.current,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
         else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
@@ -106,6 +111,10 @@ fun ConversationsScreenContent(
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
             ChangeConversationFavoriteStateArgs
         ),
+    removeConversationFromFolderViewModel: RemoveConversationFromFolderVM =
+        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
+            RemoveConversationFromFolderArgs
+        )
 ) {
     var currentConversationOptionNavigation by remember {
         mutableStateOf<ConversationOptionNavigation>(ConversationOptionNavigation.Home)
@@ -116,12 +125,6 @@ fun ConversationsScreenContent(
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val context = LocalContext.current
-
-    LaunchedEffect(Unit) {
-        conversationListViewModel.infoMessage.collect {
-            sheetState.hide()
-        }
-    }
 
     LaunchedEffect(Unit) {
         conversationListViewModel.closeBottomSheet.collect {
@@ -186,13 +189,22 @@ fun ConversationsScreenContent(
             }
         }
 
+        val onPlayPauseCurrentAudio: () -> Unit = remember {
+            {
+                conversationListViewModel.playPauseCurrentAudio()
+            }
+        }
+
+        val onStopCurrentAudio: () -> Unit = remember {
+            {
+                conversationListViewModel.stopCurrentAudio()
+            }
+        }
+
         when (val state = conversationListViewModel.conversationListState) {
             is ConversationListState.Paginated -> {
                 val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
-                var showLoading by remember(conversationsSource) { mutableStateOf(!initiallyLoaded) }
-                if (lazyPagingItems.loadState.refresh != LoadState.Loading && showLoading) {
-                    showLoading = false
-                }
+                val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
 
                 when {
                     // when conversation list is not yet fetched, show loading indicator
@@ -212,7 +224,10 @@ fun ConversationsScreenContent(
                                     R.string.call_permission_dialog_description
                                 )
                             )
-                        }
+                        },
+                        onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
+                        onStopCurrentAudio = onStopCurrentAudio
+
                     )
                     // when there is no conversation in any folder
                     searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
@@ -239,7 +254,9 @@ fun ConversationsScreenContent(
                                     R.string.call_permission_dialog_description
                                 )
                             )
-                        }
+                        },
+                        onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
+                        onStopCurrentAudio = onStopCurrentAudio
                     )
                     // when there is no conversation in any folder
                     searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
@@ -273,6 +290,15 @@ fun ConversationsScreenContent(
             onDeleteGroup = conversationListViewModel::deleteGroup
         )
 
+        DeleteConversationGroupLocallyDialog(
+            isLoading = requestInProgress,
+            dialogState = deleteGroupLocallyDialogState,
+            onDeleteGroupLocally = { state ->
+                conversationListViewModel.deleteGroupLocally(state)
+                deleteGroupLocallyDialogState.dismiss()
+            }
+        )
+
         LeaveConversationGroupDialog(
             dialogState = leaveGroupDialogState,
             isLoading = requestInProgress,
@@ -299,9 +325,12 @@ fun ConversationsScreenContent(
         WireModalSheetLayout(
             sheetState = sheetState,
             sheetContent = {
+                val conversationDeletionInProgress by conversationListViewModel.observeIsDeletingConversationLocally(it.conversationId)
+                    .collectAsStateWithLifecycle(false)
                 val conversationState = rememberConversationSheetState(
                     conversationItem = it,
-                    conversationOptionNavigation = currentConversationOptionNavigation
+                    conversationOptionNavigation = currentConversationOptionNavigation,
+                    isConversationDeletionLocallyRunning = conversationDeletionInProgress
                 )
 
                 ConversationSheetContent(
@@ -313,19 +342,28 @@ fun ConversationsScreenContent(
                         )
                     },
                     changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
-                    moveConversationToFolder = conversationListViewModel::moveConversationToFolder,
+                    moveConversationToFolder = { navArgs ->
+                        navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(navArgs)))
+                    },
+                    removeFromFolder = removeConversationFromFolderViewModel::removeFromFolder,
                     updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
                     clearConversationContent = clearContentDialogState::show,
                     blockUser = blockUserDialogState::show,
                     unblockUser = unblockUserDialogState::show,
                     leaveGroup = leaveGroupDialogState::show,
                     deleteGroup = deleteGroupDialogState::show,
+                    deleteGroupLocally = deleteGroupLocallyDialogState::show
                 )
             },
         )
     }
 
-    SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage)
+    SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage, onEmitted = {
+        sheetState.hide()
+    })
+    SnackBarMessageHandler(infoMessages = removeConversationFromFolderViewModel.infoMessage, onEmitted = {
+        sheetState.hide()
+    })
     SnackBarMessageHandler(infoMessages = changeConversationFavoriteStateViewModel.infoMessage, onEmitted = {
         sheetState.hide()
     })

@@ -41,6 +41,7 @@
     <string name="label_membership_service">Сервис</string>
     <string name="label_user_deleted">Удалено</string>
     <string name="label_try_again">Повторить</string>
+    <string name="label_done">Готово</string>
     <string name="label_message_sent_failure">Не удалось отправить сообщение из-за проблем с подключением.</string>
     <string name="label_message_edit_sent_failure">Не удалось изменить сообщение из-за проблем с подключением.</string>
     <string name="label_message_sent_remotely_failure">Сообщение не может быть отправлено, поскольку бэкэнд %s недоступен.</string>
@@ -141,6 +142,8 @@
     <string name="content_description_more_options">Больше вариантов</string>
     <string name="content_description_add_contact">Добавить контакт</string>
     <string name="content_description_image_message">Изображение</string>
+    <string name="content_description_pause_audio">Приостановить аудио</string>
+    <string name="content_description_play_audio">Воспроизвести аудио</string>
     <string name="content_description_file_message">Файл</string>
     <string name="content_description_ping_everyone">Пинг</string>
     <string name="content_description_self_deleting_message_timer">Установите таймер для самоудаления сообщений</string>
@@ -155,6 +158,8 @@
     <string name="content_description_calling_turn_camera_off">Отключить камеру</string>
     <string name="content_description_calling_turn_speaker_on">Включить динамик</string>
     <string name="content_description_calling_turn_speaker_off">Выключить динамик</string>
+    <string name="content_description_calling_in_call_reactions_show">Показать в панели реакций вызова</string>
+    <string name="content_description_calling_in_call_reactions_hide">Скрыть в панели реакций вызова</string>
     <string name="content_description_show_more_options">Показать больше вариантов</string>
     <string name="content_description_reply_to_messge">Ответить на сообщение</string>
     <string name="content_description_reply_cancel">Отменить ответ на сообщение</string>
@@ -235,6 +240,7 @@
     <string name="content_description_self_profile_team">Название команды, %s</string>
     <string name="content_description_self_profile_change_status">изменить статус доступности</string>
     <string name="content_description_self_profile_new_account_btn">Создать новую команду или личный аккаунт или авторизоваться</string>
+    <string name="content_description_self_profile_manage_team_btn">Управлять командой</string>
     <string name="content_description_change_picture_back_btn">Вернуться к обзору вашего профиля</string>
     <string name="content_description_welcome_screen_close_btn">Закрыть просмотр создания новой команды и авторизации</string>
     <string name="content_description_login_back_btn">Вернуться к просмотру создания новой команды и авторизации</string>
@@ -530,9 +536,13 @@
     <string name="leave_group_conversation_menu_item">Покинуть группу…</string>
     <string name="leave_group_conversation_dialog_title">Покинуть “%s”?</string>
     <string name="leave_group_conversation_dialog_description">Вы больше не сможете отправлять и читать сообщения в этой группе ни на одном устройстве.</string>
+    <string name="leave_group_conversation_dialog_delete_fully_check">Удалить группу и ее контент у меня на всех моих устройствах</string>
     <string name="delete_group_conversation_menu_item">Удалить группу…</string>
     <string name="delete_group_conversation_dialog_title">Удалить “%s”?</string>
     <string name="delete_group_conversation_dialog_description">Группа будет удалена из списка бесед на всех устройствах. Вы больше не сможете получить доступ к группе и ее контенту.</string>
+    <string name="delete_group_locally_conversation_dialog_title">Удалить себя из группы \"%s\"?</string>
+    <string name="delete_group_locally_conversation_dialog_description">Вы не сможете получить доступ к группе и ее содержимому. Восстановить ее невозможно.</string>
+    <string name="delete_group_locally_delete_for_me_label">Удалить себя</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Поделиться с Wire</string>
     <string name="import_media_searchbar_title">Поиск по беседе</string>
@@ -578,6 +588,7 @@
     <string name="user_profile_status_away">Отошел</string>
     <string name="user_profile_status_none">Отключен</string>
     <string name="user_profile_new_account_text">Новая команда или аккаунт</string>
+    <string name="user_profile_account_management">Управлять командой</string>
     <string name="user_profile_details_tab">Подробности</string>
     <string name="user_profile_devices_tab">Устройства</string>
     <string name="user_profile_group_tab">Группа</string>
@@ -620,20 +631,26 @@
     <string name="label_notifications">Уведомления</string>
     <string name="label_add_to_favourites">Добавить в избранное</string>
     <string name="label_remove_from_favourites">Удалить из избранного</string>
-    <string name="label_move_to_folder">Переместить в папку</string>
+    <string name="label_move_to_folder">Переместить в папку...</string>
+    <string name="label_remove_from_folder">Удалить из папки “%1$s”</string>
+    <string name="label_new_folder">Новая папка</string>
+    <string name="folder_create_description">Создайте новую папку, нажав кнопку\n“Новая папка”</string>
     <string name="label_move_to_archive">Переместить в архив</string>
     <string name="label_unarchive">Переместить из архива</string>
     <string name="label_clear_content">Очистить контент…</string>
     <string name="label_block">Заблокировать</string>
     <string name="label_unblock">Разблокировать</string>
     <string name="label_leave_group">Покинуть группу</string>
+    <string name="label_delete_group_locally">Удалить себя из группы</string>
     <string name="label_delete_group">Удалить группу</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Отфильтровать беседы</string>
     <string name="label_filter_all">Все беседы</string>
     <string name="label_filter_favorites">Избранное</string>
+    <string name="label_filter_folders">Папки</string>
     <string name="label_filter_group">Группы</string>
     <string name="label_filter_one_on_one">Беседы 1:1</string>
+    <string name="label_folders">Папки</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Все</string>
     <string name="muting_option_all_allowed_text">Получать уведомления в этой беседе обо всем (включая аудио- и видеозвонки)</string>
@@ -905,6 +922,7 @@
     <string name="error_blocking_user">Пользователь не может быть заблокирован</string>
     <string name="blocking_user_success">%s заблокирован</string>
     <string name="conversation_group_removed_success">“%s” удален</string>
+    <string name="conversation_group_removed_locally_success">Удалили себя из \"%s\"</string>
     <string name="leave_group_conversation_error">При выходе из беседы произошла ошибка</string>
     <string name="joined_conversation_group_success">Вы присоединились к беседе.</string>
     <string name="left_conversation_group_success">Вы покинули беседу.</string>
@@ -949,6 +967,7 @@
     <string name="notification_call_default_caller_name">Кто-то</string>
     <string name="notification_call_default_group_name">Входящий групповой вызов</string>
     <string name="notification_outgoing_call_tap_to_return">Нажмите, чтобы вернуться к вызову - Вызов...</string>
+    <string name="notification_audio_message_body">Аудиосообщение</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Постоянный битрейт</string>
     <string name="calling_button_label_microphone">Микрофон</string>
@@ -975,6 +994,14 @@
     <string name="calling_ongoing_double_tap_to_go_back">Двойное нажатие для возврата назад</string>
     <string name="calling_feature_unavailable_title_alert">Возможность недоступна</string>
     <string name="calling_feature_unavailable_message_alert">Возможность инициировать групповой вызов доступна только в платной версии Wire.</string>
+    <string name="calling_feature_unavailable_team_member_message_alert">Чтобы выполнить групповой вызов вашей команде необходимо перейти на план Enterprise.</string>
+    <string name="calling_feature_unavailable_team_admin_title_alert">Перейти на Enterprise</string>
+    <string name="calling_feature_unavailable_team_admin_message_alert">В настоящее время ваша команда использует бесплатный тарифный план Basic. Перейдите на тарифный план Enterprise, чтобы получить доступ к таким возможностям, как проведение конференций и многим другим.</string>
+    <string name="calling_feature_unavailable_team_admin_message_link_alert">Узнайте больше о тарифах Wire</string>
+    <string name="calling_feature_unavailable_team_admin_upgrade_action_alert">Перейти сейчас</string>
+    <string name="calling_feature_enabled_title_alert">Wire Enterprise</string>
+    <string name="calling_feature_enabled_message_alert">Ваша команда перешла на тариф Wire Enterprise, который дает вам доступ к таким возможностям, как конференц-связь и многое другое.</string>
+    <string name="calling_feature_enabled_message_link_alert">Узнайте больше о Wire Enterprise</string>
     <string name="calling_screen_connecting_until_call_established">Подключение…</string>
     <string name="calling_confirm_start_call_title_dialog">Начать звонок</string>
     <string name="calling_confirm_start_call_description_dialog">Вы действительно хотите позвонить %1$s пользователям?</string>
@@ -1172,6 +1199,8 @@
     <string name="custom_backend_dialog_body_backend_website">URL веб-сайта:</string>
     <string name="custom_backend_dialog_body_backend_websocket">WSURL бэкэнда:</string>
     <string name="custom_backend_error_title">Произошла ошибка</string>
+    <string name="custom_backend_error_no_internet_connection_body">Перенаправление на локальный бэкэнд не удалось, вероятно, вы не подключены к интернету.\n\nПодключитесь к интернету и повторите попытку.</string>
+    <string name="custom_backend_error_no_internet_connection_try_again">Повторить</string>
     <string name="label_fetching_your_messages">Получение новых сообщений</string>
     <string name="label_text_copied">Текст скопирован в буфер обмена</string>
     <string name="label_logs_option_title">Журналы</string>
@@ -1201,6 +1230,8 @@
     <string name="group_empty_list_description">Вы еще не участвуете ни в одной групповой беседе.\nНачните новую!</string>
     <string name="one_on_one_empty_list_description">У вас пока нет контактов.\nИщите друзей в %1$s и общайтесь.</string>
     <string name="favorites_empty_list_how_to_label">Как помечать беседы как избранные</string>
+    <string name="folders_empty_list_description">Добавляйте беседы в папки, чтобы сохранять их упорядоченность.</string>
+    <string name="folders_empty_list_how_to_add">Как добавить беседу в папку</string>
     <string name="conversation_empty_list_title">Добро пожаловать 👋</string>
     <string name="label_no_conversation_found">Беседы не найдены.</string>
     <string name="label_connect_with_new_users">Общайтесь с новыми пользователями или начните новую беседу</string>
@@ -1309,6 +1340,9 @@
     <string name="guest_link_button_revoke_link">Отозвать ссылку</string>
     <string name="audio_not_available">Аудио недоступно</string>
     <string name="audio_not_available_explanation">При загрузке этого аудиофайла что-то пошло не так. Пожалуйста, попросите отправителя отправить его снова</string>
+    <string name="audio_speed_1">1x</string>
+    <string name="audio_speed_1_5">1.5x</string>
+    <string name="audio_speed_2">2x</string>
     <string name="guest_link_generate_error_message">Ссылка не может быть создана. Пожалуйста, попробуйте еще раз</string>
     <string name="guest_link_revoke_error_message">Ссылка не может быть отозвана. Пожалуйста, попробуйте еще раз</string>
     <string name="revoke_guest__room_link_dialog_text">Новые гости не смогут присоединиться по этой ссылке. На доступ текущих гостей это не повлияет.</string>
@@ -1644,4 +1678,18 @@
     <string name="personal_to_team_migration_error_message_already_in_team">Вы создали или присоединились к команде с этим email на другом устройстве.</string>
     <string name="personal_to_team_migration_error_message_slow_network">Wire не удалось завершить создание вашей команды из-за медленного интернет-соединения.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire не удалось завершить создание вашей команды из-за неизвестной ошибки.</string>
+    <string name="reaction_sender_self">Вы</string>
+    <string name="emoji_picker_select_reaction">Выбрать реакцию</string>
+    <string name="label_user_database_profile">Журнал базы данных</string>
+    <!-- Move to Folder -->
+    <string name="move_to_folder_success">“%1$s” был перемещен в “%2$s”</string>
+    <string name="move_to_folder_failed">“%1$s” не может быть перемещен</string>
+    <string name="remove_from_folder_success">“%1$s” был удален из “%2$s”</string>
+    <string name="remove_from_folder_failed">“%1$s” не может быть удален</string>
+    <string name="new_folder_folder_name">НАЗВАНИЕ ПАПКИ</string>
+    <string name="new_folder_create_folder">Создать папку</string>
+    <string name="new_folder_error_name_exist">Папка с таким названием уже существует. Пожалуйста, выберите другое имя.</string>
+    <string name="new_folder_error_name_empty">Пожалуйста, введите название папки.</string>
+    <string name="new_folder_error_name_exceeded_limit_error">Минимум 1 и не более 64 символов</string>
+    <string name="new_folder_failure">Папка “%1$s” не может быть добавлена</string>
 </resources>

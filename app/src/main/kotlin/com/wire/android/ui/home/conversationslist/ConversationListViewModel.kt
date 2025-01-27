@@ -27,11 +27,13 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -46,7 +48,11 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
+import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
+import com.wire.android.workmanager.worker.observeConversationDeletionStatusLocally
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -86,14 +92,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.util.Date
 
+@Suppress("TooManyFunctions")
 interface ConversationListViewModel {
     val infoMessage: SharedFlow<SnackBarMessage> get() = MutableSharedFlow()
     val closeBottomSheet: SharedFlow<Unit> get() = MutableSharedFlow()
@@ -109,17 +116,23 @@ interface ConversationListViewModel {
     fun blockUser(blockUserState: BlockUserDialogState) {}
     fun unblockUser(userId: UserId) {}
     fun deleteGroup(groupDialogState: GroupDialogState) {}
-    fun leaveGroup(leaveGroupState: GroupDialogState) {}
+    fun deleteGroupLocally(groupDialogState: GroupDialogState) {}
+    fun observeIsDeletingConversationLocally(conversationId: ConversationId): Flow<Boolean>
+    fun leaveGroup(leaveGroupState: LeaveGroupDialogState) {}
     fun clearConversationContent(dialogState: DialogState) {}
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
     fun moveConversationToFolder() {}
     fun searchQueryChanged(searchQuery: String) {}
+    fun playPauseCurrentAudio() {}
+    fun stopCurrentAudio() {}
 }
 
+@Suppress("TooManyFunctions")
 class ConversationListViewModelPreview(
     foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = previewConversationFoldersFlow(),
 ) : ConversationListViewModel {
     override val conversationListState = ConversationListState.Paginated(foldersWithConversations)
+    override fun observeIsDeletingConversationLocally(conversationId: ConversationId): Flow<Boolean> = flowOf(false)
 }
 
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
@@ -127,7 +140,7 @@ class ConversationListViewModelPreview(
 class ConversationListViewModelImpl @AssistedInject constructor(
     @Assisted val conversationsSource: ConversationsSource,
     @Assisted private val usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
-    dispatcher: DispatcherProvider,
+    private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val observeConversationListDetailsWithEvents: ObserveConversationListDetailsWithEventsUseCase,
@@ -140,9 +153,11 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
+    private val audioMessagePlayer: ConversationAudioMessagePlayer,
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
-    private val observeSelfUser: GetSelfUserUseCase
+    private val getSelfUser: GetSelfUserUseCase,
+    private val workManager: WorkManager
 ) : ConversationListViewModel, ViewModel() {
 
     @AssistedFactory
@@ -162,6 +177,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     override val closeBottomSheet = MutableSharedFlow<Unit>()
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
+    private val isSelfUserUnderLegalHoldFlow = MutableSharedFlow<Boolean>(replay = 1)
 
     private val containsNewActivitiesSection = when (conversationsSource) {
         ConversationsSource.MAIN,
@@ -176,39 +192,42 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val conversationsPaginatedFlow: Flow<PagingData<ConversationFolderItem>> = searchQueryFlow
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
+        .combine(isSelfUserUnderLegalHoldFlow, ::Pair)
         .distinctUntilChanged()
-        .flatMapLatest { searchQuery ->
+        .combine(audioMessagePlayer.playingAudioMessageFlow) { (searchQuery, isSelfUserUnderLegalHold), playingAudioMessage ->
+            Triple(searchQuery, isSelfUserUnderLegalHold, playingAudioMessage)
+        }
+        .flatMapLatest { (searchQuery, isSelfUserUnderLegalHold, playingAudioMessage) ->
             getConversationsPaginated(
                 searchQuery = searchQuery,
                 fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
                 conversationFilter = conversationsSource.toFilter(),
                 onlyInteractionEnabled = false,
                 newActivitiesOnTop = containsNewActivitiesSection,
-            ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
-                conversations.map {
-                    it.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
-                }
-            }.map {
-                it.insertSeparators { before, after ->
-                    when {
-                        // do not add separators if the list shouldn't show conversations grouped into different folders
-                        !containsNewActivitiesSection -> null
+                playingAudioMessage = playingAudioMessage
+            ).map { pagingData ->
+                pagingData
+                    .map { it.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold) }
+                    .insertSeparators { before, after ->
+                        when {
+                            // do not add separators if the list shouldn't show conversations grouped into different folders
+                            !containsNewActivitiesSection -> null
 
-                        before == null && after != null && after.hasNewActivitiesToShow ->
-                            // list starts with items with "new activities"
-                            ConversationFolder.Predefined.NewActivities
+                            before == null && after != null && after.hasNewActivitiesToShow ->
+                                // list starts with items with "new activities"
+                                ConversationFolder.Predefined.NewActivities
 
-                        before == null && after != null && !after.hasNewActivitiesToShow ->
-                            // list doesn't contain any items with "new activities"
-                            ConversationFolder.Predefined.Conversations
+                            before == null && after != null && !after.hasNewActivitiesToShow ->
+                                // list doesn't contain any items with "new activities"
+                                ConversationFolder.Predefined.Conversations
 
-                        before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
-                            // end of "new activities" section and beginning of "conversations" section
-                            ConversationFolder.Predefined.Conversations
+                            before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
+                                // end of "new activities" section and beginning of "conversations" section
+                                ConversationFolder.Predefined.Conversations
 
-                        else -> null
+                            else -> null
+                        }
                     }
-                }
             }
         }
         .flowOn(dispatcher.io())
@@ -223,45 +242,64 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         private set
 
     init {
+        observeSelfUserLegalHoldState()
         if (!usePagination) {
-            viewModelScope.launch {
-                searchQueryFlow
-                    .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
-                    .onStart { emit("") }
-                    .distinctUntilChanged()
-                    .flatMapLatest { searchQuery: String ->
+            observeNonPaginatedSearchConversationList()
+        }
+    }
+
+    private fun observeSelfUserLegalHoldState() {
+        viewModelScope.launch {
+            observeLegalHoldStateForSelfUser()
+                .map { it is LegalHoldStateForSelfUser.Enabled }
+                .flowOn(dispatcher.io())
+                .collect { isSelfUserUnderLegalHoldFlow.emit(it) }
+        }
+    }
+
+    private fun observeNonPaginatedSearchConversationList() {
+        viewModelScope.launch {
+            searchQueryFlow
+                .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
+                .onStart { emit("") }
+                .distinctUntilChanged()
+                .flatMapLatest { searchQuery: String ->
+                    combine(
                         observeConversationListDetailsWithEvents(
                             fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
                             conversationFilter = conversationsSource.toFilter()
-                        ).combine(observeLegalHoldStateForSelfUser()) { conversations, selfUserLegalHoldStatus ->
-                            conversations.map { conversationDetails ->
-                                conversationDetails.toConversationItem(
-                                    userTypeMapper = userTypeMapper,
-                                    searchQuery = searchQuery,
-                                    selfUserTeamId = observeSelfUser().firstOrNull()?.teamId
-                                ).hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus)
-                            } to searchQuery
-                        }
+                        ),
+                        isSelfUserUnderLegalHoldFlow,
+                        audioMessagePlayer.playingAudioMessageFlow
+                    ) { conversations, isSelfUserUnderLegalHold, playingAudioMessage ->
+                        conversations.map { conversationDetails ->
+                            conversationDetails.toConversationItem(
+                                userTypeMapper = userTypeMapper,
+                                searchQuery = searchQuery,
+                                selfUserTeamId = getSelfUser()?.teamId,
+                                playingAudioMessage = playingAudioMessage
+                            ).hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
+                        } to searchQuery
                     }
-                    .map { (conversationItems, searchQuery) ->
-                        if (searchQuery.isEmpty()) {
-                            conversationItems.withFolders(source = conversationsSource).toImmutableMap()
-                        } else {
-                            searchConversation(
-                                conversationDetails = conversationItems,
-                                searchQuery = searchQuery
-                            ).withFolders(source = conversationsSource).toImmutableMap()
-                        }
+                }
+                .map { (conversationItems, searchQuery) ->
+                    if (searchQuery.isEmpty()) {
+                        conversationItems.withFolders(source = conversationsSource).toImmutableMap()
+                    } else {
+                        searchConversation(
+                            conversationDetails = conversationItems,
+                            searchQuery = searchQuery
+                        ).withFolders(source = conversationsSource).toImmutableMap()
                     }
-                    .flowOn(dispatcher.io())
-                    .collect {
-                        conversationListState = ConversationListState.NotPaginated(
-                            isLoading = false,
-                            conversations = it,
-                            domain = currentAccount.domain
-                        )
-                    }
-            }
+                }
+                .flowOn(dispatcher.io())
+                .collect {
+                    conversationListState = ConversationListState.NotPaginated(
+                        isLoading = false,
+                        conversations = it,
+                        domain = currentAccount.domain
+                    )
+                }
         }
     }
 
@@ -337,7 +375,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         }
     }
 
-    override fun leaveGroup(leaveGroupState: GroupDialogState) {
+    override fun leaveGroup(leaveGroupState: LeaveGroupDialogState) {
         viewModelScope.launch {
             _requestInProgress = true
             val response = leaveConversation(leaveGroupState.conversationId)
@@ -346,7 +384,11 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                     _infoMessage.emit(HomeSnackBarMessage.LeaveConversationError)
 
                 RemoveMemberFromConversationUseCase.Result.Success -> {
-                    _infoMessage.emit(HomeSnackBarMessage.LeftConversationSuccess)
+                    if (leaveGroupState.shouldDelete) {
+                        deleteGroupLocally(leaveGroupState)
+                    } else {
+                        _infoMessage.emit(HomeSnackBarMessage.LeftConversationSuccess)
+                    }
                 }
             }
             _requestInProgress = false
@@ -365,6 +407,35 @@ class ConversationListViewModelImpl @AssistedInject constructor(
             }
             _requestInProgress = false
         }
+    }
+
+    override fun deleteGroupLocally(groupDialogState: GroupDialogState) {
+        viewModelScope.launch {
+            closeBottomSheet.emit(Unit)
+            workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
+                .collect { status ->
+                    when (status) {
+                        ConversationDeletionLocallyStatus.SUCCEEDED -> {
+                            _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupLocallySuccess(groupDialogState.conversationName))
+                        }
+
+                        ConversationDeletionLocallyStatus.FAILED -> {
+                            _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
+                        }
+
+                        ConversationDeletionLocallyStatus.RUNNING,
+                        ConversationDeletionLocallyStatus.IDLE -> {
+                            // nop
+                        }
+                    }
+                }
+        }
+    }
+
+    override fun observeIsDeletingConversationLocally(conversationId: ConversationId): Flow<Boolean> {
+        return workManager.observeConversationDeletionStatusLocally(conversationId)
+            .map { status -> status == ConversationDeletionLocallyStatus.RUNNING }
+            .distinctUntilChanged()
     }
 
     // TODO: needs to be implemented
@@ -417,6 +488,18 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         }
     }
 
+    override fun playPauseCurrentAudio() {
+        viewModelScope.launch {
+            audioMessagePlayer.resumeOrPauseCurrentAudioMessage()
+        }
+    }
+
+    override fun stopCurrentAudio() {
+        viewModelScope.launch {
+            audioMessagePlayer.forceToStopCurrentAudioMessage()
+        }
+    }
+
     @Suppress("MultiLineIfElse")
     private suspend fun clearContentSnackbarResult(
         clearContentResult: ClearConversationContentUseCase.Result,
@@ -447,11 +530,13 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
     is ConversationsSource.FOLDER -> ConversationFilter.Folder(folderId = folderId, folderName = folderName)
 }
 
-private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(selfUserLegalHoldStatus: LegalHoldStateForSelfUser) =
-    // if self user is under legal hold then we shouldn't show legal hold indicator next to every conversation
-    // the indication is shown in the header of the conversation list for self user in that case and it's enough
-    when (selfUserLegalHoldStatus) {
-        is LegalHoldStateForSelfUser.Enabled -> when (this) {
+/**
+ * If self user is under legal hold then we shouldn't show legal hold indicator next to every conversation as in that case
+ * the legal hold indication is shown in the header of the conversation list for self user in that case and it's enough.
+ */
+private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold: Boolean) =
+    when (isSelfUserUnderLegalHold) {
+        true -> when (this) {
             is ConversationItem.ConnectionConversation -> this.copy(showLegalHoldIndicator = false)
             is ConversationItem.GroupConversation -> this.copy(showLegalHoldIndicator = false)
             is ConversationItem.PrivateConversation -> this.copy(showLegalHoldIndicator = false)

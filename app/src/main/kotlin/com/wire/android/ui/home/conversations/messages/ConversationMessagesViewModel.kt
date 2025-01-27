@@ -24,9 +24,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.media.audiomessage.ConversationAudioMessagePlayerProvider
+import com.wire.android.media.audiomessage.AudioSpeed
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -74,8 +77,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -98,17 +104,16 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
-    private val conversationAudioMessagePlayerProvider: ConversationAudioMessagePlayerProvider,
+    private val audioMessagePlayer: ConversationAudioMessagePlayer,
     private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase,
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
-    private val deleteMessage: DeleteMessageUseCase
+    private val deleteMessage: DeleteMessageUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
-    private val conversationAudioMessagePlayer = conversationAudioMessagePlayerProvider.provide()
 
     var conversationViewState by mutableStateOf(
         ConversationMessagesViewState(
@@ -181,12 +186,19 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     private fun observeAudioPlayerState() {
+        val observableAudioMessagesState = audioMessagePlayer.observableAudioMessagesState
+            .map { audioMessageStates -> audioMessageStates.mapKeys { it.key.messageId } }
+//            .shareIn(viewModelScope, SharingStarted.Eagerly)
+
         viewModelScope.launch {
-            conversationAudioMessagePlayer.observableAudioMessagesState.collect {
-                conversationViewState = conversationViewState.copy(
-                    audioMessagesState = it.toPersistentMap()
-                )
+            combine(
+                observableAudioMessagesState,
+                audioMessagePlayer.audioSpeed,
+                audioMessagePlayer.playingAudioMessageFlow
+            ) { audioMessageStates, audioSpeed, playingAudiMessage ->
+                AudioMessagesState(audioMessageStates.toPersistentMap(), audioSpeed, playingAudiMessage)
             }
+                .collectLatest { conversationViewState = conversationViewState.copy(audioMessagesState = it) }
         }
     }
 
@@ -215,11 +227,12 @@ class ConversationMessagesViewModel @Inject constructor(
         }
 
         val paginatedMessagesFlow = getMessageForConversation(conversationId, lastReadIndex)
+            .fetchAudioWavesMaskIfNeeded()
             .flowOn(dispatchers.io())
 
         conversationViewState = conversationViewState.copy(
             messages = paginatedMessagesFlow,
-            firstuUnreadEventIndex = max(lastReadIndex - 1, 0)
+            firstUnreadEventIndex = max(lastReadIndex - 1, 0)
         )
 
         handleSelectedSearchedMessageHighlighting()
@@ -387,13 +400,19 @@ class ConversationMessagesViewModel @Inject constructor(
 
     fun audioClick(messageId: String) {
         viewModelScope.launch {
-            conversationAudioMessagePlayer.playAudio(conversationId, messageId)
+            audioMessagePlayer.playAudio(conversationId, messageId)
         }
     }
 
     fun changeAudioPosition(messageId: String, position: Int) {
         viewModelScope.launch {
-            conversationAudioMessagePlayer.setPosition(messageId, position)
+            audioMessagePlayer.setPosition(conversationId, messageId, position)
+        }
+    }
+
+    fun changeAudioSpeed(audioSpeed: AudioSpeed) {
+        viewModelScope.launch {
+            audioMessagePlayer.setSpeed(audioSpeed)
         }
     }
 
@@ -435,10 +454,18 @@ class ConversationMessagesViewModel @Inject constructor(
             }
         }
 
-    override fun onCleared() {
-        super.onCleared()
-        conversationAudioMessagePlayerProvider.onCleared()
-    }
+    // checking all the new messages if it's an AudioMessage and fetch WavesMask for it if so
+    private fun Flow<PagingData<UIMessage>>.fetchAudioWavesMaskIfNeeded(): Flow<PagingData<UIMessage>> =
+        map {
+            it.map { message ->
+                if (message.messageContent is UIMessageContent.AudioAssetMessage) {
+                    viewModelScope.launch {
+                        audioMessagePlayer.fetchWavesMask(conversationId, message.header.messageId)
+                    }
+                }
+                message
+            }
+        }
 
     private companion object {
         const val DEFAULT_ASSET_NAME = "Wire File"

@@ -27,22 +27,20 @@ import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase.Result.Success
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.functional.Either
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockkObject
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -118,8 +116,8 @@ class MyAccountViewModelTest {
             .withE2EIEnabledResult(false)
             .arrange()
 
-        verify {
-            arrangement.selfServerConfigUseCase wasNot Called
+        coVerify(exactly = 0) {
+            arrangement.selfServerConfigUseCase.invoke()
         }
     }
 
@@ -205,7 +203,7 @@ class MyAccountViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var getSelfUserUseCase: GetSelfUserUseCase
+        lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
 
         @MockK
         lateinit var getSelfTeamUseCase: GetUpdatedSelfTeamUseCase
@@ -231,7 +229,7 @@ class MyAccountViewModelTest {
         private val viewModel by lazy {
             MyAccountViewModel(
                 savedStateHandle,
-                getSelfUserUseCase,
+                observeSelfUserUseCase,
                 getSelfTeamUseCase,
                 isSelfATeamMember,
                 selfServerConfigUseCase,
@@ -244,7 +242,7 @@ class MyAccountViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { getSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(teamId = TeamId(TestTeam.TEAM.id)))
+            coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(teamId = TeamId(TestTeam.TEAM.id)))
             coEvery { getSelfTeamUseCase() } returns Either.Right(TestTeam.TEAM)
             coEvery { selfServerConfigUseCase() } returns SelfServerConfigUseCase.Result.Success(newServerConfig(1))
             coEvery { isSelfATeamMember() } returns true

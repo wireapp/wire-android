@@ -25,10 +25,13 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -38,13 +41,15 @@ fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
     onMutingConversationStatusChange: () -> Unit,
     changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
-    moveConversationToFolder: () -> Unit,
+    moveConversationToFolder: ((ConversationFoldersNavArgs) -> Unit)?,
+    removeFromFolder: (conversationId: ConversationId, conversationName: String, folder: ConversationFolder) -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
-    leaveGroup: (GroupDialogState) -> Unit,
+    leaveGroup: (LeaveGroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
+    deleteGroupLocally: (GroupDialogState) -> Unit,
     isBottomSheetVisible: () -> Boolean = { true }
 ) {
     // it may be null as initial state
@@ -55,14 +60,15 @@ fun ConversationSheetContent(
             ConversationMainSheetContent(
                 conversationSheetContent = conversationSheetState.conversationSheetContent!!,
                 changeFavoriteState = changeFavoriteState,
-// TODO(profile): enable when implemented
-//                moveConversationToFolder = moveConversationToFolder,
+                moveConversationToFolder = moveConversationToFolder,
+                removeFromFolder = removeFromFolder,
                 updateConversationArchiveStatus = updateConversationArchiveStatus,
                 clearConversationContent = clearConversationContent,
                 blockUserClick = blockUser,
                 unblockUserClick = unblockUser,
                 leaveGroup = leaveGroup,
                 deleteGroup = deleteGroup,
+                deleteGroupLocally = deleteGroupLocally,
                 navigateToNotification = conversationSheetState::toMutingNotificationOption
             )
         }
@@ -125,7 +131,9 @@ data class ConversationSheetContent(
     val mlsVerificationStatus: Conversation.VerificationStatus,
     val proteusVerificationStatus: Conversation.VerificationStatus,
     val isUnderLegalHold: Boolean,
-    val isFavorite: Boolean?
+    val isFavorite: Boolean?,
+    val folder: ConversationFolder?,
+    val isDeletingConversationLocallyRunning: Boolean
 ) {
 
     private val isSelfUserMember: Boolean get() = selfRole != null
@@ -143,6 +151,8 @@ data class ConversationSheetContent(
     }
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
+
+    fun canDeleteGroupLocally(): Boolean = !isSelfUserMember && !isDeletingConversationLocallyRunning
 
     fun canBlockUser(): Boolean {
        return conversationTypeDetail is ConversationTypeDetail.Private

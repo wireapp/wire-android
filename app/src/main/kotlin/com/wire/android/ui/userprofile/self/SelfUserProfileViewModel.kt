@@ -57,8 +57,8 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserU
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.functional.getOrNull
@@ -84,7 +84,7 @@ import javax.inject.Inject
 class SelfUserProfileViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,
     private val dataStore: UserDataStore,
-    private val getSelf: GetSelfUserUseCase,
+    private val observeSelf: ObserveSelfUserUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeValidAccounts: ObserveValidAccountsUseCase,
@@ -112,7 +112,6 @@ class SelfUserProfileViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             fetchSelfUser()
-            checkIfUserAbleToMigrateToTeamAccount()
             observeEstablishedCall()
             fetchIsReadOnlyAccount()
             observeLegalHoldStatus()
@@ -120,9 +119,8 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    private suspend fun checkIfUserAbleToMigrateToTeamAccount() {
-        val isAbleToMigrateToTeamAccount = canMigrateFromPersonalToTeam() && userProfileState.teamName.isNullOrBlank()
-        userProfileState = userProfileState.copy(isAbleToMigrateToTeamAccount = isAbleToMigrateToTeamAccount)
+    suspend fun checkIfUserAbleToMigrateToTeamAccount() {
+        userProfileState = userProfileState.copy(isAbleToMigrateToTeamAccount = canMigrateFromPersonalToTeam())
     }
 
     private suspend fun fetchIsReadOnlyAccount() {
@@ -141,7 +139,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private fun markCreateTeamNoticeAsRead() {
         viewModelScope.launch {
-            if (getSelf().first().teamId == null && !dataStore.isCreateTeamNoticeRead().first()) {
+            if (observeSelf().first().teamId == null && !dataStore.isCreateTeamNoticeRead().first()) {
                 dataStore.setIsCreateTeamNoticeRead(true)
             }
         }
@@ -155,7 +153,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private fun fetchSelfUser() {
         viewModelScope.launch {
-            val self = getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
+            val self = observeSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
             val selfTeam = getSelfTeam().getOrNull()
             val validAccounts =
                 observeValidAccounts().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
@@ -320,7 +318,11 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     fun trackQrCodeClick() {
-        anonymousAnalyticsManager.sendEvent(AnalyticsEvent.QrCode.Click(!userProfileState.teamName.isNullOrBlank()))
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.QrCode.Click(
+                isTeam = !userProfileState.teamName.isNullOrBlank()
+            )
+        )
     }
 
     fun sendPersonalToTeamMigrationEvent() {

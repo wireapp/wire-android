@@ -31,7 +31,6 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,7 +46,7 @@ class ChangeDisplayNameViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getSelf().firstOrNull()?.name.orEmpty().let { currentDisplayName ->
+            getSelf()?.name.orEmpty().let { currentDisplayName ->
                 textState.setTextAndPlaceCursorAtEnd(currentDisplayName)
                 textState.textAsFlow().collectLatest {
                     displayNameState = displayNameState.copy(

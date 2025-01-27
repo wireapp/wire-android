@@ -43,8 +43,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import io.mockk.Called
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -273,7 +272,7 @@ class ConnectionActionButtonViewModelTest {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
             verify { arrangement.onOpenConversation(any()) }
-            verify { arrangement.onMissingKeyPackages wasNot Called }
+            verify(exactly = 0) { arrangement.onMissingKeyPackages.invoke() }
             assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
@@ -292,8 +291,8 @@ class ConnectionActionButtonViewModelTest {
             coVerify {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
-            verify { arrangement.onOpenConversation wasNot Called }
-            verify { arrangement.onMissingKeyPackages wasNot Called }
+            verify(exactly = 0) { arrangement.onOpenConversation.invoke(any()) }
+            verify(exactly = 0) { arrangement.onMissingKeyPackages() }
             assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
@@ -312,7 +311,7 @@ class ConnectionActionButtonViewModelTest {
             coVerify {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
-            verify { arrangement.onOpenConversation wasNot Called }
+            verify(exactly = 0) { arrangement.onOpenConversation.invoke(any()) }
             verify { arrangement.onMissingKeyPackages() }
             assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
@@ -346,7 +345,7 @@ internal class ConnectionActionButtonHiltArrangement {
     lateinit var unblockUser: UnblockUserUseCase
 
     @MockK
-    lateinit var observeSelfUser: GetSelfUserUseCase
+    lateinit var observeSelfUser: ObserveSelfUserUseCase
 
     @MockK(relaxed = true)
     lateinit var onIgnoreSuccess: (userName: String) -> Unit

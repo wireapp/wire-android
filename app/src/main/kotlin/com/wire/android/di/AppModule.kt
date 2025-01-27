@@ -22,6 +22,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.location.Geocoder
 import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.MediaPlayer
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
@@ -38,6 +39,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import linc.com.amplituda.Amplituda
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -47,6 +49,7 @@ annotation class CurrentAppVersion
 
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("TooManyFunctions")
 object AppModule {
 
     @CurrentAppVersion
@@ -84,6 +87,9 @@ object AppModule {
         }
     }
 
+    @Provides
+    fun provideAmplituda(appContext: Context): Amplituda = Amplituda(appContext)
+
     @Singleton
     @Provides
     fun provideCurrentTimestampProvider(): CurrentTimestampProvider = { System.currentTimeMillis() }
@@ -100,4 +106,8 @@ object AppModule {
 
     @Provides
     fun provideAnonymousAnalyticsManager(): AnonymousAnalyticsManager = AnonymousAnalyticsManagerImpl
+
+    @Provides
+    fun provideAudioManager(@ApplicationContext context: Context): AudioManager =
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 }

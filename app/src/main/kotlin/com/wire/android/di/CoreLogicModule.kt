@@ -36,7 +36,6 @@ import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
-import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -213,11 +212,6 @@ class UseCaseModule {
     @Provides
     fun provideUpdateApiVersionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().updateApiVersions
-
-    @ViewModelScoped
-    @Provides
-    fun provideDisableEventProcessing(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).debug.disableEventProcessing
 
     @ViewModelScoped
     @Provides
@@ -485,19 +479,15 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideBreakSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): BreakSessionUseCase =
-        coreLogic.getSessionScope(currentAccount).debug.breakSession
-
-    @ViewModelScoped
-    @Provides
-    fun provideSendFCMTokenToAPIUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).debug.sendFCMTokenToServer
-
-    @ViewModelScoped
-    @Provides
     fun provideMigrateFromPersonalToTeamUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).migrateFromPersonalToTeam
+    ) = coreLogic.getSessionScope(currentAccount).migrateFromPersonalToTeam
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetTeamUrlUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ) = coreLogic.getSessionScope(currentAccount).getTeamUrlUseCase
 }

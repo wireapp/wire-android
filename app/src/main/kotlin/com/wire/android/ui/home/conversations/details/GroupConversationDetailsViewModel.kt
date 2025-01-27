@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
@@ -33,11 +34,14 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
+import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
+import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -66,14 +70,13 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -90,7 +93,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
-    private val observerSelfUser: GetSelfUserUseCase,
+    private val getSelfUser: GetSelfUserUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
@@ -101,6 +104,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
+    private val workManager: WorkManager,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata
@@ -122,28 +126,28 @@ class GroupConversationDetailsViewModel @Inject constructor(
         observeConversationDetails()
     }
 
+    private suspend fun groupDetailsFlow(): Flow<ConversationDetails.Group> = observeConversationDetails(conversationId)
+        .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+        .map { it.conversationDetails }
+        .filterIsInstance<ConversationDetails.Group>()
+        .distinctUntilChanged()
+        .flowOn(dispatcher.io())
+
     private fun observeConversationDetails() {
         viewModelScope.launch {
-            val groupDetailsFlow =
-                observeConversationDetails(conversationId)
-                    .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
-                    .map { it.conversationDetails }
-                    .filterIsInstance<ConversationDetails.Group>()
-                    .distinctUntilChanged()
-                    .flowOn(dispatcher.io())
-                    .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+            val groupDetailsFlow = groupDetailsFlow()
+                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
             val selfTeam = getSelfTeam().getOrNull()
-            val selfUser = observerSelfUser().first()
+            val selfUser = getSelfUser()
             val isMLSTeam = getDefaultProtocol() == SupportedProtocol.MLS
 
             combine(
                 groupDetailsFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
             ) { groupDetails, selfDeletionTimer ->
-
                 val isSelfInOwnerTeam = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
-                val isSelfExternalMember = selfUser.userType == UserType.EXTERNAL
+                val isSelfExternalMember = selfUser?.userType == UserType.EXTERNAL
                 val isSelfAnAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
                 val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
 
@@ -153,7 +157,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     mutingConversationState = groupDetails.conversation.mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(
                         conversationId = conversationId,
-                        isFromTheSameTeam = groupDetails.conversation.teamId == observerSelfUser().firstOrNull()?.teamId
+                        isFromTheSameTeam = groupDetails.conversation.teamId == getSelfUser()?.teamId
                     ),
                     isTeamConversation = groupDetails.conversation.teamId?.value != null,
                     selfRole = groupDetails.selfRole,
@@ -162,7 +166,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     mlsVerificationStatus = groupDetails.conversation.mlsVerificationStatus,
                     proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
                     isUnderLegalHold = groupDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
-                    isFavorite = groupDetails.isFavorite
+                    isFavorite = groupDetails.isFavorite,
+                    folder = groupDetails.folder,
+                    isDeletingConversationLocallyRunning = false
                 )
 
                 updateState(
@@ -187,21 +193,27 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     fun leaveGroup(
-        leaveGroupState: GroupDialogState,
+        leaveGroupState: LeaveGroupDialogState,
         onSuccess: () -> Unit,
         onFailure: (UIText) -> Unit
     ) {
         viewModelScope.launch {
             requestInProgress = true
             val response = withContext(dispatcher.io()) {
-                val selfUser = observerSelfUser().first()
-                removeMemberFromConversation(
-                    leaveGroupState.conversationId, selfUser.id
-                )
+                getSelfUser()?.let { selfUser ->
+                    removeMemberFromConversation(leaveGroupState.conversationId, selfUser.id)
+                }
             }
             when (response) {
                 is RemoveMemberFromConversationUseCase.Result.Failure -> onFailure(response.cause.uiText())
-                RemoveMemberFromConversationUseCase.Result.Success -> onSuccess()
+                RemoveMemberFromConversationUseCase.Result.Success -> {
+                    if (leaveGroupState.shouldDelete) {
+                        deleteGroupLocally(leaveGroupState, onSuccess, onFailure)
+                    } else {
+                        onSuccess()
+                    }
+                }
+                null -> {}
             }
             requestInProgress = false
         }
@@ -220,6 +232,29 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 Result.Success -> onSuccess()
             }
             requestInProgress = false
+        }
+    }
+
+    fun deleteGroupLocally(
+        groupDialogState: GroupDialogState,
+        onSuccess: () -> Unit,
+        onFailure: (UIText) -> Unit
+    ) {
+        viewModelScope.launch {
+            workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
+                .collect { status ->
+                    when (status) {
+                        ConversationDeletionLocallyStatus.SUCCEEDED -> onSuccess()
+
+                        ConversationDeletionLocallyStatus.FAILED ->
+                            onFailure(UIText.StringResource(R.string.delete_group_conversation_error))
+
+                        ConversationDeletionLocallyStatus.RUNNING,
+                        ConversationDeletionLocallyStatus.IDLE -> {
+                            // nop
+                        }
+                    }
+                }
         }
     }
 
@@ -377,10 +412,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         } else {
             onMessage(UIText.StringResource(R.string.group_content_deleted))
         }
-    }
-
-    @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
     override fun updateConversationArchiveStatus(

@@ -257,7 +257,9 @@ interface AnalyticsEvent {
     }
 
     sealed class QrCode : AnalyticsEvent {
-        data class Click(val isTeam: Boolean) : QrCode() {
+        data class Click(
+            val isTeam: Boolean
+        ) : QrCode() {
             override val key: String = AnalyticsEventConstants.QR_CODE_CLICK
 
             override fun toSegmentation(): Map<String, Any> {
@@ -292,7 +294,9 @@ interface AnalyticsEvent {
         }
     }
 
-    data class UserProfileOpened(val isMigrationDotActive: Boolean) : AnalyticsEvent {
+    data class UserProfileOpened(
+        val isMigrationDotActive: Boolean
+    ) : AnalyticsEvent {
         override val key: String = USER_PROFILE_OPENED
 
         override fun toSegmentation(): Map<String, Any> {
@@ -311,7 +315,7 @@ interface AnalyticsEvent {
             override val key: String = CLICKED_PERSONAL_MIGRATION_CTA_EVENT
 
             override fun toSegmentation(): Map<String, Any> {
-                val segmentations = mutableMapOf<String, Boolean>()
+                val segmentations = mutableMapOf<String, Any>()
                 createTeamButtonClicked?.let {
                     segmentations.put(CLICKED_CREATE_TEAM, it)
                 }
@@ -384,6 +388,8 @@ object AnalyticsEventConstants {
     const val APP_NAME = "app_name"
     const val APP_NAME_ANDROID = "android"
     const val APP_VERSION = "app_version"
+    const val OS_VERSION = "os_version"
+    const val DEVICE_MODEL = "device_model"
     const val TEAM_IS_TEAM = "team_is_team"
     const val APP_OPEN = "app.open"
 

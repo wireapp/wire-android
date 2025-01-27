@@ -23,9 +23,11 @@ import android.content.Intent
 import android.os.Build
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -45,16 +47,18 @@ class ServicesManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
-    private val callServiceEvents = MutableStateFlow(false)
+    private val callServiceEvents = MutableSharedFlow<CallService.Action>()
 
     init {
         scope.launch {
             callServiceEvents
-                .debounce { if (it) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
+                .debounce { action ->
+                    if (action is CallService.Action.Stop) DEBOUNCE_TIME else 0 // debounce to avoid stopping and starting service too fast
+                }
                 .distinctUntilChanged()
-                .collectLatest { shouldBeStarted ->
-                    if (!shouldBeStarted) {
-                        appLogger.i("ServicesManager: stopping CallService because there are no calls")
+                .collectLatest { action ->
+                    if (action is CallService.Action.Stop) {
+                        appLogger.i("$TAG: stopping CallService because there are no calls")
                         when (CallService.serviceState.get()) {
                             CallService.ServiceState.STARTED -> {
                                 // Instead of simply calling stopService(CallService::class), which can end up with a crash if it
@@ -62,46 +66,53 @@ class ServicesManager @Inject constructor(
                                 // or some specific argument that tells the service that it should stop itself right after startForeground.
                                 // This way, when this service is killed and recreated by the system, it will stop itself right after
                                 // recreating so it won't cause any problems.
-                                startService(CallService.newIntentToStop(context))
-                                appLogger.i("ServicesManager: CallService stopped by passing stop argument")
+                                startService(CallService.newIntent(context, CallService.Action.Stop))
+                                appLogger.i("$TAG: CallService stopped by passing stop argument")
                             }
 
                             CallService.ServiceState.FOREGROUND -> {
                                 // we can just stop the service, because it's already in foreground
                                 context.stopService(CallService.newIntent(context))
-                                appLogger.i("ServicesManager: CallService stopped by calling stopService")
+                                appLogger.i("$TAG: CallService stopped by calling stopService")
                             }
 
                             else -> {
-                                appLogger.i("ServicesManager: CallService not running, nothing to stop")
+                                appLogger.i("$TAG: CallService not running, nothing to stop")
                             }
                         }
                     } else {
-                        appLogger.i("ServicesManager: starting CallService")
-                        startService(CallService.newIntent(context))
+                        appLogger.i("$TAG: starting CallService")
+                        startService(CallService.newIntent(context, action))
                     }
                 }
         }
     }
 
     fun startCallService() {
+        appLogger.i("$TAG: start CallService event")
+        scope.launch {
+            callServiceEvents.emit(CallService.Action.Default)
+        }
+    }
+
+    fun startCallServiceToAnswer(userId: UserId, conversationId: ConversationId) {
         appLogger.i("ServicesManager: start CallService event")
         scope.launch {
-            callServiceEvents.emit(true)
+            callServiceEvents.emit(CallService.Action.AnswerCall(userId, conversationId))
         }
     }
 
     fun stopCallService() {
-        appLogger.i("ServicesManager: stop CallService event")
+        appLogger.i("$TAG: stop CallService event")
         scope.launch {
-            callServiceEvents.emit(false)
+            callServiceEvents.emit(CallService.Action.Stop)
         }
     }
 
     // Persistent WebSocket
     fun startPersistentWebSocketService() {
         if (PersistentWebSocketService.isServiceStarted) {
-            appLogger.i("ServicesManager: PersistentWebsocketService already started, not starting again")
+            appLogger.i("$TAG: PersistentWebsocketService already started, not starting again")
         } else {
             startService(PersistentWebSocketService.newIntent(context))
         }
@@ -114,8 +125,21 @@ class ServicesManager @Inject constructor(
     fun isPersistentWebSocketServiceRunning(): Boolean =
         PersistentWebSocketService.isServiceStarted
 
+    // Playing AudioMessage service
+    fun startPlayingAudioMessageService() {
+        if (PlayingAudioMessageService.isServiceStarted) {
+            appLogger.i("$TAG: PlayingAudioMessageService already started, not starting again")
+        } else {
+            startService(PlayingAudioMessageService.newIntent(context))
+        }
+    }
+
+    fun stopPlayingAudioMessageService() {
+        stopService(PlayingAudioMessageService.newIntent(context))
+    }
+
     private fun startService(intent: Intent) {
-        appLogger.i("ServicesManager: starting service for $intent")
+        appLogger.i("$TAG: starting service for $intent")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
         } else {
@@ -124,11 +148,13 @@ class ServicesManager @Inject constructor(
     }
 
     private fun stopService(intent: Intent) {
-        appLogger.i("ServicesManager: stopping service for $intent")
+        appLogger.i("$TAG: stopping service for $intent")
         context.stopService(intent)
     }
 
     companion object {
+        private const val TAG = "ServicesManager"
+
         @VisibleForTesting
         const val DEBOUNCE_TIME = 500L
     }

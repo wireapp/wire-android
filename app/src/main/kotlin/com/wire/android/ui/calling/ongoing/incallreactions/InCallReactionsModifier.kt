@@ -47,6 +47,7 @@ fun Modifier.drawInCallReactions(
     state: InCallReactionsState,
     labelTextColor: Color = Color.White,
     labelColor: Color = Color.Black,
+    enabled: Boolean = true,
     emojiBackgroundColor: Color = colorsScheme().emojiBackgroundColor,
     emojiBackgroundSize: Dp = dimensions().inCallReactionButtonSize,
     emojiTextStyle: TextStyle = typography().inCallReactionEmoji,
@@ -63,6 +64,8 @@ fun Modifier.drawInCallReactions(
     return this then Modifier.drawWithContent {
 
         drawContent()
+
+        if (!enabled) return@drawWithContent
 
         clipRect(left = 0f, top = 0f, right = size.width, bottom = size.height) {
 

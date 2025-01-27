@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -326,7 +327,7 @@ private fun MessageComposerTextInput(
         interactionSource = interactionSource,
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
-        lineLimits = TextFieldLineLimits.MultiLine()
+        lineLimits = TextFieldLineLimits.Default,
     )
 }
 

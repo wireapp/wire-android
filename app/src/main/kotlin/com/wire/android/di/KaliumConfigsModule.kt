@@ -19,6 +19,7 @@
 package com.wire.android.di
 
 import android.content.Context
+import android.os.Build
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.isWebsocketEnabledByDefault

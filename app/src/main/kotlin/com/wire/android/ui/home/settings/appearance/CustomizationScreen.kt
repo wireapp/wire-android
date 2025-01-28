@@ -48,6 +48,9 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.home.settings.SettingsItem
+import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.ThemeData
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.wireColorScheme
@@ -58,24 +61,26 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @RootNavGraph
 @WireDestination
 @Composable
-fun AppearanceScreen(
+fun CustomizationScreen(
     navigator: Navigator,
-    viewModel: AppearanceViewModel = hiltViewModel()
+    viewModel: CustomizationViewModel = hiltViewModel()
 ) {
     val lazyListState: LazyListState = rememberLazyListState()
-    AppearanceScreenContent(
+    CustomizationScreenContent(
         lazyListState = lazyListState,
         state = viewModel.state,
         onThemeOptionChanged = viewModel::selectThemeOption,
-        onBackPressed = navigator::navigateBack
+        onBackPressed = navigator::navigateBack,
+        onEnterToSendClicked = TODO(),
     )
 }
 
 @Composable
-fun AppearanceScreenContent(
-    state: AppearanceState,
+fun CustomizationScreenContent(
+    state: CustomizationState,
     onThemeOptionChanged: (ThemeOption) -> Unit,
     onBackPressed: () -> Unit,
+    onEnterToSendClicked: () -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -105,8 +110,32 @@ fun AppearanceScreenContent(
                 },
                 onItemClicked = onThemeOptionChanged
             )
+            item {
+                CustomizationOptionsContent(
+
+                )
+            }
+
         }
     }
+}
+
+@Composable
+fun CustomizationOptionsContent(
+    enterToSendState: Boolean,
+    enterToSendClicked: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    FolderHeader("Options")
+    SettingsItem(
+        title = stringResource(R.string.press_enter_to_send_title),
+        text = stringResource(R.string.press_enter_to_send_text),
+        switchState = SwitchState.Enabled(
+            isOnOffVisible = true,
+            value = enterToSendState,
+            onCheckedChange = enterToSendClicked
+        )
+    )
 }
 
 private fun LazyListScope.folderWithElements(
@@ -167,8 +196,8 @@ fun ThemeOptionItem(
 @PreviewMultipleThemes
 @Composable
 fun PreviewSettingsScreen() {
-    AppearanceScreenContent(
-        AppearanceState(),
+    CustomizationScreenContent(
+        CustomizationState(),
         {},
         {},
     )

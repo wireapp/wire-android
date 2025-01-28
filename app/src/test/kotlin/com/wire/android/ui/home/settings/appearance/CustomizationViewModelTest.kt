@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-class AppearanceViewModelTest {
+class CustomizationViewModelTest {
 
     @Test
     fun `given theme option, when changing it, then should update global data store`() = runTest {
@@ -53,7 +53,7 @@ class AppearanceViewModelTest {
             every { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.DARK)
         }
 
-        private val viewModel = AppearanceViewModel(globalDataStore)
+        private val viewModel = CustomizationViewModel(globalDataStore)
 
         fun arrange() = this to viewModel
     }

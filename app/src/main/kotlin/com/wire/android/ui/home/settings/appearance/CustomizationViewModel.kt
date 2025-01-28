@@ -30,13 +30,24 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AppearanceViewModel @Inject constructor(
+class CustomizationViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
-    var state by mutableStateOf(AppearanceState())
+    var state by mutableStateOf(CustomizationState())
         private set
 
     init {
+        observeThemeState()
+        observePressEnterToSendState()
+    }
+
+    private fun observePressEnterToSendState() {
+        viewModelScope.launch {
+            globalDataStore.enterToSendFlow().collect { state = state.copy(pressEnterToSentState = it) }
+        }
+    }
+
+    private fun observeThemeState() {
         viewModelScope.launch {
             globalDataStore.selectedThemeOptionFlow().collect { option -> state = state.copy(selectedThemeOption = option) }
         }

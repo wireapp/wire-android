@@ -142,6 +142,10 @@ class HomeViewModel @Inject constructor(
     }
 
     fun sendOpenProfileEvent() {
-        analyticsManager.sendEvent(AnalyticsEvent.UserProfileOpened(homeState.shouldShowCreateTeamUnreadIndicator))
+        analyticsManager.sendEvent(
+            AnalyticsEvent.UserProfileOpened(
+                isMigrationDotActive = homeState.shouldShowCreateTeamUnreadIndicator
+            )
+        )
     }
 }

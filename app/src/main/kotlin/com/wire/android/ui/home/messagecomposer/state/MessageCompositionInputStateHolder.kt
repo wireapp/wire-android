@@ -74,18 +74,21 @@ class MessageCompositionInputStateHolder(
         }
     }
 
-    fun handleImeOffsetChange(offset: Dp, navBarHeight: Dp, source: Dp, target: Dp) {
-        val actualOffset = max(offset - navBarHeight, 0.dp)
-        val actualTarget = max(target - navBarHeight, 0.dp)
+    fun handleImeOffsetChange(offset: Dp, navBarHeight: Dp, systemGesturesHeight: Dp, target: Dp) {
+        val bottomInset = if (navBarHeight == systemGesturesHeight) {
+            // mean there is 3 buttons navigation and we need to use only dots height
+            navBarHeight
+        } else {
+            // mean there is gesture navigation and we need to use both of insets
+            navBarHeight + systemGesturesHeight
+        }
+        val actualOffset = max(offset - bottomInset, 0.dp)
+        val actualTarget = max(target - bottomInset, 0.dp)
 
         // this check secures that if some additional space will be added to keyboard
         // like gifs search it will save initial keyboard height
-        if (source == target && source > 0.dp) {
-            optionsHeight = actualOffset
-        }
-
-        if (source == target) {
-            if (source > 0.dp) {
+        if (offset == target) {
+            if (offset > 0.dp) {
                 if (keyboardHeight == 0.dp) {
                     keyboardHeight = actualOffset
                 }

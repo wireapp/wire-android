@@ -1126,6 +1126,9 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="label_mls_client_id">MLS Client-ID</string>
     <string name="conversation_empty_list_description">Verbinden Sie sich mit anderen oder erstellen Sie eine neue Gruppe, um zu kommunizieren!</string>
     <string name="favorites_empty_list_description">Wählen Sie Ihre Lieblingsunterhaltungen aus, und Sie werden sie hier finden 👍</string>
+    <string name="group_empty_list_description">Bislang sind Sie an keiner Gruppenunterhaltung beteiligt.\nBeginnen Sie eine neue Unterhaltung!</string>
+    <string name="one_on_one_empty_list_description">Sie haben noch keine Kontakte.\nSuchen Sie nach Personen auf %1$s und treten Sie in Kontakt.</string>
+    <string name="favorites_empty_list_how_to_label">So kennzeichnen Sie Unterhaltungen als Favoriten</string>
     <string name="folders_empty_list_description">Fügen Sie Ihre Unterhaltungen Ordnern hinzu, um organisiert zu bleiben.</string>
     <string name="folders_empty_list_how_to_add">Hinzufügen einer Unterhaltung zu einem Ordner</string>
     <string name="conversation_empty_list_title">Willkommen 👋</string>
@@ -1138,6 +1141,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="label_textfield_optional_password">Passwort (optional)</string>
     <string name="label_proteus_details">Proteus-Gerätedetails</string>
     <string name="label_mls_signature">MLS mit %1$s Signatur</string>
+    <string name="label_mls_no_signature_type">MLS</string>
     <string name="label_mls_thumbprint">MLS-Daumenabdruck</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Passwort festlegen</string>
@@ -1161,6 +1165,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="backup_dialog_restore_backup_password_message">Dieses Backup ist passwortgeschützt.</string>
     <!--    report bug-->
     <string name="send_feedback_choose_email">\"E-Mail-Anbieter auswählen:\"</string>
+    <string name="send_bug_report_subject">Fehlerbericht</string>
     <string name="backup_dialog_create_backup_save">Datei speichern</string>
     <string name="backup_dialog_create_backup_share">Datei teilen</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Inkompatibles Backup</string>
@@ -1481,6 +1486,9 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <string name="ping_confirm_sending_title_dialog">Ping senden</string>
+    <string name="ping_confirm_sending_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anpingen möchten?</string>
+    <string name="ping_confirm_sending_action_dialog">Ping</string>
     <!-- Call Feedback Dialog -->
     <string name="call_feedback_dialog_message">Wie beurteilen Sie die Gesamtqualität des Anrufs?</string>
     <string name="call_feedback_dialog_skip">Überspringen</string>

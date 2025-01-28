@@ -52,7 +52,6 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
-import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.ThemeData
 import com.wire.android.ui.theme.ThemeOption
@@ -119,7 +118,6 @@ fun CustomizationScreenContent(
                     enterToSendClicked = onEnterToSendClicked
                 )
             }
-
         }
     }
 }

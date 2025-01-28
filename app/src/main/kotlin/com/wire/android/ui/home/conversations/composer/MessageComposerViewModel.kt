@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.SavedStateViewModel

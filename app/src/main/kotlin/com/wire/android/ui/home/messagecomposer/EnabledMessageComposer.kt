@@ -39,7 +39,11 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemGestures
+import androidx.compose.foundation.layout.tappableElement
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.GenericShape
@@ -115,6 +119,7 @@ fun EnabledMessageComposer(
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
     val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
+    val systemGestures = WindowInsets.systemGestures.getBottom(density)
     val rippleProgress = remember { Animatable(0f) }
     var hideRipple by remember { mutableStateOf(true) }
 
@@ -126,6 +131,7 @@ fun EnabledMessageComposer(
                 inputStateHolder.handleImeOffsetChange(
                     offsetY.toDp(),
                     navBarHeight,
+                    systemGestures.toDp(),
                     imeAnimationTarget.toDp()
                 )
             }

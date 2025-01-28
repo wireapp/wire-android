@@ -74,9 +74,9 @@ class MessageCompositionInputStateHolder(
         }
     }
 
-    fun handleImeOffsetChange(offset: Dp, navBarHeight: Dp, target: Dp) {
-        val actualOffset = max(offset - navBarHeight, 0.dp)
-        val actualTarget = max(target - navBarHeight, 0.dp)
+    fun handleImeOffsetChange(offset: Dp, navBarHeight: Dp, systemGesturesHeight: Dp, target: Dp) {
+        val actualOffset = max(offset - navBarHeight - systemGesturesHeight, 0.dp)
+        val actualTarget = max(target - navBarHeight - systemGesturesHeight, 0.dp)
 
         // this check secures that if some additional space will be added to keyboard
         // like gifs search it will save initial keyboard height

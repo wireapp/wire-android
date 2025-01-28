@@ -122,6 +122,7 @@ fun EnabledMessageComposer(
     val systemGestures = WindowInsets.systemGestures.getBottom(density)
     val rippleProgress = remember { Animatable(0f) }
     var hideRipple by remember { mutableStateOf(true) }
+    println("cyka systemGestures $systemGestures navBarHeight $navBarHeight")
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder

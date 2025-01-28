@@ -257,7 +257,9 @@ class WireApplication : BaseApp() {
                     val currentSessionResult = coreLogic.get().getGlobalScope().session.currentSessionFlow().first()
                     val isTeamMember = if (currentSessionResult is CurrentSessionResult.Success) {
                         coreLogic.get().getSessionScope(currentSessionResult.accountInfo.userId).team.isSelfATeamMember()
-                    } else null
+                    } else {
+                        null
+                    }
 
                     AnonymousAnalyticsManagerImpl.sendEvent(
                         AnalyticsEvent.AppOpen(isTeamMember)

@@ -1108,7 +1108,7 @@
     <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
     <!--Settings, Appearance -->
-    <string name="settings_appearance_label">Appearance</string>
+    <string name="settings_customization_label">Customization</string>
     <string name="settings_appearance_theme_label">Theme</string>
     <string name="settings_appearance_theme_option_system">Sync with system settings</string>
     <string name="settings_appearance_theme_option_default_hint">(Default)</string>
@@ -1688,7 +1688,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="move_to_folder_success">“%1$s” was moved to “%2$s”</string>
     <string name="move_to_folder_failed">“%1$s” could not be moved</string>
     <string name="remove_from_folder_success">“%1$s” was removed from “%2$s”</string>
-    <string name="remove_from_folder_failed">“%1$s” could not be removed</string>
+    <string name="remove_from_folder_failed">“%1$s” could no`t be removed</string>
     <string name="new_folder_folder_name">FOLDER NAME</string>
     <string name="new_folder_create_folder">Create Folder</string>
     <string name="new_folder_error_name_exist">A folder with this name already exists. Please choose another name.</string>

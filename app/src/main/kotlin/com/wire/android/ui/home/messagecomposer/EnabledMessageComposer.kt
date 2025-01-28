@@ -228,13 +228,14 @@ fun EnabledMessageComposer(
                         }
                         val keyboardOptions by remember {
                             derivedStateOf {
-                                if (messageComposerStateHolder.messageComposerViewState.value.enterToSend) {
+                                if (messageComposerViewState.value.enterToSend) {
                                     KeyboardOptions.Companion.MessageComposerEnterToSend
                                 } else {
                                     KeyboardOptions.Companion.MessageComposerDefault
                                 }
                             }
                         }
+
                         val keyboardActionHandler by remember {
                             derivedStateOf {
                                 KeyboardActionHandler {

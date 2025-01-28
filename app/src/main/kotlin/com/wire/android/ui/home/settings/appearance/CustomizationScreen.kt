@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.settings.appearance
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,6 +49,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversations.details.options.ArrowType
+import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.SwitchState
@@ -71,7 +74,7 @@ fun CustomizationScreen(
         state = viewModel.state,
         onThemeOptionChanged = viewModel::selectThemeOption,
         onBackPressed = navigator::navigateBack,
-        onEnterToSendClicked = TODO(),
+        onEnterToSendClicked = viewModel::selectPressEnterToSendOption,
     )
 }
 
@@ -80,7 +83,7 @@ fun CustomizationScreenContent(
     state: CustomizationState,
     onThemeOptionChanged: (ThemeOption) -> Unit,
     onBackPressed: () -> Unit,
-    onEnterToSendClicked: () -> Unit,
+    onEnterToSendClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -91,7 +94,7 @@ fun CustomizationScreenContent(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onBackPressed,
                 elevation = 0.dp,
-                title = stringResource(id = R.string.settings_appearance_label)
+                title = stringResource(id = R.string.settings_customization_label)
             )
         }
     ) { internalPadding ->
@@ -112,7 +115,8 @@ fun CustomizationScreenContent(
             )
             item {
                 CustomizationOptionsContent(
-
+                    enterToSendState = state.pressEnterToSentState,
+                    enterToSendClicked = onEnterToSendClicked
                 )
             }
 
@@ -126,16 +130,18 @@ fun CustomizationOptionsContent(
     enterToSendClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    FolderHeader("Options")
-    SettingsItem(
-        title = stringResource(R.string.press_enter_to_send_title),
-        text = stringResource(R.string.press_enter_to_send_text),
-        switchState = SwitchState.Enabled(
-            isOnOffVisible = true,
-            value = enterToSendState,
-            onCheckedChange = enterToSendClicked
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
+        FolderHeader("Options")
+        GroupConversationOptionsItem(
+            title = stringResource(R.string.press_enter_to_send_title),
+            switchState = SwitchState.Enabled(value = enterToSendState, onCheckedChange = enterToSendClicked),
+            arrowType = ArrowType.NONE,
+            subtitle = stringResource(id = R.string.press_enter_to_send_text)
         )
-    )
+    }
 }
 
 private fun LazyListScope.folderWithElements(
@@ -198,6 +204,7 @@ fun ThemeOptionItem(
 fun PreviewSettingsScreen() {
     CustomizationScreenContent(
         CustomizationState(),
+        {},
         {},
         {},
     )

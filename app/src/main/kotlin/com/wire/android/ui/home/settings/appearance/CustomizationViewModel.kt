@@ -53,6 +53,12 @@ class CustomizationViewModel @Inject constructor(
         }
     }
 
+    fun selectPressEnterToSendOption(option: Boolean) {
+        viewModelScope.launch {
+            globalDataStore.setEnterToSend(option)
+        }
+    }
+
     fun selectThemeOption(option: ThemeOption) {
         viewModelScope.launch {
             globalDataStore.setThemeOption(option)

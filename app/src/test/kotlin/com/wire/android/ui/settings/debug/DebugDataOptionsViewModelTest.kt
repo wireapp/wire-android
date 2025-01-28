@@ -263,9 +263,6 @@ internal class DebugDataOptionsHiltArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(UnconfinedTestDispatcher())
 
-        every {
-            globalDataStore.isEncryptedProteusStorageEnabled()
-        } returns flowOf(true)
         coEvery {
             mlsKeyPackageCount()
         } returns MLSKeyPackageCountResult.Success(ClientId("clientId"), 1, false)

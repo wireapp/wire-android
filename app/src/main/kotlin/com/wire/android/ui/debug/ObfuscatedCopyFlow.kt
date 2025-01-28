@@ -1,0 +1,117 @@
+/*
+ * Wire
+ * Copyright (C) 2025 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+package com.wire.android.ui.debug
+
+import android.net.Uri
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
+import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
+import com.wire.android.ui.home.settings.backup.BackupCreationProgress
+import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
+import com.wire.android.ui.home.settings.backup.dialog.create.BackUpDialogStep
+import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialog
+import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialogStateHolder
+import com.wire.android.ui.home.settings.backup.dialog.create.SetBackupPasswordDialog
+import com.wire.android.ui.home.settings.backup.dialog.create.rememberBackUpDialogState
+
+@Composable
+fun CreateObfuscatedCopyFlow(
+    backUpAndRestoreState: BackupAndRestoreState,
+    backupPasswordTextState: TextFieldState,
+    onCreateBackup: () -> Unit,
+    onSaveBackup: (Uri) -> Unit,
+    onShareBackup: () -> Unit,
+    onCancelCreateBackup: () -> Unit,
+    onPermissionPermanentlyDenied: () -> Unit,
+) {
+    val obfuscatedCopyDialogStateHolder = rememberBackUpDialogState()
+
+    with(obfuscatedCopyDialogStateHolder) {
+        when (currentBackupDialogStep) {
+            BackUpDialogStep.SetPassword -> {
+                SetBackupPasswordDialog(
+                    passwordValidation = backUpAndRestoreState.passwordValidation,
+                    backupPasswordTextState = backupPasswordTextState,
+                    onCreateBackup = {
+                        toCreatingBackup()
+                        onCreateBackup()
+                    },
+                    onDismissDialog = onCancelCreateBackup
+                )
+            }
+
+            is BackUpDialogStep.CreatingBackup,
+            is BackUpDialogStep.Finished -> {
+                CreateBackupStep(
+                    backUpAndRestoreState = backUpAndRestoreState,
+                    backupDialogStateHolder = obfuscatedCopyDialogStateHolder,
+                    onSaveBackup = onSaveBackup,
+                    onShareBackup = onShareBackup,
+                    onCancelCreateBackup = onCancelCreateBackup,
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                )
+            }
+
+            BackUpDialogStep.Failure -> {
+                FailureDialog(
+                    title = stringResource(R.string.backup_dialog_create_error_title),
+                    message = stringResource(R.string.backup_dialog_create_error_subtitle),
+                    onDismiss = onCancelCreateBackup
+                )
+            }
+        }
+    }
+
+    BackHandler(obfuscatedCopyDialogStateHolder.currentBackupDialogStep !is BackUpDialogStep.CreatingBackup) {
+        onCancelCreateBackup()
+    }
+}
+
+@Composable
+private fun CreateBackupStep(
+    backUpAndRestoreState: BackupAndRestoreState,
+    backupDialogStateHolder: CreateBackupDialogStateHolder,
+    onSaveBackup: (Uri) -> Unit,
+    onShareBackup: () -> Unit,
+    onCancelCreateBackup: () -> Unit,
+    onPermissionPermanentlyDenied: () -> Unit,
+) {
+    with(backupDialogStateHolder) {
+        LaunchedEffect(backUpAndRestoreState.backupCreationProgress) {
+            when (val progress = backUpAndRestoreState.backupCreationProgress) {
+                BackupCreationProgress.Failed -> toBackupFailure()
+                is BackupCreationProgress.Finished -> toFinished(progress.fileName)
+                is BackupCreationProgress.InProgress -> toCreatingBackup(progress.value)
+            }
+        }
+
+        CreateBackupDialog(
+            isBackupCreationCompleted = isBackupFinished,
+            createBackupProgress = backupProgress,
+            onSaveBackup = onSaveBackup,
+            onShareBackup = onShareBackup,
+            backupFileName = backupFileName,
+            onDismissDialog = onCancelCreateBackup,
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+        )
+    }
+}

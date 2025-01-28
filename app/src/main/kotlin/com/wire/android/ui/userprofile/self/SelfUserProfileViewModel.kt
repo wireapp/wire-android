@@ -57,8 +57,8 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserU
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.functional.getOrNull
@@ -318,7 +318,11 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     fun trackQrCodeClick() {
-        anonymousAnalyticsManager.sendEvent(AnalyticsEvent.QrCode.Click(!userProfileState.teamName.isNullOrBlank()))
+        anonymousAnalyticsManager.sendEvent(
+            AnalyticsEvent.QrCode.Click(
+                isTeam = !userProfileState.teamName.isNullOrBlank()
+            )
+        )
     }
 
     fun sendPersonalToTeamMigrationEvent() {

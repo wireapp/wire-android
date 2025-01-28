@@ -93,7 +93,9 @@ class TeamMigrationViewModelTest {
 
             verify(exactly = 1) {
                 arrangement.anonymousAnalyticsManager.sendEvent(
-                    AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(step)
+                    AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(
+                        step = step
+                    )
                 )
             }
         }

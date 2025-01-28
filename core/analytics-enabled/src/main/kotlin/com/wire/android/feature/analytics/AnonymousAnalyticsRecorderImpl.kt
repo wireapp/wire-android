@@ -20,15 +20,23 @@ package com.wire.android.feature.analytics
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.APP_NAME
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.APP_VERSION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.DEVICE_MODEL
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.OS_VERSION
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import ly.count.android.sdk.Countly
 import ly.count.android.sdk.CountlyConfig
 import ly.count.android.sdk.UtilsInternalLimits
 
-class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
+class AnonymousAnalyticsRecorderImpl(
+    private val appVersion: String,
+    private val appName: String
+) : AnonymousAnalyticsRecorder {
 
     private var isConfigured: Boolean = false
 
@@ -60,8 +68,8 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
 
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         val globalSegmentations = mapOf<String, Any>(
-            AnalyticsEventConstants.APP_NAME to AnalyticsEventConstants.APP_NAME_ANDROID,
-            AnalyticsEventConstants.APP_VERSION to packageInfo.versionName
+            APP_NAME to AnalyticsEventConstants.APP_NAME_ANDROID,
+            APP_VERSION to packageInfo.versionName
         )
         Countly.sharedInstance()?.views()?.setGlobalViewSegmentation(globalSegmentations)
         isConfigured = true
@@ -81,7 +89,14 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
      * See [UtilsInternalLimits.removeUnsupportedDataTypes]
      */
     override fun sendEvent(event: AnalyticsEvent) = wrapCountlyRequest {
-        Countly.sharedInstance()?.events()?.recordEvent(event.key, event.toSegmentation().toMutableMap())
+        Countly.sharedInstance()?.events()?.recordEvent(
+            event.key,
+            event.toSegmentation().toMutableMap()
+                .plus(APP_VERSION to appVersion)
+                .plus(APP_NAME to appName)
+                .plus(DEVICE_MODEL to Build.MODEL)
+                .plus(OS_VERSION to Build.VERSION.RELEASE)
+        )
     }
 
     override fun halt() = wrapCountlyRequest {

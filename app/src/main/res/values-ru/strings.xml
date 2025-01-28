@@ -1242,6 +1242,7 @@
     <string name="label_textfield_optional_password">Пароль (необязательно)</string>
     <string name="label_proteus_details">Информация устройства Proteus</string>
     <string name="label_mls_signature">MLS с подписью %1$s</string>
+    <string name="label_mls_no_signature_type">MLS</string>
     <string name="label_mls_thumbprint">Отпечаток MLS</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Установить пароль</string>

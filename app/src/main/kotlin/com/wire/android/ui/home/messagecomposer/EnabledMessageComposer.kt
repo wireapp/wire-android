@@ -315,7 +315,7 @@ fun EnabledMessageComposer(
                 }
             }
             if ((inputStateHolder.optionsVisible || rippleProgress.value > 0f) && !bottomSheetVisible) {
-                Popup( // cyka this popup
+                Popup(
                     alignment = Alignment.BottomCenter,
                     properties = PopupProperties(
                         dismissOnBackPress = true,

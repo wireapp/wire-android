@@ -187,7 +187,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock
-                anonymousAnalyticsRecorder?.recordView(screen)
+                anonymousAnalyticsRecorder?.recordView(screen.convertToCamelCase())
             }
         }
     }
@@ -200,7 +200,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock
-                anonymousAnalyticsRecorder?.stopView(screen)
+                anonymousAnalyticsRecorder?.stopView(screen.convertToCamelCase())
             }
         }
     }

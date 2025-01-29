@@ -36,6 +36,7 @@ open class AnonymousAnalyticsRecorderStub : AnonymousAnalyticsRecorder {
     override suspend fun setTrackingIdentifierWithMerge(
         identifier: String,
         isTeamMember: Boolean,
+        contactsSize: Int,
         migrationComplete: suspend () -> Unit
     ) = Unit
 
@@ -43,6 +44,7 @@ open class AnonymousAnalyticsRecorderStub : AnonymousAnalyticsRecorder {
         identifier: String,
         shouldPropagateIdentifier: Boolean,
         isTeamMember: Boolean,
+        contactsSize: Int,
         propagateIdentifier: suspend () -> Unit
     ) = Unit
 

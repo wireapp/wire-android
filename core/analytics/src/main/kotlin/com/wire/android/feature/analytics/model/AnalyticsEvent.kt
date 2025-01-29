@@ -405,6 +405,7 @@ object AnalyticsEventConstants {
     const val OS_VERSION = "os_version"
     const val DEVICE_MODEL = "device_model"
     const val TEAM_IS_TEAM = "team_is_team"
+    const val USER_CONTACTS = "user_contacts"
     const val APP_OPEN = "app.open"
 
     const val IS_TEAM_MEMBER = "is_team_member"

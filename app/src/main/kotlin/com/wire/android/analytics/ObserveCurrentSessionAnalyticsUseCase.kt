@@ -48,6 +48,7 @@ interface ObserveCurrentSessionAnalyticsUseCase {
 fun ObserveCurrentSessionAnalyticsUseCase(
     currentSessionFlow: Flow<CurrentSessionResult>,
     isUserTeamMember: suspend (UserId) -> Boolean,
+    getContactsSize: suspend (UserId) -> Int,
     observeAnalyticsTrackingIdentifierStatusFlow: suspend (UserId) -> Flow<AnalyticsIdentifierResult>,
     analyticsIdentifierManagerProvider: (UserId) -> AnalyticsIdentifierManager,
     userDataStoreProvider: UserDataStoreProvider,
@@ -61,6 +62,7 @@ fun ObserveCurrentSessionAnalyticsUseCase(
         .flatMapLatest {
             if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
                 val userId = it.accountInfo.userId
+                val contactsSize = getContactsSize(userId)
                 val isTeamMember = isUserTeamMember(userId)
                 val analyticsIdentifierManager = analyticsIdentifierManagerProvider(userId)
 
@@ -88,12 +90,14 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                         AnalyticsResult(
                             identifierResult = identifierResult,
                             isTeamMember = isTeamMember,
+                            contactsSize = contactsSize,
                             manager = analyticsIdentifierManager
                         )
                     } else {
                         AnalyticsResult(
                             identifierResult = AnalyticsIdentifierResult.Disabled,
                             isTeamMember = isTeamMember,
+                            contactsSize = contactsSize,
                             manager = analyticsIdentifierManager
                         )
                     }
@@ -103,6 +107,7 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                     AnalyticsResult<AnalyticsIdentifierManager>(
                         identifierResult = AnalyticsIdentifierResult.Disabled,
                         isTeamMember = false,
+                        contactsSize = 0,
                         manager = null
                     )
                 )

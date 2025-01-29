@@ -18,15 +18,22 @@
 package com.wire.android.workmanager.worker
 
 import android.content.Context
+import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
+import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.wire.android.R
+import com.wire.android.notification.NotificationChannelsManager
+import com.wire.android.notification.NotificationConstants
+import com.wire.android.notification.NotificationIds
+import com.wire.android.notification.openAppPendingIntent
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
@@ -54,7 +61,8 @@ import kotlinx.coroutines.flow.mapNotNull
 class DeleteConversationLocallyWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val coreLogic: CoreLogic
+    private val coreLogic: CoreLogic,
+    private val notificationChannelsManager: NotificationChannelsManager
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result = coroutineScope {
         inputData.getString(CONVERSATION_ID)?.let { id ->
@@ -69,6 +77,26 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
                 Result.failure()
             }
         } ?: Result.failure()
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        notificationChannelsManager.createRegularChannel(
+            NotificationConstants.OTHER_CHANNEL_ID,
+            NotificationConstants.OTHER_CHANNEL_NAME
+        )
+
+        val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
+            .setSmallIcon(R.drawable.notification_icon_small)
+            .setAutoCancel(true)
+            .setSilent(true)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setProgress(0, 0, true)
+            .setContentTitle(applicationContext.getString(R.string.notification_deleting_conversation))
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setContentIntent(openAppPendingIntent(applicationContext))
+            .build()
+
+        return ForegroundInfo(NotificationIds.DELETING_CONVERSATION_NOTIFICATION_ID.ordinal, notification)
     }
 
     companion object {

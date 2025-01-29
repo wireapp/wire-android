@@ -65,7 +65,7 @@ class WireWorkerFactory @Inject constructor(
                 PersistentWebsocketCheckWorker(appContext, workerParameters, startPersistentWebsocketIfNecessary)
 
             DeleteConversationLocallyWorker::class.java.canonicalName ->
-                DeleteConversationLocallyWorker(appContext, workerParameters, coreLogic)
+                DeleteConversationLocallyWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)
 
             else -> null
         }

@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -57,8 +58,8 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
 import com.wire.android.ui.home.settings.backup.rememberBackUpAndRestoreStateHolder
-import com.wire.android.util.AppNameUtil
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
@@ -141,7 +142,10 @@ internal fun UserDebugContent(
 @Composable
 fun DangerOptions(
     modifier: Modifier = Modifier,
-    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = hiltViewModel()
+    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel =
+        hiltViewModelScoped<ExportObfuscatedCopyViewModelImpl, ExportObfuscatedCopyViewModel, ExportObfuscatedCopyArgs>(
+            ExportObfuscatedCopyArgs
+        ),
 ) {
 
     Column(modifier = modifier) {

@@ -27,6 +27,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.ScopedArgs
+import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
@@ -40,65 +42,93 @@ import com.wire.kalium.util.DelicateKaliumApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
+@ViewModelScopedPreview
+interface ExportObfuscatedCopyViewModel {
+
+    val state: BackupAndRestoreState get() = BackupAndRestoreState.INITIAL_STATE
+
+    val createBackupPasswordState: TextFieldState
+        get() = TextFieldState()
+
+    fun createObfuscatedCopy() {}
+    fun shareCopy() {}
+    fun saveCopy(uri: Uri) {}
+    fun cancelBackupCreation() {}
+}
+
 @HiltViewModel
-class ExportObfuscatedCopyViewModel @OptIn(DelicateKaliumApi::class) @Inject constructor(
+class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @Inject constructor(
     private val createUnencryptedCopy: CreateObfuscatedCopyUseCase,
     private val dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     private val fileManager: FileManager,
-) : ViewModel() {
+) : ViewModel(), ExportObfuscatedCopyViewModel {
 
-    var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
+    override var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
 
-    val createBackupPasswordState: TextFieldState = TextFieldState()
+    override val createBackupPasswordState: TextFieldState = TextFieldState()
 
     @VisibleForTesting
     internal var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
 
     @OptIn(DelicateKaliumApi::class)
-    fun createObfuscatedCopy() = viewModelScope.launch {
+    override fun createObfuscatedCopy() {
+        viewModelScope.launch {
 
-        when (val result = createUnencryptedCopy(null)) {
-            is CreateBackupResult.Success -> {
-                state = state.copy(backupCreationProgress = BackupCreationProgress.Finished(result.backupFileName))
-                latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
-                    result.backupFilePath,
-                    result.backupFileName,
-                    result.backupFileSize,
-                    false
-                )
-            }
+            when (val result = createUnencryptedCopy(null)) {
+                is CreateBackupResult.Success -> {
+                    state = state.copy(backupCreationProgress = BackupCreationProgress.Finished(result.backupFileName))
+                    latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
+                        result.backupFilePath,
+                        result.backupFileName,
+                        result.backupFileSize,
+                        false
+                    )
+                }
 
-            is CreateBackupResult.Failure -> {
-                state = state.copy(backupCreationProgress = BackupCreationProgress.Failed)
-                appLogger.e("Failed to create backup: ${result.coreFailure}")
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupExportFailed)
+                is CreateBackupResult.Failure -> {
+                    state = state.copy(backupCreationProgress = BackupCreationProgress.Failed)
+                    appLogger.e("Failed to create backup: ${result.coreFailure}")
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupExportFailed)
+                }
             }
+        }
+    }
+
+    override fun shareCopy() {
+        viewModelScope.launch {
+            latestCreatedBackup?.let { backupData ->
+                withContext(dispatcher.io()) {
+                    fileManager.shareWithExternalApp(backupData.path, backupData.assetName) {}
+                }
+            }
+            state = state.copy(
+                backupCreationProgress = BackupCreationProgress.InProgress(),
+            )
         }
     }
 
-    fun shareCopy() = viewModelScope.launch {
-        latestCreatedBackup?.let { backupData ->
-            withContext(dispatcher.io()) {
-                fileManager.shareWithExternalApp(backupData.path, backupData.assetName) {}
+    override fun saveCopy(uri: Uri) {
+        viewModelScope.launch {
+            latestCreatedBackup?.let { backupData ->
+                fileManager.copyToUri(backupData.path, uri, dispatcher)
             }
+            state = state.copy(
+                backupCreationProgress = BackupCreationProgress.InProgress(),
+            )
         }
-        state = state.copy(
-            backupCreationProgress = BackupCreationProgress.InProgress(),
-        )
     }
 
-    fun saveCopy(uri: Uri) = viewModelScope.launch {
-        latestCreatedBackup?.let { backupData ->
-            fileManager.copyToUri(backupData.path, uri, dispatcher)
+    override fun cancelBackupCreation() {
+        viewModelScope.launch(dispatcher.main()) {
+            createBackupPasswordState.clearText()
         }
-        state = state.copy(
-            backupCreationProgress = BackupCreationProgress.InProgress(),
-        )
     }
+}
 
-    fun cancelBackupCreation() = viewModelScope.launch(dispatcher.main()) {
-        createBackupPasswordState.clearText()
-    }
+@Serializable
+object ExportObfuscatedCopyArgs : ScopedArgs {
+    override val key = "ExportObfuscatedCopyArgsKey"
 }

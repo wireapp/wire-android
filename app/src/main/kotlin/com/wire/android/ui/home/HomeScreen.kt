@@ -181,7 +181,8 @@ fun HomeScreen(
         homeStateHolder = homeScreenState,
         onNewConversationClick = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
         onSelfUserClick = {
-            homeViewModel.sendOpenProfileEvent()
+            // Temporarily stopping sending ui.clicked-profile event
+            // homeViewModel.sendOpenProfileEvent()
             navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
         },
         folders = foldersViewModel.state().folders

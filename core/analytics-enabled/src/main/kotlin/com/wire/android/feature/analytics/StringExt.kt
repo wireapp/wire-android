@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.userprofile.qr
+package com.wire.android.feature.analytics
 
-import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.kalium.logic.data.user.UserId
-
-data class SelfQRCodeState(
-    val userId: UserId,
-    val avatarAsset: UserAvatarAsset? = null,
-    val handle: String = "",
-    val userProfileLink: String = "",
-    val userAccountProfileLink: String = "",
-    val hasError: Boolean = false,
-    val isTeamMember: Boolean = false
-)
+/**
+ * Converts a snake_case string to camelCase.
+ */
+fun String.convertToCamelCase(): String {
+    return this
+        .split('_')
+        .joinToString("") { it.replaceFirstChar { char -> char.uppercase() } }
+}

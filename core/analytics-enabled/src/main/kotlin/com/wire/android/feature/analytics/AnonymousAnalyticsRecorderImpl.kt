@@ -142,12 +142,13 @@ class AnonymousAnalyticsRecorderImpl(
         isTeamMember: Boolean,
         contactsSize: Int
     ) = wrapCountlyRequest {
-        Countly.sharedInstance()?.userProfile()?.setProperties(
-            mapOf(
-                AnalyticsEventConstants.TEAM_IS_TEAM to isTeamMember,
-                USER_CONTACTS to contactsSize
-            )
+        val properties = mutableMapOf<String, Any>(
+            AnalyticsEventConstants.TEAM_IS_TEAM to isTeamMember
         )
+        if (!isTeamMember) {
+            properties.plus(USER_CONTACTS to contactsSize)
+        }
+        Countly.sharedInstance()?.userProfile()?.setProperties(properties)
 
         Countly.sharedInstance()?.userProfile()?.save()
     }

@@ -90,7 +90,6 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
             .setAutoCancel(true)
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setProgress(0, 0, true)
             .setContentTitle(applicationContext.getString(R.string.notification_deleting_conversation))
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setContentIntent(openAppPendingIntent(applicationContext))

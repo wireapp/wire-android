@@ -72,7 +72,6 @@ class PersistentWebsocketCheckWorker
             .setAutoCancel(true)
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setProgress(0, 0, true)
             .setContentTitle(title)
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setContentIntent(openAppPendingIntent(applicationContext))

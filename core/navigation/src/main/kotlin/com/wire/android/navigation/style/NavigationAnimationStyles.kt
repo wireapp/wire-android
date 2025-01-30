@@ -30,12 +30,12 @@ object PopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle 
 
 object AuthSlideNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
-    override fun backgroundType(): BackgroundType  = BackgroundType.Auth
+    override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
 object AuthPopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
-    override fun backgroundType(): BackgroundType  = BackgroundType.Auth
+    override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
 object AuthNoNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {

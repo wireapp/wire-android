@@ -84,7 +84,8 @@ fun NewLoginContainer(
                     content()
                 }
             }
-        }) { _ -> }
+        }
+    ) { _ -> }
 }
 
 @Composable

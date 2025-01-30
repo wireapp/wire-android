@@ -410,8 +410,8 @@ class AnonymousAnalyticsManagerTest {
             every { anonymousAnalyticsRecorder.recordView(any()) } returns Unit
             every { anonymousAnalyticsRecorder.stopView(any()) } returns Unit
             every { anonymousAnalyticsRecorder.applicationOnCreate() } returns Unit
-            coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithMerge(any(), any(), any()) } returns Unit
-            coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithoutMerge(any(), any(), any(), any()) } returns Unit
+            coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithMerge(any(), any(), any(), any()) } returns Unit
+            coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithoutMerge(any(), any(), any(), any(), any()) } returns Unit
         }
 
         private val manager by lazy {
@@ -451,6 +451,7 @@ class AnonymousAnalyticsManagerTest {
             val existingIdentifierResult = AnalyticsResult<DummyManager>(
                 identifierResult = AnalyticsIdentifierResult.ExistingIdentifier(CURRENT_IDENTIFIER),
                 isTeamMember = true,
+                contactsSize = 0,
                 manager = dummyManager()
             )
             val disabledIdentifierResult = existingIdentifierResult.copy(

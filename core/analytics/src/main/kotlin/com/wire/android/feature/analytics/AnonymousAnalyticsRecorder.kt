@@ -39,6 +39,7 @@ interface AnonymousAnalyticsRecorder {
     suspend fun setTrackingIdentifierWithMerge(
         identifier: String,
         isTeamMember: Boolean,
+        contactsSize: Int,
         migrationComplete: suspend () -> Unit
     )
 
@@ -46,6 +47,7 @@ interface AnonymousAnalyticsRecorder {
         identifier: String,
         shouldPropagateIdentifier: Boolean,
         isTeamMember: Boolean,
+        contactsSize: Int,
         propagateIdentifier: suspend () -> Unit
     )
 

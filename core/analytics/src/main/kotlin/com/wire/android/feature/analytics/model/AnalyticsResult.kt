@@ -22,5 +22,6 @@ import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 data class AnalyticsResult<T>(
     val identifierResult: AnalyticsIdentifierResult,
     val isTeamMember: Boolean,
+    val contactsSize: Int,
     val manager: T?
 )

@@ -77,6 +77,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                             handleTrackingIdentifier(
                                 analyticsIdentifierResult = analyticsResult.identifierResult,
                                 isTeamMember = analyticsResult.isTeamMember,
+                                contactsSize = analyticsResult.contactsSize,
                                 propagateIdentifier = {
                                     analyticsResult.manager?.let { propagationHandler.propagate(it, result.identifier) }
                                 },
@@ -134,6 +135,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     private suspend fun handleTrackingIdentifier(
         analyticsIdentifierResult: AnalyticsIdentifierResult,
         isTeamMember: Boolean,
+        contactsSize: Int,
         propagateIdentifier: suspend () -> Unit,
         migrationComplete: suspend () -> Unit
     ) {
@@ -143,6 +145,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                     identifier = analyticsIdentifierResult.identifier,
                     shouldPropagateIdentifier = true,
                     isTeamMember = isTeamMember,
+                    contactsSize = contactsSize,
                     propagateIdentifier = propagateIdentifier
                 )
             }
@@ -152,6 +155,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                     identifier = analyticsIdentifierResult.identifier,
                     shouldPropagateIdentifier = false,
                     isTeamMember = isTeamMember,
+                    contactsSize = contactsSize,
                     propagateIdentifier = {}
                 )
             }
@@ -160,6 +164,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                 anonymousAnalyticsRecorder?.setTrackingIdentifierWithMerge(
                     identifier = analyticsIdentifierResult.identifier,
                     isTeamMember = isTeamMember,
+                    contactsSize = contactsSize,
                     migrationComplete = migrationComplete
                 )
             }

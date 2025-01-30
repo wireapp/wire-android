@@ -49,6 +49,7 @@ import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.functional.getOrElse
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -219,6 +220,9 @@ class WireApplication : BaseApp() {
             currentSessionFlow = coreLogic.get().getGlobalScope().session.currentSessionFlow(),
             isUserTeamMember = {
                 coreLogic.get().getSessionScope(it).team.isSelfATeamMember()
+            },
+            getContactsSize = {
+                coreLogic.get().getSessionScope(it).contactsSizeProvider().getOrElse(0)
             },
             observeAnalyticsTrackingIdentifierStatusFlow = {
                 coreLogic.get().getSessionScope(it).observeAnalyticsTrackingIdentifierStatus()

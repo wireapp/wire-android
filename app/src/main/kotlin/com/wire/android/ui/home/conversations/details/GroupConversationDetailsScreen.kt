@@ -126,9 +126,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.GroupID
@@ -149,10 +149,6 @@ fun GroupConversationDetailsScreen(
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
-    removeConversationFromFolderVM: RemoveConversationFromFolderVM =
-        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
-            RemoveConversationFromFolderArgs
-        ),
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
@@ -264,7 +260,6 @@ fun GroupConversationDetailsScreen(
         onMoveToFolder = {
             navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
         },
-        removeFromFolder = removeConversationFromFolderVM::removeFromFolder
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -318,12 +313,15 @@ private fun GroupConversationDetailsContent(
     isAbandonedOneOnOneConversation: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
-    removeFromFolder: (conversationId: ConversationId, conversationName: String, folder: ConversationFolder) -> Unit,
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
             ChangeConversationFavoriteStateArgs
+        ),
+    removeConversationFromFolderVM: RemoveConversationFromFolderVM =
+        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
+            RemoveConversationFromFolderArgs
         ),
 ) {
     val scope = rememberCoroutineScope()
@@ -504,7 +502,7 @@ private fun GroupConversationDetailsContent(
                 },
                 changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
                 moveConversationToFolder = onMoveToFolder,
-                removeFromFolder = removeFromFolder,
+                removeFromFolder = removeConversationFromFolderVM::removeFromFolder,
                 updateConversationArchiveStatus = {
                     // Only show the confirmation dialog if the conversation is not archived
                     if (!it.isArchived) {
@@ -556,6 +554,14 @@ private fun GroupConversationDetailsContent(
     VisibilityState(legalHoldSubjectDialogState) {
         LegalHoldSubjectConversationDialog(legalHoldSubjectDialogState::dismiss)
     }
+
+    SnackBarMessageHandler(infoMessages = changeConversationFavoriteStateViewModel.infoMessage, onEmitted = {
+        sheetState.hide()
+    })
+
+    SnackBarMessageHandler(infoMessages = removeConversationFromFolderVM.infoMessage, onEmitted = {
+        sheetState.hide()
+    })
 }
 
 @Composable
@@ -659,8 +665,7 @@ fun PreviewGroupConversationDetails() {
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},
             isAbandonedOneOnOneConversation = false,
-            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS,
-            removeFromFolder = { _, _, _ -> }
+            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS
         )
     }
 }

@@ -50,11 +50,10 @@ class MessageCompositionInputStateHolderTest {
             val (state, _) = Arrangement().arrange()
             val initialHeight = 30.dp
             state.updateValuesForTesting(keyboardHeight = initialHeight)
-            val sourceHeight = 50.dp
             val targetHeight = 0.dp
 
             // When
-            state.handleImeOffsetChange(40.dp, 0.dp, sourceHeight, targetHeight)
+            state.handleImeOffsetChange(40.dp, 0.dp, targetHeight)
             advanceUntilIdle()
 
             // Then
@@ -73,7 +72,7 @@ class MessageCompositionInputStateHolderTest {
             state.updateValuesForTesting(keyboardHeight = initialHeight)
 
             // When
-            state.handleImeOffsetChange(newHeight, 0.dp, newHeight, newHeight)
+            state.handleImeOffsetChange(newHeight, 0.dp, newHeight)
 
             // Then
             state.keyboardHeight shouldBeEqualTo initialHeight
@@ -88,7 +87,7 @@ class MessageCompositionInputStateHolderTest {
             val newOffset = 100.dp
 
             // When
-            state.handleImeOffsetChange(newOffset, 0.dp, newOffset, newOffset)
+            state.handleImeOffsetChange(newOffset, 0.dp, newOffset)
 
             // Then
             state.keyboardHeight shouldBeEqualTo newOffset
@@ -209,7 +208,7 @@ class MessageCompositionInputStateHolderTest {
             state.updateValuesForTesting(keyboardHeight = 20.dp)
 
             // When
-            state.handleImeOffsetChange(50.dp, 0.dp, 50.dp, 50.dp)
+            state.handleImeOffsetChange(50.dp, 0.dp, 50.dp)
 
             // Then
             state.keyboardHeight shouldBeEqualTo 20.dp
@@ -223,7 +222,7 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(keyboardHeight = 30.dp, optionsHeight = 30.dp)
 
         // When
-        state.handleImeOffsetChange(0.dp, 0.dp, 30.dp, 0.dp)
+        state.handleImeOffsetChange(0.dp, 0.dp, 0.dp)
 
         // Then
         state.keyboardHeight shouldBeEqualTo 30.dp

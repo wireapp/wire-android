@@ -45,7 +45,7 @@ import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
-import com.wire.android.ui.destinations.NewWelcomeScreenDestination
+import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
@@ -215,7 +215,7 @@ sealed class CurrentScreen {
                 is SelfDevicesScreenDestination -> DeviceManager
 
                 is WelcomeScreenDestination,
-                is NewWelcomeScreenDestination,
+                is NewWelcomeEmptyStartScreenDestination,
                 is WelcomeChooserScreenDestination,
                 is LoginScreenDestination,
                 is NewLoginScreenDestination,

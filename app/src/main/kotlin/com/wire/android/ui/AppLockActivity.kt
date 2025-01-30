@@ -47,7 +47,7 @@ class AppLockActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    val navigator = rememberNavigator(this@AppLockActivity::finish)
+                    val navigator = rememberNavigator(finish = this@AppLockActivity::finish)
 
                     val startDestination =
                         if (intent.getBooleanExtra(SET_TEAM_APP_LOCK, false)) {

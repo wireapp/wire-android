@@ -49,6 +49,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
@@ -75,6 +76,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
+@RootNavGraph
 @WireDestination(
     style = AuthPopUpNavigationAnimation::class,
     navArgsDelegate = LoginNavArgs::class,
@@ -88,7 +90,9 @@ fun NewLoginScreen(
         viewModel.loginState,
         viewModel.userIdentifierTextState,
         viewModel::onLoginStarted,
-        navigator::navigate
+        navigator::navigate,
+        canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
+        navigateBack = navigator::navigateBack,
     )
 }
 
@@ -98,28 +102,38 @@ private fun LoginContent(
     loginEmailState: LoginEmailState,
     userIdentifierState: TextFieldState,
     onNextClicked: (() -> Unit) -> Unit,
-    navigate: (NavigationCommand) -> Unit
+    navigate: (NavigationCommand) -> Unit,
+    canNavigateBack: Boolean,
+    navigateBack: () -> Unit,
 ) {
-    NewLoginContainer {
+    NewLoginContainer(
+        header = {
+            NewLoginHeader(
+                title = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
+                        modifier = Modifier
+                            .padding(horizontal = dimensions().spacing32x)
+                            .size(dimensions().spacing120x)
+                    )
+                    NewLoginTitle(
+                        title = stringResource(R.string.enterprise_login_title),
+                        modifier = Modifier.padding(top = dimensions().spacing16x)
+                    )
+                },
+                canNavigateBack = canNavigateBack,
+                onNavigateBack = navigateBack,
+            )
+        }
+    ) {
         val context = LocalContext.current
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
         ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-                tint = MaterialTheme.colorScheme.onBackground,
-                contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
-                modifier = Modifier.size(dimensions().spacing120x)
-            )
-
-            Text(
-                text = stringResource(id = R.string.enterprise_login_welcome),
-                style = MaterialTheme.wireTypography.body01,
-                textAlign = TextAlign.Center
-            )
-
             Column(
                 modifier = Modifier
                     .padding(vertical = dimensions().spacing16x)
@@ -235,7 +249,9 @@ fun PreviewNewLoginScreen() = WireTheme {
                 loginEmailState = LoginEmailState(),
                 userIdentifierState = TextFieldState(),
                 onNextClicked = {},
-                navigate = {}
+                navigate = {},
+                canNavigateBack = false,
+                navigateBack = {},
             )
         }
     }

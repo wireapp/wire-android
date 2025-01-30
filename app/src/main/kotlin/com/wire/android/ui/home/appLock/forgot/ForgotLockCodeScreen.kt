@@ -60,7 +60,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.destinations.NewWelcomeScreenDestination
+import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -78,7 +78,7 @@ fun ForgotLockCodeScreen(
 ) {
     with(viewModel.state) {
         LaunchedEffect(completed) {
-            val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewWelcomeScreenDestination else WelcomeScreenDestination
+            val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination
             if (completed) navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         }
         ForgotLockCodeScreenContent(

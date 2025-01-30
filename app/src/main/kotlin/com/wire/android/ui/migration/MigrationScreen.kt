@@ -41,7 +41,6 @@ import com.wire.android.ui.common.SettingUpWireScreenType
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
-import com.wire.android.ui.destinations.NewWelcomeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -73,7 +72,7 @@ fun MigrationScreen(
             NavigationCommand(
                 when {
                     state.currentSessionAvailable -> HomeScreenDestination
-                    BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewWelcomeScreenDestination
+                    BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination()
                     else -> WelcomeScreenDestination
                 },
                 BackStackMode.CLEAR_WHOLE

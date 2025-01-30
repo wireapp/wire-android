@@ -81,5 +81,11 @@ enum class TransitionAnimationType(
         exitTransition = fadeOutFromView(),
         popEnterTransition = fadeInToView(),
         popExitTransition = shrinkOutFromView()
+    ),
+    NONE( // new destination slides from bottom
+        enterTransition = EnterTransition.None,
+        exitTransition = ExitTransition.None,
+        popEnterTransition = EnterTransition.None,
+        popExitTransition = ExitTransition.None
     );
 }

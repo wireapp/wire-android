@@ -18,15 +18,17 @@
 package com.wire.android.ui.newauthentication.login
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -87,42 +89,54 @@ fun NewLoginContainer(
 
 @Composable
 fun NewLoginHeader(
-    title: String,
+    title: @Composable ColumnScope.() -> Unit,
     canNavigateBack: Boolean = false,
-    contentPadding: Dp = dimensions().spacing24x,
     onNavigateBack: () -> Unit = {},
 ) {
-    val iconClickablePadding = dimensions().spacing12x
-    val iconClickableWidth = dimensions().spacing48x
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = iconClickableWidth - iconClickablePadding.times(2) + contentPadding.times(2))
-            .padding(horizontal = contentPadding - iconClickablePadding),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(horizontal = dimensions().spacing12x),
+        verticalAlignment = Alignment.Top,
     ) {
         if (canNavigateBack) {
             NavigationIconButton(
                 iconType = NavigationIconType.Back(),
                 onClick = onNavigateBack,
                 modifier = Modifier
-                    .width(iconClickableWidth)
+                    .padding(vertical = dimensions().spacing12x)
+                    .size(dimensions().spacing48x)
             )
         }
-        if (title.isBlank().not()) {
-            Text(
-                text = title,
-                style = MaterialTheme.wireTypography.body01,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(horizontal = iconClickablePadding, vertical = contentPadding)
-                    .weight(1f)
-            )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .defaultMinSize(minHeight = dimensions().spacing48x)
+                .padding(horizontal = dimensions().spacing12x, vertical = dimensions().spacing24x)
+                .weight(1f),
+        ) {
+            title()
         }
         if (canNavigateBack) {
-            Box(modifier = Modifier.width(iconClickableWidth)) // so that the title is centered when there is a navigation button
+            Box(modifier = Modifier.size(dimensions().spacing48x)) // so that the title is centered when there is a navigation button
         }
     }
+}
+
+@Composable
+fun NewLoginTitle(
+    title: String,
+    verticalPadding: Dp = dimensions().spacing2x,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.wireTypography.body01,
+        textAlign = TextAlign.Center,
+        modifier = modifier
+            .padding(vertical = verticalPadding)
+    )
 }
 
 @Composable
@@ -141,9 +155,36 @@ private fun NavigationBarBackground() = Box(
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginHeader() = WireTheme {
-    NewLoginHeader("Enter your password to log in", true) {}
+    NewLoginHeader(
+        title = {
+            NewLoginTitle("Enter your password to log in")
+        },
+        canNavigateBack = true
+    )
 }
 
+@PreviewMultipleThemes
+@Composable
+private fun PreviewNewLoginHeaderNoNavigateBack() = WireTheme {
+    NewLoginHeader(
+        title = {
+            NewLoginTitle("Enter your password to log in")
+        },
+        canNavigateBack = false
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewNewLoginHeaderTwoLines() = WireTheme {
+    NewLoginHeader(
+        title = {
+            NewLoginTitle("Enter your password to log in")
+            NewLoginTitle("Enter your password to log in")
+        },
+        canNavigateBack = true
+    )
+}
 
 @PreviewMultipleThemes
 @Composable
@@ -152,7 +193,12 @@ private fun PreviewNewLoginContent() = WireTheme {
         WireAuthBackgroundLayout {
             NewLoginContainer(
                 header = {
-                    NewLoginHeader("Enter your password to log in", true) {}
+                    NewLoginHeader(
+                        title = {
+                            NewLoginTitle("Enter your password to log in")
+                        },
+                        canNavigateBack = true
+                    )
                 },
                 content = {
                     Text(text = "EMPTY")

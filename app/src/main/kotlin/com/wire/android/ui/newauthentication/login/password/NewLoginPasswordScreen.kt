@@ -76,6 +76,7 @@ import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.newauthentication.login.NewLoginContainer
 import com.wire.android.ui.newauthentication.login.NewLoginHeader
+import com.wire.android.ui.newauthentication.login.NewLoginTitle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -161,18 +162,21 @@ internal fun LoginPasswordContent(
     NewLoginContainer(
         header = {
             Column {
-                if (serverConfig.isOnPremises) {
-                    ServerTitle(
-                        serverLinks = serverConfig,
-                        style = typography().title01,
-                        textColor = colorsScheme().onSurface,
-                        titleResId = R.string.enterprise_login_on_prem_welcome_title,
-                        modifier = Modifier
-                            .padding(top = dimensions().spacing24x, start = dimensions().spacing24x, end = dimensions().spacing24x)
-                    )
-                }
                 NewLoginHeader(
-                    title = stringResource(id = R.string.enterprise_login_title),
+                    title = {
+                        if (serverConfig.isOnPremises) {
+                            ServerTitle(
+                                serverLinks = serverConfig,
+                                style = typography().title01,
+                                textColor = colorsScheme().onSurface,
+                                titleResId = R.string.enterprise_login_on_prem_welcome_title,
+                                modifier = Modifier.padding(bottom = dimensions().spacing24x),
+                            )
+                        }
+                        NewLoginTitle(
+                            title = stringResource(id = R.string.enterprise_login_title),
+                        )
+                    },
                     canNavigateBack = canNavigateBack,
                     onNavigateBack = navigateBack
                 )

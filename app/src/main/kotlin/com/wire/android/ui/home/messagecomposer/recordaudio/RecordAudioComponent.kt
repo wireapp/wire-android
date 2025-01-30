@@ -105,7 +105,7 @@ fun RecordAudioComponent(
 
         val buttonModifier = Modifier
             .align(Alignment.BottomCenter)
-            .padding(bottom = dimensions().spacing20x)
+            .padding(bottom = dimensions().spacing20x, top = dimensions().spacing28x)
 
         when (viewModel.state.buttonState) {
             RecordAudioButtonState.ENABLED -> RecordAudioButtonEnabled(

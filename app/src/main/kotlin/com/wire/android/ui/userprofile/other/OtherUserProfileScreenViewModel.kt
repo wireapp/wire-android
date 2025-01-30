@@ -48,6 +48,7 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Unb
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -61,7 +62,7 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
@@ -92,7 +93,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
-    private val observeOneToOneConversation: GetOneToOneConversationUseCase,
+    private val observeOneToOneConversation: GetOneToOneConversationDetailsUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
@@ -192,8 +193,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
                         is GetUserInfoResult.Success -> {
                             val conversation = when (oneToOneConversation) {
-                                GetOneToOneConversationUseCase.Result.Failure -> null
-                                is GetOneToOneConversationUseCase.Result.Success -> oneToOneConversation.conversation
+                                GetOneToOneConversationDetailsUseCase.Result.Failure -> null
+                                is GetOneToOneConversationDetailsUseCase.Result.Success -> oneToOneConversation.conversation
                             }
 
                             updateUserInfoState(userResult, groupInfo, conversation)
@@ -374,11 +375,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private fun updateUserInfoState(
         userResult: GetUserInfoResult.Success,
         groupInfo: OtherUserProfileGroupState?,
-        conversation: Conversation?
+        conversationDetails: ConversationDetails.OneOne?
     ) {
         val otherUser = userResult.otherUser
         val userAvatarAsset = otherUser.completePicture
             ?.let { pic -> ImageAsset.UserAvatarAsset(pic) }
+        val conversation = conversationDetails?.conversation
 
         state = state.copy(
             isDataLoading = false,
@@ -417,8 +419,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     mlsVerificationStatus = conversation.mlsVerificationStatus,
                     proteusVerificationStatus = conversation.proteusVerificationStatus,
                     isUnderLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
-                    isFavorite = null, // TODO check if we need to pass isFavorite
-                    folder = null, // TODO check if we need to pass folder
+                    isFavorite = conversationDetails.isFavorite,
+                    folder = conversationDetails.folder,
                     isDeletingConversationLocallyRunning = false
                 )
             }

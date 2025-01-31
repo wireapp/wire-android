@@ -59,6 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
@@ -78,6 +79,10 @@ import com.wire.android.ui.common.error.ErrorIcon
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.remove.RemoveIcon
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.sync.SyncStatusArgs
+import com.wire.android.ui.common.sync.SyncStatusState
+import com.wire.android.ui.common.sync.SyncStatusViewModel
+import com.wire.android.ui.common.sync.SyncStatusViewModelImpl
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -96,6 +101,9 @@ import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.common.previewConversationFolders
 import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
+import com.wire.android.ui.home.conversationslist.model.BadgeEventType
+import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.newconversation.common.SendContentButton
@@ -110,6 +118,10 @@ import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.util.isPositiveNotNull
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
@@ -453,6 +465,10 @@ private fun ImportMediaBottomBar(
     state: ImportMediaAuthenticatedState,
     importMediaScreenState: ImportMediaScreenState,
     checkRestrictionsAndSendImportedMedia: () -> Unit,
+    syncStatusViewModel: SyncStatusViewModel =
+        hiltViewModelScoped<SyncStatusViewModelImpl, SyncStatusViewModel, SyncStatusArgs>(
+            SyncStatusArgs
+        )
 ) {
     val selfDeletionTimer = state.selfDeletingTimer
     val shortDurationLabel = selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel
@@ -466,6 +482,7 @@ private fun ImportMediaBottomBar(
     SendContentButton(
         mainButtonText = mainButtonText,
         count = buttonCount,
+        loading = syncStatusViewModel.state != SyncStatusState.SlowSyncCompleted,
         onMainButtonClick = checkRestrictionsAndSendImportedMedia,
         selfDeletionTimer = selfDeletionTimer,
         onSelfDeletionTimerClicked = importMediaScreenState.bottomSheetState::show,
@@ -762,6 +779,59 @@ fun PreviewImportMediaBottomBar() {
             state = ImportMediaAuthenticatedState(),
             importMediaScreenState = rememberImportMediaScreenState(),
             checkRestrictionsAndSendImportedMedia = {},
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewImportMediaBottomBarDuringSlowSync() {
+    WireTheme {
+        ImportMediaBottomBar(
+            state = ImportMediaAuthenticatedState(
+                importedText = "text"
+            ),
+            importMediaScreenState = rememberImportMediaScreenState(),
+            checkRestrictionsAndSendImportedMedia = {},
+            syncStatusViewModel = object : SyncStatusViewModel {
+                override val state: SyncStatusState
+                    get() = SyncStatusState.Pending
+            }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewImportMediaBottomBarWithSlowSyncCompleted() {
+    WireTheme {
+        ImportMediaBottomBar(
+            state = ImportMediaAuthenticatedState(
+                importedText = "text",
+                selectedConversationItem = listOf(
+                    ConversationItem.PrivateConversation(
+                        userAvatarData = UserAvatarData(),
+                        conversationId = QualifiedID("value", "domain"),
+                        mutedStatus = MutedConversationStatus.AllAllowed,
+                        lastMessageContent = null,
+                        badgeEventType = BadgeEventType.Blocked,
+                        conversationInfo = ConversationInfo("Name"),
+                        blockingState = BlockingState.BLOCKED,
+                        teamId = null,
+                        userId = UserId("value", "domain"),
+                        isArchived = false,
+                        mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                        isFavorite = false
+                    )
+                )
+            ),
+            importMediaScreenState = rememberImportMediaScreenState(),
+            checkRestrictionsAndSendImportedMedia = {},
+            syncStatusViewModel = object : SyncStatusViewModel {
+                override val state: SyncStatusState
+                    get() = SyncStatusState.SlowSyncCompleted
+            }
         )
     }
 }

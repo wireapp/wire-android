@@ -74,12 +74,14 @@ fun SendContentButton(
     onMainButtonClick: () -> Unit,
     onSelfDeletionTimerClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled
+    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled,
+    loading: Boolean = false
 ) {
     val isSelfDeletionButtonVisible = selfDeletionTimer is SelfDeletionTimer.Enabled
     SelectParticipantsButtonsRow(
         modifier = modifier,
         showTotalSelectedItemsCount = false,
+        loading = loading,
         selectedParticipantsCount = count,
         leadingIcon = {
             Image(
@@ -119,7 +121,8 @@ fun SelectParticipantsButtonsRow(
     selectedParticipantsCount: Int = 0,
     shouldAllowNoSelectionContinue: Boolean = true,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
-    onMoreButtonIcon: @Composable (() -> Unit)? = null
+    onMoreButtonIcon: @Composable (() -> Unit)? = null,
+    loading: Boolean = false,
 ) {
     Surface(
         color = MaterialTheme.wireColorScheme.background,
@@ -139,6 +142,7 @@ fun SelectParticipantsButtonsRow(
             )
             val buttonText = if (showTotalSelectedItemsCount) "$mainButtonText ($countText)" else mainButtonText
             WirePrimaryButton(
+                loading = loading,
                 text = buttonText,
                 leadingIcon = leadingIcon,
                 onClick = onMainButtonClick,

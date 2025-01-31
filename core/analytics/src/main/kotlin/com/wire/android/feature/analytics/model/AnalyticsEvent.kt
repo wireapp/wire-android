@@ -20,29 +20,29 @@ package com.wire.android.feature.analytics.model
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_AV_SWITCH_TOGGLE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_DIRECTION
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_DURATION
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_PARTICIPANTS
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_SCREEN_SHARE
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_VIDEO
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_GUESTS
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_GUESTS_PRO
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_SERVICES
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_SIZE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_TYPE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_END_REASON
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.IS_TEAM_MEMBER
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_UNIQUE_SCREEN_SHARE
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_CALL_SCREEN_SHARE
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_CALL_TOO_SHORT
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_ANSWERED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_DISMISSED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_KEY
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_SCORE_KEY
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALL_DURATION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALL_PARTICIPANTS
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALL_VIDEO
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_CREATE_TEAM
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_DISMISS_CTA
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_PERSONAL_MIGRATION_CTA_EVENT
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBUTED_LOCATION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.IS_TEAM_MEMBER
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MIGRATION_DOT_ACTIVE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_BACK_TO_WIRE_CLICKED
@@ -114,38 +114,76 @@ interface AnalyticsEvent {
         override val key: String
             get() = AnalyticsEventConstants.CALLING_QUALITY_REVIEW
         val label: String
+        val callDuration: Int
+        val isTeamMember: Boolean
+        val participantsCount: Int
+        val isScreenSharedDuringCall: Boolean
+        val isCameraEnabledDuringCall: Boolean
 
         override fun toSegmentation(): Map<String, Any> {
             return mapOf(
-                CALLING_QUALITY_REVIEW_LABEL_KEY to label
+                CALLING_QUALITY_REVIEW_LABEL_KEY to label,
+                CALL_DURATION to callDuration,
+                IS_TEAM_MEMBER to isTeamMember,
+                CALL_PARTICIPANTS to participantsCount,
+                CALLING_QUALITY_REVIEW_CALL_SCREEN_SHARE to isScreenSharedDuringCall,
+                CALL_VIDEO to isCameraEnabledDuringCall
             )
         }
 
-        data class Answered(val score: Int) : CallQualityFeedback {
+        data class Answered(
+            val score: Int,
+            override val callDuration: Int,
+            override val isTeamMember: Boolean,
+            override val participantsCount: Int,
+            override val isScreenSharedDuringCall: Boolean,
+            override val isCameraEnabledDuringCall: Boolean
+        ) : CallQualityFeedback {
             override val label: String
                 get() = CALLING_QUALITY_REVIEW_LABEL_ANSWERED
 
             override fun toSegmentation(): Map<String, Any> {
                 return mapOf(
+                    CALLING_QUALITY_REVIEW_SCORE_KEY to score,
                     CALLING_QUALITY_REVIEW_LABEL_KEY to label,
-                    CALLING_QUALITY_REVIEW_SCORE_KEY to score
+                    CALL_DURATION to callDuration,
+                    IS_TEAM_MEMBER to isTeamMember,
+                    CALL_PARTICIPANTS to participantsCount,
+                    CALLING_QUALITY_REVIEW_CALL_SCREEN_SHARE to isScreenSharedDuringCall,
+                    CALL_VIDEO to isCameraEnabledDuringCall
                 )
             }
         }
 
-        data object NotDisplayed : CallQualityFeedback {
+        data class TooShort(
+            override val callDuration: Int,
+            override val isTeamMember: Boolean,
+            override val participantsCount: Int,
+            override val isScreenSharedDuringCall: Boolean,
+            override val isCameraEnabledDuringCall: Boolean
+        ) : CallQualityFeedback {
             override val label: String
-                get() = CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED
-
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    CALLING_QUALITY_REVIEW_LABEL_KEY to label,
-                    CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY to CALLING_QUALITY_REVIEW_IGNORE_REASON
-                )
-            }
+                get() = CALLING_QUALITY_REVIEW_CALL_TOO_SHORT
         }
 
-        data object Dismissed : CallQualityFeedback {
+        data class Muted(
+            override val callDuration: Int,
+            override val isTeamMember: Boolean,
+            override val participantsCount: Int,
+            override val isScreenSharedDuringCall: Boolean,
+            override val isCameraEnabledDuringCall: Boolean
+        ) : CallQualityFeedback {
+            override val label: String
+                get() = CALLING_QUALITY_REVIEW_IGNORE_REASON
+        }
+
+        data class Dismissed(
+            override val callDuration: Int,
+            override val isTeamMember: Boolean,
+            override val participantsCount: Int,
+            override val isScreenSharedDuringCall: Boolean,
+            override val isCameraEnabledDuringCall: Boolean
+        ) : CallQualityFeedback {
             override val label: String
                 get() = CALLING_QUALITY_REVIEW_LABEL_DISMISSED
         }
@@ -160,16 +198,16 @@ interface AnalyticsEvent {
                 CALLING_ENDED_CALL_SCREEN_SHARE to metadata.callDetails.screenShareDurationInSeconds,
                 CALLING_ENDED_UNIQUE_SCREEN_SHARE to metadata.callDetails.callScreenShareUniques,
                 CALLING_ENDED_CALL_DIRECTION to metadata.toCallDirection(),
-                CALLING_ENDED_CALL_DURATION to metadata.callDetails.callDurationInSeconds,
+                CALL_DURATION to metadata.callDetails.callDurationInSeconds,
                 CALLING_ENDED_CONVERSATION_TYPE to metadata.toConversationType(),
                 CALLING_ENDED_CONVERSATION_SIZE to metadata.conversationDetails.conversationSize,
                 CALLING_ENDED_CONVERSATION_GUESTS to metadata.conversationDetails.conversationGuests,
                 CALLING_ENDED_CONVERSATION_GUESTS_PRO to metadata.conversationDetails.conversationGuestsPro,
-                CALLING_ENDED_CALL_PARTICIPANTS to metadata.callDetails.callParticipantsCount,
+                CALL_PARTICIPANTS to metadata.callDetails.callParticipantsCount,
                 CALLING_ENDED_END_REASON to metadata.callEndReason,
                 CALLING_ENDED_CONVERSATION_SERVICES to metadata.callDetails.conversationServices,
                 CALLING_ENDED_AV_SWITCH_TOGGLE to metadata.callDetails.callAVSwitchToggle,
-                CALLING_ENDED_CALL_VIDEO to metadata.callDetails.callVideoEnabled,
+                CALL_VIDEO to metadata.callDetails.callVideoEnabled,
             )
         }
 
@@ -419,11 +457,15 @@ object AnalyticsEventConstants {
     const val CALLING_QUALITY_REVIEW = "calling.call_quality_review"
     const val CALLING_QUALITY_REVIEW_LABEL_KEY = "label"
     const val CALLING_QUALITY_REVIEW_LABEL_ANSWERED = "answered"
-    const val CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED = "not-displayed"
     const val CALLING_QUALITY_REVIEW_LABEL_DISMISSED = "dismissed"
     const val CALLING_QUALITY_REVIEW_SCORE_KEY = "score"
-    const val CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY = "ignore-reason"
     const val CALLING_QUALITY_REVIEW_IGNORE_REASON = "muted"
+    const val CALLING_QUALITY_REVIEW_CALL_TOO_SHORT = "call_too_short"
+    const val CALLING_QUALITY_REVIEW_CALL_SCREEN_SHARE = "call_screen_share"
+
+    const val CALL_DURATION = "call_duration"
+    const val CALL_PARTICIPANTS = "call_participants"
+    const val CALL_VIDEO = "call_video"
 
     /**
      * Call ended
@@ -431,16 +473,13 @@ object AnalyticsEventConstants {
     const val CALLING_ENDED_CALL_SCREEN_SHARE = "call_screen_share_duration"
     const val CALLING_ENDED_UNIQUE_SCREEN_SHARE = "call_screen_share_unique"
     const val CALLING_ENDED_CALL_DIRECTION = "call_direction"
-    const val CALLING_ENDED_CALL_DURATION = "call_duration"
     const val CALLING_ENDED_CONVERSATION_TYPE = "conversation_type"
     const val CALLING_ENDED_CONVERSATION_SIZE = "conversation_size"
     const val CALLING_ENDED_CONVERSATION_GUESTS = "conversation_guests"
     const val CALLING_ENDED_CONVERSATION_GUESTS_PRO = "conversation_guest_pro"
-    const val CALLING_ENDED_CALL_PARTICIPANTS = "call_participants"
     const val CALLING_ENDED_END_REASON = "call_end_reason"
     const val CALLING_ENDED_CONVERSATION_SERVICES = "conversation_services"
     const val CALLING_ENDED_AV_SWITCH_TOGGLE = "call_av_switch_toggle"
-    const val CALLING_ENDED_CALL_VIDEO = "call_video"
 
     /**
      * Backup

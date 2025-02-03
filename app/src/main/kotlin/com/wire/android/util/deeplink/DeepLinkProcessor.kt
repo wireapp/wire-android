@@ -18,6 +18,7 @@
 
 package com.wire.android.util.deeplink
 
+import android.content.Intent
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import com.wire.android.di.KaliumCoreLogic
@@ -71,9 +72,9 @@ sealed class DeepLinkResult {
 
     data object AuthorizationNeeded : DeepLinkResult()
 
-    sealed class Failure : DeepLinkResult() {
-        data object OngoingCall : Failure()
-        data object Unknown : Failure()
+    sealed class SwitchAccountFailure : DeepLinkResult() {
+        data object OngoingCall : SwitchAccountFailure()
+        data object Unknown : SwitchAccountFailure()
     }
 }
 
@@ -85,17 +86,14 @@ class DeepLinkProcessor @Inject constructor(
 ) {
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    suspend operator fun invoke(uri: Uri?, isSharingIntent: Boolean): DeepLinkResult {
+    suspend operator fun invoke(uri: Uri? = null, action: String? = null): DeepLinkResult {
         return when (val sessionResult = currentSession()) {
             is CurrentSessionResult.Failure.Generic,
             CurrentSessionResult.Failure.SessionNotFound -> uri?.let { handleNotAuthorizedDeepLinks(uri) } ?: DeepLinkResult.Unknown
 
-            is CurrentSessionResult.Success -> {
-                if (isSharingIntent) {
-                    return DeepLinkResult.SharingIntent
-                } else {
-                    uri?.let { handleDeepLinks(uri, sessionResult.accountInfo) } ?: DeepLinkResult.Unknown
-                }
+            is CurrentSessionResult.Success -> when (action) {
+                Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> DeepLinkResult.SharingIntent
+                else -> uri?.let { handleDeepLinks(uri, sessionResult.accountInfo) } ?: DeepLinkResult.Unknown
             }
         }
     }
@@ -121,8 +119,8 @@ class DeepLinkProcessor @Inject constructor(
                         deepLinkResult
                     }
 
-                    SwitchAccountStatus.FailedDueToCall -> DeepLinkResult.Failure.OngoingCall
-                    SwitchAccountStatus.FailedDueToUnknownError -> DeepLinkResult.Failure.Unknown
+                    SwitchAccountStatus.FailedDueToCall -> DeepLinkResult.SwitchAccountFailure.OngoingCall
+                    SwitchAccountStatus.FailedDueToUnknownError -> DeepLinkResult.SwitchAccountFailure.Unknown
                 }
             }
         }

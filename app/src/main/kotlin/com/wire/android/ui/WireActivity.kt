@@ -70,6 +70,7 @@ import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
@@ -91,8 +92,9 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
-import com.wire.android.ui.destinations.NewWelcomeScreenDestination
+import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
@@ -132,6 +134,7 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -149,9 +152,7 @@ class WireActivity : AppCompatActivity() {
     lateinit var switchAccountObserver: SwitchAccountObserver
 
     private val viewModel: WireActivityViewModel by viewModels()
-
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
-
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
     private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
     private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
@@ -161,6 +162,7 @@ class WireActivity : AppCompatActivity() {
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
     private var isNavigationCollecting = false
+    private val isWelcomeEmptyStartDestination = AtomicBoolean(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -186,7 +188,9 @@ class WireActivity : AppCompatActivity() {
             val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
                 InitialAppState.NOT_LOGGED_IN -> when {
-                    BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewWelcomeScreenDestination
+                    BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewWelcomeEmptyStartScreenDestination.also {
+                        isWelcomeEmptyStartDestination.set(true)
+                    }
                     else -> WelcomeScreenDestination
                 }
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
@@ -242,7 +246,21 @@ class WireActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    val navigator = rememberNavigator(this@WireActivity::finish)
+                    val navigator = rememberNavigator(
+                        finish = this@WireActivity::finish,
+                        isAllowedToNavigate = { navigationCommand ->
+                            when {
+                                navigationCommand.destination.route.getBaseRoute() == NewLoginScreenDestination.route.getBaseRoute() -> {
+                                    /*
+                                    This is a case when the app tries to open the "enterprise login" screen so first it needs to verify
+                                    whether it's possible to have another session, if not then do not navigate and show proper dialog.
+                                    */
+                                    viewModel.checkNumberOfSessions()
+                                }
+                                else -> true
+                            }
+                        }
+                    )
                     val currentBackStackEntryState = navigator.navController.currentBackStackEntryAsState()
                     val backgroundType by remember {
                         derivedStateOf {
@@ -541,14 +559,27 @@ class WireActivity : AppCompatActivity() {
                     viewModel::onJoinConversationFlowCompleted
                 )
                 CustomBackendDialog(
-                    viewModel.globalAppState,
-                    viewModel::dismissCustomBackendDialog,
+                    globalAppState = viewModel.globalAppState,
+                    onDismiss = {
+                        viewModel.dismissCustomBackendDialog()
+                        if (isWelcomeEmptyStartDestination.getAndSet(false)) {
+                            // if "welcome empty start" screen then switch "start" screen to proper one
+                            navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+                        }
+                    },
                     onConfirm = {
                         viewModel.customBackendDialogProceedButtonClicked {
                             navigate(
                                 NavigationCommand(
-                                    if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewWelcomeScreenDestination else WelcomeScreenDestination,
-                                    BackStackMode.UPDATE_EXISTED
+                                    destination = when {
+                                        BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginPasswordScreenDestination()
+                                        else -> WelcomeScreenDestination
+                                    },
+                                    // if "welcome empty start" screen then switch "start" screen to proper one
+                                    backStackMode = when (isWelcomeEmptyStartDestination.getAndSet(false)) {
+                                        true -> BackStackMode.CLEAR_WHOLE
+                                        else -> BackStackMode.UPDATE_EXISTED
+                                    }
                                 )
                             )
                         }
@@ -661,22 +692,29 @@ class WireActivity : AppCompatActivity() {
     @Suppress("ComplexCondition", "LongMethod")
     /*
      * This method is responsible for handling deep links from given intent
-     * @return true if there was any deep link in given intent to handle, false otherwise
      */
     private fun handleDeepLink(
         intent: Intent?,
         savedInstanceState: Bundle? = null
     ) {
+        val navigate: (NavigationCommand) -> Unit = {
+            lifecycleScope.launch {
+                navigationCommands.emit(it)
+            }
+        }
         val originalIntent = savedInstanceState.getOriginalIntent()
         if (intent == null
+            || intent.action == Intent.ACTION_MAIN // This is the case when the app is opened from launcher so no deep link to handle
             || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
             || originalIntent == intent // This is the case when the activity is recreated and already handled
             || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
+            if (isWelcomeEmptyStartDestination.getAndSet(false)) {
+                // no deep link to handle so if "welcome empty start" screen then switch "start" screen to login by navigating to it
+                navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+            }
             return
         } else {
-            val navigate: (NavigationCommand) -> Unit =
-                { lifecycleScope.launch { navigationCommands.emit(it) } }
             viewModel.handleDeepLink(
                 intent = intent,
                 onOpenConversation = {
@@ -713,6 +751,10 @@ class WireActivity : AppCompatActivity() {
                     }
                 },
                 onAuthorizationNeeded = {
+                    if (isWelcomeEmptyStartDestination.getAndSet(false)) {
+                        // log in needed so if "welcome empty start" screen then switch "start" screen to login by navigating to it
+                        navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+                    }
                     runOnUiThread {
                         Toast.makeText(
                             this,
@@ -728,7 +770,11 @@ class WireActivity : AppCompatActivity() {
                                 BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination(userHandle = it.userHandle)
                                 else -> LoginScreenDestination(userHandle = it.userHandle)
                             },
-                            BackStackMode.UPDATE_EXISTED
+                            // if "welcome empty start" screen then switch "start" screen to proper one
+                            when (isWelcomeEmptyStartDestination.getAndSet(false)) {
+                                true -> BackStackMode.CLEAR_WHOLE
+                                false -> BackStackMode.UPDATE_EXISTED
+                            },
                         )
                     )
                 },
@@ -755,7 +801,11 @@ class WireActivity : AppCompatActivity() {
                                 BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination(ssoLoginResult = it)
                                 else -> LoginScreenDestination(ssoLoginResult = it)
                             },
-                            BackStackMode.UPDATE_EXISTED
+                            // if needs to log in and "welcome empty start" screen then switch "start" screen to login
+                            when (isWelcomeEmptyStartDestination.getAndSet(false)) {
+                                true -> BackStackMode.CLEAR_WHOLE
+                                false -> BackStackMode.UPDATE_EXISTED
+                            },
                         )
                     )
                 }

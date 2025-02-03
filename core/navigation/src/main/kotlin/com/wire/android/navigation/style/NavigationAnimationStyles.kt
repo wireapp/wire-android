@@ -37,3 +37,8 @@ object AuthPopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundSt
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
+
+object AuthNoNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+    override fun animationType(): TransitionAnimationType = TransitionAnimationType.NONE
+    override fun backgroundType(): BackgroundType  = BackgroundType.Auth
+}

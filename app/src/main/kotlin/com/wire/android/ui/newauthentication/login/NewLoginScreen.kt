@@ -63,6 +63,7 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
@@ -102,7 +103,7 @@ private fun LoginContent(
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
                         tint = MaterialTheme.colorScheme.onBackground,
-                        contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
+                        contentDescription = null,
                         modifier = Modifier
                             .padding(horizontal = dimensions().spacing32x)
                             .size(dimensions().spacing120x)

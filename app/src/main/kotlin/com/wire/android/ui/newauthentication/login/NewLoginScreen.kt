@@ -63,7 +63,6 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph

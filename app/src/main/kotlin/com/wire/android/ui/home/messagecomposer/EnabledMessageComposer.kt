@@ -271,8 +271,7 @@ fun EnabledMessageComposer(
                         )
 
                         val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
-                        if (mentionSearchResult.isNotEmpty() && inputStateHolder.isTextExpanded
-                        ) {
+                        if (mentionSearchResult.isNotEmpty() && inputStateHolder.isTextExpanded) {
                             DropDownMentionsSuggestions(
                                 currentSelectedLineIndex = currentSelectedLineIndex,
                                 cursorCoordinateY = cursorCoordinateY,

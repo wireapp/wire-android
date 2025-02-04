@@ -67,33 +67,38 @@ fun VerticalCallingPager(
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
+    // if PiP is enabled and more than one participant is present,
+    // we need to remove the first participant(self user) from the list
+    val newParticipants = remember(participants) {
+        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+            participants.subList(1, participants.size)
+        } else {
+            participants
+        }
+    }
+
+    val participantsChunkedList = remember(newParticipants) {
+        newParticipants.chunked(MAX_TILES_PER_PAGE)
+    }
+
+    val pagerState = rememberPagerState(
+        pageCount = { participantsChunkedList.size }
+    )
+
     Column(
         modifier = modifier
             .fillMaxWidth()
             .height(contentHeight)
     ) {
-        val pagerState = rememberPagerState(
-            pageCount = { pagesCount(participants.size) }
-        )
         Box {
             VerticalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
-                if (participants.isNotEmpty()) {
-                    // if PiP is enabled and more than one participant is present,
-                    // we need to remove the first participant(self user) from the list
-                    val newParticipants =
-                        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
-                            participants.subList(1, participants.size)
-                        } else {
-                            participants
-                        }
-                    val participantsChunkedList = remember(newParticipants) {
-                        newParticipants.chunked(MAX_TILES_PER_PAGE)
-                    }
+                // or here
+                if (participants.isNotEmpty() && pageIndex < participantsChunkedList.size) {
                     val participantsWithCameraOn by rememberUpdatedState(newParticipants.count { it.isCameraOn })
                     val participantsWithScreenShareOn by rememberUpdatedState(newParticipants.count { it.isSharingScreen })
 
@@ -128,7 +133,9 @@ fun VerticalCallingPager(
                         participantsWithScreenShareOn, // Request video stream when someone starts sharing screen
                         pagerState.currentPage // Request video stream when swiping to a different page on the grid
                     ) {
-                        requestVideoStreams(participantsChunkedList[pagerState.currentPage])
+                        participantsChunkedList.getOrNull(pagerState.currentPage)?.let {
+                            requestVideoStreams(it)
+                        }
                     }
                 }
             }

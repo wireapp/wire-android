@@ -128,7 +128,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             launch { setE2EIRequiredState(userId) }
             launch { setTeamAppLockFeatureFlag(userId) }
             launch { observeCallEndedBecauseOfConversationDegraded(userId) }
-            launch { observeAskCallFeedback(userId) }
             launch { observeShouldNotifyForRevokedCertificate(userId) }
         }
     }
@@ -226,17 +225,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private suspend fun observeCallEndedBecauseOfConversationDegraded(userId: UserId) =
         coreLogic.getSessionScope(userId).calls.observeEndCallDueToDegradationDialog().collect {
             featureFlagState = featureFlagState.copy(showCallEndedBecauseOfConversationDegraded = true)
-        }
-
-    private suspend fun observeAskCallFeedback(userId: UserId) =
-        coreLogic.getSessionScope(userId).calls.observeAskCallFeedbackUseCase().collect { shouldAskFeedback ->
-            if (!isAnalyticsAvailable(userId)) {
-                // Analytics is disabled. Do nothing.
-            } else if (shouldAskFeedback) {
-                showCallFeedbackFlow.emit(Unit)
-            } else {
-                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.NotDisplayed)
-            }
         }
 
     fun dismissSelfDeletingMessagesDialog() {
@@ -352,24 +340,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun dismissSuccessE2EIdDialog() {
         featureFlagState = featureFlagState.copy(e2EIResult = null)
-    }
-
-    fun rateCall(rate: Int, doNotAsk: Boolean) {
-        currentUserId?.let {
-            viewModelScope.launch {
-                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.Answered(rate))
-                coreLogic.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
-            }
-        }
-    }
-
-    fun skipCallFeedback(doNotAsk: Boolean) {
-        currentUserId?.let {
-            viewModelScope.launch {
-                coreLogic.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
-                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.Dismissed)
-            }
-        }
     }
 
     companion object {

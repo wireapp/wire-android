@@ -22,8 +22,6 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
-import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
 import com.wire.android.ui.home.FeatureFlagState
@@ -299,49 +297,6 @@ class FeatureFlagNotificationViewModelTest {
 
         assertEquals(false, viewModel.featureFlagState.shouldShowE2eiCertificateRevokedDialog)
         coVerify(exactly = 1) { arrangement.markNotifyForRevokedCertificateAsNotified() }
-    }
-
-    @Test
-    fun givenARateCallIsDisplayed_whenSendingScore_thenInvokeEventForScoreWithValue() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
-            .arrange()
-
-        viewModel.rateCall(5, false)
-
-        coVerify(exactly = 1) {
-            arrangement.analyticsManager.sendEvent(
-                match {
-                    it is AnalyticsEvent.CallQualityFeedback.Answered && it.score == 5
-                }
-            )
-        }
-        coVerify(exactly = 1) {
-            arrangement.analyticsManager.sendEvent(
-                match {
-                    it is AnalyticsEvent.CallQualityFeedback && it.label ==
-                            AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_ANSWERED
-                }
-            )
-        }
-    }
-
-    @Test
-    fun givenARateCallIsDisplayed_whenDismissingIt_thenInvokeEventForDismiss() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
-            .arrange()
-
-        viewModel.skipCallFeedback(false)
-
-        coVerify(exactly = 1) {
-            arrangement.analyticsManager.sendEvent(
-                match {
-                    it is AnalyticsEvent.CallQualityFeedback && it.label ==
-                            AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_DISMISSED
-                }
-            )
-        }
     }
 
     private inner class Arrangement {

@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -47,7 +46,7 @@ class CallFeedbackViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val isAnalyticsAvailable: IsAnalyticsAvailableUseCase,
-    private val analyticsManager: AnonymousAnalyticsManager
+    private val analyticsManager: AnonymousAnalyticsManager,
 ) : ViewModel() {
 
     val showCallFeedbackFlow = MutableSharedFlow<Unit>()
@@ -79,15 +78,10 @@ class CallFeedbackViewModel @Inject constructor(
 
             when (shouldAskFeedback) {
                 is ShouldAskCallFeedbackUseCaseResult.ShouldAskCallFeedback -> {
-                    Log.d("callFeedbackViewModel", "observeAskCallFeedback: ShouldAskCallFeedback")
                     showCallFeedbackFlow.emit(Unit)
                 }
 
                 is ShouldAskCallFeedbackUseCaseResult.ShouldNotAskCallFeedback.CallDurationIsLessThanOneMinute -> {
-                    Log.d(
-                        "callFeedbackViewModel",
-                        "observeAskCallFeedback: shortCall = duration is ${shouldAskFeedback.callDurationInSeconds.toInt()}"
-                    )
                     currentUserId?.let {
                         val recentlyEndedCallMetadata = coreLogic.getSessionScope(it).calls.observeRecentlyEndedCallMetadata().first()
                         analyticsManager.sendEvent(
@@ -105,40 +99,20 @@ class CallFeedbackViewModel @Inject constructor(
                 }
 
                 is ShouldAskCallFeedbackUseCaseResult.ShouldNotAskCallFeedback.NextTimeForCallFeedbackIsNotReached -> {
-                    Log.d(
-                        "callFeedbackViewModel",
-                        "observeAskCallFeedback: NextTimeForCallFeedbackIsNotReached = duration is ${shouldAskFeedback.callDurationInSeconds.toInt()}"
-                    )
                     currentUserId?.let {
                         val recentlyEndedCallMetadata = coreLogic.getSessionScope(it).calls.observeRecentlyEndedCallMetadata().first()
-
-                        // call not established
-                        if (shouldAskFeedback.callDurationInSeconds.toInt() == 0) {
-                            analyticsManager.sendEvent(
+                        analyticsManager.sendEvent(
+                            with(recentlyEndedCallMetadata) {
                                 AnalyticsEvent.CallQualityFeedback.Muted(
                                     callDuration = shouldAskFeedback.callDurationInSeconds.toInt(),
-                                    isTeamMember = recentlyEndedCallMetadata.isTeamMember,
-                                    participantsCount = 0,
-                                    isScreenSharedDuringCall = false,
-                                    isCameraEnabledDuringCall = false
+                                    isTeamMember = isTeamMember,
+                                    participantsCount = callDetails.callParticipantsCount,
+                                    isScreenSharedDuringCall = callDetails.isCallScreenShare,
+                                    isCameraEnabledDuringCall = callDetails.callVideoEnabled
                                 )
-                            )
-                        } else {
-                            analyticsManager.sendEvent(
-                                with(recentlyEndedCallMetadata) {
-                                    AnalyticsEvent.CallQualityFeedback.TooShort(
-                                        callDuration = shouldAskFeedback.callDurationInSeconds.toInt(),
-                                        isTeamMember = isTeamMember,
-                                        participantsCount = callDetails.callParticipantsCount,
-                                        isScreenSharedDuringCall = callDetails.isCallScreenShare,
-                                        isCameraEnabledDuringCall = callDetails.callVideoEnabled
-                                    )
-                                }
-                            )
-                        }
-
+                            }
+                        )
                     }
-
                 }
             }
         }

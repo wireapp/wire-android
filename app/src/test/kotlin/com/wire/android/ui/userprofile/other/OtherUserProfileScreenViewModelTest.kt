@@ -27,6 +27,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Member
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
@@ -38,7 +39,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.connection.BlockUserResult
-import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import io.mockk.coVerify
@@ -61,7 +62,7 @@ class OtherUserProfileScreenViewModelTest {
             val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false, CONVERSATION_ID)
             val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
                 .withConversationIdInSavedState(CONVERSATION_ID)
-                .withGetOneToOneConversation(GetOneToOneConversationUseCase.Result.Success(CONVERSATION))
+                .withGetOneToOneConversation(GetOneToOneConversationDetailsUseCase.Result.Success(CONVERSATION_ONE_ONE))
                 .arrange()
 
             // when
@@ -196,7 +197,7 @@ class OtherUserProfileScreenViewModelTest {
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.NOT_CONNECTED), TEAM)
             )
-            .withGetOneToOneConversation(GetOneToOneConversationUseCase.Result.Failure)
+            .withGetOneToOneConversation(GetOneToOneConversationDetailsUseCase.Result.Failure)
             .arrange()
 
         // then
@@ -262,6 +263,7 @@ class OtherUserProfileScreenViewModelTest {
             supportedProtocols = setOf(SupportedProtocol.PROTEUS)
         )
         val TEAM = Team("some_id", "name", "icon")
+
         val CONVERSATION = Conversation(
             id = CONVERSATION_ID,
             name = "some_name",
@@ -285,6 +287,13 @@ class OtherUserProfileScreenViewModelTest {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             legalHoldStatus = Conversation.LegalHoldStatus.DISABLED
         )
+
+        val CONVERSATION_ONE_ONE = ConversationDetails.OneOne(
+            CONVERSATION,
+            OTHER_USER,
+            UserType.EXTERNAL,
+        )
+
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",
             Member.Role.Member,

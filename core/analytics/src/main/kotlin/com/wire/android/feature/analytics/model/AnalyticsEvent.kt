@@ -87,8 +87,13 @@ interface AnalyticsEvent {
      */
     fun toSegmentation(): Map<String, Any> = mapOf()
 
-    data object AppOpen : AnalyticsEvent {
+    data class AppOpen(val isTeamMember: Boolean?) : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.APP_OPEN
+        override fun toSegmentation(): Map<String, Any> {
+            return isTeamMember?.let {
+                mapOf(IS_TEAM_MEMBER to it)
+            } ?: super.toSegmentation()
+        }
     }
 
     /**

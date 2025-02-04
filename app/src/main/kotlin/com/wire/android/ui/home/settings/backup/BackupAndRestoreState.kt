@@ -31,6 +31,7 @@ data class BackupAndRestoreState(
 ) {
 
     data class CreatedBackup(val path: Path, val assetName: String, val assetSize: Long, val isEncrypted: Boolean)
+
     companion object {
         val INITIAL_STATE = BackupAndRestoreState(
             backupRestoreProgress = BackupRestoreProgress.InProgress(),

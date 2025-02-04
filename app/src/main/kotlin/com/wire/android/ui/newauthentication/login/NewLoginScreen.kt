@@ -107,7 +107,7 @@ private fun LoginContent(
                             .padding(horizontal = dimensions().spacing32x)
                             .size(dimensions().spacing120x)
                     )
-                    NewLoginTitle(
+                    NewLoginSubtitle(
                         title = stringResource(R.string.enterprise_login_welcome),
                         modifier = Modifier.padding(top = dimensions().spacing16x)
                     )

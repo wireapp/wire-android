@@ -280,7 +280,6 @@ fun HomeContent(
                     navController.navigate(direction.route) {
                         navController.graph.startDestinationRoute?.let { route ->
                             popUpTo(route) {
-                                inclusive = true
                                 saveState = true
                             }
                         }

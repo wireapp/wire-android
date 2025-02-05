@@ -70,8 +70,6 @@ class AppearanceViewModelTest {
             every { globalDataStore.enterToSendFlow() } returns result
         }
 
-        private val viewModel = CustomizationViewModel(globalDataStore)
-
-        fun arrange() = this to viewModel
+        fun arrange() = this to CustomizationViewModel(globalDataStore)
     }
 }

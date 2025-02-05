@@ -1689,7 +1689,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="move_to_folder_success">“%1$s” was moved to “%2$s”</string>
     <string name="move_to_folder_failed">“%1$s” could not be moved</string>
     <string name="remove_from_folder_success">“%1$s” was removed from “%2$s”</string>
-    <string name="remove_from_folder_failed">“%1$s” could no`t be removed</string>
+    <string name="remove_from_folder_failed">“%1$s” could not be removed</string>
     <string name="new_folder_folder_name">FOLDER NAME</string>
     <string name="new_folder_create_folder">Create Folder</string>
     <string name="new_folder_error_name_exist">A folder with this name already exists. Please choose another name.</string>

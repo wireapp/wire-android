@@ -36,7 +36,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
-import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
@@ -60,7 +60,7 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    lateinit var getOneToOneConversation: GetOneToOneConversationUseCase
+    lateinit var getOneToOneConversation: GetOneToOneConversationDetailsUseCase
 
     @MockK
     lateinit var observeUserInfo: ObserveUserInfoUseCase
@@ -155,7 +155,7 @@ internal class OtherUserProfileViewModelArrangement {
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
         every { userTypeMapper.toMembership(any()) } returns Membership.None
         coEvery { getOneToOneConversation(USER_ID) } returns flowOf(
-            GetOneToOneConversationUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION)
+            GetOneToOneConversationDetailsUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION_ONE_ONE)
         )
         coEvery { getUserE2eiCertificateStatus.invoke(any()) } returns true
         coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
@@ -177,7 +177,7 @@ internal class OtherUserProfileViewModelArrangement {
         )
     }
 
-    fun withGetOneToOneConversation(result: GetOneToOneConversationUseCase.Result) = apply {
+    fun withGetOneToOneConversation(result: GetOneToOneConversationDetailsUseCase.Result) = apply {
         coEvery { getOneToOneConversation(USER_ID) } returns flowOf(result)
     }
 

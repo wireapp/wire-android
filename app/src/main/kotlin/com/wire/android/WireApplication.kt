@@ -254,7 +254,16 @@ class WireApplication : BaseApp() {
                 .isAppVisibleFlow()
                 .filter { isVisible -> isVisible }
                 .collect {
-                    AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.AppOpen)
+                    val currentSessionResult = coreLogic.get().getGlobalScope().session.currentSessionFlow().first()
+                    val isTeamMember = if (currentSessionResult is CurrentSessionResult.Success) {
+                        coreLogic.get().getSessionScope(currentSessionResult.accountInfo.userId).team.isSelfATeamMember()
+                    } else {
+                        null
+                    }
+
+                    AnonymousAnalyticsManagerImpl.sendEvent(
+                        AnalyticsEvent.AppOpen(isTeamMember)
+                    )
                 }
         }
     }

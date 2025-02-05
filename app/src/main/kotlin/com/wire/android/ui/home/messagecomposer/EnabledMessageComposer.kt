@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.imeAnimationSource
 import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
@@ -126,7 +125,6 @@ fun EnabledMessageComposer(
     val navBarHeight = bottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
-    val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)
     val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
     val rippleProgress = remember { Animatable(0f) }
     var hideRipple by remember { mutableStateOf(true) }
@@ -139,7 +137,6 @@ fun EnabledMessageComposer(
                 inputStateHolder.handleImeOffsetChange(
                     offsetY.toDp(),
                     navBarHeight,
-                    imeAnimationSource.toDp(),
                     imeAnimationTarget.toDp()
                 )
             }

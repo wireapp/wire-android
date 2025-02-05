@@ -41,7 +41,7 @@ import javax.inject.Singleton
 
 sealed class DeepLinkResult {
     data object Unknown : DeepLinkResult()
-    data class CustomServerConfig(val url: String) : DeepLinkResult()
+    data class CustomServerConfig(val url: String, val loginType: LoginType = LoginType.Default) : DeepLinkResult()
 
     @Serializable
     sealed class SSOLogin : DeepLinkResult() {
@@ -211,7 +211,8 @@ class DeepLinkProcessor @Inject constructor(
 
     private fun getCustomServerConfigDeepLinkResult(uri: Uri) =
         uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
-            DeepLinkResult.CustomServerConfig(it)
+            val loginType = LoginType.getByName(uri.getQueryParameter(SERVER_CONFIG_LOGIN_TYPE_PARAM) ?: LoginType.Default.name)
+            DeepLinkResult.CustomServerConfig(it, loginType)
         } ?: DeepLinkResult.Unknown
 
     private fun getSSOLoginDeepLinkResult(uri: Uri): DeepLinkResult {
@@ -246,6 +247,7 @@ class DeepLinkProcessor @Inject constructor(
         const val E2EI_DEEPLINK_OAUTH_REDIRECT_PATH = "oauth2redirect"
         const val ACCESS_DEEPLINK_HOST = "access"
         const val SERVER_CONFIG_PARAM = "config"
+        const val SERVER_CONFIG_LOGIN_TYPE_PARAM = "login-type"
         const val SSO_LOGIN_DEEPLINK_HOST = "sso-login"
         const val SSO_LOGIN_FAILURE = "failure"
         const val SSO_LOGIN_SUCCESS = "success"
@@ -311,4 +313,12 @@ enum class SwitchAccountStatus {
     NoNeeded,
     FailedDueToCall,
     FailedDueToUnknownError
+}
+
+enum class LoginType {
+    Default, Old, New;
+
+    companion object {
+        fun getByName(value: String) = entries.firstOrNull { it.name.lowercase() == value.lowercase() } ?: Default
+    }
 }

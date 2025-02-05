@@ -113,7 +113,7 @@ class WireActivityViewModelTest {
             .withSomeCurrentSession()
             .arrange()
 
-        viewModel.handleDeepLink(null, {}, {}, {}, {}, {}, {}, {})
+        viewModel.handleDeepLink(null, {}, {}, {}, {}, {}, {}, {}, {})
 
         assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
     }
@@ -124,7 +124,7 @@ class WireActivityViewModelTest {
             .withNoCurrentSession()
             .arrange()
 
-        viewModel.handleDeepLink(null, {}, {}, {}, {}, {}, {}, {})
+        viewModel.handleDeepLink(null, {}, {}, {}, {}, {}, {}, {}, {})
 
         assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
     }
@@ -138,7 +138,7 @@ class WireActivityViewModelTest {
             .withNoOngoingCall()
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
         coVerify(exactly = 1) { arrangement.deepLinkProcessor.invoke(any(), any()) }
         verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
     }
@@ -154,7 +154,7 @@ class WireActivityViewModelTest {
                 .withNoOngoingCall()
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
             assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
@@ -172,7 +172,7 @@ class WireActivityViewModelTest {
                 .withNoOngoingCall()
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
             assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
@@ -189,7 +189,7 @@ class WireActivityViewModelTest {
                 .withNoOngoingCall()
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
             assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
@@ -209,7 +209,7 @@ class WireActivityViewModelTest {
                 .withNoOngoingCall()
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
             assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
@@ -230,7 +230,7 @@ class WireActivityViewModelTest {
                 .withOngoingCall()
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, {}, {}, {}, arrangement.onCannotLoginDuringACall)
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, {}, {}, {}, arrangement.onCannotLoginDuringACall, {})
 
             verify(exactly = 1) { arrangement.onCannotLoginDuringACall() }
         }
@@ -245,7 +245,7 @@ class WireActivityViewModelTest {
                 .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home))
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
             assertEquals(InitialAppState.NOT_MIGRATED, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
@@ -261,7 +261,7 @@ class WireActivityViewModelTest {
             .withNoOngoingCall()
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
         assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
         verify(exactly = 1) { arrangement.onDeepLinkResult(ssoLogin) }
@@ -276,7 +276,7 @@ class WireActivityViewModelTest {
             .withNoOngoingCall()
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
         assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
         verify(exactly = 1) { arrangement.onDeepLinkResult(ssoLogin) }
@@ -291,7 +291,7 @@ class WireActivityViewModelTest {
                 .withDeepLinkResult(result)
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, arrangement.onDeepLinkResult, {}, {}, {})
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
 
             assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
@@ -306,7 +306,7 @@ class WireActivityViewModelTest {
                 .withDeepLinkResult(result)
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, arrangement.onDeepLinkResult, {}, {}, {})
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
 
             assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
@@ -321,7 +321,7 @@ class WireActivityViewModelTest {
                 .withDeepLinkResult(result)
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
+            viewModel.handleDeepLink(mockedIntent(), {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {}, {})
 
             assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
@@ -335,7 +335,7 @@ class WireActivityViewModelTest {
             .withDeepLinkResult(result)
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
         assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
         verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
@@ -351,7 +351,7 @@ class WireActivityViewModelTest {
                 .withDeepLinkResult(result)
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, {}, arrangement.onDeepLinkResult, {}, {})
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, {}, arrangement.onDeepLinkResult, {}, {}, {})
 
             assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
@@ -365,7 +365,7 @@ class WireActivityViewModelTest {
             .withDeepLinkResult(result)
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
         assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
         verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
@@ -377,7 +377,7 @@ class WireActivityViewModelTest {
             .withSomeCurrentSession()
             .arrange()
 
-        viewModel.handleDeepLink(null, {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+        viewModel.handleDeepLink(null, {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
         verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
     }
@@ -413,7 +413,7 @@ class WireActivityViewModelTest {
             )
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
 
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` JoinConversationViaCodeState.Show(
             conversationName,
@@ -454,12 +454,35 @@ class WireActivityViewModelTest {
             onMigrationLogin = {},
             onOpenOtherUserProfile = {},
             onAuthorizationNeeded = {},
-            onCannotLoginDuringACall = {}
+            onCannotLoginDuringACall = {},
+            onUnknown = {},
         )
 
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
         verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
         verify(exactly = 1) { arrangement.onOpenConversation(DeepLinkResult.OpenConversation(conversationId, false)) }
+    }
+
+    @Test
+    fun `given Intent with Unknown deep link, when handling deep links, then onUnknown is called `() = runTest {
+        val result = DeepLinkResult.Unknown
+        val (arrangement, viewModel) = Arrangement()
+            .withDeepLinkResult(result)
+            .arrange()
+
+        viewModel.handleDeepLink(
+            intent = mockedIntent(),
+            onIsSharingIntent = {},
+            onOpenConversation = {},
+            onSSOLogin = {},
+            onMigrationLogin = {},
+            onOpenOtherUserProfile = {},
+            onAuthorizationNeeded = {},
+            onCannotLoginDuringACall = {},
+            onUnknown = arrangement.onUnknown
+        )
+
+        verify(exactly = 1) { arrangement.onUnknown() }
     }
 
     @Test
@@ -853,6 +876,9 @@ class WireActivityViewModelTest {
 
         @MockK(relaxed = true)
         lateinit var onOpenConversation: (DeepLinkResult.OpenConversation) -> Unit
+
+        @MockK(relaxed = true)
+        lateinit var onUnknown: () -> Unit
 
         private val viewModel by lazy {
             WireActivityViewModel(

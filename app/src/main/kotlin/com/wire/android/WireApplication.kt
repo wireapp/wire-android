@@ -182,7 +182,7 @@ class WireApplication : BaseApp() {
 
     private suspend fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
-        ExternalLoggerManager.initDatadogLogger(applicationContext, globalDataStore.get())
+        ExternalLoggerManager.initDatadogLogger(applicationContext)
         // 2. Initialize our internal logging framework
         val isLoggingEnabled = globalDataStore.get().isLoggingEnabled().first()
         val config = if (isLoggingEnabled) {
@@ -254,7 +254,16 @@ class WireApplication : BaseApp() {
                 .isAppVisibleFlow()
                 .filter { isVisible -> isVisible }
                 .collect {
-                    AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.AppOpen)
+                    val currentSessionResult = coreLogic.get().getGlobalScope().session.currentSessionFlow().first()
+                    val isTeamMember = if (currentSessionResult is CurrentSessionResult.Success) {
+                        coreLogic.get().getSessionScope(currentSessionResult.accountInfo.userId).team.isSelfATeamMember()
+                    } else {
+                        null
+                    }
+
+                    AnonymousAnalyticsManagerImpl.sendEvent(
+                        AnalyticsEvent.AppOpen(isTeamMember)
+                    )
                 }
         }
     }

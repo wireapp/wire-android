@@ -65,11 +65,10 @@ fun DebugDataOptions(
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     DebugDataOptionsContent(
-        state = viewModel.state(),
+        state = viewModel.state,
         appVersion = appVersion,
         buildVariant = buildVariant,
         onCopyText = onCopyText,
-        onEnableEncryptedProteusStorageChange = viewModel::enableEncryptedProteusStorage,
         onRestartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
         onForceUpdateApiVersions = viewModel::forceUpdateApiVersions,
         onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount()) },
@@ -89,7 +88,6 @@ fun DebugDataOptionsContent(
     appVersion: String,
     buildVariant: String,
     onCopyText: (String) -> Unit,
-    onEnableEncryptedProteusStorageChange: (Boolean) -> Unit,
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
@@ -198,10 +196,7 @@ fun DebugDataOptionsContent(
                     )
                 }
             }
-            ProteusOptions(
-                isEncryptedStorageEnabled = state.isEncryptedProteusStorageEnabled,
-                onEncryptedStorageEnabledChange = onEnableEncryptedProteusStorageChange
-            )
+
             if (BuildConfig.PRIVATE_BUILD) {
                 MLSOptions(
                     keyPackagesCount = state.keyPackagesCount,
@@ -331,17 +326,6 @@ private fun MLSOptions(
 //endregion
 
 //region Proteus Options
-@Composable
-private fun ProteusOptions(
-    isEncryptedStorageEnabled: Boolean,
-    onEncryptedStorageEnabledChange: (Boolean) -> Unit,
-) {
-    FolderHeader(stringResource(R.string.label_proteus_option_title))
-    EnableEncryptedProteusStorageSwitch(
-        isEnabled = isEncryptedStorageEnabled,
-        onCheckedChange = onEncryptedStorageEnabledChange
-    )
-}
 
 @Composable
 private fun EnableEncryptedProteusStorageSwitch(
@@ -533,7 +517,6 @@ fun PreviewOtherDebugOptions() = WireTheme {
         buildVariant = "debug",
         onCopyText = {},
         state = DebugDataOptionsState(
-            isEncryptedProteusStorageEnabled = true,
             keyPackagesCount = 10,
             mslClientId = "clientId",
             mlsErrorMessage = "error",
@@ -541,7 +524,6 @@ fun PreviewOtherDebugOptions() = WireTheme {
             debugId = "debugId",
             commitish = "commitish"
         ),
-        onEnableEncryptedProteusStorageChange = {},
         onForceUpdateApiVersions = {},
         onDisableEventProcessingChange = {},
         onRestartSlowSyncForRecovery = {},

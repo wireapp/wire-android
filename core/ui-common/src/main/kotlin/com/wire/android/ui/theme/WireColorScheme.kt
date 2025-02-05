@@ -260,7 +260,7 @@ private val DarkWireColorScheme = WireColorScheme(
             Accent.Unknown -> WireColorPalette.DarkBlue500
         }
     },
-    emojiBackgroundColor = Color.White,
+    emojiBackgroundColor = Color.Black,
 )
 
 @PackagePrivate

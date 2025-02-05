@@ -25,22 +25,35 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-class CustomizationViewModelTest {
+class AppearanceViewModelTest {
 
     @Test
     fun `given theme option, when changing it, then should update global data store`() = runTest {
         val (arrangement, viewModel) = Arrangement()
+            .withEnterToSend(flowOf(false))
             .arrange()
 
         viewModel.selectThemeOption(ThemeOption.DARK)
 
         coVerify(exactly = 1) { arrangement.globalDataStore.setThemeOption(ThemeOption.DARK) }
+    }
+
+    @Test
+    fun `given enter to send option, when changing it, then should update global data store`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withEnterToSend(flowOf(true))
+            .arrange()
+
+        viewModel.selectPressEnterToSendOption(false)
+
+        coVerify(exactly = 1) { arrangement.globalDataStore.setEnterToSend(false) }
     }
 
     private class Arrangement {
@@ -51,6 +64,10 @@ class CustomizationViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { globalDataStore.setThemeOption(any()) } returns Unit
             every { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.DARK)
+        }
+
+        fun withEnterToSend(result: Flow<Boolean>) = apply {
+            every { globalDataStore.enterToSendFlow() } returns result
         }
 
         private val viewModel = CustomizationViewModel(globalDataStore)

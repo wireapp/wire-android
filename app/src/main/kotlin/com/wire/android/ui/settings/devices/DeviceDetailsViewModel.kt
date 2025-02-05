@@ -209,14 +209,14 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun mapCipherSuiteSignatureToShortName(signature: MLSPublicKeyType): String {
+    private fun mapCipherSuiteSignatureToShortName(signature: MLSPublicKeyType): String? {
         return when (signature) {
             MLSPublicKeyType.ECDSA_SECP256R1_SHA256 -> "P256"
             MLSPublicKeyType.ECDSA_SECP384R1_SHA384 -> "P384"
             MLSPublicKeyType.ECDSA_SECP521R1_SHA512 -> "P521"
             MLSPublicKeyType.ED25519 -> "ED25519"
             MLSPublicKeyType.ED448 -> "ED448"
-            is MLSPublicKeyType.Unknown -> "Unknown"
+            is MLSPublicKeyType.Unknown -> null
         }
     }
 

@@ -35,7 +35,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -80,6 +79,7 @@ class CallFeedbackViewModelTest {
             )
         }
     }
+
     @Test
     fun `given NextTimeForCallFeedbackIsNotReached when use case is observed then send Muted event`() = runTest {
         val (arrangement, _) = Arrangement()
@@ -178,7 +178,9 @@ class CallFeedbackViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
             coEvery { coreLogic.getSessionScope(any()).calls.observeAskCallFeedbackUseCase() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).calls.updateNextTimeCallFeedback(any()) } returns Unit
-            coEvery { coreLogic.getSessionScope(any()).calls.observeRecentlyEndedCallMetadata() } returns flowOf(recentlyEndedCallMetadata)
+            coEvery {
+                coreLogic.getSessionScope(any()).calls.observeRecentlyEndedCallMetadata()
+            } returns flowOf(recentlyEndedCallMetadata)
         }
 
         fun arrange() = this to viewModel

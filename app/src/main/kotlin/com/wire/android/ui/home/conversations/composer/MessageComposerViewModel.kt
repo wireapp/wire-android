@@ -114,7 +114,7 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun getEnterToSendState() {
-        viewModelScope.launch(dispatchers.io()) {
+        viewModelScope.launch {
             globalDataStore.enterToSendFlow().first().also {
                 messageComposerViewState.value = messageComposerViewState.value.copy(enterToSend = it)
             }

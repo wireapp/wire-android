@@ -1068,7 +1068,6 @@
     <string name="settings_keep_connection_to_websocket_description">Javítson az értesítések fogadásán a(z) %1$s szolgáltatáshoz való állandó kapcsolattal. Ez helyettesíti az értesítési szolgáltatásokat, ha a Google-szolgáltatások nem elérhetők az eszközén.</string>
     <string name="settings_service_is_running">szolgáltatás fut</string>
     <!--Settings, Appearance -->
-    <string name="settings_appearance_label">Megjelenés</string>
     <string name="settings_appearance_theme_label">Téma</string>
     <string name="settings_appearance_theme_option_system">Rendszerbeállítások használata</string>
     <string name="settings_appearance_theme_option_default_hint">(Alapértelmezett)</string>

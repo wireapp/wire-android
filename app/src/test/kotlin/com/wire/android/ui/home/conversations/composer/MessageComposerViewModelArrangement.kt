@@ -171,7 +171,9 @@ internal class MessageComposerViewModelArrangement {
         )
     }
 
-    fun withSuccessfulViewModelInit() = apply {
+    fun withSuccessfulViewModelInit(
+        enterToSend: Boolean = false,
+    ) = apply {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
@@ -180,6 +182,7 @@ internal class MessageComposerViewModelArrangement {
                 InteractionAvailability.ENABLED
             )
         )
+        coEvery { globalDataStore.enterToSendFlow() } returns flowOf(enterToSend)
     }
 
     fun withSaveDraftMessage() = apply {

@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.settings.appearance
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,6 +49,10 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversations.details.options.ArrowType
+import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
+import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.ThemeData
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.wireColorScheme
@@ -58,24 +63,26 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @RootNavGraph
 @WireDestination
 @Composable
-fun AppearanceScreen(
+fun CustomizationScreen(
     navigator: Navigator,
-    viewModel: AppearanceViewModel = hiltViewModel()
+    viewModel: CustomizationViewModel = hiltViewModel()
 ) {
     val lazyListState: LazyListState = rememberLazyListState()
-    AppearanceScreenContent(
+    CustomizationScreenContent(
         lazyListState = lazyListState,
         state = viewModel.state,
         onThemeOptionChanged = viewModel::selectThemeOption,
-        onBackPressed = navigator::navigateBack
+        onBackPressed = navigator::navigateBack,
+        onEnterToSendClicked = viewModel::selectPressEnterToSendOption,
     )
 }
 
 @Composable
-fun AppearanceScreenContent(
-    state: AppearanceState,
+fun CustomizationScreenContent(
+    state: CustomizationState,
     onThemeOptionChanged: (ThemeOption) -> Unit,
     onBackPressed: () -> Unit,
+    onEnterToSendClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -86,7 +93,7 @@ fun AppearanceScreenContent(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onBackPressed,
                 elevation = 0.dp,
-                title = stringResource(id = R.string.settings_appearance_label)
+                title = stringResource(id = R.string.settings_customization_label)
             )
         }
     ) { internalPadding ->
@@ -105,7 +112,33 @@ fun AppearanceScreenContent(
                 },
                 onItemClicked = onThemeOptionChanged
             )
+            item {
+                CustomizationOptionsContent(
+                    enterToSendState = state.pressEnterToSentState,
+                    enterToSendClicked = onEnterToSendClicked
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun CustomizationOptionsContent(
+    enterToSendState: Boolean,
+    enterToSendClicked: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
+        FolderHeader(stringResource(R.string.custimization_options_header_title))
+        GroupConversationOptionsItem(
+            title = stringResource(R.string.press_enter_to_send_title),
+            switchState = SwitchState.Enabled(value = enterToSendState, onCheckedChange = enterToSendClicked),
+            arrowType = ArrowType.NONE,
+            subtitle = stringResource(id = R.string.press_enter_to_send_text)
+        )
     }
 }
 
@@ -167,8 +200,9 @@ fun ThemeOptionItem(
 @PreviewMultipleThemes
 @Composable
 fun PreviewSettingsScreen() {
-    AppearanceScreenContent(
-        AppearanceState(),
+    CustomizationScreenContent(
+        CustomizationState(),
+        {},
         {},
         {},
     )

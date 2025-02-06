@@ -24,6 +24,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.substring
+import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
@@ -200,6 +201,10 @@ class MessageCompositionHolder(
             userId = UserId(contact.id, contact.domain),
             handler = String.MENTION_SYMBOL + contact.name
         )
+        if (mention.start < 0 || mention.length < 2) {
+            appLogger.e("MessageCompositionHolder: Failure to add mention")
+            return
+        }
         insertMentionIntoText(mention)
         messageComposition.update {
             it.copy(

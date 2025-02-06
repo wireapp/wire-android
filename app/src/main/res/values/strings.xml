@@ -1702,4 +1702,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="press_enter_to_send_text">When this is on, you can send messages with the Enter key on your keyboard.</string>
     <string name="custimization_options_header_title">Options</string>
 
+    <string name="cells_screen_title">Wire Cell</string>
+
 </resources>

@@ -25,6 +25,7 @@ import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelTest
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -56,6 +57,46 @@ class DeepLinkProcessorTest {
         val result = deepLinkProcessor(arrangement.uri)
         assertInstanceOf(DeepLinkResult.CustomServerConfig::class.java, result)
         assertEquals(DeepLinkResult.CustomServerConfig(url = FAKE_REMOTE_SERVER_URL), result)
+    }
+
+    @Test
+    fun `given a valid remote config deeplink with old login type, returns CustomServerConfig with old login type`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withRemoteConfigDeeplink(url = FAKE_REMOTE_SERVER_URL, loginType = LoginType.Old.name)
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri)
+        assertInstanceOf(DeepLinkResult.CustomServerConfig::class.java, result)
+        assertEquals(DeepLinkResult.CustomServerConfig(url = FAKE_REMOTE_SERVER_URL, loginType = LoginType.Old), result)
+    }
+
+    @Test
+    fun `given a valid remote config deeplink with new login type, returns CustomServerConfig with new login type`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withRemoteConfigDeeplink(url = FAKE_REMOTE_SERVER_URL, loginType = LoginType.New.name)
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri)
+        assertInstanceOf(DeepLinkResult.CustomServerConfig::class.java, result)
+        assertEquals(DeepLinkResult.CustomServerConfig(url = FAKE_REMOTE_SERVER_URL, loginType = LoginType.New), result)
+    }
+
+    @Test
+    fun `given a valid remote config deeplink without login type, returns CustomServerConfig with default login type`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withRemoteConfigDeeplink(url = FAKE_REMOTE_SERVER_URL, loginType = null)
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri)
+        assertInstanceOf(DeepLinkResult.CustomServerConfig::class.java, result)
+        assertEquals(DeepLinkResult.CustomServerConfig(url = FAKE_REMOTE_SERVER_URL, loginType = LoginType.Default), result)
+    }
+
+    @Test
+    fun `given a valid remote config deeplink with invalid login type, returns CustomServerConfig with default login type`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withRemoteConfigDeeplink(url = FAKE_REMOTE_SERVER_URL, loginType = "some-invalid-login-type")
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri)
+        assertInstanceOf(DeepLinkResult.CustomServerConfig::class.java, result)
+        assertEquals(DeepLinkResult.CustomServerConfig(url = FAKE_REMOTE_SERVER_URL, loginType = LoginType.Default), result)
     }
 
     @Test
@@ -300,9 +341,10 @@ class DeepLinkProcessorTest {
             coEvery { accountSwitchUseCase(any()) } returns switchAccountResult
         }
 
-        fun withRemoteConfigDeeplink(url: String?) = apply {
+        fun withRemoteConfigDeeplink(url: String?, loginType: String? = null) = apply {
             coEvery { uri.host } returns DeepLinkProcessor.ACCESS_DEEPLINK_HOST
             coEvery { uri.getQueryParameter(DeepLinkProcessor.SERVER_CONFIG_PARAM) } returns url
+            coEvery { uri.getQueryParameter(DeepLinkProcessor.SERVER_CONFIG_LOGIN_TYPE_PARAM) } returns loginType
             coEvery { uri.getQueryParameter(DeepLinkProcessor.SSO_LOGIN_COOKIE_PARAM) } returns null
             coEvery { uri.getQueryParameter(DeepLinkProcessor.SSO_LOGIN_SERVER_CONFIG_PARAM) } returns null
             coEvery { uri.getQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM) } returns null

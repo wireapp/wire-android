@@ -124,6 +124,7 @@ import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+import com.wire.android.util.deeplink.LoginType
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -559,7 +560,7 @@ class WireActivity : AppCompatActivity() {
                     viewModel::onJoinConversationFlowCompleted
                 )
                 CustomBackendDialog(
-                    globalAppState = viewModel.globalAppState,
+                    state = viewModel.globalAppState.customBackendDialog,
                     onDismiss = {
                         viewModel.dismissCustomBackendDialog()
                         if (isWelcomeEmptyStartDestination.getAndSet(false)) {
@@ -567,13 +568,18 @@ class WireActivity : AppCompatActivity() {
                             navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
                         }
                     },
-                    onConfirm = {
+                    onConfirm = { loginType ->
                         viewModel.customBackendDialogProceedButtonClicked {
                             navigate(
                                 NavigationCommand(
-                                    destination = when {
-                                        BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginPasswordScreenDestination()
-                                        else -> WelcomeScreenDestination
+                                    destination = when (loginType) {
+                                        LoginType.New -> NewLoginPasswordScreenDestination()
+                                        LoginType.Old -> WelcomeScreenDestination
+                                        LoginType.Default -> when {
+                                            // TODO: for now we use feature flag, but it should decide by checking API version
+                                            BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginPasswordScreenDestination()
+                                            else -> WelcomeScreenDestination
+                                        }
                                     },
                                     // if "welcome empty start" screen then switch "start" screen to proper one
                                     backStackMode = when (isWelcomeEmptyStartDestination.getAndSet(false)) {
@@ -761,6 +767,12 @@ class WireActivity : AppCompatActivity() {
                             resources.getString(R.string.deeplink_authorization_needed),
                             Toast.LENGTH_SHORT
                         ).show()
+                    }
+                },
+                onUnknown = {
+                    if (isWelcomeEmptyStartDestination.getAndSet(false)) {
+                        // log in needed so if "welcome empty start" screen then switch "start" screen to login by navigating to it
+                        navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
                     }
                 },
                 onMigrationLogin = {

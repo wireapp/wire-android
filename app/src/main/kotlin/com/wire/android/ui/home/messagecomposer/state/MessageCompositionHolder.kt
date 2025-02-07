@@ -205,12 +205,12 @@ class MessageCompositionHolder(
             appLogger.e("MessageCompositionHolder: Failure to add mention")
             return
         }
-        insertMentionIntoText(mention)
         messageComposition.update {
             it.copy(
                 selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }
             )
         }
+        insertMentionIntoText(mention)
     }
 
     private fun insertMentionIntoText(mention: UIMention) {

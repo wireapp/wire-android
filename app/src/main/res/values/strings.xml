@@ -1212,6 +1212,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_textfield_optional_password">Password (optional)</string>
     <string name="label_proteus_details">Proteus Device Details</string>
     <string name="label_mls_signature">MLS with %1$s Signature</string>
+    <string name="label_mls_no_signature_type">MLS</string>
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>

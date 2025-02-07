@@ -29,3 +29,9 @@ data class ConversationFoldersNavArgs(
 
 @Parcelize
 data class ConversationFoldersNavBackArgs(val message: String) : Parcelable
+
+@Parcelize
+data class NewConversationFolderNavBackArgs(
+    val folderName: String,
+    val folderId: String
+) : Parcelable

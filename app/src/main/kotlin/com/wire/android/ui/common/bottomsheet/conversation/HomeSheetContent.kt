@@ -146,7 +146,7 @@ internal fun ConversationMainSheetContent(
                     }
                 }
             }
-            if (moveConversationToFolder != null) {
+            if (moveConversationToFolder != null && !conversationSheetContent.isArchived) {
                 add {
                     MenuBottomSheetItem(
                         leading = {
@@ -168,7 +168,7 @@ internal fun ConversationMainSheetContent(
                     )
                 }
             }
-            if (conversationSheetContent.folder != null) {
+            if (conversationSheetContent.folder != null && !conversationSheetContent.isArchived) {
                 add {
                     MenuBottomSheetItem(
                         leading = {

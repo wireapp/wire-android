@@ -66,13 +66,18 @@ import com.wire.android.util.ui.SnackBarMessageHandler
 @Composable
 fun NewConversationFolderScreen(
     navigator: Navigator,
-    resultNavigator: ResultBackNavigator<String>,
+    resultNavigator: ResultBackNavigator<NewConversationFolderNavBackArgs>,
     viewModel: NewFolderViewModel = hiltViewModel()
 ) {
 
     LaunchedEffect(viewModel.folderNameState.folderId) {
         if (viewModel.folderNameState.folderId != null) {
-            resultNavigator.navigateBack(viewModel.folderNameState.folderId!!)
+            resultNavigator.navigateBack(
+                NewConversationFolderNavBackArgs(
+                    viewModel.textState.text.toString(),
+                    viewModel.folderNameState.folderId!!
+                )
+            )
         }
     }
 

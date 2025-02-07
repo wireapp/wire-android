@@ -30,8 +30,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -258,13 +258,15 @@ private fun InputContent(
                     UsersTypingIndicatorForConversation(conversationId = conversationId)
                 }
             }
-            MessageSendActions(
-                onSendButtonClicked = onSendButtonClicked,
-                sendButtonEnabled = canSendMessage,
-                selfDeletionTimer = viewModel.state(),
-                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                modifier = Modifier.padding(end = dimensions().spacing8x)
-            )
+            if (canSendMessage || showOptions) {
+                MessageSendActions(
+                    onSendButtonClicked = onSendButtonClicked,
+                    sendButtonEnabled = canSendMessage,
+                    selfDeletionTimer = viewModel.state(),
+                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    modifier = Modifier.padding(end = dimensions().spacing8x)
+                )
+            }
         }
     }
 }

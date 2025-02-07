@@ -19,12 +19,13 @@
 package com.wire.android.ui.common
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlin.math.absoluteValue
 
-@Composable
+@Stable
 internal fun WireColorScheme.conversationColor(id: ConversationId): Color {
     val colors = this.groupAvatarColors
     return colors[(id.hashCode() % colors.size).absoluteValue]

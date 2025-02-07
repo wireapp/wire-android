@@ -115,12 +115,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         importMediaState = importMediaState.copy(importedAssets = importMediaState.importedAssets.removeAt(index))
     }
 
-    private fun loadUserAvatar() = viewModelScope.launch(dispatchers.io()) {
+    private fun loadUserAvatar() = viewModelScope.launch {
         getSelf().collect { selfUser ->
-            withContext(dispatchers.main()) {
-                avatarAsset = selfUser.previewPicture?.let {
-                    ImageAsset.UserAvatarAsset(it)
-                }
+            avatarAsset = selfUser.previewPicture?.let {
+                ImageAsset.UserAvatarAsset(it)
             }
         }
     }
@@ -225,6 +223,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 appLogger.e("$TAG: Failed to import asset message: Unknown error")
                 null
             }
+
             is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
         }
     }

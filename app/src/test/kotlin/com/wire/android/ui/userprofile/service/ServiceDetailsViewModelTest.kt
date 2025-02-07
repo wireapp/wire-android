@@ -283,9 +283,6 @@ class ServiceDetailsViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var observeSelfUser: ObserveSelfUserUseCase
-
-        @MockK
         lateinit var getServiceById: GetServiceByIdUseCase
 
         @MockK
@@ -305,10 +302,12 @@ class ServiceDetailsViewModelTest {
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
 
+        private val selfUser = TestUser.SELF_USER
+
         private val viewModel by lazy {
             ServiceDetailsViewModel(
                 TestDispatcherProvider(),
-                observeSelfUser,
+                selfUserId = selfUser.id,
                 getServiceById,
                 observeIsServiceMember,
                 observeConversationRoleForUser,
@@ -322,32 +321,31 @@ class ServiceDetailsViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
-            coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         }
 
         fun withService(service: BotService) = apply {
             every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(service, CONVERSATION_ID)
         }
 
-        suspend fun withConversationRoleForUser(roleData: ConversationRoleData) = apply {
+        fun withConversationRoleForUser(roleData: ConversationRoleData) = apply {
             coEvery {
                 observeConversationRoleForUser.invoke(any(), any())
             } returns flowOf(roleData)
         }
 
-        suspend fun withServiceDetails(serviceDetails: ServiceDetails?) = apply {
+        fun withServiceDetails(serviceDetails: ServiceDetails?) = apply {
             coEvery { getServiceById(any()) } returns serviceDetails
         }
 
-        suspend fun withIsServiceMember(eitherMember: Either<StorageFailure, UserId?>) = apply {
+        fun withIsServiceMember(eitherMember: Either<StorageFailure, UserId?>) = apply {
             coEvery { observeIsServiceMember(any(), any()) } returns flowOf(eitherMember)
         }
 
-        suspend fun withRemoveService(result: RemoveMemberFromConversationUseCase.Result) = apply {
+        fun withRemoveService(result: RemoveMemberFromConversationUseCase.Result) = apply {
             coEvery { removeMemberFromConversation(any(), any()) } returns result
         }
 
-        suspend fun withAddService(result: AddServiceToConversationUseCase.Result) = apply {
+        fun withAddService(result: AddServiceToConversationUseCase.Result) = apply {
             coEvery { addServiceToConversation(any(), any()) } returns result
         }
 

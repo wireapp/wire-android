@@ -46,6 +46,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -354,6 +355,11 @@ class WireNotificationManager @Inject constructor(
                             .also { it.logIfEmptyUserName() }
                             .let { it.handle ?: it.name ?: "" } to calls
                     }
+//                }.map { calls ->
+//                    userSessionScope.users.getSelfUser()
+//                        .also { it?.logIfEmptyUserName() }
+//                        .let { it?.handle ?: it?.name ?: "" } to calls
+//                }
                 }
                 .collect { (userName, calls) ->
                     callNotificationManager.handleIncomingCalls(calls, userId, userName)
@@ -384,6 +390,23 @@ class WireNotificationManager @Inject constructor(
             .map { it is E2EIRequiredResult.NoGracePeriod }
             .distinctUntilChanged()
             .stateIn(scope)
+
+//        val isBlockedByE2EIRequiredState = scope.async {
+//            coreLogic.getSessionScope(userId).observeE2EIRequired()
+//                .map { it is E2EIRequiredResult.NoGracePeriod }
+//                .distinctUntilChanged()
+//                .stateIn(scope)
+//        }
+//
+//        val selfUserNameState = scope.async {
+//            coreLogic.getSessionScope(userId)
+//                .users
+//                .observeSelfUser()
+//                .onEach { it.logIfEmptyUserName() }
+//                .map { it.handle ?: it.name ?: "" }
+//                .distinctUntilChanged()
+//                .stateIn(scope)
+//        }
 
         coreLogic.getSessionScope(userId)
             .messages

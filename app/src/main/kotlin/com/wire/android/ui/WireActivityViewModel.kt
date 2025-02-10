@@ -50,6 +50,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
@@ -319,7 +320,8 @@ class WireActivityViewModel @Inject constructor(
         onMigrationLogin: (DeepLinkResult.MigrationLogin) -> Unit,
         onOpenOtherUserProfile: (DeepLinkResult.OpenOtherUserProfile) -> Unit,
         onAuthorizationNeeded: () -> Unit,
-        onCannotLoginDuringACall: () -> Unit
+        onCannotLoginDuringACall: () -> Unit,
+        onUnknown: () -> Unit,
     ) {
         viewModelScope.launch(dispatchers.io()) {
             if (shouldMigrate()) {
@@ -330,7 +332,7 @@ class WireActivityViewModel @Inject constructor(
             when (val result = deepLinkProcessor.get().invoke(intent?.data, intent?.action)) {
                 DeepLinkResult.AuthorizationNeeded -> onAuthorizationNeeded()
                 is DeepLinkResult.SSOLogin -> onSSOLogin(result)
-                is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url)
+                is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url, result.loginType)
                 is DeepLinkResult.SwitchAccountFailure.OngoingCall -> onCannotLoginDuringACall()
                 is DeepLinkResult.SwitchAccountFailure.Unknown -> appLogger.e("unknown deeplink failure")
                 is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
@@ -344,7 +346,10 @@ class WireActivityViewModel @Inject constructor(
                 is DeepLinkResult.OpenOtherUserProfile -> onOpenOtherUserProfile(result)
 
                 DeepLinkResult.SharingIntent -> onIsSharingIntent()
-                DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
+                DeepLinkResult.Unknown -> {
+                    onUnknown()
+                    appLogger.e("unknown deeplink result $result")
+                }
             }
         }
     }
@@ -437,11 +442,11 @@ class WireActivityViewModel @Inject constructor(
             }
         }
 
-    fun onCustomServerConfig(customServerUrl: String) {
+    fun onCustomServerConfig(customServerUrl: String, loginType: LoginType) {
         viewModelScope.launch(dispatchers.io()) {
             val customBackendDialogData = loadServerConfig(customServerUrl)
-                ?.let { serverLinks -> CustomServerDetailsDialogState(serverLinks = serverLinks) }
-                ?: CustomServerNoNetworkDialogState(customServerUrl)
+                ?.let { serverLinks -> CustomServerDetailsDialogState(serverLinks = serverLinks, loginType = loginType) }
+                ?: CustomServerNoNetworkDialogState(customServerUrl = customServerUrl, loginType = loginType)
 
             globalAppState = globalAppState.copy(
                 customBackendDialog = customBackendDialogData

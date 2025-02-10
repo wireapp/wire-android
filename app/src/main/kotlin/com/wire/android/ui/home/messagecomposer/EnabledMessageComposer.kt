@@ -71,6 +71,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
@@ -81,6 +82,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.wire.android.appLogger
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
@@ -223,18 +225,14 @@ fun EnabledMessageComposer(
                                         (messageCompositionInputStateHolder.inputType as InputType.Composing).isSendButtonEnabled
                             }
                         }
-                        val keyboardOptions by remember {
-                            derivedStateOf {
+                        val keyboardOptions =
                                 if (messageComposerViewState.value.enterToSend) {
                                     KeyboardOptions.Companion.MessageComposerEnterToSend
                                 } else {
                                     KeyboardOptions.Companion.MessageComposerDefault
                                 }
-                            }
-                        }
 
-                        val keyboardActionHandler by remember {
-                            derivedStateOf {
+                        val keyboardActionHandler =
                                 KeyboardActionHandler {
                                     if (canSendMessage) {
                                         onSendButtonClicked()
@@ -242,8 +240,6 @@ fun EnabledMessageComposer(
                                         Unit
                                     }
                                 }
-                            }
-                        }
 
                         ActiveMessageComposerInput(
                             conversationId = conversationId,
@@ -309,9 +305,9 @@ fun EnabledMessageComposer(
                                         }
                                     }
                                 )
-                                .onPreviewKeyEvent { keyEvent ->
+                                .onKeyEvent { keyEvent ->
                                     if (keyEvent.type != KeyEventType.KeyDown) {
-                                        return@onPreviewKeyEvent false
+                                        return@onKeyEvent false
                                     }
                                     if (keyEvent.isShiftPressed && keyEvent.key == Key.Enter) {
                                         messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState.edit {

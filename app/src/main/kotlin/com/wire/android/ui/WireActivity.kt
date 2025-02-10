@@ -67,6 +67,7 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LocalNavigator
+import com.wire.android.navigation.LoginTypeChooser
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -152,6 +153,9 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var switchAccountObserver: SwitchAccountObserver
 
+    @Inject
+    lateinit var loginTypeChooser: LoginTypeChooser
+
     private val viewModel: WireActivityViewModel by viewModels()
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
@@ -185,14 +189,18 @@ class WireActivity : AppCompatActivity() {
             appLogger.i("$TAG legal hold requested status")
             legalHoldRequestedViewModel.observeLegalHoldRequest()
 
+
+            appLogger.i("$TAG init login type chooser")
+            loginTypeChooser.initLoginTypeChooser()
+
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
-                InitialAppState.NOT_LOGGED_IN -> when {
-                    BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewWelcomeEmptyStartScreenDestination.also {
+                InitialAppState.NOT_LOGGED_IN -> when (loginTypeChooser.canUseNewLogin()) {
+                    true -> NewWelcomeEmptyStartScreenDestination.also {
                         isWelcomeEmptyStartDestination.set(true)
                     }
-                    else -> WelcomeScreenDestination
+                    false -> WelcomeScreenDestination
                 }
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
                 InitialAppState.LOGGED_IN -> HomeScreenDestination
@@ -575,10 +583,9 @@ class WireActivity : AppCompatActivity() {
                                     destination = when (loginType) {
                                         LoginType.New -> NewLoginPasswordScreenDestination()
                                         LoginType.Old -> WelcomeScreenDestination
-                                        LoginType.Default -> when {
-                                            // TODO: for now we use feature flag, but it should decide by checking API version
-                                            BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginPasswordScreenDestination()
-                                            else -> WelcomeScreenDestination
+                                        LoginType.Default -> when (loginTypeChooser.canUseNewLogin()) {
+                                            true -> NewLoginPasswordScreenDestination()
+                                            false -> WelcomeScreenDestination
                                         }
                                     },
                                     // if "welcome empty start" screen then switch "start" screen to proper one
@@ -778,9 +785,9 @@ class WireActivity : AppCompatActivity() {
                 onMigrationLogin = {
                     navigate(
                         NavigationCommand(
-                            when {
-                                BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination(userHandle = it.userHandle)
-                                else -> LoginScreenDestination(userHandle = it.userHandle)
+                            when (loginTypeChooser.canUseNewLogin()) {
+                                true -> NewLoginScreenDestination(userHandle = it.userHandle)
+                                false -> LoginScreenDestination(userHandle = it.userHandle)
                             },
                             // if "welcome empty start" screen then switch "start" screen to proper one
                             when (isWelcomeEmptyStartDestination.getAndSet(false)) {
@@ -809,9 +816,9 @@ class WireActivity : AppCompatActivity() {
                 onSSOLogin = {
                     navigate(
                         NavigationCommand(
-                            when {
-                                BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination(ssoLoginResult = it)
-                                else -> LoginScreenDestination(ssoLoginResult = it)
+                            when (loginTypeChooser.canUseNewLogin()) {
+                                true -> NewLoginScreenDestination(ssoLoginResult = it)
+                                false -> LoginScreenDestination(ssoLoginResult = it)
                             },
                             // if needs to log in and "welcome empty start" screen then switch "start" screen to login
                             when (isWelcomeEmptyStartDestination.getAndSet(false)) {

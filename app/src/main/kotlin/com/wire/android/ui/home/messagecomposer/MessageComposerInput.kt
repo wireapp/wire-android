@@ -258,15 +258,13 @@ private fun InputContent(
                     UsersTypingIndicatorForConversation(conversationId = conversationId)
                 }
             }
-            if (canSendMessage || showOptions) {
-                MessageSendActions(
-                    onSendButtonClicked = onSendButtonClicked,
-                    sendButtonEnabled = canSendMessage,
-                    selfDeletionTimer = viewModel.state(),
-                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                    modifier = Modifier.padding(end = dimensions().spacing8x)
-                )
-            }
+            MessageSendActions(
+                onSendButtonClicked = onSendButtonClicked,
+                sendButtonEnabled = canSendMessage,
+                selfDeletionTimer = viewModel.state(),
+                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                modifier = Modifier.padding(end = dimensions().spacing8x)
+            )
         }
     }
 }

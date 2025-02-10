@@ -17,16 +17,13 @@
  */
 package com.wire.android.di.accountScoped
 
-import com.wire.android.di.CurrentAccount
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.cells.CellsScope
-import com.wire.kalium.logic.feature.cells.usecase.CancelDraftUseCase
-import com.wire.kalium.logic.feature.cells.usecase.DeleteCellFileUseCase
-import com.wire.kalium.logic.feature.cells.usecase.GetCellFilesUseCase
-import com.wire.kalium.logic.feature.cells.usecase.PublishDraftUseCase
-import com.wire.kalium.logic.feature.cells.usecase.UploadToCellUseCase
+import com.wire.android.di.KaliumCellsScope
+import com.wire.kalium.cells.CellsScope
+import com.wire.kalium.cells.domain.CellUploadManager
+import com.wire.kalium.cells.domain.usecase.CancelDraftUseCase
+import com.wire.kalium.cells.domain.usecase.DeleteCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
+import com.wire.kalium.cells.domain.usecase.PublishDraftUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,30 +33,24 @@ import dagger.hilt.android.scopes.ViewModelScoped
 @Module
 @InstallIn(ViewModelComponent::class)
 class CellsModule {
-    @ViewModelScoped
-    @Provides
-    fun provideCellScopeProvider(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): CellsScope = coreLogic.getSessionScope(currentAccount).cells
 
     @ViewModelScoped
     @Provides
-    fun provideListCellFilesUseCase(cellsScope: CellsScope): GetCellFilesUseCase = cellsScope.getCellFiles
+    fun provideListCellFilesUseCase(@KaliumCellsScope cellsScope: CellsScope): GetCellFilesUseCase = cellsScope.getCellFiles
 
     @ViewModelScoped
     @Provides
-    fun provideUploadFileUseCase(cellsScope: CellsScope): UploadToCellUseCase = cellsScope.uploadToCell
+    fun provideDeleteCellFileUseCase(@KaliumCellsScope cellsScope: CellsScope): DeleteCellFileUseCase = cellsScope.deleteFromCell
 
     @ViewModelScoped
     @Provides
-    fun provideDeleteCellFileUseCase(cellsScope: CellsScope): DeleteCellFileUseCase = cellsScope.deleteFromCell
+    fun providePublishDraftUseCase(@KaliumCellsScope cellsScope: CellsScope): PublishDraftUseCase = cellsScope.publishDraft
 
     @ViewModelScoped
     @Provides
-    fun providePublishDraftUseCase(cellsScope: CellsScope): PublishDraftUseCase = cellsScope.publishDraft
+    fun provideCancelDraftUseCase(@KaliumCellsScope cellsScope: CellsScope): CancelDraftUseCase = cellsScope.cancelDraft
 
     @ViewModelScoped
     @Provides
-    fun provideCancelDraftUseCase(cellsScope: CellsScope): CancelDraftUseCase = cellsScope.cancelDraft
+    fun provideCellUploadManager(@KaliumCellsScope cellsScope: CellsScope): CellUploadManager = cellsScope.uploadManager
 }

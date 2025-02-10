@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,29 +42,38 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.button.WireButton
-import com.wire.android.ui.home.messagecomposer.rememberSingleFileBrowserFlow
+import com.wire.android.ui.home.messagecomposer.rememberMultipleFileBrowserFlow
 
 @HomeNavGraph
 @WireDestination
 @Composable
 fun WireCellScreen(
-    viewModel: CellViewModel = hiltViewModel(),
+    viewModel: CellViewModel = hiltViewModel()
 ) {
+
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
     val state by viewModel.state.collectAsState()
+
     CellScreenContent(
         state = state,
-        onFilePicked = remember { { viewModel.upload(it) } },
+        onFilesPicked = remember { { viewModel.upload(it) } },
         onFileClick = remember { { viewModel.onFileClick(it) } },
         onFileDeleteClick = remember { { viewModel.deleteFile(it) } },
     )
+
     LaunchedEffect(Unit) {
-        viewModel.listFiles()
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.uiMessage.collect { message ->
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        viewModel.listFiles()
+        onDispose {
+            viewModel.cancelObservers()
         }
     }
 }
@@ -71,12 +81,12 @@ fun WireCellScreen(
 @Composable
 private fun CellScreenContent(
     state: CellViewState,
-    onFilePicked: (Uri) -> Unit,
+    onFilesPicked: (List<Uri>) -> Unit,
     onFileClick: (CellNodeUi) -> Unit,
     onFileDeleteClick: (CellNodeUi) -> Unit,
 ) {
-    val fileFlow = rememberSingleFileBrowserFlow(
-        onFilePicked = onFilePicked,
+    val fileFlow = rememberMultipleFileBrowserFlow(
+        onFilesPicked = onFilesPicked,
         onPermissionPermanentlyDenied = {}
     )
     Column(
@@ -88,8 +98,12 @@ private fun CellScreenContent(
         LazyColumn(
             modifier = Modifier.fillMaxSize().weight(1f),
         ) {
-            items(state.files) { file ->
+            items(
+                items = state.files,
+                key = { it.node.uuid },
+            ) { file ->
                 CellFileCard(
+                    modifier = Modifier.animateItem(),
                     file = file,
                     onClick = { onFileClick(file) },
                     onClickDelete = { onFileDeleteClick(file) }

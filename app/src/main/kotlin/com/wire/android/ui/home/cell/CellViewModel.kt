@@ -19,15 +19,17 @@ package com.wire.android.ui.home.cell
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.wire.kalium.logic.data.cells.CellNode
-import com.wire.kalium.logic.feature.cells.usecase.CancelDraftUseCase
-import com.wire.kalium.logic.feature.cells.usecase.DeleteCellFileUseCase
-import com.wire.kalium.logic.feature.cells.usecase.GetCellFilesUseCase
-import com.wire.kalium.logic.feature.cells.usecase.PublishDraftUseCase
-import com.wire.kalium.logic.feature.cells.usecase.UploadToCellUseCase
+import com.wire.kalium.cells.domain.CellUploadEvent
+import com.wire.kalium.cells.domain.CellUploadManager
+import com.wire.kalium.cells.domain.model.CellNode
+import com.wire.kalium.cells.domain.usecase.CancelDraftUseCase
+import com.wire.kalium.cells.domain.usecase.DeleteCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
+import com.wire.kalium.cells.domain.usecase.PublishDraftUseCase
 import com.wire.kalium.logic.functional.onFailure
 import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,24 +39,25 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class CellViewModel @Inject constructor(
     private val listFilesUseCase: GetCellFilesUseCase,
-    private val uploadUseCase: UploadToCellUseCase,
     private val deleteUseCase: DeleteCellFileUseCase,
     private val publishDraftUseCase: PublishDraftUseCase,
     private val cancelDraftUseCase: CancelDraftUseCase,
     private val handleUriAssetUseCase: HandleUriAssetUseCase,
+    private val uploadManager: CellUploadManager,
 ) : ViewModel() {
 
     private companion object {
         const val CELL = "wire-cells-android"
-        const val LIST_DELAY = 500L
+        const val LIST_DELAY = 700L
     }
 
     private val _uiMessage = MutableSharedFlow<String>()
@@ -63,125 +66,15 @@ class CellViewModel @Inject constructor(
     private val _state = MutableStateFlow(CellViewState())
     val state = _state.asStateFlow()
 
-    private val uploadData = mutableMapOf<String, UploadData>()
+    private val uploadObservers = mutableMapOf<String, Job>()
 
-    fun upload(uri: Uri) {
-        viewModelScope.launch {
-            when (val result = handleUriAssetUseCase.invoke(uri)) {
-                is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
-                    _uiMessage.emit("Asset too large")
-                }
-
-                is HandleUriAssetUseCase.Result.Failure.Unknown -> {
-                    _uiMessage.emit("Unknown error")
-                }
-
-                is HandleUriAssetUseCase.Result.Success -> {
-
-                    val node = CellNode(
-                        uuid = UUID.randomUUID().toString(),
-                        versionId = UUID.randomUUID().toString(),
-                        path = "$CELL/${result.assetBundle.fileName}"
-                    )
-
-                    _state.update {
-                        it.copy(
-                            files = it.files + CellNodeUi(
-                                node = node,
-                                fileName = result.assetBundle.fileName,
-                                uploadProgress = 0f
-                            )
-                        )
-                    }
-
-                    val uploadJob = uploadUseCase(
-                        path = result.assetBundle.dataPath,
-                        node = node,
-                        size = result.assetBundle.dataSize,
-                        progress = { progress ->
-                            updateProgress(node.uuid, progress)
-                        }
-                    )
-
-                    uploadData[node.uuid] = UploadData(
-                        node = node,
-                        progress = 0f,
-                        job = uploadJob
-                    )
-
-                    uploadJob.await()
-                        .onSuccess {
-                            _uiMessage.emit("Upload successful")
-                            uploadData.remove(node.uuid)
-                            listFiles()
-                        }
-                        .onFailure { error ->
-                            Log.e("CellViewModel", "Upload failed: $error")
-                            _uiMessage.emit("Upload failed!")
-                            setError(node.uuid)
-                        }
-                }
-            }
-        }
-    }
-
-    private fun updateProgress(uuid: String, progress: Float) {
-        _state.update {
-            it.copy(
-                files = it.files.map { file ->
-                    if (file.node.uuid == uuid) {
-                        file.copy(uploadProgress = progress)
-                    } else {
-                        file
-                    }
-                }
-            )
-        }
-
-        uploadData[uuid]?.let {
-            uploadData[uuid] = it.copy(progress = progress)
-        }
-    }
-
-    private fun setError(uuid: String) {
-        _state.update {
-            it.copy(
-                files = it.files.map { file ->
-                    if (file.node.uuid == uuid) {
-                        file.copy(uploadError = true)
-                    } else {
-                        file
-                    }
-                }
-            )
-        }
-
-        uploadData[uuid]?.let {
-            uploadData[uuid] = it.copy(uploadError = true)
-        }
-    }
-
-    internal fun listFiles() {
+    fun listFiles() {
         viewModelScope.launch {
             listFilesUseCase(CELL)
                 .onSuccess { files ->
-                    _state.update {
-                        it.copy(
-                            files = files.map { node ->
-                                if (uploadData.containsKey(node.uuid)) {
-                                    CellNodeUi(
-                                        node = node,
-                                        fileName = node.path.substringAfterLast("/"),
-                                        uploadProgress = uploadData[node.uuid]?.progress,
-                                        uploadError = uploadData[node.uuid]?.uploadError ?: false
-                                    )
-                                } else {
-                                    CellNodeUi(
-                                        node = node,
-                                        fileName = node.path.substringAfterLast("/"),
-                                    )
-                                }
-                            }
+                    _state.update { currentState ->
+                        currentState.copy(
+                            files = files.mapToUiNodes()
                         )
                     }
                 }
@@ -192,13 +85,48 @@ class CellViewModel @Inject constructor(
         }
     }
 
+    fun upload(uris: List<Uri>) = viewModelScope.launch {
+        uris.forEach { uri ->
+            when (val result = handleUriAssetUseCase.invoke(uri)) {
+                is HandleUriAssetUseCase.Result.Success ->
+                    with(result.assetBundle) {
+                        uploadManager.upload(dataPath, dataSize, "$CELL/$fileName")
+                            .onSuccess { node ->
+                                addNewNode(node)
+                                observeUpload(node.uuid)
+                            }
+                            .onFailure { error ->
+                                Log.e("CellViewModel", "Upload failed: $error")
+                                _uiMessage.emit("Upload failed!")
+                            }
+                    }
+
+                is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
+                    _uiMessage.emit("Asset too large")
+                }
+
+                is HandleUriAssetUseCase.Result.Failure.Unknown -> {
+                    _uiMessage.emit("Unknown error")
+                }
+            }
+        }
+    }
+
     fun deleteFile(uiNode: CellNodeUi) {
+
+        _state.update { currentState ->
+            currentState.copy(
+                files = currentState.files.filter { it.node.uuid != uiNode.node.uuid }
+            )
+        }
+
         viewModelScope.launch {
 
-            val uploadData = uploadData[uiNode.node.uuid]
+            val uploadData = uploadManager.getUploadInfo(uiNode.node.uuid)
 
             if (uploadData != null) {
-                uploadData.job.cancel()
+                uploadObservers[uiNode.node.uuid]?.cancel()
+                uploadManager.cancelUpload(uiNode.node.uuid)
                 listFiles()
             } else {
                 if (uiNode.node.isDraft) {
@@ -213,7 +141,6 @@ class CellViewModel @Inject constructor(
                     .onFailure { error ->
                         Log.e("CellViewModel", "Failed to delete file: $error")
                         _uiMessage.emit("Failed to delete file")
-                        delay(LIST_DELAY)
                         listFiles()
                     }
             }
@@ -221,7 +148,8 @@ class CellViewModel @Inject constructor(
     }
 
     fun onFileClick(uiNode: CellNodeUi) {
-        if (uiNode.node.isDraft && !uploadData.containsKey(uiNode.node.uuid)) {
+        val uploadInfo = uploadManager.getUploadInfo(uiNode.node.uuid)
+        if (uiNode.node.isDraft && uploadInfo == null) {
             viewModelScope.launch {
                 publishDraftUseCase(uiNode.node)
                     .onSuccess {
@@ -235,8 +163,91 @@ class CellViewModel @Inject constructor(
             }
         }
     }
+
+    private fun addNewNode(node: CellNode) {
+        _state.update { currentState ->
+            currentState.copy(
+                files = currentState.files + CellNodeUi(
+                    node = node,
+                    fileName = node.path.substringAfterLast("/"),
+                    fileSize = node.size ?: 0,
+                    uploadProgress = 0f
+                )
+            )
+        }
+    }
+
+    private fun observeUpload(uuid: String) {
+
+        uploadObservers[uuid]?.cancel()
+
+        val observer = uploadManager.observeUpload(uuid)?.onEach { event ->
+            when (event) {
+                is CellUploadEvent.UploadProgress -> updateFile(uuid) { copy(uploadProgress = event.progress) }
+
+                CellUploadEvent.UploadCompleted -> {
+                    listFiles()
+                }
+
+                CellUploadEvent.UploadError -> updateFile(uuid) { copy(uploadError = true) }
+            }
+        }?.launchIn(viewModelScope)
+
+        observer?.let {
+            uploadObservers[uuid] = it
+        }
+    }
+
+    private fun updateFile(uuid: String, block: CellNodeUi.() -> CellNodeUi) {
+        _state.update {
+            it.copy(
+                files = it.files.map { file ->
+                    if (file.node.uuid == uuid) {
+                        block(file)
+                    } else {
+                        file
+                    }
+                }
+            )
+        }
+    }
+
+    private fun List<CellNode>.mapToUiNodes(): List<CellNodeUi> =
+            map { node ->
+
+                val uploadInfo = uploadManager.getUploadInfo(node.uuid)
+
+                if (uploadInfo != null) {
+
+                    observeUpload(node.uuid)
+
+                    CellNodeUi(
+                        node = node,
+                        fileName = node.path.substringAfterLast("/"),
+                        fileSize = node.size ?: 0,
+                        uploadProgress = uploadInfo.progress,
+                        uploadError = uploadInfo.uploadFiled
+                    )
+                } else {
+                    CellNodeUi(
+                        node = node,
+                        fileName = node.path.substringAfterLast("/"),
+                        fileSize = node.size ?: 0
+                    )
+                }
+            }
+
+    override fun onCleared() {
+        cancelObservers()
+        super.onCleared()
+    }
+
+    fun cancelObservers() {
+        uploadObservers.values.forEach { it.cancel() }
+    }
 }
 
+@Immutable
 data class CellViewState(
     val files: List<CellNodeUi> = emptyList(),
 )
@@ -244,13 +255,7 @@ data class CellViewState(
 data class CellNodeUi(
     val node: CellNode,
     val fileName: String,
+    val fileSize: Long = 0,
     val uploadProgress: Float? = null,
     val uploadError: Boolean = false,
-)
-
-private data class UploadData(
-    val node: CellNode,
-    val progress: Float,
-    val uploadError: Boolean = false,
-    val job: Job,
 )

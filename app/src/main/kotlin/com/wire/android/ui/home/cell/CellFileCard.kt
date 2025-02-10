@@ -23,7 +23,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,7 +34,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.InsertDriveFile
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
@@ -47,9 +45,10 @@ import androidx.compose.ui.unit.sp
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.cell.file.FileHeaderView
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.cells.CellNode
+import com.wire.kalium.cells.domain.model.CellNode
 
 @Composable
 fun CellFileCard(
@@ -58,9 +57,9 @@ fun CellFileCard(
     onClickDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box {
+    Box(modifier = modifier) {
         ElevatedCard(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
                 .border(
@@ -72,34 +71,18 @@ fun CellFileCard(
             shape = RoundedCornerShape(12.dp),
         ) {
             Column(
-                modifier = Modifier.height(74.dp)
+                modifier = Modifier.height(88.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(8.dp).padding(end = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        modifier = Modifier.size(16.dp),
-                        imageVector = Icons.AutoMirrored.Outlined.InsertDriveFile,
-                        tint = colorsScheme().onSurface,
-                        contentDescription = null,
-                    )
-                    Spacer(modifier = Modifier.fillMaxWidth().weight(1f))
-                    if (file.node.isDraft) {
-                        Text(
-                            modifier = Modifier
-                                .background(
-                                    color = colorsScheme().onPrimaryVariant,
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                                .padding(4.dp),
-                            text = "DRAFT",
-                            color = colorsScheme().inverseOnSurface,
-                            fontSize = 10.sp
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+                FileHeaderView(
+                    modifier = Modifier.padding(10.dp),
+                    extension = file.fileName.substringAfterLast('.'),
+                    size = file.fileSize
+                )
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                )
                 Text(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
@@ -110,7 +93,7 @@ fun CellFileCard(
                     maxLines = 2,
                     text = file.fileName,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 AnimatedVisibility(file.uploadProgress != null) {
                     WireLinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
@@ -119,6 +102,21 @@ fun CellFileCard(
                     )
                 }
             }
+        }
+        if (file.node.isDraft) {
+            Text(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .background(
+                        color = colorsScheme().onPrimaryVariant,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .padding(4.dp),
+                text = "DRAFT",
+                color = colorsScheme().inverseOnSurface,
+                fontSize = 10.sp
+            )
         }
         Icon(
             modifier = Modifier
@@ -154,7 +152,28 @@ private fun PreviewCellCard() {
                     path = "path",
                     versionId = "",
                 ),
-                fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus",
+                fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus Very Long name.docx",
+                fileSize = 1242341235,
+            ),
+            onClick = {},
+            onClickDelete = {},
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewCellCardWithProgress() {
+    WireTheme {
+        CellFileCard(
+            file = CellNodeUi(
+                node = CellNode(
+                    uuid = "uuid",
+                    path = "path",
+                    versionId = "",
+                ),
+                fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus.pdf",
+                fileSize = 124234125,
                 uploadProgress = 0.5f
             ),
             onClick = {},
@@ -175,7 +194,8 @@ private fun PreviewCellCardError() {
                     versionId = "",
                     isDraft = true,
                 ),
-                fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus",
+                fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus.doc",
+                fileSize = 124234123,
                 uploadProgress = 0.5f,
                 uploadError = true,
             ),

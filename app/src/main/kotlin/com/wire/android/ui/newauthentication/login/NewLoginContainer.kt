@@ -50,6 +50,7 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -133,6 +134,22 @@ fun NewLoginTitle(
 ) {
     Text(
         text = title,
+        style = typography().title01,
+        color = colorsScheme().onSurface,
+        textAlign = TextAlign.Center,
+        modifier = modifier
+            .padding(vertical = verticalPadding)
+    )
+}
+
+@Composable
+fun NewLoginSubtitle(
+    title: String,
+    verticalPadding: Dp = dimensions().spacing2x,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = title,
         style = MaterialTheme.wireTypography.body01,
         textAlign = TextAlign.Center,
         modifier = modifier
@@ -158,7 +175,7 @@ private fun NavigationBarBackground() = Box(
 private fun PreviewNewLoginHeader() = WireTheme {
     NewLoginHeader(
         title = {
-            NewLoginTitle("Enter your password to log in")
+            NewLoginSubtitle("Enter your password to log in")
         },
         canNavigateBack = true
     )
@@ -169,7 +186,7 @@ private fun PreviewNewLoginHeader() = WireTheme {
 private fun PreviewNewLoginHeaderNoNavigateBack() = WireTheme {
     NewLoginHeader(
         title = {
-            NewLoginTitle("Enter your password to log in")
+            NewLoginSubtitle("Enter your password to log in")
         },
         canNavigateBack = false
     )
@@ -180,8 +197,8 @@ private fun PreviewNewLoginHeaderNoNavigateBack() = WireTheme {
 private fun PreviewNewLoginHeaderTwoLines() = WireTheme {
     NewLoginHeader(
         title = {
-            NewLoginTitle("Enter your password to log in")
-            NewLoginTitle("Enter your password to log in")
+            NewLoginSubtitle("Enter your password to log in")
+            NewLoginSubtitle("Enter your password to log in")
         },
         canNavigateBack = true
     )
@@ -196,7 +213,7 @@ private fun PreviewNewLoginContent() = WireTheme {
                 header = {
                     NewLoginHeader(
                         title = {
-                            NewLoginTitle("Enter your password to log in")
+                            NewLoginSubtitle("Enter your password to log in")
                         },
                         canNavigateBack = true
                     )

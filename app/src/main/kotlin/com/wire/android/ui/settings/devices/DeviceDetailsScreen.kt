@@ -99,7 +99,7 @@ import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
 import com.wire.kalium.logic.feature.e2ei.X509Identity
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 import kotlinx.datetime.Instant
 
 @RootNavGraph

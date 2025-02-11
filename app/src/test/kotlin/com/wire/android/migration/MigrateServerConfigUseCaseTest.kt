@@ -31,9 +31,9 @@ import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.StoreServerConfigResult
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.isLeft
-import com.wire.kalium.logic.functional.isRight
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.isLeft
+import com.wire.kalium.common.functional.isRight
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

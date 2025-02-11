@@ -52,7 +52,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 
 @Composable
 fun DebugDataOptions(

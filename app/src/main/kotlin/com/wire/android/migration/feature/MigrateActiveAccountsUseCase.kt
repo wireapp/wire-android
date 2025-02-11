@@ -31,11 +31,11 @@ import com.wire.kalium.logic.data.auth.AccountTokens
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.flatMap
-import com.wire.kalium.logic.functional.getOrNull
-import com.wire.kalium.logic.functional.map
-import com.wire.kalium.logic.functional.mapLeft
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.flatMap
+import com.wire.kalium.common.functional.getOrNull
+import com.wire.kalium.common.functional.map
+import com.wire.kalium.common.functional.mapLeft
 import javax.inject.Inject
 import javax.inject.Singleton
 

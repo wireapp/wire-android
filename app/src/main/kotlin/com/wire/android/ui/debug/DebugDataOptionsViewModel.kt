@@ -46,8 +46,8 @@ import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

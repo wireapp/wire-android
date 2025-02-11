@@ -26,7 +26,7 @@ import com.wire.android.feature.e2ei.OAuthUseCase
 import com.wire.android.util.extension.getActivity
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 

@@ -39,7 +39,6 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.GenericShape
@@ -332,8 +331,7 @@ fun EnabledMessageComposer(
                         )
 
                         val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
-                        if (mentionSearchResult.isNotEmpty() && inputStateHolder.isTextExpanded
-                        ) {
+                        if (mentionSearchResult.isNotEmpty() && inputStateHolder.isTextExpanded) {
                             DropDownMentionsSuggestions(
                                 currentSelectedLineIndex = currentSelectedLineIndex,
                                 cursorCoordinateY = cursorCoordinateY,
@@ -385,7 +383,7 @@ fun EnabledMessageComposer(
                     offset = if (isImeVisible) {
                         IntOffset(0, 0)
                     } else {
-                        with(density) { IntOffset(0, -dimensions().spacing64x.toPx().roundToInt()) }
+                        with(density) { IntOffset(0, -dimensions().spacing48x.toPx().roundToInt()) }
                     },
                     onDismissRequest = {
                         hideRipple = true
@@ -404,13 +402,6 @@ fun EnabledMessageComposer(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(inputStateHolder.calculateOptionsMenuHeight(additionalOptionStateHolder.additionalOptionsSubMenuState))
-                            .padding(
-                                horizontal = if (isImeVisible) {
-                                    dimensions().spacing0x
-                                } else {
-                                    dimensions().spacing8x
-                                }
-                            )
                             .background(
                                 color = Color.Transparent,
                                 shape = shape
@@ -490,7 +481,8 @@ private fun calculateOptionsPath(cornerRadiusPx: Float, rippleProgress: Float, i
     shapePath.addRoundRect(
         roundRect = RoundRect(
             rect = size.toRect(),
-            cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)
+            topRight = CornerRadius(cornerRadiusPx, cornerRadiusPx),
+            topLeft = CornerRadius(cornerRadiusPx, cornerRadiusPx)
         )
     )
     return ripplePath.and(shapePath)

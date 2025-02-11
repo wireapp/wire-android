@@ -222,14 +222,18 @@ fun EnabledMessageComposer(
                                         (messageCompositionInputStateHolder.inputType as InputType.Composing).isSendButtonEnabled
                             }
                         }
-                        val keyboardOptions =
+                        val keyboardOptions by remember {
+                            derivedStateOf {
                                 if (messageComposerViewState.value.enterToSend) {
                                     KeyboardOptions.Companion.MessageComposerEnterToSend
                                 } else {
                                     KeyboardOptions.Companion.MessageComposerDefault
                                 }
+                            }
+                        }
 
-                        val keyboardActionHandler =
+                        val keyboardActionHandler by remember {
+                            derivedStateOf {
                                 KeyboardActionHandler {
                                     if (canSendMessage) {
                                         onSendButtonClicked()
@@ -237,6 +241,8 @@ fun EnabledMessageComposer(
                                         Unit
                                     }
                                 }
+                            }
+                        }
 
                         ActiveMessageComposerInput(
                             conversationId = conversationId,

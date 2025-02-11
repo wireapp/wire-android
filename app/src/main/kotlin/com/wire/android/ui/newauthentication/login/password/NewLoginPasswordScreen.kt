@@ -42,7 +42,6 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -98,7 +97,11 @@ fun NewLoginPasswordScreen(
 
     LaunchedEffect(loginEmailViewModel.secondFactorVerificationCodeState) {
         if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
-            navigator.navigate(NavigationCommand(NewLoginVerificationCodeScreenDestination()))
+            val verificationCodeNavArgs = LoginNavArgs(
+                customServerConfig = loginEmailViewModel.serverConfig,
+                userHandle = loginEmailViewModel.userIdentifierTextState.text.toString()
+            )
+            navigator.navigate(NavigationCommand(NewLoginVerificationCodeScreenDestination(verificationCodeNavArgs)))
         }
     }
 

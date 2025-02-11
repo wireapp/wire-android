@@ -26,12 +26,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.NewLoginNavGraph
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.email.LoginButton
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
@@ -49,8 +50,9 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@RootNavGraph
+@NewLoginNavGraph
 @WireDestination(
+    navArgsDelegate = LoginNavArgs::class,
     style = AuthSlideNavigationAnimation::class,
 )
 @Composable

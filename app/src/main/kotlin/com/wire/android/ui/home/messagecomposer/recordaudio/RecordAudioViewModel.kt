@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.AudioWavesMaskHelper
@@ -66,6 +67,7 @@ class RecordAudioViewModel @Inject constructor(
     private val audioMediaRecorder: AudioMediaRecorder,
     private val globalDataStore: GlobalDataStore,
     private val audioWavesMaskHelper: AudioWavesMaskHelper,
+    private val audioFocusHelper: AudioFocusHelper,
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem
 ) : ViewModel() {
@@ -160,6 +162,7 @@ class RecordAudioViewModel @Inject constructor(
                 infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioCall.uiText)
             }
         } else {
+            audioFocusHelper.requestExclusive()
             viewModelScope.launch(dispatchers.default()) {
                 val assetSizeLimit = getAssetSizeLimit(false)
                 if (state.shouldApplyEffects && state.effectsOutputFile == null) {
@@ -182,6 +185,7 @@ class RecordAudioViewModel @Inject constructor(
     }
 
     fun stopRecording() {
+        audioFocusHelper.abandonExclusive()
         viewModelScope.launch(dispatchers.default()) {
             if (state.buttonState == RecordAudioButtonState.RECORDING) {
                 appLogger.i("[$tag] -> Stopping audioMediaRecorder")

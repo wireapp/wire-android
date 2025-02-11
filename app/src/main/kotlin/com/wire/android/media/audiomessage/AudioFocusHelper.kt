@@ -48,13 +48,8 @@ class AudioFocusHelper @Inject constructor(private val audioManager: AudioManage
         }
     }
 
-    private val focusRequest by lazy {
-        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-            .setOnAudioFocusChangeListener(onAudioFocusChangeListener)
-            .apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) setForceDucking(true)
-            }.build()
-    }
+    private val focusRequest by lazy { buildAudioFocusRequest() }
+    private val exclusiveFocusRequest by lazy { buildAudioFocusRequest(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE) }
 
     /**
      * Requests the audio focus.
@@ -63,11 +58,26 @@ class AudioFocusHelper @Inject constructor(private val audioManager: AudioManage
     fun request(): Boolean {
         return audioManager.requestAudioFocus(focusRequest) != AudioManager.AUDIOFOCUS_REQUEST_FAILED
     }
+    /**
+     * Requests the exclusive audio focus (a temporary request of audio focus, anticipated to last a short amount of time,
+     * during which no other applications, or system components, should play anything).
+     * @return true in case if focus was granted (AudioMessage can be played), false - otherwise
+     */
+    fun requestExclusive(): Boolean {
+        return audioManager.requestAudioFocus(exclusiveFocusRequest) != AudioManager.AUDIOFOCUS_REQUEST_FAILED
+    }
 
     /**
      * Abandon the audio focus.
      */
     fun abandon() {
+        audioManager.abandonAudioFocusRequest(focusRequest)
+    }
+
+    /**
+     * Abandon the exclusive audio focus.
+     */
+    fun abandonExclusive() {
         audioManager.abandonAudioFocusRequest(focusRequest)
     }
 
@@ -82,6 +92,13 @@ class AudioFocusHelper @Inject constructor(private val audioManager: AudioManage
             }
         }
     }
+
+    private fun buildAudioFocusRequest(focusGain: Int = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK): AudioFocusRequest =
+        AudioFocusRequest.Builder(focusGain)
+            .setOnAudioFocusChangeListener(onAudioFocusChangeListener)
+            .apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) setForceDucking(true)
+            }.build()
 
     interface PlayPauseListener {
         fun onPauseCurrentAudio()

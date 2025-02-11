@@ -49,14 +49,9 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
             crashes.apply {
                 enableCrashReporting()
             }
-            apm.apply {
-                enableAppStartTimeTracking()
-                enableForegroundBackgroundTracking()
-            }
         }
 
         Countly.sharedInstance()?.init(countlyConfig)
-        Countly.sharedInstance()?.consent()?.giveConsent(arrayOf("apm"))
 
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         val globalSegmentations = mapOf<String, Any>(

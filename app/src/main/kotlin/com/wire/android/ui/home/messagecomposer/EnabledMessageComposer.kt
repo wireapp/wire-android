@@ -70,7 +70,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -308,9 +308,9 @@ fun EnabledMessageComposer(
                                         }
                                     }
                                 )
-                                .onPreviewKeyEvent { keyEvent ->
+                                .onKeyEvent { keyEvent ->
                                     if (keyEvent.type != KeyEventType.KeyDown) {
-                                        return@onPreviewKeyEvent false
+                                        return@onKeyEvent false
                                     }
                                     if (keyEvent.isShiftPressed && keyEvent.key == Key.Enter) {
                                         messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState.edit {

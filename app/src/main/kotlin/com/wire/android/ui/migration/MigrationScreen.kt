@@ -73,7 +73,7 @@ fun MigrationScreen(
                 when {
                     state.currentSessionAvailable -> HomeScreenDestination
                     BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination()
-                    else -> WelcomeScreenDestination
+                    else -> WelcomeScreenDestination()
                 },
                 BackStackMode.CLEAR_WHOLE
             )

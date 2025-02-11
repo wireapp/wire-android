@@ -138,7 +138,7 @@ fun ImportMediaScreen(
                 fileSharingRestrictedState = fileSharingRestrictedState,
                 navigateBack = navigator.finish,
                 openWireAction = {
-                    val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination
+                    val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination()
                     navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
                 }
             )

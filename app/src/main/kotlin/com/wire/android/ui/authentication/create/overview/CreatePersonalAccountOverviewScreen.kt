@@ -44,11 +44,11 @@ import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
 import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
+import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -62,42 +62,36 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreatePersonalAccountNavGraph(start = true)
-@WireDestination
+@WireDestination(navArgsDelegate = CreateAccountOverviewNavArgs::class)
 @Composable
 fun CreatePersonalAccountOverviewScreen(
     navigator: Navigator,
     viewModel: CreateAccountOverviewViewModel = hiltViewModel()
 ) {
-    with(CreateAccountFlowType.CreatePersonalAccount) {
-        fun navigateToEmailScreen() =
-            navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(CreateAccountNavArgs(this))))
-
-        OverviewContent(
-            onBackPressed = navigator::navigateBack,
-            onContinuePressed = ::navigateToEmailScreen,
-            serverConfig = viewModel.serverConfig,
-            overviewParams = CreateAccountOverviewParams(
-                title = stringResource(id = titleResId),
-                contentTitle = overviewResources.overviewContentTitleResId?.let { stringResource(id = it) } ?: "",
-                contentText = stringResource(id = overviewResources.overviewContentTextResId),
-                contentIconResId = overviewResources.overviewContentIconResId,
-                learnMoreText = stringResource(id = overviewResources.overviewLearnMoreTextResId),
-                learnMoreUrl = viewModel.learnMoreUrl()
-            )
-        )
-    }
+    CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreatePersonalAccount, viewModel)
 }
 
 @CreateTeamAccountNavGraph(start = true)
-@WireDestination
+@WireDestination(navArgsDelegate = CreateAccountOverviewNavArgs::class)
 @Composable
 fun CreateTeamAccountOverviewScreen(
     navigator: Navigator,
     viewModel: CreateAccountOverviewViewModel = hiltViewModel()
 ) {
-    with(CreateAccountFlowType.CreateTeam) {
-        fun navigateToEmailScreen() =
-            navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(CreateAccountNavArgs(this))))
+    CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreateTeam, viewModel)
+}
+
+@Composable
+fun CreateAccountOverviewScreen(
+    navigator: Navigator,
+    flowType: CreateAccountFlowType,
+    viewModel: CreateAccountOverviewViewModel,
+) {
+    with(flowType) {
+        fun navigateToEmailScreen() {
+            val createAccountNavArgs = CreateAccountNavArgs(flowType = this, customServerConfig = viewModel.navArgs.customServerConfig)
+            navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
+        }
 
         OverviewContent(
             onBackPressed = navigator::navigateBack,
@@ -110,7 +104,6 @@ fun CreateTeamAccountOverviewScreen(
                 contentIconResId = overviewResources.overviewContentIconResId,
                 learnMoreText = stringResource(id = overviewResources.overviewLearnMoreTextResId),
                 learnMoreUrl = viewModel.learnMoreUrl(),
-                isContentTextSemanticAccessible = true
             )
         )
     }
@@ -196,13 +189,7 @@ private fun OverviewTexts(
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .run {
-                    if (overviewParams.isContentTextSemanticAccessible) {
-                        this
-                    } else {
-                        clearAndSetSemantics {}
-                    }
-                }
+                .clearAndSetSemantics {}
         )
         Text(
             text = overviewParams.learnMoreText,

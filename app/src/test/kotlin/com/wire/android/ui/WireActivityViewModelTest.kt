@@ -29,7 +29,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
@@ -818,8 +817,6 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeSessionsUseCase: ObserveSessionsUseCase
 
-        var authServerConfigProvider: AuthServerConfigProvider = AuthServerConfigProvider()
-
         @MockK
         private lateinit var switchAccount: AccountSwitchUseCase
 
@@ -888,7 +885,6 @@ class WireActivityViewModelTest {
                 doesValidSessionExist = { doesValidSessionExist },
                 getServerConfigUseCase = { getServerConfigUseCase },
                 deepLinkProcessor = { deepLinkProcessor },
-                authServerConfigProvider = { authServerConfigProvider },
                 observeSessions = { observeSessionsUseCase },
                 accountSwitch = { switchAccount },
                 migrationManager = { migrationManager },

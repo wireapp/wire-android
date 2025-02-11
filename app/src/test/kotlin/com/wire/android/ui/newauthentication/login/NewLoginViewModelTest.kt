@@ -2,16 +2,14 @@ package com.wire.android.ui.newauthentication.login
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.ui.authentication.login.LoginState
-import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -33,7 +31,7 @@ class NewLoginViewModelTest {
         assertEquals(LoginState.Loading, sut.loginState.flowState)
         advanceUntilIdle()
 
-        verify { arrangement.onSuccess() }
+        verify { arrangement.onSuccess(any()) }
         assertEquals(LoginState.Default, sut.loginState.flowState)
     }
 
@@ -46,23 +44,21 @@ class NewLoginViewModelTest {
         sut.onLoginStarted(onSuccess = arrangement.onSuccess)
 
         assertEquals(LoginState.Error.TextFieldError.InvalidValue, sut.loginState.flowState)
-        verify(exactly = 0) { arrangement.onSuccess() }
+        verify(exactly = 0) { arrangement.onSuccess(any()) }
     }
 
     private class Arrangement {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
-        val authServerConfigProvider: AuthServerConfigProvider = mockk()
         val validateEmailOrSSOCodeUseCase: ValidateEmailOrSSOCodeUseCase = mockk()
 
-        val onSuccess: () -> Unit = mockk()
+        val onSuccess: (ServerConfig.Links) -> Unit = mockk()
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { authServerConfigProvider.authServer } returns MutableStateFlow((newServerConfig(1).links))
             every { savedStateHandle.get<String>(any()) } returns null
             every { savedStateHandle.set(any(), any<String>()) } returns Unit
-            every { onSuccess() } returns Unit
+            every { onSuccess(any()) } returns Unit
         }
 
         fun withEmailOrSSOCodeValidatorReturning(result: Boolean = true) = apply {
@@ -70,7 +66,6 @@ class NewLoginViewModelTest {
         }
 
         fun arrange() = this to NewLoginViewModel(
-            authServerConfigProvider,
             validateEmailOrSSOCodeUseCase,
             savedStateHandle
         )

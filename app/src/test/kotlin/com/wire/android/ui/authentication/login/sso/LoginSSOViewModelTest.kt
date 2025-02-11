@@ -20,15 +20,18 @@ package com.wire.android.ui.authentication.login.sso
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
+import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
@@ -75,7 +78,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
 class LoginSSOViewModelTest {
 
     @MockK
@@ -98,8 +101,6 @@ class LoginSSOViewModelTest {
 
     @MockK
     private lateinit var getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase
-
-    private val authServerConfigProvider: AuthServerConfigProvider = AuthServerConfigProvider()
 
     @MockK
     private lateinit var userDataStoreProvider: UserDataStoreProvider
@@ -131,8 +132,7 @@ class LoginSSOViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-
-        authServerConfigProvider.updateAuthServer(newServerConfig(1).links)
+        every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(customServerConfig = SERVER_CONFIG.links)
 
         coEvery {
             autoVersionAuthScopeUseCase(null)
@@ -150,7 +150,6 @@ class LoginSSOViewModelTest {
             validateEmailUseCase,
             coreLogic,
             clientScopeProviderFactory,
-            authServerConfigProvider,
             userDataStoreProvider
         )
     }
@@ -251,7 +250,7 @@ class LoginSSOViewModelTest {
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
 
-        loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id)
+        loginViewModel.establishSSOSession( cookie = "", serverConfigId = SERVER_CONFIG.id, serverConfig = SERVER_CONFIG.links)
         advanceUntilIdle()
 
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
@@ -318,7 +317,7 @@ class LoginSSOViewModelTest {
     @Test
     fun `given HandleSSOResult is called, when ssoResult is null, then loginSSOError state should be none`() =
         runTest {
-            loginViewModel.handleSSOResult(null)
+            loginViewModel.handleSSOResult(null, serverConfig = SERVER_CONFIG.links)
             advanceUntilIdle()
             loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error>()
         }
@@ -407,6 +406,29 @@ class LoginSSOViewModelTest {
         }
 
     @Test
+    fun `given establishSSOSession called with custom server config, then establish SSO session using custom server config`() = runTest {
+        val customConfig = newServerConfig(2)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
+        coEvery {
+            addAuthenticatedUserUseCase(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
+
+        loginViewModel.establishSSOSession("", serverConfigId = customConfig.id, serverConfig = customConfig.links)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            coreLogic.versionedAuthenticationScope(customConfig.links)
+        }
+    }
+
+    @Test
     fun `given email, when clicking login, then start the domain lookup flow`() = runTest {
         val expected = newServerConfig(2).links
         every { validateEmailUseCase(any()) } returns true
@@ -421,16 +443,23 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given backend switch confirmed, then auth server provider is updated`() = runTest {
+    fun `given backend switch confirmed and sso init successful, then open web url with updated server config`() = runTest {
         val expected = newServerConfig(2).links
         loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(expected))
         coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success("ssoCode")
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("url")
 
-        loginViewModel.onCustomServerDialogConfirm()
+        loginViewModel.openWebUrl.test {
 
-        advanceUntilIdle()
-        assertEquals(authServerConfigProvider.authServer.value, expected)
+            loginViewModel.onCustomServerDialogConfirm()
+
+            advanceUntilIdle()
+
+            val (_, resultCustomServer) = awaitItem()
+            assertEquals(resultCustomServer, expected)
+
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test
@@ -445,8 +474,8 @@ class LoginSSOViewModelTest {
         loginViewModel.onCustomServerDialogConfirm()
 
         advanceUntilIdle()
-        assertEquals(authServerConfigProvider.authServer.value, expected)
         coVerify(exactly = 1) {
+            coreLogic.versionedAuthenticationScope(expected)
             fetchSSOSettings.invoke()
             ssoInitiateLoginUseCase.invoke("wire-ssoCode")
         }
@@ -462,10 +491,13 @@ class LoginSSOViewModelTest {
         loginViewModel.onCustomServerDialogConfirm()
 
         advanceUntilIdle()
-        assertEquals(authServerConfigProvider.authServer.value, expected)
-        coVerify(exactly = 1) { fetchSSOSettings.invoke() }
-
-        coVerify(exactly = 0) { ssoInitiateLoginUseCase.invoke(any()) }
+        coVerify(exactly = 1) {
+            coreLogic.versionedAuthenticationScope(expected)
+            fetchSSOSettings.invoke()
+        }
+        coVerify(exactly = 0) {
+            ssoInitiateLoginUseCase.invoke(any())
+        }
     }
 
     @Test
@@ -478,10 +510,14 @@ class LoginSSOViewModelTest {
         loginViewModel.onCustomServerDialogConfirm()
 
         advanceUntilIdle()
-        assertEquals(authServerConfigProvider.authServer.value, expected)
-        coVerify(exactly = 1) { fetchSSOSettings.invoke() }
+        coVerify(exactly = 1) {
+            coreLogic.versionedAuthenticationScope(expected)
+            fetchSSOSettings.invoke()
+        }
 
-        coVerify(exactly = 0) { ssoInitiateLoginUseCase.invoke(any()) }
+        coVerify(exactly = 0) {
+            ssoInitiateLoginUseCase.invoke(any())
+        }
     }
 
     @Test

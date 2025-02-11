@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,21 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.authentication.create.overview
+package com.wire.android.ui.authentication.welcome
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import com.wire.android.config.orDefault
-import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-class CreateAccountOverviewViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-) : ViewModel() {
-    val navArgs: CreateAccountOverviewNavArgs = savedStateHandle.navArgs()
-    val serverConfig: ServerConfig.Links = navArgs.customServerConfig.orDefault()
-    fun learnMoreUrl(): String = serverConfig.pricing
-}
+class WelcomeNavArgs(
+    val customServerConfig: ServerConfig.Links? = null,
+)

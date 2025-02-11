@@ -18,16 +18,14 @@
 
 package com.wire.android.ui.authentication.login
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
+import com.wire.android.config.orDefault
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
@@ -39,27 +37,18 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 @Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    protected val authServerConfigProvider: AuthServerConfigProvider,
     private val userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic protected val coreLogic: CoreLogic
 ) : ViewModel() {
-    var serverConfig: ServerConfig.Links by mutableStateOf(authServerConfigProvider.authServer.value)
-        private set
-
-    init {
-        viewModelScope.launch {
-            authServerConfigProvider.authServer.collect {
-                serverConfig = it
-            }
-        }
-    }
+    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
+    val serverConfig: ServerConfig.Links = loginNavArgs.customServerConfig.orDefault()
 
     suspend fun registerClient(
         userId: UserId,

@@ -78,7 +78,7 @@ fun ForgotLockCodeScreen(
 ) {
     with(viewModel.state) {
         LaunchedEffect(completed) {
-            val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination
+            val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination()
             if (completed) navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         }
         ForgotLockCodeScreenContent(

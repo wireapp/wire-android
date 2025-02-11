@@ -26,7 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.config.DefaultServerConfig
+import com.wire.android.config.orDefault
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
@@ -47,7 +48,6 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class NewLoginViewModel @Inject constructor(
-    private val authServerConfigProvider: AuthServerConfigProvider,
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -56,17 +56,12 @@ class NewLoginViewModel @Inject constructor(
         if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
     }
 
-    var state by mutableStateOf(
-        NewLoginScreenState(
-            links = ServerConfig.DEFAULT,
-        )
-    )
+    var state by mutableStateOf(NewLoginScreenState())
         private set
     val userIdentifierTextState: TextFieldState = TextFieldState()
     var loginState by mutableStateOf(LoginEmailState())
 
     init {
-        observerAuthServer()
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
                 preFilledUserIdentifier.userIdentifier
@@ -86,13 +81,13 @@ class NewLoginViewModel @Inject constructor(
     /**
      * Starts the login flow, this will check against BE if email or sso code and relay to the corresponding flow afterwards.
      */
-    fun onLoginStarted(onSuccess: () -> Unit) {
+    fun onLoginStarted(onSuccess: (ServerConfig.Links) -> Unit) {
         viewModelScope.launch {
             if (validateEmailOrSSOCode(userIdentifierTextState.text.trim())) {
                 updateLoginFlowState(LoginState.Loading)
                 delay(1.seconds) // TODO(ym): here the call to the use case should be done.
                 updateLoginFlowState(LoginState.Default)
-                onSuccess()
+                onSuccess(DefaultServerConfig) // TODO: pass custom server config if use case returns it
             } else {
                 updateLoginFlowState(LoginState.Error.TextFieldError.InvalidValue)
                 return@launch
@@ -110,13 +105,5 @@ class NewLoginViewModel @Inject constructor(
             loginEnabled = loginState.flowState !is LoginState.Loading
                     && currentUserLoginInput.isNotEmpty()
         )
-    }
-
-    private fun observerAuthServer() {
-        viewModelScope.launch {
-            authServerConfigProvider.authServer.collect {
-                state = state.copy(links = it)
-            }
-        }
     }
 }

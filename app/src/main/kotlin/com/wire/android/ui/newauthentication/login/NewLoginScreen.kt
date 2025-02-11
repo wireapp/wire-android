@@ -42,7 +42,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -50,6 +49,7 @@ import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.NewLoginNavGraph
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.common.button.WireButtonState
@@ -65,7 +65,7 @@ import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@RootNavGraph
+@NewLoginNavGraph(start = true)
 @WireDestination(
     style = AuthPopUpNavigationAnimation::class,
     navArgsDelegate = LoginNavArgs::class,
@@ -76,10 +76,17 @@ fun NewLoginScreen(
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
     LoginContent(
-        viewModel.loginState,
-        viewModel.userIdentifierTextState,
-        viewModel::onLoginStarted,
-        navigator::navigate,
+        loginEmailState = viewModel.loginState,
+        userIdentifierState = viewModel.userIdentifierTextState,
+        onNextClicked = {
+            viewModel.onLoginStarted { serverConfig ->
+                val passwordNavArgs = LoginNavArgs(
+                    customServerConfig = serverConfig,
+                    userHandle = viewModel.userIdentifierTextState.text.toString()
+                )
+                navigator.navigate(NavigationCommand(NewLoginPasswordScreenDestination(passwordNavArgs)))
+            }
+        },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = navigator::navigateBack,
     )
@@ -90,8 +97,7 @@ fun NewLoginScreen(
 private fun LoginContent(
     loginEmailState: LoginEmailState,
     userIdentifierState: TextFieldState,
-    onNextClicked: (() -> Unit) -> Unit,
-    navigate: (NavigationCommand) -> Unit,
+    onNextClicked: () -> Unit,
     canNavigateBack: Boolean,
     navigateBack: () -> Unit,
 ) {
@@ -140,11 +146,7 @@ private fun LoginContent(
                 LoginNextButton(
                     loading = loginEmailState.flowState is LoginState.Loading,
                     enabled = loginEmailState.loginEnabled,
-                    onClick = {
-                        onNextClicked {
-                            navigate(NavigationCommand(NewLoginPasswordScreenDestination(userHandle = userIdentifierState.text.toString())))
-                        }
-                    }
+                    onClick = onNextClicked,
                 )
             }
         }
@@ -203,7 +205,6 @@ fun PreviewNewLoginScreen() = WireTheme {
                 loginEmailState = LoginEmailState(),
                 userIdentifierState = TextFieldState(),
                 onNextClicked = {},
-                navigate = {},
                 canNavigateBack = false,
                 navigateBack = {},
             )

@@ -24,7 +24,7 @@ import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.migration.userDatabase.ScalaMessageDAO
 import com.wire.android.migration.userDatabase.ScalaUserDAO
 import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.common.functional.flatMap

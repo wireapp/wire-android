@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.home.appLock.forgot
 
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 
 data class ForgotLockCodeViewState(
     val completed: Boolean = false,

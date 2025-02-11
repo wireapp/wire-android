@@ -42,7 +42,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus

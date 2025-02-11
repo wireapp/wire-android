@@ -24,7 +24,7 @@ import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailState
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailViewModel
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import io.mockk.MockKAnnotations

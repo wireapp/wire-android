@@ -29,7 +29,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveSt
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne

@@ -25,7 +25,7 @@ import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.TestClient
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase

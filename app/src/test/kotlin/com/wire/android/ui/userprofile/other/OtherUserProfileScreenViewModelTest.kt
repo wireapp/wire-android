@@ -24,7 +24,7 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.CoreFailure.Unknown
+import com.wire.kalium.common.error.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.ConversationDetails

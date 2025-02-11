@@ -28,8 +28,8 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.CLIENT_ID
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.MLS_CLIENT_IDENTITY_WITH_VALID_E2EI
-import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedClientID

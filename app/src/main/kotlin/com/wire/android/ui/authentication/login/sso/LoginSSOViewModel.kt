@@ -37,7 +37,7 @@ import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope

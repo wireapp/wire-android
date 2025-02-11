@@ -89,7 +89,7 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedClientID
 import com.wire.kalium.logic.data.user.UserId

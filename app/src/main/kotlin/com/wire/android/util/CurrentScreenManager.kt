@@ -45,6 +45,7 @@ import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
+import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
 import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
@@ -220,6 +221,7 @@ sealed class CurrentScreen {
                 is LoginScreenDestination,
                 is NewLoginScreenDestination,
                 is NewLoginPasswordScreenDestination,
+                is NewLoginVerificationCodeScreenDestination,
                 is CreatePersonalAccountOverviewScreenDestination,
                 is CreateTeamAccountOverviewScreenDestination,
                 is CreateAccountEmailScreenDestination,

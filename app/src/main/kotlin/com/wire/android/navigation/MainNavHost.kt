@@ -36,8 +36,11 @@ import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.navigation.style.DefaultNestedNavGraphAnimations
 import com.wire.android.navigation.style.DefaultRootNavGraphAnimations
 import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
+import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 
@@ -73,6 +76,14 @@ fun MainNavHost(
                     navController.getBackStackEntry(NavGraphs.newConversation.route)
                 }
                 hiltViewModel<NewConversationViewModel>(parentEntry)
+            }
+
+            // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
+            dependency(NewLoginVerificationCodeScreenDestination) {
+                val loginPasswordEntry = remember(navBackStackEntry) {
+                    navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
+                }
+                hiltViewModel<LoginEmailViewModel>(loginPasswordEntry)
             }
 
             // 👇 To tie SSOUrlConfigHolder to nested LoginNavGraph, making it shared between all screens that belong to it

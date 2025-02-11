@@ -86,6 +86,7 @@ class LoginEmailViewModel @Inject constructor(
 
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState by mutableStateOf(VerificationCodeState())
+    var autoLoginWhenFullCodeEntered: Boolean = false
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
@@ -112,7 +113,7 @@ class LoginEmailViewModel @Inject constructor(
         viewModelScope.launch {
             secondFactorVerificationCodeTextState.textAsFlow().collectLatest {
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCurrentCodeInvalid = false)
-                if (it.length == VerificationCodeState.DEFAULT_VERIFICATION_CODE_LENGTH) {
+                if (it.length == VerificationCodeState.DEFAULT_VERIFICATION_CODE_LENGTH && autoLoginWhenFullCodeEntered) {
                     login()
                 }
             }

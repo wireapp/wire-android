@@ -74,10 +74,11 @@ import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDesti
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.newauthentication.login.NewLoginContainer
 import com.wire.android.ui.newauthentication.login.NewLoginHeader
-import com.wire.android.ui.newauthentication.login.NewLoginTitle
+import com.wire.android.ui.newauthentication.login.NewLoginSubtitle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -92,11 +93,15 @@ fun NewLoginPasswordScreen(
     navigator: Navigator,
     loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 ) {
+    clearAutofillTree()
+    LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)
+
     LaunchedEffect(loginEmailViewModel.secondFactorVerificationCodeState) {
         if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
-            // TODO: handle 2FA code by opening the verification code screen
+            navigator.navigate(NavigationCommand(NewLoginVerificationCodeScreenDestination()))
         }
     }
+
     LoginPasswordContent(
         serverConfig = loginEmailViewModel.serverConfig,
         loginEmailState = loginEmailViewModel.loginState,
@@ -104,21 +109,7 @@ fun NewLoginPasswordScreen(
         proxyIdentifierState = loginEmailViewModel.proxyIdentifierTextState,
         proxyPasswordState = loginEmailViewModel.proxyPasswordTextState,
         passwordTextState = loginEmailViewModel.passwordTextState,
-        onDialogDismiss = loginEmailViewModel::clearLoginErrors,
-        onSuccess = { initialSyncCompleted, isE2EIRequired ->
-            val destination = when {
-                isE2EIRequired -> E2EIEnrollmentScreenDestination
-                initialSyncCompleted -> HomeScreenDestination
-                else -> InitialSyncScreenDestination
-            }
-            navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
-        },
-        onRemoveDeviceOpen = {
-            loginEmailViewModel.clearLoginErrors()
-            navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
-        },
         onLoginButtonClick = loginEmailViewModel::login,
-        onUpdateApp = loginEmailViewModel::updateTheApp,
         onCreateAccount = {
             // TODO: Should it open CreatePersonalAccountScreen or CreateTeamAccountScreen?
             //       Also, maybe open the second step directly - ...EmailScreen with e-mail already filled in instead of ...OverviewScreen
@@ -138,50 +129,31 @@ internal fun LoginPasswordContent(
     proxyIdentifierState: TextFieldState,
     proxyPasswordState: TextFieldState,
     loginEmailState: LoginEmailState,
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
-    onRemoveDeviceOpen: () -> Unit,
-    onDialogDismiss: () -> Unit,
     onLoginButtonClick: () -> Unit,
-    onUpdateApp: () -> Unit,
     onCreateAccount: () -> Unit,
     canNavigateBack: Boolean,
     navigateBack: () -> Unit,
 ) {
-    clearAutofillTree()
-
-    LaunchedEffect(loginEmailState.flowState) {
-        if (loginEmailState.flowState is LoginState.Success) {
-            onSuccess(loginEmailState.flowState.initialSyncCompleted, loginEmailState.flowState.isE2EIRequired)
-        } else if (loginEmailState.flowState is LoginState.Error.TooManyDevicesError) {
-            onRemoveDeviceOpen()
-        }
-    }
-    if (loginEmailState.flowState is LoginState.Error.DialogError) {
-        LoginErrorDialog(loginEmailState.flowState, onDialogDismiss, onUpdateApp)
-    }
-
     NewLoginContainer(
         header = {
-            Column {
-                NewLoginHeader(
-                    title = {
-                        if (serverConfig.isOnPremises) {
-                            ServerTitle(
-                                serverLinks = serverConfig,
-                                style = typography().title01,
-                                textColor = colorsScheme().onSurface,
-                                titleResId = R.string.enterprise_login_on_prem_welcome_title,
-                                modifier = Modifier.padding(bottom = dimensions().spacing24x),
-                            )
-                        }
-                        NewLoginTitle(
-                            title = stringResource(id = R.string.enterprise_login_title),
+            NewLoginHeader(
+                title = {
+                    if (serverConfig.isOnPremises) {
+                        ServerTitle(
+                            serverLinks = serverConfig,
+                            style = typography().title01,
+                            textColor = colorsScheme().onSurface,
+                            titleResId = R.string.enterprise_login_on_prem_welcome_title,
+                            modifier = Modifier.padding(bottom = dimensions().spacing24x),
                         )
-                    },
-                    canNavigateBack = canNavigateBack,
-                    onNavigateBack = navigateBack
-                )
-            }
+                    }
+                    NewLoginSubtitle(
+                        title = stringResource(id = R.string.enterprise_login_title),
+                    )
+                },
+                canNavigateBack = canNavigateBack,
+                onNavigateBack = navigateBack
+            )
         }
     ) {
         Column(modifier = Modifier.wrapContentHeight()) {
@@ -329,6 +301,31 @@ private fun CreateAccountContent(onCreateAccountClicked: () -> Unit, modifier: M
     }
 }
 
+@Composable
+fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Navigator) {
+    val state = viewModel.loginState.flowState
+    LaunchedEffect(state) {
+        when (state) {
+            is LoginState.Success -> {
+                val destination = when {
+                    state.isE2EIRequired -> E2EIEnrollmentScreenDestination
+                    state.initialSyncCompleted -> HomeScreenDestination
+                    else -> InitialSyncScreenDestination
+                }
+                navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
+            }
+            is LoginState.Error.TooManyDevicesError -> {
+                viewModel.clearLoginErrors()
+                navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+            }
+            else -> { /* do nothing */ }
+        }
+    }
+    if (state is LoginState.Error.DialogError) {
+        LoginErrorDialog(state, viewModel::clearLoginErrors, viewModel::updateTheApp)
+    }
+}
+
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginPasswordScreen() = WireTheme {
@@ -341,11 +338,7 @@ private fun PreviewNewLoginPasswordScreen() = WireTheme {
                 passwordTextState = TextFieldState(),
                 proxyIdentifierState = TextFieldState(),
                 proxyPasswordState = TextFieldState(),
-                onSuccess = { _, _ -> },
-                onDialogDismiss = {},
-                onRemoveDeviceOpen = {},
                 onLoginButtonClick = {},
-                onUpdateApp = {},
                 onCreateAccount = {},
                 canNavigateBack = true,
                 navigateBack = {},
@@ -369,11 +362,7 @@ private fun PreviewNewLoginPasswordWithProxyScreen() = WireTheme {
                 passwordTextState = TextFieldState(),
                 proxyIdentifierState = TextFieldState(),
                 proxyPasswordState = TextFieldState(),
-                onSuccess = { _, _ -> },
-                onDialogDismiss = {},
-                onRemoveDeviceOpen = {},
                 onLoginButtonClick = {},
-                onUpdateApp = {},
                 onCreateAccount = {},
                 canNavigateBack = false,
                 navigateBack = {},

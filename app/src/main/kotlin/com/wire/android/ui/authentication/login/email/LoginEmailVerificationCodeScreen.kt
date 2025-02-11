@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,6 +44,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
@@ -118,6 +120,7 @@ private fun MainContent(
         isLoading = isLoading,
         isCurrentCodeInvalid = codeState.isCurrentCodeInvalid,
         onResendCode = onResendCode,
+        modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing24x),
     )
     Spacer(modifier = Modifier
         .height(dimensions().spacing8x)

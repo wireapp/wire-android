@@ -19,7 +19,7 @@
 package com.wire.android.ui.authentication.create.details
 
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.NetworkFailure
 
 data class CreateAccountDetailsViewState(
     val type: CreateAccountFlowType,

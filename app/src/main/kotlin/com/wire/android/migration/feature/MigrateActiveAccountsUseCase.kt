@@ -24,7 +24,7 @@ import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.globalDatabase.ScalaActiveAccountsEntity
 import com.wire.android.migration.globalDatabase.ScalaAppDataBaseProvider
 import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountTokens

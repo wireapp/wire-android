@@ -21,9 +21,9 @@ import androidx.lifecycle.ViewModel
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.e2ei.OAuthUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.E2EIFailure
+import com.wire.kalium.common.error.E2EIFailure
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase

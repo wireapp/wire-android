@@ -24,9 +24,9 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.android.migration.util.ScalaCryptoBoxDirectoryProvider
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.RegisterClientResult

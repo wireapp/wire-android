@@ -225,21 +225,24 @@ class CallNotificationBuilder @Inject constructor(
             .setSubText(data.userName)
             .setAutoCancel(false)
             .setOngoing(true)
-            .setStyle(
-                CallStyle.forIncomingCall(
-                    person,
-                    declineCallPendingIntent(context, conversationIdString, userIdString),
-                    answerCallPendingIntent(context, conversationIdString, userIdString)
-                )
-            )
             .setVibrate(VIBRATE_PATTERN)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString))
             .let {
                 if (asFullScreenIntent) {
                     it.setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString), true)
+                        .setStyle(
+                            CallStyle.forIncomingCall(
+                                person,
+                                declineCallPendingIntent(context, conversationIdString, userIdString),
+                                answerCallPendingIntent(context, conversationIdString, userIdString)
+                            )
+                        )
                 } else {
-                    it
+                    // CallStyle available only for FullScreenIntent or Services notification.
+                    // So for non-asFullScreenIntent we have show regular notification with actions.
+                    it.addAction(getDeclineCallAction(context, conversationIdString, userIdString))
+                        .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
                 }
             }
             .build()

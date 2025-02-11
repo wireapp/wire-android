@@ -18,8 +18,10 @@
 package com.wire.android.ui.authentication.login
 
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.kalium.logic.configuration.server.ServerConfig
 
 data class LoginNavArgs(
     val userHandle: String? = null,
-    val ssoLoginResult: DeepLinkResult.SSOLogin? = null
+    val ssoLoginResult: DeepLinkResult.SSOLogin? = null,
+    val customServerConfig: ServerConfig.Links? = null,
 )

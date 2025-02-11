@@ -26,8 +26,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.config.DefaultServerConfig
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginState
@@ -39,6 +39,7 @@ import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
@@ -64,16 +65,15 @@ class LoginSSOViewModel @Inject constructor(
     private val validateEmailUseCase: ValidateEmailUseCase,
     @KaliumCoreLogic coreLogic: CoreLogic,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    authServerConfigProvider: AuthServerConfigProvider,
-    userDataStoreProvider: UserDataStoreProvider
+    userDataStoreProvider: UserDataStoreProvider,
 ) : LoginViewModel(
+    savedStateHandle,
     clientScopeProviderFactory,
-    authServerConfigProvider,
     userDataStoreProvider,
     coreLogic
 ) {
 
-    var openWebUrl = MutableSharedFlow<String>()
+    var openWebUrl = MutableSharedFlow<Pair<String, ServerConfig.Links>>()
 
     val ssoTextState: TextFieldState = TextFieldState()
     var loginState: LoginSSOState by mutableStateOf(LoginSSOState())
@@ -118,12 +118,10 @@ class LoginSSOViewModel @Inject constructor(
 
     fun onCustomServerDialogConfirm() {
         viewModelScope.launch {
-            loginState.customServerDialogState?.let {
-                authServerConfigProvider.updateAuthServer(it.serverLinks)
-
+            loginState.customServerDialogState?.let { state ->
                 // sso does not support proxy
                 // TODO: add proxy support
-                val authScope = coreLogic.versionedAuthenticationScope(it.serverLinks)(null).let {
+                val authScope = coreLogic.versionedAuthenticationScope(state.serverLinks)(null).let {
                     when (it) {
                         is AutoVersionAuthScopeUseCase.Result.Failure.Generic,
                         AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
@@ -150,7 +148,7 @@ class LoginSSOViewModel @Inject constructor(
                                     when (result) {
                                         is SSOInitiateLoginResult.Failure ->
                                             updateSSOFlowState(result.toLoginSSOError())
-                                        is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
+                                        is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl, state.serverLinks)
                                     }
                                 }
                             }
@@ -167,7 +165,7 @@ class LoginSSOViewModel @Inject constructor(
         viewModelScope.launch {
             val defaultAuthScope: AuthenticationScope =
                 coreLogic.versionedAuthenticationScope(
-                    authServerConfigProvider.defaultServerLinks()
+                    DefaultServerConfig
                     // domain lockup does not support proxy
                     // TODO: add proxy support
                 )(null).let {
@@ -225,7 +223,7 @@ class LoginSSOViewModel @Inject constructor(
             authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(ssoTextState.text.toString())).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> updateSSOFlowState(result.toLoginSSOError())
-                    is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
+                    is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl, serverConfig)
                 }
             }
         }
@@ -235,12 +233,13 @@ class LoginSSOViewModel @Inject constructor(
     @VisibleForTesting
     fun establishSSOSession(
         cookie: String,
-        serverConfigId: String
+        serverConfigId: String,
+        serverConfig: ServerConfig.Links? = null,
     ) {
         updateSSOFlowState(LoginState.Loading)
         viewModelScope.launch {
             val authScope =
-                coreLogic.versionedAuthenticationScope(serverConfig)(null).let {
+                coreLogic.versionedAuthenticationScope(serverConfig ?: this@LoginSSOViewModel.serverConfig)(null).let {
                     when (it) {
                         is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -304,10 +303,10 @@ class LoginSSOViewModel @Inject constructor(
         }
     }
 
-    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?) =
+    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?, serverConfig: ServerConfig.Links? = null) {
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
-                establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId)
+                establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId, serverConfig)
             }
 
             is DeepLinkResult.SSOLogin.Failure ->
@@ -315,11 +314,12 @@ class LoginSSOViewModel @Inject constructor(
 
             null -> {}
         }
+    }
 
-    private fun openWebUrl(url: String) {
+    private fun openWebUrl(url: String, customServerConfig: ServerConfig.Links) {
         viewModelScope.launch {
             updateSSOFlowState(LoginState.Default)
-            openWebUrl.emit(url)
+            openWebUrl.emit(url to customServerConfig)
         }
     }
 

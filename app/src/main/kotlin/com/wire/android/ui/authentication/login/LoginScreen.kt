@@ -45,7 +45,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -57,6 +56,8 @@ import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderPreview
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
@@ -79,7 +80,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
-@RootNavGraph
+@LoginNavGraph(start = true)
 @WireDestination(
     navArgsDelegate = LoginNavArgs::class
 )
@@ -87,6 +88,7 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navigator: Navigator,
     loginNavArgs: LoginNavArgs,
+    ssoUrlConfigHolder: SSOUrlConfigHolder,
     loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 ) {
 
@@ -103,7 +105,8 @@ fun LoginScreen(
             navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
         loginEmailViewModel = loginEmailViewModel,
-        ssoLoginResult = loginNavArgs.ssoLoginResult
+        ssoLoginResult = loginNavArgs.ssoLoginResult,
+        ssoUrlConfigHolder = ssoUrlConfigHolder,
     )
 }
 
@@ -113,7 +116,8 @@ private fun LoginContent(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
-    ssoLoginResult: DeepLinkResult.SSOLogin?
+    ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoUrlConfigHolder: SSOUrlConfigHolder,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         /*
@@ -128,7 +132,14 @@ private fun LoginContent(
             if (isCodeInputNecessary) {
                 LoginEmailVerificationCodeScreen(loginEmailViewModel)
             } else {
-                MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, ssoLoginResult)
+                MainLoginContent(
+                    onBackPressed = onBackPressed,
+                    onSuccess = onSuccess,
+                    onRemoveDeviceNeeded = onRemoveDeviceNeeded,
+                    loginEmailViewModel = loginEmailViewModel,
+                    ssoLoginResult = ssoLoginResult,
+                    ssoUrlConfigHolder = ssoUrlConfigHolder
+                )
             }
         }
     }
@@ -141,7 +152,8 @@ private fun MainLoginContent(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
-    ssoLoginResult: DeepLinkResult.SSOLogin?
+    ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoUrlConfigHolder: SSOUrlConfigHolder,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -210,7 +222,7 @@ private fun MainLoginContent(
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
                     LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult)
+                    LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult, ssoUrlConfigHolder)
                 }
             }
             if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
@@ -239,7 +251,8 @@ private fun PreviewLoginScreen() = WireTheme {
             onSuccess = { _, _ -> },
             onRemoveDeviceNeeded = {},
             loginEmailViewModel = hiltViewModel(),
-            ssoLoginResult = null
+            ssoLoginResult = null,
+            ssoUrlConfigHolder = SSOUrlConfigHolderPreview,
         )
     }
 }

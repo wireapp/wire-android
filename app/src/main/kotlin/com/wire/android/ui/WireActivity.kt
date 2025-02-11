@@ -569,16 +569,16 @@ class WireActivity : AppCompatActivity() {
                         }
                     },
                     onConfirm = { loginType ->
-                        viewModel.customBackendDialogProceedButtonClicked {
+                        viewModel.customBackendDialogProceedButtonClicked { serverLinks ->
                             navigate(
                                 NavigationCommand(
                                     destination = when (loginType) {
-                                        LoginType.New -> NewLoginPasswordScreenDestination()
-                                        LoginType.Old -> WelcomeScreenDestination
+                                        LoginType.New -> NewLoginPasswordScreenDestination(customServerConfig = serverLinks)
+                                        LoginType.Old -> WelcomeScreenDestination(customServerConfig = serverLinks)
                                         LoginType.Default -> when {
                                             // TODO: for now we use feature flag, but it should decide by checking API version
-                                            BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginPasswordScreenDestination()
-                                            else -> WelcomeScreenDestination
+                                            BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginPasswordScreenDestination(customServerConfig = serverLinks)
+                                            else -> WelcomeScreenDestination(customServerConfig = serverLinks)
                                         }
                                     },
                                     // if "welcome empty start" screen then switch "start" screen to proper one

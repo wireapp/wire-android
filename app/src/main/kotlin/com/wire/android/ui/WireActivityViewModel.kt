@@ -29,7 +29,6 @@ import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
@@ -111,7 +110,6 @@ class WireActivityViewModel @Inject constructor(
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
     private val deepLinkProcessor: Lazy<DeepLinkProcessor>,
-    private val authServerConfigProvider: Lazy<AuthServerConfigProvider>,
     private val observeSessions: Lazy<ObserveSessionsUseCase>,
     private val accountSwitch: Lazy<AccountSwitchUseCase>,
     private val migrationManager: Lazy<MigrationManager>,
@@ -358,15 +356,13 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(customBackendDialog = null)
     }
 
-    fun customBackendDialogProceedButtonClicked(onProceed: () -> Unit) {
+    fun customBackendDialogProceedButtonClicked(onProceed: (ServerConfig.Links) -> Unit) {
         val backendDialogState = globalAppState.customBackendDialog
         if (backendDialogState is CustomServerDetailsDialogState) {
             viewModelScope.launch {
-                authServerConfigProvider.get()
-                    .updateAuthServer(backendDialogState.serverLinks)
                 dismissCustomBackendDialog()
                 if (checkNumberOfSessions()) {
-                    onProceed()
+                    onProceed(backendDialogState.serverLinks)
                 }
             }
         }

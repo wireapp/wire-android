@@ -18,12 +18,10 @@
 
 package com.wire.android.feature
 
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
@@ -80,7 +78,6 @@ class AccountSwitchUseCaseTest {
                     .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
                     .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
                     .withGetAllSessions(GetAllSessionsResult.Success(listOf(ACCOUNT_VALID_1)))
-                    .withServerConfigForAccount(ServerConfigForAccountUseCase.Result.Success(serverConfig))
                     .arrange()
 
             val result = switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
@@ -89,7 +86,6 @@ class AccountSwitchUseCaseTest {
             coVerify(exactly = 1) {
                 arrangement.currentSession()
                 arrangement.updateCurrentSession(null)
-                arrangement.authServerProvider.updateAuthServer(serverConfig)
             }
         }
 
@@ -174,12 +170,6 @@ class AccountSwitchUseCaseTest {
         @MockK
         lateinit var deleteSession: DeleteSessionUseCase
 
-        @MockK
-        lateinit var serverConfigForAccount: ServerConfigForAccountUseCase
-
-        @MockK
-        lateinit var authServerProvider: AuthServerConfigProvider
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
@@ -189,8 +179,6 @@ class AccountSwitchUseCaseTest {
             getSessions,
             currentSession,
             deleteSession,
-            authServerProvider,
-            serverConfigForAccount,
             testScope
         )
 
@@ -208,10 +196,6 @@ class AccountSwitchUseCaseTest {
 
         fun withDeleteSession(userId: UserId, result: DeleteSessionUseCase.Result) = apply {
             coEvery { deleteSession(userId) } returns result
-        }
-
-        fun withServerConfigForAccount(result: ServerConfigForAccountUseCase.Result) = apply {
-            coEvery { serverConfigForAccount(any()) } returns result
         }
 
         fun arrange() = this to accountSwitchUseCase

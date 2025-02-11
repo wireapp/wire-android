@@ -15,8 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.newauthentication.login
+package com.wire.android.ui.authentication.login
 
-data class NewLoginScreenState(
-    val isThereActiveSession: Boolean = false,
-)
+import com.ramcosta.composedestinations.annotation.NavGraph
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+
+@RootNavGraph
+@NavGraph
+annotation class LoginNavGraph(val start: Boolean = false)
+
+@RootNavGraph
+@NavGraph
+annotation class NewLoginNavGraph(val start: Boolean = false)

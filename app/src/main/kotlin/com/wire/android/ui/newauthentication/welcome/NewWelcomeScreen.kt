@@ -41,7 +41,7 @@ fun WelcomeChooserScreen(navigator: Navigator) {
     // this is a temporary solution because annotation argument "start" must be a compile-time constant
     // TODO: remove this composable as well when removing old WelcomeScreen and set start = true for NewWelcomeScreen
     LaunchedEffect(Unit) {
-        val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination
+        val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination()
         navigator.navigate(NavigationCommand(destination))
     }
 }

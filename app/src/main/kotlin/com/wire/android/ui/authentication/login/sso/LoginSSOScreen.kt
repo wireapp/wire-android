@@ -63,6 +63,7 @@ fun LoginSSOScreen(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoUrlConfigHolder: SSOUrlConfigHolder,
     loginSSOViewModel: LoginSSOViewModel = hiltViewModel(),
     scrollState: ScrollState = rememberScrollState()
 ) {
@@ -70,7 +71,7 @@ fun LoginSSOScreen(
     val context = LocalContext.current
 
     LaunchedEffect(ssoLoginResult) {
-        loginSSOViewModel.handleSSOResult(ssoLoginResult)
+        loginSSOViewModel.handleSSOResult(ssoLoginResult, ssoUrlConfigHolder.get())
     }
     LoginSSOContent(
         scrollState = scrollState,
@@ -85,11 +86,14 @@ fun LoginSSOScreen(
         onLoginButtonClick = loginSSOViewModel::login,
         ssoLoginResult = ssoLoginResult,
         onCustomServerDialogDismiss = loginSSOViewModel::onCustomServerDialogDismiss,
-        onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm
+         onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm
     )
 
     LaunchedEffect(loginSSOViewModel) {
-        loginSSOViewModel.openWebUrl.onEach { CustomTabsHelper.launchUrl(context, it) }.launchIn(scope)
+        loginSSOViewModel.openWebUrl.onEach { (url, serverConfig) ->
+            ssoUrlConfigHolder.set(serverConfig)
+            CustomTabsHelper.launchUrl(context, url)
+        }.launchIn(scope)
     }
     LaunchedEffect(loginSSOViewModel.loginState.flowState) {
         (loginSSOViewModel.loginState.flowState as? LoginState.Success)?.let {

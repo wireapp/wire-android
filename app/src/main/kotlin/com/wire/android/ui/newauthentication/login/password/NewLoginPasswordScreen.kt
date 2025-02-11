@@ -42,7 +42,6 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -53,6 +52,7 @@ import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.NewLoginNavGraph
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.email.ForgotPasswordLabel
 import com.wire.android.ui.authentication.login.email.LoginButton
@@ -82,7 +82,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@RootNavGraph
+@NewLoginNavGraph
 @WireDestination(
     navArgsDelegate = LoginNavArgs::class,
     style = AuthSlideNavigationAnimation::class,
@@ -97,7 +97,11 @@ fun NewLoginPasswordScreen(
 
     LaunchedEffect(loginEmailViewModel.secondFactorVerificationCodeState) {
         if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
-            navigator.navigate(NavigationCommand(NewLoginVerificationCodeScreenDestination()))
+            val verificationCodeNavArgs = LoginNavArgs(
+                customServerConfig = loginEmailViewModel.serverConfig,
+                userHandle = loginEmailViewModel.userIdentifierTextState.text.toString()
+            )
+            navigator.navigate(NavigationCommand(NewLoginVerificationCodeScreenDestination(verificationCodeNavArgs)))
         }
     }
 
@@ -112,7 +116,7 @@ fun NewLoginPasswordScreen(
         onCreateAccount = {
             // TODO: Should it open CreatePersonalAccountScreen or CreateTeamAccountScreen?
             //       Also, maybe open the second step directly - ...EmailScreen with e-mail already filled in instead of ...OverviewScreen
-            navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination))
+            navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
         },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = navigator::navigateBack,

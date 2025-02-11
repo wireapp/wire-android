@@ -37,6 +37,7 @@ import com.wire.android.navigation.style.DefaultNestedNavGraphAnimations
 import com.wire.android.navigation.style.DefaultRootNavGraphAnimations
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
@@ -83,6 +84,22 @@ fun MainNavHost(
                     navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
                 }
                 hiltViewModel<LoginEmailViewModel>(loginPasswordEntry)
+            }
+
+            // 👇 To tie SSOUrlConfigHolder to nested LoginNavGraph, making it shared between all screens that belong to it
+            dependency(NavGraphs.login) {
+                val parentEntry = remember(navBackStackEntry) {
+                    navController.getBackStackEntry(NavGraphs.login.route)
+                }
+                SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
+            }
+
+            // 👇 To tie SSOUrlConfigHolder to nested NewLoginNavGraph, making it shared between all screens that belong to it
+            dependency(NavGraphs.newLogin) {
+                val parentEntry = remember(navBackStackEntry) {
+                    navController.getBackStackEntry(NavGraphs.newLogin.route)
+                }
+                SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
             }
         },
         manualComposableCallsBuilder = {

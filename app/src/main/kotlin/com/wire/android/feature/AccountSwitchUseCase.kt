@@ -21,7 +21,6 @@ package com.wire.android.feature
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -30,7 +29,6 @@ import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
@@ -53,8 +51,6 @@ class AccountSwitchUseCase @Inject constructor(
     private val getSessions: GetSessionsUseCase,
     private val getCurrentSession: CurrentSessionUseCase,
     private val deleteSession: DeleteSessionUseCase,
-    private val authServerConfigProvider: AuthServerConfigProvider,
-    private val serverConfigForAccountUseCase: ServerConfigForAccountUseCase,
     @ApplicationScope private val coroutineScope: CoroutineScope
 ) {
     val currentAccount
@@ -121,11 +117,7 @@ class AccountSwitchUseCase @Inject constructor(
     }
 
     private suspend fun switch(userId: UserId?, current: AccountInfo?): SwitchAccountResult {
-        val successResult = (userId?.let { SwitchAccountResult.SwitchedToAnotherAccount }) ?: run {
-            // if there are no more accounts, we need to change the auth server config to the one of the current user
-            current?.let { updateAuthServer(it.userId) }
-            SwitchAccountResult.NoOtherAccountToSwitch
-        }
+        val successResult = (userId?.let { SwitchAccountResult.SwitchedToAnotherAccount }) ?: SwitchAccountResult.NoOtherAccountToSwitch
         return when (updateCurrentSession(userId)) {
             is UpdateCurrentSessionUseCase.Result.Success -> {
                 current?.also {
@@ -136,16 +128,6 @@ class AccountSwitchUseCase @Inject constructor(
             is UpdateCurrentSessionUseCase.Result.Failure -> {
                 appLogger.i("$TAG Failure when switching account to: ${userId?.toLogString() ?: "-"}")
                 SwitchAccountResult.Failure
-            }
-        }
-    }
-
-    private suspend fun updateAuthServer(current: UserId) {
-        appLogger.i("$TAG Updating auth server config for account: ${current.toLogString()}")
-        serverConfigForAccountUseCase(current).let {
-            when (it) {
-                is ServerConfigForAccountUseCase.Result.Success -> authServerConfigProvider.updateAuthServer(it.config)
-                is ServerConfigForAccountUseCase.Result.Failure -> return
             }
         }
     }
@@ -216,7 +198,7 @@ class NavigationSwitchAccountActions(val navigate: (NavigationCommand) -> Unit) 
     override fun switchedToAnotherAccount() = navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
     override fun noOtherAccountToSwitch() = navigate(
         NavigationCommand(
-            if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination,
+            if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination(),
             BackStackMode.CLEAR_WHOLE
         )
     )

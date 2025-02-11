@@ -18,11 +18,13 @@
 
 package com.wire.android.ui.authentication
 
+import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginViewModel
+import com.wire.android.ui.navArgs
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -45,7 +47,7 @@ class LoginViewModelTest {
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
-    private lateinit var authServerConfigProvider: AuthServerConfigProvider
+    private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     private lateinit var userDataStoreProvider: UserDataStoreProvider
@@ -59,10 +61,10 @@ class LoginViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("", "")
-        every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+        every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(customServerConfig = newServerConfig(1).links)
         loginViewModel = LoginViewModel(
+            savedStateHandle,
             clientScopeProviderFactory,
-            authServerConfigProvider,
             userDataStoreProvider,
             coreLogic
         )

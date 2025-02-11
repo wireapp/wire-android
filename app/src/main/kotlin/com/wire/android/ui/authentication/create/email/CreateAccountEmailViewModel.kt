@@ -24,7 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.config.orDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -43,7 +43,6 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateAccountEmailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val authServerConfigProvider: AuthServerConfigProvider,
     private val validateEmail: ValidateEmailUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
@@ -54,9 +53,9 @@ class CreateAccountEmailViewModel @Inject constructor(
     var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(createAccountNavArgs.flowType))
         private set
 
-    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
+    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig.orDefault()
 
-    fun tosUrl(): String = authServerConfigProvider.authServer.value.tos
+    fun tosUrl(): String = serverConfig.tos
 
     init {
         viewModelScope.launch {

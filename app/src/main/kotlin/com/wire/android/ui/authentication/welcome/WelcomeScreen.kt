@@ -104,6 +104,7 @@ import kotlinx.coroutines.flow.scan
 @RootNavGraph
 @WireDestination(
     style = PopUpNavigationAnimation::class,
+    navArgsDelegate = WelcomeNavArgs::class
 )
 @Composable
 fun WelcomeScreen(
@@ -181,7 +182,7 @@ private fun WelcomeContent(
                         testTagsAsResourceId = true
                     }
             ) {
-                LoginButton(onClick = { navigate(NavigationCommand(LoginScreenDestination())) })
+                LoginButton(onClick = { navigate(NavigationCommand(LoginScreenDestination(customServerConfig = state))) })
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
@@ -200,7 +201,7 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination))
+                            navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(state)))
                         }
                     }
                 }
@@ -217,7 +218,7 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination))
+                            navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
                         }
                     }
                 )

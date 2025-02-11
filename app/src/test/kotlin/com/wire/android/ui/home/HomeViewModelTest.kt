@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -126,7 +127,10 @@ class HomeViewModelTest {
         lateinit var dataStore: UserDataStore
 
         @MockK
-        lateinit var getSelf: ObserveSelfUserUseCase
+        lateinit var observeSelfUser: ObserveSelfUserUseCase
+
+        @MockK
+        lateinit var getSelf: GetSelfUserUseCase
 
         @MockK
         lateinit var needsToRegisterClient: NeedsToRegisterClientUseCase
@@ -148,12 +152,13 @@ class HomeViewModelTest {
                 savedStateHandle = savedStateHandle,
                 globalDataStore = globalDataStore,
                 dataStore = dataStore,
-                observeSelf = getSelf,
+                observeSelf = observeSelfUser,
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser,
                 analyticsManager = analyticsManager,
-                canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam
+                canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
+                getSelfUser = getSelf,
             )
         }
 
@@ -164,7 +169,7 @@ class HomeViewModelTest {
         }
 
         fun withGetSelf(result: Flow<SelfUser>) = apply {
-            coEvery { getSelf.invoke() } returns result
+            coEvery { observeSelfUser.invoke() } returns result
         }
 
         private fun withCanMigrateFromPersonalToTeamReturning(result: Boolean) = apply {

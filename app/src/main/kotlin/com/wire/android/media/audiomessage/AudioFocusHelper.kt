@@ -58,6 +58,7 @@ class AudioFocusHelper @Inject constructor(private val audioManager: AudioManage
     fun request(): Boolean {
         return audioManager.requestAudioFocus(focusRequest) != AudioManager.AUDIOFOCUS_REQUEST_FAILED
     }
+
     /**
      * Requests the exclusive audio focus (a temporary request of audio focus, anticipated to last a short amount of time,
      * during which no other applications, or system components, should play anything).

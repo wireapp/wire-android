@@ -42,7 +42,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -68,7 +68,7 @@ import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.functional.getOrNull
+import com.wire.kalium.common.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

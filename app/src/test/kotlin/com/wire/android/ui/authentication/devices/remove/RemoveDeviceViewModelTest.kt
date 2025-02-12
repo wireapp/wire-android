@@ -21,7 +21,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.TestClient.CLIENT
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase

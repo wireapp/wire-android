@@ -30,8 +30,8 @@ import com.wire.kalium.cells.domain.usecase.CancelDraftUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
 import com.wire.kalium.cells.domain.usecase.PublishDraftUseCase
-import com.wire.kalium.logic.functional.onFailure
-import com.wire.kalium.logic.functional.onSuccess
+import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

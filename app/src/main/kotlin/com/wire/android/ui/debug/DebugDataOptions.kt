@@ -197,12 +197,11 @@ fun DebugDataOptionsContent(
                 }
             }
 
-            if (BuildConfig.DEBUG) {
+            if (BuildConfig.PRIVATE_BUILD) {
                 MLSOptions(
                     keyPackagesCount = state.keyPackagesCount,
                     mlsClientId = state.mslClientId,
                     mlsErrorMessage = state.mlsErrorMessage,
-                    restartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                     onCopyText = onCopyText
                 )
             }
@@ -296,18 +295,13 @@ private fun MLSOptions(
     mlsClientId: String,
     mlsErrorMessage: String,
     onCopyText: (String) -> Unit,
-    restartSlowSyncForRecovery: () -> Unit
 ) {
     FolderHeader(stringResource(R.string.label_mls_option_title))
     Column {
         SettingsItem(
             title = "Error Message",
             text = mlsErrorMessage,
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = restartSlowSyncForRecovery
-            )
+            trailingIcon = null
         )
         SettingsItem(
             title = stringResource(R.string.label_key_packages_count),

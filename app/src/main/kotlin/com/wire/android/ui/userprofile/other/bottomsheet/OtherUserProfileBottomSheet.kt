@@ -42,7 +42,7 @@ fun OtherUserProfileBottomSheetContent(
     closeBottomSheet: () -> Unit,
     getBottomSheetVisibility: () -> Boolean,
     removeFromFolder: (conversationId: ConversationId, conversationName: String, folder: ConversationFolder) -> Unit,
-    onMoveToFolder: ((ConversationFoldersNavArgs) -> Unit)?
+    onMoveToFolder: (ConversationFoldersNavArgs) -> Unit
 ) {
     when (val state = bottomSheetState.bottomSheetContentState) {
         is BottomSheetContent.Conversation -> {

@@ -1103,7 +1103,6 @@
     <string name="settings_keep_connection_to_websocket_description">Позволяет оптимизировать получение уведомлений, поддерживая постоянное соединение с %1$s. Эта опция заменит службу уведомлений, если Google Services недоступны на устройстве.</string>
     <string name="settings_service_is_running">активен</string>
     <!--Settings, Appearance -->
-    <string name="settings_appearance_label">Внешний вид</string>
     <string name="settings_appearance_theme_label">Тема</string>
     <string name="settings_appearance_theme_option_system">Как в системе</string>
     <string name="settings_appearance_theme_option_default_hint">(По умолчанию)</string>

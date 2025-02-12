@@ -157,7 +157,7 @@ internal fun WireTextField(
                     textState,
                     onSelectedLineIndexChanged,
                     onLineBottomYCoordinateChanged
-                )
+                ),
             )
         }
     )
@@ -181,6 +181,24 @@ val KeyboardOptions.Companion.DefaultText: KeyboardOptions
     get() = Default.copy(
         keyboardType = KeyboardType.Text,
         imeAction = ImeAction.Done,
+        autoCorrectEnabled = true,
+        capitalization = KeyboardCapitalization.Sentences,
+    )
+
+@Stable
+val KeyboardOptions.Companion.MessageComposerEnterToSend: KeyboardOptions
+    get() = Default.copy(
+        keyboardType = KeyboardType.Text,
+        imeAction = ImeAction.Send,
+        autoCorrectEnabled = true,
+        capitalization = KeyboardCapitalization.Sentences,
+    )
+
+@Stable
+val KeyboardOptions.Companion.MessageComposerDefault: KeyboardOptions
+    get() = Default.copy(
+        keyboardType = KeyboardType.Text,
+        imeAction = ImeAction.None,
         autoCorrectEnabled = true,
         capitalization = KeyboardCapitalization.Sentences,
     )

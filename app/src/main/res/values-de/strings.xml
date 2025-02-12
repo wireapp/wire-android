@@ -1012,7 +1012,6 @@
     <string name="settings_keep_connection_to_websocket_description">Verbessern Sie den Empfang von Benachrichtigungen, indem Sie eine ständige Verbindung zu %1$s aufrechterhalten. Es ersetzt die Benachrichtigungsdienste, wenn die Google-Dienste auf Ihrem Gerät nicht verfügbar sind.</string>
     <string name="settings_service_is_running">Dienst wird ausgeführt</string>
     <!--Settings, Appearance -->
-    <string name="settings_appearance_label">Erscheinungsbild</string>
     <string name="settings_appearance_theme_label">Hintergrund</string>
     <string name="settings_appearance_theme_option_system">Mit Systemeinstellungen synchronisieren</string>
     <string name="settings_appearance_theme_option_default_hint">(Standard)</string>

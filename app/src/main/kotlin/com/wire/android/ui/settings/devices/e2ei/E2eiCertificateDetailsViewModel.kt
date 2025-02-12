@@ -22,17 +22,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.navArgs
 import com.wire.android.util.fileDateTime
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class E2eiCertificateDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val observerSelfUser: ObserveSelfUserUseCase,
+    private val getSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {
     private val navArgs: E2eiCertificateDetailsScreenNavArgs =
         savedStateHandle.navArgs()
@@ -40,12 +39,12 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
     private var selfUserHandle: String? = null
 
     init {
-        getSelfUserId()
+        getSelfUserHandle()
     }
 
-    private fun getSelfUserId() {
+    private fun getSelfUserHandle() {
         viewModelScope.launch {
-            selfUserHandle = observerSelfUser().first().handle
+            selfUserHandle = getSelfUser()?.handle
         }
     }
 

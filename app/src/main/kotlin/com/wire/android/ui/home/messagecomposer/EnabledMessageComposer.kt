@@ -39,13 +39,15 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +66,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -76,6 +84,8 @@ import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversa
 import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.textfield.MessageComposerDefault
+import com.wire.android.ui.common.textfield.MessageComposerEnterToSend
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -206,10 +216,40 @@ fun EnabledMessageComposer(
                     Box(fillRemainingSpaceOrWrapContent, contentAlignment = Alignment.BottomCenter) {
                         var currentSelectedLineIndex by remember { mutableStateOf(0) }
                         var cursorCoordinateY by remember { mutableStateOf(0F) }
+                        val canSendMessage by remember {
+                            derivedStateOf {
+                                messageCompositionInputStateHolder.inputType is InputType.Composing &&
+                                        (messageCompositionInputStateHolder.inputType as InputType.Composing).isSendButtonEnabled
+                            }
+                        }
+                        val keyboardOptions by remember {
+                            derivedStateOf {
+                                if (messageComposerViewState.value.enterToSend) {
+                                    KeyboardOptions.Companion.MessageComposerEnterToSend
+                                } else {
+                                    KeyboardOptions.Companion.MessageComposerDefault
+                                }
+                            }
+                        }
+
+                        val keyboardActionHandler by remember {
+                            derivedStateOf {
+                                KeyboardActionHandler {
+                                    if (canSendMessage) {
+                                        onSendButtonClicked()
+                                    } else {
+                                        Unit
+                                    }
+                                }
+                            }
+                        }
 
                         ActiveMessageComposerInput(
                             conversationId = conversationId,
                             messageComposition = messageComposition.value,
+                            keyboardOptions = keyboardOptions,
+                            onKeyboardAction = keyboardActionHandler,
+                            canSendMessage = canSendMessage,
                             messageTextState = inputStateHolder.messageTextState,
                             isTextExpanded = inputStateHolder.isTextExpanded,
                             inputType = messageCompositionInputStateHolder.inputType,
@@ -267,12 +307,31 @@ fun EnabledMessageComposer(
                                             transferableContent
                                         }
                                     }
-                                ),
+                                )
+                                .onKeyEvent { keyEvent ->
+                                    if (keyEvent.type != KeyEventType.KeyDown) {
+                                        return@onKeyEvent false
+                                    }
+                                    if (keyEvent.isShiftPressed && keyEvent.key == Key.Enter) {
+                                        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState.edit {
+                                            append("\n")
+                                        }
+                                        true
+                                    } else if (keyEvent.key == Key.Enter) {
+                                        if (canSendMessage) {
+                                            onSendButtonClicked()
+                                        } else {
+                                            Unit
+                                        }
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                },
                         )
 
                         val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
-                        if (mentionSearchResult.isNotEmpty() && inputStateHolder.isTextExpanded
-                        ) {
+                        if (mentionSearchResult.isNotEmpty() && inputStateHolder.isTextExpanded) {
                             DropDownMentionsSuggestions(
                                 currentSelectedLineIndex = currentSelectedLineIndex,
                                 cursorCoordinateY = cursorCoordinateY,
@@ -324,7 +383,7 @@ fun EnabledMessageComposer(
                     offset = if (isImeVisible) {
                         IntOffset(0, 0)
                     } else {
-                        with(density) { IntOffset(0, -dimensions().spacing64x.toPx().roundToInt()) }
+                        with(density) { IntOffset(0, -dimensions().spacing48x.toPx().roundToInt()) }
                     },
                     onDismissRequest = {
                         hideRipple = true
@@ -343,13 +402,6 @@ fun EnabledMessageComposer(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(inputStateHolder.calculateOptionsMenuHeight(additionalOptionStateHolder.additionalOptionsSubMenuState))
-                            .padding(
-                                horizontal = if (isImeVisible) {
-                                    dimensions().spacing0x
-                                } else {
-                                    dimensions().spacing8x
-                                }
-                            )
                             .background(
                                 color = Color.Transparent,
                                 shape = shape
@@ -429,7 +481,8 @@ private fun calculateOptionsPath(cornerRadiusPx: Float, rippleProgress: Float, i
     shapePath.addRoundRect(
         roundRect = RoundRect(
             rect = size.toRect(),
-            cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)
+            topRight = CornerRadius(cornerRadiusPx, cornerRadiusPx),
+            topLeft = CornerRadius(cornerRadiusPx, cornerRadiusPx)
         )
     )
     return ripplePath.and(shapePath)

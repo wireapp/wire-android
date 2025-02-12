@@ -51,7 +51,7 @@ fun messagePendingIntent(context: Context, conversationId: String, userId: Strin
             .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
             .build()
     }
-    val requestCode = getRequestCode(conversationId, OPEN_MESSAGE_REQUEST_CODE_PREFIX)
+    val requestCode = getRequestCode(OPEN_MESSAGE_REQUEST_CODE_PREFIX, userId.orEmpty(), conversationId)
 
     return PendingIntent.getActivity(
         context.applicationContext,
@@ -70,7 +70,7 @@ fun otherUserProfilePendingIntent(context: Context, destinationUserId: String, u
             .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
             .build()
     }
-    val requestCode = getRequestCode(destinationUserId, OPEN_OTHER_USER_PROFILE_CODE_PREFIX)
+    val requestCode = getRequestCode(OPEN_OTHER_USER_PROFILE_CODE_PREFIX, userId, destinationUserId)
 
     return PendingIntent.getActivity(
         context.applicationContext,
@@ -88,7 +88,7 @@ fun summaryMessagePendingIntent(context: Context): PendingIntent = openAppPendin
 
 fun replyMessagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent = PendingIntent.getBroadcast(
     context,
-    getRequestCode(conversationId, REPLY_MESSAGE_REQUEST_CODE_PREFIX),
+    getRequestCode(REPLY_MESSAGE_REQUEST_CODE_PREFIX, userId.orEmpty(), conversationId),
     NotificationReplyReceiver.newIntent(context, conversationId, userId),
     PendingIntent.FLAG_MUTABLE
 )
@@ -109,7 +109,7 @@ fun endOngoingCallPendingIntent(context: Context, conversationId: String, userId
 
     return PendingIntent.getBroadcast(
         context.applicationContext,
-        getRequestCode(conversationId, END_ONGOING_CALL_REQUEST_CODE),
+        getRequestCode(END_ONGOING_CALL_REQUEST_CODE, userId, conversationId),
         intent,
         PendingIntent.FLAG_IMMUTABLE
     )
@@ -125,7 +125,7 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
 
     return PendingIntent.getBroadcast(
         context.applicationContext,
-        getRequestCode(conversationId, DECLINE_CALL_REQUEST_CODE),
+        getRequestCode(DECLINE_CALL_REQUEST_CODE, userId, conversationId),
         intent,
         PendingIntent.FLAG_IMMUTABLE
     )
@@ -149,7 +149,7 @@ fun answerCallPendingIntent(context: Context, conversationId: String, userId: St
         )
         return PendingIntent.getBroadcast(
             context.applicationContext,
-            getRequestCode(conversationId, ANSWER_CALL_REQUEST_CODE),
+            getRequestCode(ANSWER_CALL_REQUEST_CODE, userId, conversationId),
             intent,
             PendingIntent.FLAG_IMMUTABLE
         )
@@ -174,7 +174,7 @@ fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String
 
     return PendingIntent.getActivity(
         context,
-        getRequestCode(conversationId, FULL_SCREEN_REQUEST_CODE),
+        getRequestCode(FULL_SCREEN_REQUEST_CODE, userId, conversationId),
         intent,
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
@@ -227,7 +227,7 @@ fun playPauseAudioPendingIntent(context: Context): PendingIntent {
 
     return PendingIntent.getBroadcast(
         context.applicationContext,
-        getRequestCode("", PLAY_PAUSE_AUDIO_REQUEST_CODE),
+        getRequestCode(PLAY_PAUSE_AUDIO_REQUEST_CODE),
         intent,
         PendingIntent.FLAG_IMMUTABLE
     )
@@ -238,7 +238,7 @@ fun stopAudioPendingIntent(context: Context): PendingIntent {
 
     return PendingIntent.getBroadcast(
         context.applicationContext,
-        getRequestCode("", STOP_AUDIO_REQUEST_CODE),
+        getRequestCode(STOP_AUDIO_REQUEST_CODE),
         intent,
         PendingIntent.FLAG_IMMUTABLE
     )
@@ -258,4 +258,5 @@ private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"
 private const val REPLY_MESSAGE_REQUEST_CODE_PREFIX = "reply_"
 
-private fun getRequestCode(conversationId: String, prefix: String): Int = (prefix + conversationId).hashCode()
+private fun getRequestCode(prefix: String, userId: String = "", conversationId: String = ""): Int =
+    (prefix + userId + conversationId).hashCode()

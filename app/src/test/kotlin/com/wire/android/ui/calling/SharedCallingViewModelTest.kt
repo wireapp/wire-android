@@ -73,7 +73,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SharedCallingViewModelTest {
 
     @MockK
-    private lateinit var establishedCall: ObserveEstablishedCallWithSortedParticipantsUseCase
+    private lateinit var observeEstablishedCall: ObserveEstablishedCallWithSortedParticipantsUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -141,7 +141,7 @@ class SharedCallingViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        coEvery { establishedCall.invoke(any()) } returns callFlow
+        coEvery { observeEstablishedCall.invoke() } returns callFlow
         coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()
         coEvery { observeSpeaker.invoke() } returns emptyFlow()
         coEvery { observeInCallReactionsUseCase(any()) } returns reactionsFlow
@@ -150,7 +150,7 @@ class SharedCallingViewModelTest {
         sharedCallingViewModel = SharedCallingViewModel(
             conversationId = conversationId,
             conversationDetails = observeConversationDetails,
-            observeEstablishedCallWithSortedParticipants = establishedCall,
+            observeEstablishedCallWithSortedParticipants = observeEstablishedCall,
             endCall = endCall,
             muteCall = muteCall,
             flipToFrontCamera = flipToFrontCamera,

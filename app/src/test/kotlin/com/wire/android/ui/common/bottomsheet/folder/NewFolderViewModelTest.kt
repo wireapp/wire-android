@@ -26,7 +26,7 @@ import com.wire.android.model.DefaultSnackBarMessage
 import com.wire.android.ui.home.conversations.folder.FolderNameState
 import com.wire.android.ui.home.conversations.folder.NewFolderViewModel
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.FolderType
 import com.wire.kalium.logic.feature.conversation.folder.CreateConversationFolderUseCase

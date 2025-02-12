@@ -24,7 +24,7 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.model.asSnackBarMessage
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.feature.conversation.folder.AddConversationToFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
 import io.mockk.MockKAnnotations

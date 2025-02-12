@@ -29,7 +29,7 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.toByteArray
-import com.wire.kalium.logic.CoreFailure.Unknown
+import com.wire.kalium.common.error.CoreFailure.Unknown
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.AssetId

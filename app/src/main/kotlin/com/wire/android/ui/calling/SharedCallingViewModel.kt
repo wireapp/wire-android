@@ -125,7 +125,7 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            val allCallsSharedFlow = observeEstablishedCallWithSortedParticipants(conversationId)
+            val allCallsSharedFlow = observeEstablishedCallWithSortedParticipants()
                 .flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
 
             launch {

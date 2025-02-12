@@ -39,7 +39,6 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.GenericShape
@@ -71,7 +70,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -309,9 +308,9 @@ fun EnabledMessageComposer(
                                         }
                                     }
                                 )
-                                .onPreviewKeyEvent { keyEvent ->
+                                .onKeyEvent { keyEvent ->
                                     if (keyEvent.type != KeyEventType.KeyDown) {
-                                        return@onPreviewKeyEvent false
+                                        return@onKeyEvent false
                                     }
                                     if (keyEvent.isShiftPressed && keyEvent.key == Key.Enter) {
                                         messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState.edit {
@@ -384,7 +383,7 @@ fun EnabledMessageComposer(
                     offset = if (isImeVisible) {
                         IntOffset(0, 0)
                     } else {
-                        with(density) { IntOffset(0, -dimensions().spacing64x.toPx().roundToInt()) }
+                        with(density) { IntOffset(0, -dimensions().spacing48x.toPx().roundToInt()) }
                     },
                     onDismissRequest = {
                         hideRipple = true
@@ -403,13 +402,6 @@ fun EnabledMessageComposer(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(inputStateHolder.calculateOptionsMenuHeight(additionalOptionStateHolder.additionalOptionsSubMenuState))
-                            .padding(
-                                horizontal = if (isImeVisible) {
-                                    dimensions().spacing0x
-                                } else {
-                                    dimensions().spacing8x
-                                }
-                            )
                             .background(
                                 color = Color.Transparent,
                                 shape = shape
@@ -489,7 +481,8 @@ private fun calculateOptionsPath(cornerRadiusPx: Float, rippleProgress: Float, i
     shapePath.addRoundRect(
         roundRect = RoundRect(
             rect = size.toRect(),
-            cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)
+            topRight = CornerRadius(cornerRadiusPx, cornerRadiusPx),
+            topLeft = CornerRadius(cornerRadiusPx, cornerRadiusPx)
         )
     )
     return ripplePath.and(shapePath)

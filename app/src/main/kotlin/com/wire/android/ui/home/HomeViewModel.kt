@@ -37,10 +37,10 @@ import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -50,12 +50,13 @@ class HomeViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val globalDataStore: GlobalDataStore,
     private val dataStore: UserDataStore,
+    private val getSelfUser: GetSelfUserUseCase,
     private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
-    private val analyticsManager: AnonymousAnalyticsManager
+    private val analyticsManager: AnonymousAnalyticsManager,
 ) : SavedStateViewModel(savedStateHandle) {
 
     @VisibleForTesting
@@ -97,7 +98,7 @@ class HomeViewModel @Inject constructor(
 
     fun checkRequirements(onRequirement: (HomeRequirement) -> Unit) {
         viewModelScope.launch {
-            val selfUser = observeSelf().first()
+            val selfUser = getSelfUser() ?: return@launch
             when {
                 shouldTriggerMigrationForUser(selfUser.id) ->
                     onRequirement(HomeRequirement.Migration(selfUser.id))

@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -93,5 +94,29 @@ class MessageComposerViewModelTest {
         advanceUntilIdle()
         // then
         assertEquals(InteractionAvailability.DISABLED, viewModel.messageComposerViewState.value.interactionAvailability)
+    }
+
+    @Test
+    fun `given enter to send is enabled, when init, then update state`() = runTest {
+        // given
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit(enterToSend = true)
+            .arrange()
+        // when
+
+        // then
+        assertTrue(viewModel.messageComposerViewState.value.enterToSend)
+    }
+
+    @Test
+    fun `given enter to send is disabled, when init, then update state`() = runTest {
+        // given
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit(enterToSend = false)
+            .arrange()
+        // when
+
+        // then
+        assertTrue(!viewModel.messageComposerViewState.value.enterToSend)
     }
 }

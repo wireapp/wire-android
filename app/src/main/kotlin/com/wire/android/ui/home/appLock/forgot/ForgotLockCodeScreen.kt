@@ -47,9 +47,9 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -74,11 +74,12 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun ForgotLockCodeScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     viewModel: ForgotLockScreenViewModel = hiltViewModel(),
 ) {
     with(viewModel.state) {
         LaunchedEffect(completed) {
-            val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination()
+            val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
             if (completed) navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         }
         ForgotLockCodeScreenContent(

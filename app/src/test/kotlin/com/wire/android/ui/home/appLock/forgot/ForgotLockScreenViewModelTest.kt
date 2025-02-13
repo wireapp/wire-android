@@ -28,7 +28,7 @@ import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.notification.WireNotificationManager
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.conversation.ClientId

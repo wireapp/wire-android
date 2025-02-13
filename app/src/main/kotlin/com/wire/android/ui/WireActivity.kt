@@ -131,6 +131,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -160,7 +161,7 @@ class WireActivity : AppCompatActivity() {
     private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
     private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
 
-    private val newIntents = Channel<Pair<Intent, Bundle?>>(1) // keep the latest new intent
+    private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.BUFFERED) // keep new intents until subscribed but do not replay them
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
@@ -352,6 +353,7 @@ class WireActivity : AppCompatActivity() {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     newIntents
                         .consumeAsFlow()
+                        .distinctUntilChanged()
                         .collectLatest { (intent, savedInstanceState) ->
                             currentKeyboardController?.hide()
                             handleDeepLink(currentNavigator, intent, savedInstanceState)

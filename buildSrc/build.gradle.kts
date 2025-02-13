@@ -19,7 +19,7 @@
 plugins {
     `kotlin-dsl`
     `kotlin-dsl-precompiled-script-plugins`
-    id("org.ajoberstar.grgit") version "5.2.2"
+    id("org.ajoberstar.grgit") version "5.3.0"
 }
 
 repositories {

@@ -19,12 +19,10 @@
 package scripts
 
 import findVersion
-import org.gradle.configurationcache.extensions.capitalized
-import scripts.Variants_gradle.Default
 import java.util.Properties
 
 tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
+    delete(rootProject.layout.buildDirectory.get())
 }
 
 tasks.named<Wrapper>("wrapper") {
@@ -37,8 +35,8 @@ tasks.register("runUnitTests") {
     dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
     // kalium have only 2 build type debug or release
     val buildType =
-        if (Default.resolvedBuildType() == Variants_gradle.BuildTypes.DEBUG) Default.resolvedBuildType().capitalized()
-        else Variants_gradle.BuildTypes.RELEASE.capitalized()
+        if (Default.resolvedBuildType() == BuildTypes.DEBUG) Default.resolvedBuildType().replaceFirstChar { it.titlecase() }
+        else BuildTypes.RELEASE.replaceFirstChar { it.titlecase() }
 
     // valid submodules path to run unit tests
     val validSubprojects = setOf("core", "features")
@@ -51,7 +49,7 @@ tasks.register("runUnitTests") {
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
-    dependsOn(":app:connected${Default.resolvedBuildFlavor().capitalize()}DebugAndroidTest")
+    dependsOn(":app:connected${Default.resolvedBuildFlavor().replaceFirstChar { it.titlecase() }}DebugAndroidTest")
 }
 
 tasks.register("assembleApp") {

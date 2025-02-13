@@ -22,6 +22,7 @@ import com.wire.android.gradle.configureKotlinAndroid
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -51,7 +52,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 defaultConfig.targetSdk = AndroidSdk.target
                 versionCode = AndroidApp.versionCode
                 versionName = resolvedVersionName
-                setProperty("archivesBaseName", "$applicationId-v$versionName")
+//                setProperty("archivesBaseName", "$applicationId-v$versionName")
+                project.archivesName.set("$applicationId-v$versionName")
             }
 
             configureCompose(this)

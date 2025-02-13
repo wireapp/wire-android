@@ -1,10 +1,11 @@
 [versions]
 # Gradle - Remind to change in `gradle-wrapper.properties` file as well!
-androidJunit5 = "1.10.0.0"
-gradle = "8.8"
+androidJunit5 = "1.11.2.0"
+develocityGradlePlugin = "3.19"
+gradle = "8.12"
 
 # Kotlin
-grgitCore = "5.2.2"
+grgitCore = "5.3.0"
 kotlin = "1.9.23"
 
 # KotlinX
@@ -17,7 +18,7 @@ ktx-serialization = "1.6.3"
 detekt = "1.23.6"
 google-gms = "4.4.2"
 gms-location = "21.3.0"
-android-gradlePlugin = "8.5.2"
+android-gradlePlugin = "8.7.3"
 desugaring = "2.1.3"
 firebaseBOM = "33.6.0"
 fragment = "1.5.6"
@@ -131,6 +132,7 @@ wire-versionizer = { id = "com.wire.android.versionizer" }
 [libraries]
 # Kotlin Gradle Plugin
 android-junit5 = { module = "de.mannodermaus.gradle.plugins:android-junit5", version.ref = "androidJunit5" }
+develocity-gradle-plugin = { module = "com.gradle:develocity-gradle-plugin", version.ref = "develocityGradlePlugin" }
 grgit-core = { module = "org.ajoberstar.grgit:grgit-core", version.ref = "grgitCore" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradlePlugin" }

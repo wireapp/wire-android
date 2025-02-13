@@ -22,6 +22,7 @@ buildscript {
         mavenCentral()
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
         maven(url = "https://plugins.gradle.org/m2/")
+        gradlePluginPortal()
     }
     dependencies {
         classpath(libs.hilt.gradlePlugin)
@@ -39,6 +40,8 @@ buildscript {
             classpath(libs.googleGms.gradlePlugin)
         }
         classpath(libs.aboutLibraries.gradlePlugin)
+        classpath(libs.develocity.gradle.plugin)
+
     }
 }
 

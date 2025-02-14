@@ -26,7 +26,6 @@ import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.notification.CallNotificationManager
-import com.wire.android.services.ServicesManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
@@ -60,9 +59,6 @@ class IncomingCallActionReceiver : BroadcastReceiver() {
     @Inject
     lateinit var callNotificationManager: CallNotificationManager
 
-    @Inject
-    lateinit var servicesManager: ServicesManager
-
     @Suppress("ReturnCount")
     override fun onReceive(context: Context, intent: Intent) {
         val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: run {
@@ -82,9 +78,8 @@ class IncomingCallActionReceiver : BroadcastReceiver() {
         coroutineScope.launch(Dispatchers.Default) {
             with(coreLogic.getSessionScope(userId)) {
                 val conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationIdString)
-                when (action) {
-                    ACTION_DECLINE_CALL -> calls.rejectCall(conversationId)
-                    ACTION_ANSWER_CALL -> servicesManager.startCallServiceToAnswer(userId, conversationId)
+                if (action == ACTION_DECLINE_CALL) {
+                    calls.rejectCall(conversationId)
                 }
             }
             callNotificationManager.hideIncomingCallNotification(userId.toString(), conversationIdString)
@@ -97,18 +92,16 @@ class IncomingCallActionReceiver : BroadcastReceiver() {
         private const val EXTRA_ACTION = "action_extra"
 
         const val ACTION_DECLINE_CALL = "action_decline_call"
-        const val ACTION_ANSWER_CALL = "action_answer_call"
 
         fun newIntent(
             context: Context,
             conversationId: String,
             userId: String,
             action: String
-        ): Intent =
-            Intent(context, IncomingCallActionReceiver::class.java).apply {
-                putExtra(EXTRA_CONVERSATION_ID, conversationId)
-                putExtra(EXTRA_RECEIVER_USER_ID, userId)
-                putExtra(EXTRA_ACTION, action)
-            }
+        ): Intent = Intent(context, IncomingCallActionReceiver::class.java).apply {
+            putExtra(EXTRA_CONVERSATION_ID, conversationId)
+            putExtra(EXTRA_RECEIVER_USER_ID, userId)
+            putExtra(EXTRA_ACTION, action)
+        }
     }
 }

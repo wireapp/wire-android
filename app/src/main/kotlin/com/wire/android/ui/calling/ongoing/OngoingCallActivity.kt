@@ -42,7 +42,9 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
+import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.endOngoingCallPendingIntent
+import com.wire.android.services.ServicesManager
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
@@ -69,12 +71,20 @@ class OngoingCallActivity : CallActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
+    @Inject
+    lateinit var servicesManager: ServicesManager
+
+    @Inject
+    lateinit var callNotificationManager: CallNotificationManager
+
     var conversationId: String? by mutableStateOf(null)
     var userId: String? by mutableStateOf(null)
+    private var shouldAnswerCall: Boolean by mutableStateOf(false)
 
     private fun handleNewIntent(intent: Intent) {
         conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
         userId = intent.extras?.getString(EXTRA_USER_ID)
+        shouldAnswerCall = intent.extras?.getBoolean(EXTRA_SHOULD_ANSWER_CALL) ?: false
         switchAccountIfNeeded(userId)
     }
 
@@ -93,6 +103,14 @@ class OngoingCallActivity : CallActivity() {
         enableEdgeToEdge()
 
         handleNewIntent(intent)
+
+        if (shouldAnswerCall && userId != null && conversationId != null) {
+            callNotificationManager.hideIncomingCallNotification(userId!!, conversationId!!)
+            servicesManager.startCallServiceToAnswer(
+                qualifiedIdMapper.fromStringToQualifiedID(userId!!),
+                qualifiedIdMapper.fromStringToQualifiedID(conversationId!!),
+            )
+        }
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()

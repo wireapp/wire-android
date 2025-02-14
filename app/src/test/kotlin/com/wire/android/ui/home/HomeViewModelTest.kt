@@ -21,8 +21,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.feature.analytics.AnonymousAnalyticsManager
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.kalium.logic.data.user.SelfUser
@@ -36,7 +34,6 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -97,24 +94,6 @@ class HomeViewModelTest {
             assertEquals(true, viewModel.homeState.shouldDisplayLegalHoldIndicator)
         }
 
-    @Test
-    fun `given open profile event, when sendOpenProfileEvent is called, then send the event with the unread indicator value`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Enabled))
-                .arrange()
-
-            viewModel.sendOpenProfileEvent()
-
-            verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(
-                    AnalyticsEvent.UserProfileOpened(
-                        isMigrationDotActive = viewModel.homeState.shouldShowCreateTeamUnreadIndicator
-                    )
-                )
-            }
-        }
-
     internal class Arrangement {
 
         @MockK
@@ -142,9 +121,6 @@ class HomeViewModelTest {
         lateinit var shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 
         @MockK
-        lateinit var analyticsManager: AnonymousAnalyticsManager
-
-        @MockK
         lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
         private val viewModel by lazy {
@@ -156,7 +132,6 @@ class HomeViewModelTest {
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser,
-                analyticsManager = analyticsManager,
                 canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
                 getSelfUser = getSelf,
             )

@@ -52,8 +52,6 @@ import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-const val TEAM_MIGRATION_DONE_STEP = 4
-
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
     style = SlideNavigationAnimation::class
@@ -83,7 +81,7 @@ fun TeamMigrationDoneStepScreen(
     )
 
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_DONE_STEP)
+        teamMigrationViewModel.setCurrentStep(TeamMigrationViewModel.TEAM_MIGRATION_DONE_STEP)
     }
 
     BackHandler { }

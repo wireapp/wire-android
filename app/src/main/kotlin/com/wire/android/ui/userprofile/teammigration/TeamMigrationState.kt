@@ -28,5 +28,5 @@ data class TeamMigrationState(
     val username: String = "",
     val teamUrl: String = "",
     val migrationFailure: MigrateFromPersonalToTeamFailure? = null,
-    val isMigrationDotActive : Boolean = false
+    val isMigrationDotActive: Boolean = false
 )

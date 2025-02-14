@@ -123,15 +123,22 @@ class TeamMigrationViewModel @Inject constructor(
 
     private fun sendPersonalTeamCreationFlowStepEvent(step: Int) {
         val event = when (step) {
-            1 -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamPlan(
+            TEAM_MIGRATION_TEAM_PLAN_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamPlan(
                 isMigrationDotActive = teamMigrationState.isMigrationDotActive
             )
 
-            2 -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamName
-            3 -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowConfirm
-            4 -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted
+            TEAM_MIGRATION_TEAM_NAME_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamName
+            TEAM_MIGRATION_CONFIRMATION_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowConfirm
+            TEAM_MIGRATION_DONE_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted
             else -> null
         }
         event?.let { anonymousAnalyticsManager.sendEvent(event) }
+    }
+
+    companion object {
+        const val TEAM_MIGRATION_TEAM_PLAN_STEP = 1
+        const val TEAM_MIGRATION_TEAM_NAME_STEP = 2
+        const val TEAM_MIGRATION_CONFIRMATION_STEP = 3
+        const val TEAM_MIGRATION_DONE_STEP = 4
     }
 }

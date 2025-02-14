@@ -64,8 +64,6 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
 
-const val TEAM_MIGRATION_CONFIRMATION_STEP = 3
-
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
     style = SlideNavigationAnimation::class
@@ -109,7 +107,7 @@ fun TeamMigrationConfirmationStepScreen(
     )
 
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_CONFIRMATION_STEP)
+        teamMigrationViewModel.setCurrentStep(TeamMigrationViewModel.TEAM_MIGRATION_CONFIRMATION_STEP)
     }
 }
 

@@ -21,10 +21,11 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
-import com.wire.kalium.cells.domain.usecase.CancelDraftUseCase
-import com.wire.kalium.cells.domain.usecase.DeleteCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
-import com.wire.kalium.cells.domain.usecase.PublishDraftUseCase
+import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
+import com.wire.kalium.cells.domain.usecase.ObserveCellFilesUseCase
+import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
+import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import dagger.Module
@@ -46,21 +47,25 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideListCellFilesUseCase(cellsScope: CellsScope): GetCellFilesUseCase = cellsScope.getCellFiles
+    fun provideAddAttachmentUseCase(cellsScope: CellsScope): AddAttachmentDraftUseCase = cellsScope.addAttachment
 
     @ViewModelScoped
     @Provides
-    fun provideDeleteCellFileUseCase(cellsScope: CellsScope): DeleteCellFileUseCase = cellsScope.deleteFromCell
+    fun provideRemoveAttachmentUseCase(cellsScope: CellsScope): RemoveAttachmentDraftUseCase = cellsScope.removeAttachment
 
     @ViewModelScoped
     @Provides
-    fun providePublishDraftUseCase(cellsScope: CellsScope): PublishDraftUseCase = cellsScope.publishDraft
+    fun provideObserveAttachmentsUseCase(cellsScope: CellsScope): ObserveAttachmentDraftsUseCase = cellsScope.observeAttachments
 
     @ViewModelScoped
     @Provides
-    fun provideCancelDraftUseCase(cellsScope: CellsScope): CancelDraftUseCase = cellsScope.cancelDraft
+    fun providePublishAttachmentsUseCase(cellsScope: CellsScope): PublishAttachmentsUseCase = cellsScope.publishAttachments
 
     @ViewModelScoped
     @Provides
     fun provideCellUploadManager(cellsScope: CellsScope): CellUploadManager = cellsScope.uploadManager
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveFilesUseCase(cellsScope: CellsScope): ObserveCellFilesUseCase = cellsScope.observeFiles
 }

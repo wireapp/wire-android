@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.cell
+package com.wire.android.ui.common.attachmentdraft.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -42,17 +42,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.home.cell.file.FileHeaderView
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.cells.domain.model.CellNode
 
 @Composable
-fun CellFileCard(
-    file: CellNodeUi,
+fun AttachmentCard(
+    file: AttachmentDraftUi,
     onClick: () -> Unit,
     onClickDelete: () -> Unit,
     modifier: Modifier = Modifier,
@@ -103,21 +102,6 @@ fun CellFileCard(
                 }
             }
         }
-        if (file.node.isDraft) {
-            Text(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .background(
-                        color = colorsScheme().onPrimaryVariant,
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .padding(4.dp),
-                text = "DRAFT",
-                color = colorsScheme().inverseOnSurface,
-                fontSize = 10.sp
-            )
-        }
         Icon(
             modifier = Modifier
                 .size(24.dp)
@@ -143,15 +127,11 @@ fun CellFileCard(
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewCellCard() {
+private fun PreviewAttachmentCard() {
     WireTheme {
-        CellFileCard(
-            file = CellNodeUi(
-                node = CellNode(
-                    uuid = "uuid",
-                    path = "path",
-                    versionId = "",
-                ),
+        AttachmentCard(
+            file = AttachmentDraftUi(
+                uuid = "",
                 fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus Very Long name.docx",
                 fileSize = 1242341235,
             ),
@@ -163,15 +143,11 @@ private fun PreviewCellCard() {
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewCellCardWithProgress() {
+private fun PreviewAttachmentCardWithProgress() {
     WireTheme {
-        CellFileCard(
-            file = CellNodeUi(
-                node = CellNode(
-                    uuid = "uuid",
-                    path = "path",
-                    versionId = "",
-                ),
+        AttachmentCard(
+            file = AttachmentDraftUi(
+                uuid = "",
                 fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus.pdf",
                 fileSize = 124234125,
                 uploadProgress = 0.5f
@@ -184,16 +160,11 @@ private fun PreviewCellCardWithProgress() {
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewCellCardError() {
+private fun PreviewAttachmentCardError() {
     WireTheme {
-        CellFileCard(
-            file = CellNodeUi(
-                node = CellNode(
-                    uuid = "uuid",
-                    path = "path",
-                    versionId = "",
-                    isDraft = true,
-                ),
+        AttachmentCard(
+            file = AttachmentDraftUi(
+                uuid = "",
                 fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus.doc",
                 fileSize = 124234123,
                 uploadProgress = 0.5f,

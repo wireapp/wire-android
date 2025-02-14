@@ -51,6 +51,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import com.wire.android.R
 import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
@@ -78,6 +79,7 @@ fun MessageComposer(
     conversationId: ConversationId,
     bottomSheetVisible: Boolean,
     messageComposerStateHolder: MessageComposerStateHolder,
+    attachments: List<AttachmentDraftUi>,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
@@ -88,7 +90,9 @@ fun MessageComposer(
     openDrawingCanvas: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
-    onImagesPicked: (List<Uri>) -> Unit
+    onImagesPicked: (List<Uri>) -> Unit,
+    onAttachmentClick: (AttachmentDraftUi) -> Unit,
+    onAttachmentDeleteClick: (AttachmentDraftUi) -> Unit,
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -133,6 +137,7 @@ fun MessageComposer(
                     conversationId = conversationId,
                     bottomSheetVisible = bottomSheetVisible,
                     messageComposerStateHolder = messageComposerStateHolder,
+                    attachments = attachments,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
                         onSendMessageBundle(messageCompositionHolder.value.toMessageBundle(conversationId))
@@ -153,6 +158,8 @@ fun MessageComposer(
                     openDrawingCanvas = openDrawingCanvas,
                     tempWritableVideoUri = tempWritableVideoUri,
                     tempWritableImageUri = tempWritableImageUri,
+                    onAttachmentClick = onAttachmentClick,
+                    onAttachmentDeleteClick = onAttachmentDeleteClick,
                 )
             }
         }
@@ -284,6 +291,7 @@ private fun BaseComposerPreview(
             messageCompositionHolder = messageCompositionHolder,
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
         ),
+        attachments = emptyList(),
         onPingOptionClicked = { },
         messageListContent = { },
         onChangeSelfDeletionClicked = { },
@@ -294,7 +302,9 @@ private fun BaseComposerPreview(
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
         openDrawingCanvas = {},
-        onImagesPicked = {}
+        onImagesPicked = {},
+        onAttachmentClick = {},
+        onAttachmentDeleteClick = {}
     )
 }
 

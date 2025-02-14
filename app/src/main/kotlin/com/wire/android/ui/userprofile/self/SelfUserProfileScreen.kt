@@ -54,12 +54,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -116,6 +116,7 @@ import com.wire.kalium.logic.data.user.UserId
 @SuppressLint("ComposeModifierMissing")
 fun SelfUserProfileScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
     viewModelSelf: SelfUserProfileViewModel = hiltViewModel(),
     legalHoldRequestedViewModel: LegalHoldRequestedViewModel = hiltViewModel()
@@ -130,7 +131,9 @@ fun SelfUserProfileScreen(
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = navigator::navigateBack,
-        logout = { viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate)) },
+        logout = {
+            viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
+        },
         onChangeUserProfilePicture = {
             navigator.navigate(
                 NavigationCommand(
@@ -141,7 +144,7 @@ fun SelfUserProfileScreen(
         onEditClick = { navigator.navigate(NavigationCommand(AppSettingsScreenDestination)) },
         onStatusClicked = viewModelSelf::changeStatusClick,
         onAddAccountClick = {
-            val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination()
+            val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
             navigator.navigate(NavigationCommand(destination))
         },
         dismissStatusDialog = viewModelSelf::dismissStatusDialog,
@@ -151,10 +154,7 @@ fun SelfUserProfileScreen(
         onLegalHoldAcceptClick = legalHoldRequestedViewModel::show,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
         onOtherAccountClick = {
-            viewModelSelf.switchAccount(
-                it,
-                NavigationSwitchAccountActions(navigator::navigate)
-            )
+            viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
         },
         onQrCodeClick = {
             viewModelSelf.trackQrCodeClick()

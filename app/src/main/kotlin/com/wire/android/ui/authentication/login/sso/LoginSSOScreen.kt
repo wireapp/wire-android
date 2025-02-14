@@ -82,7 +82,6 @@ fun LoginSSOScreen(
             loginSSOViewModel.clearLoginErrors()
             onRemoveDeviceNeeded()
         },
-        // TODO: replace with retrieved ServerConfig from sso login
         onLoginButtonClick = loginSSOViewModel::login,
         ssoLoginResult = ssoLoginResult,
         onCustomServerDialogDismiss = loginSSOViewModel::onCustomServerDialogDismiss,

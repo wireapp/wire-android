@@ -26,7 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.wire.android.BuildConfig
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -37,11 +37,12 @@ import com.wire.android.ui.destinations.WelcomeScreenDestination
 @RootNavGraph(start = true)
 @WireDestination
 @Composable
-fun WelcomeChooserScreen(navigator: Navigator) {
-    // this is a temporary solution because annotation argument "start" must be a compile-time constant
-    // TODO: remove this composable as well when removing old WelcomeScreen and set start = true for NewWelcomeScreen
+fun WelcomeChooserScreen(
+    navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
+) {
     LaunchedEffect(Unit) {
-        val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination()
+        val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
         navigator.navigate(NavigationCommand(destination))
     }
 }

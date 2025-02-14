@@ -36,6 +36,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -72,6 +73,7 @@ import com.wire.kalium.logic.functional.Either
 @Composable
 fun E2EIEnrollmentScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     viewModel: E2EIEnrollmentViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state
@@ -95,7 +97,9 @@ fun E2EIEnrollmentScreen(
             )
         },
         onBackButtonClicked = viewModel::onBackButtonClicked,
-        onCancelEnrollmentClicked = { viewModel.onCancelEnrollmentClicked(NavigationSwitchAccountActions(navigator::navigate)) },
+        onCancelEnrollmentClicked = {
+            viewModel.onCancelEnrollmentClicked(NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
+        },
         onProceedEnrollmentClicked = viewModel::onProceedEnrollmentClicked
     )
 }

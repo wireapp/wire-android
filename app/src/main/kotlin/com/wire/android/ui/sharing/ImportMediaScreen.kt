@@ -58,13 +58,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -124,6 +124,7 @@ import okio.Path.Companion.toPath
 @Composable
 fun ImportMediaScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
 ) {
     when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
@@ -138,7 +139,7 @@ fun ImportMediaScreen(
                 fileSharingRestrictedState = fileSharingRestrictedState,
                 navigateBack = navigator.finish,
                 openWireAction = {
-                    val destination = if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination()
+                    val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
                     navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
                 }
             )

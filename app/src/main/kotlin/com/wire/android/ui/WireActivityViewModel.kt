@@ -359,11 +359,9 @@ class WireActivityViewModel @Inject constructor(
     fun customBackendDialogProceedButtonClicked(onProceed: (ServerConfig.Links) -> Unit) {
         val backendDialogState = globalAppState.customBackendDialog
         if (backendDialogState is CustomServerDetailsDialogState) {
-            viewModelScope.launch {
-                dismissCustomBackendDialog()
-                if (checkNumberOfSessions()) {
-                    onProceed(backendDialogState.serverLinks)
-                }
+            dismissCustomBackendDialog()
+            if (checkNumberOfSessions()) {
+                onProceed(backendDialogState.serverLinks)
             }
         }
     }

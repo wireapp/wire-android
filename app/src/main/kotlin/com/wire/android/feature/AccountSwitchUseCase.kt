@@ -18,7 +18,6 @@
 
 package com.wire.android.feature
 
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.navigation.BackStackMode
@@ -194,11 +193,11 @@ interface SwitchAccountActions {
     fun noOtherAccountToSwitch()
 }
 
-class NavigationSwitchAccountActions(val navigate: (NavigationCommand) -> Unit) : SwitchAccountActions {
+class NavigationSwitchAccountActions(val navigate: (NavigationCommand) -> Unit, val canUseNewLogin: () -> Boolean) : SwitchAccountActions {
     override fun switchedToAnotherAccount() = navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
     override fun noOtherAccountToSwitch() = navigate(
         NavigationCommand(
-            if (BuildConfig.ENTERPRISE_LOGIN_ENABLED) NewLoginScreenDestination() else WelcomeScreenDestination(),
+            if (canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination(),
             BackStackMode.CLEAR_WHOLE
         )
     )

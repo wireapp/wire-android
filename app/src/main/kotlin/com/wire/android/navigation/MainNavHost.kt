@@ -48,6 +48,7 @@ import com.wire.android.ui.home.newconversation.NewConversationViewModel
 @Composable
 fun MainNavHost(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     startDestination: Route,
     modifier: Modifier = Modifier,
 ) {
@@ -69,6 +70,9 @@ fun MainNavHost(
         dependenciesContainerBuilder = {
             // 👇 To make Navigator available to all destinations as a non-navigation parameter
             dependency(navigator)
+
+            // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter
+            dependency(loginTypeSelector)
 
             // 👇 To tie NewConversationViewModel to nested NewConversationNavGraph, making it shared between all screens that belong to it
             dependency(NavGraphs.newConversation) {

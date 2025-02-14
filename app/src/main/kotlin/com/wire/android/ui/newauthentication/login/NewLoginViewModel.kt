@@ -27,16 +27,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.config.DefaultServerConfig
-import com.wire.android.config.orDefault
+import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.sketch.navArgs
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult
+import com.wire.kalium.logic.feature.auth.LoginRedirectPath
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -49,6 +54,7 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 class NewLoginViewModel @Inject constructor(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
+    @KaliumCoreLogic val coreLogic: CoreLogic,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
@@ -83,14 +89,46 @@ class NewLoginViewModel @Inject constructor(
      */
     fun onLoginStarted(onSuccess: (ServerConfig.Links) -> Unit) {
         viewModelScope.launch {
-            if (validateEmailOrSSOCode(userIdentifierTextState.text.trim())) {
-                updateLoginFlowState(LoginState.Loading)
-                delay(1.seconds) // TODO(ym): here the call to the use case should be done.
-                updateLoginFlowState(LoginState.Default)
-                onSuccess(DefaultServerConfig) // TODO: pass custom server config if use case returns it
-            } else {
-                updateLoginFlowState(LoginState.Error.TextFieldError.InvalidValue)
-                return@launch
+            updateLoginFlowState(LoginState.Loading)
+            val sanitizedInput = userIdentifierTextState.text.trim().toString()
+            when (validateEmailOrSSOCode(sanitizedInput)) {
+                ValidateEmailOrSSOCodeUseCase.Result.InvalidInput -> {
+                    updateLoginFlowState(LoginState.Error.TextFieldError.InvalidValue)
+                    return@launch
+                }
+
+                ValidateEmailOrSSOCodeUseCase.Result.ValidEmail -> {
+                    getEnterpriseLoginFlow(sanitizedInput, onSuccess)
+                }
+
+                ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode -> {
+                    onSuccess(LoginDomainPath.SSO(sanitizedInput))
+                }
+            }
+        }
+    }
+
+    private suspend fun getEnterpriseLoginFlow(email: String, onSuccess: (LoginRedirectPath) -> Unit) {
+        val authScope = getAuthenticationScope()
+        when (val loginFlowResult = authScope.getLoginFlowForDomainUseCase(email)) {
+            is EnterpriseLoginResult.Failure.Generic -> TODO()
+            EnterpriseLoginResult.Failure.NoNetwork -> TODO()
+            EnterpriseLoginResult.Failure.NotSupported -> TODO()
+            is EnterpriseLoginResult.Success -> onSuccess(loginFlowResult.loginRedirectPath)
+        }
+        updateLoginFlowState(LoginState.Default)
+    }
+
+    private suspend fun getAuthenticationScope(): AuthenticationScope {
+        return coreLogic.versionedAuthenticationScope(DefaultServerConfig).invoke(null).let {
+            when (it) {
+                is AutoVersionAuthScopeUseCase.Result.Failure.Generic,
+                AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
+                AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                    TODO("error handling in case of failure")
+                }
+
+                is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
             }
         }
     }

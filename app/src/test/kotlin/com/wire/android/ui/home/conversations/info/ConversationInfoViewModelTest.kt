@@ -25,7 +25,7 @@ import com.wire.android.ui.home.conversations.composer.mockConversationDetailsGr
 import com.wire.android.ui.home.conversations.composer.withMockConversationDetailsOneOnOne
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi

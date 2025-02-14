@@ -19,6 +19,7 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -82,6 +83,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.MessageComposerDefault
@@ -104,6 +106,7 @@ fun EnabledMessageComposer(
     conversationId: ConversationId,
     bottomSheetVisible: Boolean,
     messageComposerStateHolder: MessageComposerStateHolder,
+    attachments: List<AttachmentDraftUi>,
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onLocationClicked: () -> Unit,
@@ -115,6 +118,8 @@ fun EnabledMessageComposer(
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     openDrawingCanvas: () -> Unit,
+    onAttachmentClick: (AttachmentDraftUi) -> Unit,
+    onAttachmentDeleteClick: (AttachmentDraftUi) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     modifier: Modifier = Modifier,
@@ -372,6 +377,14 @@ fun EnabledMessageComposer(
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                             onDrawingModeClicked = openDrawingCanvas,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled
+                        )
+                    }
+
+                    AnimatedVisibility(attachments.isNotEmpty()) {
+                        MessageAttachments(
+                            attachments = attachments,
+                            onClick = onAttachmentClick,
+                            onClickDelete = onAttachmentDeleteClick,
                         )
                     }
                 }

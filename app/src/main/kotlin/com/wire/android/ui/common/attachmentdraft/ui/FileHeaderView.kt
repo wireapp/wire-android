@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.cell.file
+package com.wire.android.ui.common.attachmentdraft.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
+import com.wire.android.ui.common.attachmentdraft.model.icon
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme

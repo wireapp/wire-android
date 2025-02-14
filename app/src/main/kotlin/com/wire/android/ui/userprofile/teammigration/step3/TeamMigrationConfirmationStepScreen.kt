@@ -109,7 +109,6 @@ fun TeamMigrationConfirmationStepScreen(
     )
 
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(TEAM_MIGRATION_CONFIRMATION_STEP)
         teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_CONFIRMATION_STEP)
     }
 }

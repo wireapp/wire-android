@@ -77,7 +77,6 @@ fun TeamMigrationTeamPlanStepScreen(
     )
 
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(TEAM_MIGRATION_TEAM_PLAN_STEP)
         teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_TEAM_PLAN_STEP)
     }
 }

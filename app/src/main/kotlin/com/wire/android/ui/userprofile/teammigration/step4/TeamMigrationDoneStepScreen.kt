@@ -67,9 +67,6 @@ fun TeamMigrationDoneStepScreen(
 
     TeamMigrationDoneStepContent(
         onBackToWireClicked = {
-            teamMigrationViewModel.sendPersonalTeamCreationFlowCompletedEvent(
-                backToWireButtonClicked = true
-            )
             navigator.navigate(
                 NavigationCommand(
                     HomeScreenDestination,
@@ -79,10 +76,6 @@ fun TeamMigrationDoneStepScreen(
         },
         onOpenTeamManagementClicked = {
             val teamManagementUrl = teamMigrationViewModel.teamMigrationState.teamUrl
-
-            teamMigrationViewModel.sendPersonalTeamCreationFlowCompletedEvent(
-                modalOpenTeamManagementButtonClicked = true
-            )
             CustomTabsHelper.launchUrl(context, teamManagementUrl)
         },
         username = teamMigrationViewModel.teamMigrationState.username,

@@ -70,7 +70,6 @@ fun TeamMigrationTeamNameStepScreen(
         teamNameTextFieldState = teamMigrationViewModel.teamMigrationState.teamNameTextState
     )
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(TEAM_MIGRATION_TEAM_NAME_STEP)
         teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_TEAM_NAME_STEP)
     }
 }

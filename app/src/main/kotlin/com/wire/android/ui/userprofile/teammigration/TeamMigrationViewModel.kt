@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
@@ -38,6 +39,7 @@ class TeamMigrationViewModel @Inject constructor(
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase,
     private val observeSelfUser: ObserveSelfUserUseCase,
+    private val dataStore: UserDataStore,
     private val getTeamUrl: GetTeamUrlUseCase
 ) : ViewModel() {
 
@@ -47,6 +49,7 @@ class TeamMigrationViewModel @Inject constructor(
     init {
         setUsername()
         setTeamUrl()
+        observeMigrationDotActive()
     }
 
     fun showMigrationLeaveDialog() {
@@ -57,50 +60,9 @@ class TeamMigrationViewModel @Inject constructor(
         teamMigrationState = teamMigrationState.copy(shouldShowMigrationLeaveDialog = false)
     }
 
-    fun sendPersonalToTeamMigrationDismissed() {
-        anonymousAnalyticsManager.sendEvent(
-            AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                dismissCreateTeamButtonClicked = true
-            )
-        )
-    }
-
-    fun sendPersonalTeamCreationFlowStartedEvent(step: Int) {
-        anonymousAnalyticsManager.sendEvent(
-            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(
-                step = step
-            )
-        )
-    }
-
     fun setCurrentStep(step: Int) {
         teamMigrationState = teamMigrationState.copy(currentStep = step)
-    }
-
-    fun sendPersonalTeamCreationFlowCanceledEvent(
-        modalLeaveClicked: Boolean? = null,
-        modalContinueClicked: Boolean? = null
-    ) {
-        anonymousAnalyticsManager.sendEvent(
-            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
-                teamName = teamMigrationState.teamNameTextState.text.toString(),
-                modalLeaveClicked = modalLeaveClicked,
-                modalContinueClicked = modalContinueClicked
-            )
-        )
-    }
-
-    fun sendPersonalTeamCreationFlowCompletedEvent(
-        modalOpenTeamManagementButtonClicked: Boolean? = null,
-        backToWireButtonClicked: Boolean? = null
-    ) {
-        anonymousAnalyticsManager.sendEvent(
-            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
-                teamName = teamMigrationState.teamNameTextState.text.toString(),
-                modalOpenTeamManagementButtonClicked = modalOpenTeamManagementButtonClicked,
-                backToWireButtonClicked = backToWireButtonClicked
-            )
-        )
+        sendPersonalTeamCreationFlowStepEvent(step)
     }
 
     fun setIsMigratingState(isMigrating: Boolean) {
@@ -147,5 +109,29 @@ class TeamMigrationViewModel @Inject constructor(
         viewModelScope.launch {
             teamMigrationState = teamMigrationState.copy(teamUrl = getTeamUrl())
         }
+    }
+
+    private fun observeMigrationDotActive() {
+        viewModelScope.launch {
+            dataStore.isCreateTeamNoticeRead().collect { isRead ->
+                teamMigrationState = teamMigrationState.copy(
+                    isMigrationDotActive = !isRead
+                )
+            }
+        }
+    }
+
+    private fun sendPersonalTeamCreationFlowStepEvent(step: Int) {
+        val event = when (step) {
+            1 -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamPlan(
+                isMigrationDotActive = teamMigrationState.isMigrationDotActive
+            )
+
+            2 -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamName
+            3 -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowConfirm
+            4 -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted
+            else -> null
+        }
+        event?.let { anonymousAnalyticsManager.sendEvent(event) }
     }
 }

@@ -79,12 +79,25 @@ fun NewLoginScreen(
         loginEmailState = viewModel.loginState,
         userIdentifierState = viewModel.userIdentifierTextState,
         onNextClicked = {
-            viewModel.onLoginStarted { serverConfig ->
-                val passwordNavArgs = LoginNavArgs(
-                    customServerConfig = serverConfig,
-                    userHandle = viewModel.userIdentifierTextState.text.toString()
-                )
-                navigator.navigate(NavigationCommand(NewLoginPasswordScreenDestination(passwordNavArgs)))
+            viewModel.onLoginStarted { loginPathRedirect ->
+                when (val newLoginDestination: NewLoginDestination = loginPathRedirect.toPasswordOrSsoDestination()) {
+                    is NewLoginDestination.EmailPassword -> {
+                        navigator.navigate(
+                            NavigationCommand(
+                                NewLoginPasswordScreenDestination(
+                                    LoginNavArgs(
+                                        userHandle = viewModel.userIdentifierTextState.text.toString(),
+                                        loginPasswordPath = newLoginDestination.loginPasswordPath
+                                    )
+                                )
+                            )
+                        )
+                    }
+
+                    else -> {
+                        TODO("navigate to SSO screen")
+                    }
+                }
             }
         },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to

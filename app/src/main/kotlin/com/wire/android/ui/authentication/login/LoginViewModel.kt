@@ -48,7 +48,7 @@ open class LoginViewModel @Inject constructor(
     @KaliumCoreLogic protected val coreLogic: CoreLogic
 ) : ViewModel() {
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    val serverConfig: ServerConfig.Links = loginNavArgs.customServerConfig.orDefault()
+    val serverConfig: ServerConfig.Links = loginNavArgs.loginPasswordPath?.customServerConfig.orDefault()
 
     suspend fun registerClient(
         userId: UserId,

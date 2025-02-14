@@ -51,6 +51,7 @@ import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.NewLoginNavGraph
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
@@ -98,7 +99,7 @@ fun NewLoginPasswordScreen(
     LaunchedEffect(loginEmailViewModel.secondFactorVerificationCodeState) {
         if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
             val verificationCodeNavArgs = LoginNavArgs(
-                customServerConfig = loginEmailViewModel.serverConfig,
+                loginPasswordPath = LoginPasswordPath(loginEmailViewModel.serverConfig),
                 userHandle = loginEmailViewModel.userIdentifierTextState.text.toString()
             )
             navigator.navigate(NavigationCommand(NewLoginVerificationCodeScreenDestination(verificationCodeNavArgs)))
@@ -317,11 +318,14 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
                 }
                 navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
             }
+
             is LoginState.Error.TooManyDevicesError -> {
                 viewModel.clearLoginErrors()
                 navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
             }
-            else -> { /* do nothing */ }
+
+            else -> { /* do nothing */
+            }
         }
     }
     if (state is LoginState.Error.DialogError) {

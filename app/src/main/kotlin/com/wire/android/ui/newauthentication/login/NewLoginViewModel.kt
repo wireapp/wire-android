@@ -37,19 +37,16 @@ import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Compan
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class NewLoginViewModel @Inject constructor(
@@ -87,7 +84,7 @@ class NewLoginViewModel @Inject constructor(
     /**
      * Starts the login flow, this will check against BE if email or sso code and relay to the corresponding flow afterwards.
      */
-    fun onLoginStarted(onSuccess: (ServerConfig.Links) -> Unit) {
+    fun onLoginStarted(onSuccess: (LoginRedirectPath) -> Unit) {
         viewModelScope.launch {
             updateLoginFlowState(LoginState.Loading)
             val sanitizedInput = userIdentifierTextState.text.trim().toString()
@@ -102,7 +99,7 @@ class NewLoginViewModel @Inject constructor(
                 }
 
                 ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode -> {
-                    onSuccess(LoginDomainPath.SSO(sanitizedInput))
+                    onSuccess(LoginRedirectPath.SSO(sanitizedInput))
                 }
             }
         }

@@ -34,17 +34,27 @@ class ValidateEmailOrSSOCodeUseCase @Inject constructor(
     /**
      * Validates the input for a SSO code or an email address valid format.
      */
-    operator fun invoke(input: CharSequence): Boolean {
+    operator fun invoke(input: String): Result {
         return when {
             input.startsWith(ValidateSSOCodeUseCase.SSO_CODE_WIRE_PREFIX) -> {
-                validateSSOCode(input.toString()) is ValidateSSOCodeResult.Valid
+                if (validateSSOCode(input) is ValidateSSOCodeResult.Valid) {
+                    Result.ValidSSOCode
+                } else {
+                    Result.InvalidInput
+                }
             }
 
-            validateEmail(input.toString()) -> {
-                true
+            validateEmail(input) -> {
+                Result.ValidEmail
             }
 
-            else -> false
+            else -> Result.InvalidInput
         }
+    }
+
+    sealed class Result {
+        data object ValidSSOCode : Result()
+        data object ValidEmail : Result()
+        data object InvalidInput : Result()
     }
 }

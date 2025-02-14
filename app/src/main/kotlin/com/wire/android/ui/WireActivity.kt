@@ -711,22 +711,20 @@ class WireActivity : AppCompatActivity() {
             viewModel.handleDeepLink(
                 intent = intent,
                 onOpenConversation = {
-                    runOnUiThread {
-                        if (it.switchedAccount) {
-                            navigate(
-                                NavigationCommand(
-                                    HomeScreenDestination,
-                                    BackStackMode.CLEAR_WHOLE
-                                )
-                            )
-                        }
+                    if (it.switchedAccount) {
                         navigate(
                             NavigationCommand(
-                                ConversationScreenDestination(it.conversationId),
-                                BackStackMode.UPDATE_EXISTED
+                                HomeScreenDestination,
+                                BackStackMode.CLEAR_WHOLE
                             )
                         )
                     }
+                    navigate(
+                        NavigationCommand(
+                            ConversationScreenDestination(it.conversationId),
+                            BackStackMode.UPDATE_EXISTED
+                        )
+                    )
                 },
                 onIsSharingIntent = {
                     navigate(

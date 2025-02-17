@@ -29,10 +29,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.migration.MigrationData
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -54,6 +54,7 @@ import com.wire.android.util.ui.stringWithStyledArgs
 @Composable
 fun MigrationScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     viewModel: MigrationViewModel = hiltViewModel()
 ) {
 
@@ -61,7 +62,7 @@ fun MigrationScreen(
         is MigrationState.LoginRequired -> navigator.navigate(
             NavigationCommand(
                 when {
-                    BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination(userHandle = state.userHandle)
+                    loginTypeSelector.canUseNewLogin() -> NewLoginScreenDestination(userHandle = state.userHandle)
                     else -> LoginScreenDestination(userHandle = state.userHandle)
                 },
                 BackStackMode.CLEAR_WHOLE
@@ -72,7 +73,7 @@ fun MigrationScreen(
             NavigationCommand(
                 when {
                     state.currentSessionAvailable -> HomeScreenDestination
-                    BuildConfig.ENTERPRISE_LOGIN_ENABLED -> NewLoginScreenDestination()
+                    loginTypeSelector.canUseNewLogin() -> NewLoginScreenDestination()
                     else -> WelcomeScreenDestination()
                 },
                 BackStackMode.CLEAR_WHOLE

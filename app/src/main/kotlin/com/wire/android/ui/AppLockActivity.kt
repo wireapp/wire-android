@@ -37,6 +37,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AppLockActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -68,6 +69,7 @@ class AppLockActivity : AppCompatActivity() {
 
                     MainNavHost(
                         navigator = navigator,
+                        loginTypeSelector = null, // LoginTypeSelector is not needed for destinations in AppLockActivity
                         startDestination = startDestination
                     )
                 }

@@ -186,6 +186,9 @@ class WireActivity : AppCompatActivity() {
             appLogger.i("$TAG legal hold requested status")
             legalHoldRequestedViewModel.observeLegalHoldRequest()
 
+            appLogger.i("$TAG init login type selector")
+            loginTypeSelector.init()
+
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination

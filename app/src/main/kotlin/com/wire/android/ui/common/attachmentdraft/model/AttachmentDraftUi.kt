@@ -23,6 +23,7 @@ import com.wire.kalium.cells.domain.model.AttachmentUploadStatus
 data class AttachmentDraftUi(
     val uuid: String,
     val fileName: String,
+    val localFilePath: String,
     val fileSize: Long = 0,
     val uploadProgress: Float? = null,
     val uploadError: Boolean = false,
@@ -32,6 +33,10 @@ data class AttachmentDraftUi(
 fun AttachmentDraft.toUiModel() = AttachmentDraftUi(
     uuid = this.uuid,
     fileName = this.fileName,
+    localFilePath = this.localFilePath,
     fileSize = this.fileSize,
     uploadError = this.uploadStatus == AttachmentUploadStatus.FAILED,
 )
+
+fun List<AttachmentDraftUi>.allUploaded() =
+    all { attachment -> !attachment.uploadError && attachment.uploadProgress == null }

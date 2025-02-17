@@ -113,7 +113,6 @@ class NewLoginViewModel @Inject constructor(
                 )
             )
 
-            EnterpriseLoginResult.Failure.NoNetwork -> TODO("remove handled by generic")
             EnterpriseLoginResult.Failure.NotSupported -> updateLoginFlowState(DomainCheckupState.Error.DialogError.NotSupported)
             is EnterpriseLoginResult.Success -> {
                 onSuccess(loginFlowResult.loginRedirectPath)
@@ -134,6 +133,10 @@ class NewLoginViewModel @Inject constructor(
                 is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
             }
         }
+    }
+
+    fun onDismissDialog() {
+        updateLoginFlowState(DomainCheckupState.Default)
     }
 
     /**

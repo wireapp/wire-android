@@ -36,11 +36,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -50,6 +52,9 @@ import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.NewLoginNavGraph
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -61,6 +66,8 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.DialogErrorStrings
+import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @NewLoginNavGraph(start = true)
@@ -73,6 +80,7 @@ fun NewLoginScreen(
     navigator: Navigator,
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
+    DomainCheckupDialog(viewModel.loginEmailSSOState, navigator, viewModel::onDismissDialog)
     LoginContent(
         loginEmailSSOState = viewModel.loginEmailSSOState,
         userIdentifierState = viewModel.userIdentifierTextState,
@@ -204,6 +212,40 @@ private fun EmailOrSSOCodeInput(
         keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = Modifier.testTag("emailField"),
         testTag = "userIdentifierInput",
+    )
+}
+
+@Composable
+fun DomainCheckupDialog(loginEmailSSOState: NewLoginEmailSSOState, navigator: Navigator, onDismiss: () -> Unit) {
+    val resources = LocalContext.current.resources
+    when (val state = loginEmailSSOState.flowState) {
+        is DomainCheckupState.Error.DialogError.GenericError -> DomainCheckupDialogs(
+            dialogErrorStrings = state.coreFailure.dialogErrorStrings(resources), onDismiss = onDismiss
+        )
+
+        is DomainCheckupState.Error.DialogError.NotSupported -> TODO("navigate to fallback?")
+        else -> {
+            /* do nothing */
+        }
+    }
+}
+
+@Composable
+fun DomainCheckupDialogs(dialogErrorStrings: DialogErrorStrings, onDismiss: () -> Unit) {
+    WireDialog(
+        title = dialogErrorStrings.title,
+        text = dialogErrorStrings.annotatedMessage,
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            text = stringResource(R.string.label_ok),
+            onClick = onDismiss,
+            type = WireDialogButtonType.Primary
+        ),
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false
+        )
     )
 }
 

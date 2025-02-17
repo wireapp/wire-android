@@ -31,5 +31,13 @@ data class LoginNavArgs(
 data class LoginPasswordPath(
     val customServerConfig: ServerConfig.Links? = null,
     val isCloudAccountCreationPossible: Boolean? = null,
-    val isDomainClaimedByOrg: Boolean = false,
+    val isDomainClaimedByOrg: DomainClaimedByOrg = DomainClaimedByOrg.NotClaimed,
 )
+
+@Serializable
+sealed interface DomainClaimedByOrg {
+    @Serializable
+    data object NotClaimed : DomainClaimedByOrg
+    @Serializable
+    data class Claimed(val domain: String) : DomainClaimedByOrg
+}

@@ -28,13 +28,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.config.DefaultServerConfig
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.feature.sketch.navArgs
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.auth.AuthenticationScope

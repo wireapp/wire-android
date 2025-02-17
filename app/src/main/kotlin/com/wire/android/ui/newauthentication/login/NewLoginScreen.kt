@@ -80,9 +80,9 @@ fun NewLoginScreen(
     navigator: Navigator,
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
-    DomainCheckupDialog(viewModel.loginEmailSSOState, navigator, viewModel::onDismissDialog)
+    DomainCheckupDialog(viewModel.state, navigator, viewModel::onDismissDialog)
     LoginContent(
-        loginEmailSSOState = viewModel.loginEmailSSOState,
+        loginEmailSSOState = viewModel.state,
         userIdentifierState = viewModel.userIdentifierTextState,
         onNextClicked = {
             viewModel.onLoginStarted { loginPathRedirect ->
@@ -114,7 +114,7 @@ fun NewLoginScreen(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginContent(
-    loginEmailSSOState: NewLoginEmailSSOState,
+    loginEmailSSOState: NewLoginScreenState,
     userIdentifierState: TextFieldState,
     onNextClicked: () -> Unit,
     canNavigateBack: Boolean,
@@ -216,7 +216,7 @@ private fun EmailOrSSOCodeInput(
 }
 
 @Composable
-fun DomainCheckupDialog(loginEmailSSOState: NewLoginEmailSSOState, navigator: Navigator, onDismiss: () -> Unit) {
+fun DomainCheckupDialog(loginEmailSSOState: NewLoginScreenState, navigator: Navigator, onDismiss: () -> Unit) {
     val resources = LocalContext.current.resources
     when (val state = loginEmailSSOState.flowState) {
         is DomainCheckupState.Error.DialogError.GenericError -> DomainCheckupDialogs(
@@ -255,7 +255,7 @@ fun PreviewNewLoginScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginContent(
-                loginEmailSSOState = NewLoginEmailSSOState(),
+                loginEmailSSOState = NewLoginScreenState(),
                 userIdentifierState = TextFieldState(),
                 onNextClicked = {},
                 canNavigateBack = false,

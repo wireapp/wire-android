@@ -60,7 +60,6 @@ class NewLoginViewModel @Inject constructor(
     var state by mutableStateOf(NewLoginScreenState())
         private set
     val userIdentifierTextState: TextFieldState = TextFieldState()
-    var loginEmailSSOState by mutableStateOf(NewLoginEmailSSOState())
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
@@ -144,9 +143,9 @@ class NewLoginViewModel @Inject constructor(
      */
     private fun updateLoginFlowState(flowState: DomainCheckupState) {
         val currentUserLoginInput = userIdentifierTextState.text
-        loginEmailSSOState = loginEmailSSOState.copy(
+        state = state.copy(
             flowState = flowState,
-            nextEnabled = loginEmailSSOState.flowState !is DomainCheckupState.Loading
+            nextEnabled = state.flowState !is DomainCheckupState.Loading
                     && currentUserLoginInput.isNotEmpty()
         )
     }

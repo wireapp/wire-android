@@ -56,6 +56,7 @@ class CellViewModel @Inject constructor(
                                     AttachmentDraftUi(
                                         uuid = file.uuid,
                                         fileName = file.path.substringAfterLast("/"),
+                                        localFilePath = "",
                                         fileSize = file.size ?: 0,
                                         showDraftLabel = file.isDraft,
                                     )

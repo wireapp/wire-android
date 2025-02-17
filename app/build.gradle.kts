@@ -171,6 +171,7 @@ dependencies {
     // Image loading
     implementation(libs.coil.core)
     implementation(libs.coil.gif)
+    implementation(libs.coil.video)
     implementation(libs.coil.compose)
 
     // RSS feed loading

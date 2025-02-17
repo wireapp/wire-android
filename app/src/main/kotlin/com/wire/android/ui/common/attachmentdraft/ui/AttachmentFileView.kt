@@ -15,10 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.cell
+package com.wire.android.ui.common.attachmentdraft.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,34 +24,31 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun CellListItem(
-    file: AttachmentDraftUi,
+fun AttachmentFileView(
+    attachment: AttachmentDraftUi,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier.background(colorsScheme().surface)) {
-        Column(
-            modifier = Modifier.height(88.dp)
-        ) {
+    Box(modifier = modifier) {
+        Column {
             FileHeaderView(
-                modifier = Modifier.padding(10.dp),
-                extension = file.fileName.substringAfterLast('.'),
-                size = file.fileSize
+                modifier = Modifier.padding(dimensions().spacing10x),
+                extension = attachment.fileName.substringAfterLast('.'),
+                size = attachment.fileSize
             )
             Spacer(
                 modifier = Modifier
@@ -62,36 +57,22 @@ fun CellListItem(
             )
             Text(
                 modifier = Modifier
-                    .padding(horizontal = 12.dp)
+                    .padding(horizontal = dimensions().spacing12x)
                     .fillMaxWidth(),
                 style = typography().body02,
                 color = colorsScheme().onSurface,
                 fontSize = 14.sp,
                 maxLines = 2,
-                text = file.fileName,
+                text = attachment.fileName,
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            AnimatedVisibility(file.uploadProgress != null) {
-                WireLinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth(),
-                    progress = { file.uploadProgress ?: 0f },
-                    color = if (file.uploadError) colorsScheme().error else colorsScheme().primary
-                )
-            }
+            Spacer(modifier = Modifier.height(dimensions().spacing10x))
         }
-        if (file.showDraftLabel) {
-            Text(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .background(
-                        color = colorsScheme().onPrimaryVariant,
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .padding(4.dp),
-                text = "DRAFT",
-                color = colorsScheme().inverseOnSurface,
-                fontSize = 10.sp
+        attachment.uploadProgress?.let {
+            WireLinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart),
+                progress = { attachment.uploadProgress },
+                color = if (attachment.uploadError) colorsScheme().error else colorsScheme().primary,
+                trackColor = Color.Transparent,
             )
         }
     }
@@ -99,17 +80,35 @@ fun CellListItem(
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewCellListItem() {
+private fun PreviewAttachmentDraftFileView() {
     WireTheme {
-        CellListItem(
-            file = AttachmentDraftUi(
-                uuid = "",
-                fileName = "file name",
+        AttachmentDraftView(
+            attachment = AttachmentDraftUi(
+                uuid = "123",
+                fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus.doc",
+                fileSize = 23462346,
                 localFilePath = "",
-                fileSize = 123,
-                uploadProgress = 0.5f,
-                uploadError = false,
-            )
+            ),
+            onClick = {},
+            onClickDelete = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewAttachmentDraftViewWithProgress() {
+    WireTheme {
+        AttachmentDraftView(
+            attachment = AttachmentDraftUi(
+                uuid = "123",
+                fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus.doc",
+                fileSize = 23462346,
+                uploadProgress = 0.75f,
+                localFilePath = "",
+            ),
+            onClick = {},
+            onClickDelete = {}
         )
     }
 }

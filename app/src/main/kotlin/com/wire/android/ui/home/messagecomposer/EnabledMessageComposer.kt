@@ -84,6 +84,7 @@ import androidx.compose.ui.window.PopupProperties
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
+import com.wire.android.ui.common.attachmentdraft.model.allUploaded
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.MessageComposerDefault
@@ -224,7 +225,8 @@ fun EnabledMessageComposer(
                         val canSendMessage by remember {
                             derivedStateOf {
                                 messageCompositionInputStateHolder.inputType is InputType.Composing &&
-                                        (messageCompositionInputStateHolder.inputType as InputType.Composing).isSendButtonEnabled
+                                        (messageCompositionInputStateHolder.inputType as InputType.Composing).isSendButtonEnabled &&
+                                        attachments.allUploaded()
                             }
                         }
                         val keyboardOptions by remember {

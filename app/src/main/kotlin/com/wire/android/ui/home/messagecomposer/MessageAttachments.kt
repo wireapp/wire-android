@@ -18,17 +18,16 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
+import com.wire.android.ui.common.attachmentdraft.ui.AttachmentDraftView
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.attachmentdraft.ui.AttachmentCard
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -38,18 +37,21 @@ fun MessageAttachments(
     onClickDelete: (AttachmentDraftUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    LazyRow(
         modifier = modifier
             .background(color = colorsScheme().surface)
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
+            .fillMaxWidth(),
+        contentPadding = PaddingValues(end = 16.dp)
     ) {
-        attachments.forEach { node ->
-            AttachmentCard(
-                modifier = Modifier.width(300.dp),
-                file = node,
-                onClick = { onClick(node) },
-                onClickDelete = { onClickDelete(node) },
+        items(
+            items = attachments,
+            key = { it.uuid },
+        ) { attachment ->
+            AttachmentDraftView(
+                modifier = Modifier.animateItem(),
+                attachment = attachment,
+                onClick = { onClick(attachment) },
+                onClickDelete = { onClickDelete(attachment) },
             )
         }
     }
@@ -63,11 +65,13 @@ private fun PreviewMessageAttachments() {
             AttachmentDraftUi(
                 uuid = "",
                 fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus.doc",
+                localFilePath = "",
                 fileSize = 123124,
             ),
             AttachmentDraftUi(
                 uuid = "",
                 fileName = "New Data Reviewed Final Plus.zip",
+                localFilePath = "",
                 fileSize = 12312784,
             ),
         ),

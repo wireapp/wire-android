@@ -56,6 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okio.Path
+import okio.Path.Companion.toPath
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -299,10 +300,10 @@ fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
     return files
 }
 
-fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetName: String?, onError: () -> Unit) {
+fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetName: String?, assetType: String? = null, onError: () -> Unit) {
     try {
         val assetUri = context.pathToUri(assetDataPath, assetName)
-        val mimeType = assetUri.getMimeType(context)
+        val mimeType = assetType ?: assetUri.getMimeType(context)
         // Set intent and launch
         val intent = Intent()
         intent.apply {

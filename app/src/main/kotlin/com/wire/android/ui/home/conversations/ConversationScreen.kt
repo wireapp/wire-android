@@ -101,8 +101,8 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.ConfirmSendingPingDialog
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
@@ -125,7 +125,6 @@ import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
-import com.wire.android.ui.destinations.ImagesPreviewScreenDestination
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.destinations.MessageDetailsScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
@@ -145,7 +144,6 @@ import com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayou
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
-import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBackArgs
 import com.wire.android.ui.home.conversations.messages.AudioMessagesState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
@@ -230,7 +228,6 @@ fun ConversationScreen(
     navigator: Navigator,
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
-    imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
@@ -496,15 +493,8 @@ fun ConversationScreen(
             }
         },
         onImagesPicked = {
-            navigator.navigate(
-                NavigationCommand(
-                    ImagesPreviewScreenDestination(
-                        conversationId = conversationInfoViewModel.conversationInfoViewState.conversationId,
-                        conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
-                        assetUriList = ArrayList(it)
-                    )
-                )
-            )
+            messageAttachmentsViewModel.onFilesSelected(it)
+            messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
         },
         onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
@@ -631,7 +621,7 @@ fun ConversationScreen(
             )
         },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
-        onAttachmentClick = {},
+        onAttachmentClick = messageAttachmentsViewModel::showAttachment,
         onAttachmentDeleteClick = messageAttachmentsViewModel::deleteAttachment,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
@@ -739,11 +729,10 @@ fun ConversationScreen(
         }
     }
 
-    imagePreviewScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            Canceled -> {}
-            is Value -> {
-                messageAttachmentsViewModel.onFilesSelected(result.value.pendingBundles)
+//    imagePreviewScreenResultRecipient.onNavResult { result ->
+//        when (result) {
+//            Canceled -> {}
+//            is Value -> {
 //                sendMessageViewModel.trySendMessages(
 //                    result.value.pendingBundles.map { assetBundle ->
 //                        ComposableMessageBundle.AttachmentPickedBundle(
@@ -752,9 +741,9 @@ fun ConversationScreen(
 //                        )
 //                    }
 //                )
-            }
-        }
-    }
+//            }
+//        }
+//    }
 
     drawingCanvasScreenResultRecipient.onNavResult { result ->
         when (result) {

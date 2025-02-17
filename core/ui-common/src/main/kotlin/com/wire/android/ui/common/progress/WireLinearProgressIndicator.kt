@@ -35,11 +35,12 @@ fun WireLinearProgressIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
     color: Color = colorsScheme().primary,
+    trackColor: Color = colorsScheme().primaryVariant,
 ) {
     LinearProgressIndicator(
         progress = progress,
         color = color,
-        trackColor = colorsScheme().primaryVariant,
+        trackColor = trackColor,
         modifier = modifier,
         drawStopIndicator = {}
     )

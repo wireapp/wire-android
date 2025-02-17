@@ -48,10 +48,8 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.login.LoginNavArgs
-import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.NewLoginNavGraph
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
-import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -76,7 +74,7 @@ fun NewLoginScreen(
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
     LoginContent(
-        loginEmailState = viewModel.loginState,
+        loginEmailSSOState = viewModel.loginEmailSSOState,
         userIdentifierState = viewModel.userIdentifierTextState,
         onNextClicked = {
             viewModel.onLoginStarted { loginPathRedirect ->
@@ -108,7 +106,7 @@ fun NewLoginScreen(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginContent(
-    loginEmailState: LoginEmailState,
+    loginEmailSSOState: NewLoginEmailSSOState,
     userIdentifierState: TextFieldState,
     onNextClicked: () -> Unit,
     canNavigateBack: Boolean,
@@ -148,8 +146,8 @@ private fun LoginContent(
                         testTagsAsResourceId = true
                     }
             ) {
-                val error = when (loginEmailState.flowState) {
-                    is LoginState.Error.TextFieldError.InvalidValue ->
+                val error = when (loginEmailSSOState.flowState) {
+                    is DomainCheckupState.Error.TextFieldError.InvalidValue ->
                         stringResource(R.string.enterprise_login_error_invalid_user_identifier)
 
                     else -> null
@@ -157,8 +155,8 @@ private fun LoginContent(
                 EmailOrSSOCodeInput(userIdentifierState, error)
                 VerticalSpace.x8()
                 LoginNextButton(
-                    loading = loginEmailState.flowState is LoginState.Loading,
-                    enabled = loginEmailState.loginEnabled,
+                    loading = loginEmailSSOState.flowState is DomainCheckupState.Loading,
+                    enabled = loginEmailSSOState.nextEnabled,
                     onClick = onNextClicked,
                 )
             }
@@ -215,7 +213,7 @@ fun PreviewNewLoginScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginContent(
-                loginEmailState = LoginEmailState(),
+                loginEmailSSOState = NewLoginEmailSSOState(),
                 userIdentifierState = TextFieldState(),
                 onNextClicked = {},
                 canNavigateBack = false,

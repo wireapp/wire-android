@@ -29,6 +29,7 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.navArgs
@@ -132,7 +133,7 @@ class LoginSSOViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(customServerConfig = SERVER_CONFIG.links)
+        every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(loginPasswordPath = LoginPasswordPath(SERVER_CONFIG.links))
 
         coEvery {
             autoVersionAuthScopeUseCase(null)
@@ -250,7 +251,7 @@ class LoginSSOViewModelTest {
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
 
-        loginViewModel.establishSSOSession( cookie = "", serverConfigId = SERVER_CONFIG.id, serverConfig = SERVER_CONFIG.links)
+        loginViewModel.establishSSOSession(cookie = "", serverConfigId = SERVER_CONFIG.id, serverConfig = SERVER_CONFIG.links)
         advanceUntilIdle()
 
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }

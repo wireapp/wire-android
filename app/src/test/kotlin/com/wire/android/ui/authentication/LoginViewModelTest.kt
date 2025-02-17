@@ -23,6 +23,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.navArgs
 import com.wire.android.util.newServerConfig
@@ -61,7 +62,10 @@ class LoginViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("", "")
-        every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(customServerConfig = newServerConfig(1).links)
+        every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
+            loginPasswordPath =
+            LoginPasswordPath(newServerConfig(1).links)
+        )
         loginViewModel = LoginViewModel(
             savedStateHandle,
             clientScopeProviderFactory,

@@ -65,6 +65,7 @@ import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
@@ -223,7 +224,7 @@ fun DomainCheckupDialog(loginEmailSSOState: NewLoginScreenState, navigator: Navi
             dialogErrorStrings = state.coreFailure.dialogErrorStrings(resources), onDismiss = onDismiss
         )
 
-        is DomainCheckupState.Error.DialogError.NotSupported -> TODO("navigate to fallback?")
+        is DomainCheckupState.Error.DialogError.NotSupported -> navigator.navigate(NavigationCommand(WelcomeScreenDestination()))
         else -> {
             /* do nothing */
         }

@@ -29,9 +29,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.config.DefaultServerConfig
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
-import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
-import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
@@ -62,7 +60,6 @@ class NewLoginViewModel @Inject constructor(
     var state by mutableStateOf(NewLoginScreenState())
         private set
     val userIdentifierTextState: TextFieldState = TextFieldState()
-    var loginState by mutableStateOf(LoginEmailState())
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
@@ -76,7 +73,7 @@ class NewLoginViewModel @Inject constructor(
             userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
             }.collectLatest {
-                updateLoginFlowState(LoginState.Default)
+                updateLoginFlowState(DomainCheckupState.Default)
             }
         }
     }
@@ -86,11 +83,11 @@ class NewLoginViewModel @Inject constructor(
      */
     fun onLoginStarted(onSuccess: (LoginRedirectPath) -> Unit) {
         viewModelScope.launch {
-            updateLoginFlowState(LoginState.Loading)
+            updateLoginFlowState(DomainCheckupState.Loading)
             val sanitizedInput = userIdentifierTextState.text.trim().toString()
             when (validateEmailOrSSOCode(sanitizedInput)) {
                 ValidateEmailOrSSOCodeUseCase.Result.InvalidInput -> {
-                    updateLoginFlowState(LoginState.Error.TextFieldError.InvalidValue)
+                    updateLoginFlowState(DomainCheckupState.Error.TextFieldError.InvalidValue)
                     return@launch
                 }
 
@@ -100,6 +97,7 @@ class NewLoginViewModel @Inject constructor(
 
                 ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode -> {
                     onSuccess(LoginRedirectPath.SSO(sanitizedInput))
+                    updateLoginFlowState(DomainCheckupState.Default)
                 }
             }
         }
@@ -108,12 +106,18 @@ class NewLoginViewModel @Inject constructor(
     private suspend fun getEnterpriseLoginFlow(email: String, onSuccess: (LoginRedirectPath) -> Unit) {
         val authScope = getAuthenticationScope()
         when (val loginFlowResult = authScope.getLoginFlowForDomainUseCase(email)) {
-            is EnterpriseLoginResult.Failure.Generic -> TODO()
-            EnterpriseLoginResult.Failure.NoNetwork -> TODO()
-            EnterpriseLoginResult.Failure.NotSupported -> TODO()
-            is EnterpriseLoginResult.Success -> onSuccess(loginFlowResult.loginRedirectPath)
+            is EnterpriseLoginResult.Failure.Generic -> updateLoginFlowState(
+                DomainCheckupState.Error.DialogError.GenericError(
+                    loginFlowResult.coreFailure
+                )
+            )
+
+            EnterpriseLoginResult.Failure.NotSupported -> updateLoginFlowState(DomainCheckupState.Error.DialogError.NotSupported)
+            is EnterpriseLoginResult.Success -> {
+                onSuccess(loginFlowResult.loginRedirectPath)
+                updateLoginFlowState(DomainCheckupState.Default)
+            }
         }
-        updateLoginFlowState(LoginState.Default)
     }
 
     private suspend fun getAuthenticationScope(): AuthenticationScope {
@@ -130,14 +134,18 @@ class NewLoginViewModel @Inject constructor(
         }
     }
 
+    fun onDismissDialog() {
+        updateLoginFlowState(DomainCheckupState.Default)
+    }
+
     /**
      * Update the state based on the input.
      */
-    private fun updateLoginFlowState(flowState: LoginState) {
+    private fun updateLoginFlowState(flowState: DomainCheckupState) {
         val currentUserLoginInput = userIdentifierTextState.text
-        loginState = loginState.copy(
+        state = state.copy(
             flowState = flowState,
-            loginEnabled = loginState.flowState !is LoginState.Loading
+            nextEnabled = state.flowState !is DomainCheckupState.Loading
                     && currentUserLoginInput.isNotEmpty()
         )
     }

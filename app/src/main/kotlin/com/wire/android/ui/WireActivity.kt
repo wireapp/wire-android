@@ -54,7 +54,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.spec.Route
@@ -131,9 +130,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
@@ -162,7 +160,7 @@ class WireActivity : AppCompatActivity() {
     private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
     private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
 
-    private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.BUFFERED) // keep new intents until subscribed but do not replay them
+    private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
@@ -187,6 +185,9 @@ class WireActivity : AppCompatActivity() {
 
             appLogger.i("$TAG legal hold requested status")
             legalHoldRequestedViewModel.observeLegalHoldRequest()
+
+            appLogger.i("$TAG init login type selector")
+            loginTypeSelector.init()
 
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState()) {
@@ -354,15 +355,13 @@ class WireActivity : AppCompatActivity() {
         val currentNavigator by rememberUpdatedState(navigator)
         LaunchedEffect(Unit) {
             lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    newIntents
-                        .consumeAsFlow()
-                        .distinctUntilChanged()
-                        .collectLatest { (intent, savedInstanceState) ->
-                            currentKeyboardController?.hide()
-                            handleDeepLink(currentNavigator, intent, savedInstanceState)
-                        }
-                }
+                newIntents
+                    .receiveAsFlow()
+                    .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                    .collectLatest { (intent, savedInstanceState) ->
+                        currentKeyboardController?.hide()
+                        handleDeepLink(currentNavigator, intent, savedInstanceState)
+                    }
             }
         }
 

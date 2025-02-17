@@ -31,6 +31,7 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
@@ -132,7 +133,9 @@ class LoginEmailViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(customServerConfig = newServerConfig(1).links)
+        every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
+            loginPasswordPath = LoginPasswordPath(newServerConfig(1).links)
+        )
         coEvery {
             autoVersionAuthScopeUseCase(any())
         } returns AutoVersionAuthScopeUseCase.Result.Success(

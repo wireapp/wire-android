@@ -25,11 +25,9 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.LoginContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,9 +44,13 @@ class LoginTypeSelector @Inject constructor(
 
     // StateFlow of the login context for the default server config, so that the value is kept ready to use and the use case doesn't need
     // to be executed every time the app needs to determine if the new login flow can be used.
-    private val loginContextForDefaultServerConfigStateFlow: StateFlow<LoginContext> = runBlocking {
-        // it needs to be initialised before navigation is setup
-        loginContextFlow(DefaultServerConfig).stateIn(scope, SharingStarted.Eagerly, loginContextFlow(DefaultServerConfig).first())
+    private lateinit var loginContextForDefaultServerConfigStateFlow: StateFlow<LoginContext>
+
+    // it needs to be initialised before navigation is setup
+    suspend fun init() {
+        if (!::loginContextForDefaultServerConfigStateFlow.isInitialized) {
+            loginContextForDefaultServerConfigStateFlow = loginContextFlow(DefaultServerConfig).stateIn(scope)
+        }
     }
 
     /**
@@ -63,7 +65,7 @@ class LoginTypeSelector @Inject constructor(
         // if the server links are provided, get the login context for the given server links and check if it's enterprise login
         serverLinks != null -> loginContextFlow(serverLinks).first() == LoginContext.EnterpriseLogin
         // otherwise, use the function for the default server config links to determine if the new login flow can be used
-        else -> canUseNewLogin()
+        else -> loginContextForDefaultServerConfigStateFlow.value == LoginContext.EnterpriseLogin
     }
 
     /**

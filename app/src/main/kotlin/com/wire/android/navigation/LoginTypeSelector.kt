@@ -25,30 +25,51 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.LoginContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Selector for login type, used to determine if the new login flow should be used. If the [LoginContext] for the given
+ * [ServerConfig.Links] is [LoginContext.EnterpriseLogin] then the new login flow can be used, otherwise fallback to the old login flow.
+ */
 @Singleton
 class LoginTypeSelector @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
-    private val loginContextForDefaultServerConfigStateFlow: StateFlow<LoginContext> = runBlocking {
-        // it needs to be initialised before navigation is setup
-        loginContextFlow(DefaultServerConfig).stateIn(scope, SharingStarted.Eagerly, loginContextFlow(DefaultServerConfig).first())
+
+    // StateFlow of the login context for the default server config, so that the value is kept ready to use and the use case doesn't need
+    // to be executed every time the app needs to determine if the new login flow can be used.
+    private lateinit var loginContextForDefaultServerConfigStateFlow: StateFlow<LoginContext>
+
+    // it needs to be initialised before navigation is setup
+    suspend fun init() {
+        if (!::loginContextForDefaultServerConfigStateFlow.isInitialized) {
+            loginContextForDefaultServerConfigStateFlow = loginContextFlow(DefaultServerConfig).stateIn(scope)
+        }
     }
+
+    /**
+     * Observe the [LoginContext] for the given [ServerConfig.Links].
+     */
     private suspend fun loginContextFlow(serverLinks: ServerConfig.Links) = coreLogic.getGlobalScope().observeLoginContext(serverLinks)
 
+    /**
+     *  Determine if the new login flow can be used for the given [ServerConfig.Links].
+     */
     suspend fun canUseNewLogin(serverLinks: ServerConfig.Links?) = when {
+        // if the server links are provided, get the login context for the given server links and check if it's enterprise login
         serverLinks != null -> loginContextFlow(serverLinks).first() == LoginContext.EnterpriseLogin
-        else -> canUseNewLogin()
+        // otherwise, use the function for the default server config links to determine if the new login flow can be used
+        else -> loginContextForDefaultServerConfigStateFlow.value == LoginContext.EnterpriseLogin
     }
 
+    /**
+     * Determine if the new login flow can be used for the default [ServerConfig.Links] - [DefaultServerConfig].
+     */
     fun canUseNewLogin() = loginContextForDefaultServerConfigStateFlow.value == LoginContext.EnterpriseLogin
 }

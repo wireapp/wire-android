@@ -57,7 +57,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewLoginViewModel @Inject constructor(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    @KaliumCoreLogic val coreLogic: CoreLogic,
     private val savedStateHandle: SavedStateHandle,
     addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
@@ -74,7 +74,6 @@ class NewLoginViewModel @Inject constructor(
     var state by mutableStateOf(NewLoginScreenState())
         private set
     val userIdentifierTextState: TextFieldState = TextFieldState()
-    var loginEmailSSOState by mutableStateOf(NewLoginEmailSSOState())
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
@@ -124,39 +123,49 @@ class NewLoginViewModel @Inject constructor(
             onSuccess = { authScope ->
                 when (val loginFlowResult = authScope.getLoginFlowForDomainUseCase(email)) {
                     is EnterpriseLoginResult.Failure.Generic -> updateLoginFlowState(
-                        DomainCheckupState.Error.DialogError.GenericError(loginFlowResult.coreFailure)
+                        DomainCheckupState.Error.DialogError.GenericError(
+                            loginFlowResult.coreFailure
+                        )
                     )
-                    EnterpriseLoginResult.Failure.NoNetwork -> TODO()
-                    EnterpriseLoginResult.Failure.NotSupported -> updateLoginFlowState(DomainCheckupState.Error.DialogError.NotSupported)
+
+                    is EnterpriseLoginResult.Failure.NotSupported -> updateLoginFlowState(DomainCheckupState.Error.DialogError.NotSupported)
+
                     is EnterpriseLoginResult.Success -> {
                         when (val loginRedirectPath = loginFlowResult.loginRedirectPath) {
                             is LoginRedirectPath.SSO -> {
                                 initiateSSO(serverConfig, loginRedirectPath.ssoCode, action)
                             }
+
                             is LoginRedirectPath.CustomBackend -> {
                                 state = state.copy(
                                     customServerDialogState = CustomServerDetailsDialogState(loginRedirectPath.serverLinks),
                                 )
                                 updateLoginFlowState(DomainCheckupState.Default)
                             }
+
                             is LoginRedirectPath.Default,
                             is LoginRedirectPath.NoRegistration -> {
-                                action(NewLoginAction.EmailPassword(
-                                    userIdentifier = userIdentifierTextState.text.toString(),
-                                    loginPasswordPath = LoginPasswordPath(
-                                        isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
+                                action(
+                                    NewLoginAction.EmailPassword(
+                                        userIdentifier = userIdentifierTextState.text.toString(),
+                                        loginPasswordPath = LoginPasswordPath(
+                                            isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
+                                        )
                                     )
-                                ))
+                                )
                                 updateLoginFlowState(DomainCheckupState.Default)
                             }
+
                             is LoginRedirectPath.ExistingAccountWithClaimedDomain -> {
-                                action(NewLoginAction.EmailPassword(
-                                    userIdentifier = userIdentifierTextState.text.toString(),
-                                    loginPasswordPath = LoginPasswordPath(
-                                        isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
-                                        isDomainClaimedByOrg = true,
+                                action(
+                                    NewLoginAction.EmailPassword(
+                                        userIdentifier = userIdentifierTextState.text.toString(),
+                                        loginPasswordPath = LoginPasswordPath(
+                                            isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
+                                            isDomainClaimedByOrg = true,
+                                        )
                                     )
-                                ))
+                                )
                                 updateLoginFlowState(DomainCheckupState.Default)
                             }
                         }
@@ -164,6 +173,10 @@ class NewLoginViewModel @Inject constructor(
                 }
             }
         )
+    }
+
+    fun onDismissDialog() {
+        updateLoginFlowState(DomainCheckupState.Default)
     }
 
     fun onCustomServerDialogDismiss() {
@@ -245,9 +258,10 @@ class NewLoginViewModel @Inject constructor(
      */
     private fun updateLoginFlowState(flowState: DomainCheckupState) {
         val currentUserLoginInput = userIdentifierTextState.text
-        loginEmailSSOState = loginEmailSSOState.copy(
+        state = state.copy(
             flowState = flowState,
-            nextEnabled = flowState !is DomainCheckupState.Loading && currentUserLoginInput.isNotEmpty()
+            nextEnabled = flowState !is DomainCheckupState.Loading
+                    && currentUserLoginInput.isNotEmpty()
         )
     }
 }

@@ -20,12 +20,9 @@ package com.wire.android.ui.newauthentication.login
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 
 data class NewLoginScreenState(
-    val domainCheckError: DomainCheckError? = null,
+    val isThereActiveSession: Boolean = false,
+    val userIdentifierEnabled: Boolean = true,
+    val nextEnabled: Boolean = false,
+    val flowState: DomainCheckupState = DomainCheckupState.Default,
     val customServerDialogState: CustomServerDetailsDialogState? = null,
 )
-
-sealed class DomainCheckError {
-    data object NetworkError : DomainCheckError()
-    data object NotSupported : DomainCheckError()
-    data object GenericError : DomainCheckError()
-}

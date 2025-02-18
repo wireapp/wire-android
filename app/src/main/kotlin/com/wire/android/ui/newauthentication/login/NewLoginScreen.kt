@@ -46,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
@@ -59,6 +60,9 @@ import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.NewLoginNavGraph
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -77,8 +81,11 @@ import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.DialogErrorStrings
+import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
@@ -142,8 +149,9 @@ fun NewLoginScreen(
             }
         )
     }
+    DomainCheckupDialog(viewModel.state, navigator, viewModel::onDismissDialog)
     LoginContent(
-        loginEmailSSOState = viewModel.loginEmailSSOState,
+        loginEmailSSOState = viewModel.state,
         userIdentifierState = viewModel.userIdentifierTextState,
         serverConfig = viewModel.serverConfig,
         onNextClicked = {
@@ -157,7 +165,7 @@ fun NewLoginScreen(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginContent(
-    loginEmailSSOState: NewLoginEmailSSOState,
+    loginEmailSSOState: NewLoginScreenState,
     userIdentifierState: TextFieldState,
     serverConfig: ServerConfig.Links,
     onNextClicked: () -> Unit,
@@ -272,13 +280,47 @@ private fun EmailOrSSOCodeInput(
     )
 }
 
+@Composable
+fun DomainCheckupDialog(loginEmailSSOState: NewLoginScreenState, navigator: Navigator, onDismiss: () -> Unit) {
+    val resources = LocalContext.current.resources
+    when (val state = loginEmailSSOState.flowState) {
+        is DomainCheckupState.Error.DialogError.GenericError -> DomainCheckupDialogs(
+            dialogErrorStrings = state.coreFailure.dialogErrorStrings(resources), onDismiss = onDismiss
+        )
+
+        is DomainCheckupState.Error.DialogError.NotSupported -> navigator.navigate(NavigationCommand(WelcomeScreenDestination()))
+        else -> {
+            /* do nothing */
+        }
+    }
+}
+
+@Composable
+fun DomainCheckupDialogs(dialogErrorStrings: DialogErrorStrings, onDismiss: () -> Unit) {
+    WireDialog(
+        title = dialogErrorStrings.title,
+        text = dialogErrorStrings.annotatedMessage,
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            text = stringResource(R.string.label_ok),
+            onClick = onDismiss,
+            type = WireDialogButtonType.Primary
+        ),
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false
+        )
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewNewLoginScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginContent(
-                loginEmailSSOState = NewLoginEmailSSOState(),
+                loginEmailSSOState = NewLoginScreenState(),
                 userIdentifierState = TextFieldState(),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = false),
                 onNextClicked = {},
@@ -295,7 +337,7 @@ fun PreviewNewLoginScreenCustomConfig() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginContent(
-                loginEmailSSOState = NewLoginEmailSSOState(),
+                loginEmailSSOState = NewLoginScreenState(),
                 userIdentifierState = TextFieldState(),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = true),
                 onNextClicked = {},
@@ -305,4 +347,3 @@ fun PreviewNewLoginScreenCustomConfig() = WireTheme {
         }
     }
 }
-

@@ -42,11 +42,10 @@ fun WireCallControlButton(
     height: Dp = dimensions().defaultCallingControlsHeight,
     iconSize: Dp = dimensions().defaultCallingControlsIconSize
 ) {
-    val shape = CircleShape
     WireSecondaryIconButton(
         onButtonClicked = onClick,
         iconResource = iconResId,
-        shape = shape,
+        shape = CircleShape,
         colors = with(colorsScheme()) {
             wireSecondaryButtonColors().copy(
                 selected = inverseSurface,
@@ -64,6 +63,6 @@ fun WireCallControlButton(
         minSize = DpSize(width, height),
         minClickableSize = DpSize(width, height),
         iconSize = iconSize,
-        modifier = modifier
+        modifier = modifier,
     )
 }

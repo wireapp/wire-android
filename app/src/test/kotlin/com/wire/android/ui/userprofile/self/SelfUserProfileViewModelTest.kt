@@ -19,10 +19,8 @@ package com.wire.android.ui.userprofile.self
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -63,23 +61,5 @@ class SelfUserProfileViewModelTest {
                 .arrange()
             // then
             assertEquals(LegalHoldUIState.None, viewModel.userProfileState.legalHoldStatus)
-        }
-
-    @Test
-    fun `given a createTeamButtonClicked event, when sendPersonalToTeamMigrationEvent is called, then the event is sent`() =
-        runTest {
-            val (arrangement, viewModel) = SelfUserProfileViewModelArrangement()
-                .withLegalHoldStatus(LegalHoldStateForSelfUser.Disabled)
-                .arrange()
-
-            viewModel.sendPersonalToTeamMigrationEvent()
-
-            verify(exactly = 1) {
-                arrangement.anonymousAnalyticsManager.sendEvent(
-                    AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                        createTeamButtonClicked = true
-                    )
-                )
-            }
         }
 }

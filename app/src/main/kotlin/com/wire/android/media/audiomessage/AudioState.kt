@@ -19,6 +19,14 @@ package com.wire.android.media.audiomessage
 
 import androidx.annotation.StringRes
 import com.wire.android.R
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.ConversationId
+
+data class AudioMessagesData(
+    val statesHistory: Map<MessageIdWrapper, AudioState>,
+    val playingMessage: PlayingAudioMessage
+)
 
 data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
@@ -40,10 +48,40 @@ data class AudioState(
         return totalTimeInMs
     }
 
+    fun isPlaying() = audioMediaPlayingState is AudioMediaPlayingState.Playing
+    fun isPlayingOrPaused() = audioMediaPlayingState is AudioMediaPlayingState.Playing
+            || audioMediaPlayingState is AudioMediaPlayingState.Paused
+
+    fun isPlayingOrPausedOrFetching() = audioMediaPlayingState is AudioMediaPlayingState.Playing
+            || audioMediaPlayingState is AudioMediaPlayingState.Paused
+            || audioMediaPlayingState is AudioMediaPlayingState.Fetching
+            || audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching
+
     sealed class TotalTimeInMs {
         object NotKnown : TotalTimeInMs()
 
         data class Known(val value: Int) : TotalTimeInMs()
+    }
+}
+
+sealed class PlayingAudioMessage {
+    data object None : PlayingAudioMessage()
+    data class Some(
+        val conversationId: ConversationId,
+        val messageId: String,
+        val authorName: UIText,
+        val state: AudioState
+    ) : PlayingAudioMessage()
+
+    fun isSameAs(that: PlayingAudioMessage): Boolean {
+        val isTypeSame = (this is Some && that is Some)
+                || (this is None && that is None)
+
+        val isMessageSame = this is Some && that is Some
+                && this.messageId == that.messageId
+                && this.state.isPlaying() == that.state.isPlaying()
+
+        return isTypeSame && isMessageSame
     }
 }
 
@@ -84,27 +122,32 @@ sealed class AudioMediaPlayingState {
 }
 
 sealed class AudioMediaPlayerStateUpdate(
+    open val conversationId: ConversationId,
     open val messageId: String
 ) {
     data class AudioMediaPlayingStateUpdate(
+        override val conversationId: ConversationId,
         override val messageId: String,
         val audioMediaPlayingState: AudioMediaPlayingState
-    ) : AudioMediaPlayerStateUpdate(messageId)
+    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
 
     data class PositionChangeUpdate(
+        override val conversationId: ConversationId,
         override val messageId: String,
         val position: Int
-    ) : AudioMediaPlayerStateUpdate(messageId)
+    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
 
     data class TotalTimeUpdate(
+        override val conversationId: ConversationId,
         override val messageId: String,
         val totalTimeInMs: Int
-    ) : AudioMediaPlayerStateUpdate(messageId)
+    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
 
     data class WaveMaskUpdate(
+        override val conversationId: ConversationId,
         override val messageId: String,
         val waveMask: List<Int>
-    ) : AudioMediaPlayerStateUpdate(messageId)
+    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
 }
 
 sealed class RecordAudioMediaPlayerStateUpdate {

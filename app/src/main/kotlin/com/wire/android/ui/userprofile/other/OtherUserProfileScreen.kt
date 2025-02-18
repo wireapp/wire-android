@@ -210,7 +210,9 @@ fun OtherUserProfileScreen(
         navigateBack = navigator::navigateBack,
         onConversationMediaClick = onConversationMediaClick,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
-        onMoveToFolder = null // TODO implement when conversation details will be available in OtherUserProfileScreenViewModel
+        onMoveToFolder = {
+            navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
+        }
     )
 
     LaunchedEffect(Unit) {
@@ -266,7 +268,7 @@ fun OtherProfileScreenContent(
     onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {},
     onLegalHoldLearnMoreClick: () -> Unit = {},
-    onMoveToFolder: ((ConversationFoldersNavArgs) -> Unit)? = null,
+    onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     changeConversationFavoriteViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
             ChangeConversationFavoriteStateArgs
@@ -641,8 +643,8 @@ fun ContentFooter(
                         state.fullName,
                         state.connectionState,
                         state.isConversationStarted,
-                        onIgnoreConnectionRequest,
-                        onOpenConversation
+                        onConnectionRequestIgnored = onIgnoreConnectionRequest,
+                        onOpenConversation = onOpenConversation
                     )
                 }
             }

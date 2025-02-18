@@ -31,6 +31,8 @@ import androidx.core.content.ContextCompat
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.IncomingCallActionReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
+import com.wire.android.notification.broadcastreceivers.PlayPauseAudioMessageReceiver
+import com.wire.android.notification.broadcastreceivers.StopAudioMessageReceiver
 import com.wire.android.ui.WireActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
@@ -49,7 +51,7 @@ fun messagePendingIntent(context: Context, conversationId: String, userId: Strin
             .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
             .build()
     }
-    val requestCode = getRequestCode(conversationId, OPEN_MESSAGE_REQUEST_CODE_PREFIX)
+    val requestCode = getRequestCode(OPEN_MESSAGE_REQUEST_CODE_PREFIX, userId.orEmpty(), conversationId)
 
     return PendingIntent.getActivity(
         context.applicationContext,
@@ -68,7 +70,7 @@ fun otherUserProfilePendingIntent(context: Context, destinationUserId: String, u
             .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
             .build()
     }
-    val requestCode = getRequestCode(destinationUserId, OPEN_OTHER_USER_PROFILE_CODE_PREFIX)
+    val requestCode = getRequestCode(OPEN_OTHER_USER_PROFILE_CODE_PREFIX, userId, destinationUserId)
 
     return PendingIntent.getActivity(
         context.applicationContext,
@@ -86,7 +88,7 @@ fun summaryMessagePendingIntent(context: Context): PendingIntent = openAppPendin
 
 fun replyMessagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent = PendingIntent.getBroadcast(
     context,
-    getRequestCode(conversationId, REPLY_MESSAGE_REQUEST_CODE_PREFIX),
+    getRequestCode(REPLY_MESSAGE_REQUEST_CODE_PREFIX, userId.orEmpty(), conversationId),
     NotificationReplyReceiver.newIntent(context, conversationId, userId),
     PendingIntent.FLAG_MUTABLE
 )
@@ -107,7 +109,7 @@ fun endOngoingCallPendingIntent(context: Context, conversationId: String, userId
 
     return PendingIntent.getBroadcast(
         context.applicationContext,
-        getRequestCode(conversationId, END_ONGOING_CALL_REQUEST_CODE),
+        getRequestCode(END_ONGOING_CALL_REQUEST_CODE, userId, conversationId),
         intent,
         PendingIntent.FLAG_IMMUTABLE
     )
@@ -123,7 +125,7 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
 
     return PendingIntent.getBroadcast(
         context.applicationContext,
-        getRequestCode(conversationId, DECLINE_CALL_REQUEST_CODE),
+        getRequestCode(DECLINE_CALL_REQUEST_CODE, userId, conversationId),
         intent,
         PendingIntent.FLAG_IMMUTABLE
     )
@@ -147,7 +149,7 @@ fun answerCallPendingIntent(context: Context, conversationId: String, userId: St
         )
         return PendingIntent.getBroadcast(
             context.applicationContext,
-            getRequestCode(conversationId, ANSWER_CALL_REQUEST_CODE),
+            getRequestCode(ANSWER_CALL_REQUEST_CODE, userId, conversationId),
             intent,
             PendingIntent.FLAG_IMMUTABLE
         )
@@ -172,7 +174,7 @@ fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String
 
     return PendingIntent.getActivity(
         context,
-        getRequestCode(conversationId, FULL_SCREEN_REQUEST_CODE),
+        getRequestCode(FULL_SCREEN_REQUEST_CODE, userId, conversationId),
         intent,
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
@@ -220,6 +222,28 @@ fun openAppPendingIntent(context: Context): PendingIntent {
     )
 }
 
+fun playPauseAudioPendingIntent(context: Context): PendingIntent {
+    val intent = PlayPauseAudioMessageReceiver.newIntent(context)
+
+    return PendingIntent.getBroadcast(
+        context.applicationContext,
+        getRequestCode(PLAY_PAUSE_AUDIO_REQUEST_CODE),
+        intent,
+        PendingIntent.FLAG_IMMUTABLE
+    )
+}
+
+fun stopAudioPendingIntent(context: Context): PendingIntent {
+    val intent = StopAudioMessageReceiver.newIntent(context)
+
+    return PendingIntent.getBroadcast(
+        context.applicationContext,
+        getRequestCode(STOP_AUDIO_REQUEST_CODE),
+        intent,
+        PendingIntent.FLAG_IMMUTABLE
+    )
+}
+
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0
 private const val DECLINE_CALL_REQUEST_CODE = "decline_call_"
 private const val ANSWER_CALL_REQUEST_CODE = "answer_call_"
@@ -228,8 +252,11 @@ private const val OPEN_ONGOING_CALL_REQUEST_CODE = 4
 private const val OPEN_MIGRATION_LOGIN_REQUEST_CODE = 5
 private const val OUTGOING_CALL_REQUEST_CODE = 6
 private const val END_ONGOING_CALL_REQUEST_CODE = "hang_up_call_"
+private const val PLAY_PAUSE_AUDIO_REQUEST_CODE = "play_or_pause_audio_"
+private const val STOP_AUDIO_REQUEST_CODE = "stop_audio_"
 private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"
 private const val REPLY_MESSAGE_REQUEST_CODE_PREFIX = "reply_"
 
-private fun getRequestCode(conversationId: String, prefix: String): Int = (prefix + conversationId).hashCode()
+private fun getRequestCode(prefix: String, userId: String = "", conversationId: String = ""): Int =
+    (prefix + userId + conversationId).hashCode()

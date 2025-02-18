@@ -25,8 +25,8 @@ import coil.request.Parameters
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.model.ImageAsset
 import com.wire.android.util.ui.AssetImageFetcher.Companion.OPTION_PARAMETER_RETRY_KEY
-import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase

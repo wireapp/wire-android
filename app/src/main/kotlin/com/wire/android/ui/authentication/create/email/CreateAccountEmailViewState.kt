@@ -19,7 +19,7 @@
 package com.wire.android.ui.authentication.create.email
 
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 
 data class CreateAccountEmailViewState(
     val type: CreateAccountFlowType,

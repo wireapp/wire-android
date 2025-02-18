@@ -90,8 +90,8 @@ fun WireLabelledCheckbox(
 fun WireCheckbox(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    enabled: Boolean = true,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     Checkbox(
         checked = checked,

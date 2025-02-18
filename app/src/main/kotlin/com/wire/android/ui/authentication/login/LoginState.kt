@@ -19,7 +19,7 @@
 package com.wire.android.ui.authentication.login
 
 import com.wire.android.util.deeplink.SSOFailureCodes
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 
 sealed class LoginState {
     data object Default : LoginState()

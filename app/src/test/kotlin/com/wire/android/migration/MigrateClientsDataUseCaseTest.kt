@@ -26,7 +26,7 @@ import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.android.migration.util.ScalaCryptoBoxDirectoryProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

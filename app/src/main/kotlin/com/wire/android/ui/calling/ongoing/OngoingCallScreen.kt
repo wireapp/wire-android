@@ -22,10 +22,6 @@ import android.content.pm.PackageManager
 import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -417,7 +413,10 @@ private fun OngoingCallContent(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .drawInCallReactions(state = inCallReactionsState)
+                            .drawInCallReactions(
+                                state = inCallReactionsState,
+                                enabled = !inPictureInPictureMode,
+                            )
                     ) {
 
                         // if there is only one in the call, do not allow full screen
@@ -493,21 +492,11 @@ private fun OngoingCallContent(
                 }
             }
 
-            AnimatedContent(
-                targetState = showInCallReactionsPanel,
-                transitionSpec = {
-                    val enter = slideInVertically(initialOffsetY = { it })
-                    val exit = slideOutVertically(targetOffsetY = { it })
-                    enter.togetherWith(exit)
-                },
-                label = "InCallReactions"
-            ) { show ->
-                if (show) {
-                    InCallReactionsPanel(
-                        onReactionClick = onReactionClick,
-                        onMoreClick = { showEmojiPicker = true }
-                    )
-                }
+            if (showInCallReactionsPanel && !inPictureInPictureMode) {
+                InCallReactionsPanel(
+                    onReactionClick = onReactionClick,
+                    onMoreClick = { showEmojiPicker = true }
+                )
             }
 
             EmojiPickerBottomSheet(

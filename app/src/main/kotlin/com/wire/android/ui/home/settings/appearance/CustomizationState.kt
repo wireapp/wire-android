@@ -19,6 +19,7 @@ package com.wire.android.ui.home.settings.appearance
 
 import com.wire.android.ui.theme.ThemeOption
 
-data class AppearanceState(
+data class CustomizationState(
     val selectedThemeOption: ThemeOption = ThemeOption.SYSTEM,
+    val pressEnterToSentState: Boolean = false,
 )

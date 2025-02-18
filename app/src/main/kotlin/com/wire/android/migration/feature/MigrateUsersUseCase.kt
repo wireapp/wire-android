@@ -21,11 +21,11 @@ package com.wire.android.migration.feature
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.MigrationMapper
 import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.flatMap
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.flatMap
 import javax.inject.Inject
 import javax.inject.Singleton
 

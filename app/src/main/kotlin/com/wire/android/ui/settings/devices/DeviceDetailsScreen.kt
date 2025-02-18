@@ -89,7 +89,7 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedClientID
 import com.wire.kalium.logic.data.user.UserId
@@ -99,7 +99,7 @@ import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
 import com.wire.kalium.logic.feature.e2ei.X509Identity
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 import kotlinx.datetime.Instant
 
 @RootNavGraph
@@ -204,8 +204,10 @@ fun DeviceDetailsContent(
         ) {
             state.device.mlsClientIdentity?.let { identity ->
                 item {
+                    val name = state.mlsCipherSuiteSignature?.let { stringResource(id = R.string.label_mls_signature, it).uppercase() }
+                        ?: stringResource(id = R.string.label_mls_no_signature_type)
                     FolderHeader(
-                        name = stringResource(id = R.string.label_mls_signature, state.mlsCipherSuiteSignature.orEmpty()).uppercase(),
+                        name = name,
                         modifier = Modifier
                             .background(MaterialTheme.wireColorScheme.background)
                             .fillMaxWidth()

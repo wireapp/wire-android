@@ -56,13 +56,18 @@ class SelfQRCodeViewModel @Inject constructor(
     private val analyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
     private val selfQrCodeNavArgs: SelfQrCodeNavArgs = savedStateHandle.navArgs()
-    var selfQRCodeState by mutableStateOf(SelfQRCodeState(selfUserId, handle = selfQrCodeNavArgs.handle))
+    var selfQRCodeState by mutableStateOf(
+        SelfQRCodeState(
+            selfUserId,
+            handle = selfQrCodeNavArgs.handle,
+            isTeamMember = selfQrCodeNavArgs.isTeamMember
+        )
+    )
         private set
     private val cachePath: Path
         get() = kaliumFileSystem.rootCachePath
 
     init {
-        trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.Displayed)
         viewModelScope.launch {
             getServerLinks()
         }

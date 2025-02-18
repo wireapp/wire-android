@@ -33,7 +33,7 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -53,8 +53,8 @@ import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -209,14 +209,14 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun mapCipherSuiteSignatureToShortName(signature: MLSPublicKeyType): String {
+    private fun mapCipherSuiteSignatureToShortName(signature: MLSPublicKeyType): String? {
         return when (signature) {
             MLSPublicKeyType.ECDSA_SECP256R1_SHA256 -> "P256"
             MLSPublicKeyType.ECDSA_SECP384R1_SHA384 -> "P384"
             MLSPublicKeyType.ECDSA_SECP521R1_SHA512 -> "P521"
             MLSPublicKeyType.ED25519 -> "ED25519"
             MLSPublicKeyType.ED448 -> "ED448"
-            is MLSPublicKeyType.Unknown -> "Unknown"
+            is MLSPublicKeyType.Unknown -> null
         }
     }
 

@@ -21,7 +21,7 @@ package com.wire.android.ui.home.newconversation
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -35,13 +35,12 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
 
 internal class NewConversationViewModelArrangement {
@@ -62,7 +61,7 @@ internal class NewConversationViewModelArrangement {
     lateinit var isMLSEnabledUseCase: IsMLSEnabledUseCase
 
     @MockK
-    lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
+    lateinit var getSelf: GetSelfUserUseCase
 
     @MockK(relaxed = true)
     lateinit var onGroupCreated: (ConversationId) -> Unit
@@ -172,10 +171,10 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withGetSelfUser(isTeamMember: Boolean, userType: UserType = UserType.INTERNAL) = apply {
-        coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER.copy(
+        coEvery { getSelf() } returns SELF_USER.copy(
             teamId = if (isTeamMember) TeamId("teamId") else null,
             userType = userType,
-        ))
+        )
     }
 
     fun withDefaultProtocol(supportedProtocol: SupportedProtocol) = apply {
@@ -184,7 +183,7 @@ internal class NewConversationViewModelArrangement {
 
     fun arrange() = this to NewConversationViewModel(
         createGroupConversation = createGroupConversation,
-        observeSelfUser = observeSelfUserUseCase,
+        getSelfUser = getSelf,
         getDefaultProtocol = getDefaultProtocol
     ).also {
         it.createGroupState = createGroupState

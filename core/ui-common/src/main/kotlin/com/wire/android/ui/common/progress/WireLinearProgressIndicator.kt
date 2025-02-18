@@ -39,6 +39,7 @@ fun WireLinearProgressIndicator(
         color = colorsScheme().primary,
         trackColor = colorsScheme().primaryVariant,
         modifier = modifier,
+        drawStopIndicator = {}
     )
 }
 
@@ -47,9 +48,9 @@ fun WireLinearProgressIndicator(
 fun PreviewWireLinearProgressIndicator() = WireTheme {
     Box(
         modifier = Modifier
-        .background(colorsScheme().surface)
-        .padding(dimensions().spacing16x)
+            .background(colorsScheme().surface)
+            .padding(dimensions().spacing16x)
     ) {
-        WireLinearProgressIndicator(progress = { 0.5f })
+        WireLinearProgressIndicator(progress = { 0.3f })
     }
 }

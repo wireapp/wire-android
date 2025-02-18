@@ -24,7 +24,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestConversation
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.kalium.logic.data.user.ConnectionState
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -173,5 +176,57 @@ class MessageCompositionHolderTest {
             "_italic_",
             state.messageTextState.text.toString()
         )
+    }
+
+    @Test
+    fun `given non empty text, when adding mention, mention is added`() = runTest {
+        // given
+        val text = "@men"
+        state.messageTextState.edit {
+            replace(0, length, text)
+            selection = TextRange(start = text.length, end = text.length)
+        }
+
+        // when
+        state.addMention(
+            Contact(
+                id = "id",
+                domain = "domain",
+                name = "name",
+                handle = "men handle",
+                connectionState = ConnectionState.ACCEPTED,
+                membership = Membership.Guest
+            )
+        )
+
+        // then
+        assertEquals("@name ", state.messageTextState.text.toString())
+        assertEquals(1, state.messageComposition.value.selectedMentions.size)
+    }
+
+    @Test
+    fun `given non empty text without @ symbol, when adding mention, nothing happen`() = runTest {
+        // given
+        val text = "mann"
+        state.messageTextState.edit {
+            replace(0, length, text)
+            selection = TextRange(start = 4, end = 4)
+        }
+
+        // when
+        state.addMention(
+            Contact(
+                id = "id",
+                domain = "domain",
+                name = "name",
+                handle = "men handle",
+                connectionState = ConnectionState.ACCEPTED,
+                membership = Membership.Guest
+            )
+        )
+
+        // then
+        assertEquals(text, state.messageTextState.text.toString())
+        assertEquals(0, state.messageComposition.value.selectedMentions.size)
     }
 }

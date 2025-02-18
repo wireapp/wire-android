@@ -18,7 +18,7 @@
 
 package com.wire.android.model
 
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 
 /**
  * Wrapper for use case responses with additional [Loading] state for UI purposes

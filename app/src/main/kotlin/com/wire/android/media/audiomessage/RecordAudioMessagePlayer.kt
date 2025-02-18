@@ -20,7 +20,9 @@ package com.wire.android.media.audiomessage
 import android.content.Context
 import android.media.MediaPlayer
 import androidx.core.net.toUri
+import com.wire.android.di.ApplicationScope
 import dagger.hilt.android.scopes.ViewModelScoped
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
@@ -37,7 +40,9 @@ import javax.inject.Inject
 class RecordAudioMessagePlayer @Inject constructor(
     private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
-    private val wavesMaskHelper: AudioWavesMaskHelper
+    private val wavesMaskHelper: AudioWavesMaskHelper,
+    private val audioFocusHelper: AudioFocusHelper,
+    @ApplicationScope private val scope: CoroutineScope
 ) {
     private var currentAudioFile: File? = null
     private var audioState: AudioState = AudioState.DEFAULT
@@ -53,6 +58,11 @@ class RecordAudioMessagePlayer @Inject constructor(
                 seekToAudioPosition.tryEmit(0)
             }
         }
+
+        audioFocusHelper.setListener(
+            onPauseCurrentAudio = { scope.launch { pause() } },
+            onResumeCurrentAudio = { scope.launch { resumeAudio() } }
+        )
     }
 
     private val audioMessageStateUpdate =
@@ -152,7 +162,9 @@ class RecordAudioMessagePlayer @Inject constructor(
     private suspend fun resumeOrPauseAudio() {
         if (audioMediaPlayer.isPlaying) {
             pause()
+            audioFocusHelper.abandon()
         } else {
+            audioFocusHelper.request()
             resumeAudio()
         }
     }
@@ -167,6 +179,7 @@ class RecordAudioMessagePlayer @Inject constructor(
             context,
             audioFile.toUri()
         )
+        audioFocusHelper.request()
         audioMediaPlayer.prepare()
         audioMediaPlayer.seekTo(position)
         audioMediaPlayer.start()

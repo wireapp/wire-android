@@ -28,7 +28,7 @@ import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.notification.WireNotificationManager
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -48,7 +48,6 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -77,7 +76,7 @@ class ForgotLockScreenViewModelTest {
             val (result, resultPassword) = viewModel.validatePasswordIfNeeded("password")
             assert(result is ForgotLockScreenViewModel.Result.Success)
             assertEquals("", resultPassword)
-            verify { arrangement.validatePasswordUseCase(any()) wasNot Called }
+            verify(exactly = 0) { arrangement.validatePasswordUseCase(any()) }
         }
     @Test
     fun `given password required and valid, when validating password, then return Success with given password`() =
@@ -118,7 +117,7 @@ class ForgotLockScreenViewModelTest {
                 .arrange()
             val (result, _) = viewModel.validatePasswordIfNeeded("password")
             assert(result is ForgotLockScreenViewModel.Result.Failure)
-            verify { arrangement.validatePasswordUseCase(any()) wasNot Called }
+            verify(exactly = 0) { arrangement.validatePasswordUseCase(any()) }
         }
 
     // current client deletion

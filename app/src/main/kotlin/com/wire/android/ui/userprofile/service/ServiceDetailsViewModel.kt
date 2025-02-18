@@ -23,12 +23,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
@@ -38,15 +39,13 @@ import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCas
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.nullableFold
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.nullableFold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -57,21 +56,19 @@ import javax.inject.Inject
 @HiltViewModel
 class ServiceDetailsViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
-    private val observeSelfUser: ObserveSelfUserUseCase,
+    @CurrentAccount private val selfUserId: UserId,
     private val getServiceById: GetServiceByIdUseCase,
     private val observeIsServiceMember: ObserveIsServiceMemberUseCase,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val addServiceToConversation: AddServiceToConversationUseCase,
-    private val serviceDetailsMapper: ServiceDetailsMapper,
+    serviceDetailsMapper: ServiceDetailsMapper,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
     private val serviceId: ServiceId = serviceDetailsMapper.fromBotServiceToServiceId(serviceDetailsNavArgs.botService)
     private val conversationId: QualifiedID = serviceDetailsNavArgs.conversationId
-
-    private lateinit var selfUserId: UserId
 
     var serviceDetailsState by mutableStateOf(ServiceDetailsState())
     private val _infoMessage = MutableSharedFlow<UIText>()
@@ -86,7 +83,6 @@ class ServiceDetailsViewModel @Inject constructor(
                 isAvatarLoading = true
             )
 
-            selfUserId = observeSelfUser().first().id
             getServiceDetailsAndUpdateViewState()?.let {
                 observeIsServiceConversationMember()
             }

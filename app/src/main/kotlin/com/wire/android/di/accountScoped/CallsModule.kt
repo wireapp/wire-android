@@ -26,7 +26,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallOnConversationChangeUse
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
@@ -58,7 +58,7 @@ class CallsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetIncomingCallsUseCase(callsScope: CallsScope) =
+    fun provideGetIncomingCallsUseCase(callsScope: CallsScope): GetIncomingCallsUseCase =
         callsScope.getIncomingCalls
 
     @ViewModelScoped
@@ -90,12 +90,6 @@ class CallsModule {
     @Provides
     fun provideAcceptCallUseCase(callsScope: CallsScope) =
         callsScope.answerCall
-
-    @ViewModelScoped
-    @Provides
-    fun provideObserveCallByConversationIdUseCase(
-        callsScope: CallsScope
-    ): GetAllCallsWithSortedParticipantsUseCase = callsScope.allCallsWithSortedParticipants
 
     @ViewModelScoped
     @Provides

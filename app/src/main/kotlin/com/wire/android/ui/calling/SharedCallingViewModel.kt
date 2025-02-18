@@ -60,7 +60,7 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
-import com.wire.kalium.logic.functional.onSuccess
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.PlatformView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -125,7 +125,7 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            val allCallsSharedFlow = observeEstablishedCallWithSortedParticipants(conversationId)
+            val allCallsSharedFlow = observeEstablishedCallWithSortedParticipants()
                 .flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
 
             launch {

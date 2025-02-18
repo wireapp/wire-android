@@ -19,6 +19,7 @@
 package com.wire.android.notification
 
 import android.app.Notification
+import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
@@ -47,3 +48,17 @@ fun getActionReply(
             .build()
     }
 }
+
+fun getOpenIncomingCallAction(context: Context, conversationId: String, userId: String) = getAction(
+    context.getString(R.string.notification_action_open_call),
+    fullScreenIncomingCallPendingIntent(context, conversationId, userId)
+)
+
+fun getDeclineCallAction(context: Context, conversationId: String, userId: String) = getAction(
+    context.getString(R.string.notification_action_decline_call),
+    declineCallPendingIntent(context, conversationId, userId)
+)
+
+private fun getAction(title: String, intent: PendingIntent) = NotificationCompat.Action
+    .Builder(null, title, intent)
+    .build()

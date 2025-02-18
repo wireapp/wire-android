@@ -19,7 +19,7 @@
 package com.wire.android.ui.authentication.devices.remove
 
 import com.wire.android.ui.authentication.devices.model.Device
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 
 data class RemoveDeviceState(
     val deviceList: List<Device>,

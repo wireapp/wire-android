@@ -21,7 +21,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModelTest.Arrangement.Companion.UNKNOWN_ERROR
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
@@ -32,7 +32,6 @@ import com.wire.kalium.logic.feature.legalhold.ApproveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -248,7 +247,7 @@ class LegalHoldRequestedViewModelTest {
             .arrange()
         advanceUntilIdle()
         viewModel.acceptClicked()
-        verify { arrangement.validatePassword(any()) wasNot Called }
+        verify(exactly = 0) { arrangement.validatePassword(any()) }
         coVerify { arrangement.userSessionScope.approveLegalHoldRequest(matchNullable { it == null }) }
     }
 
@@ -263,7 +262,7 @@ class LegalHoldRequestedViewModelTest {
         advanceUntilIdle()
         viewModel.acceptClicked()
         verify { arrangement.validatePassword(password) }
-        coVerify { arrangement.userSessionScope.approveLegalHoldRequest(matchNullable { it.isNullOrEmpty() }) wasNot Called }
+        coVerify(exactly = 0) { arrangement.userSessionScope.approveLegalHoldRequest(matchNullable { it.isNullOrEmpty() }) }
     }
 
     @Test
@@ -276,7 +275,7 @@ class LegalHoldRequestedViewModelTest {
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
         advanceUntilIdle()
         viewModel.acceptClicked()
-        coVerify { arrangement.userSessionScope.approveLegalHoldRequest(password) wasNot Called }
+        coVerify(exactly = 0) { arrangement.userSessionScope.approveLegalHoldRequest(password) }
     }
 
     @Test

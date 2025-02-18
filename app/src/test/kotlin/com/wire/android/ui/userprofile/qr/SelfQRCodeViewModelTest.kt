@@ -61,7 +61,7 @@ class SelfQRCodeViewModelTest {
             coEvery { selfServerConfig.invoke() } returns SelfServerConfigUseCase.Result.Success(
                 serverLinks = newServerConfig(1).copy(links = ServerConfig.STAGING)
             )
-            every { savedStateHandle.navArgs<SelfQrCodeNavArgs>() } returns SelfQrCodeNavArgs("handle")
+            every { savedStateHandle.navArgs<SelfQrCodeNavArgs>() } returns SelfQrCodeNavArgs("handle", false)
         }
 
         fun arrange() = this to SelfQRCodeViewModel(

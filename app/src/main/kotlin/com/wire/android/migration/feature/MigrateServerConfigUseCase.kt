@@ -21,16 +21,16 @@ package com.wire.android.migration.feature
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.preference.ScalaServerConfig
 import com.wire.android.migration.preference.ScalaServerConfigDAO
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.failure.ServerConfigFailure
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.StoreServerConfigResult
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 import javax.inject.Inject
 import javax.inject.Singleton
 

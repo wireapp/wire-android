@@ -25,14 +25,15 @@ import com.wire.android.config.mockUri
 import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
-import com.wire.android.media.audiomessage.ConversationAudioMessagePlayerProvider
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
+import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
@@ -47,11 +48,10 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
-import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -100,9 +100,6 @@ class ConversationMessagesViewModelArrangement {
     lateinit var conversationAudioMessagePlayer: ConversationAudioMessagePlayer
 
     @MockK
-    lateinit var conversationAudioMessagePlayerProvider: ConversationAudioMessagePlayerProvider
-
-    @MockK
     lateinit var getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase
 
     @MockK
@@ -117,9 +114,6 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var deleteMessage: DeleteMessageUseCase
 
-    @MockK
-    lateinit var getSenderNameByMessageId: GetSenderNameByMessageIdUseCase
-
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -133,12 +127,11 @@ class ConversationMessagesViewModelArrangement {
             getMessagesForConversationUseCase,
             toggleReaction,
             resetSession,
-            conversationAudioMessagePlayerProvider,
+            conversationAudioMessagePlayer,
             getConversationUnreadEventsCount,
             clearUsersTypingEvents,
             getSearchedConversationMessagePosition,
             deleteMessage,
-            getSenderNameByMessageId
         )
     }
 
@@ -153,8 +146,6 @@ class ConversationMessagesViewModelArrangement {
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit
-        every { conversationAudioMessagePlayerProvider.provide() } returns conversationAudioMessagePlayer
-        every { conversationAudioMessagePlayerProvider.onCleared() } returns Unit
         coEvery {
             getSearchedConversationMessagePosition(any(), any())
         } returns GetSearchedConversationMessagePositionUseCase.Result.Success(position = 0)
@@ -163,7 +154,7 @@ class ConversationMessagesViewModelArrangement {
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
         coEvery { conversationAudioMessagePlayer.fetchWavesMask(any(), any()) } returns Unit
-        coEvery { getSenderNameByMessageId(any(), any()) } returns GetSenderNameByMessageIdUseCase.Result.Success("User Name")
+        coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
     }
 
     fun withSuccessfulViewModelInit() = apply {
@@ -203,8 +194,12 @@ class ConversationMessagesViewModelArrangement {
         )
     }
 
-    fun withObservableAudioMessagesState(audioFlow: Flow<Map<String, AudioState>>) = apply {
+    fun withObservableAudioMessagesState(audioFlow: Flow<Map<MessageIdWrapper, AudioState>>) = apply {
         coEvery { conversationAudioMessagePlayer.observableAudioMessagesState } returns audioFlow
+    }
+
+    fun withPlayingAudioMessageFlow(playingAudioMessageFlow: Flow<PlayingAudioMessage>) = apply {
+        coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns playingAudioMessageFlow
     }
 
     suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {
@@ -235,10 +230,6 @@ class ConversationMessagesViewModelArrangement {
     fun withFailureOnDeletingMessages() = apply {
         coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
         return this
-    }
-
-    fun withGetSenderNameByMessageId(result: GetSenderNameByMessageIdUseCase.Result) = apply {
-        coEvery { getSenderNameByMessageId(any(), any()) } returns result
     }
 
     fun arrange() = this to viewModel

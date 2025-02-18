@@ -19,7 +19,7 @@
 package com.wire.android.ui.authentication.create.code
 
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 
 data class CreateAccountCodeViewState(
     val type: CreateAccountFlowType,

@@ -61,23 +61,31 @@ class NewFolderViewModel @Inject constructor(
             )
                 .collect { (folders, text) ->
                     val nameExist = folders.any { it.name == text.trim() }
-                    folderNameState = folderNameState.copy(
-                        buttonEnabled = text.trim().isNotEmpty() && !nameExist && text.length <= NAME_MAX_COUNT,
-                        error = when {
-                            text.trim().isEmpty() -> FolderNameState.NameError.TextFieldError.NameEmptyError
-                            text.length > NAME_MAX_COUNT -> FolderNameState.NameError.TextFieldError.NameExceedLimitError
-                            nameExist -> FolderNameState.NameError.TextFieldError.NameAlreadyExistError
-                            else -> FolderNameState.NameError.None
-                        }
-                    )
+                    if (!folderNameState.loading) {
+                        folderNameState = folderNameState.copy(
+                            buttonEnabled = text.trim().isNotEmpty() && !nameExist && text.length <= NAME_MAX_COUNT,
+                            error = when {
+                                text.trim().isEmpty() -> FolderNameState.NameError.TextFieldError.NameEmptyError
+                                text.length > NAME_MAX_COUNT -> FolderNameState.NameError.TextFieldError.NameExceedLimitError
+                                nameExist -> FolderNameState.NameError.TextFieldError.NameAlreadyExistError
+                                else -> FolderNameState.NameError.None
+                            }
+                        )
+                    }
                 }
         }
     }
 
     fun createFolder(folderName: String) {
         viewModelScope.launch {
+            folderNameState = folderNameState.copy(
+                loading = true
+            )
             when (val result = createConversationFolder(folderName)) {
                 is CreateConversationFolderUseCase.Result.Failure -> {
+                    folderNameState = folderNameState.copy(
+                        loading = false
+                    )
                     _infoMessage.emit(
                         UIText.StringResource(
                             R.string.new_folder_failure,

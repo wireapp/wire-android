@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -56,6 +57,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
@@ -80,6 +82,7 @@ class MessageComposerViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val currentSessionFlowUseCase: CurrentSessionFlowUseCase,
+    private val globalDataStore: GlobalDataStore,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -107,6 +110,15 @@ class MessageComposerViewModel @Inject constructor(
         initTempWritableImageUri()
         observeIsTypingAvailable()
         setFileSharingStatus()
+        getEnterToSendState()
+    }
+
+    private fun getEnterToSendState() {
+        viewModelScope.launch {
+            globalDataStore.enterToSendFlow().first().also {
+                messageComposerViewState.value = messageComposerViewState.value.copy(enterToSend = it)
+            }
+        }
     }
 
     private fun initTempWritableVideoUri() {

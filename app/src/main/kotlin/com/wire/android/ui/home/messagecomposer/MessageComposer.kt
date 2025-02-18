@@ -140,6 +140,7 @@ fun MessageComposer(
                         onClearMentionSearchResult()
                         clearMessage()
                         messageCompositionHolder.value.onClearDraft()
+                        messageCompositionInputStateHolder.collapseText()
                     },
                     onPingOptionClicked = onPingOptionClicked,
                     onImagesPicked = onImagesPicked,

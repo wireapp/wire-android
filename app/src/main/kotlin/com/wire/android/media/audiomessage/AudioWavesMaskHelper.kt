@@ -46,7 +46,12 @@ class AudioWavesMaskHelper @Inject constructor(
         if (this.isEmpty()) return listOf()
 
         val divider = max() / (WAVE_MAX - 1)
-        return map { (it / divider).roundToInt() + 1 }
+
+        return if (divider == 0.0) {
+            map { 1 }
+        } else {
+            map { (it / divider).roundToInt() + 1 }
+        }
     }
 
     private fun List<Int>.averageWavesMask(): List<Double> {

@@ -18,10 +18,12 @@
 
 package com.wire.android.ui.debug
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,6 +32,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +43,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -49,8 +54,12 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MigrationScreenDestination
-import com.wire.android.util.AppNameUtil
+import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.home.settings.SettingsItem
+import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
+import com.wire.android.ui.home.settings.backup.rememberBackUpAndRestoreStateHolder
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
@@ -60,7 +69,10 @@ import java.io.File
 @RootNavGraph
 @WireDestination
 @Composable
-fun DebugScreen(navigator: Navigator, userDebugViewModel: UserDebugViewModel = hiltViewModel()) {
+fun DebugScreen(
+    navigator: Navigator,
+    userDebugViewModel: UserDebugViewModel = hiltViewModel(),
+) {
     UserDebugContent(
         onNavigationPressed = navigator::navigateBack,
         onManualMigrationPressed = {
@@ -74,7 +86,7 @@ fun DebugScreen(navigator: Navigator, userDebugViewModel: UserDebugViewModel = h
         state = userDebugViewModel.state,
         onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
         onDeleteLogs = userDebugViewModel::deleteLogs,
-        onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState
+        onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState,
     )
 }
 
@@ -121,6 +133,53 @@ internal fun UserDebugContent(
                     onCopyText = debugContentState::copyToClipboard,
                     onManualMigrationPressed = onManualMigrationPressed
                 )
+                DangerOptions()
+            }
+        }
+    }
+}
+
+@Composable
+fun DangerOptions(
+    modifier: Modifier = Modifier,
+    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel =
+        hiltViewModelScoped<ExportObfuscatedCopyViewModelImpl, ExportObfuscatedCopyViewModel, ExportObfuscatedCopyArgs>(
+            ExportObfuscatedCopyArgs
+        ),
+) {
+
+    Column(modifier = modifier) {
+        FolderHeader("Danger Zone DO NOT TOUCH")
+        @SuppressLint("ComposeViewModelInjection")
+        if (BuildConfig.PRIVATE_BUILD) {
+            val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
+
+            SettingsItem(
+                text = "Create Obfuscated Database Copy",
+                onRowPressed = Clickable(enabled = true, onClick = backupAndRestoreStateHolder::showBackupDialog),
+                modifier = Modifier.background(Color.Red)
+            )
+            when (backupAndRestoreStateHolder.dialogState) {
+                BackupAndRestoreDialog.CreateBackup -> {
+                    CreateObfuscatedCopyFlow(
+                        backUpAndRestoreState = exportObfuscatedCopyViewModel.state,
+                        backupPasswordTextState = exportObfuscatedCopyViewModel.createBackupPasswordState,
+                        onCreateBackup = exportObfuscatedCopyViewModel::createObfuscatedCopy,
+                        onSaveBackup = exportObfuscatedCopyViewModel::saveCopy,
+                        onShareBackup = exportObfuscatedCopyViewModel::shareCopy,
+                        onCancelCreateBackup = {
+                            backupAndRestoreStateHolder.dismissDialog()
+                            exportObfuscatedCopyViewModel.cancelBackupCreation()
+                        },
+                        onPermissionPermanentlyDenied = {}
+                    )
+                }
+
+                BackupAndRestoreDialog.None -> {
+                    /*no-op*/
+                }
+
+                BackupAndRestoreDialog.RestoreBackup -> TODO("Restore backup not implemented")
             }
         }
     }
@@ -184,6 +243,6 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onManualMigrationPressed = {},
         onLoggingEnabledChange = {},
         onDeleteLogs = {},
-        onDatabaseLoggerEnabledChanged = {}
+        onDatabaseLoggerEnabledChanged = {},
     )
 }

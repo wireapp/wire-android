@@ -25,16 +25,15 @@ import com.wire.android.migration.preference.ScalaServerConfigDAO
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
-import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.StoreServerConfigResult
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.isLeft
-import com.wire.kalium.logic.functional.isRight
-import io.mockk.Called
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.isLeft
+import com.wire.kalium.common.functional.isRight
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -99,7 +98,7 @@ class MigrateServerConfigUseCaseTest {
             .withScalaServerConfig(ScalaServerConfig.NoData)
             .arrange()
         val result = useCase()
-        coVerify { arrangement.globalKaliumScope.storeServerConfig(any(), any()) wasNot Called }
+        coVerify(exactly = 0) { arrangement.globalKaliumScope.storeServerConfig(any(), any()) }
         assert(result.isLeft())
         assertEquals(StorageFailure.DataNotFound, (result as Either.Left).value)
     }

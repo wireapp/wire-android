@@ -21,8 +21,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.feature.analytics.AnonymousAnalyticsManager
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.kalium.logic.data.user.SelfUser
@@ -31,11 +29,11 @@ import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,24 +94,6 @@ class HomeViewModelTest {
             assertEquals(true, viewModel.homeState.shouldDisplayLegalHoldIndicator)
         }
 
-    @Test
-    fun `given open profile event, when sendOpenProfileEvent is called, then send the event with the unread indicator value`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Enabled))
-                .arrange()
-
-            viewModel.sendOpenProfileEvent()
-
-            verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(
-                    AnalyticsEvent.UserProfileOpened(
-                        isMigrationDotActive = viewModel.homeState.shouldShowCreateTeamUnreadIndicator
-                    )
-                )
-            }
-        }
-
     internal class Arrangement {
 
         @MockK
@@ -126,7 +106,10 @@ class HomeViewModelTest {
         lateinit var dataStore: UserDataStore
 
         @MockK
-        lateinit var getSelf: ObserveSelfUserUseCase
+        lateinit var observeSelfUser: ObserveSelfUserUseCase
+
+        @MockK
+        lateinit var getSelf: GetSelfUserUseCase
 
         @MockK
         lateinit var needsToRegisterClient: NeedsToRegisterClientUseCase
@@ -138,9 +121,6 @@ class HomeViewModelTest {
         lateinit var shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 
         @MockK
-        lateinit var analyticsManager: AnonymousAnalyticsManager
-
-        @MockK
         lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
         private val viewModel by lazy {
@@ -148,12 +128,12 @@ class HomeViewModelTest {
                 savedStateHandle = savedStateHandle,
                 globalDataStore = globalDataStore,
                 dataStore = dataStore,
-                observeSelf = getSelf,
+                observeSelf = observeSelfUser,
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser,
-                analyticsManager = analyticsManager,
-                canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam
+                canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
+                getSelfUser = getSelf,
             )
         }
 
@@ -164,7 +144,7 @@ class HomeViewModelTest {
         }
 
         fun withGetSelf(result: Flow<SelfUser>) = apply {
-            coEvery { getSelf.invoke() } returns result
+            coEvery { observeSelfUser.invoke() } returns result
         }
 
         private fun withCanMigrateFromPersonalToTeamReturning(result: Boolean) = apply {

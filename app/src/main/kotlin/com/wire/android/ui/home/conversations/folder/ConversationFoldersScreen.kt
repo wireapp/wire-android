@@ -59,6 +59,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.destinations.NewConversationFolderScreenDestination
 import com.wire.kalium.logic.data.conversation.ConversationFolder
+import com.wire.kalium.logic.data.conversation.FolderType
 
 @RootNavGraph
 @WireDestination(
@@ -70,7 +71,7 @@ fun ConversationFoldersScreen(
     args: ConversationFoldersNavArgs,
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<ConversationFoldersNavBackArgs>,
-    resultRecipient: ResultRecipient<NewConversationFolderScreenDestination, String>,
+    resultRecipient: ResultRecipient<NewConversationFolderScreenDestination, NewConversationFolderNavBackArgs>,
     foldersViewModel: ConversationFoldersVM =
         hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
             creationCallback = { it.create(ConversationFoldersStateArgs(args.currentFolderId)) }
@@ -104,7 +105,13 @@ fun ConversationFoldersScreen(
         when (it) {
             NavResult.Canceled -> {}
             is NavResult.Value -> {
-                foldersViewModel.onFolderSelected(it.value)
+                moveToFolderVM.moveConversationToFolder(
+                    ConversationFolder(
+                        it.value.folderId,
+                        it.value.folderName,
+                        FolderType.USER
+                    )
+                )
             }
         }
     }

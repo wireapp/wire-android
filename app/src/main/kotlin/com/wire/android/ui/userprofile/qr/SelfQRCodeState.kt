@@ -26,5 +26,6 @@ data class SelfQRCodeState(
     val handle: String = "",
     val userProfileLink: String = "",
     val userAccountProfileLink: String = "",
-    val hasError: Boolean = false
+    val hasError: Boolean = false,
+    val isTeamMember: Boolean = false
 )

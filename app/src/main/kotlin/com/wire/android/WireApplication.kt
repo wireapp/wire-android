@@ -46,7 +46,7 @@ import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.workmanager.WireWorkerFactory
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
-import com.wire.kalium.logic.CoreLogger
+import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.Lazy
@@ -182,7 +182,7 @@ class WireApplication : BaseApp() {
 
     private suspend fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
-        ExternalLoggerManager.initDatadogLogger(applicationContext, globalDataStore.get())
+        ExternalLoggerManager.initDatadogLogger(applicationContext)
         // 2. Initialize our internal logging framework
         val isLoggingEnabled = globalDataStore.get().isLoggingEnabled().first()
         val config = if (isLoggingEnabled) {
@@ -208,7 +208,7 @@ class WireApplication : BaseApp() {
     private fun initializeAnonymousAnalytics() {
         if (!BuildConfig.ANALYTICS_ENABLED) return
 
-        val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
+        val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl(BuildConfig.VERSION_NAME, BuildConfig.APP_NAME)
         val analyticsSettings = AnalyticsSettings(
             countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,
             countlyServerUrl = BuildConfig.ANALYTICS_SERVER_URL,
@@ -254,7 +254,16 @@ class WireApplication : BaseApp() {
                 .isAppVisibleFlow()
                 .filter { isVisible -> isVisible }
                 .collect {
-                    AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.AppOpen)
+                    val currentSessionResult = coreLogic.get().getGlobalScope().session.currentSessionFlow().first()
+                    val isTeamMember = if (currentSessionResult is CurrentSessionResult.Success) {
+                        coreLogic.get().getSessionScope(currentSessionResult.accountInfo.userId).team.isSelfATeamMember()
+                    } else {
+                        null
+                    }
+
+                    AnonymousAnalyticsManagerImpl.sendEvent(
+                        AnalyticsEvent.AppOpen(isTeamMember)
+                    )
                 }
         }
     }

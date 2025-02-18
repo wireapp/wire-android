@@ -158,10 +158,16 @@ fun SelfUserProfileScreen(
         },
         onQrCodeClick = {
             viewModelSelf.trackQrCodeClick()
-            navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName)))
+            navigator.navigate(
+                NavigationCommand(
+                    SelfQRCodeScreenDestination(
+                        viewModelSelf.userProfileState.userName,
+                        !viewModelSelf.userProfileState.teamName.isNullOrBlank()
+                    )
+                )
+            )
         },
         onCreateAccount = {
-            viewModelSelf.sendPersonalToTeamMigrationEvent()
             navigator.navigate(NavigationCommand(TeamMigrationScreenDestination))
         },
         onAccountDetailsClick = { navigator.navigate(NavigationCommand(MyAccountScreenDestination)) },

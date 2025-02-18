@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.connection
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -66,6 +67,7 @@ fun ConnectionActionButton(
     fullName: String,
     connectionStatus: ConnectionState,
     isConversationStarted: Boolean,
+    modifier: Modifier = Modifier,
     onConnectionRequestIgnored: (String) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit = {},
     viewModel: ConnectionActionButtonViewModel =
@@ -95,43 +97,28 @@ fun ConnectionActionButton(
         }
     }
 
-    when (connectionStatus) {
-        ConnectionState.SENT -> WireSecondaryButton(
-            text = stringResource(R.string.connection_label_cancel_request),
-            loading = viewModel.actionableState().isPerformingAction,
-            onClick = viewModel::onCancelConnectionRequest,
-            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
-        )
+    Box(modifier = modifier) {
+        when (connectionStatus) {
+            ConnectionState.SENT -> WireSecondaryButton(
+                text = stringResource(R.string.connection_label_cancel_request),
+                loading = viewModel.actionableState().isPerformingAction,
+                onClick = viewModel::onCancelConnectionRequest,
+                clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
+            )
 
-        ConnectionState.ACCEPTED -> WirePrimaryButton(
-            text = stringResource(if (isConversationStarted) R.string.label_open_conversation else R.string.label_start_conversation),
-            loading = viewModel.actionableState().isPerformingAction,
-            onClick = {
-                viewModel.onOpenConversation(onOpenConversation) {
-                    unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
-                }
-            },
-            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
-        )
+            ConnectionState.ACCEPTED -> WirePrimaryButton(
+                text = stringResource(if (isConversationStarted) R.string.label_open_conversation else R.string.label_start_conversation),
+                loading = viewModel.actionableState().isPerformingAction,
+                onClick = {
+                    viewModel.onOpenConversation(onOpenConversation) {
+                        unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
+                    }
+                },
+                modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
+            )
 
-        ConnectionState.IGNORED -> WirePrimaryButton(
-            text = stringResource(R.string.connection_label_accept),
-            loading = viewModel.actionableState().isPerformingAction,
-            onClick = viewModel::onAcceptConnectionRequest,
-            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_check_tick),
-                    contentDescription = null,
-                    modifier = Modifier.padding(dimensions().spacing8x)
-                )
-            },
-            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
-        )
-
-        ConnectionState.PENDING -> Column {
-            WirePrimaryButton(
+            ConnectionState.IGNORED -> WirePrimaryButton(
                 text = stringResource(R.string.connection_label_accept),
                 loading = viewModel.actionableState().isPerformingAction,
                 onClick = viewModel::onAcceptConnectionRequest,
@@ -145,20 +132,71 @@ fun ConnectionActionButton(
                 },
                 modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
-            Spacer(modifier = Modifier.height(dimensions().spacing8x))
-            WirePrimaryButton(
-                text = stringResource(R.string.connection_label_ignore),
+
+            ConnectionState.PENDING -> Column {
+                WirePrimaryButton(
+                    text = stringResource(R.string.connection_label_accept),
+                    loading = viewModel.actionableState().isPerformingAction,
+                    onClick = viewModel::onAcceptConnectionRequest,
+                    clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_check_tick),
+                            contentDescription = null,
+                            modifier = Modifier.padding(dimensions().spacing8x)
+                        )
+                    },
+                    modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
+                )
+                Spacer(modifier = Modifier.height(dimensions().spacing8x))
+                WirePrimaryButton(
+                    text = stringResource(R.string.connection_label_ignore),
+                    loading = viewModel.actionableState().isPerformingAction,
+                    state = WireButtonState.Error,
+                    onClick = {
+                        viewModel.onIgnoreConnectionRequest {
+                            onConnectionRequestIgnored(it)
+                        }
+                    },
+                    clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_close),
+                            contentDescription = null,
+                            modifier = Modifier.padding(dimensions().spacing8x)
+                        )
+                    },
+                    modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
+                )
+            }
+
+            ConnectionState.BLOCKED -> {
+                WireSecondaryButton(
+                    text = stringResource(R.string.user_profile_unblock_user),
+                    loading = viewModel.actionableState().isPerformingAction,
+                    onClick = {
+                        unblockUserDialogState.show(
+                            UnblockUserDialogState(
+                                userId = userId,
+                                userName = userName
+                            )
+                        )
+                    },
+                    clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                    modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
+                )
+            }
+
+            ConnectionState.NOT_CONNECTED,
+            ConnectionState.CANCELLED,
+            ConnectionState.MISSING_LEGALHOLD_CONSENT -> WirePrimaryButton(
+                text = stringResource(R.string.connection_label_connect),
                 loading = viewModel.actionableState().isPerformingAction,
-                state = WireButtonState.Error,
-                onClick = {
-                    viewModel.onIgnoreConnectionRequest {
-                        onConnectionRequestIgnored(it)
-                    }
-                },
+                onClick = viewModel::onSendConnectionRequest,
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_close),
+                        painter = painterResource(id = R.drawable.ic_add_contact),
                         contentDescription = null,
                         modifier = Modifier.padding(dimensions().spacing8x)
                     )
@@ -166,40 +204,6 @@ fun ConnectionActionButton(
                 modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
         }
-
-        ConnectionState.BLOCKED -> {
-            WireSecondaryButton(
-                text = stringResource(R.string.user_profile_unblock_user),
-                loading = viewModel.actionableState().isPerformingAction,
-                onClick = {
-                    unblockUserDialogState.show(
-                        UnblockUserDialogState(
-                            userId = userId,
-                            userName = userName
-                        )
-                    )
-                },
-                clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
-            )
-        }
-
-        ConnectionState.NOT_CONNECTED,
-        ConnectionState.CANCELLED,
-        ConnectionState.MISSING_LEGALHOLD_CONSENT -> WirePrimaryButton(
-            text = stringResource(R.string.connection_label_connect),
-            loading = viewModel.actionableState().isPerformingAction,
-            onClick = viewModel::onSendConnectionRequest,
-            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_add_contact),
-                    contentDescription = null,
-                    modifier = Modifier.padding(dimensions().spacing8x)
-                )
-            },
-            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
-        )
     }
 }
 

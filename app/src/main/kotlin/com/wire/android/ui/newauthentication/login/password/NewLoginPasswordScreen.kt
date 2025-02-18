@@ -152,7 +152,7 @@ internal fun LoginPasswordContent(
                         )
                     }
                     NewLoginSubtitle(
-                        title = stringResource(id = R.string.enterprise_login_title),
+                        title = stringResource(id = R.string.enterprise_login_password_title),
                     )
                 },
                 canNavigateBack = canNavigateBack,

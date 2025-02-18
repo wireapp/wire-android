@@ -20,7 +20,6 @@ package com.wire.android.ui.authentication.login
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.wire.android.BuildConfig
 import com.wire.android.config.orDefault
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
@@ -34,19 +33,18 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @HiltViewModel
 @Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val userDataStoreProvider: UserDataStoreProvider,
+    clientScopeProviderFactory: ClientScopeProvider.Factory,
+    userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic protected val coreLogic: CoreLogic
 ) : ViewModel() {
+    private val loginExtension = LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider)
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = loginNavArgs.loginPasswordPath?.customServerConfig.orDefault()
 
@@ -55,20 +53,9 @@ open class LoginViewModel @Inject constructor(
         password: String?,
         secondFactorVerificationCode: String? = null,
         capabilities: List<ClientCapability>? = null,
-    ): RegisterClientResult {
-        val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.getOrRegister(
-            RegisterClientUseCase.RegisterClientParam(
-                password = password,
-                capabilities = capabilities,
-                secondFactorVerificationCode = secondFactorVerificationCode,
-                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
-            )
-        )
-    }
+    ): RegisterClientResult = loginExtension.registerClient(userId, password, secondFactorVerificationCode, capabilities)
 
-    internal suspend fun isInitialSyncCompleted(userId: UserId): Boolean =
-        userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()
+    internal suspend fun isInitialSyncCompleted(userId: UserId): Boolean = loginExtension.isInitialSyncCompleted(userId)
 
     fun updateTheApp() {
         // todo : update the app after releasing on the store

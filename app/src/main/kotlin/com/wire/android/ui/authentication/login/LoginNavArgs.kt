@@ -19,9 +19,17 @@ package com.wire.android.ui.authentication.login
 
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import kotlinx.serialization.Serializable
 
 data class LoginNavArgs(
     val userHandle: String? = null,
     val ssoLoginResult: DeepLinkResult.SSOLogin? = null,
+    val loginPasswordPath: LoginPasswordPath? = null,
+)
+
+@Serializable
+data class LoginPasswordPath(
     val customServerConfig: ServerConfig.Links? = null,
+    val isCloudAccountCreationPossible: Boolean? = null,
+    val isDomainClaimedByOrg: Boolean = false,
 )

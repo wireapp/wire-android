@@ -73,6 +73,7 @@ import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
@@ -195,8 +196,10 @@ class WireActivity : AppCompatActivity() {
                     true -> NewWelcomeEmptyStartScreenDestination.also {
                         isWelcomeEmptyStartDestination.set(true)
                     }
+
                     false -> WelcomeScreenDestination
                 }
+
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
                 InitialAppState.LOGGED_IN -> HomeScreenDestination
             }
@@ -251,6 +254,7 @@ class WireActivity : AppCompatActivity() {
                                     */
                                     viewModel.checkNumberOfSessions()
                                 }
+
                                 else -> true
                             }
                         }
@@ -557,10 +561,10 @@ class WireActivity : AppCompatActivity() {
                         viewModel.customBackendDialogProceedButtonClicked { serverLinks ->
                             lifecycleScope.launch {
                                 val destination = when (loginType) {
-                                    LoginType.New -> NewLoginPasswordScreenDestination(customServerConfig = serverLinks)
+                                    LoginType.New -> NewLoginPasswordScreenDestination(loginPasswordPath = LoginPasswordPath(serverLinks))
                                     LoginType.Old -> WelcomeScreenDestination(customServerConfig = serverLinks)
                                     LoginType.Default -> when (loginTypeSelector.canUseNewLogin(serverLinks)) {
-                                        true -> NewLoginPasswordScreenDestination(customServerConfig = serverLinks)
+                                        true -> NewLoginPasswordScreenDestination(loginPasswordPath = LoginPasswordPath(serverLinks))
                                         false -> WelcomeScreenDestination(customServerConfig = serverLinks)
                                     }
                                 }

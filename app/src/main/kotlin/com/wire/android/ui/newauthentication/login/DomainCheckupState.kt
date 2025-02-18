@@ -15,11 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
 package com.wire.android.ui.newauthentication.login
 
-data class NewLoginScreenState(
-    val isThereActiveSession: Boolean = false,
-    val userIdentifierEnabled: Boolean = true,
-    val nextEnabled: Boolean = false,
-    val flowState: DomainCheckupState = DomainCheckupState.Default,
-)
+import com.wire.kalium.logic.CoreFailure
+
+sealed class DomainCheckupState {
+    data object Default : DomainCheckupState()
+    data object Loading : DomainCheckupState()
+    sealed class Error : DomainCheckupState() {
+        sealed class TextFieldError : Error() {
+            data object InvalidValue : TextFieldError()
+        }
+
+        sealed class DialogError : Error() {
+            data class GenericError(val coreFailure: CoreFailure) : DialogError()
+            data object NotSupported : DialogError()
+        }
+    }
+}

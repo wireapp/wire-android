@@ -20,20 +20,16 @@ package com.wire.android.ui.calling.controlbuttons
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryIconButton
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun WireCallControlButton(
@@ -47,7 +43,7 @@ fun WireCallControlButton(
     iconSize: Dp = dimensions().defaultCallingControlsIconSize
 ) {
     val shape = CircleShape
-    WirePrimaryIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = onClick,
         iconResource = iconResId,
         shape = shape,
@@ -58,7 +54,7 @@ fun WireCallControlButton(
                 onSelected = inverseOnSurface,
                 selectedRipple = inverseOnSurface,
                 enabled = secondaryButtonEnabled,
-                enabledOutline = secondaryButtonEnabledOutline,
+                enabledOutline = secondaryButtonDisabledOutline,
                 onEnabled = onSecondaryButtonEnabled,
                 enabledRipple = secondaryButtonRipple,
             )
@@ -68,6 +64,6 @@ fun WireCallControlButton(
         minSize = DpSize(width, height),
         minClickableSize = DpSize(width, height),
         iconSize = iconSize,
-        modifier = modifier.border(width = 1.dp, color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline, shape = shape)
+        modifier = modifier
     )
 }

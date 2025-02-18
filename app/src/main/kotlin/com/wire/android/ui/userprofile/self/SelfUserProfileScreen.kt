@@ -163,7 +163,6 @@ fun SelfUserProfileScreen(
             )
         },
         onCreateAccount = {
-            viewModelSelf.sendPersonalToTeamMigrationEvent()
             navigator.navigate(NavigationCommand(TeamMigrationScreenDestination))
         },
         onAccountDetailsClick = { navigator.navigate(NavigationCommand(MyAccountScreenDestination)) },

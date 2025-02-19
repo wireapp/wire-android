@@ -38,13 +38,28 @@ import javax.inject.Inject
 
 @HiltViewModel
 @Suppress("TooManyFunctions")
-open class LoginViewModel @Inject constructor(
+open class LoginViewModel(
     savedStateHandle: SavedStateHandle,
-    clientScopeProviderFactory: ClientScopeProvider.Factory,
-    userDataStoreProvider: UserDataStoreProvider,
-    @KaliumCoreLogic protected val coreLogic: CoreLogic
+    val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    val userDataStoreProvider: UserDataStoreProvider,
+    val coreLogic: CoreLogic,
+    private val loginExtension: LoginViewModelExtension
 ) : ViewModel() {
-    private val loginExtension = LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider)
+
+    @Inject
+    constructor(
+        savedStateHandle: SavedStateHandle,
+        clientScopeProviderFactory: ClientScopeProvider.Factory,
+        userDataStoreProvider: UserDataStoreProvider,
+        @KaliumCoreLogic coreLogic: CoreLogic
+    ) : this(
+        savedStateHandle,
+        clientScopeProviderFactory,
+        userDataStoreProvider,
+        coreLogic,
+        LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider)
+    )
+
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = loginNavArgs.loginPasswordPath?.customServerConfig.orDefault()
 

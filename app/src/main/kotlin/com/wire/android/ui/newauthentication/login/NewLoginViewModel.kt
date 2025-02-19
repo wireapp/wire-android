@@ -55,16 +55,36 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class NewLoginViewModel @Inject constructor(
+class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
-    @KaliumCoreLogic val coreLogic: CoreLogic,
-    private val savedStateHandle: SavedStateHandle,
-    addAuthenticatedUser: AddAuthenticatedUserUseCase,
-    clientScopeProviderFactory: ClientScopeProvider.Factory,
-    userDataStoreProvider: UserDataStoreProvider,
+    val coreLogic: CoreLogic,
+    savedStateHandle: SavedStateHandle,
+    val addAuthenticatedUser: AddAuthenticatedUserUseCase,
+    val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    val userDataStoreProvider: UserDataStoreProvider,
+    private val loginExtension: LoginViewModelExtension,
+    private val ssoExtension: LoginSSOViewModelExtension
 ) : ViewModel() {
-    private val loginExtension = LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider)
-    private val ssoExtension = LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic)
+
+    @Inject
+    constructor(
+        validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        savedStateHandle: SavedStateHandle,
+        addAuthenticatedUser: AddAuthenticatedUserUseCase,
+        clientScopeProviderFactory: ClientScopeProvider.Factory,
+        userDataStoreProvider: UserDataStoreProvider,
+    ) : this(
+        validateEmailOrSSOCode,
+        coreLogic,
+        savedStateHandle,
+        addAuthenticatedUser,
+        clientScopeProviderFactory,
+        userDataStoreProvider,
+        LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
+        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic)
+    )
+
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
         if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
@@ -194,6 +214,7 @@ class NewLoginViewModel @Inject constructor(
                         defaultSSOCode != null -> {
                             initiateSSO(serverConfig, defaultSSOCode, action)
                         }
+
                         else -> {
                             action(NewLoginAction.CustomConfig(userIdentifierTextState.text.toString(), customServerConfig))
                             updateLoginFlowState(DomainCheckupState.Default)
@@ -235,10 +256,13 @@ class NewLoginViewModel @Inject constructor(
                                     true -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
                                     false -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
                                 }
+
                                 is RegisterClientResult.E2EICertificateRequired ->
                                     action(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
+
                                 is RegisterClientResult.Failure.TooManyClients ->
                                     action(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
+
                                 is RegisterClientResult.Failure -> {
                                     TODO("handle register client error")
                                 }
@@ -247,6 +271,7 @@ class NewLoginViewModel @Inject constructor(
                     )
                 }
             }
+
             is DeepLinkResult.SSOLogin.Failure -> {
                 TODO("handle SSO deeplink error")
             }

@@ -57,20 +57,38 @@ import javax.inject.Inject
 
 @Suppress("LongParameterList")
 @HiltViewModel
-class LoginSSOViewModel @Inject constructor(
+class LoginSSOViewModel(
     private val savedStateHandle: SavedStateHandle,
-    private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
+    val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val validateEmailUseCase: ValidateEmailUseCase,
-    @KaliumCoreLogic coreLogic: CoreLogic,
+    coreLogic: CoreLogic,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     userDataStoreProvider: UserDataStoreProvider,
+    private val ssoExtension: LoginSSOViewModelExtension
 ) : LoginViewModel(
     savedStateHandle,
     clientScopeProviderFactory,
     userDataStoreProvider,
     coreLogic
 ) {
-    private val ssoExtension = LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic)
+
+    @Inject
+    constructor(
+        savedStateHandle: SavedStateHandle,
+        addAuthenticatedUser: AddAuthenticatedUserUseCase,
+        validateEmailUseCase: ValidateEmailUseCase,
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        clientScopeProviderFactory: ClientScopeProvider.Factory,
+        userDataStoreProvider: UserDataStoreProvider,
+    ) : this(
+        savedStateHandle,
+        addAuthenticatedUser,
+        validateEmailUseCase,
+        coreLogic,
+        clientScopeProviderFactory,
+        userDataStoreProvider,
+        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic)
+    )
 
     var openWebUrl = MutableSharedFlow<Pair<String, ServerConfig.Links>>()
 

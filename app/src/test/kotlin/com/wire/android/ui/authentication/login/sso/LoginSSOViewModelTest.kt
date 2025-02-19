@@ -121,6 +121,9 @@ class LoginSSOViewModelTest {
     @MockK
     private lateinit var fetchSSOSettings: FetchSSOSettingsUseCase
 
+    @MockK
+    private lateinit var loginSSOViewModelExtension: LoginSSOViewModelExtension
+
     private lateinit var loginViewModel: LoginSSOViewModel
 
     private val userId: QualifiedID = QualifiedID("userId", "domain")
@@ -144,6 +147,7 @@ class LoginSSOViewModelTest {
         every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
         every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
         every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
+        coEvery { loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any()) } returns Unit
 
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
@@ -151,7 +155,8 @@ class LoginSSOViewModelTest {
             validateEmailUseCase,
             coreLogic,
             clientScopeProviderFactory,
-            userDataStoreProvider
+            userDataStoreProvider,
+            loginSSOViewModelExtension
         )
     }
 
@@ -475,10 +480,8 @@ class LoginSSOViewModelTest {
         loginViewModel.onCustomServerDialogConfirm()
 
         advanceUntilIdle()
-        coVerify(exactly = 1) {
-            coreLogic.versionedAuthenticationScope(expected)
-            fetchSSOSettings.invoke()
-            ssoInitiateLoginUseCase.invoke("wire-ssoCode")
+        coVerify {
+            loginSSOViewModelExtension.fetchDefaultSSOCode(eq(expected), any(), any(), any())
         }
     }
 

@@ -118,7 +118,7 @@ class LoginTypeSelectorTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        fun arrange() = this to LoginTypeSelector(dispatcherProvider, coreLogic)
+        suspend fun arrange() = this to LoginTypeSelector(dispatcherProvider, coreLogic).also { it.init() }
 
         fun withContextFlowForConfig(config: ServerConfig.Links, contextFlow: Flow<LoginContext>) = apply {
             coEvery { coreLogic.getGlobalScope().observeLoginContext(config) } returns contextFlow

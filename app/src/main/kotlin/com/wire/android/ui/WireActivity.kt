@@ -155,6 +155,8 @@ class WireActivity : AppCompatActivity() {
 
     private val viewModel: WireActivityViewModel by viewModels()
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
+    private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
+
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
     private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
     private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
@@ -411,7 +413,7 @@ class WireActivity : AppCompatActivity() {
         val context = LocalContext.current
         val callFeedbackSheetState =
             rememberWireModalSheetState<Unit>(onDismissAction = {
-                featureFlagNotificationViewModel.skipCallFeedback(false)
+                callFeedbackViewModel.skipCallFeedback(false)
             })
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
@@ -612,8 +614,8 @@ class WireActivity : AppCompatActivity() {
 
             CallFeedbackDialog(
                 sheetState = callFeedbackSheetState,
-                onRated = featureFlagNotificationViewModel::rateCall,
-                onSkipClicked = featureFlagNotificationViewModel::skipCallFeedback
+                onRated = callFeedbackViewModel::rateCall,
+                onSkipClicked = callFeedbackViewModel::skipCallFeedback
             )
 
             if (startGettingE2EICertificate) {
@@ -627,7 +629,7 @@ class WireActivity : AppCompatActivity() {
         }
 
         LaunchedEffect(Unit) {
-            featureFlagNotificationViewModel.showCallFeedbackFlow.collectLatest {
+            callFeedbackViewModel.showCallFeedbackFlow.collectLatest {
                 callFeedbackSheetState.show()
             }
         }

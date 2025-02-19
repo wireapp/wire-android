@@ -55,10 +55,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.teammigration.common.ConfirmMigrationLeaveDialog
-import com.wire.android.ui.userprofile.teammigration.step1.TEAM_MIGRATION_TEAM_PLAN_STEP
-import com.wire.android.ui.userprofile.teammigration.step2.TEAM_MIGRATION_TEAM_NAME_STEP
-import com.wire.android.ui.userprofile.teammigration.step3.TEAM_MIGRATION_CONFIRMATION_STEP
-import com.wire.android.ui.userprofile.teammigration.step4.TEAM_MIGRATION_DONE_STEP
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @WireDestination(style = PopUpNavigationAnimation::class)
@@ -99,10 +95,18 @@ fun TeamMigrationScreen(
             .background(color = colorsScheme().surface)
     ) {
         val closeIconContentDescription = when (teamMigrationViewModel.teamMigrationState.currentStep) {
-            TEAM_MIGRATION_TEAM_PLAN_STEP -> stringResource(R.string.personal_to_team_migration_close_team_account_content_description)
-            TEAM_MIGRATION_TEAM_NAME_STEP -> stringResource(R.string.personal_to_team_migration_close_team_name_content_description)
-            TEAM_MIGRATION_CONFIRMATION_STEP -> stringResource(R.string.personal_to_team_migration_close_confirmation_content_description)
-            TEAM_MIGRATION_DONE_STEP -> stringResource(R.string.personal_to_team_migration_close_team_created_content_description)
+            TeamMigrationViewModel.TEAM_MIGRATION_TEAM_PLAN_STEP ->
+                stringResource(R.string.personal_to_team_migration_close_team_account_content_description)
+
+            TeamMigrationViewModel.TEAM_MIGRATION_TEAM_NAME_STEP ->
+                stringResource(R.string.personal_to_team_migration_close_team_name_content_description)
+
+            TeamMigrationViewModel.TEAM_MIGRATION_CONFIRMATION_STEP ->
+                stringResource(R.string.personal_to_team_migration_close_confirmation_content_description)
+
+            TeamMigrationViewModel.TEAM_MIGRATION_DONE_STEP ->
+                stringResource(R.string.personal_to_team_migration_close_team_created_content_description)
+
             else -> stringResource(R.string.personal_to_team_migration_close_icon_content_description)
         }
 
@@ -113,7 +117,6 @@ fun TeamMigrationScreen(
                 if (navController.currentDestination?.route == NavGraphs.personalToTeamMigration.destinations.last().route) {
                     navigator.navigateBack()
                 } else {
-                    teamMigrationViewModel.sendPersonalToTeamMigrationDismissed()
                     teamMigrationViewModel.showMigrationLeaveDialog()
                 }
             }
@@ -139,17 +142,9 @@ fun TeamMigrationScreen(
 
     if (teamMigrationViewModel.teamMigrationState.shouldShowMigrationLeaveDialog) {
         ConfirmMigrationLeaveDialog(
-            onContinue = {
-                teamMigrationViewModel.sendPersonalTeamCreationFlowCanceledEvent(
-                    modalContinueClicked = true
-                )
-                teamMigrationViewModel.hideMigrationLeaveDialog()
-            }
+            onContinue = teamMigrationViewModel::hideMigrationLeaveDialog
         ) {
             teamMigrationViewModel.hideMigrationLeaveDialog()
-            teamMigrationViewModel.sendPersonalTeamCreationFlowCanceledEvent(
-                modalLeaveClicked = true
-            )
             navigator.navigateBack()
         }
     }

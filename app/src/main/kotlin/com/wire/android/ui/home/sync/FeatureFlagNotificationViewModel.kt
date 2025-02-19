@@ -36,6 +36,8 @@ import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.to
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.toFeatureFlagState
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
 import com.wire.kalium.logic.data.sync.SyncState
@@ -44,8 +46,6 @@ import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -230,14 +230,13 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private suspend fun observeAskCallFeedback(userId: UserId) =
         coreLogic.getSessionScope(userId).calls.observeAskCallFeedbackUseCase().collect { shouldAskFeedback ->
-//            if (!isAnalyticsAvailable(userId)) {
-//                // Analytics is disabled. Do nothing.
-//            } else if (shouldAskFeedback) {
-//                showCallFeedbackFlow.emit(Unit)
-//            } else {
-//                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.NotDisplayed)
-//            }
-            // todo: remove this when https://github.com/wireapp/wire-android/pull/3857 is merged
+            if (!isAnalyticsAvailable(userId)) {
+                // Analytics is disabled. Do nothing.
+            } else if (shouldAskFeedback) {
+                showCallFeedbackFlow.emit(Unit)
+            } else {
+                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.NotDisplayed)
+            }
         }
 
     fun dismissSelfDeletingMessagesDialog() {

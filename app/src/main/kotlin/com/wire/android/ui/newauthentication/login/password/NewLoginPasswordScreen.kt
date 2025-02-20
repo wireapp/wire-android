@@ -49,6 +49,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
@@ -66,10 +67,12 @@ import com.wire.android.ui.authentication.login.email.UserIdentifierInput
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.welcome.isProxyEnabled
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -91,10 +94,19 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun NewLoginPasswordScreen(
     navigator: Navigator,
+    navArgs: LoginNavArgs,
     loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 ) {
     clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)
+
+    val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
+    EmailAlreadyInUseClaimedDomainDialog(emailAlreadyInUseClaimedDomainDialogState)
+    LaunchedEffect(navArgs.loginPasswordPath?.isDomainClaimedByOrg) {
+        (navArgs.loginPasswordPath?.isDomainClaimedByOrg as? DomainClaimedByOrg.Claimed)?.let {
+            emailAlreadyInUseClaimedDomainDialogState.show(it)
+        }
+    }
 
     LaunchedEffect(loginEmailViewModel.secondFactorVerificationCodeState) {
         if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {

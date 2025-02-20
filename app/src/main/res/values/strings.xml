@@ -288,6 +288,9 @@
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
     <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
     <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
+    <string name="url_change_email" translatable="false">https://support.wire.com/hc/articles/203762940</string>
+    <string name="url_delete_personal_account" translatable="false">https://support.wire.com/hc/articles/207555795</string>
+    <string name="url_remove_team_member" translatable="false">https://support.wire.com/hc/articles/115004219489</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -1309,6 +1312,15 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="create_personal_account_not_supported_dialog_description">You can\'t create a personal account on an on-premises backend with proxy support.</string>
     <string name="create_team_not_supported_dialog_description">You can\'t create a new team on an on-premises backend with proxy support in the app.\nPlease use team management (%1$s) instead on this backend.</string>
     <string name="to_team_management_action">Open Team Management</string>
+    <!-- Claimed Domain dialog -->
+    <string name="claimed_domain_email_already_in_use_dialog_title">Email already in use</string>
+    <string name="claimed_domain_email_already_in_use_dialog_description">You can\'t log in with this email on the on-premises backend %s.
+        Please change your email in the account settings or delete your account. Then, you can use this email again for your on-premises account.</string>
+    <string name="claimed_domain_change_email_label">How to change your email address</string>
+    <string name="claimed_domain_delete_personal_account">How to delete a personal account</string>
+    <string name="claimed_domain_remove_team_member">remove a team member</string>
+    <string name="label_or">or</string>
+    <string name="bullet_finger_point">👉</string>
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Update required</string>
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>

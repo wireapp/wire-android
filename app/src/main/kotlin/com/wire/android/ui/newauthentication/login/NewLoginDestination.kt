@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.newauthentication.login
 
+import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
 
@@ -50,7 +51,7 @@ fun LoginRedirectPath.toPasswordOrSsoDestination(): NewLoginDestination {
         is LoginRedirectPath.ExistingAccountWithClaimedDomain -> NewLoginDestination.EmailPassword(
             LoginPasswordPath(
                 isCloudAccountCreationPossible = isCloudAccountCreationPossible,
-                isDomainClaimedByOrg = true
+                isDomainClaimedByOrg = DomainClaimedByOrg.Claimed(domain)
             )
         )
 

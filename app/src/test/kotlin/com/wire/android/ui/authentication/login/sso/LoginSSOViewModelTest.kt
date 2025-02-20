@@ -126,29 +126,65 @@ class LoginSSOViewModelTest {
             }
         }
 
-//    @Test
-//    fun `given sso code and  button is clicked, when login returns InvalidCodeFormat error, then InvalidCodeFormatError is passed`() =
-//        runTest {
-//            coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidCodeFormat
-//            every { validateEmailUseCase(any()) } returns false
-//
-//            loginViewModel.login()
-//            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Loading>()
-//            advanceUntilIdle()
-//
-//            coVerify { loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any()) }
-//        }
-//
-//    @Test
-//    fun `given  sso code and button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() = runTest {
-//        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidCode
-//        every { validateEmailUseCase(any()) } returns false
-//
-//        loginViewModel.login()
-//        advanceUntilIdle()
-//
-//        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidSSOCodeError>()
-//    }
+    @Test
+    fun `given sso code and  button is clicked, when login returns InvalidCodeFormat error, then InvalidCodeFormatError is passed`() =
+        runTest {
+            val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withValidateEmailReturning(false)
+                .withInitiateSSO(expectedSSOCode)
+                .arrange()
+
+            loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedSSOCode)
+
+            loginViewModel.login()
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Loading>()
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.validateEmailUseCase(eq(expectedSSOCode)) }
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.initiateSSO(
+                    eq(SERVER_CONFIG.links),
+                    eq(expectedSSOCode),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOInitiateFailureSlot),
+                    capture(onSuccessSlot)
+                )
+            }
+
+            onSSOInitiateFailureSlot.captured.invoke(SSOInitiateLoginResult.Failure.InvalidCodeFormat)
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.TextFieldError.InvalidValue>()
+        }
+
+    @Test
+    fun `given  sso code and button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() = runTest {
+        val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withValidateEmailReturning(false)
+            .withInitiateSSO(expectedSSOCode)
+            .arrange()
+
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedSSOCode)
+
+        loginViewModel.login()
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Loading>()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.validateEmailUseCase(eq(expectedSSOCode)) }
+        coVerify(exactly = 1) {
+            arrangement.ssoExtension.initiateSSO(
+                eq(SERVER_CONFIG.links),
+                eq(expectedSSOCode),
+                capture(onAuthScopeFailureSlot),
+                capture(onSSOInitiateFailureSlot),
+                capture(onSuccessSlot)
+            )
+        }
+
+        onSSOInitiateFailureSlot.captured.invoke(SSOInitiateLoginResult.Failure.InvalidCode)
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidSSOCodeError>()
+    }
+
 //
 //    @Test
 //    fun `given sso code and button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() =

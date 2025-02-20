@@ -30,6 +30,7 @@ import com.wire.android.config.orDefault
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
@@ -182,7 +183,9 @@ class NewLoginViewModel(
                                         userIdentifier = userIdentifierTextState.text.toString(),
                                         loginPasswordPath = LoginPasswordPath(
                                             isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
-                                            isDomainClaimedByOrg = true,
+                                            isDomainClaimedByOrg = DomainClaimedByOrg.Claimed(
+                                                loginRedirectPath.domain
+                                            ),
                                         )
                                     )
                                 )

@@ -109,20 +109,4 @@ fun MessageContainerItem(
             )
         }
     }
-    if (message.messageContent is UIMessageContent.SystemMessage.ConversationMessageCreated) {
-        Row(
-            Modifier
-                .background(colorsScheme().background)
-                .height(dimensions().spacing24x)
-                .fillMaxWidth()
-        ) {
-            Text(
-                modifier = Modifier
-                    .padding(start = dimensions().spacing56x)
-                    .align(Alignment.CenterVertically),
-                style = MaterialTheme.wireTypography.title03,
-                text = (message.messageContent as UIMessageContent.SystemMessage.ConversationMessageCreated).date
-            )
-        }
-    }
 }

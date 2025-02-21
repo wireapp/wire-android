@@ -50,13 +50,13 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
+// has to be navigated to after NewLoginPasswordScreen, otherwise there will be illegal state because it needs to reuse view model from it
 @NewLoginNavGraph
 @WireDestination(
     navArgsDelegate = LoginNavArgs::class,
     style = AuthSlideNavigationAnimation::class,
 )
 @Composable
-// has to be navigated to after NewLoginPasswordScreen, otherwise there will be illegal state because it needs to reuse view model from it
 fun NewLoginVerificationCodeScreen(
     navigator: Navigator,
     loginEmailViewModel: LoginEmailViewModel, // provided in MainNavHost to reuse from NewLoginPasswordScreen, don't use hiltViewModel()

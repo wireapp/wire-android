@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,8 @@
  */
 package com.wire.android.ui.newauthentication.login
 
-import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
-
-data class NewLoginScreenState(
-    val isThereActiveSession: Boolean = false,
+data class NewLoginEmailSSOState(
     val userIdentifierEnabled: Boolean = true,
     val nextEnabled: Boolean = false,
     val flowState: DomainCheckupState = DomainCheckupState.Default,
-    val customServerDialogState: CustomServerDetailsDialogState? = null,
 )

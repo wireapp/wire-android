@@ -758,7 +758,6 @@ class WireActivityViewModelTest {
         viewModel.globalAppState.maxAccountDialog `should be equal to` false
     }
 
-
     @Test
     fun `given valid sessions equal to max, when checking number of sessions, then return false and show max account dialog`() = runTest {
         // given

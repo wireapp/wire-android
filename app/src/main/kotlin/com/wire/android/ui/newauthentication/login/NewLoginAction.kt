@@ -17,12 +17,14 @@
  */
 package com.wire.android.ui.newauthentication.login
 
-import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
+import com.wire.android.ui.authentication.login.LoginPasswordPath
+import com.wire.kalium.logic.configuration.server.ServerConfig
 
-data class NewLoginScreenState(
-    val isThereActiveSession: Boolean = false,
-    val userIdentifierEnabled: Boolean = true,
-    val nextEnabled: Boolean = false,
-    val flowState: DomainCheckupState = DomainCheckupState.Default,
-    val customServerDialogState: CustomServerDetailsDialogState? = null,
-)
+sealed interface NewLoginAction {
+    data class EmailPassword(val userIdentifier: String, val loginPasswordPath: LoginPasswordPath) : NewLoginAction
+    data class CustomConfig(val userIdentifier: String, val customServerConfig: ServerConfig.Links) : NewLoginAction
+    data class SSO(val url: String) : NewLoginAction
+    data class Success(val nextStep: NextStep) : NewLoginAction {
+        enum class NextStep { E2EIEnrollment, InitialSync, TooManyDevices, None; }
+    }
+}

@@ -183,7 +183,9 @@ private fun WelcomeContent(
                         testTagsAsResourceId = true
                     }
             ) {
-                LoginButton(onClick = { navigate(NavigationCommand(LoginScreenDestination(loginPasswordPath = LoginPasswordPath(state)))) })
+                LoginButton(
+                    onClick = { navigate(NavigationCommand(LoginScreenDestination(loginPasswordPath = LoginPasswordPath(state)))) }
+                )
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {

@@ -37,6 +37,7 @@ internal interface WireDestinationStyleAnimated : DestinationStyle.Animated {
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() =
         targetState.destination().getAnimationTypeStyle().enterTransition
+
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
         targetState.destination().getAnimationTypeStyle().exitTransition
 
@@ -87,5 +88,5 @@ enum class TransitionAnimationType(
         exitTransition = ExitTransition.None,
         popEnterTransition = EnterTransition.None,
         popExitTransition = ExitTransition.None
-    );
+    )
 }

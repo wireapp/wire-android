@@ -75,9 +75,8 @@ class AccountSwitchUseCase @Inject constructor(
         getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
-                    val isAccountLoggedInAndValid = it.sessions.any {
-                        accountInfo ->
-                            (accountInfo is AccountInfo.Valid) && (accountInfo.userId == userId)
+                    val isAccountLoggedInAndValid = it.sessions.any { accountInfo ->
+                        (accountInfo is AccountInfo.Valid) && (accountInfo.userId == userId)
                     }
                     if (isAccountLoggedInAndValid) {
                         switch(userId, current)
@@ -116,7 +115,9 @@ class AccountSwitchUseCase @Inject constructor(
     }
 
     private suspend fun switch(userId: UserId?, current: AccountInfo?): SwitchAccountResult {
-        val successResult = (userId?.let { SwitchAccountResult.SwitchedToAnotherAccount }) ?: SwitchAccountResult.NoOtherAccountToSwitch
+        val successResult = (
+                userId?.let { SwitchAccountResult.SwitchedToAnotherAccount }
+                ) ?: SwitchAccountResult.NoOtherAccountToSwitch
         return when (updateCurrentSession(userId)) {
             is UpdateCurrentSessionUseCase.Result.Success -> {
                 current?.also {
@@ -124,6 +125,7 @@ class AccountSwitchUseCase @Inject constructor(
                 }
                 successResult
             }
+
             is UpdateCurrentSessionUseCase.Result.Failure -> {
                 appLogger.i("$TAG Failure when switching account to: ${userId?.toLogString() ?: "-"}")
                 SwitchAccountResult.Failure
@@ -136,6 +138,7 @@ class AccountSwitchUseCase @Inject constructor(
             is AccountInfo.Valid -> {
                 // do nothing
             }
+
             is AccountInfo.Invalid -> coroutineScope.launch {
                 withTimeout(DELETE_USER_SESSION_TIMEOUT) {
                     handleInvalidSession(oldSession)
@@ -150,6 +153,7 @@ class AccountSwitchUseCase @Inject constructor(
             LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                 deleteSession(invalidAccount.userId)
             }
+
             LogoutReason.MIGRATION_TO_CC_FAILED,
             LogoutReason.DELETED_ACCOUNT,
             LogoutReason.REMOVED_CLIENT,
@@ -167,11 +171,13 @@ sealed class SwitchAccountParam {
     data object TryToSwitchToNextAccount : SwitchAccountParam()
     data class SwitchToAccount(val userId: UserId) : SwitchAccountParam()
     data object Clear : SwitchAccountParam()
+
     private fun toLogMap(): Map<String, String> = when (this) {
         is Clear -> mutableMapOf("value" to "CLEAR")
         is SwitchToAccount -> mutableMapOf("value" to "SWITCH_TO_ACCOUNT", "userId" to userId.toLogString())
         is TryToSwitchToNextAccount -> mutableMapOf("value" to "TRY_TO_SWITCH_TO_NEXT_ACCOUNT")
     }
+
     fun toLogString(): String = Json.encodeToString(toLogMap())
 }
 
@@ -184,7 +190,9 @@ sealed class SwitchAccountResult {
     fun callAction(actions: SwitchAccountActions) = when (this) {
         NoOtherAccountToSwitch -> actions.noOtherAccountToSwitch()
         SwitchedToAnotherAccount -> actions.switchedToAnotherAccount()
-        else -> { /* do nothing */ }
+        else -> {
+            /* do nothing */
+        }
     }
 }
 

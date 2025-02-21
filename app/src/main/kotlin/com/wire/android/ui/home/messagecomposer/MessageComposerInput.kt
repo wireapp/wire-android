@@ -106,7 +106,7 @@ fun ActiveMessageComposerInput(
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onClearFocus : () -> Unit = { }
+    onClearFocus: () -> Unit = { }
 ) {
     Column(
         modifier = modifier

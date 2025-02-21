@@ -23,7 +23,6 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.isLeft
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC

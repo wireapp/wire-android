@@ -32,7 +32,7 @@ open class FakeSyncExecutor : SyncExecutor() {
     open fun onWaitUntilOrFailure(syncState: SyncState): Either<CoreFailure, Unit> = Either.Right(Unit)
     open fun onKeepSyncAlwaysOn() {}
 
-    open fun onRequest() {requestCount++}
+    open fun onRequest() { requestCount++ }
 
     override fun startAndStopSyncAsNeeded() = Unit
 
@@ -41,7 +41,7 @@ open class FakeSyncExecutor : SyncExecutor() {
         return FakeSyncRequest().executorAction()
     }
 
-    inner class FakeSyncRequest() : SyncRequest {
+    inner class FakeSyncRequest : SyncRequest {
         override suspend fun waitUntilOrFailure(
             syncState: SyncState
         ): Either<CoreFailure, Unit> = onWaitUntilOrFailure(syncState)

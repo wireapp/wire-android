@@ -18,76 +18,85 @@
 
 package com.wire.android.util.lifecycle
 
-import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.fake.FakeSyncExecutor
 import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.session.SessionRepository
-import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.logic.sync.SetConnectionPolicyUseCase
-import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 
-class ConnectionPolicyManagerTest {
+class SyncLifecycleManagerTest {
 
     @Test
-    fun givenCurrentlyActiveSessionAndInitialisedUI_whenHandlingPushNotification_thenShouldNotDowngradePolicy() = runTest {
-        val user = USER_ID
-
-        val (arrangement, connectionPolicyManager) = Arrangement()
-            .withCurrentSession(user)
-            .withAppInTheForeground()
-            .arrange()
-
-        connectionPolicyManager.handleConnectionOnPushNotification(user)
-
-        coVerify(exactly = 0) { arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS) }
-    }
-
-    @Test
-    fun givenInitialisedUI_whenHandlingPushNotification_thenShouldUpgradePolicyThenWait() = runTest {
-        val user = USER_ID
-
+    fun givenCurrentlyActiveSessionAndInitialisedUI_whenHandlingPushNotification_thenShouldIncreaseSyncRequestAndWaitUntilLive() = runTest {
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withAppInTheForeground()
             .arrange()
 
-        connectionPolicyManager.handleConnectionOnPushNotification(user)
+        connectionPolicyManager.syncTemporarily(USER_ID)
 
-        coVerify(exactly = 1) {
-            arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLiveOrFailure()
-        }
+        assertEquals(1, arrangement.syncExecutor.requestCount)
+        assertEquals(1, arrangement.syncExecutor.waitUntilLiveCount)
     }
 
     @Test
-    fun givenNotInitialisedUI_whenHandlingPushNotification_thenShouldUpgradeThenWaitThenDowngrade() = runTest {
-        val user = USER_ID
-
-        val (arrangement, connectionPolicyManager) = Arrangement()
+    fun givenUINotInitialised_whenObservingLifecycle_thenShouldNotIncreaseSyncRequest() = runTest {
+        val (arrangement, syncLifecycleManager) = Arrangement()
             .withAppInTheBackground()
             .arrange()
 
-        connectionPolicyManager.handleConnectionOnPushNotification(user)
-
-        coVerify(exactly = 1) {
-            arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLiveOrFailure()
-            arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
+        val observingLifecycleJob = launch {
+            syncLifecycleManager.observeAppLifecycle()
         }
+        advanceUntilIdle()
+        observingLifecycleJob.cancel()
+
+        assertEquals(0, arrangement.syncExecutor.requestCount)
+    }
+
+    @Test
+    fun givenUIInitialised_whenObservingLifecycle_thenShouldIncreaseSyncRequest() = runTest {
+        val (arrangement, syncLifecycleManager) = Arrangement()
+            .withAppInTheForeground()
+            .arrange()
+
+        val observingLifecycleJob = launch {
+            syncLifecycleManager.observeAppLifecycle()
+        }
+        advanceUntilIdle()
+        observingLifecycleJob.cancel()
+        assertEquals(1, arrangement.syncExecutor.requestCount)
+    }
+
+    @Test
+    fun givenUIInitialised_whenObservingLifecycleAndRequestingTemporarySync_thenShouldIncreaseSyncRequestTwiceAndWaitOnce() = runTest {
+        val (arrangement, syncLifecycleManager) = Arrangement()
+            .withAppInTheForeground()
+            .arrange()
+
+        val observingLifecycleJob = launch {
+            syncLifecycleManager.observeAppLifecycle()
+        }
+        syncLifecycleManager.syncTemporarily(USER_ID)
+        advanceUntilIdle()
+        observingLifecycleJob.cancel()
+
+        assertEquals(2, arrangement.syncExecutor.requestCount)
+        assertEquals(1, arrangement.syncExecutor.waitUntilLiveCount)
     }
 
     private class Arrangement {
@@ -102,19 +111,15 @@ class ConnectionPolicyManagerTest {
         lateinit var userSessionScope: UserSessionScope
 
         @MockK
-        lateinit var setConnectionPolicyUseCase: SetConnectionPolicyUseCase
-
-        @MockK
-        lateinit var syncManager: SyncManager
-
-        @MockK
         lateinit var sessionRepository: SessionRepository
 
         @MockK
         lateinit var migrationManager: MigrationManager
 
-        private val connectionPolicyManager by lazy {
-            ConnectionPolicyManager(currentScreenManager, coreLogic, TestDispatcherProvider(), migrationManager)
+        var syncExecutor = FakeSyncExecutor()
+
+        private val syncLifecycleManager by lazy {
+            SyncLifecycleManager(currentScreenManager, coreLogic, migrationManager)
         }
 
         init {
@@ -122,10 +127,10 @@ class ConnectionPolicyManagerTest {
 
             every { coreLogic.getGlobalScope().sessionRepository } returns sessionRepository
             every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
-            every { userSessionScope.setConnectionPolicy } returns setConnectionPolicyUseCase
-            every { userSessionScope.syncManager } returns syncManager
-            coEvery { syncManager.waitUntilLiveOrFailure() } returns Either.Right(Unit)
             every { migrationManager.isMigrationCompletedFlow() } returns flowOf(true)
+            coEvery { sessionRepository.allValidSessionsFlow() } returns flowOf(
+                Either.Right(listOf(AccountInfo.Valid(userId = USER_ID)))
+            )
         }
 
         fun withAppInTheBackground() = apply {
@@ -136,17 +141,12 @@ class ConnectionPolicyManagerTest {
             every { currentScreenManager.isAppVisibleFlow() } returns MutableStateFlow(true)
         }
 
-        fun withCurrentSession(userId: UserId) = apply {
-            val authSession: AccountInfo = mockk()
-            every { authSession.userId } returns userId
-            coEvery { sessionRepository.currentSession() } returns Either.Right(authSession)
+        fun arrange() = this to syncLifecycleManager.also {
+            every { userSessionScope.syncExecutor } returns syncExecutor
         }
-
-        fun arrange() = this to connectionPolicyManager
     }
 
     companion object {
         private val USER_ID = UserId("user", "domain")
-        private val USER_ID_2 = UserId("user2", "domain2")
     }
 }

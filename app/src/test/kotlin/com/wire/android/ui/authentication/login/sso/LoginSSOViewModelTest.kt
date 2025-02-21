@@ -34,7 +34,9 @@ import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountTokens
@@ -61,6 +63,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldNotBeInstanceOf
@@ -185,36 +188,72 @@ class LoginSSOViewModelTest {
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidSSOCodeError>()
     }
 
-//
-//    @Test
-//    fun `given sso code and button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() =
-//        runTest {
-//            coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidRedirect
-//            every { validateEmailUseCase(any()) } returns false
-//
-//            loginViewModel.login()
-//            advanceUntilIdle()
-//
-//            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
-//                it.coreFailure.shouldBeInstanceOf<CoreFailure.Unknown>().let {
-//                    it.rootCause.shouldBeInstanceOf<IllegalArgumentException>()
-//                }
-//            }
-//        }
-//
-//    @Test
-//    fun `given sso code and button is clicked, when login returns Generic error, then GenericError is passed`() = runTest {
-//        val networkFailure = NetworkFailure.NoNetworkConnection(null)
-//        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.Generic(networkFailure)
-//        every { validateEmailUseCase(any()) } returns false
-//
-//        loginViewModel.login()
-//        advanceUntilIdle()
-//
-//        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
-//            it.coreFailure shouldBe networkFailure
-//        }
-//    }
+
+    @Test
+    fun `given sso code and button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() =
+        runTest {
+            val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withValidateEmailReturning(false)
+                .withInitiateSSO(expectedSSOCode)
+                .arrange()
+
+            loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedSSOCode)
+
+            loginViewModel.login()
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Loading>()
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.validateEmailUseCase(eq(expectedSSOCode)) }
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.initiateSSO(
+                    eq(SERVER_CONFIG.links),
+                    eq(expectedSSOCode),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOInitiateFailureSlot),
+                    capture(onSuccessSlot)
+                )
+            }
+
+            onSSOInitiateFailureSlot.captured.invoke(SSOInitiateLoginResult.Failure.InvalidRedirect)
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+                it.coreFailure.shouldBeInstanceOf<CoreFailure.Unknown>().let {
+                    it.rootCause.shouldBeInstanceOf<IllegalArgumentException>()
+                }
+            }
+        }
+
+    @Test
+    fun `given sso code and button is clicked, when login returns Generic error, then GenericError is passed`() = runTest {
+        val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withValidateEmailReturning(false)
+            .withInitiateSSO(expectedSSOCode)
+            .arrange()
+
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedSSOCode)
+
+        loginViewModel.login()
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Loading>()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.validateEmailUseCase(eq(expectedSSOCode)) }
+        coVerify(exactly = 1) {
+            arrangement.ssoExtension.initiateSSO(
+                eq(SERVER_CONFIG.links),
+                eq(expectedSSOCode),
+                capture(onAuthScopeFailureSlot),
+                capture(onSSOInitiateFailureSlot),
+                capture(onSuccessSlot)
+            )
+        }
+
+        val networkFailure = NetworkFailure.NoNetworkConnection(null)
+        onSSOInitiateFailureSlot.captured.invoke(SSOInitiateLoginResult.Failure.Generic(networkFailure))
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+            it.coreFailure shouldBe networkFailure
+        }
+    }
 //
 //    @Test
 //    fun `given sync is not completed, when establishSSOSession is called, navigate to initial sync screen`() = runTest {

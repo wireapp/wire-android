@@ -483,7 +483,7 @@ fun ConversationScreen(
                 NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
             )
         },
-        onSendMessage = sendMessageViewModel::trySendMessage,
+        onSendMessage = { sendMessageViewModel.trySendMessage(it, messageAttachmentsViewModel.attachments) },
         onPingOptionClicked = {
             if (conversationListCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
                 showDialog.value = ConversationScreenDialogType.PING_CONFIRMATION
@@ -497,7 +497,7 @@ fun ConversationScreen(
             messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
         },
         onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
-        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
         onImageFullScreenMode = { message, isSelfMessage ->
             with(conversationMessagesViewModel) {
                 navigator.navigate(
@@ -568,7 +568,7 @@ fun ConversationScreen(
         composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         shareAsset = conversationMessagesViewModel::shareAsset,
-        onDownloadAssetClick = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
         onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,

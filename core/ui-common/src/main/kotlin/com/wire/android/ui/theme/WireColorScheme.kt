@@ -83,7 +83,9 @@ class WireColorScheme(
     val wireAccentColors: WireAccentColors,
 
     val emojiBackgroundColor: Color,
+    val backdrop: Color,
 ) {
+
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
         primaryContainer = primaryVariant, onPrimaryContainer = onPrimaryVariant,
@@ -185,6 +187,7 @@ private val LightWireColorScheme = WireColorScheme(
         }
     },
     emojiBackgroundColor = Color.White,
+    backdrop = WireColorPalette.SmokeyGray,
 )
 
 // Dark WireColorScheme
@@ -261,6 +264,7 @@ private val DarkWireColorScheme = WireColorScheme(
         }
     },
     emojiBackgroundColor = Color.Black,
+    backdrop = WireColorPalette.SmokeyGray,
 )
 
 @PackagePrivate

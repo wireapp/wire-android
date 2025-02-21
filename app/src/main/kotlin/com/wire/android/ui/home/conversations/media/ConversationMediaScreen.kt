@@ -115,7 +115,7 @@ fun ConversationMediaScreen(
                 )
             )
         },
-        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
         audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
         onPlayAudioItemClicked = conversationMessagesViewModel::audioClick,
         onAudioItemPositionChanged = conversationMessagesViewModel::changeAudioPosition,
@@ -126,7 +126,7 @@ fun ConversationMediaScreen(
         sheetState = sheetState,
         deleteAsset = conversationMessagesViewModel::showDeleteMessageDialog,
         shareAsset = remember { { conversationMessagesViewModel.shareAsset(context, it) } },
-        downloadAsset = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        downloadAsset = conversationMessagesViewModel::openOrFetchAsset,
     )
 
     DeleteMessageDialog(

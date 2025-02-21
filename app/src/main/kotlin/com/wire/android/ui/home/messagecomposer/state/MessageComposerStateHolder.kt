@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -86,6 +87,8 @@ fun rememberMessageComposerStateHolder(
         messageCompositionHolder.value.handleMessageTextUpdates()
     }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
     val focusRequester = remember {
         FocusRequester()
     }
@@ -94,6 +97,7 @@ fun rememberMessageComposerStateHolder(
         saver = MessageCompositionInputStateHolder.saver(
             messageTextState = messageTextState,
             keyboardController = keyboardController,
+            focusManager = focusManager,
             focusRequester = focusRequester,
             density = density
         )
@@ -101,6 +105,7 @@ fun rememberMessageComposerStateHolder(
         MessageCompositionInputStateHolder(
             messageTextState = messageTextState,
             keyboardController = keyboardController,
+            focusManager = focusManager,
             focusRequester = focusRequester
         )
     }

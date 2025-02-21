@@ -245,6 +245,9 @@ fun EnabledMessageComposer(
                         }
 
                         ActiveMessageComposerInput(
+                            onClearFocus = {
+                                messageCompositionInputStateHolder.clearFocus()
+                            },
                             conversationId = conversationId,
                             messageComposition = messageComposition.value,
                             keyboardOptions = keyboardOptions,

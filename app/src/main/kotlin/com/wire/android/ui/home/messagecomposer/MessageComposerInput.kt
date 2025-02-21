@@ -106,6 +106,7 @@ fun ActiveMessageComposerInput(
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClearFocus : () -> Unit = { }
 ) {
     Column(
         modifier = modifier
@@ -147,6 +148,7 @@ fun ActiveMessageComposerInput(
             optionsSelected = optionsSelected,
             onPlusClick = onPlusClick,
             onTextCollapse = onTextCollapse,
+            onClearFocus = onClearFocus,
             modifier = Modifier
                 .fillMaxWidth()
                 .let {
@@ -191,7 +193,8 @@ private fun InputContent(
     viewModel: SelfDeletingMessageActionViewModel =
         hiltViewModelScoped<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionViewModel, SelfDeletingMessageActionArgs>(
             SelfDeletingMessageActionArgs(conversationId = conversationId)
-        )
+        ),
+    onClearFocus: () -> Unit = { }
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
@@ -226,6 +229,7 @@ private fun InputContent(
             onTextCollapse = onTextCollapse,
             keyboardOptions = keyboardOptions,
             onKeyBoardAction = onKeyboardAction,
+            onClearFocus = onClearFocus,
             modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(input) {
@@ -284,6 +288,7 @@ private fun MessageComposerTextInput(
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
+    onClearFocus: () -> Unit = { },
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -313,6 +318,7 @@ private fun MessageComposerTextInput(
             }
             .onPreInterceptKeyBeforeSoftKeyboard { event ->
                 if (event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_BACK) {
+                    onClearFocus()
                     if (isTextExpanded) {
                         onTextCollapse()
                         true

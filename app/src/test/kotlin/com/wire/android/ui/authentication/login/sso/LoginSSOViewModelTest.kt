@@ -290,58 +290,68 @@ class LoginSSOViewModelTest {
             it.isE2EIRequired shouldBe false
         }
     }
-//
-//    @Test
-//    fun `given establishSSOSession is called and initial sync is completed, when SSOLogin Success, navigate to home screen`() =
-//        runTest {
-//            coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
-//            coEvery {
-//                addAuthenticatedUserUseCase(
-//                    any(),
-//                    any(),
-//                    any(),
-//                    any()
-//                )
-//            } returns AddAuthenticatedUserUseCase.Result.Success(
-//                userId
-//            )
-//            coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-//            every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
-//
-//            loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id)
-//            advanceUntilIdle()
-//
-//            coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-//            coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-//            coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-//            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
-//                it.initialSyncCompleted shouldBe true
-//                it.isE2EIRequired shouldBe false
-//            }
-//        }
-//
-//    @Test
-//    fun `given establishSSOSession is called, when SSOLoginSessionResult return InvalidCookie, then SSOLoginResult fails`() = runTest {
-//        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Failure.InvalidCookie
-//        coEvery {
-//            addAuthenticatedUserUseCase(
-//                any(),
-//                any(),
-//                any(),
-//                any()
-//            )
-//        } returns AddAuthenticatedUserUseCase.Result.Success(
-//            userId
-//        )
-//        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-//
-//        loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id)
-//        advanceUntilIdle()
-//        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidSSOCookie>()
-//        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-//        coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
-//        coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-//    }
+
+    @Test
+    fun `given establishSSOSession is called and initial sync is completed, when SSOLogin Success, navigate to home screen`() =
+        runTest {
+            val expectedCookie = "some-cookie"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withEstablishSSOSession(expectedCookie)
+                .withIsSyncCompletedReturning(true)
+                .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
+                .arrange()
+
+            loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id, SERVER_CONFIG.links)
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Loading>()
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.establishSSOSession(
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    eq(SERVER_CONFIG.links),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
+                )
+            }
+
+            onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+                it.initialSyncCompleted shouldBe true
+                it.isE2EIRequired shouldBe false
+            }
+        }
+
+    @Test
+    fun `given establishSSOSession is called, when SSOLoginSessionResult return InvalidCookie, then SSOLoginResult fails`() = runTest {
+        val expectedCookie = "some-cookie"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withEstablishSSOSession(expectedCookie)
+            .withIsSyncCompletedReturning(false)
+            .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
+            .arrange()
+
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id, SERVER_CONFIG.links)
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Loading>()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.ssoExtension.establishSSOSession(
+                eq(expectedCookie),
+                eq(SERVER_CONFIG.id),
+                eq(SERVER_CONFIG.links),
+                capture(onAuthScopeFailureSlot),
+                capture(onSSOLoginFailureSlot),
+                capture(onAddAuthenticatedUserFailureSlot),
+                capture(onSuccessEstablishSSOSessionSlot)
+            )
+        }
+
+        onSSOLoginFailureSlot.captured.invoke(SSOLoginSessionResult.Failure.InvalidCookie)
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidSSOCookie>()
+    }
 //
 //    @Test
 //    fun `given HandleSSOResult is called, when ssoResult is null, then loginSSOError state should be none`() =

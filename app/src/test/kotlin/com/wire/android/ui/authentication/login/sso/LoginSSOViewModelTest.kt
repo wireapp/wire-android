@@ -37,6 +37,7 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
+import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.NetworkFailure
@@ -431,76 +432,65 @@ class LoginSSOViewModelTest {
 
             coVerify(exactly = 0) { arrangement.getOrRegisterClientUseCase(any()) }
             loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.UserAlreadyExists>()
-
-//            coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
-//            coEvery {
-//                addAuthenticatedUserUseCase(
-//                    any(),
-//                    any(),
-//                    any(),
-//                    any()
-//                )
-//            } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
-//
-//            loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id)
-//            advanceUntilIdle()
-//
-//            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.UserAlreadyExists>()
-//            coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-//            coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
-//            coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
         }
 
-//    @Test
-//    fun `given getOrRegister returns TooManyClients, when establishSSOSession, then TooManyClients is passed`() =
-//        runTest {
-//            coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
-//            coEvery {
-//                addAuthenticatedUserUseCase(
-//                    any(),
-//                    any(),
-//                    any(),
-//                    any()
-//                )
-//            } returns AddAuthenticatedUserUseCase.Result.Success(
-//                userId
-//            )
-//            coEvery {
-//                getOrRegisterClientUseCase(any())
-//            } returns RegisterClientResult.Failure.TooManyClients
-//
-//            loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id)
-//            advanceUntilIdle()
-//
-//            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.TooManyDevicesError>()
-//
-//            coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-//            coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-//            coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-//        }
-//
-//    @Test
-//    fun `given establishSSOSession called with custom server config, then establish SSO session using custom server config`() = runTest {
-//        val customConfig = newServerConfig(2)
-//        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
-//        coEvery {
-//            addAuthenticatedUserUseCase(
-//                any(),
-//                any(),
-//                any(),
-//                any()
-//            )
-//        } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-//        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-//        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
-//
-//        loginViewModel.establishSSOSession("", serverConfigId = customConfig.id, serverConfig = customConfig.links)
-//        advanceUntilIdle()
-//
-//        coVerify(exactly = 1) {
-//            coreLogic.versionedAuthenticationScope(customConfig.links)
-//        }
-//    }
+    @Test
+    fun `given getOrRegister returns TooManyClients, when establishSSOSession, then TooManyClients is passed`() =
+        runTest {
+            val expectedCookie = "some-cookie"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withEstablishSSOSession(expectedCookie)
+                .withRegisterClientReturning(RegisterClientResult.Failure.TooManyClients)
+                .withIsSyncCompletedReturning(true)
+                .arrange()
+
+            loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id, SERVER_CONFIG.links)
+            advanceUntilIdle()
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.establishSSOSession(
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    eq(SERVER_CONFIG.links),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
+                )
+            }
+            onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
+
+            coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.TooManyDevicesError>()
+        }
+
+    @Test
+    fun `given establishSSOSession called with custom server config, then establish SSO session using custom server config`() = runTest {
+        val expectedCookie = "some-cookie"
+        val customConfig = newServerConfig(2)
+        val (arrangement, loginViewModel) = Arrangement()
+            .withEstablishSSOSession(expectedCookie, customConfig)
+            .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
+            .withIsSyncCompletedReturning(true)
+            .arrange()
+
+        loginViewModel.establishSSOSession(expectedCookie, customConfig.id, customConfig.links)
+        advanceUntilIdle()
+        coVerify(exactly = 1) {
+            arrangement.ssoExtension.establishSSOSession(
+                eq(expectedCookie),
+                eq(customConfig.id),
+                eq(customConfig.links),
+                capture(onAuthScopeFailureSlot),
+                capture(onSSOLoginFailureSlot),
+                capture(onAddAuthenticatedUserFailureSlot),
+                capture(onSuccessEstablishSSOSessionSlot)
+            )
+        }
+        onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
+
+        coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+    }
 //
 //    @Test
 //    fun `given email, when clicking login, then start the domain lookup flow`() = runTest {
@@ -698,12 +688,12 @@ class LoginSSOViewModelTest {
             } returns Unit
         }
 
-        fun withEstablishSSOSession(cookie: String) = apply {
+        fun withEstablishSSOSession(cookie: String, customConfig: ServerConfig = SERVER_CONFIG) = apply {
             coEvery {
                 ssoExtension.establishSSOSession(
                     eq(cookie),
-                    eq(SERVER_CONFIG.id),
-                    eq(SERVER_CONFIG.links),
+                    eq(customConfig.id),
+                    eq(customConfig.links),
                     any(),
                     any(),
                     any(),

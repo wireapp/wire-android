@@ -35,6 +35,8 @@ import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
+import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.NetworkFailure
@@ -352,51 +354,84 @@ class LoginSSOViewModelTest {
         onSSOLoginFailureSlot.captured.invoke(SSOLoginSessionResult.Failure.InvalidCookie)
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidSSOCookie>()
     }
-//
-//    @Test
-//    fun `given HandleSSOResult is called, when ssoResult is null, then loginSSOError state should be none`() =
-//        runTest {
-//            loginViewModel.handleSSOResult(null, serverConfig = SERVER_CONFIG.links)
-//            advanceUntilIdle()
-//            loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error>()
-//        }
-//
-//    @Test
-//    fun `given HandleSSOResult is called, when ssoResult is failure, then loginSSOError state should be dialog error`() =
-//        runTest {
-//            loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown))
-//            advanceUntilIdle()
-//            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.SSOResultError>().let {
-//                it.result shouldBe SSOFailureCodes.Unknown
-//            }
-//        }
-//
-//    @Test
-//    fun `given HandleSSOResult is called, when SSOLoginResult is success, then establishSSOSession should be called once`() =
-//        runTest {
-//            coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
-//            coEvery {
-//                addAuthenticatedUserUseCase(
-//                    any(),
-//                    any(),
-//                    any(),
-//                    any()
-//                )
-//            } returns AddAuthenticatedUserUseCase.Result.Success(
-//                userId
-//            )
-//            coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-//            every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
-//
-//            loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", ""))
-//            advanceUntilIdle()
-//
-//            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
-//        }
-//
-//    @Test
-//    fun `given establishSSOSession called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() =
-//        runTest {
+
+    @Test
+    fun `given HandleSSOResult is called, when ssoResult is null, then loginSSOError state should be none`() =
+        runTest {
+            val (_, loginViewModel) = Arrangement().arrange()
+
+            loginViewModel.handleSSOResult(null, serverConfig = SERVER_CONFIG.links)
+            advanceUntilIdle()
+            loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error>()
+        }
+
+    @Test
+    fun `given HandleSSOResult is called, when ssoResult is failure, then loginSSOError state should be dialog error`() =
+        runTest {
+            val (_, loginViewModel) = Arrangement().arrange()
+
+            loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown))
+            advanceUntilIdle()
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.SSOResultError>().let {
+                it.result shouldBe SSOFailureCodes.Unknown
+            }
+        }
+
+    @Test
+    fun `given HandleSSOResult is called, when SSOLoginResult is success, then establishSSOSession should be called once`() =
+        runTest {
+            val expectedCookie = "some-cookie"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withEstablishSSOSession(expectedCookie)
+                .withIsSyncCompletedReturning(true)
+                .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
+                .arrange()
+
+            loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success(expectedCookie, SERVER_CONFIG.id), SERVER_CONFIG.links)
+            advanceUntilIdle()
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.establishSSOSession(
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    eq(SERVER_CONFIG.links),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
+                )
+            }
+            onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+        }
+
+    @Test
+    fun `given establishSSOSession called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() =
+        runTest {
+            val expectedCookie = "some-cookie"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withEstablishSSOSession(expectedCookie)
+                .withIsSyncCompletedReturning(true)
+                .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
+                .arrange()
+
+            loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success(expectedCookie, SERVER_CONFIG.id), SERVER_CONFIG.links)
+            advanceUntilIdle()
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.establishSSOSession(
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    eq(SERVER_CONFIG.links),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
+                )
+            }
+            onAddAuthenticatedUserFailureSlot.captured.invoke(AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists)
+
+            coVerify(exactly = 0) { arrangement.getOrRegisterClientUseCase(any()) }
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.UserAlreadyExists>()
+
 //            coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
 //            coEvery {
 //                addAuthenticatedUserUseCase(
@@ -414,8 +449,8 @@ class LoginSSOViewModelTest {
 //            coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
 //            coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
 //            coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-//        }
-//
+        }
+
 //    @Test
 //    fun `given getOrRegister returns TooManyClients, when establishSSOSession, then TooManyClients is passed`() =
 //        runTest {

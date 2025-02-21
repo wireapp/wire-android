@@ -76,32 +76,32 @@ fun VerticalCallingPager(
             .fillMaxWidth()
             .height(contentHeight)
     ) {
-        val pagerState = rememberPagerState(
-            pageCount = { pagesCount(participants.size) }
-        )
+        // if PiP is enabled and more than one participant is present,
+        // we need to remove the first participant(self user) from the list
+        val participantsWithoutPip =
+            if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+                participants.subList(1, participants.size)
+            } else {
+                participants
+            }
+        val participantsPages = remember(participantsWithoutPip) {
+            participantsWithoutPip.chunked(MAX_TILES_PER_PAGE)
+        }
+
+        val pagerState = rememberPagerState(pageCount = { participantsPages.size })
+
         Box {
             VerticalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 if (participants.isNotEmpty()) {
-                    // if PiP is enabled and more than one participant is present,
-                    // we need to remove the first participant(self user) from the list
-                    val newParticipants =
-                        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
-                            participants.subList(1, participants.size)
-                        } else {
-                            participants
-                        }
-                    val participantsChunkedList = remember(newParticipants) {
-                        newParticipants.chunked(MAX_TILES_PER_PAGE)
-                    }
-                    val participantsWithCameraOn by rememberUpdatedState(newParticipants.count { it.isCameraOn })
-                    val participantsWithScreenShareOn by rememberUpdatedState(newParticipants.count { it.isSharingScreen })
+                    val participantsWithCameraOn by rememberUpdatedState(participantsWithoutPip.count { it.isCameraOn })
+                    val participantsWithScreenShareOn by rememberUpdatedState(participantsWithoutPip.count { it.isSharingScreen })
 
-                    if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_HORIZONTAL_VIEW) {
+                    if (participantsPages[pageIndex].size <= MAX_ITEMS_FOR_HORIZONTAL_VIEW) {
                         CallingHorizontalView(
-                            participants = participantsChunkedList[pageIndex],
+                            participants = participantsPages[pageIndex],
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             contentHeight = contentHeight,
@@ -114,7 +114,7 @@ fun VerticalCallingPager(
                         )
                     } else {
                         GroupCallGrid(
-                            participants = participantsChunkedList[pageIndex],
+                            participants = participantsPages[pageIndex],
                             pageIndex = pageIndex,
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
@@ -134,12 +134,12 @@ fun VerticalCallingPager(
                         participantsWithScreenShareOn, // Request video stream when someone starts sharing screen
                         pagerState.currentPage // Request video stream when swiping to a different page on the grid
                     ) {
-                        requestVideoStreams(participantsChunkedList[pagerState.currentPage])
+                        requestVideoStreams(participantsPages[pagerState.currentPage])
                     }
                 }
             }
             // we don't need to display the indicator if we have one page and when it's in PiP mode
-            if (pagesCount(participants.size) > 1 && !isInPictureInPictureMode) {
+            if (participantsPages.size > 1 && !isInPictureInPictureMode) {
                 Surface(
                     shape = RoundedCornerShape(dimensions().corner16x),
                     modifier = Modifier
@@ -157,18 +157,6 @@ fun VerticalCallingPager(
                 }
             }
         }
-    }
-}
-
-/**
- * Returns number of pages(with an already defined max number of tiles) needed to display x participants
- */
-private fun pagesCount(size: Int): Int {
-    val pages = size / MAX_TILES_PER_PAGE
-    return if (size % MAX_TILES_PER_PAGE > 0) {
-        pages + 1
-    } else {
-        pages
     }
 }
 

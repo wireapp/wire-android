@@ -21,11 +21,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
-import com.wire.android.feature.analytics.AnonymousAnalyticsManager
-import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.AppLockTeamConfig
@@ -301,49 +297,6 @@ class FeatureFlagNotificationViewModelTest {
         coVerify(exactly = 1) { arrangement.markNotifyForRevokedCertificateAsNotified() }
     }
 
-    @Test
-    fun givenARateCallIsDisplayed_whenSendingScore_thenInvokeEventForScoreWithValue() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
-            .arrange()
-
-        viewModel.rateCall(5, false)
-
-        coVerify(exactly = 1) {
-            arrangement.analyticsManager.sendEvent(
-                match {
-                    it is AnalyticsEvent.CallQualityFeedback.Answered && it.score == 5
-                }
-            )
-        }
-        coVerify(exactly = 1) {
-            arrangement.analyticsManager.sendEvent(
-                match {
-                    it is AnalyticsEvent.CallQualityFeedback && it.label ==
-                            AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_ANSWERED
-                }
-            )
-        }
-    }
-
-    @Test
-    fun givenARateCallIsDisplayed_whenDismissingIt_thenInvokeEventForDismiss() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
-            .arrange()
-
-        viewModel.skipCallFeedback(false)
-
-        coVerify(exactly = 1) {
-            arrangement.analyticsManager.sendEvent(
-                match {
-                    it is AnalyticsEvent.CallQualityFeedback && it.label ==
-                            AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_DISMISSED
-                }
-            )
-        }
-    }
-
     private inner class Arrangement {
 
         @MockK
@@ -371,12 +324,6 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var globalDataStore: GlobalDataStore
 
         @MockK
-        lateinit var isAnalyticsAvailable: IsAnalyticsAvailableUseCase
-
-        @MockK
-        lateinit var analyticsManager: AnonymousAnalyticsManager
-
-        @MockK
         lateinit var markNotifyForRevokedCertificateAsNotified: MarkNotifyForRevokedCertificateAsNotifiedUseCase
 
         val viewModel: FeatureFlagNotificationViewModel by lazy {
@@ -384,9 +331,7 @@ class FeatureFlagNotificationViewModelTest {
                 coreLogic = coreLogic,
                 currentSessionFlow = currentSessionFlow,
                 globalDataStore = globalDataStore,
-                disableAppLockUseCase = disableAppLockUseCase,
-                isAnalyticsAvailable = isAnalyticsAvailable,
-                analyticsManager = analyticsManager
+                disableAppLockUseCase = disableAppLockUseCase
             )
         }
 
@@ -417,10 +362,6 @@ class FeatureFlagNotificationViewModelTest {
 
         fun withIsAppLockSetup(result: Boolean) = apply {
             coEvery { globalDataStore.isAppLockPasscodeSet() } returns result
-        }
-
-        fun withSyncState(stateFlow: Flow<SyncState>) = apply {
-            coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns stateFlow
         }
 
         fun withAppLockSource(source: AppLockSource) = apply {

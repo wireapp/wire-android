@@ -21,6 +21,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
@@ -43,6 +45,8 @@ fun FileHeaderView(
     extension: String,
     size: Long,
     modifier: Modifier = Modifier,
+    label: String? = null,
+    labelColor: Color? = null,
 ) {
     val fileType = remember(extension) { AttachmentFileType.fromExtension(extension) }
     val sizeString = remember(size) { size.formattedFileSize() }
@@ -62,6 +66,14 @@ fun FileHeaderView(
             style = typography().subline01,
             color = colorsScheme().secondaryText,
         )
+        Spacer(modifier = Modifier.weight(1f))
+        label?.let {
+            Text(
+                text = label,
+                style = typography().subline01,
+                color = labelColor ?: colorsScheme().secondaryText,
+            )
+        }
     }
 }
 
@@ -83,14 +95,17 @@ private fun PreviewFileHeader() {
             FileHeaderView(
                 extension = "PDF",
                 size = 1241235,
+                label = "Tap to download"
             )
             FileHeaderView(
                 extension = "DOCX",
                 size = 6796203,
+                label = "Downloading..."
             )
             FileHeaderView(
                 extension = "ZIP",
                 size = 512746,
+                label = "Tap to view"
             )
             FileHeaderView(
                 extension = "OTHER",

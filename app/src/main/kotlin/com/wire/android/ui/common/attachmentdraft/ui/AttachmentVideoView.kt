@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import coil.request.ImageRequest
-import coil.request.videoFrameMillis
 import com.wire.android.R
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.colorsScheme
@@ -55,7 +54,6 @@ fun AttachmentVideoView(
 
         val model = ImageRequest.Builder(context)
             .data(attachment.localFilePath)
-            .videoFrameMillis(1000)
             .decoderFactory { result, options, _ ->
                 VideoFrameDecoder(result.source, options)
             }

@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.Restricte
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMessage
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
@@ -134,6 +135,23 @@ private fun MessageContent(
             }
         }
 
+        is UIMessageContent.VideoMessage -> {
+            Column {
+                VideoMessage(
+                    assetSize = messageContent.assetSizeInBytes,
+                    assetName = messageContent.assetName,
+                    assetExtension = messageContent.assetExtension,
+                    assetDataPath = messageContent.assetDataPath,
+                    width = messageContent.width,
+                    height = messageContent.height,
+                    duration = messageContent.duration,
+                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    onVideoClick = onAssetClick,
+                )
+                PartialDeliveryInformation(messageContent.deliveryStatus)
+            }
+        }
+
         is UIMessageContent.TextMessage -> {
             Column {
                 messageContent.messageBody.quotedMessage?.let {
@@ -192,6 +210,7 @@ private fun MessageContent(
                     assetName = messageContent.assetName,
                     assetExtension = messageContent.assetExtension,
                     assetSizeInBytes = messageContent.assetSizeInBytes,
+                    assetDataPath = messageContent.assetDataPath,
                     assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onAssetClick = onAssetClick
                 )
@@ -242,6 +261,8 @@ private fun MessageContent(
                     currentPositionInMs = audioMessageState.currentPositionInMs,
                     audioSpeed = audioSpeed,
                     waveMask = audioMessageState.wavesMask,
+                    extension = messageContent.assetExtension,
+                    size = messageContent.sizeInBytes,
                     onPlayButtonClick = { onAudioClick(message.header.messageId) },
                     onSliderPositionChange = { position ->
                         onChangeAudioPosition(message.header.messageId, position.toInt())

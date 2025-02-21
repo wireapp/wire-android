@@ -27,7 +27,7 @@ import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.lifecycle.ConnectionPolicyManager
+import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.util.logIfEmptyUserName
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
@@ -66,6 +66,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -75,7 +76,7 @@ class WireNotificationManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val messagesNotificationManager: MessageNotificationManager,
     private val callNotificationManager: CallNotificationManager,
-    private val connectionPolicyManager: ConnectionPolicyManager,
+    private val syncLifecycleManager: SyncLifecycleManager,
     private val servicesManager: ServicesManager,
     private val dispatcherProvider: DispatcherProvider,
     private val pingRinger: PingRinger
@@ -165,10 +166,7 @@ class WireNotificationManager @Inject constructor(
         val observeCallsJob = observeCallNotificationsOnceJob(userId)
 
         appLogger.d("$TAG start syncing")
-        connectionPolicyManager.handleConnectionOnPushNotification(
-            userId,
-            STAY_ALIVE_TIME_ON_PUSH_MS
-        )
+        syncLifecycleManager.syncTemporarily(userId, STAY_ALIVE_TIME_ON_PUSH_DURATION)
 
         observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
         observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
@@ -540,6 +538,6 @@ class WireNotificationManager @Inject constructor(
 
     companion object {
         private const val TAG = "WireNotificationManager"
-        private const val STAY_ALIVE_TIME_ON_PUSH_MS = 1000L
+        private val STAY_ALIVE_TIME_ON_PUSH_DURATION = 1.seconds
     }
 }

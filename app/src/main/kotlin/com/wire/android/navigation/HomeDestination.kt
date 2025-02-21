@@ -26,6 +26,7 @@ import com.wire.android.ui.destinations.ArchiveScreenDestination
 import com.wire.android.ui.destinations.SettingsScreenDestination
 import com.wire.android.ui.destinations.VaultScreenDestination
 import com.wire.android.ui.destinations.WhatsNewScreenDestination
+import com.wire.android.ui.destinations.WireCellScreenDestination
 import com.wire.android.util.ui.UIText
 
 @Suppress("LongParameterList")
@@ -77,6 +78,13 @@ sealed class HomeDestination(
         direction = WhatsNewScreenDestination
     )
 
+    data object Cells : HomeDestination(
+        title = UIText.StringResource(R.string.cells_screen_title),
+        icon = R.drawable.ic_files,
+        withUserAvatar = false,
+        direction = WireCellScreenDestination
+    )
+
     val itemName: String get() = ITEM_NAME_PREFIX + this
 
     companion object {
@@ -86,6 +94,6 @@ sealed class HomeDestination(
             values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
 
         fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Settings, Vault, Archive, Support, WhatsNew)
+            arrayOf(Conversations, Settings, Vault, Archive, Support, WhatsNew, Cells)
     }
 }

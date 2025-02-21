@@ -27,9 +27,11 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageButton
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.util.getVideoMetaData
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.asset.SUPPORTED_VIDEO_ASSET_MIME_TYPES
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
@@ -41,6 +43,7 @@ import com.wire.kalium.logic.data.message.hasValidData
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
+import com.wire.kalium.logic.util.fileExtension
 import com.wire.kalium.logic.util.isGreaterThan
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
@@ -144,10 +147,11 @@ class RegularMessageMapper @Inject constructor(
         with(assetContent) {
             return UIMessageContent.AudioAssetMessage(
                 assetName = name ?: "",
-                assetExtension = mimeType,
+                assetExtension = name?.fileExtension() ?: mimeType,
                 assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                 audioMessageDurationInMs = metadata.durationMs ?: 0,
-                deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
+                deliveryStatus = mapRecipientsFailure(userList, deliveryStatus),
+                sizeInBytes = sizeInBytes,
             )
         }
     }
@@ -256,6 +260,21 @@ class RegularMessageMapper @Inject constructor(
                     )
                 }
 
+                assetMessageContentMetadata.isVideo() -> {
+                    val metaData = localData?.assetDataPath?.let { getVideoMetaData(it) }
+                    UIMessageContent.VideoMessage(
+                        assetName = name ?: "",
+                        assetExtension = name?.split(".")?.last() ?: "",
+                        assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
+                        assetDataPath = localData?.assetDataPath,
+                        assetSizeInBytes = sizeInBytes,
+                        deliveryStatus = mapRecipientsFailure(userList, deliveryStatus),
+                        width = metaData?.width,
+                        height = metaData?.height,
+                        duration = metaData?.durationMs,
+                    )
+                }
+
                 // It's a generic Asset Message so let's not download it yet
                 else -> {
                     UIMessageContent.AssetMessage(
@@ -263,6 +282,7 @@ class RegularMessageMapper @Inject constructor(
                         assetExtension = name?.split(".")?.last() ?: "",
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         assetSizeInBytes = sizeInBytes,
+                        assetDataPath = localData?.assetDataPath,
                         deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
                     )
                 }
@@ -300,6 +320,8 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
 
     fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
             imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
+
+    fun isVideo(): Boolean = assetMessageContent.mimeType in SUPPORTED_VIDEO_ASSET_MIME_TYPES
 
     // Sometimes client receives two events for the same asset, first one with only part of the data ("preview" type from web),
     // so such asset shouldn't be shown until all the required data is received.

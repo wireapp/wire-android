@@ -711,9 +711,6 @@
         <item quantity="other">%1$s el lett távolítva a csapatból</item>
     </plurals>
     <string name="label_system_message_user_not_available">Ez a felhasználó már nem elérhető</string>
-    <string name="label_system_message_unsupported_protocol">A beszélgetés olyan titkosítási eljárást használ, ami
-        nem támogatott ezen eszközön. A résztvevők egyes eszközei frissítést igényelhetnek.
-    </string>
     <string name="label_system_message_new_conversation_receipt_mode">Tértivevények %1$s vannak kapcsolva</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s a tértivevényeket %2$skapcsolta mindenki számára</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s a tértivevényeket %2$skapcsolta mindenki számára</string>

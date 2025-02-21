@@ -33,6 +33,7 @@ import com.wire.android.framework.TestUser
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -531,83 +532,156 @@ class LoginSSOViewModelTest {
         }
     }
 
-//    @Test
-//    fun `given backend switch confirmed and sso init successful, then open web url with updated server config`() = runTest {
-//        val expected = newServerConfig(2).links
-//        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(expected))
-//        coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success("ssoCode")
-//        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("url")
-//
-//        loginViewModel.openWebUrl.test {
-//
-//            loginViewModel.onCustomServerDialogConfirm()
-//
-//            advanceUntilIdle()
-//
-//            val (_, resultCustomServer) = awaitItem()
-//            assertEquals(resultCustomServer, expected)
-//
-//            cancelAndIgnoreRemainingEvents()
-//        }
-//    }
-//
-//    @Test
-//    fun `given backend switch confirmed, when the new server have a default sso code, then initiate sso login`() = runTest {
-//        val expected = newServerConfig(2).links
-//        every { validateEmailUseCase(any()) } returns true
-//        coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success("ssoCode")
-//        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("url")
-//
-//        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(expected))
-//
-//        loginViewModel.onCustomServerDialogConfirm()
-//
-//        advanceUntilIdle()
-//        coVerify {
-//            loginSSOViewModelExtension.fetchDefaultSSOCode(eq(expected), any(), any(), any())
-//        }
-//    }
-//
-//    @Test
-//    fun `given backend switch confirmed, when the new server have NO default sso code, then do not initiate sso login`() = runTest {
-//        val expected = newServerConfig(2).links
-//        every { validateEmailUseCase(any()) } returns true
-//        coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success(null)
-//        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(expected))
-//
-//        loginViewModel.onCustomServerDialogConfirm()
-//
-//        advanceUntilIdle()
-//        coVerify(exactly = 1) {
-//            coreLogic.versionedAuthenticationScope(expected)
-//            fetchSSOSettings.invoke()
-//        }
-//        coVerify(exactly = 0) {
-//            ssoInitiateLoginUseCase.invoke(any())
-//        }
-//    }
-//
-//    @Test
-//    fun `given error, when checking for server default SSO code, then do not initiate sso login`() = runTest {
-//        val expected = newServerConfig(2).links
-//        every { validateEmailUseCase(any()) } returns true
-//        coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Failure(CoreFailure.Unknown(IOException()))
-//        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(expected))
-//
-//        loginViewModel.onCustomServerDialogConfirm()
-//
-//        advanceUntilIdle()
-//        coVerify(exactly = 1) {
-//            coreLogic.versionedAuthenticationScope(expected)
-//            fetchSSOSettings.invoke()
-//        }
-//
-//        coVerify(exactly = 0) {
-//            ssoInitiateLoginUseCase.invoke(any())
-//        }
-//    }
-//
+    @Test
+    fun `given backend switch confirmed and sso init successful, then open web url with updated server config`() =
+        runTest(dispatcherProvider.main()) {
+            val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+            val customConfig = newServerConfig(2)
+            val expectedUrl = "https://wire.com/sso"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withInitiateSSO(expectedSSOCode, customConfig)
+                .withFetchSSOSettings(customConfig)
+                .arrange()
 
+            loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedSSOCode)
+            loginViewModel.loginState =
+                loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(customConfig.links))
+
+            loginViewModel.openWebUrl.test {
+                loginViewModel.onCustomServerDialogConfirm()
+                advanceUntilIdle()
+                coVerify(exactly = 1) {
+                    arrangement.ssoExtension.fetchDefaultSSOCode(
+                        eq(customConfig.links),
+                        capture(onAuthScopeFailureSlot),
+                        capture(onFetchSSOSettingsFailureSlot),
+                        capture(onSuccessFetchSSOCodeSlot)
+                    )
+                }
+                onSuccessFetchSSOCodeSlot.captured.invoke(expectedSSOCode)
+
+                advanceUntilIdle()
+                coVerify(exactly = 1) {
+                    arrangement.ssoExtension.initiateSSO(
+                        eq(customConfig.links),
+                        eq(expectedSSOCode),
+                        capture(onAuthScopeFailureSlot),
+                        capture(onSSOInitiateFailureSlot),
+                        capture(onSuccessSlot)
+                    )
+                }
+                onSuccessSlot.captured.invoke(expectedUrl, customConfig.links)
+
+                val (url, customServerConfig) = awaitItem()
+                assertEquals(expectedUrl, url)
+                assertEquals(customConfig.links, customServerConfig)
+
+                loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Default>()
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `given backend switch confirmed, when the new server has a default sso code, then initiate sso login`() =
+        runTest(dispatcherProvider.main()) {
+            val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+            val customConfig = newServerConfig(2)
+            val (arrangement, loginViewModel) = Arrangement()
+                .withInitiateSSO(expectedSSOCode, customConfig)
+                .withFetchSSOSettings(customConfig)
+                .withValidateEmailReturning(true)
+                .arrange()
+
+            loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedSSOCode)
+            loginViewModel.loginState =
+                loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(customConfig.links))
+
+            loginViewModel.onCustomServerDialogConfirm()
+            advanceUntilIdle()
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.fetchDefaultSSOCode(
+                    eq(customConfig.links),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onFetchSSOSettingsFailureSlot),
+                    capture(onSuccessFetchSSOCodeSlot)
+                )
+            }
+            onSuccessFetchSSOCodeSlot.captured.invoke(expectedSSOCode)
+        }
+
+
+    @Test
+    fun `given backend switch confirmed, when the new server does not have a default sso code, then do not initiate sso login`() =
+        runTest(dispatcherProvider.main()) {
+            val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+            val customConfig = newServerConfig(2)
+            val (arrangement, loginViewModel) = Arrangement()
+                .withInitiateSSO(expectedSSOCode, customConfig)
+                .withFetchSSOSettings(customConfig)
+                .withValidateEmailReturning(true)
+                .arrange()
+
+            loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedSSOCode)
+            loginViewModel.loginState =
+                loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(customConfig.links))
+
+            loginViewModel.onCustomServerDialogConfirm()
+            advanceUntilIdle()
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.fetchDefaultSSOCode(
+                    eq(customConfig.links),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onFetchSSOSettingsFailureSlot),
+                    capture(onSuccessFetchSSOCodeSlot)
+                )
+            }
+            coVerify(exactly = 0) {
+                arrangement.ssoExtension.initiateSSO(
+                    eq(customConfig.links),
+                    eq(expectedSSOCode),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOInitiateFailureSlot),
+                    capture(onSuccessSlot)
+                )
+            }
+            onSuccessFetchSSOCodeSlot.captured.invoke(null)
+        }
+
+    @Test
+    fun `given error, when checking for server default SSO code, then do not initiate sso login`() = runTest(dispatcherProvider.main()) {
+        val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+        val customConfig = newServerConfig(2)
+        val (arrangement, loginViewModel) = Arrangement()
+            .withInitiateSSO(expectedSSOCode, customConfig)
+            .withFetchSSOSettings(customConfig)
+            .withValidateEmailReturning(true)
+            .arrange()
+
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedSSOCode)
+        loginViewModel.loginState =
+            loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(customConfig.links))
+
+        loginViewModel.onCustomServerDialogConfirm()
+        advanceUntilIdle()
+        coVerify(exactly = 1) {
+            arrangement.ssoExtension.fetchDefaultSSOCode(
+                eq(customConfig.links),
+                capture(onAuthScopeFailureSlot),
+                capture(onFetchSSOSettingsFailureSlot),
+                capture(onSuccessFetchSSOCodeSlot)
+            )
+        }
+        coVerify(exactly = 0) {
+            arrangement.ssoExtension.initiateSSO(
+                eq(customConfig.links),
+                eq(expectedSSOCode),
+                capture(onAuthScopeFailureSlot),
+                capture(onSSOInitiateFailureSlot),
+                capture(onSuccessSlot)
+            )
+        }
+        onFetchSSOSettingsFailureSlot.captured.invoke(FetchSSOSettingsUseCase.Result.Failure(CoreFailure.Unknown(IOException())))
+    }
 
     private class Arrangement {
 
@@ -675,7 +749,7 @@ class LoginSSOViewModelTest {
             every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
             every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
             every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
-            coEvery { ssoExtension.fetchDefaultSSOCode(any(), any(), any(), any()) } returns Unit
+            withFetchSSOSettings()
         }
 
         fun withIsSyncCompletedReturning(isComplete: Boolean) = apply {
@@ -690,10 +764,10 @@ class LoginSSOViewModelTest {
             coEvery { authenticationScope.domainLookup(any()) } returns expected
         }
 
-        fun withInitiateSSO(ssoCode: String) = apply {
+        fun withInitiateSSO(ssoCode: String, customConfig: ServerConfig = SERVER_CONFIG) = apply {
             coEvery {
                 ssoExtension.initiateSSO(
-                    eq(SERVER_CONFIG.links),
+                    eq(customConfig.links),
                     eq(ssoCode),
                     any(),
                     any(),
@@ -709,6 +783,17 @@ class LoginSSOViewModelTest {
                     eq(customConfig.id),
                     eq(customConfig.links),
                     any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns Unit
+        }
+
+        fun withFetchSSOSettings(customConfig: ServerConfig = SERVER_CONFIG) = apply {
+            coEvery {
+                ssoExtension.fetchDefaultSSOCode(
+                    eq(customConfig.links),
                     any(),
                     any(),
                     any()
@@ -742,6 +827,8 @@ class LoginSSOViewModelTest {
         val onSSOLoginFailureSlot = slot<((SSOLoginSessionResult.Failure) -> Unit)>()
         val onAddAuthenticatedUserFailureSlot = slot<((AddAuthenticatedUserUseCase.Result.Failure) -> Unit)>()
         val onSuccessEstablishSSOSessionSlot = slot<(suspend (UserId) -> Unit)>()
+        val onSuccessFetchSSOCodeSlot = slot<(suspend (String?) -> Unit)>()
+        val onFetchSSOSettingsFailureSlot = slot<(FetchSSOSettingsUseCase.Result.Failure) -> Unit>()
 
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
         val AUTH_TOKEN = AccountTokens(

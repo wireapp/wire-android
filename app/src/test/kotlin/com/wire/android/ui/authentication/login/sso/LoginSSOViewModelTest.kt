@@ -49,6 +49,7 @@ import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
@@ -76,6 +77,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldNotBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
@@ -491,21 +493,44 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
     }
-//
-//    @Test
-//    fun `given email, when clicking login, then start the domain lookup flow`() = runTest {
-//        val expected = newServerConfig(2).links
-//        every { validateEmailUseCase(any()) } returns true
-//        coEvery { authenticationScope.domainLookup(any()) } returns DomainLookupUseCase.Result.Success(expected)
-//        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd("email@wire.com")
-//
-//        loginViewModel.domainLookupFlow()
-//        advanceUntilIdle()
-//
-//        coVerify(exactly = 1) { authenticationScope.domainLookup("email@wire.com") }
-//        assertEquals(expected, loginViewModel.loginState.customServerDialogState!!.serverLinks)
-//    }
-//
+
+    @Test
+    fun `given email, when clicking login, then start the domain lookup flow`() = runTest {
+        val expectedEmail = "email@wire.com"
+        val customConfig = newServerConfig(2)
+        val (arrangement, loginViewModel) = Arrangement()
+            .withDomainLookupReturning(DomainLookupUseCase.Result.Success(customConfig.links))
+            .withIsSyncCompletedReturning(true)
+            .arrange()
+
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedEmail)
+        loginViewModel.domainLookupFlow()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.authenticationScope.domainLookup(expectedEmail) }
+        assertEquals(customConfig.links, loginViewModel.loginState.customServerDialogState!!.serverLinks)
+    }
+
+    @Test
+    fun `given error, when doing domain lookup, then error state is updated`() = runTest {
+        val expectedEmail = "email@wire.com"
+        val expected = CoreFailure.Unknown(IOException())
+        val (arrangement, loginViewModel) = Arrangement()
+            .withDomainLookupReturning(DomainLookupUseCase.Result.Failure(expected))
+            .withIsSyncCompletedReturning(true)
+            .arrange()
+
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedEmail)
+        loginViewModel.domainLookupFlow()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.authenticationScope.domainLookup(expectedEmail) }
+        loginViewModel.loginState.customServerDialogState shouldBe null
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+            it.coreFailure shouldBe expected
+        }
+    }
+
 //    @Test
 //    fun `given backend switch confirmed and sso init successful, then open web url with updated server config`() = runTest {
 //        val expected = newServerConfig(2).links
@@ -582,22 +607,7 @@ class LoginSSOViewModelTest {
 //        }
 //    }
 //
-//    @Test
-//    fun `given error, when doing domain lookup, then error state is updated`() = runTest {
-//        val expected = CoreFailure.Unknown(IOException())
-//        every { validateEmailUseCase(any()) } returns true
-//        coEvery { authenticationScope.domainLookup(any()) } returns DomainLookupUseCase.Result.Failure(expected)
-//        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd("email@wire.com")
-//
-//        loginViewModel.domainLookupFlow()
-//        advanceUntilIdle()
-//
-//        coVerify(exactly = 1) { authenticationScope.domainLookup("email@wire.com") }
-//        loginViewModel.loginState.customServerDialogState shouldBe null
-//        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
-//            it.coreFailure shouldBe expected
-//        }
-//    }
+
 
     private class Arrangement {
 
@@ -674,6 +684,10 @@ class LoginSSOViewModelTest {
 
         fun withRegisterClientReturning(result: RegisterClientResult) = apply {
             coEvery { getOrRegisterClientUseCase(any()) } returns result
+        }
+
+        fun withDomainLookupReturning(expected: DomainLookupUseCase.Result) = apply {
+            coEvery { authenticationScope.domainLookup(any()) } returns expected
         }
 
         fun withInitiateSSO(ssoCode: String) = apply {

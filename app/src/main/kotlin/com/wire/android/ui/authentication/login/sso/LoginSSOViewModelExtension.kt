@@ -83,6 +83,7 @@ class LoginSSOViewModelExtension(
         }
     }
 
+    @Suppress("LongParameterList")
     suspend fun establishSSOSession(
         cookie: String,
         serverConfigId: String,

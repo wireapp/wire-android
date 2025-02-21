@@ -112,6 +112,7 @@ fun NewLoginScreen(
                 )
                 navigator.navigate(NavigationCommand(NewLoginPasswordScreenDestination(loginNavArgs)))
             }
+
             is NewLoginAction.CustomConfig -> {
                 val loginNavArgs = LoginNavArgs(
                     userHandle = newLoginAction.userIdentifier,
@@ -119,10 +120,12 @@ fun NewLoginScreen(
                 )
                 navigator.navigate(NavigationCommand(NewLoginScreenDestination(loginNavArgs), BackStackMode.CLEAR_WHOLE))
             }
+
             is NewLoginAction.SSO -> {
                 currentKeyboardController?.hide()
                 CustomTabsHelper.launchUrl(context, newLoginAction.url)
             }
+
             is NewLoginAction.Success -> {
                 val destination = when (newLoginAction.nextStep) {
                     NewLoginAction.Success.NextStep.None -> HomeScreenDestination
@@ -281,11 +284,16 @@ private fun EmailOrSSOCodeInput(
 }
 
 @Composable
-fun DomainCheckupDialog(loginEmailSSOState: NewLoginScreenState, navigator: Navigator, onDismiss: () -> Unit) {
+fun DomainCheckupDialog(
+    loginEmailSSOState: NewLoginScreenState,
+    navigator: Navigator,
+    onDismiss: () -> Unit
+) {
     val resources = LocalContext.current.resources
     when (val state = loginEmailSSOState.flowState) {
         is DomainCheckupState.Error.DialogError.GenericError -> DomainCheckupDialogs(
-            dialogErrorStrings = state.coreFailure.dialogErrorStrings(resources), onDismiss = onDismiss
+            dialogErrorStrings = state.coreFailure.dialogErrorStrings(resources),
+            onDismiss = onDismiss
         )
 
         is DomainCheckupState.Error.DialogError.NotSupported -> navigator.navigate(NavigationCommand(WelcomeScreenDestination()))

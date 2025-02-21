@@ -139,7 +139,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LargeClass")
 class WireActivity : AppCompatActivity() {
 
     @Inject
@@ -244,10 +244,10 @@ class WireActivity : AppCompatActivity() {
                         isAllowedToNavigate = { navigationCommand ->
                             when {
                                 navigationCommand.destination.route.getBaseRoute() == NewLoginScreenDestination.route.getBaseRoute() -> {
-                                    /*
-                                    This is a case when the app tries to open the "enterprise login" screen so first it needs to verify
-                                    whether it's possible to have another session, if not then do not navigate and show proper dialog.
-                                    */
+                                    /**
+                                     * This is a case when the app tries to open the "enterprise login" screen so first it needs to verify
+                                     * whether it's possible to have another session, if not then do not navigate and show proper dialog.
+                                     */
                                     viewModel.checkNumberOfSessions()
                                 }
 
@@ -600,7 +600,8 @@ class WireActivity : AppCompatActivity() {
                         viewModel.switchAccount(
                             userId = it,
                             actions = NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin),
-                            onComplete = { navigate(NavigationCommand(SelfDevicesScreenDestination)) })
+                            onComplete = { navigate(NavigationCommand(SelfDevicesScreenDestination)) }
+                        )
                     },
                     viewModel::dismissNewClientsDialog
                 )
@@ -685,7 +686,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("ComplexCondition", "LongMethod")
+    @Suppress("ComplexCondition", "LongMethod", "CyclomaticComplexMethod")
     /*
      * This method is responsible for handling deep links from given intent
      */

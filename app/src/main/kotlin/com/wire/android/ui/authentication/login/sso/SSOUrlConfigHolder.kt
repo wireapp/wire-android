@@ -30,10 +30,11 @@ interface SSOUrlConfigHolder {
 
 object SSOUrlConfigHolderPreview : SSOUrlConfigHolder
 
-class SSOUrlConfigHolderImpl(private val savedStateHandle: SavedStateHandle): SSOUrlConfigHolder {
+class SSOUrlConfigHolderImpl(private val savedStateHandle: SavedStateHandle) : SSOUrlConfigHolder {
     override fun get(): ServerConfig.Links? = savedStateHandle.get<Bundle>(CUSTOM_SERVER_CONFIG_KEY)?.let {
         Bundlizer.unbundle(ServerConfig.Links.serializer(), it)
     }
+
     override fun set(serverLinks: ServerConfig.Links) =
         savedStateHandle.set(CUSTOM_SERVER_CONFIG_KEY, Bundlizer.bundle(ServerConfig.Links.serializer(), serverLinks))
 }

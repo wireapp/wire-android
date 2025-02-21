@@ -198,7 +198,6 @@ class LoginSSOViewModelTest {
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidSSOCodeError>()
     }
 
-
     @Test
     fun `given sso code and button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() =
         runTest {
@@ -608,7 +607,6 @@ class LoginSSOViewModelTest {
             }
             onSuccessFetchSSOCodeSlot.captured.invoke(expectedSSOCode)
         }
-
 
     @Test
     fun `given backend switch confirmed, when the new server does not have a default sso code, then do not initiate sso login`() =

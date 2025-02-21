@@ -336,7 +336,8 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
                 navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
             }
 
-            else -> { /* do nothing */
+            else -> {
+                /* do nothing */
             }
         }
     }

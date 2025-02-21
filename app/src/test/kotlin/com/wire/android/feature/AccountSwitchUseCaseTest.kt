@@ -18,7 +18,6 @@
 
 package com.wire.android.feature
 
-import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
@@ -71,8 +70,6 @@ class AccountSwitchUseCaseTest {
     fun givenCurrentSessionIsValidAndNoOtherSessions_whenTryToSwitchToNextAccount_thenUpdateCurrentSessionAndReturnSuccessNoMoreAccounts() =
         testScope.runTest {
             val expectedResult = SwitchAccountResult.NoOtherAccountToSwitch
-
-            val serverConfig = newServerConfig(1)
             val (arrangement, switchAccount) =
                 Arrangement(testScope)
                     .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))

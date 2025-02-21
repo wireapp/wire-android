@@ -47,12 +47,12 @@ fun WelcomeChooserScreen(
     }
 }
 
+// this is completely empty initial screen that allows to show just BackgroundType.Auth until any potential deep link is handled
 @RootNavGraph
 @WireDestination(
     style = AuthNoNavigationAnimation::class,
 )
 @Composable
-// this is completely empty initial screen that allows to show just BackgroundType.Auth until any potential deep link is handled
 fun NewWelcomeEmptyStartScreen() {
     Box(modifier = Modifier.fillMaxSize()) // empty Box to keep proper bounds of the screen for transition animation to the next screen
 }

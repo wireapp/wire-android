@@ -29,6 +29,7 @@ import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
+import com.wire.android.framework.TestUser
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
@@ -51,8 +52,10 @@ import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
+import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -60,6 +63,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.slot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -254,34 +258,38 @@ class LoginSSOViewModelTest {
             it.coreFailure shouldBe networkFailure
         }
     }
-//
-//    @Test
-//    fun `given sync is not completed, when establishSSOSession is called, navigate to initial sync screen`() = runTest {
-//        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
-//        coEvery {
-//            addAuthenticatedUserUseCase(
-//                any(),
-//                any(),
-//                any(),
-//                any()
-//            )
-//        } returns AddAuthenticatedUserUseCase.Result.Success(
-//            userId
-//        )
-//        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-//        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
-//
-//        loginViewModel.establishSSOSession(cookie = "", serverConfigId = SERVER_CONFIG.id, serverConfig = SERVER_CONFIG.links)
-//        advanceUntilIdle()
-//
-//        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-//        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-//        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-//        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
-//            it.initialSyncCompleted shouldBe false
-//            it.isE2EIRequired shouldBe false
-//        }
-//    }
+
+    @Test
+    fun `given sync is not completed, when establishSSOSession is called, navigate to initial sync screen`() = runTest {
+        val expectedCookie = "some-cookie"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withEstablishSSOSession(expectedCookie)
+            .withIsSyncCompletedReturning(false)
+            .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
+            .arrange()
+
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id, SERVER_CONFIG.links)
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Loading>()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.ssoExtension.establishSSOSession(
+                eq(expectedCookie),
+                eq(SERVER_CONFIG.id),
+                eq(SERVER_CONFIG.links),
+                capture(onAuthScopeFailureSlot),
+                capture(onSSOLoginFailureSlot),
+                capture(onAddAuthenticatedUserFailureSlot),
+                capture(onSuccessEstablishSSOSessionSlot)
+            )
+        }
+
+        onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+            it.initialSyncCompleted shouldBe false
+            it.isE2EIRequired shouldBe false
+        }
+    }
 //
 //    @Test
 //    fun `given establishSSOSession is called and initial sync is completed, when SSOLogin Success, navigate to home screen`() =
@@ -625,11 +633,33 @@ class LoginSSOViewModelTest {
             coEvery { ssoExtension.fetchDefaultSSOCode(any(), any(), any(), any()) } returns Unit
         }
 
+        fun withIsSyncCompletedReturning(isComplete: Boolean) = apply {
+            every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(isComplete)
+        }
+
+        fun withRegisterClientReturning(result: RegisterClientResult) = apply {
+            coEvery { getOrRegisterClientUseCase(any()) } returns result
+        }
+
         fun withInitiateSSO(ssoCode: String) = apply {
             coEvery {
                 ssoExtension.initiateSSO(
                     eq(SERVER_CONFIG.links),
                     eq(ssoCode),
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns Unit
+        }
+
+        fun withEstablishSSOSession(cookie: String) = apply {
+            coEvery {
+                ssoExtension.establishSSOSession(
+                    eq(cookie),
+                    eq(SERVER_CONFIG.id),
+                    eq(SERVER_CONFIG.links),
+                    any(),
                     any(),
                     any(),
                     any()
@@ -660,8 +690,10 @@ class LoginSSOViewModelTest {
         val onAuthScopeFailureSlot = slot<((AutoVersionAuthScopeUseCase.Result.Failure) -> Unit)>()
         val onSSOInitiateFailureSlot = slot<((SSOInitiateLoginResult.Failure) -> Unit)>()
         val onSuccessSlot = slot<((redirectUrl: String, serverConfig: ServerConfig.Links) -> Unit)>()
+        val onSSOLoginFailureSlot = slot<((SSOLoginSessionResult.Failure) -> Unit)>()
+        val onAddAuthenticatedUserFailureSlot = slot<((AddAuthenticatedUserUseCase.Result.Failure) -> Unit)>()
+        val onSuccessEstablishSSOSessionSlot = slot<(suspend (UserId) -> Unit)>()
 
-        val CLIENT = TestClient.CLIENT
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
         val AUTH_TOKEN = AccountTokens(
             userId = UserId("user_id", "domain"),

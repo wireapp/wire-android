@@ -1,10 +1,8 @@
-New
-- Personal users can transfer their account to a team or join another team
-- All features necessary to enable Messaging Layer Security (MLS) for teams on the cloud. Making Wire the first complete MLS-capable messenger solution — allowing for much larger groups, conference calls, and video conferences
-- Introduction of federation on the public app
-
-Improvements
+Improvement 
 - Security update
 
 Fixes
-- Resolved an issue with the consent form to share usage data to improve Wire
+- Resolved issues relating to the upcoming Messaging Layer Security (MLS) release
+- Fixed a crash when receiving a lot of messages
+- Resolved an issue with the Cancel button in a dialog 
+- Fixed a case where a connection resets to a pending state after adding this person to a group conversation

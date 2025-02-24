@@ -44,9 +44,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.data.auth.AccountTokens
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
@@ -815,10 +813,6 @@ class LoginSSOViewModelTest {
     }
 
     companion object {
-        val onAuthScopeFailureLambda: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit = {}
-        val onSSOInitiateFailureLambda: (SSOInitiateLoginResult.Failure) -> Unit = {}
-        val onSuccessLambda: (redirectUrl: String, serverConfig: ServerConfig.Links) -> Unit = { _, _ -> }
-
         val onAuthScopeFailureSlot = slot<((AutoVersionAuthScopeUseCase.Result.Failure) -> Unit)>()
         val onSSOInitiateFailureSlot = slot<((SSOInitiateLoginResult.Failure) -> Unit)>()
         val onSuccessSlot = slot<((redirectUrl: String, serverConfig: ServerConfig.Links) -> Unit)>()
@@ -828,14 +822,6 @@ class LoginSSOViewModelTest {
         val onSuccessFetchSSOCodeSlot = slot<(suspend (String?) -> Unit)>()
         val onFetchSSOSettingsFailureSlot = slot<(FetchSSOSettingsUseCase.Result.Failure) -> Unit>()
 
-        val SSO_ID: SsoId = SsoId("scim_id", null, null)
-        val AUTH_TOKEN = AccountTokens(
-            userId = UserId("user_id", "domain"),
-            accessToken = "access_token",
-            refreshToken = "refresh_token",
-            tokenType = "token_type",
-            cookieLabel = null
-        )
         val SERVER_CONFIG = ServerConfig(
             id = "config",
             links = ServerConfig.Links(

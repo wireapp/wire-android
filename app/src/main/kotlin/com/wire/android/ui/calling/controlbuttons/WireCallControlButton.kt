@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryIconButton
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -42,7 +42,7 @@ fun WireCallControlButton(
     height: Dp = dimensions().defaultCallingControlsHeight,
     iconSize: Dp = dimensions().defaultCallingControlsIconSize
 ) {
-    WirePrimaryIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = onClick,
         iconResource = iconResId,
         shape = CircleShape,
@@ -53,7 +53,7 @@ fun WireCallControlButton(
                 onSelected = inverseOnSurface,
                 selectedRipple = inverseOnSurface,
                 enabled = secondaryButtonEnabled,
-                enabledOutline = secondaryButtonEnabledOutline,
+                enabledOutline = secondaryButtonDisabledOutline,
                 onEnabled = onSecondaryButtonEnabled,
                 enabledRipple = secondaryButtonRipple,
             )

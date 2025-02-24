@@ -18,7 +18,8 @@
 
 package com.wire.android.ui.newauthentication.login
 
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
+
 
 sealed class DomainCheckupState {
     data object Default : DomainCheckupState()

@@ -29,7 +29,7 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.ui.calling.model.ReactionSender
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.InCallReactionMessage
 import com.wire.kalium.logic.data.call.VideoState
@@ -50,7 +50,7 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -73,7 +73,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SharedCallingViewModelTest {
 
     @MockK
-    private lateinit var establishedCall: ObserveEstablishedCallWithSortedParticipantsUseCase
+    private lateinit var observeEstablishedCall: ObserveEstablishedCallWithSortedParticipantsUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -141,7 +141,7 @@ class SharedCallingViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        coEvery { establishedCall.invoke(any()) } returns callFlow
+        coEvery { observeEstablishedCall.invoke() } returns callFlow
         coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()
         coEvery { observeSpeaker.invoke() } returns emptyFlow()
         coEvery { observeInCallReactionsUseCase(any()) } returns reactionsFlow
@@ -150,7 +150,7 @@ class SharedCallingViewModelTest {
         sharedCallingViewModel = SharedCallingViewModel(
             conversationId = conversationId,
             conversationDetails = observeConversationDetails,
-            observeEstablishedCallWithSortedParticipants = establishedCall,
+            observeEstablishedCallWithSortedParticipants = observeEstablishedCall,
             endCall = endCall,
             muteCall = muteCall,
             flipToFrontCamera = flipToFrontCamera,

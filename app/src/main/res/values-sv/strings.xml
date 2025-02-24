@@ -505,7 +505,6 @@
     <string name="settings_network_settings_label">Nätverksinställningar</string>
     <string name="settings_manage_devices_label">Hantera dina enheter</string>
     <!--Settings, Appearance -->
-    <string name="settings_appearance_label">Utseende</string>
     <string name="settings_appearance_theme_label">Tema</string>
     <string name="settings_appearance_theme_option_default_hint">(Standard)</string>
     <string name="settings_appearance_theme_option_light">Ljust läge</string>
@@ -687,4 +686,5 @@
     <string name="personal_to_team_migration_back_button_label">Tillbaka</string>
     <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">Jag accepterar</string>
     <string name="personal_to_team_migration_done_step">Grattis %1$s!</string>
+    <!-- Move to Folder -->
 </resources>

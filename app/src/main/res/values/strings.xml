@@ -587,6 +587,7 @@
     <string name="leave_group_conversation_menu_item">Leave Group…</string>
     <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
     <string name="leave_group_conversation_dialog_description">You will then no longer be able to send or read messages in this group on any device.</string>
+    <string name="leave_group_conversation_dialog_delete_fully_check">Delete the group and its content for me on all my devices</string>
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
@@ -764,7 +765,7 @@
     </plurals>
     <string name="label_system_message_user_not_available">This user is no longer available</string>
     <string name="label_system_message_unsupported_protocol">The conversation is using an encryption protocol that is
-        not supported by this device. Some devices from the involve users might need updating.
+        not supported by this device. Some devices from the involved users might need updating.
     </string>
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
@@ -981,12 +982,16 @@
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>
+    <string name="notification_action_open_call">Open Call</string>
+    <string name="notification_action_decline_call">Decline</string>
     <string name="notification_incoming_call_content">Calling…</string>
     <string name="notification_ongoing_call_content">Ongoing call…</string>
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Incoming group call</string>
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
+    <string name="notification_audio_message_body">Audio message</string>
+    <string name="notification_deleting_conversation">Deleting conversation…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -1122,7 +1127,7 @@
     <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
     <!--Settings, Appearance -->
-    <string name="settings_appearance_label">Appearance</string>
+    <string name="settings_customization_label">Customization</string>
     <string name="settings_appearance_theme_label">Theme</string>
     <string name="settings_appearance_theme_option_system">Sync with system settings</string>
     <string name="settings_appearance_theme_option_default_hint">(Default)</string>
@@ -1259,6 +1264,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_textfield_optional_password">Password (optional)</string>
     <string name="label_proteus_details">Proteus Device Details</string>
     <string name="label_mls_signature">MLS with %1$s Signature</string>
+    <string name="label_mls_no_signature_type">MLS</string>
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>
@@ -1717,5 +1723,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="new_folder_error_name_empty">Please enter folder name.</string>
     <string name="new_folder_error_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
     <string name="new_folder_failure">“%1$s” folder could not be added</string>
+    <string name="press_enter_to_send_title">Press Enter to send</string>
+    <string name="press_enter_to_send_text">When this is on, you can send messages with the Enter key on your keyboard.</string>
+    <string name="custimization_options_header_title">Options</string>
 
 </resources>

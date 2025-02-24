@@ -22,8 +22,8 @@ import android.content.res.Resources
 import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 
 fun CoreFailure.dialogErrorStrings(resources: Resources): DialogErrorStrings = when (this) {
     is NetworkFailure.NoNetworkConnection -> DialogErrorStrings(

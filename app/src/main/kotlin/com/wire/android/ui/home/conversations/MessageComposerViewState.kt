@@ -30,7 +30,8 @@ data class MessageComposerViewState(
     val isFileSharingEnabled: Boolean = true,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionSearchResult: List<Contact> = listOf(),
-    val mentionSearchQuery: String = String.EMPTY
+    val mentionSearchQuery: String = String.EMPTY,
+    val enterToSend: Boolean = false,
 )
 
 sealed class AssetTooLargeDialogState {

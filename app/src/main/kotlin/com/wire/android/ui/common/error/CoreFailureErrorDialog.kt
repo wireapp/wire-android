@@ -26,7 +26,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.util.dialogErrorStrings
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 
 @Composable
 fun CoreFailureErrorDialog(coreFailure: CoreFailure, onDialogDismiss: () -> Unit) {

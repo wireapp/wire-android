@@ -35,7 +35,6 @@ import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
@@ -45,10 +44,8 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.parcelableArrayList
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -118,12 +115,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         importMediaState = importMediaState.copy(importedAssets = importMediaState.importedAssets.removeAt(index))
     }
 
-    private fun loadUserAvatar() = viewModelScope.launch(dispatchers.io()) {
+    private fun loadUserAvatar() = viewModelScope.launch {
         getSelf().collect { selfUser ->
-            withContext(dispatchers.main()) {
-                avatarAsset = selfUser.previewPicture?.let {
-                    ImageAsset.UserAvatarAsset(it)
-                }
+            avatarAsset = selfUser.previewPicture?.let {
+                ImageAsset.UserAvatarAsset(it)
             }
         }
     }
@@ -168,11 +163,13 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     }
 
     private fun handleSharedText(text: String) {
+        appLogger.d("$TAG: handleSharedText")
         importMediaState = importMediaState.copy(importedText = text)
     }
 
     private suspend fun handleSingleIntent(incomingIntent: ShareCompat.IntentReader) {
         incomingIntent.stream?.let { uri ->
+            appLogger.d("$TAG: handleSingleIntent")
             handleImportedAsset(uri)?.let { importedAsset ->
                 if (importedAsset.assetSizeExceeded != null) {
                     onSnackbarMessage(
@@ -185,6 +182,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     }
 
     private suspend fun handleMultipleActionIntent(activity: AppCompatActivity) {
+        appLogger.d("$TAG: handleMultipleActionIntent")
         val importedMediaAssets = activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.mapNotNull {
             val fileUri = it.toString().toUri()
             handleImportedAsset(fileUri)
@@ -194,27 +192,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
         importedMediaAssets.firstOrNull { it.assetSizeExceeded != null }?.let {
             onSnackbarMessage(SendMessagesSnackbarMessages.MaxAssetSizeExceeded(it.assetSizeExceeded!!))
-        }
-    }
-
-    private fun handleError(result: ScheduleNewAssetMessageResult, conversationId: ConversationId) {
-        when (result) {
-            is ScheduleNewAssetMessageResult.Success -> appLogger.d(
-                "Successfully imported asset message to conversationId=${conversationId.toLogString()}"
-            )
-
-            is ScheduleNewAssetMessageResult.Failure.Generic ->
-                appLogger.e(
-                    "Failed to import asset message to conversationId=${conversationId.toLogString()}"
-                )
-
-            ScheduleNewAssetMessageResult.Failure.RestrictedFileType,
-            ScheduleNewAssetMessageResult.Failure.DisabledByTeam -> {
-                onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
-                appLogger.e(
-                    "Failed to import asset message to conversationId=${conversationId.toLogString()}"
-                )
-            }
         }
     }
 
@@ -237,14 +214,25 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? = withContext(dispatchers.io()) {
         when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
-            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
+            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
+                appLogger.w("$TAG: Failed to import asset message: Asset too large")
+                ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
+            }
 
-            HandleUriAssetUseCase.Result.Failure.Unknown -> null
+            HandleUriAssetUseCase.Result.Failure.Unknown -> {
+                appLogger.e("$TAG: Failed to import asset message: Unknown error")
+                null
+            }
+
             is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
         }
     }
 
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
+    }
+
+    companion object {
+        private const val TAG = "[ImportMediaAuthenticatedViewModel]"
     }
 }

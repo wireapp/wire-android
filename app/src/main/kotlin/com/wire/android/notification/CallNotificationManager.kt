@@ -50,7 +50,6 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -143,12 +142,6 @@ class CallNotificationManager @Inject constructor(
 
     private fun StatusBarNotification.hideIncomingCallNotification() {
         appLogger.i("$TAG: hiding incoming call")
-
-        // This delay is just so when the user receives two calling signals one straight after the other [INCOMING -> CANCEL]
-        // Due to the signals being one after the other we are creating a notification when we are trying to cancel it, it wasn't
-        // properly cancelling vibration as probably when we were cancelling, the vibration object was still being created and started
-        // and thus never stopped.
-        TimeUnit.MILLISECONDS.sleep(CANCEL_CALL_NOTIFICATION_DELAY)
         notificationManager.cancel(tag, id)
     }
 
@@ -167,7 +160,6 @@ class CallNotificationManager @Inject constructor(
 
     companion object {
         private const val TAG = "CallNotificationManager"
-        private const val CANCEL_CALL_NOTIFICATION_DELAY = 300L
 
         @VisibleForTesting
         internal const val DEBOUNCE_TIME = 200L
@@ -225,21 +217,24 @@ class CallNotificationBuilder @Inject constructor(
             .setSubText(data.userName)
             .setAutoCancel(false)
             .setOngoing(true)
-            .setStyle(
-                CallStyle.forIncomingCall(
-                    person,
-                    declineCallPendingIntent(context, conversationIdString, userIdString),
-                    answerCallPendingIntent(context, conversationIdString, userIdString)
-                )
-            )
             .setVibrate(VIBRATE_PATTERN)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString))
             .let {
                 if (asFullScreenIntent) {
                     it.setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString), true)
+                        .setStyle(
+                            CallStyle.forIncomingCall(
+                                person,
+                                declineCallPendingIntent(context, conversationIdString, userIdString),
+                                answerCallPendingIntent(context, conversationIdString, userIdString)
+                            )
+                        )
                 } else {
-                    it
+                    // CallStyle available only for FullScreenIntent or Services notification.
+                    // So for non-asFullScreenIntent we have show regular notification with actions.
+                    it.addAction(getDeclineCallAction(context, conversationIdString, userIdString))
+                        .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
                 }
             }
             .build()
@@ -275,7 +270,7 @@ class CallNotificationBuilder @Inject constructor(
                 )
             )
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setContentIntent(openOngoingCallPendingIntent(context, conversationIdString))
+            .setContentIntent(openOngoingCallPendingIntent(context, conversationIdString, userIdString))
             .build()
     }
 
@@ -326,8 +321,6 @@ class CallNotificationBuilder @Inject constructor(
 }
 
 data class IncomingCallsForUser(val userId: UserId, val userName: String, val incomingCalls: List<Call>)
-
-data class CallNotificationIds(val userIdString: String, val conversationIdString: String)
 
 data class CallNotificationData(
     val userId: QualifiedID,

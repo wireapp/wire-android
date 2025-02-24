@@ -32,8 +32,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.E2EIFailure
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.E2EIFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
@@ -46,8 +46,8 @@ import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -64,10 +64,9 @@ import javax.inject.Inject
 @ViewModelScopedPreview
 interface DebugDataOptionsViewModel {
     val infoMessage: SharedFlow<UIText> get() = MutableSharedFlow()
-    fun state(): DebugDataOptionsState = DebugDataOptionsState()
+    val state: DebugDataOptionsState get() = DebugDataOptionsState()
     fun currentAccount(): UserId = UserId("value", "domain")
     fun checkCrlRevocationList() {}
-    fun enableEncryptedProteusStorage(enabled: Boolean) {}
     fun restartSlowSyncForRecovery() {}
     fun enrollE2EICertificate() {}
     fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {}
@@ -95,7 +94,7 @@ class DebugDataOptionsViewModelImpl
     private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
 ) : ViewModel(), DebugDataOptionsViewModel {
 
-    var state by mutableStateOf(
+    override var state by mutableStateOf(
         DebugDataOptionsState()
     )
 
@@ -103,7 +102,6 @@ class DebugDataOptionsViewModelImpl
     override val infoMessage = _infoMessage.asSharedFlow()
 
     init {
-        observeEncryptedProteusStorageState()
         observeMlsMetadata()
         checkIfCanTriggerManualMigration()
         setGitHashAndDeviceId()
@@ -159,7 +157,6 @@ class DebugDataOptionsViewModelImpl
         }
     }
 
-    override fun state() = state
     override fun currentAccount(): UserId = currentAccount
 
     override fun checkCrlRevocationList() {
@@ -167,14 +164,6 @@ class DebugDataOptionsViewModelImpl
             checkCrlRevocationList(
                 forceUpdate = true
             )
-        }
-    }
-
-    override fun enableEncryptedProteusStorage(enabled: Boolean) {
-        if (enabled) {
-            viewModelScope.launch {
-                globalDataStore.setEncryptedProteusStorageEnabled(true)
-            }
         }
     }
 
@@ -253,15 +242,6 @@ class DebugDataOptionsViewModelImpl
                         _infoMessage.emit(UIText.DynamicString("Token registered"))
                     }
                 )
-            }
-        }
-    }
-
-    //region Private
-    private fun observeEncryptedProteusStorageState() {
-        viewModelScope.launch {
-            globalDataStore.isEncryptedProteusStorageEnabled().collect {
-                state = state.copy(isEncryptedProteusStorageEnabled = it)
             }
         }
     }

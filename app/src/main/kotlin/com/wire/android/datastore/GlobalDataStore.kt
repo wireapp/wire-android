@@ -53,10 +53,9 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val MIGRATION_COMPLETED = booleanPreferencesKey("migration_completed")
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
-        private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED =
-            booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
         private val APP_LOCK_SOURCE = intPreferencesKey("app_lock_source")
+        private val ENTER_TO_SENT = booleanPreferencesKey("enter_to_sent")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -102,16 +101,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun setRecordAudioEffectsCheckboxEnabled(enabled: Boolean) {
         context.dataStore.edit { it[RECORD_AUDIO_EFFECTS_CHECKBOX] = enabled }
-    }
-
-    fun isEncryptedProteusStorageEnabled(): Flow<Boolean> =
-        getBooleanPreference(
-            IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED,
-            BuildConfig.ENCRYPT_PROTEUS_STORAGE
-        )
-
-    suspend fun setEncryptedProteusStorageEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED] = enabled }
     }
 
     suspend fun setMigrationCompleted() {
@@ -244,4 +233,9 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     fun selectedThemeOptionFlow(): Flow<ThemeOption> =
         getStringPreference(APP_THEME_OPTION, ThemeOption.SYSTEM.toString())
             .map { ThemeOption.valueOf(it) }
+
+    fun enterToSendFlow(): Flow<Boolean> = getBooleanPreference(ENTER_TO_SENT, false)
+    suspend fun setEnterToSend(enabled: Boolean) {
+        context.dataStore.edit { it[ENTER_TO_SENT] = enabled }
+    }
 }

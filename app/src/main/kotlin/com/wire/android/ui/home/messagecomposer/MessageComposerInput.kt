@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -51,7 +53,6 @@ import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -61,7 +62,7 @@ import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.textfield.DefaultText
+import com.wire.android.ui.common.textfield.MessageComposerDefault
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -88,6 +89,9 @@ fun ActiveMessageComposerInput(
     isTextExpanded: Boolean,
     inputType: InputType,
     focusRequester: FocusRequester,
+    keyboardOptions: KeyboardOptions,
+    onKeyboardAction: KeyboardActionHandler?,
+    canSendMessage: Boolean,
     onSendButtonClicked: () -> Unit,
     onEditButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
@@ -101,7 +105,7 @@ fun ActiveMessageComposerInput(
     showOptions: Boolean,
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -132,6 +136,9 @@ fun ActiveMessageComposerInput(
             inputType = inputType,
             focusRequester = focusRequester,
             onSendButtonClicked = onSendButtonClicked,
+            keyboardOptions = keyboardOptions,
+            onKeyboardAction = onKeyboardAction,
+            canSendMessage = canSendMessage,
             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
             onFocused = onFocused,
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
@@ -168,6 +175,9 @@ private fun InputContent(
     isTextExpanded: Boolean,
     inputType: InputType,
     focusRequester: FocusRequester,
+    keyboardOptions: KeyboardOptions,
+    onKeyboardAction: KeyboardActionHandler?,
+    canSendMessage: Boolean,
     onSendButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onFocused: () -> Unit,
@@ -214,6 +224,8 @@ private fun InputContent(
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
             onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
             onTextCollapse = onTextCollapse,
+            keyboardOptions = keyboardOptions,
+            onKeyBoardAction = onKeyboardAction,
             modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(input) {
@@ -246,17 +258,13 @@ private fun InputContent(
                     UsersTypingIndicatorForConversation(conversationId = conversationId)
                 }
             }
-            if (showOptions) {
-                if (inputType is InputType.Composing) {
-                    MessageSendActions(
-                        onSendButtonClicked = onSendButtonClicked,
-                        sendButtonEnabled = inputType.isSendButtonEnabled,
-                        selfDeletionTimer = viewModel.state(),
-                        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                        modifier = Modifier.padding(end = dimensions().spacing8x)
-                    )
-                }
-            }
+            MessageSendActions(
+                onSendButtonClicked = onSendButtonClicked,
+                sendButtonEnabled = canSendMessage,
+                selfDeletionTimer = viewModel.state(),
+                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                modifier = Modifier.padding(end = dimensions().spacing8x)
+            )
         }
     }
 }
@@ -271,9 +279,11 @@ private fun MessageComposerTextInput(
     placeHolderText: String,
     onTextCollapse: () -> Unit,
     onFocused: () -> Unit,
+    keyboardOptions: KeyboardOptions,
+    onKeyBoardAction: KeyboardActionHandler?,
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
-    onLineBottomYCoordinateChanged: (Float) -> Unit = { }
+    onLineBottomYCoordinateChanged: (Float) -> Unit = { },
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -291,7 +301,8 @@ private fun MessageComposerTextInput(
         // Add an extra space so that the cursor is placed one space before "Type a message"
         placeholderText = " $placeHolderText",
         state = WireTextFieldState.Default,
-        keyboardOptions = KeyboardOptions.DefaultText.copy(imeAction = ImeAction.None),
+        keyboardOptions = keyboardOptions,
+        onKeyboardAction = onKeyBoardAction,
         modifier = modifier
             .focusable(true)
             .focusRequester(focusRequester)
@@ -314,7 +325,8 @@ private fun MessageComposerTextInput(
             },
         interactionSource = interactionSource,
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
-        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
+        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
+        lineLimits = TextFieldLineLimits.Default,
     )
 }
 
@@ -356,6 +368,9 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
         messageTextState = TextFieldState(""),
         isTextExpanded = isTextExpanded,
         inputType = inputType,
+        keyboardOptions = KeyboardOptions.Companion.MessageComposerDefault,
+        onKeyboardAction = null,
+        canSendMessage = true,
         focusRequester = FocusRequester(),
         onSendButtonClicked = {},
         onEditButtonClicked = {},

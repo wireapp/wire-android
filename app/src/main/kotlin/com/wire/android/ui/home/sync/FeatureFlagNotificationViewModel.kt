@@ -28,14 +28,11 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
-import com.wire.android.feature.analytics.AnonymousAnalyticsManager
-import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.toFeatureFlagState
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
 import com.wire.kalium.logic.data.sync.SyncState
@@ -44,11 +41,10 @@ import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -61,15 +57,11 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val globalDataStore: GlobalDataStore,
-    private val disableAppLockUseCase: DisableAppLockUseCase,
-    private val isAnalyticsAvailable: IsAnalyticsAvailableUseCase,
-    private val analyticsManager: AnonymousAnalyticsManager
+    private val disableAppLockUseCase: DisableAppLockUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
         private set
-
-    val showCallFeedbackFlow = MutableSharedFlow<Unit>()
 
     private var currentUserId by mutableStateOf<UserId?>(null)
 
@@ -128,7 +120,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             launch { setE2EIRequiredState(userId) }
             launch { setTeamAppLockFeatureFlag(userId) }
             launch { observeCallEndedBecauseOfConversationDegraded(userId) }
-            launch { observeAskCallFeedback(userId) }
             launch { observeShouldNotifyForRevokedCertificate(userId) }
         }
     }
@@ -226,17 +217,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private suspend fun observeCallEndedBecauseOfConversationDegraded(userId: UserId) =
         coreLogic.getSessionScope(userId).calls.observeEndCallDueToDegradationDialog().collect {
             featureFlagState = featureFlagState.copy(showCallEndedBecauseOfConversationDegraded = true)
-        }
-
-    private suspend fun observeAskCallFeedback(userId: UserId) =
-        coreLogic.getSessionScope(userId).calls.observeAskCallFeedbackUseCase().collect { shouldAskFeedback ->
-            if (!isAnalyticsAvailable(userId)) {
-                // Analytics is disabled. Do nothing.
-            } else if (shouldAskFeedback) {
-                showCallFeedbackFlow.emit(Unit)
-            } else {
-                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.NotDisplayed)
-            }
         }
 
     fun dismissSelfDeletingMessagesDialog() {
@@ -352,24 +332,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun dismissSuccessE2EIdDialog() {
         featureFlagState = featureFlagState.copy(e2EIResult = null)
-    }
-
-    fun rateCall(rate: Int, doNotAsk: Boolean) {
-        currentUserId?.let {
-            viewModelScope.launch {
-                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.Answered(rate))
-                coreLogic.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
-            }
-        }
-    }
-
-    fun skipCallFeedback(doNotAsk: Boolean) {
-        currentUserId?.let {
-            viewModelScope.launch {
-                coreLogic.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
-                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.Dismissed)
-            }
-        }
     }
 
     companion object {

@@ -49,10 +49,10 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 
 @Composable
 fun DebugDataOptions(
@@ -65,11 +65,10 @@ fun DebugDataOptions(
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     DebugDataOptionsContent(
-        state = viewModel.state(),
+        state = viewModel.state,
         appVersion = appVersion,
         buildVariant = buildVariant,
         onCopyText = onCopyText,
-        onEnableEncryptedProteusStorageChange = viewModel::enableEncryptedProteusStorage,
         onRestartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
         onForceUpdateApiVersions = viewModel::forceUpdateApiVersions,
         onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount()) },
@@ -89,7 +88,6 @@ fun DebugDataOptionsContent(
     appVersion: String,
     buildVariant: String,
     onCopyText: (String) -> Unit,
-    onEnableEncryptedProteusStorageChange: (Boolean) -> Unit,
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
@@ -198,16 +196,12 @@ fun DebugDataOptionsContent(
                     )
                 }
             }
-            ProteusOptions(
-                isEncryptedStorageEnabled = state.isEncryptedProteusStorageEnabled,
-                onEncryptedStorageEnabledChange = onEnableEncryptedProteusStorageChange
-            )
-            if (BuildConfig.DEBUG) {
+
+            if (BuildConfig.PRIVATE_BUILD) {
                 MLSOptions(
                     keyPackagesCount = state.keyPackagesCount,
                     mlsClientId = state.mslClientId,
                     mlsErrorMessage = state.mlsErrorMessage,
-                    restartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                     onCopyText = onCopyText
                 )
             }
@@ -301,18 +295,13 @@ private fun MLSOptions(
     mlsClientId: String,
     mlsErrorMessage: String,
     onCopyText: (String) -> Unit,
-    restartSlowSyncForRecovery: () -> Unit
 ) {
     FolderHeader(stringResource(R.string.label_mls_option_title))
     Column {
         SettingsItem(
             title = "Error Message",
             text = mlsErrorMessage,
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = restartSlowSyncForRecovery
-            )
+            trailingIcon = null
         )
         SettingsItem(
             title = stringResource(R.string.label_key_packages_count),
@@ -337,17 +326,6 @@ private fun MLSOptions(
 //endregion
 
 //region Proteus Options
-@Composable
-private fun ProteusOptions(
-    isEncryptedStorageEnabled: Boolean,
-    onEncryptedStorageEnabledChange: (Boolean) -> Unit,
-) {
-    FolderHeader(stringResource(R.string.label_proteus_option_title))
-    EnableEncryptedProteusStorageSwitch(
-        isEnabled = isEncryptedStorageEnabled,
-        onCheckedChange = onEncryptedStorageEnabledChange
-    )
-}
 
 @Composable
 private fun EnableEncryptedProteusStorageSwitch(
@@ -539,7 +517,6 @@ fun PreviewOtherDebugOptions() = WireTheme {
         buildVariant = "debug",
         onCopyText = {},
         state = DebugDataOptionsState(
-            isEncryptedProteusStorageEnabled = true,
             keyPackagesCount = 10,
             mslClientId = "clientId",
             mlsErrorMessage = "error",
@@ -547,7 +524,6 @@ fun PreviewOtherDebugOptions() = WireTheme {
             debugId = "debugId",
             commitish = "commitish"
         ),
-        onEnableEncryptedProteusStorageChange = {},
         onForceUpdateApiVersions = {},
         onDisableEventProcessingChange = {},
         onRestartSlowSyncForRecovery = {},

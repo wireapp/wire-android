@@ -22,6 +22,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.location.Geocoder
 import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.MediaPlayer
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
@@ -48,6 +49,7 @@ annotation class CurrentAppVersion
 
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("TooManyFunctions")
 object AppModule {
 
     @CurrentAppVersion
@@ -104,4 +106,8 @@ object AppModule {
 
     @Provides
     fun provideAnonymousAnalyticsManager(): AnonymousAnalyticsManager = AnonymousAnalyticsManagerImpl
+
+    @Provides
+    fun provideAudioManager(@ApplicationContext context: Context): AudioManager =
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 }

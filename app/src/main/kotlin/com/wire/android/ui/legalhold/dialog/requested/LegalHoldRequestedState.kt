@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.legalhold.dialog.requested
 
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.user.UserId
 
 sealed class LegalHoldRequestedState {

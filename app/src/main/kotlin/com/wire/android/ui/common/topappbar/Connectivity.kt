@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.common.topappbar
 
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import kotlin.time.Duration
 
 sealed interface Connectivity {

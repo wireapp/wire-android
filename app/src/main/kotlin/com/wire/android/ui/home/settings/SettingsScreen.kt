@@ -98,7 +98,6 @@ fun SettingsScreenContent(
                 header = context.getString(R.string.settings_account_settings_label),
                 items = buildList {
                     add(SettingsItem.YourAccount)
-                    add(SettingsItem.Appearance)
                     add(SettingsItem.PrivacySettings)
                     add(SettingsItem.ManageDevices)
                     if (BackUpSettings) {
@@ -117,6 +116,7 @@ fun SettingsScreenContent(
             folderWithElements(
                 header = context.getString(R.string.app_settings_screen_title),
                 items = buildList {
+                    add(SettingsItem.Customization)
                     if (AppSettings) {
                         add(SettingsItem.AppSettings)
                     }

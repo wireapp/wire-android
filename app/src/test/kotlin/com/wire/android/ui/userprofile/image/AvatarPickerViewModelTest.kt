@@ -29,7 +29,7 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.toByteArray
-import com.wire.kalium.logic.CoreFailure.Unknown
+import com.wire.kalium.common.error.CoreFailure.Unknown
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.AssetId
@@ -38,7 +38,6 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -104,7 +103,9 @@ class AvatarPickerViewModelTest {
             with(arrangement) {
                 coVerify {
                     uploadUserAvatarUseCase(any(), any())
-                    avatarImageManager.getWritableAvatarUri(any()) wasNot Called
+                }
+                coVerify(exactly = 1) {
+                    avatarImageManager.getWritableAvatarUri(any())
                 }
                 verify(exactly = 0) { onSuccess(any()) }
             }

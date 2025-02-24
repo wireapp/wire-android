@@ -20,43 +20,34 @@ package com.wire.android.feature.analytics.model
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_AV_SWITCH_TOGGLE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_DIRECTION
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_DURATION
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_PARTICIPANTS
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_SCREEN_SHARE
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CALL_VIDEO
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_GUESTS
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_GUESTS_PRO
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_SERVICES
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_SIZE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_CONVERSATION_TYPE
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_END_REASON
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_IS_TEAM_MEMBER
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_ENDED_UNIQUE_SCREEN_SHARE
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_CALL_SCREEN_SHARE
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_CALL_TOO_SHORT
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_ANSWERED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_DISMISSED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_KEY
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_SCORE_KEY
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_CREATE_TEAM
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_DISMISS_CTA
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CLICKED_PERSONAL_MIGRATION_CTA_EVENT
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALL_DURATION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALL_PARTICIPANTS
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALL_VIDEO
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBUTED_LOCATION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.IS_TEAM_MEMBER
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MIGRATION_DOT_ACTIVE
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_BACK_TO_WIRE_CLICKED
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_CONTINUE_CLICKED
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_LEAVE_CLICKED
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_OPEN_TEAM_MANAGEMENT_CLICKED
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_TEAM_NAME
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_CANCELLED
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_COMPLETED
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_STARTED_EVENT
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TO_TEAM_FLOW_COMPLETED_EVENT
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TO_TEAM_FLOW_CONFIRM_EVENT
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TO_TEAM_FLOW_TEAM_NAME_EVENT
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TO_TEAM_FLOW_TEAM_PLAN_EVENT
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_TEAM
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.STEP_MODAL_CREATE_TEAM
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.USER_PROFILE_OPENED
 import com.wire.kalium.logic.data.call.RecentlyEndedCallMetadata
 import com.wire.kalium.logic.data.conversation.Conversation
 
@@ -87,8 +78,13 @@ interface AnalyticsEvent {
      */
     fun toSegmentation(): Map<String, Any> = mapOf()
 
-    data object AppOpen : AnalyticsEvent {
+    data class AppOpen(val isTeamMember: Boolean?) : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.APP_OPEN
+        override fun toSegmentation(): Map<String, Any> {
+            return isTeamMember?.let {
+                mapOf(IS_TEAM_MEMBER to it)
+            } ?: super.toSegmentation()
+        }
     }
 
     /**
@@ -109,38 +105,76 @@ interface AnalyticsEvent {
         override val key: String
             get() = AnalyticsEventConstants.CALLING_QUALITY_REVIEW
         val label: String
+        val callDuration: Int
+        val isTeamMember: Boolean
+        val participantsCount: Int
+        val isScreenSharedDuringCall: Boolean
+        val isCameraEnabledDuringCall: Boolean
 
         override fun toSegmentation(): Map<String, Any> {
             return mapOf(
-                CALLING_QUALITY_REVIEW_LABEL_KEY to label
+                CALLING_QUALITY_REVIEW_LABEL_KEY to label,
+                CALL_DURATION to callDuration,
+                IS_TEAM_MEMBER to isTeamMember,
+                CALL_PARTICIPANTS to participantsCount,
+                CALLING_QUALITY_REVIEW_CALL_SCREEN_SHARE to isScreenSharedDuringCall,
+                CALL_VIDEO to isCameraEnabledDuringCall
             )
         }
 
-        data class Answered(val score: Int) : CallQualityFeedback {
+        data class Answered(
+            val score: Int,
+            override val callDuration: Int,
+            override val isTeamMember: Boolean,
+            override val participantsCount: Int,
+            override val isScreenSharedDuringCall: Boolean,
+            override val isCameraEnabledDuringCall: Boolean
+        ) : CallQualityFeedback {
             override val label: String
                 get() = CALLING_QUALITY_REVIEW_LABEL_ANSWERED
 
             override fun toSegmentation(): Map<String, Any> {
                 return mapOf(
+                    CALLING_QUALITY_REVIEW_SCORE_KEY to score,
                     CALLING_QUALITY_REVIEW_LABEL_KEY to label,
-                    CALLING_QUALITY_REVIEW_SCORE_KEY to score
+                    CALL_DURATION to callDuration,
+                    IS_TEAM_MEMBER to isTeamMember,
+                    CALL_PARTICIPANTS to participantsCount,
+                    CALLING_QUALITY_REVIEW_CALL_SCREEN_SHARE to isScreenSharedDuringCall,
+                    CALL_VIDEO to isCameraEnabledDuringCall
                 )
             }
         }
 
-        data object NotDisplayed : CallQualityFeedback {
+        data class TooShort(
+            override val callDuration: Int,
+            override val isTeamMember: Boolean,
+            override val participantsCount: Int,
+            override val isScreenSharedDuringCall: Boolean,
+            override val isCameraEnabledDuringCall: Boolean
+        ) : CallQualityFeedback {
             override val label: String
-                get() = CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED
-
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    CALLING_QUALITY_REVIEW_LABEL_KEY to label,
-                    CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY to CALLING_QUALITY_REVIEW_IGNORE_REASON
-                )
-            }
+                get() = CALLING_QUALITY_REVIEW_CALL_TOO_SHORT
         }
 
-        data object Dismissed : CallQualityFeedback {
+        data class Muted(
+            override val callDuration: Int,
+            override val isTeamMember: Boolean,
+            override val participantsCount: Int,
+            override val isScreenSharedDuringCall: Boolean,
+            override val isCameraEnabledDuringCall: Boolean
+        ) : CallQualityFeedback {
+            override val label: String
+                get() = CALLING_QUALITY_REVIEW_IGNORE_REASON
+        }
+
+        data class Dismissed(
+            override val callDuration: Int,
+            override val isTeamMember: Boolean,
+            override val participantsCount: Int,
+            override val isScreenSharedDuringCall: Boolean,
+            override val isCameraEnabledDuringCall: Boolean
+        ) : CallQualityFeedback {
             override val label: String
                 get() = CALLING_QUALITY_REVIEW_LABEL_DISMISSED
         }
@@ -151,20 +185,20 @@ interface AnalyticsEvent {
 
         override fun toSegmentation(): Map<String, Any> {
             return mapOf(
-                CALLING_ENDED_IS_TEAM_MEMBER to metadata.isTeamMember,
+                IS_TEAM_MEMBER to metadata.isTeamMember,
                 CALLING_ENDED_CALL_SCREEN_SHARE to metadata.callDetails.screenShareDurationInSeconds,
                 CALLING_ENDED_UNIQUE_SCREEN_SHARE to metadata.callDetails.callScreenShareUniques,
                 CALLING_ENDED_CALL_DIRECTION to metadata.toCallDirection(),
-                CALLING_ENDED_CALL_DURATION to metadata.callDetails.callDurationInSeconds,
+                CALL_DURATION to metadata.callDetails.callDurationInSeconds,
                 CALLING_ENDED_CONVERSATION_TYPE to metadata.toConversationType(),
                 CALLING_ENDED_CONVERSATION_SIZE to metadata.conversationDetails.conversationSize,
                 CALLING_ENDED_CONVERSATION_GUESTS to metadata.conversationDetails.conversationGuests,
                 CALLING_ENDED_CONVERSATION_GUESTS_PRO to metadata.conversationDetails.conversationGuestsPro,
-                CALLING_ENDED_CALL_PARTICIPANTS to metadata.callDetails.callParticipantsCount,
+                CALL_PARTICIPANTS to metadata.callDetails.callParticipantsCount,
                 CALLING_ENDED_END_REASON to metadata.callEndReason,
                 CALLING_ENDED_CONVERSATION_SERVICES to metadata.callDetails.conversationServices,
                 CALLING_ENDED_AV_SWITCH_TOGGLE to metadata.callDetails.callAVSwitchToggle,
-                CALLING_ENDED_CALL_VIDEO to metadata.callDetails.callVideoEnabled,
+                CALL_VIDEO to metadata.callDetails.callVideoEnabled,
             )
         }
 
@@ -257,125 +291,75 @@ interface AnalyticsEvent {
     }
 
     sealed class QrCode : AnalyticsEvent {
-        data class Click(val isTeam: Boolean) : QrCode() {
-            override val key: String = AnalyticsEventConstants.QR_CODE_CLICK
-
-            override fun toSegmentation(): Map<String, Any> {
-                val userType = if (isTeam) {
-                    QR_CODE_SEGMENTATION_USER_TYPE_TEAM
-                } else {
-                    QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
-                }
-
-                return mapOf(
-                    AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE to userType
-                )
+        fun createSegmentationMap(
+            isTeam: Boolean
+        ): Map<String, Any> {
+            val userType = if (isTeam) {
+                QR_CODE_SEGMENTATION_USER_TYPE_TEAM
+            } else {
+                QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
             }
+
+            return mapOf(
+                AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE to userType,
+                IS_TEAM_MEMBER to isTeam,
+            )
+        }
+
+        data class Click(
+            val isTeam: Boolean
+        ) : QrCode() {
+            override val key: String = AnalyticsEventConstants.QR_CODE_CLICK
+            override fun toSegmentation(): Map<String, Any> = createSegmentationMap(isTeam)
         }
 
         sealed class Modal : QrCode() {
-            data object Displayed : Modal() {
-                override val key: String = AnalyticsEventConstants.QR_CODE_MODAL
-            }
-
-            data object Back : Modal() {
+            data class Back(
+                val isTeam: Boolean
+            ) : Modal() {
                 override val key: String = AnalyticsEventConstants.QR_CODE_MODAL_BACK
+                override fun toSegmentation(): Map<String, Any> = createSegmentationMap(isTeam)
             }
 
-            data object ShareProfileLink : Modal() {
+            data class ShareProfileLink(
+                val isTeam: Boolean
+            ) : Modal() {
                 override val key: String = AnalyticsEventConstants.QR_CODE_SHARE_PROFILE_LINK
+                override fun toSegmentation(): Map<String, Any> = createSegmentationMap(isTeam)
             }
 
-            data object ShareQrCode : Modal() {
+            data class ShareQrCode(
+                val isTeam: Boolean
+            ) : Modal() {
                 override val key: String = AnalyticsEventConstants.QR_CODE_SHARE_QR_CODE
+                override fun toSegmentation(): Map<String, Any> = createSegmentationMap(isTeam)
             }
-        }
-    }
-
-    data class UserProfileOpened(val isMigrationDotActive: Boolean) : AnalyticsEvent {
-        override val key: String = USER_PROFILE_OPENED
-
-        override fun toSegmentation(): Map<String, Any> {
-            return mapOf(
-                MIGRATION_DOT_ACTIVE to isMigrationDotActive
-            )
         }
     }
 
     sealed interface PersonalTeamMigration : AnalyticsEvent {
-
-        data class ClickedPersonalTeamMigrationCta(
-            val createTeamButtonClicked: Boolean? = null,
-            val dismissCreateTeamButtonClicked: Boolean? = null
+        data class PersonalTeamCreationFlowTeamPlan(
+            val isMigrationDotActive: Boolean
         ) : AnalyticsEvent {
-            override val key: String = CLICKED_PERSONAL_MIGRATION_CTA_EVENT
-
-            override fun toSegmentation(): Map<String, Any> {
-                val segmentations = mutableMapOf<String, Boolean>()
-                createTeamButtonClicked?.let {
-                    segmentations.put(CLICKED_CREATE_TEAM, it)
-                }
-                dismissCreateTeamButtonClicked?.let {
-                    segmentations.put(CLICKED_DISMISS_CTA, it)
-                }
-                return segmentations
-            }
-        }
-
-        data class PersonalTeamCreationFlowStarted(
-            val step: Int
-        ) : AnalyticsEvent {
-            override val key: String = PERSONAL_TEAM_CREATION_FLOW_STARTED_EVENT
+            override val key: String = PERSONAL_TO_TEAM_FLOW_TEAM_PLAN_EVENT
 
             override fun toSegmentation(): Map<String, Any> {
                 return mapOf(
-                    STEP_MODAL_CREATE_TEAM to step
+                    MIGRATION_DOT_ACTIVE to isMigrationDotActive
                 )
             }
         }
 
-        data class PersonalTeamCreationFlowCanceled(
-            val teamName: String?,
-            val modalLeaveClicked: Boolean? = null,
-            val modalContinueClicked: Boolean? = null
-        ) : AnalyticsEvent {
-            override val key: String = PERSONAL_TEAM_CREATION_FLOW_CANCELLED
-
-            override fun toSegmentation(): Map<String, Any> {
-                val segmentations = mutableMapOf<String, Any>()
-                modalLeaveClicked?.let {
-                    segmentations.put(MODAL_LEAVE_CLICKED, it)
-                }
-                modalContinueClicked?.let {
-                    segmentations.put(MODAL_CONTINUE_CLICKED, it)
-                }
-                teamName?.let {
-                    segmentations.put(MODAL_TEAM_NAME, it)
-                }
-                return segmentations
-            }
+        data object PersonalTeamCreationFlowTeamName : AnalyticsEvent {
+            override val key: String = PERSONAL_TO_TEAM_FLOW_TEAM_NAME_EVENT
         }
 
-        data class PersonalTeamCreationFlowCompleted(
-            val teamName: String? = null,
-            val modalOpenTeamManagementButtonClicked: Boolean? = null,
-            val backToWireButtonClicked: Boolean? = null
-        ) : AnalyticsEvent {
-            override val key: String = PERSONAL_TEAM_CREATION_FLOW_COMPLETED
+        data object PersonalTeamCreationFlowConfirm : AnalyticsEvent {
+            override val key: String = PERSONAL_TO_TEAM_FLOW_CONFIRM_EVENT
+        }
 
-            override fun toSegmentation(): Map<String, Any> {
-                val segmentations = mutableMapOf<String, Any>()
-                teamName?.let {
-                    segmentations.put(MODAL_TEAM_NAME, it)
-                }
-                modalOpenTeamManagementButtonClicked?.let {
-                    segmentations.put(MODAL_OPEN_TEAM_MANAGEMENT_CLICKED, it)
-                }
-                backToWireButtonClicked?.let {
-                    segmentations.put(MODAL_BACK_TO_WIRE_CLICKED, it)
-                }
-                return segmentations
-            }
+        data object PersonalTeamCreationFlowCompleted : AnalyticsEvent {
+            override val key: String = PERSONAL_TO_TEAM_FLOW_COMPLETED_EVENT
         }
     }
 }
@@ -384,8 +368,12 @@ object AnalyticsEventConstants {
     const val APP_NAME = "app_name"
     const val APP_NAME_ANDROID = "android"
     const val APP_VERSION = "app_version"
+    const val OS_VERSION = "os_version"
+    const val DEVICE_MODEL = "device_model"
     const val TEAM_IS_TEAM = "team_is_team"
     const val APP_OPEN = "app.open"
+
+    const val IS_TEAM_MEMBER = "is_team_member"
 
     /**
      * Calling
@@ -397,29 +385,29 @@ object AnalyticsEventConstants {
     const val CALLING_QUALITY_REVIEW = "calling.call_quality_review"
     const val CALLING_QUALITY_REVIEW_LABEL_KEY = "label"
     const val CALLING_QUALITY_REVIEW_LABEL_ANSWERED = "answered"
-    const val CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED = "not-displayed"
     const val CALLING_QUALITY_REVIEW_LABEL_DISMISSED = "dismissed"
     const val CALLING_QUALITY_REVIEW_SCORE_KEY = "score"
-    const val CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY = "ignore-reason"
     const val CALLING_QUALITY_REVIEW_IGNORE_REASON = "muted"
+    const val CALLING_QUALITY_REVIEW_CALL_TOO_SHORT = "call_too_short"
+    const val CALLING_QUALITY_REVIEW_CALL_SCREEN_SHARE = "call_screen_share"
+
+    const val CALL_DURATION = "call_duration"
+    const val CALL_PARTICIPANTS = "call_participants"
+    const val CALL_VIDEO = "call_video"
 
     /**
      * Call ended
      */
-    const val CALLING_ENDED_IS_TEAM_MEMBER = "is_team_member"
     const val CALLING_ENDED_CALL_SCREEN_SHARE = "call_screen_share_duration"
     const val CALLING_ENDED_UNIQUE_SCREEN_SHARE = "call_screen_share_unique"
     const val CALLING_ENDED_CALL_DIRECTION = "call_direction"
-    const val CALLING_ENDED_CALL_DURATION = "call_duration"
     const val CALLING_ENDED_CONVERSATION_TYPE = "conversation_type"
     const val CALLING_ENDED_CONVERSATION_SIZE = "conversation_size"
     const val CALLING_ENDED_CONVERSATION_GUESTS = "conversation_guests"
     const val CALLING_ENDED_CONVERSATION_GUESTS_PRO = "conversation_guest_pro"
-    const val CALLING_ENDED_CALL_PARTICIPANTS = "call_participants"
     const val CALLING_ENDED_END_REASON = "call_end_reason"
     const val CALLING_ENDED_CONVERSATION_SERVICES = "conversation_services"
     const val CALLING_ENDED_AV_SWITCH_TOGGLE = "call_av_switch_toggle"
-    const val CALLING_ENDED_CALL_VIDEO = "call_video"
 
     /**
      * Backup
@@ -449,7 +437,6 @@ object AnalyticsEventConstants {
      * Qr code
      */
     const val QR_CODE_CLICK = "ui.QR-click"
-    const val QR_CODE_MODAL = "ui.share.profile"
     const val QR_CODE_MODAL_BACK = "user.back.share-profile"
     const val QR_CODE_SHARE_PROFILE_LINK = "user.share-profile"
     const val QR_CODE_SHARE_QR_CODE = "user.QR-code"
@@ -459,24 +446,11 @@ object AnalyticsEventConstants {
     const val QR_CODE_SEGMENTATION_USER_TYPE_TEAM = "team"
 
     /**
-     * user profile
-     */
-    const val USER_PROFILE_OPENED = "ui.clicked-profile"
-
-    /**
      * Personal to team migration
      */
-    const val CLICKED_PERSONAL_MIGRATION_CTA_EVENT = "ui.clicked-personal-migration-cta"
-    const val PERSONAL_TEAM_CREATION_FLOW_STARTED_EVENT = "user.personal-team-creation-flow-started"
-    const val PERSONAL_TEAM_CREATION_FLOW_CANCELLED = "user.personal-team-creation-flow-cancelled"
-    const val PERSONAL_TEAM_CREATION_FLOW_COMPLETED = "user.personal-team-creation-flow-completed"
+    const val PERSONAL_TO_TEAM_FLOW_TEAM_PLAN_EVENT = "user.personal-to-team-flow-team-plan-1"
+    const val PERSONAL_TO_TEAM_FLOW_TEAM_NAME_EVENT = "user.personal-to-team-flow-team-name-2"
+    const val PERSONAL_TO_TEAM_FLOW_CONFIRM_EVENT = "user.personal-to-team-flow-confirm-3"
+    const val PERSONAL_TO_TEAM_FLOW_COMPLETED_EVENT = "user.personal-to-team-flow-completed-4"
     const val MIGRATION_DOT_ACTIVE = "migration_dot_active"
-    const val CLICKED_CREATE_TEAM = "clicked_create_team"
-    const val CLICKED_DISMISS_CTA = "clicked_dismiss_cta"
-    const val STEP_MODAL_CREATE_TEAM = "step_modalcreateteam"
-    const val MODAL_TEAM_NAME = "modal_team-name"
-    const val MODAL_CONTINUE_CLICKED = "modal_continue-clicked"
-    const val MODAL_LEAVE_CLICKED = "modal_leave-clicked"
-    const val MODAL_BACK_TO_WIRE_CLICKED = "modal_back-to-wire-clicked"
-    const val MODAL_OPEN_TEAM_MANAGEMENT_CLICKED = "modal_open-tm-clicked"
 }

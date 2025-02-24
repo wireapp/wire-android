@@ -22,13 +22,12 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -84,8 +83,8 @@ class ChangeHandleViewModelTest {
         viewModel.onSaveClicked(arrangement.onSuccess)
 
         assertEquals(viewModel.state.error, HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
-        coVerify {
-            arrangement.validateHandle("handle") wasNot Called
+        coVerify(exactly = 1) {
+            arrangement.validateHandle("handle")
         }
     }
 

@@ -22,6 +22,7 @@ import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
@@ -97,6 +98,7 @@ internal class MessageComposerViewModelArrangement {
         coEvery {
             currentSessionFlowUseCase()
         } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+        coEvery { globalDataStore.enterToSendFlow() } returns flowOf(false)
     }
 
     @MockK
@@ -144,6 +146,9 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var currentSessionFlowUseCase: CurrentSessionFlowUseCase
 
+    @MockK
+    lateinit var globalDataStore: GlobalDataStore
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -162,10 +167,13 @@ internal class MessageComposerViewModelArrangement {
             kaliumFileSystem = fakeKaliumFileSystem,
             fileManager = fileManager,
             currentSessionFlowUseCase = currentSessionFlowUseCase,
+            globalDataStore = globalDataStore,
         )
     }
 
-    fun withSuccessfulViewModelInit() = apply {
+    fun withSuccessfulViewModelInit(
+        enterToSend: Boolean = false,
+    ) = apply {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
@@ -174,6 +182,7 @@ internal class MessageComposerViewModelArrangement {
                 InteractionAvailability.ENABLED
             )
         )
+        coEvery { globalDataStore.enterToSendFlow() } returns flowOf(enterToSend)
     }
 
     fun withSaveDraftMessage() = apply {

@@ -29,7 +29,7 @@ import com.wire.kalium.logic.feature.conversation.ConversationScope
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationProtocolInfoUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
-import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
@@ -95,7 +95,7 @@ class ConversationModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveConversationUseCase(conversationScope: ConversationScope): GetOneToOneConversationUseCase =
+    fun provideObserveConversationUseCase(conversationScope: ConversationScope): GetOneToOneConversationDetailsUseCase =
         conversationScope.getOneToOneConversation
 
     @ViewModelScoped

@@ -36,6 +36,8 @@ import com.wire.android.notification.broadcastreceivers.StopAudioMessageReceiver
 import com.wire.android.ui.WireActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.StartingCallActivity
 import com.wire.android.ui.calling.StartingCallScreenType
 import com.wire.android.ui.calling.getIncomingCallIntent
@@ -80,10 +82,6 @@ fun otherUserProfilePendingIntent(context: Context, destinationUserId: String, u
     )
 }
 
-// TODO
-fun callMessagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent =
-    messagePendingIntent(context, conversationId, userId)
-
 fun summaryMessagePendingIntent(context: Context): PendingIntent = openAppPendingIntent(context)
 
 fun replyMessagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent = PendingIntent.getBroadcast(
@@ -93,9 +91,13 @@ fun replyMessagePendingIntent(context: Context, conversationId: String, userId: 
     PendingIntent.FLAG_MUTABLE
 )
 
-fun openOngoingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
-    val intent = openOngoingCallIntent(context, conversationId)
-
+fun openOngoingCallPendingIntent(
+    context: Context,
+    conversationId: String,
+    userId: String,
+    shouldAnswerCall: Boolean = false
+): PendingIntent {
+    val intent = ongoingCallIntent(context, conversationId, userId, shouldAnswerCall)
     return PendingIntent.getActivity(
         context.applicationContext,
         OPEN_ONGOING_CALL_REQUEST_CODE,
@@ -140,21 +142,15 @@ fun answerCallPendingIntent(context: Context, conversationId: String, userId: St
     } != null
     val shouldAnswerCallFromNotificationButton = !isAlreadyHavingACall &&
             (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
-    if (shouldAnswerCallFromNotificationButton) {
-        val intent = IncomingCallActionReceiver.newIntent(
+    return if (shouldAnswerCallFromNotificationButton) {
+        openOngoingCallPendingIntent(
             context = context,
             conversationId = conversationId,
             userId = userId,
-            action = IncomingCallActionReceiver.ACTION_ANSWER_CALL
-        )
-        return PendingIntent.getBroadcast(
-            context.applicationContext,
-            getRequestCode(ANSWER_CALL_REQUEST_CODE, userId, conversationId),
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
+            shouldAnswerCall = true
         )
     } else {
-        return fullScreenIncomingCallPendingIntent(context, conversationId, userId)
+        fullScreenIncomingCallPendingIntent(context, conversationId, userId)
     }
 }
 
@@ -186,10 +182,16 @@ private fun openOutgoingCallIntent(context: Context, conversationId: String) =
         putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Outgoing.name)
     }
 
-private fun openOngoingCallIntent(context: Context, conversationId: String) =
-    Intent(context.applicationContext, OngoingCallActivity::class.java).apply {
-        putExtra(EXTRA_CONVERSATION_ID, conversationId)
-    }
+private fun ongoingCallIntent(
+    context: Context,
+    conversationId: String,
+    userId: String,
+    shouldAnswerCall: Boolean
+) = Intent(context.applicationContext, OngoingCallActivity::class.java).apply {
+    putExtra(EXTRA_CONVERSATION_ID, conversationId)
+    putExtra(EXTRA_USER_ID, userId)
+    putExtra(EXTRA_SHOULD_ANSWER_CALL, shouldAnswerCall)
+}
 
 private fun openMigrationLoginIntent(context: Context, userHandle: String) =
     Intent(context.applicationContext, WireActivity::class.java).apply {
@@ -246,7 +248,6 @@ fun stopAudioPendingIntent(context: Context): PendingIntent {
 
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0
 private const val DECLINE_CALL_REQUEST_CODE = "decline_call_"
-private const val ANSWER_CALL_REQUEST_CODE = "answer_call_"
 private const val FULL_SCREEN_REQUEST_CODE = "incoming_call_"
 private const val OPEN_ONGOING_CALL_REQUEST_CODE = 4
 private const val OPEN_MIGRATION_LOGIN_REQUEST_CODE = 5

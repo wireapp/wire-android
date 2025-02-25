@@ -26,6 +26,7 @@ import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveCellFilesUseCase
 import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import dagger.Module
@@ -68,4 +69,8 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideObserveFilesUseCase(cellsScope: CellsScope): ObserveCellFilesUseCase = cellsScope.observeFiles
+
+    @ViewModelScoped
+    @Provides
+    fun provideEnableCellUseCase(cellsScope: CellsScope): SetWireCellForConversationUseCase = cellsScope.enableWireCell
 }

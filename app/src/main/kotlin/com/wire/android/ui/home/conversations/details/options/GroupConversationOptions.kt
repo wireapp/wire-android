@@ -73,7 +73,8 @@ fun GroupConversationOptions(
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
-        onEditGroupName = onEditGroupName
+        onEditGroupName = onEditGroupName,
+        onWireCellSwitchClicked = viewModel::onWireCellStateChange,
     )
 
     if (state.changeServiceOptionConfirmationRequired) {
@@ -91,6 +92,7 @@ fun GroupConversationSettings(
     onSelfDeletingClicked: () -> Unit,
     onServiceSwitchClicked: (Boolean) -> Unit,
     onReadReceiptSwitchClicked: (Boolean) -> Unit,
+    onWireCellSwitchClicked: (Boolean) -> Unit,
     onEditGroupName: () -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
@@ -172,6 +174,13 @@ fun GroupConversationSettings(
         item {
             ConversationProtocolDetails(
                 protocolInfo = state.protocolInfo
+            )
+        }
+        item {
+            ConversationCellDetails(
+                isWireCellEnabled = state.isWireCellEnabled,
+                isLoading = state.loadingWireCellState,
+                onCheckedChange = onWireCellSwitchClicked,
             )
         }
     }
@@ -328,6 +337,24 @@ fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onCon
     )
 }
 
+@Composable
+private fun ConversationCellDetails(
+    isWireCellEnabled: Boolean,
+    isLoading: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    FolderHeader(name = stringResource(R.string.folder_label_wire_cell))
+    GroupOptionWithSwitch(
+        switchClickable = true,
+        switchVisible = true,
+        switchState = isWireCellEnabled,
+        isLoading = isLoading,
+        onClick = onCheckedChange,
+        title = R.string.conversation_options_wire_cell_label,
+        subTitle = R.string.conversation_options_wire_cell_description
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
@@ -344,13 +371,14 @@ fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
             isGuestAllowed = true,
             isServicesAllowed = true,
             isReadReceiptAllowed = true,
-            mlsEnabled = true
+            mlsEnabled = true,
         ),
         onGuestItemClicked = {},
         onSelfDeletingClicked = {},
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onWireCellSwitchClicked = {},
     )
 }
 
@@ -376,6 +404,7 @@ fun PreviewGuestAdminTeamGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onWireCellSwitchClicked = {},
     )
 }
 
@@ -401,6 +430,7 @@ fun PreviewExternalMemberAdminTeamGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onWireCellSwitchClicked = {},
     )
 }
 
@@ -426,6 +456,7 @@ fun PreviewMemberTeamGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onWireCellSwitchClicked = {},
     )
 }
 
@@ -436,13 +467,14 @@ fun PreviewNormalGroupConversationOptions() = WireTheme {
         state = GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",
-            areAccessOptionsAvailable = false
+            areAccessOptionsAvailable = false,
         ),
         onGuestItemClicked = {},
         onSelfDeletingClicked = {},
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onWireCellSwitchClicked = {},
     )
 }
 
@@ -455,12 +487,13 @@ fun PreviewNormalGroupConversationOptionsWithSelfDelet() = WireTheme {
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = false,
             selfDeletionTimer = SelfDeletionTimer.Enabled(3.days),
-            isUpdatingSelfDeletingAllowed = true
+            isUpdatingSelfDeletingAllowed = true,
         ),
         onGuestItemClicked = {},
         onSelfDeletingClicked = {},
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onWireCellSwitchClicked = {},
     )
 }

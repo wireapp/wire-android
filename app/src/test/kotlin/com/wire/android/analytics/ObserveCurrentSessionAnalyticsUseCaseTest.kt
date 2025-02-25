@@ -265,7 +265,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
 
         var useCase: ObserveCurrentSessionAnalyticsUseCase = ObserveCurrentSessionAnalyticsUseCase(
             currentSessionFlow = currentSessionChannel.receiveAsFlow(),
-            isUserTeamMember = isTeamMember,
+            getAnalyticsContactsData = isTeamMember,
             observeAnalyticsTrackingIdentifierStatusFlow = {
                 analyticsTrackingIdentifierStatusChannel.receiveAsFlow()
             },

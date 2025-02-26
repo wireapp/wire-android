@@ -114,4 +114,7 @@ fun Direction.handleNavigation(context: Context, handleOtherDirection: (Directio
     else -> handleOtherDirection(this)
 }
 
+@SuppressLint("RestrictedApi")
+fun NavController.startDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec<*> }
+
 private const val TAG = "NavigationUtils"

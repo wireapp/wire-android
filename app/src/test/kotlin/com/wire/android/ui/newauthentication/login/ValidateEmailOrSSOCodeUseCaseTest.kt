@@ -21,7 +21,7 @@ class ValidateEmailOrSSOCodeUseCaseTest {
 
         verify { arrangement.validateEmailUseCase(any()) }
         verify(exactly = 0) { arrangement.validateSSOCodeUseCase(any()) }
-        assertEquals(true, result)
+        assertEquals(ValidateEmailOrSSOCodeUseCase.Result.ValidEmail, result)
     }
 
     @Test
@@ -34,7 +34,7 @@ class ValidateEmailOrSSOCodeUseCaseTest {
 
         verify { arrangement.validateEmailUseCase(any()) }
         verify(exactly = 0) { arrangement.validateSSOCodeUseCase(any()) }
-        assertEquals(false, result)
+        assertEquals(ValidateEmailOrSSOCodeUseCase.Result.InvalidInput, result)
     }
 
     @Test
@@ -48,7 +48,7 @@ class ValidateEmailOrSSOCodeUseCaseTest {
 
         verify { arrangement.validateSSOCodeUseCase(any()) }
         verify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
-        assertEquals(true, result)
+        assertEquals(ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode, result)
     }
 
     @Test
@@ -62,7 +62,7 @@ class ValidateEmailOrSSOCodeUseCaseTest {
 
         verify { arrangement.validateSSOCodeUseCase(any()) }
         verify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
-        assertEquals(false, result)
+        assertEquals(ValidateEmailOrSSOCodeUseCase.Result.InvalidInput, result)
     }
 
     @Test
@@ -76,7 +76,7 @@ class ValidateEmailOrSSOCodeUseCaseTest {
 
         verify(exactly = 1) { arrangement.validateEmailUseCase(any()) }
         verify(exactly = 0) { arrangement.validateSSOCodeUseCase(any()) }
-        assertEquals(false, result)
+        assertEquals(ValidateEmailOrSSOCodeUseCase.Result.InvalidInput, result)
     }
 
     private class Arrangement {

@@ -152,7 +152,7 @@ class LoginEmailViewModelTest {
             userDataStoreProvider,
             coreLogic,
             dispatcherProvider
-        )
+        ).also { it.autoLoginWhenFullCodeEntered = true }
     }
 
     @Test

@@ -38,6 +38,7 @@ data class LoginPasswordPath(
 sealed interface DomainClaimedByOrg {
     @Serializable
     data object NotClaimed : DomainClaimedByOrg
+
     @Serializable
     data class Claimed(val domain: String) : DomainClaimedByOrg
 }

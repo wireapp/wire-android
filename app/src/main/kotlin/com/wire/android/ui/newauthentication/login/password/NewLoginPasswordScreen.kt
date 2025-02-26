@@ -164,7 +164,7 @@ internal fun LoginPasswordContent(
                         )
                     }
                     NewLoginSubtitle(
-                        title = stringResource(id = R.string.enterprise_login_title),
+                        title = stringResource(id = R.string.enterprise_login_password_title),
                     )
                 },
                 canNavigateBack = canNavigateBack,
@@ -336,7 +336,8 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
                 navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
             }
 
-            else -> { /* do nothing */
+            else -> {
+                /* do nothing */
             }
         }
     }

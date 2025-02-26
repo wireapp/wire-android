@@ -89,7 +89,10 @@ fun CreateAccountOverviewScreen(
 ) {
     with(flowType) {
         fun navigateToEmailScreen() {
-            val createAccountNavArgs = CreateAccountNavArgs(flowType = this, customServerConfig = viewModel.navArgs.customServerConfig)
+            val createAccountNavArgs = CreateAccountNavArgs(
+                flowType = this,
+                customServerConfig = viewModel.navArgs.customServerConfig
+            )
             navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
         }
 

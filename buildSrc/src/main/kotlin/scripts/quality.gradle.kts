@@ -21,6 +21,8 @@ package scripts
 import findVersion
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import java.security.MessageDigest
+import kotlin.math.abs
 
 plugins {
     id("com.android.application") apply false
@@ -89,3 +91,96 @@ tasks.register("testCoverage") {
     description = "Reports code coverage on tests within the Wire Android codebase."
     dependsOn("koverXmlReport")
 }
+
+// Function to hash a string (in this case, the file name)
+fun getFileHash(fileName: String): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    val hashBytes = digest.digest(fileName.toByteArray())
+    return hashBytes.joinToString("") { "%02x".format(it) }
+}
+// Gradle task to generate sharded test lists
+tasks.register("generateShardedTests") {
+    // dependsOn(tasks.named("compileDevDebugUnitTestKotlin")) // Ensure tests are compiled before generating the shard
+    doLast {
+        val testClasses = mutableListOf<String>()
+        // Search for compiled Java unit test classes
+        fileTree("build/classes/java/test") {
+            include("**/*Test.class") // For Java unit test files
+        }.forEach { file ->
+            testClasses.add(file.path)
+        }
+        // Search for compiled Kotlin unit test classes
+        fileTree("build/intermediates/classes/devDebugUnitTest") {
+            include("**/*Test.class") // For Kotlin unit test files
+        }.forEach { file ->
+            testClasses.add(file.path)
+        }
+        // Search for compiled Java instrumentation test classes
+        fileTree("build/intermediates/classes/debug") {
+            include("**/*Test.class") // For Java instrumentation test files
+        }.forEach { file ->
+            testClasses.add(file.path)
+        }
+        // Debugging: Check if any test classes are found
+        if (testClasses.isEmpty()) {
+            println("No test classes found!")
+        } else {
+            println("Test classes found: ${testClasses.size}")
+        }
+        // Map to store tests assigned to each shard
+        val numShards = shards.size // Number of shards (adjust this as needed)
+        val shards = mutableMapOf<Int, MutableList<String>>()
+        // Assign each test class to a shard based on the hash of the file name
+        testClasses.forEach { file ->
+            val hash = getFileHash(file)
+            println("Sharding test class: $file with hash: $hash")
+            val shardIndex = abs(hash.hashCode() % numShards)
+            println("Sharding $hash to shard $shardIndex")
+            shards.put(shardIndex, shards.getOrDefault(shardIndex, mutableListOf()).apply { add(file) })
+        }
+        // Output the shard assignments to the console (could also save to a file or pass to GitHub Actions)
+        shards.forEach { (shard, tests) ->
+            println("Shard ${shard + 1}: ${tests.joinToString("\n")}")
+        }
+        // Optionally save the shard assignments to a file (e.g., for later use in GitHub Actions)
+        val shardFile = file("${project.rootDir}/shards.txt")
+        shardFile.writeText(
+            shards.map { (shard, tests) ->
+                "Shard ${shard + 1}:\n${tests.joinToString("\n")}"
+            }.joinToString("\n\n")
+        )
+    }
+}
+
+val shardGroups = mutableMapOf<Int, MutableList<String>>()
+val shardsFilePath = "${project.rootDir}/shards.json"
+
+val shards = listOf(1, 2, 3, 4)
+project.afterEvaluate {
+    shards.forEach { index ->
+        tasks.register("testShard$index", Test::class) {
+            group = "verification"
+            description = "Run tests for Shard $index"
+
+            val file = File(shardsFilePath)
+            val json = groovy.json.JsonSlurper().parseText(file.readText()) as Map<String, List<String>>
+            val classes: List<String> = json[index.toString()] ?: emptyList()
+
+            useJUnitPlatform()
+
+            classpath = sourceSets["test"].runtimeClasspath
+            testClassesDirs = sourceSets["test"].output.classesDirs
+
+            println("Running tests for shard $index: $classes")
+            setIncludes(classes)
+        }
+    }
+}
+
+tasks.register<Test>("MyTests") {
+    group = "MyCustomTasks"
+    filter {
+        includeTestsMatching("ir.mahozad.*Convert*")
+    }
+}
+

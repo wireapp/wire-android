@@ -42,6 +42,7 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -53,6 +54,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,7 +66,8 @@ class NewLoginViewModel(
     val clientScopeProviderFactory: ClientScopeProvider.Factory,
     val userDataStoreProvider: UserDataStoreProvider,
     private val loginExtension: LoginViewModelExtension,
-    private val ssoExtension: LoginSSOViewModelExtension
+    private val ssoExtension: LoginSSOViewModelExtension,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     @Inject
@@ -75,6 +78,7 @@ class NewLoginViewModel(
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
+        dispatchers: DispatcherProvider,
     ) : this(
         validateEmailOrSSOCode,
         coreLogic,
@@ -83,7 +87,8 @@ class NewLoginViewModel(
         clientScopeProviderFactory,
         userDataStoreProvider,
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
-        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic)
+        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic),
+        dispatchers,
     )
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
@@ -117,7 +122,7 @@ class NewLoginViewModel(
      * Starts the login flow, this will check against BE if email or sso code and relay to the corresponding flow afterwards.
      */
     fun onLoginStarted(action: (NewLoginAction) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.io()) {
             updateLoginFlowState(DomainCheckupState.Loading)
             val sanitizedInput = userIdentifierTextState.text.trim().toString()
             when (validateEmailOrSSOCode(sanitizedInput)) {
@@ -137,19 +142,19 @@ class NewLoginViewModel(
         }
     }
 
-    private suspend fun getEnterpriseLoginFlow(email: String, action: (NewLoginAction) -> Unit) {
+    private suspend fun getEnterpriseLoginFlow(email: String, action: (NewLoginAction) -> Unit) = withContext(dispatchers.io()) {
         ssoExtension.withAuthenticationScope(
             serverConfig = serverConfig,
             onAuthScopeFailure = { authScopeFailure -> TODO("handle auth scope error") },
             onSuccess = { authScope ->
                 when (val loginFlowResult = authScope.getLoginFlowForDomainUseCase(email)) {
-                    is EnterpriseLoginResult.Failure.Generic -> updateLoginFlowState(
-                        DomainCheckupState.Error.DialogError.GenericError(
-                            loginFlowResult.coreFailure
-                        )
-                    )
+                    is EnterpriseLoginResult.Failure.Generic -> withContext(dispatchers.main()) {
+                    updateLoginFlowState(DomainCheckupState.Error.DialogError.GenericError(loginFlowResult.coreFailure))
+                }
 
-                    is EnterpriseLoginResult.Failure.NotSupported -> updateLoginFlowState(DomainCheckupState.Error.DialogError.NotSupported)
+                    is EnterpriseLoginResult.Failure.NotSupported ->  withContext(dispatchers.main()) {
+                        updateLoginFlowState(DomainCheckupState.Error.DialogError.NotSupported)
+                    }
 
                     is EnterpriseLoginResult.Success -> {
                         when (val loginRedirectPath = loginFlowResult.loginRedirectPath) {
@@ -157,7 +162,7 @@ class NewLoginViewModel(
                                 initiateSSO(serverConfig, loginRedirectPath.ssoCode, action)
                             }
 
-                            is LoginRedirectPath.CustomBackend -> {
+                            is LoginRedirectPath.CustomBackend -> withContext(dispatchers.main()) {
                                 state = state.copy(
                                     customServerDialogState = CustomServerDetailsDialogState(loginRedirectPath.serverLinks),
                                 )
@@ -165,7 +170,7 @@ class NewLoginViewModel(
                             }
 
                             is LoginRedirectPath.Default,
-                            is LoginRedirectPath.NoRegistration -> {
+                            is LoginRedirectPath.NoRegistration -> withContext(dispatchers.main()) {
                                 action(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = userIdentifierTextState.text.toString(),
@@ -177,7 +182,7 @@ class NewLoginViewModel(
                                 updateLoginFlowState(DomainCheckupState.Default)
                             }
 
-                            is LoginRedirectPath.ExistingAccountWithClaimedDomain -> {
+                            is LoginRedirectPath.ExistingAccountWithClaimedDomain -> withContext(dispatchers.main()) {
                                 action(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = userIdentifierTextState.text.toString(),
@@ -207,7 +212,7 @@ class NewLoginViewModel(
     }
 
     fun onCustomServerDialogConfirm(customServerConfig: ServerConfig.Links, action: (NewLoginAction) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.io()) {
             ssoExtension.fetchDefaultSSOCode(
                 serverConfig = customServerConfig,
                 onAuthScopeFailure = { authScopeFailure -> TODO("handle auth scope error") },
@@ -218,7 +223,7 @@ class NewLoginViewModel(
                             initiateSSO(serverConfig, defaultSSOCode, action)
                         }
 
-                        else -> {
+                        else -> withContext(dispatchers.main()) {
                             action(NewLoginAction.CustomConfig(userIdentifierTextState.text.toString(), customServerConfig))
                             updateLoginFlowState(DomainCheckupState.Default)
                         }
@@ -228,24 +233,27 @@ class NewLoginViewModel(
         }
     }
 
-    private suspend fun initiateSSO(serverConfig: ServerConfig.Links, ssoCode: String, action: (NewLoginAction) -> Unit) {
-        ssoExtension.initiateSSO(
-            serverConfig = serverConfig,
-            ssoCode = ssoCode,
-            onAuthScopeFailure = { authScopeFailure -> TODO("handle auth scope error") },
-            onSSOInitiateFailure = { ssoInitiateFailure -> TODO("handle sso initiate error") },
-            onSuccess = { requestUrl, _ ->
-                updateLoginFlowState(DomainCheckupState.Default)
-                action(NewLoginAction.SSO(requestUrl))
-            }
-        )
-    }
+    private suspend fun initiateSSO(serverConfig: ServerConfig.Links, ssoCode: String, action: (NewLoginAction) -> Unit) =
+        withContext(dispatchers.io()) {
+            ssoExtension.initiateSSO(
+                serverConfig = serverConfig,
+                ssoCode = ssoCode,
+                onAuthScopeFailure = { authScopeFailure -> TODO("handle auth scope error") },
+                onSSOInitiateFailure = { ssoInitiateFailure -> TODO("handle sso initiate error") },
+                onSuccess = { requestUrl, _ ->
+                    withContext(dispatchers.main()) {
+                        updateLoginFlowState(DomainCheckupState.Default)
+                        action(NewLoginAction.SSO(requestUrl))
+                    }
+                }
+            )
+        }
 
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin, serverConfig: ServerConfig.Links?, action: (NewLoginAction) -> Unit) {
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
                 updateLoginFlowState(DomainCheckupState.Loading)
-                viewModelScope.launch {
+                viewModelScope.launch(dispatchers.io()) {
                     ssoExtension.establishSSOSession(
                         cookie = ssoLoginResult.cookie,
                         serverConfigId = ssoLoginResult.serverConfigId,
@@ -254,20 +262,24 @@ class NewLoginViewModel(
                         onSSOLoginFailure = { ssoLoginFailure -> TODO("handle sso login error") },
                         onAddAuthenticatedUserFailure = { addAuthenticatedUserFailure -> TODO("handle add user error") },
                         onSuccess = { storedUserId ->
-                            when (loginExtension.registerClient(storedUserId, null)) {
-                                is RegisterClientResult.Success -> when (loginExtension.isInitialSyncCompleted(storedUserId)) {
-                                    true -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
-                                    false -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
-                                }
+                            loginExtension.registerClient(storedUserId, null).let { registerClientResult ->
+                                withContext(dispatchers.main()) {
+                                    when (registerClientResult) {
+                                        is RegisterClientResult.Success -> when (loginExtension.isInitialSyncCompleted(storedUserId)) {
+                                            true -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
+                                            false -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                                        }
 
-                                is RegisterClientResult.E2EICertificateRequired ->
-                                    action(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
+                                        is RegisterClientResult.E2EICertificateRequired ->
+                                            action(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
 
-                                is RegisterClientResult.Failure.TooManyClients ->
-                                    action(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
+                                        is RegisterClientResult.Failure.TooManyClients ->
+                                            action(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
 
-                                is RegisterClientResult.Failure -> {
-                                    TODO("handle register client error")
+                                        is RegisterClientResult.Failure -> {
+                                            TODO("handle register client error")
+                                        }
+                                    }
                                 }
                             }
                         }

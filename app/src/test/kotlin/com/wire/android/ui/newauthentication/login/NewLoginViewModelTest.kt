@@ -2,6 +2,7 @@ package com.wire.android.ui.newauthentication.login
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
@@ -25,9 +26,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class NewLoginViewModelTest {
+    private val dispatchers = TestDispatcherProvider()
 
     @Test
-    fun `given onLoginStarted is called, when valid input is SSO, then proceed to SSO flow`() = runTest {
+    fun `given onLoginStarted is called, when valid input is SSO, then proceed to SSO flow`() = runTest(dispatchers.main()) {
         val (arrangement, sut) = Arrangement()
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode)
             .arrange()
@@ -39,7 +41,7 @@ class NewLoginViewModelTest {
     }
 
     @Test
-    fun `given onLoginStarted is called, when invalid input, then update error state`() = runTest {
+    fun `given onLoginStarted is called, when invalid input, then update error state`() = runTest(dispatchers.main()) {
         val (arrangement, sut) = Arrangement()
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.InvalidInput)
             .arrange()
@@ -50,7 +52,7 @@ class NewLoginViewModelTest {
         assertEquals(DomainCheckupState.Error.TextFieldError.InvalidValue, sut.state.flowState)
     }
 
-    private class Arrangement {
+    inner class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
 
@@ -96,7 +98,8 @@ class NewLoginViewModelTest {
             clientScopeProviderFactory,
             userDataStoreProvider,
             loginViewModelExtension,
-            loginSSOViewModelExtension
+            loginSSOViewModelExtension,
+            dispatchers
         )
     }
 }

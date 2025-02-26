@@ -50,7 +50,7 @@ class LoginSSOViewModelExtension(
         ssoCode: String,
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
         onSSOInitiateFailure: (SSOInitiateLoginResult.Failure) -> Unit,
-        onSuccess: (redirectUrl: String, serverConfig: ServerConfig.Links) -> Unit,
+        onSuccess: suspend (redirectUrl: String, serverConfig: ServerConfig.Links) -> Unit,
     ) {
         withAuthenticationScope(serverConfig, onAuthScopeFailure) { authScope ->
             authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode)).let { result ->

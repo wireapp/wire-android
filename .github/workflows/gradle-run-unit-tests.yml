@@ -40,7 +40,7 @@ jobs:
           ./gradlew generateShardsForTests 
 
       - name: Test with with shards
-        run: ./gradlew :app::unitTestShard${{ matrix.shardIndex }}
+        run: ./gradlew :app:unitTestShard${{ matrix.shardIndex }}
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

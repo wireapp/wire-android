@@ -11,6 +11,9 @@ env:
 jobs:
   coverage:
     runs-on: buildjet-8vcpu-ubuntu-2204
+    strategy:
+      matrix:
+        shardIndex: [ 0,  1,  2,  3 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,8 +35,12 @@ jobs:
           ./gradlew -p buildSrc test
           ./gradlew -p build-logic :plugins:test
 
-      - name: Test with coverage
-        run: ./gradlew testCoverage
+      - name: Create sharded tests
+        run: |
+          ./gradlew generateShardsForTests 
+
+      - name: Test with with shards
+        run: ./gradlew :app::unitTestShard${{ matrix.shardIndex }}
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

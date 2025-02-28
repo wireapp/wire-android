@@ -18,10 +18,12 @@
 package com.wire.android.analytics
 
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.feature.analytics.model.AnalyticsResult
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.analytics.AnalyticsContactsData
 import com.wire.kalium.logic.feature.analytics.AnalyticsIdentifierManager
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -47,7 +49,7 @@ interface ObserveCurrentSessionAnalyticsUseCase {
 @Suppress("FunctionNaming", "LongParameterList")
 fun ObserveCurrentSessionAnalyticsUseCase(
     currentSessionFlow: Flow<CurrentSessionResult>,
-    isUserTeamMember: suspend (UserId) -> Boolean,
+    getAnalyticsContactsData: suspend (UserId) -> AnalyticsContactsData,
     observeAnalyticsTrackingIdentifierStatusFlow: suspend (UserId) -> Flow<AnalyticsIdentifierResult>,
     analyticsIdentifierManagerProvider: (UserId) -> AnalyticsIdentifierManager,
     userDataStoreProvider: UserDataStoreProvider,
@@ -56,12 +58,10 @@ fun ObserveCurrentSessionAnalyticsUseCase(
 
     private var previousAnalyticsResult: AnalyticsIdentifierResult? = null
 
-    override fun invoke(): Flow<AnalyticsResult<AnalyticsIdentifierManager>> =
-        currentSessionFlow
+    override fun invoke(): Flow<AnalyticsResult<AnalyticsIdentifierManager>> = currentSessionFlow
         .flatMapLatest {
             if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
                 val userId = it.accountInfo.userId
-                val isTeamMember = isUserTeamMember(userId)
                 val analyticsIdentifierManager = analyticsIdentifierManagerProvider(userId)
 
                 combine(
@@ -74,35 +74,48 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                                     currentResult?.identifier != previousResult?.identifier
                         },
                     userDataStoreProvider.getOrCreate(userId).isAnonymousUsageDataEnabled()
-                ) { identifierResult, enabled ->
-                    previousAnalyticsResult = identifierResult
+                ) { analyticsIdentifierResult, enabled ->
+                    previousAnalyticsResult = analyticsIdentifierResult
 
                     val isProdBackend = when (val serverConfig = currentBackend(userId)) {
                         is SelfServerConfigUseCase.Result.Success ->
                             serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
                                     || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
+
                         is SelfServerConfigUseCase.Result.Failure -> false
                     }
 
-                    if (enabled && isProdBackend) {
-                        AnalyticsResult(
-                            identifierResult = identifierResult,
-                            isTeamMember = isTeamMember,
-                            manager = analyticsIdentifierManager
-                        )
+                    val analyticsContactsData = getAnalyticsContactsData(userId)
+
+                    val identifierResult = if (enabled && isProdBackend) {
+                        analyticsIdentifierResult
                     } else {
-                        AnalyticsResult(
-                            identifierResult = AnalyticsIdentifierResult.Disabled,
-                            isTeamMember = isTeamMember,
-                            manager = analyticsIdentifierManager
-                        )
+                        AnalyticsIdentifierResult.Disabled
                     }
+
+                    AnalyticsResult(
+                        identifierResult = identifierResult,
+                        profileProperties = AnalyticsProfileProperties(
+                            isTeamMember = analyticsContactsData.isTeamMember,
+                            teamId = analyticsContactsData.teamId,
+                            contactsAmount = analyticsContactsData.contactsSize,
+                            teamMembersAmount = analyticsContactsData.teamSize,
+                            isEnterprise = analyticsContactsData.isEnterprise
+                        ),
+                        manager = analyticsIdentifierManager
+                    )
                 }
             } else {
                 flowOf(
                     AnalyticsResult<AnalyticsIdentifierManager>(
                         identifierResult = AnalyticsIdentifierResult.Disabled,
-                        isTeamMember = false,
+                        profileProperties = AnalyticsProfileProperties(
+                            isTeamMember = false,
+                            teamId = null,
+                            contactsAmount = null,
+                            teamMembersAmount = null,
+                            isEnterprise = null
+                        ),
                         manager = null
                     )
                 )

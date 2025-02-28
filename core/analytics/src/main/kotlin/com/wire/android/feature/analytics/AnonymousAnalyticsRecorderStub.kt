@@ -20,6 +20,7 @@ package com.wire.android.feature.analytics
 import android.app.Activity
 import android.content.Context
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 
 open class AnonymousAnalyticsRecorderStub : AnonymousAnalyticsRecorder {
@@ -35,14 +36,14 @@ open class AnonymousAnalyticsRecorderStub : AnonymousAnalyticsRecorder {
 
     override suspend fun setTrackingIdentifierWithMerge(
         identifier: String,
-        isTeamMember: Boolean,
+        analyticsProfileProperties: AnalyticsProfileProperties,
         migrationComplete: suspend () -> Unit
     ) = Unit
 
     override suspend fun setTrackingIdentifierWithoutMerge(
         identifier: String,
         shouldPropagateIdentifier: Boolean,
-        isTeamMember: Boolean,
+        analyticsProfileProperties: AnalyticsProfileProperties,
         propagateIdentifier: suspend () -> Unit
     ) = Unit
 

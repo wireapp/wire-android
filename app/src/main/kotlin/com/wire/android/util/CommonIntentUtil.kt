@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.core.net.toUri
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 
 // geo intent url scheme
@@ -46,4 +47,13 @@ fun launchGeoIntent(
         appLogger.e("No activity found to handle geo intent, fallback to url", e)
         context.startActivity(Intent(Intent.ACTION_VIEW, fallbackUrl.toUri()))
     }
+}
+
+/**
+ * Launches the app update url intent.
+ */
+fun Context.launchUpdateTheApp() {
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.UPDATE_APP_URL))
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    startActivity(intent)
 }

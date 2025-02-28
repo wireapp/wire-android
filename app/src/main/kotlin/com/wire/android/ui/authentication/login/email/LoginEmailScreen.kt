@@ -58,6 +58,7 @@ import com.wire.android.appLogger
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
+import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -104,7 +105,6 @@ fun LoginEmailScreen(
             onRemoveDeviceNeeded()
         },
         onLoginButtonClick = loginEmailViewModel::login,
-        onUpdateApp = loginEmailViewModel::updateTheApp,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
         scope = scope,
         fillMaxHeight = fillMaxHeight,
@@ -131,7 +131,6 @@ private fun LoginEmailContent(
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: () -> Unit,
-    onUpdateApp: () -> Unit,
     forgotPasswordUrl: String,
     scope: CoroutineScope,
     fillMaxHeight: Boolean = true,
@@ -222,7 +221,7 @@ private fun LoginEmailContent(
     }
 
     if (loginEmailState.flowState is LoginState.Error.DialogError) {
-        LoginErrorDialog(loginEmailState.flowState, onDialogDismiss, onUpdateApp)
+        LoginErrorDialog(loginEmailState.flowState.toLoginDialogErrorData(), onDialogDismiss)
     } else if (loginEmailState.flowState is LoginState.Error.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }
@@ -338,7 +337,6 @@ fun PreviewLoginEmailScreen() = WireTheme {
         onDialogDismiss = { },
         onRemoveDeviceOpen = { },
         onLoginButtonClick = { },
-        onUpdateApp = {},
         forgotPasswordUrl = "",
         scope = rememberCoroutineScope()
     )

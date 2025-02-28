@@ -71,10 +71,6 @@ open class LoginViewModel(
     ): RegisterClientResult = loginExtension.registerClient(userId, password, secondFactorVerificationCode, capabilities)
 
     internal suspend fun isInitialSyncCompleted(userId: UserId): Boolean = loginExtension.isInitialSyncCompleted(userId)
-
-    fun updateTheApp() {
-        // todo : update the app after releasing on the store
-    }
 }
 
 fun AuthenticationResult.Failure.toLoginError() = when (this) {

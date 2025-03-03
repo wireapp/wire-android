@@ -25,7 +25,7 @@ import com.wire.android.media.PingRinger
 import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
-import com.wire.android.util.lifecycle.ConnectionPolicyManager
+import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
@@ -128,7 +128,7 @@ class WireNotificationManagerTest {
             manager.fetchAndShowNotificationsOnce("user_id")
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId, any()) }
+            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) }
         }
 
     @Test
@@ -355,7 +355,7 @@ class WireNotificationManagerTest {
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .arrange()
 
-            coEvery { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) } coAnswers {
+            coEvery { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) } coAnswers {
                 // Push handling is taking 10 minutes
                 delay(10.minutes)
             }
@@ -370,15 +370,15 @@ class WireNotificationManagerTest {
             }
             // After first call, should have handled push once
             advanceTimeBy(1.minutes.inWholeMilliseconds)
-            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) }
+            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
 
             // After second call, should have handled push once
             advanceTimeBy(6.minutes.inWholeMilliseconds)
-            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) }
+            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
 
             // After everything ends, should have handled push once
             advanceUntilIdle()
-            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) }
+            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
         }
 
     @Test
@@ -395,7 +395,7 @@ class WireNotificationManagerTest {
         manager.fetchAndShowNotificationsOnce(userId.value)
         advanceUntilIdle()
 
-        coVerify(exactly = 0) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) }
+        coVerify(exactly = 0) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
     }
 
     @Test
@@ -412,7 +412,7 @@ class WireNotificationManagerTest {
             manager.fetchAndShowNotificationsOnce(userId.value)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) }
+            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
         }
 
     @Test
@@ -1060,7 +1060,7 @@ class WireNotificationManagerTest {
         lateinit var getNotificationsUseCase: GetNotificationsUseCase
 
         @MockK
-        lateinit var connectionPolicyManager: ConnectionPolicyManager
+        lateinit var syncLifecycleManager: SyncLifecycleManager
 
         @MockK
         lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
@@ -1103,7 +1103,7 @@ class WireNotificationManagerTest {
                 currentScreenManager,
                 messageNotificationManager,
                 callNotificationManager,
-                connectionPolicyManager,
+                syncLifecycleManager,
                 servicesManager,
                 dispatcherProvider,
                 pingRinger

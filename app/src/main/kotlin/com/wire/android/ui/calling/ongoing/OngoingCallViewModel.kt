@@ -29,7 +29,6 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
-import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.VideoState
@@ -71,23 +70,11 @@ class OngoingCallViewModel @AssistedInject constructor(
     init {
         viewModelScope.launch {
             establishedCalls().first { it.isNotEmpty() }.run {
-                initCameraState(this)
                 // We start observing once we have an ongoing call
                 observeCurrentCall()
             }
         }
         showDoubleTapToast()
-    }
-
-    private fun initCameraState(calls: List<Call>) {
-        val currentCall = calls.find { call -> call.conversationId == conversationId }
-        currentCall?.let {
-            if (it.isCameraOn) {
-                startSendingVideoFeed()
-            } else {
-                stopSendingVideoFeed()
-            }
-        }
     }
 
     fun startSendingVideoFeed() {

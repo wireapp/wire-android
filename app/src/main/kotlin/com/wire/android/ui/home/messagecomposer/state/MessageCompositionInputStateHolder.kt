@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -44,6 +45,7 @@ import com.wire.android.util.isNotMarkdownBlank
 class MessageCompositionInputStateHolder(
     val messageTextState: TextFieldState,
     private val keyboardController: SoftwareKeyboardController?,
+    private val focusManager: FocusManager,
     val focusRequester: FocusRequester
 ) {
     var inputFocused: Boolean by mutableStateOf(false)
@@ -125,6 +127,11 @@ class MessageCompositionInputStateHolder(
         keyboardController?.show()
     }
 
+    fun clearFocus() {
+        focusRequester.freeFocus()
+        focusManager.clearFocus()
+    }
+
     fun requestFocus() {
         if (!inputFocused) {
             focusRequester.requestFocus()
@@ -169,6 +176,7 @@ class MessageCompositionInputStateHolder(
         fun saver(
             messageTextState: TextFieldState,
             keyboardController: SoftwareKeyboardController?,
+            focusManager: FocusManager,
             focusRequester: FocusRequester,
             density: Density
         ): Saver<MessageCompositionInputStateHolder, *> = Saver(
@@ -187,6 +195,7 @@ class MessageCompositionInputStateHolder(
                     MessageCompositionInputStateHolder(
                         messageTextState = messageTextState,
                         keyboardController = keyboardController,
+                        focusManager = focusManager,
                         focusRequester = focusRequester
                     ).apply {
                         inputFocused = savedState[0] as Boolean

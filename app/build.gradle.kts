@@ -77,6 +77,13 @@ android {
         val datadogAppIdKey = "DATADOG_APP_ID"
         val appId: String? = System.getenv(datadogAppIdKey) ?: project.getLocalProperty(datadogAppIdKey, null)
         buildConfigField("String", datadogAppIdKey, appId?.let { "\"$it\"" } ?: "null")
+
+        val gitCommitHash =
+            providers.exec {
+                commandLine("git")
+                args = "rev-parse --verify --short HEAD".split(" ")
+            }.standardOutput.asText.get().trim()
+        buildConfigField("String", "GIT_REVISION", "\"$gitCommitHash\"")
     }
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin

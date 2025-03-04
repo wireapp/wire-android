@@ -43,6 +43,7 @@ import android.provider.Settings
 import android.webkit.MimeTypeMap
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.util.ImageUtil.ImageSizeClass
@@ -404,9 +405,7 @@ fun Context.getDeviceIdString(): String? {
 }
 
 fun Context.getGitBuildId(): String = runCatching {
-    assets.open("version.txt").use { inputStream ->
-        inputStream.bufferedReader().use { it.readText() }
-    }
+    BuildConfig.GIT_REVISION
 }.getOrDefault("")
 
 suspend fun Context.getDependenciesVersion(): Map<String, String?> = withContext(Dispatchers.IO) {

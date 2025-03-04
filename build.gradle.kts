@@ -54,5 +54,6 @@ allprojects {
 plugins {
     id(ScriptPlugins.infrastructure)
     alias(libs.plugins.ksp) apply false // https://github.com/google/dagger/issues/3965
+    id("com.osacky.doctor") version "0.10.0" apply false
 }
 

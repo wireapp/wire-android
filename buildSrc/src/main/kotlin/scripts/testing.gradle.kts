@@ -57,7 +57,7 @@ tasks.register("generateShardsForTests") {
             testClasses.add(file.path)
         }
         // Search for compiled Kotlin unit test classes
-        fileTree("build/intermediates/classes/${Default.BUILD_VARIANT.decapitalize()}UnitTest") {
+        fileTree("build/intermediates/classes/devDebugUnitTest") {
             include("**/*Test.class") // For Kotlin unit test files
         }.forEach { file ->
             testClasses.add(file.path)

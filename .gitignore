@@ -99,7 +99,6 @@ app/src/main/assets/dependencies_version.json
 /intellij.gdsl
 
 app/version.txt
-shards.json
 # Editor temporary files
 *~
 \#*#

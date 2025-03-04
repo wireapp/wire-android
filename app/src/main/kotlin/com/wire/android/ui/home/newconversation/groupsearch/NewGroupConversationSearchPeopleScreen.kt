@@ -45,7 +45,7 @@ fun NewGroupConversationSearchPeopleScreen(
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         onContactChecked = newConversationViewModel::updateSelectedContacts,
-        onGroupSelectionSubmitAction = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
+        onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
         onServiceClicked = { },

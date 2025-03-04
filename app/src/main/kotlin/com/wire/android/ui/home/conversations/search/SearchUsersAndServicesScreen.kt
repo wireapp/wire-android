@@ -80,7 +80,7 @@ fun SearchUsersAndServicesScreen(
     isGroupSubmitVisible: Boolean = true,
     isServicesAllowed: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
-    onGroupSelectionSubmitAction: () -> Unit = {},
+    onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
     onCreateNewChannel: () -> Unit= {},
 ) {
@@ -202,7 +202,7 @@ fun SearchUsersAndServicesScreen(
                     SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> {
                         ContinueWithParticipantsCountButton(
                             selectedParticipantsCount = selectedContacts.size,
-                            onContinue = onGroupSelectionSubmitAction
+                            onContinue = onContinue
                         )
                     }
 
@@ -210,7 +210,7 @@ fun SearchUsersAndServicesScreen(
                         if (tabs[pagerState.currentPage] != SearchPeopleTabItem.SERVICES) {
                             ContinueWithParticipantsCountButton(
                                 selectedParticipantsCount = selectedContacts.size,
-                                onContinue = onGroupSelectionSubmitAction
+                                onContinue = onContinue
                             )
                         }
                     }

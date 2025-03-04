@@ -51,7 +51,7 @@ fun AddMembersSearchScreen(
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         onContactChecked = addMembersToConversationViewModel::updateSelectedContacts,
-        onGroupSelectionSubmitAction = {
+        onContinue = {
             addMembersToConversationViewModel.addMembersToConversation(
                 onCompleted = navigator::navigateBack // TODO: move the navigation to the screen not view model
             )

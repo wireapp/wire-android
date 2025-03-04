@@ -37,10 +37,7 @@ jobs:
 
       - name: Create sharded tests
         run: |
-          ./gradlew generateShardsForTests
-
-      - name: Display Shards created
-        run: python3 -mjson.tool shards.json
+          ./gradlew generateShardsForTests 
 
       - name: Test with with shards
         run: ./gradlew :app:unitTestShard${{ matrix.shardIndex }}

@@ -92,7 +92,6 @@ fun SendContentButton(
     }
 }
 
-
 @Composable
 fun SelfDeletionTimerIcon(
     selfDeletionTimer: SelfDeletionTimer,
@@ -147,7 +146,6 @@ fun PreviewSelfDeletionTimerButton() = WireTheme {
         onSelfDeletionTimerClicked = {}
     )
 }
-
 
 @PreviewMultipleThemes
 @Composable

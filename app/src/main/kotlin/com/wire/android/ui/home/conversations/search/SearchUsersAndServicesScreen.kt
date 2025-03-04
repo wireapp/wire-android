@@ -82,7 +82,7 @@ fun SearchUsersAndServicesScreen(
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
-    onCreateNewChannel: () -> Unit= {},
+    onCreateNewChannel: () -> Unit = {},
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()

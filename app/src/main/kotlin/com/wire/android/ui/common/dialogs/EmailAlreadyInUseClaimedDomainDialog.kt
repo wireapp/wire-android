@@ -30,6 +30,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.common.VisibilityState
@@ -46,7 +47,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun EmailAlreadyInUseClaimedDomainDialog(
-    dialogState: VisibilityState<DomainClaimedByOrg.Claimed>
+    dialogState: VisibilityState<DomainClaimedByOrg.Claimed>,
+    onDismiss: () -> Unit,
 ) {
     VisibilityState(dialogState) { state ->
         WireDialog(
@@ -55,10 +57,15 @@ fun EmailAlreadyInUseClaimedDomainDialog(
             content = {
                 Content()
             },
-            onDismiss = dialogState::dismiss,
+            onDismiss = onDismiss,
             buttonsHorizontalAlignment = false,
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false,
+                usePlatformDefaultWidth = false
+            ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = dialogState::dismiss,
+                onClick = onDismiss,
                 text = stringResource(id = R.string.label_ok),
                 type = WireDialogButtonType.Primary,
                 state = WireButtonState.Default
@@ -152,5 +159,5 @@ private fun AnnotatedString.Builder.addStyledLink(url: String, start: Int, end: 
 @PreviewMultipleThemes
 @Composable
 fun PreviewEmailAlreadyInUseClaimedDomainDialog() = WireTheme {
-    EmailAlreadyInUseClaimedDomainDialog(VisibilityState(isVisible = true, saveable = DomainClaimedByOrg.Claimed("domain.com")))
+    EmailAlreadyInUseClaimedDomainDialog(VisibilityState(isVisible = true, saveable = DomainClaimedByOrg.Claimed("domain.com"))) {}
 }

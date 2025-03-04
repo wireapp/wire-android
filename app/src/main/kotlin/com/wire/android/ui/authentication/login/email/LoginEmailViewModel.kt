@@ -73,7 +73,7 @@ class LoginEmailViewModel @Inject constructor(
     userDataStoreProvider,
     coreLogic
 ) {
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
+    val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
         if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
     }

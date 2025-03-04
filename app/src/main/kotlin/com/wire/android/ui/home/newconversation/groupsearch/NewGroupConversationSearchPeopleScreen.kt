@@ -40,7 +40,6 @@ fun NewGroupConversationSearchPeopleScreen(
 ) {
     SearchUsersAndServicesScreen(
         searchTitle = stringResource(id = R.string.label_new_group),
-        actionButtonTitle = stringResource(id = R.string.label_continue),
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }

@@ -57,8 +57,8 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
-import com.wire.android.ui.home.newconversation.common.CreateNewGroupButton
-import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
+import com.wire.android.ui.home.newconversation.common.ContinueWithParticipantsCountButton
+import com.wire.android.ui.home.newconversation.common.CreateGroupOrChannelButtons
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.UIText
 import kotlinx.collections.immutable.ImmutableSet
@@ -70,9 +70,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SearchUsersAndServicesScreen(
     searchTitle: String,
-    actionButtonTitle: String,
     selectedContacts: ImmutableSet<Contact>,
-    onGroupSelectionSubmitAction: () -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
     onServiceClicked: (Contact) -> Unit,
@@ -82,6 +80,9 @@ fun SearchUsersAndServicesScreen(
     isGroupSubmitVisible: Boolean = true,
     isServicesAllowed: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
+    onGroupSelectionSubmitAction: () -> Unit = {},
+    onCreateNewGroup: () -> Unit = {},
+    onCreateNewChannel: () -> Unit= {},
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -192,26 +193,24 @@ fun SearchUsersAndServicesScreen(
             if (isGroupSubmitVisible) {
                 when (screenType) {
                     SearchPeopleScreenType.NEW_CONVERSATION -> {
-                        CreateNewGroupButton(
-                            mainButtonText = actionButtonTitle,
-                            onMainButtonClick = onGroupSelectionSubmitAction
+                        CreateGroupOrChannelButtons(
+                            onCreateNewGroup = onCreateNewGroup,
+                            onCreateNewChannel = onCreateNewChannel
                         )
                     }
 
                     SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> {
-                        SelectParticipantsButtonsRow(
+                        ContinueWithParticipantsCountButton(
                             selectedParticipantsCount = selectedContacts.size,
-                            mainButtonText = actionButtonTitle,
-                            onMainButtonClick = onGroupSelectionSubmitAction
+                            onContinue = onGroupSelectionSubmitAction
                         )
                     }
 
                     SearchPeopleScreenType.CONVERSATION_DETAILS -> {
                         if (tabs[pagerState.currentPage] != SearchPeopleTabItem.SERVICES) {
-                            SelectParticipantsButtonsRow(
+                            ContinueWithParticipantsCountButton(
                                 selectedParticipantsCount = selectedContacts.size,
-                                mainButtonText = actionButtonTitle,
-                                onMainButtonClick = onGroupSelectionSubmitAction
+                                onContinue = onGroupSelectionSubmitAction
                             )
                         }
                     }

@@ -29,6 +29,9 @@ jobs:
         - name: Validate Gradle wrapper
           uses: gradle/wrapper-validation-action@f9c9c575b8b21b6485636a91ffecd10e558c62f6
 
+        - name: Install Protoc
+          uses: arduino/setup-protoc@v3
+
         - name: Run Linter
           run: |
               ./gradlew lint

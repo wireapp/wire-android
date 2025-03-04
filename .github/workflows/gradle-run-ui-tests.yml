@@ -27,6 +27,9 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
 

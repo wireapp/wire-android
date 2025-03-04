@@ -114,6 +114,22 @@ fun LoginErrorDialog(
             )
         }
 
+        LoginState.Error.DialogError.AccountSuspended -> {
+            LoginDialogErrorData(
+                title = stringResource(R.string.login_error_unauthorized_title),
+                body = AnnotatedString(stringResource(R.string.login_error_unauthorized_message)),
+                onDismiss = onDialogDismiss
+            )
+        }
+
+        LoginState.Error.DialogError.AccountPendingActivation -> {
+            LoginDialogErrorData(
+                title = stringResource(R.string.login_error_pending_activation_title),
+                body = AnnotatedString(stringResource(R.string.login_error_pending_activation_message)),
+                onDismiss = onDialogDismiss
+            )
+        }
+
         LoginState.Error.TextFieldError.InvalidValue,
         LoginState.Error.DialogError.PasswordNeededToRegisterClient,
         LoginState.Error.TooManyDevicesError -> {

@@ -39,12 +39,15 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.sync.ConnectionPolicy
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -96,29 +99,33 @@ class PersistentWebSocketService : Service() {
                     }
 
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        result.persistentWebSocketStatusListFlow.collect { statuses ->
-
+                        result.persistentWebSocketStatusListFlow.collectLatest { statuses ->
                             val usersToObserve = statuses
                                 .filter { it.isPersistentWebSocketEnabled }
                                 .map { it.userId }
-
                             notificationManager.observeNotificationsAndCallsPersistently(
                                 usersToObserve,
                                 scope
                             )
-
-                            statuses.map { persistentWebSocketStatus ->
-                                if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
-                                    coreLogic.getSessionScope(persistentWebSocketStatus.userId)
-                                        .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
-                                }
-                            }
+                            keepRunningSyncForUsers(usersToObserve)
                         }
                     }
                 }
             }
         }
         return START_STICKY
+    }
+
+    private suspend fun keepRunningSyncForUsers(usersToObserve: List<UserId>) {
+        coroutineScope {
+            usersToObserve.forEach { userId ->
+                launch {
+                    coreLogic.getSessionScope(userId).syncExecutor.request {
+                        awaitCancellation()
+                    }
+                }
+            }
+        }
     }
 
     private fun generateForegroundNotification() {

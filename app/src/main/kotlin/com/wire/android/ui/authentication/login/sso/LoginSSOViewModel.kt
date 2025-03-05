@@ -130,6 +130,7 @@ class LoginSSOViewModel(
     }
 
     fun onCustomServerDialogDismiss() {
+        loginState = loginState.copy(customServerDialogState = null)
         updateSSOFlowState(LoginState.Default)
     }
 

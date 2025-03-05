@@ -182,6 +182,7 @@ class NewLoginViewModel(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = email,
                                         loginPasswordPath = LoginPasswordPath(
+                                            customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig,
                                             isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
                                         )
                                     )
@@ -194,6 +195,7 @@ class NewLoginViewModel(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = email,
                                         loginPasswordPath = LoginPasswordPath(
+                                            customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig,
                                             isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
                                             isDomainClaimedByOrg = DomainClaimedByOrg.Claimed(
                                                 loginRedirectPath.domain

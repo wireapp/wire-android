@@ -46,7 +46,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
@@ -55,14 +54,13 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.NewLoginNavGraph
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -84,8 +82,6 @@ import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.DialogErrorStrings
-import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
@@ -123,6 +119,7 @@ fun NewLoginScreen(
 
             is NewLoginAction.SSO -> {
                 currentKeyboardController?.hide()
+                ssoUrlConfigHolder.set(newLoginAction.config)
                 CustomTabsHelper.launchUrl(context, newLoginAction.url)
             }
 
@@ -135,6 +132,10 @@ fun NewLoginScreen(
                 }
                 navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
             }
+
+            is NewLoginAction.EnterpriseLoginNotSupported -> {
+                navigator.navigate(NavigationCommand(WelcomeScreenDestination(viewModel.serverConfig)))
+            }
         }
     }
 
@@ -143,16 +144,18 @@ fun NewLoginScreen(
             viewModel.handleSSOResult(navArgs.ssoLoginResult, ssoUrlConfigHolder.get(), handleNewLoginAction)
         }
     }
-    viewModel.state.customServerDialogState?.let {
+    (viewModel.state.flowState as? NewLoginFlowState.CustomConfigDialog)?.let { customServerDialogState ->
         CustomServerDetailsDialog(
-            serverLinks = it.serverLinks,
-            onDismiss = viewModel::onCustomServerDialogDismiss,
+            serverLinks = customServerDialogState.serverLinks,
+            onDismiss = viewModel::onDismissDialog,
             onConfirm = {
-                viewModel.onCustomServerDialogConfirm(it.serverLinks, handleNewLoginAction)
+                viewModel.onCustomServerDialogConfirm(customServerDialogState.serverLinks, handleNewLoginAction)
             }
         )
     }
-    DomainCheckupDialog(viewModel.state, navigator, viewModel::onDismissDialog)
+    (viewModel.state.flowState as? NewLoginFlowState.Error.DialogError)?.let { dialogErrorState ->
+        LoginErrorDialog(dialogErrorState.toLoginDialogErrorData(), viewModel::onDismissDialog)
+    }
     LoginContent(
         loginEmailSSOState = viewModel.state,
         userIdentifierState = viewModel.userIdentifierTextState,
@@ -223,7 +226,7 @@ private fun LoginContent(
                     }
             ) {
                 val error = when (loginEmailSSOState.flowState) {
-                    is DomainCheckupState.Error.TextFieldError.InvalidValue ->
+                    is NewLoginFlowState.Error.TextFieldError.InvalidValue ->
                         stringResource(R.string.enterprise_login_error_invalid_user_identifier)
 
                     else -> null
@@ -231,7 +234,7 @@ private fun LoginContent(
                 EmailOrSSOCodeInput(userIdentifierState, error)
                 VerticalSpace.x8()
                 LoginNextButton(
-                    loading = loginEmailSSOState.flowState is DomainCheckupState.Loading,
+                    loading = loginEmailSSOState.flowState is NewLoginFlowState.Loading,
                     enabled = loginEmailSSOState.nextEnabled,
                     onClick = onNextClicked,
                 )
@@ -280,45 +283,6 @@ private fun EmailOrSSOCodeInput(
         keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = Modifier.testTag("emailField"),
         testTag = "userIdentifierInput",
-    )
-}
-
-@Composable
-fun DomainCheckupDialog(
-    loginEmailSSOState: NewLoginScreenState,
-    navigator: Navigator,
-    onDismiss: () -> Unit
-) {
-    val resources = LocalContext.current.resources
-    when (val state = loginEmailSSOState.flowState) {
-        is DomainCheckupState.Error.DialogError.GenericError -> DomainCheckupDialogs(
-            dialogErrorStrings = state.coreFailure.dialogErrorStrings(resources),
-            onDismiss = onDismiss
-        )
-
-        is DomainCheckupState.Error.DialogError.NotSupported -> navigator.navigate(NavigationCommand(WelcomeScreenDestination()))
-        else -> {
-            /* do nothing */
-        }
-    }
-}
-
-@Composable
-fun DomainCheckupDialogs(dialogErrorStrings: DialogErrorStrings, onDismiss: () -> Unit) {
-    WireDialog(
-        title = dialogErrorStrings.title,
-        text = dialogErrorStrings.annotatedMessage,
-        onDismiss = onDismiss,
-        optionButton1Properties = WireDialogButtonProperties(
-            text = stringResource(R.string.label_ok),
-            onClick = onDismiss,
-            type = WireDialogButtonType.Primary
-        ),
-        properties = DialogProperties(
-            dismissOnBackPress = true,
-            dismissOnClickOutside = false,
-            usePlatformDefaultWidth = false
-        )
     )
 }
 

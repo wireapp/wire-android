@@ -22,21 +22,25 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.DefaultServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dev.ahmedmourad.bundlizer.Bundlizer
+import kotlinx.serialization.Serializable
 
 interface SSOUrlConfigHolder {
-    fun get(): ServerConfig.Links? = DefaultServerConfig
-    fun set(serverLinks: ServerConfig.Links) {}
+    fun get(): SSOUrlConfig? = SSOUrlConfig(DefaultServerConfig)
+    fun set(data: SSOUrlConfig) {}
 }
 
 object SSOUrlConfigHolderPreview : SSOUrlConfigHolder
 
 class SSOUrlConfigHolderImpl(private val savedStateHandle: SavedStateHandle) : SSOUrlConfigHolder {
-    override fun get(): ServerConfig.Links? = savedStateHandle.get<Bundle>(CUSTOM_SERVER_CONFIG_KEY)?.let {
-        Bundlizer.unbundle(ServerConfig.Links.serializer(), it)
+    override fun get(): SSOUrlConfig? = savedStateHandle.get<Bundle>(SSO_URL_CONFIG_KEY)?.let {
+        Bundlizer.unbundle(SSOUrlConfig.serializer(), it)
     }
 
-    override fun set(serverLinks: ServerConfig.Links) =
-        savedStateHandle.set(CUSTOM_SERVER_CONFIG_KEY, Bundlizer.bundle(ServerConfig.Links.serializer(), serverLinks))
+    override fun set(data: SSOUrlConfig) =
+        savedStateHandle.set(SSO_URL_CONFIG_KEY, Bundlizer.bundle(SSOUrlConfig.serializer(), data))
 }
 
-private const val CUSTOM_SERVER_CONFIG_KEY: String = "custom-server-config"
+private const val SSO_URL_CONFIG_KEY: String = "sso-url-config"
+
+@Serializable
+data class SSOUrlConfig(val serverConfig: ServerConfig.Links, val ssoCode: String = "")

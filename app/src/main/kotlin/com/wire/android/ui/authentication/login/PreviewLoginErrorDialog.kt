@@ -28,94 +28,94 @@ import com.wire.kalium.common.error.NetworkFailure
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_InvalidCredentialsError() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.InvalidCredentialsError, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.InvalidCredentialsError.toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_UserAlreadyExists() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.UserAlreadyExists, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.UserAlreadyExists.toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_ProxyError() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.ProxyError, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.ProxyError.toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_GenericError_NoNetworkConnection() = WireTheme {
     val coreFailure = NetworkFailure.NoNetworkConnection(RuntimeException())
-    LoginErrorDialog(LoginState.Error.DialogError.GenericError(coreFailure), {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.GenericError(coreFailure).toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_GenericError_ServerMiscommunication() = WireTheme {
     val coreFailure = NetworkFailure.ServerMiscommunication(RuntimeException())
-    LoginErrorDialog(LoginState.Error.DialogError.GenericError(coreFailure), {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.GenericError(coreFailure).toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_GenericError_Other() = WireTheme {
     val coreFailure = CoreFailure.Unknown(RuntimeException())
-    LoginErrorDialog(LoginState.Error.DialogError.GenericError(coreFailure), {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.GenericError(coreFailure).toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_InvalidSSOCodeError() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.InvalidSSOCodeError, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.InvalidSSOCodeError.toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_InvalidSSOCookie() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.InvalidSSOCookie, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.InvalidSSOCookie.toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_SSOResultError() = WireTheme {
     val ssoLoginResult = DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.ServerError)
-    LoginErrorDialog(LoginState.Error.DialogError.SSOResultError(ssoLoginResult.ssoError), {}, {}, ssoLoginResult)
+    LoginErrorDialog(LoginState.Error.DialogError.SSOResultError(ssoLoginResult.ssoError).toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_ServerVersionNotSupported() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.ServerVersionNotSupported, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.ServerVersionNotSupported.toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_ClientUpdateRequired() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.ClientUpdateRequired, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.ClientUpdateRequired.toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_Request2FAWithHandle() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.Request2FAWithHandle, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.Request2FAWithHandle.toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_PasswordNeededToRegisterClient() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.PasswordNeededToRegisterClient, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.PasswordNeededToRegisterClient.toLoginDialogErrorData()) {}
 }
 
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_AccountSuspended() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.AccountSuspended, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.AccountSuspended.toLoginDialogErrorData()) {}
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLoginErrorDialog_AccountPendingActivation() = WireTheme {
-    LoginErrorDialog(LoginState.Error.DialogError.AccountPendingActivation, {}, {})
+    LoginErrorDialog(LoginState.Error.DialogError.AccountPendingActivation.toLoginDialogErrorData()) {}
 }

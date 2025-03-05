@@ -56,7 +56,7 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
                     is ConversationFilter.Channels -> ConversationsSource.CHANNELS
                 },
                 lazyListState = lazyListStateFor(HomeDestination.Conversations, filter),
-                emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.All) }
+                emptyListContent = { ConversationsEmptyContent(filter = filter) }
             )
         }
     }

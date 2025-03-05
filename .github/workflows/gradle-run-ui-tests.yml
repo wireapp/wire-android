@@ -6,6 +6,9 @@ on: [ workflow_call ]
 permissions:
   contents: read
 
+env:
+  DISABLE_ABOUT_LIBRARIES: TRUE
+
 jobs:
   ui-tests:
     runs-on: buildjet-8vcpu-ubuntu-2204

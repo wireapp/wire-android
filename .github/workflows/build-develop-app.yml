@@ -11,6 +11,9 @@ on:
       - develop
     types: [ opened, synchronize ]
 
+env:
+  DISABLE_ABOUT_LIBRARIES: TRUE
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}
   cancel-in-progress: true

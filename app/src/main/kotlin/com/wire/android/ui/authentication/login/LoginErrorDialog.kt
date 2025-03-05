@@ -114,6 +114,20 @@ fun LoginState.Error.DialogError.toLoginDialogErrorData() = when (this) {
         body = AnnotatedString(stringResource(R.string.login_error_request_2fa_with_handle_message)),
     )
 
+    LoginState.Error.DialogError.AccountSuspended -> {
+        LoginDialogErrorData(
+            title = stringResource(R.string.login_error_unauthorized_title),
+            body = AnnotatedString(stringResource(R.string.login_error_unauthorized_message)),
+        )
+    }
+
+    LoginState.Error.DialogError.AccountPendingActivation -> {
+        LoginDialogErrorData(
+            title = stringResource(R.string.login_error_pending_activation_title),
+            body = AnnotatedString(stringResource(R.string.login_error_pending_activation_message)),
+        )
+    }
+
     else -> LoginDialogErrorData(
         title = stringResource(R.string.error_unknown_title),
         body = AnnotatedString(stringResource(R.string.error_unknown_message)),

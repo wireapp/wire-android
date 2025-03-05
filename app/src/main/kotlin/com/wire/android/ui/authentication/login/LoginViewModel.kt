@@ -78,6 +78,8 @@ fun AuthenticationResult.Failure.toLoginError() = when (this) {
     is AuthenticationResult.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
     is AuthenticationResult.Failure.InvalidCredentials -> LoginState.Error.DialogError.InvalidCredentialsError
     is AuthenticationResult.Failure.InvalidUserIdentifier -> LoginState.Error.TextFieldError.InvalidValue
+    is AuthenticationResult.Failure.AccountSuspended -> LoginState.Error.DialogError.AccountSuspended
+    is AuthenticationResult.Failure.AccountPendingActivation -> LoginState.Error.DialogError.AccountPendingActivation
 }
 
 fun RegisterClientResult.Failure.toLoginError() = when (this) {

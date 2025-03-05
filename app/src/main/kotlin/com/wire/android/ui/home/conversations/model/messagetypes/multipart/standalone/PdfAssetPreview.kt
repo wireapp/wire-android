@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -43,12 +44,14 @@ import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.getDownloadStatusText
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.TransferStatusIcon
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PdfPreviewDecoder
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
@@ -130,6 +133,15 @@ internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
             }
 
             TransferStatusIcon(item, 38.dp)
+
+            item.progress?.let {
+                WireLinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart),
+                    progress = { item.progress },
+                    color = if (item.transferStatus == FAILED_DOWNLOAD) colorsScheme().error else colorsScheme().primary,
+                    trackColor = Color.Transparent,
+                )
+            }
         }
     }
 }

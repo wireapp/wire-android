@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,8 @@ import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetPreviewUrlUseCase
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.AssetContent
+import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
@@ -60,20 +63,22 @@ fun MultipartAttachmentsView(
     when {
         attachments.size > 1 ->
             AttachmentsGrid(
-                attachments = attachments.map { it.toUiModel() },
+                attachments = attachments.map { it.toUiModel(viewModel.uploadProgress[it.assetId()]) },
                 onClick = { viewModel.onClick(it) },
                 onLoadPreview = { viewModel.loadAssetPreview(it) },
                 modifier = modifier,
             )
         else ->
-            attachments.firstOrNull()?.toUiModel()?.let { item ->
-                AssetPreview(
-                    item,
-                    onClick = { viewModel.onClick(item) },
-                    onLoadPreview = { viewModel.loadAssetPreview(item) },
-                    modifier = modifier,
-                )
-            }
+            attachments.firstOrNull()
+                ?.let { it.toUiModel(viewModel.uploadProgress[it.assetId()]) }
+                ?.let { item ->
+                    AssetPreview(
+                        item,
+                        onClick = { viewModel.onClick(item) },
+                        onLoadPreview = { viewModel.loadAssetPreview(item) },
+                        modifier = modifier,
+                    )
+                }
     }
 }
 
@@ -112,6 +117,8 @@ class MultipartAttachmentsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val refreshed = mutableListOf<String>()
+
+    val uploadProgress = mutableStateMapOf<String, Float>()
 
     fun onClick(attachment: MultipartAttachmentUi) {
         when {
@@ -158,9 +165,24 @@ class MultipartAttachmentsViewModel @Inject constructor(
             kaliumFileSystem.delete(path)
         }
 
-        download(attachment.uuid, path)
+        download(attachment.uuid, path) { progress ->
+            attachment.assetSize?.let {
+                val value = progress.toFloat() / it
+                if (value < 1) {
+                    uploadProgress[attachment.uuid] = value
+                } else {
+                    uploadProgress.remove(attachment.uuid)
+                }
+            }
+        }
     }
 }
+
+private fun MessageAttachment.assetId() =
+    when (this) {
+        is AssetContent -> remoteData.assetId
+        is CellAssetContent -> id
+    }
 
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
 private fun MultipartAttachmentUi.canOpenWithUrl() = previewUrl != null && assetType == AttachmentFileType.IMAGE

@@ -22,16 +22,21 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.model.previewSupported
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 @Composable
 internal fun AssetGridPreview(
@@ -67,6 +72,21 @@ internal fun AssetGridPreview(
             else -> {
                 FileAssetGridPreview(item)
             }
+        }
+
+        item.progress?.let {
+            CircularProgressIndicator(
+                modifier = Modifier.size(32.dp).align(Alignment.Center),
+                progress = { it },
+                color = if (item.transferStatus == AssetTransferStatus.FAILED_DOWNLOAD) colorsScheme().error else colorsScheme().primary,
+                trackColor = Color.Transparent,
+            )
+//            WireLinearProgressIndicator(
+//                modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart),
+//                progress = { item.progress },
+//                color = if (item.transferStatus == AssetTransferStatus.FAILED_DOWNLOAD) colorsScheme().error else colorsScheme().primary,
+//                trackColor = Color.Transparent,
+//            )
         }
     }
 }

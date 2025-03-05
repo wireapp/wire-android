@@ -37,6 +37,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun MessageOptionsModalSheetLayout(
     sheetState: WireModalSheetState<UIMessage.Regular>,
@@ -119,7 +120,7 @@ fun MessageOptionsModalSheetLayout(
 
                                 is UIMessageContent.Multipart ->
                                     sheetState.hide {
-                                        with (message.messageContent.messageBody) {
+                                        with(message.messageContent.messageBody) {
                                             onEditClick(
                                                 message.header.messageId,
                                                 this?.message?.asString(context.resources) ?: "",

@@ -22,10 +22,13 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetPreviewUrlUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveCellFilesUseCase
 import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
@@ -56,6 +59,10 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
+    fun provideRemoveAttachmentsUseCase(cellsScope: CellsScope): RemoveAttachmentDraftsUseCase = cellsScope.removeAttachments
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveAttachmentsUseCase(cellsScope: CellsScope): ObserveAttachmentDraftsUseCase = cellsScope.observeAttachments
 
     @ViewModelScoped
@@ -73,4 +80,12 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideEnableCellUseCase(cellsScope: CellsScope): SetWireCellForConversationUseCase = cellsScope.enableWireCell
+
+    @ViewModelScoped
+    @Provides
+    fun provideLoadPreviewUseCase(cellsScope: CellsScope): GetPreviewUrlUseCase = cellsScope.loadPreview
+
+    @ViewModelScoped
+    @Provides
+    fun provideDownloadUseCase(cellsScope: CellsScope): DownloadCellFileUseCase = cellsScope.downloadFile
 }

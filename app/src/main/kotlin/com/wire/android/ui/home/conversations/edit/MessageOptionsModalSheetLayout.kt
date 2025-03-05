@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.isEditable
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.Copyable
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -64,7 +65,7 @@ fun MessageOptionsModalSheetLayout(
                     isUploading = message.isPending,
                     isComposite = message.messageContent is UIMessageContent.Composite,
                     isEphemeral = isEphemeral,
-                    isEditable = !isUploading && !isDeleted && message.messageContent is UIMessageContent.TextMessage && isMyMessage,
+                    isEditable = !isUploading && !isDeleted && (message.messageContent?.isEditable() ?: false) && isMyMessage,
                     isCopyable = !isUploading && !isDeleted && !isEphemeral && message.messageContent is Copyable,
                     isOpenable = true,
                     onCopyClick = remember(message.messageContent) {
@@ -106,14 +107,28 @@ fun MessageOptionsModalSheetLayout(
                     },
                     onEditClick = remember(message.header.messageId, message.messageContent) {
                         {
-                            (message.messageContent as? UIMessageContent.TextMessage)?.let {
-                                sheetState.hide {
-                                    onEditClick(
-                                        message.header.messageId,
-                                        message.messageContent.messageBody.message.asString(context.resources),
-                                        (message.messageContent.messageBody.message as? UIText.DynamicString)?.mentions ?: listOf()
-                                    )
-                                }
+                            when (message.messageContent) {
+                                is UIMessageContent.TextMessage ->
+                                    sheetState.hide {
+                                        onEditClick(
+                                            message.header.messageId,
+                                            message.messageContent.messageBody.message.asString(context.resources),
+                                            (message.messageContent.messageBody.message as? UIText.DynamicString)?.mentions ?: listOf()
+                                        )
+                                    }
+
+                                is UIMessageContent.Multipart ->
+                                    sheetState.hide {
+                                        with (message.messageContent.messageBody) {
+                                            onEditClick(
+                                                message.header.messageId,
+                                                this?.message?.asString(context.resources) ?: "",
+                                                (this?.message as? UIText.DynamicString)?.mentions ?: listOf()
+                                            )
+                                        }
+                                    }
+
+                                else -> error("Unsupported message type")
                             }
                         }
                     },

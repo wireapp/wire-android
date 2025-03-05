@@ -483,7 +483,7 @@ fun ConversationScreen(
                 NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
             )
         },
-        onSendMessage = { sendMessageViewModel.trySendMessage(it, messageAttachmentsViewModel.attachments) },
+        onSendMessage = { sendMessageViewModel.trySendMessage(it) },
         onPingOptionClicked = {
             if (conversationListCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
                 showDialog.value = ConversationScreenDialogType.PING_CONFIRMATION

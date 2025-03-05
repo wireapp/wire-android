@@ -44,13 +44,13 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun FileHeaderView(
     extension: String,
-    size: Long,
+    size: Long?,
     modifier: Modifier = Modifier,
     label: String? = null,
     labelColor: Color? = null,
 ) {
     val fileType = remember(extension) { AttachmentFileType.fromExtension(extension) }
-    val sizeString = remember(size) { DeviceUtil.formatSize(size) }
+    val sizeString = remember(size) { size?.let { DeviceUtil.formatSize(size) } ?: "" }
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -62,11 +62,13 @@ fun FileHeaderView(
             painter = painterResource(id = fileType.icon()),
             contentDescription = null,
         )
-        Text(
-            text = "${extension.uppercase()} ($sizeString)",
-            style = typography().subline01,
-            color = colorsScheme().secondaryText,
-        )
+        sizeString?.let {
+            Text(
+                text = "${extension.uppercase()} ($sizeString)",
+                style = typography().subline01,
+                color = colorsScheme().secondaryText,
+            )
+        }
         Spacer(modifier = Modifier.weight(1f))
         label?.let {
             Text(

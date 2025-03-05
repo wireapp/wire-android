@@ -40,6 +40,7 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -297,6 +298,15 @@ sealed interface UIMessageContent {
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable, Copyable {
         override fun textToCopy(resources: Resources): String = messageBody.message.asString(resources)
+    }
+
+    @Serializable
+    data class Multipart(
+        val messageBody: MessageBody?,
+        val attachments: PersistentList<MessageAttachment>,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular, PartialDeliverable, Copyable {
+        override fun textToCopy(resources: Resources): String? = messageBody?.message?.asString(resources)
     }
 
     @Serializable
@@ -781,3 +791,5 @@ private fun @receiver:StringRes Int.toLocalizedStringResource() = LocalizedStrin
 private fun @receiver:PluralsRes Int.toLocalizedPluralResource(quantity: Int) = LocalizedStringResource.Plural(this, quantity)
 
 const val DEFAULT_LOCATION_ZOOM = 20
+
+fun UIMessageContent.isEditable() = this is UIMessageContent.TextMessage || this is UIMessageContent.Multipart

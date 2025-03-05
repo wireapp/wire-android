@@ -42,8 +42,9 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getGitBuildId
-import com.wire.android.util.lifecycle.ConnectionPolicyManager
+import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.workmanager.WireWorkerFactory
+import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.common.logger.CoreLogger
@@ -72,7 +73,7 @@ class WireApplication : BaseApp() {
     lateinit var logFileWriter: Lazy<LogFileWriter>
 
     @Inject
-    lateinit var connectionPolicyManager: Lazy<ConnectionPolicyManager>
+    lateinit var syncLifecycleManager: Lazy<SyncLifecycleManager>
 
     @Inject
     lateinit var wireWorkerFactory: Lazy<WireWorkerFactory>
@@ -116,7 +117,9 @@ class WireApplication : BaseApp() {
             withContext(Dispatchers.Main) {
                 ProcessLifecycleOwner.get().lifecycle.addObserver(currentScreenManager)
             }
-            connectionPolicyManager.get().startObservingAppLifecycle()
+            launch {
+                syncLifecycleManager.get().observeAppLifecycle()
+            }
 
             appLogger.i("$TAG api version update")
             // TODO: Can be handled in one of Sync steps

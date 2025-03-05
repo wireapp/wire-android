@@ -20,7 +20,6 @@ package com.wire.android.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -126,6 +125,7 @@ import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.LoginType
+import com.wire.android.util.launchUpdateTheApp
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -637,11 +637,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateTheApp() {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.UPDATE_APP_URL))
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-    }
+    private fun updateTheApp() = this.launchUpdateTheApp()
 
     override fun onResume() {
         super.onResume()

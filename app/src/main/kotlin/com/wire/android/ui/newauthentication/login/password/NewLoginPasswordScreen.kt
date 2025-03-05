@@ -64,6 +64,7 @@ import com.wire.android.ui.authentication.login.email.ProxyIdentifierInput
 import com.wire.android.ui.authentication.login.email.ProxyPasswordInput
 import com.wire.android.ui.authentication.login.email.UserIdentifierInput
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
+import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.authentication.welcome.isProxyEnabled
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
@@ -343,7 +344,7 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
         }
     }
     if (state is LoginState.Error.DialogError) {
-        LoginErrorDialog(state, viewModel::clearLoginErrors, viewModel::updateTheApp)
+        LoginErrorDialog(state.toLoginDialogErrorData(), viewModel::clearLoginErrors)
     }
     EmailAlreadyInUseClaimedDomainDialog(
         dialogState = emailAlreadyInUseClaimedDomainDialogState,

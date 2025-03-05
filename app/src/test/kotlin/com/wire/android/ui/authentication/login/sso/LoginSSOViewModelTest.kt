@@ -723,8 +723,6 @@ class LoginSSOViewModelTest {
         @MockK
         lateinit var ssoExtension: LoginSSOViewModelExtension
 
-        private val userId: QualifiedID = QualifiedID("userId", "domain")
-
         init {
             MockKAnnotations.init(this)
             mockUri()
@@ -815,7 +813,7 @@ class LoginSSOViewModelTest {
     companion object {
         val onAuthScopeFailureSlot = slot<((AutoVersionAuthScopeUseCase.Result.Failure) -> Unit)>()
         val onSSOInitiateFailureSlot = slot<((SSOInitiateLoginResult.Failure) -> Unit)>()
-        val onSuccessSlot = slot<((redirectUrl: String, serverConfig: ServerConfig.Links) -> Unit)>()
+        val onSuccessSlot = slot<(suspend (redirectUrl: String, serverConfig: ServerConfig.Links) -> Unit)>()
         val onSSOLoginFailureSlot = slot<((SSOLoginSessionResult.Failure) -> Unit)>()
         val onAddAuthenticatedUserFailureSlot = slot<((AddAuthenticatedUserUseCase.Result.Failure) -> Unit)>()
         val onSuccessEstablishSSOSessionSlot = slot<(suspend (UserId) -> Unit)>()

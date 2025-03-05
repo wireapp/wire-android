@@ -52,7 +52,6 @@ import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
-import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.NewLoginNavGraph
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
@@ -65,6 +64,7 @@ import com.wire.android.ui.authentication.login.email.ProxyIdentifierInput
 import com.wire.android.ui.authentication.login.email.ProxyPasswordInput
 import com.wire.android.ui.authentication.login.email.UserIdentifierInput
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
+import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.authentication.welcome.isProxyEnabled
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
@@ -73,7 +73,7 @@ import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
@@ -100,18 +100,10 @@ fun NewLoginPasswordScreen(
     clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)
 
-    val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
-    EmailAlreadyInUseClaimedDomainDialog(emailAlreadyInUseClaimedDomainDialogState)
-    LaunchedEffect(navArgs.loginPasswordPath?.isDomainClaimedByOrg) {
-        (navArgs.loginPasswordPath?.isDomainClaimedByOrg as? DomainClaimedByOrg.Claimed)?.let {
-            emailAlreadyInUseClaimedDomainDialogState.show(it)
-        }
-    }
-
     LaunchedEffect(loginEmailViewModel.secondFactorVerificationCodeState) {
         if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
             val verificationCodeNavArgs = LoginNavArgs(
-                loginPasswordPath = LoginPasswordPath(loginEmailViewModel.serverConfig),
+                loginPasswordPath = navArgs.loginPasswordPath,
                 userHandle = loginEmailViewModel.userIdentifierTextState.text.toString()
             )
             navigator.navigate(NavigationCommand(NewLoginVerificationCodeScreenDestination(verificationCodeNavArgs)))
@@ -127,12 +119,11 @@ fun NewLoginPasswordScreen(
         passwordTextState = loginEmailViewModel.passwordTextState,
         onLoginButtonClick = loginEmailViewModel::login,
         onCreateAccount = {
-            // TODO: Should it open CreatePersonalAccountScreen or CreateTeamAccountScreen?
-            //       Also, maybe open the second step directly - ...EmailScreen with e-mail already filled in instead of ...OverviewScreen
-            navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
+            navigator.navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
         },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = navigator::navigateBack,
+        isCloudAccountCreationPossible = navArgs.loginPasswordPath?.isCloudAccountCreationPossible ?: true,
     )
 }
 
@@ -149,6 +140,7 @@ internal fun LoginPasswordContent(
     onCreateAccount: () -> Unit,
     canNavigateBack: Boolean,
     navigateBack: () -> Unit,
+    isCloudAccountCreationPossible: Boolean,
 ) {
     NewLoginContainer(
         header = {
@@ -230,7 +222,7 @@ internal fun LoginPasswordContent(
                             .padding(bottom = dimensions().spacing24x)
                     )
                 }
-                if (!serverConfig.isOnPremises && !serverConfig.isProxyEnabled()) {
+                if (!serverConfig.isOnPremises && !serverConfig.isProxyEnabled() && isCloudAccountCreationPossible) {
                     CreateAccountContent(
                         onCreateAccountClicked = onCreateAccount,
                         modifier = Modifier.fillMaxWidth(),
@@ -320,12 +312,13 @@ private fun CreateAccountContent(onCreateAccountClicked: () -> Unit, modifier: M
 @Composable
 fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Navigator) {
     val state = viewModel.loginState.flowState
-    LaunchedEffect(state) {
-        when (state) {
+    val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
+    val handleLoginStateNavigation: (LoginState) -> Unit = {
+        when (it) {
             is LoginState.Success -> {
                 val destination = when {
-                    state.isE2EIRequired -> E2EIEnrollmentScreenDestination
-                    state.initialSyncCompleted -> HomeScreenDestination
+                    it.isE2EIRequired -> E2EIEnrollmentScreenDestination
+                    it.initialSyncCompleted -> HomeScreenDestination
                     else -> InitialSyncScreenDestination
                 }
                 navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
@@ -341,9 +334,25 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
             }
         }
     }
-    if (state is LoginState.Error.DialogError) {
-        LoginErrorDialog(state, viewModel::clearLoginErrors, viewModel::updateTheApp)
+    LaunchedEffect(state) {
+        val isDomainClaimedByOrg = viewModel.loginNavArgs.loginPasswordPath?.isDomainClaimedByOrg
+        val isStateCompleted = state is LoginState.Success || state is LoginState.Error.TooManyDevicesError
+        if (isStateCompleted && isDomainClaimedByOrg is DomainClaimedByOrg.Claimed) {
+            emailAlreadyInUseClaimedDomainDialogState.show(isDomainClaimedByOrg)
+        } else {
+            handleLoginStateNavigation(state)
+        }
     }
+    if (state is LoginState.Error.DialogError) {
+        LoginErrorDialog(state.toLoginDialogErrorData(), viewModel::clearLoginErrors)
+    }
+    EmailAlreadyInUseClaimedDomainDialog(
+        dialogState = emailAlreadyInUseClaimedDomainDialogState,
+        onDismiss = {
+            emailAlreadyInUseClaimedDomainDialogState.dismiss()
+            handleLoginStateNavigation(state)
+        }
+    )
 }
 
 @PreviewMultipleThemes
@@ -362,6 +371,7 @@ private fun PreviewNewLoginPasswordScreen() = WireTheme {
                 onCreateAccount = {},
                 canNavigateBack = true,
                 navigateBack = {},
+                isCloudAccountCreationPossible = true,
             )
         }
     }
@@ -369,7 +379,7 @@ private fun PreviewNewLoginPasswordScreen() = WireTheme {
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewNewLoginPasswordWithProxyScreen() = WireTheme {
+private fun PreviewNewLoginPasswordScreenWithProxy() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginPasswordContent(
@@ -386,6 +396,29 @@ private fun PreviewNewLoginPasswordWithProxyScreen() = WireTheme {
                 onCreateAccount = {},
                 canNavigateBack = false,
                 navigateBack = {},
+                isCloudAccountCreationPossible = true,
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewNewLoginPasswordScreenWithCloudDisabledAccountCreation() = WireTheme {
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout {
+            LoginPasswordContent(
+                serverConfig = ServerConfig.DEFAULT,
+                loginEmailState = LoginEmailState(),
+                userIdentifierTextState = TextFieldState(),
+                passwordTextState = TextFieldState(),
+                proxyIdentifierState = TextFieldState(),
+                proxyPasswordState = TextFieldState(),
+                onLoginButtonClick = {},
+                onCreateAccount = {},
+                canNavigateBack = false,
+                navigateBack = {},
+                isCloudAccountCreationPossible = false,
             )
         }
     }

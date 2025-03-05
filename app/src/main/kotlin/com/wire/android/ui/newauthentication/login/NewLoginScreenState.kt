@@ -17,12 +17,9 @@
  */
 package com.wire.android.ui.newauthentication.login
 
-import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
-
 data class NewLoginScreenState(
     val isThereActiveSession: Boolean = false,
     val userIdentifierEnabled: Boolean = true,
     val nextEnabled: Boolean = false,
-    val flowState: DomainCheckupState = DomainCheckupState.Default,
-    val customServerDialogState: CustomServerDetailsDialogState? = null,
+    val flowState: NewLoginFlowState = NewLoginFlowState.Default,
 )

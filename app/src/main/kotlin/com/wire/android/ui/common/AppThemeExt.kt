@@ -25,7 +25,12 @@ import com.wire.kalium.logic.data.id.ConversationId
 import kotlin.math.absoluteValue
 
 @Composable
-internal fun WireColorScheme.conversationColor(id: ConversationId): Color {
+internal fun WireColorScheme.conversationColor(id: ConversationId): Triple<Color, Color, Color> {
     val colors = this.groupAvatarColors
-    return colors[(id.hashCode() % colors.size).absoluteValue]
+    val baseColorIndex = (id.hashCode() % colors.size).absoluteValue
+    val color1 = colors[baseColorIndex % colors.size]
+    val color2 = colors[(baseColorIndex + 1) % colors.size]
+    val color3 = colors[(baseColorIndex + 2) % colors.size]
+
+    return Triple(color1, color2, color3)
 }

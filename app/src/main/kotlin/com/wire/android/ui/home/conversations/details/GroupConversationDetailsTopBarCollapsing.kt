@@ -68,7 +68,7 @@ fun GroupConversationDetailsTopBarCollapsing(
     ) {
         Box(contentAlignment = Alignment.Center) {
             GroupConversationAvatar(
-                color = colorsScheme().conversationColor(id = conversationId),
+                conversationId = conversationId,
                 size = dimensions().groupAvatarConversationDetailsTopBarSize,
                 cornerRadius = dimensions().groupAvatarConversationDetailsCornerRadius,
                 padding = dimensions().avatarConversationTopBarClickablePadding,

@@ -83,6 +83,8 @@ class WireColorScheme(
     val wireAccentColors: WireAccentColors,
 
     val emojiBackgroundColor: Color,
+
+    val avatarBorderColor: Color
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
@@ -165,13 +167,12 @@ private val LightWireColorScheme = WireColorScheme(
 
     // accents
     groupAvatarColors = listOf(
-        WireColorPalette.LightRed300, WireColorPalette.LightRed500, WireColorPalette.LightRed700,
-        WireColorPalette.LightGreen300, WireColorPalette.LightGreen500, WireColorPalette.LightGreen700,
-        WireColorPalette.LightBlue300, WireColorPalette.LightBlue500, WireColorPalette.LightBlue700,
-        WireColorPalette.LightPurple300, WireColorPalette.LightPurple500, WireColorPalette.LightPurple700,
-        WireColorPalette.LightAmber300, WireColorPalette.LightAmber500, WireColorPalette.LightAmber700,
-        WireColorPalette.LightPetrol300, WireColorPalette.LightPetrol500, WireColorPalette.LightPetrol700,
-        WireColorPalette.Gray30, WireColorPalette.Gray50, WireColorPalette.Gray70,
+        WireColorPalette.LightBlue500,
+        WireColorPalette.LightGreen500,
+        WireColorPalette.LightPurple500,
+        WireColorPalette.LightRed500,
+        WireColorPalette.Brown,
+        WireColorPalette.Turquoise,
     ),
     wireAccentColors = WireAccentColors {
         when (it) {
@@ -185,6 +186,7 @@ private val LightWireColorScheme = WireColorScheme(
         }
     },
     emojiBackgroundColor = Color.White,
+    avatarBorderColor = WireColorPalette.Gray40
 )
 
 // Dark WireColorScheme
@@ -241,13 +243,12 @@ private val DarkWireColorScheme = WireColorScheme(
 
     // accents
     groupAvatarColors = listOf(
-        WireColorPalette.DarkRed300, WireColorPalette.DarkRed500, WireColorPalette.DarkRed700,
-        WireColorPalette.DarkGreen300, WireColorPalette.DarkGreen500, WireColorPalette.DarkGreen700,
-        WireColorPalette.DarkBlue300, WireColorPalette.DarkBlue500, WireColorPalette.DarkBlue700,
-        WireColorPalette.DarkPurple300, WireColorPalette.DarkPurple500, WireColorPalette.DarkPurple700,
-        WireColorPalette.DarkAmber300, WireColorPalette.DarkAmber500, WireColorPalette.DarkAmber700,
-        WireColorPalette.DarkPetrol300, WireColorPalette.DarkPetrol500, WireColorPalette.DarkPetrol700,
-        WireColorPalette.Gray50, WireColorPalette.Gray70, WireColorPalette.Gray90,
+        WireColorPalette.DarkBlue500,
+        WireColorPalette.DarkGreen500,
+        WireColorPalette.DarkPurple500,
+        WireColorPalette.DarkRed500,
+        WireColorPalette.DarkAmber500,
+        WireColorPalette.DarkPetrol500
     ),
     wireAccentColors = WireAccentColors {
         when (it) {
@@ -261,6 +262,7 @@ private val DarkWireColorScheme = WireColorScheme(
         }
     },
     emojiBackgroundColor = Color.Black,
+    avatarBorderColor = WireColorPalette.Gray90
 )
 
 @PackagePrivate

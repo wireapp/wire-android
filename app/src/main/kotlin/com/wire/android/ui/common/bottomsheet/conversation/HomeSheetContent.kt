@@ -79,10 +79,7 @@ internal fun ConversationMainSheetContent(
             title = conversationSheetContent.title,
             leadingIcon = {
                 if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
-                    GroupConversationAvatar(
-                        color = colorsScheme()
-                            .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
-                    )
+                    GroupConversationAvatar(conversationSheetContent.conversationTypeDetail.conversationId)
                 } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
                     val connectionState: ConnectionState? = conversationSheetContent.conversationTypeDetail.blockingState.let {
                         if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null

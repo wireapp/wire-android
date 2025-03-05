@@ -105,6 +105,7 @@ private fun ConversationFilter.emptyDescription(backendName: String): String = w
     ConversationFilter.All -> stringResource(R.string.conversation_empty_list_description)
     ConversationFilter.Favorites -> stringResource(R.string.favorites_empty_list_description)
     ConversationFilter.Groups -> stringResource(R.string.group_empty_list_description)
+    ConversationFilter.Channels -> stringResource(R.string.group_empty_list_description)
     ConversationFilter.OneOnOne -> stringResource(R.string.one_on_one_empty_list_description, backendName)
     // currently not used, because empty folders are removed from filters
     is ConversationFilter.Folder -> ""

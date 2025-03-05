@@ -125,6 +125,7 @@ import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
+import com.wire.android.ui.destinations.ImagesPreviewScreenDestination
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.destinations.MessageDetailsScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
@@ -144,6 +145,7 @@ import com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayou
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
+import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBackArgs
 import com.wire.android.ui.home.conversations.messages.AudioMessagesState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
@@ -228,6 +230,7 @@ fun ConversationScreen(
     navigator: Navigator,
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
+    imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
@@ -493,8 +496,20 @@ fun ConversationScreen(
             }
         },
         onImagesPicked = {
-            messageAttachmentsViewModel.onFilesSelected(it)
-            messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
+            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
+                messageAttachmentsViewModel.onFilesSelected(it)
+                messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
+            } else {
+                navigator.navigate(
+                    NavigationCommand(
+                        ImagesPreviewScreenDestination(
+                            conversationId = conversationInfoViewModel.conversationInfoViewState.conversationId,
+                            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
+                            assetUriList = ArrayList(it)
+                        )
+                    )
+                )
+            }
         },
         onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
         onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
@@ -729,21 +744,21 @@ fun ConversationScreen(
         }
     }
 
-//    imagePreviewScreenResultRecipient.onNavResult { result ->
-//        when (result) {
-//            Canceled -> {}
-//            is Value -> {
-//                sendMessageViewModel.trySendMessages(
-//                    result.value.pendingBundles.map { assetBundle ->
-//                        ComposableMessageBundle.AttachmentPickedBundle(
-//                            conversationId = conversationMessagesViewModel.conversationId,
-//                            assetBundle = assetBundle
-//                        )
-//                    }
-//                )
-//            }
-//        }
-//    }
+    imagePreviewScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            Canceled -> {}
+            is Value -> {
+                sendMessageViewModel.trySendMessages(
+                    result.value.pendingBundles.map { assetBundle ->
+                        ComposableMessageBundle.AttachmentPickedBundle(
+                            conversationId = conversationMessagesViewModel.conversationId,
+                            assetBundle = assetBundle
+                        )
+                    }
+                )
+            }
+        }
+    }
 
     drawingCanvasScreenResultRecipient.onNavResult { result ->
         when (result) {

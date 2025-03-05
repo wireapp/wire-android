@@ -155,7 +155,7 @@ class SendMessageViewModel @Inject constructor(
         trySendMessages(listOf(messageBundle))
     }
 
-    private fun trySendMessages(messageBundleList: List<MessageBundle>) {
+    fun trySendMessages(messageBundleList: List<MessageBundle>) {
         if (messageBundleList.size > MAX_LIMIT_MESSAGE_SEND) {
             onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached)
         } else {

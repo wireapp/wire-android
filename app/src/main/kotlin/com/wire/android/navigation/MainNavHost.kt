@@ -87,6 +87,7 @@ fun MainNavHost(
                     navigator = navigator,
                     groupDetailsScreenResultRecipient = resultRecipient(),
                     mediaGalleryScreenResultRecipient = resultRecipient(),
+                    imagePreviewScreenResultRecipient = resultRecipient(),
                     drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(),
                     resultNavigator = resultBackNavigator(),
                 )

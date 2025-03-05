@@ -92,11 +92,14 @@ fun HomeDrawer(
             onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Conversations) } }
         )
 
-        DrawerItem(
-            destination = HomeDestination.Cells,
-            selected = currentRoute == HomeDestination.Cells.direction.route,
-            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Cells) } }
-        )
+//
+//        Disabled to hide the cells feature
+//
+//        DrawerItem(
+//            destination = HomeDestination.Cells,
+//            selected = currentRoute == HomeDestination.Cells.direction.route,
+//            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Cells) } }
+//        )
 
         DrawerItem(
             destination = HomeDestination.Archive,

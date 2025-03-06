@@ -98,7 +98,7 @@ class NewLoginViewModel(
     )
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig.orDefault())
         private set
 

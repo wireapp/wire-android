@@ -23,7 +23,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginNavArgs(
-    val userHandle: PreFilledUserIdentifierType = PreFilledUserIdentifierType.None,
+    val userHandle: PreFilledUserIdentifierType.PreFilled? = null,
     val ssoLoginResult: DeepLinkResult.SSOLogin? = null,
     val loginPasswordPath: LoginPasswordPath? = null,
 )

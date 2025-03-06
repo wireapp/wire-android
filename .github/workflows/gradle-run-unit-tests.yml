@@ -37,7 +37,7 @@ jobs:
 
       - name: Create sharded tests
         run: |
-          ./gradlew generateShardsForTests
+          ./gradlew app:generateShardsForTests
           echo "Shards generated:"
           python3 -mjson.tool shards.json
 

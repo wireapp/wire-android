@@ -23,7 +23,6 @@ import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-
 sealed class NewLoginFlowState {
     data object Default : NewLoginFlowState()
     data object Loading : NewLoginFlowState()

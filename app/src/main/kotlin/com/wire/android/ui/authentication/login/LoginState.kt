@@ -43,7 +43,6 @@ sealed class LoginState {
             data object ClientUpdateRequired : DialogError()
             data object AccountSuspended : DialogError()
             data object AccountPendingActivation : DialogError()
-
         }
         data object TooManyDevicesError : Error()
     }

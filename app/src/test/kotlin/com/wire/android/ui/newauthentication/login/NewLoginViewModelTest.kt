@@ -60,8 +60,12 @@ class NewLoginViewModelTest {
         sut.onLoginStarted(action = arrangement.action)
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any()) }
-        coVerify(exactly = 0) { arrangement.authenticationScope.getLoginFlowForDomainUseCase(any()) }
+        coVerify(exactly = 1) {
+            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+        }
+        coVerify(exactly = 0) {
+            arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
+        }
     }
 
     @Test
@@ -75,8 +79,12 @@ class NewLoginViewModelTest {
         sut.onLoginStarted(action = arrangement.action)
         advanceUntilIdle()
 
-        coVerify(exactly = 0) { arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any()) }
-        coVerify(exactly = 1) { arrangement.authenticationScope.getLoginFlowForDomainUseCase(any()) }
+        coVerify(exactly = 0) {
+            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+        }
+        coVerify(exactly = 1) {
+            arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
+        }
     }
 
     @Test
@@ -87,9 +95,15 @@ class NewLoginViewModelTest {
 
         sut.onLoginStarted(action = arrangement.action)
 
-        coVerify(exactly = 0) { arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any()) }
-        coVerify(exactly = 0) { arrangement.authenticationScope.getLoginFlowForDomainUseCase(any()) }
-        verify(exactly = 0) { arrangement.action(any()) }
+        coVerify(exactly = 0) {
+            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+        }
+        coVerify(exactly = 0) {
+            arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
+        }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.TextFieldError.InvalidValue, sut.state.flowState)
     }
 
@@ -105,7 +119,9 @@ class NewLoginViewModelTest {
         sut.initiateSSO(config.serverConfig, config.ssoCode, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 1) { arrangement.action(eq(NewLoginAction.SSO(redirectUrl, config))) }
+        verify(exactly = 1) {
+            arrangement.action(eq(NewLoginAction.SSO(redirectUrl, config)))
+        }
     }
 
     @Test
@@ -119,7 +135,9 @@ class NewLoginViewModelTest {
         sut.initiateSSO(serverConfig, "sso-code", arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.InvalidSSOCode, sut.state.flowState)
     }
 
@@ -134,7 +152,9 @@ class NewLoginViewModelTest {
         sut.initiateSSO(serverConfig, "sso-code", arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, sut.state.flowState)
     }
 
@@ -149,8 +169,12 @@ class NewLoginViewModelTest {
         sut.onCustomServerDialogConfirm(serverConfig, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
-        coVerify(exactly = 1) { arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, ssoCode, any(), any(), any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
+        coVerify(exactly = 1) {
+            arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, ssoCode, any(), any(), any())
+        }
     }
 
     @Test
@@ -163,8 +187,16 @@ class NewLoginViewModelTest {
         sut.onCustomServerDialogConfirm(serverConfig, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 1) { arrangement.action(match { it is NewLoginAction.CustomConfig && it.customServerConfig == serverConfig }) }
-        coVerify(exactly = 0) { arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, any(), any(), any(), any()) }
+        verify(exactly = 1) {
+            arrangement.action(
+                match {
+                    it is NewLoginAction.CustomConfig && it.customServerConfig == serverConfig
+                }
+            )
+        }
+        coVerify(exactly = 0) {
+            arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, any(), any(), any(), any())
+        }
     }
 
     @Test
@@ -177,7 +209,9 @@ class NewLoginViewModelTest {
         sut.onCustomServerDialogConfirm(serverConfig, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, sut.state.flowState)
     }
 
@@ -192,7 +226,9 @@ class NewLoginViewModelTest {
         sut.onCustomServerDialogConfirm(serverConfig, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.GenericError(failure), sut.state.flowState)
     }
 
@@ -210,7 +246,9 @@ class NewLoginViewModelTest {
         sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { arrangement.loginViewModelExtension.registerClient(userId, any(), any(), any()) }
+        coVerify(exactly = 1) {
+            arrangement.loginViewModelExtension.registerClient(userId, any(), any(), any())
+        }
     }
 
     @Test
@@ -224,7 +262,9 @@ class NewLoginViewModelTest {
         sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, sut.state.flowState)
     }
 
@@ -239,7 +279,9 @@ class NewLoginViewModelTest {
         sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.InvalidSSOCookie, sut.state.flowState)
     }
 
@@ -254,7 +296,9 @@ class NewLoginViewModelTest {
         sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.UserAlreadyExists, sut.state.flowState)
     }
 
@@ -321,7 +365,9 @@ class NewLoginViewModelTest {
         sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.GenericError(failure), sut.state.flowState)
     }
 
@@ -339,7 +385,9 @@ class NewLoginViewModelTest {
         sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
         advanceUntilIdle()
 
-        coVerify { arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), expectedConfig, any(), any(), any(), any()) }
+        coVerify {
+            arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), expectedConfig, any(), any(), any(), any())
+        }
     }
 
     @Test
@@ -363,7 +411,9 @@ class NewLoginViewModelTest {
         sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.SSOResultFailure(ssoDeepLinkResult.ssoError), sut.state.flowState)
     }
 
@@ -377,7 +427,9 @@ class NewLoginViewModelTest {
         sut.getEnterpriseLoginFlow(email, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 1) { arrangement.action(expected) }
+        verify(exactly = 1) {
+            arrangement.action(expected)
+        }
     }
 
     @Test
@@ -405,7 +457,9 @@ class NewLoginViewModelTest {
     fun `given existing account path, when enterprise login, then call EmailPassword action with no creation and claimed domain flag`() =
         testEnterpriseLoginActions(
             result = EnterpriseLoginResult.Success(LoginRedirectPath.ExistingAccountWithClaimedDomain("claimed-domain")),
-            expected = NewLoginAction.EmailPassword(email, LoginPasswordPath(
+            expected = NewLoginAction.EmailPassword(
+                userIdentifier = email,
+                loginPasswordPath = LoginPasswordPath(
                     isCloudAccountCreationPossible = false,
                     isDomainClaimedByOrg = DomainClaimedByOrg.Claimed("claimed-domain"),
                 )
@@ -423,12 +477,16 @@ class NewLoginViewModelTest {
         sut.getEnterpriseLoginFlow(email, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
-        coVerify(exactly = 1) { arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCode, any(), any(), any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
+        coVerify(exactly = 1) {
+            arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCode, any(), any(), any())
+        }
     }
 
     @Test
-    fun `given custom backend path, when enterprise login, then update custom backend state`() =runTest(dispatchers.main()) {
+    fun `given custom backend path, when enterprise login, then update custom backend state`() = runTest(dispatchers.main()) {
         val customServerConfig: ServerConfig.Links = newServerConfig(2).links
         val (arrangement, sut) = Arrangement()
             .withAuthenticationScopeSuccess()
@@ -438,12 +496,14 @@ class NewLoginViewModelTest {
         sut.getEnterpriseLoginFlow(email, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.CustomConfigDialog(customServerConfig), sut.state.flowState)
     }
 
     @Test
-    fun `given failure, when enterprise login, then update error state`() =runTest(dispatchers.main()) {
+    fun `given failure, when enterprise login, then update error state`() = runTest(dispatchers.main()) {
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
         val (arrangement, sut) = Arrangement()
             .withAuthenticationScopeSuccess()
@@ -453,12 +513,14 @@ class NewLoginViewModelTest {
         sut.getEnterpriseLoginFlow(email, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.GenericError(failure), sut.state.flowState)
     }
 
     @Test
-    fun `given auth scope failure, when enterprise login, then update error state`() =runTest(dispatchers.main()) {
+    fun `given auth scope failure, when enterprise login, then update error state`() = runTest(dispatchers.main()) {
         val (arrangement, sut) = Arrangement()
             .withAuthenticationScopeFailure(AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion)
             .arrange()
@@ -466,7 +528,9 @@ class NewLoginViewModelTest {
         sut.getEnterpriseLoginFlow(email, arrangement.action)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.action(any()) }
+        verify(exactly = 0) {
+            arrangement.action(any())
+        }
         assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, sut.state.flowState)
     }
 
@@ -501,82 +565,139 @@ class NewLoginViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>(any()) } returns null
-            every { savedStateHandle[any()] = any<String>() } returns Unit
-            every { action(any()) } returns Unit
+            every {
+                savedStateHandle.get<String>(any())
+            } returns null
+            every {
+                savedStateHandle[any()] = any<String>()
+            } returns Unit
+            every {
+                action(any())
+            } returns Unit
         }
+
         fun withNavArgsServerConfig(serverConfig: ServerConfig.Links) = apply {
-            every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(loginPasswordPath = LoginPasswordPath(serverConfig))
+            every {
+                savedStateHandle.navArgs<LoginNavArgs>()
+            } returns LoginNavArgs(loginPasswordPath = LoginPasswordPath(serverConfig))
         }
+
         fun withEmailOrSSOCodeValidatorReturning(result: ValidateEmailOrSSOCodeUseCase.Result = ValidEmail) = apply {
-            every { validateEmailOrSSOCodeUseCase(any()) } returns result
+            every {
+                validateEmailOrSSOCodeUseCase(any())
+            } returns result
         }
+
         fun withGetLoginFlowForDomainReturning(result: EnterpriseLoginResult) = apply {
-            coEvery { authenticationScope.getLoginFlowForDomainUseCase(any()) } returns result
+            coEvery {
+                authenticationScope.getLoginFlowForDomainUseCase(any())
+            } returns result
         }
+
         fun withRegisterClientReturning(result: RegisterClientResult) = apply {
-            coEvery { loginViewModelExtension.registerClient(any(), any(), any(), any()) } returns result
+            coEvery {
+                loginViewModelExtension.registerClient(any(), any(), any(), any())
+            } returns result
         }
+
         fun withIsInitialSyncCompletedReturning(result: Boolean) = apply {
-            coEvery { loginViewModelExtension.isInitialSyncCompleted(any()) } returns result
+            coEvery {
+                loginViewModelExtension.isInitialSyncCompleted(any())
+            } returns result
         }
+
         fun withAuthenticationScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
-            coEvery { loginSSOViewModelExtension.withAuthenticationScope(any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.withAuthenticationScope(any(), any(), any())
+            } coAnswers {
                 arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(1)(failure)
             }
         }
+
         fun withAuthenticationScopeSuccess(authScope: AuthenticationScope = authenticationScope) = apply {
-            coEvery { loginSSOViewModelExtension.withAuthenticationScope(any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.withAuthenticationScope(any(), any(), any())
+            } coAnswers {
                 arg<suspend (AuthenticationScope) -> Unit>(2)(authScope)
             }
         }
+
         fun withInitiateSSOAuthScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
-            coEvery { loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+            } coAnswers {
                 arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(2)(failure)
             }
         }
+
         fun withInitiateSSOFailure(failure: SSOInitiateLoginResult.Failure) = apply {
-            coEvery { loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+            } coAnswers {
                 arg<(SSOInitiateLoginResult.Failure) -> Unit>(3)(failure)
             }
         }
+
         fun withInitiateSSOSuccess(url: String, serverConfig: ServerConfig.Links) = apply {
-            coEvery { loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+            } coAnswers {
                 arg<suspend (String, ServerConfig.Links) -> Unit>(4)(url, serverConfig)
             }
         }
+
         fun withFetchDefaultSSOCodeAuthScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
-            coEvery { loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
+            } coAnswers {
                 arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(1)(failure)
             }
         }
+
         fun withFetchDefaultSSOCodeFailure(failure: FetchSSOSettingsUseCase.Result.Failure) = apply {
-            coEvery { loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
+            } coAnswers {
                 arg<(FetchSSOSettingsUseCase.Result.Failure) -> Unit>(2)(failure)
             }
         }
+
         fun withFetchDefaultSSOCodeSuccess(defaultSSOCode: String?) = apply {
-            coEvery { loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
+            } coAnswers {
                 arg<suspend (String?) -> Unit>(3)(defaultSSOCode)
             }
         }
+
         fun withEstablishSSOSessionAuthScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
-            coEvery { loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+            } coAnswers {
                 arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(3)(failure)
             }
         }
+
         fun withEstablishSSOSessionLoginFailure(failure: SSOLoginSessionResult.Failure) = apply {
-            coEvery { loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+            } coAnswers {
                 arg<(SSOLoginSessionResult.Failure) -> Unit>(4)(failure)
             }
         }
+
         fun withEstablishSSOSessionAddUserFailure(failure: AddAuthenticatedUserUseCase.Result.Failure) = apply {
-            coEvery { loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+            } coAnswers {
                 arg<(AddAuthenticatedUserUseCase.Result.Failure) -> Unit>(5)(failure)
             }
         }
+
         fun withEstablishSSOSessionSuccess(userId: UserId) = apply {
-            coEvery { loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+            coEvery {
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+            } coAnswers {
                 arg<suspend (UserId) -> Unit>(6)(userId)
             }
         }

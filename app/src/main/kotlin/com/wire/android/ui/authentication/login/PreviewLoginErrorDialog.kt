@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.authentication.login
 
 import androidx.compose.runtime.Composable
@@ -106,7 +108,6 @@ fun PreviewLoginErrorDialog_Request2FAWithHandle() = WireTheme {
 fun PreviewLoginErrorDialog_PasswordNeededToRegisterClient() = WireTheme {
     LoginErrorDialog(LoginState.Error.DialogError.PasswordNeededToRegisterClient.toLoginDialogErrorData()) {}
 }
-
 
 @PreviewMultipleThemes
 @Composable

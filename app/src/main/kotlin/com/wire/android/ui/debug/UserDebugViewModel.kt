@@ -69,13 +69,13 @@ class UserDebugViewModel
     fun setLoggingEnabledState(isEnabled: Boolean) {
         viewModelScope.launch {
             globalDataStore.setLoggingEnabled(isEnabled)
-        }
-        if (isEnabled) {
-            logFileWriter.start()
-            CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE)
-        } else {
-            logFileWriter.stop()
-            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
+            if (isEnabled) {
+                logFileWriter.start()
+                CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE)
+            } else {
+                logFileWriter.stop()
+                CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
+            }
         }
     }
 

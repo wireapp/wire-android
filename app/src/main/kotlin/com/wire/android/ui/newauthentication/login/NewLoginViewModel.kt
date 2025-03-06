@@ -160,7 +160,7 @@ class NewLoginViewModel(
                         updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(loginFlowResult.coreFailure))
                     }
 
-                    is EnterpriseLoginResult.Failure.NotSupported ->  withContext(dispatchers.main()) {
+                    is EnterpriseLoginResult.Failure.NotSupported -> withContext(dispatchers.main()) {
                         action(NewLoginAction.EnterpriseLoginNotSupported(email))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }

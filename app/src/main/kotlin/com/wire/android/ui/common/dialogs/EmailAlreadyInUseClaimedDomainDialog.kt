@@ -159,5 +159,6 @@ private fun AnnotatedString.Builder.addStyledLink(url: String, start: Int, end: 
 @PreviewMultipleThemes
 @Composable
 fun PreviewEmailAlreadyInUseClaimedDomainDialog() = WireTheme {
-    EmailAlreadyInUseClaimedDomainDialog(VisibilityState(isVisible = true, saveable = DomainClaimedByOrg.Claimed("domain.com"))) {}
+    EmailAlreadyInUseClaimedDomainDialog(VisibilityState(isVisible = true, saveable = DomainClaimedByOrg.Claimed("domain.com"))) {
+    }
 }

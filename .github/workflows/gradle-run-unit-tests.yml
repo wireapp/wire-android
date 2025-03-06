@@ -37,15 +37,14 @@ jobs:
 
       - name: Create sharded tests
         run: |
-          ./gradlew app:generateShardsForTests
-          echo "Shards generated:"
-          python3 -mjson.tool shards.json
+          ./gradlew generateShardsForTests
+
+      - name: Display Shards created
+        run: python3 -mjson.tool shards.json
 
       - name: Test with with shards
         run: |
-          ls -la
           cat shards.json
-          python3 -mjson.tool shards.json
           ./gradlew :app:unitTestShard${{ matrix.shardIndex }}
         env:
           GITHUB_USER: ${{ github.actor }}

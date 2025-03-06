@@ -317,7 +317,4 @@ object WireColorPalette {
     val Pink = Color(0xFFEB239B)
     @Stable
     val Turquoise = Color(0xFF01718E)
-
-    @Stable
-    val SmokeyGray = Color(0xFF737373)
 }

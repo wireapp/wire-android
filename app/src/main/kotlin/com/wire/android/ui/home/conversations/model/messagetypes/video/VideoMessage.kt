@@ -42,7 +42,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import coil.request.ImageRequest
@@ -108,7 +107,7 @@ fun VideoMessage(
                 .fillMaxWidth(widthFraction(width, height))
                 .aspectRatio(aspectRatio(width, height))
                 .background(
-                    color = colorsScheme().backdrop,
+                    color = colorsScheme().scrim,
                     shape = RoundedCornerShape(dimensions().buttonCornerSize)
                 )
                 .border(
@@ -140,10 +139,10 @@ fun VideoMessage(
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(Alignment.BottomEnd)
-                            .background(color = Color.Black.copy(alpha = 0.5f))
-                            .padding(4.dp),
+                            .background(color = colorsScheme().scrim)
+                            .padding(dimensions().spacing4x),
                         text = DateAndTimeParsers.videoMessageTime(duration),
-                        fontSize = 12.sp,
+                        style = typography().subline01,
                         color = Color.White,
                         textAlign = TextAlign.Center
                     )
@@ -155,23 +154,23 @@ fun VideoMessage(
                     Text(
                         text = stringResource(R.string.asset_message_tap_to_download_text),
                         color = colorsScheme().inverseOnSurface,
-                        fontSize = 12.sp,
+                        style = typography().subline01,
                     )
                 AssetTransferStatus.DOWNLOAD_IN_PROGRESS ->
                     WireCircularProgressIndicator(
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.size(dimensions().spacing32x),
                         progressColor = colorsScheme().inverseOnSurface,
                     )
                 AssetTransferStatus.FAILED_DOWNLOAD ->
                     Text(
                         text = stringResource(R.string.asset_message_failed_download_text),
                         color = colorsScheme().inverseOnSurface,
-                        fontSize = 12.sp,
+                        style = typography().subline01,
                     )
                 AssetTransferStatus.UPLOADED,
                 AssetTransferStatus.SAVED_INTERNALLY ->
                     Image(
-                        modifier = Modifier.size(48.dp),
+                        modifier = Modifier.size(dimensions().spacing48x),
                         painter = painterResource(id = R.drawable.ic_play_circle_filled),
                         contentDescription = null,
                     )
@@ -213,10 +212,10 @@ private fun PreviewVideoMessage() {
                 assetSize = 123456,
                 assetName = "video.mp4",
                 assetExtension = "mp4",
-                assetDataPath = null,
+                assetDataPath = "",
                 width = 1920,
                 height = 1080,
-                duration = null,
+                duration = 1231231,
                 transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
                 onVideoClick = Clickable {},
             )
@@ -224,18 +223,18 @@ private fun PreviewVideoMessage() {
                 assetSize = 123456,
                 assetName = "video.mp4",
                 assetExtension = "mp4",
-                assetDataPath = null,
+                assetDataPath = "",
                 transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
                 width = null,
                 height = null,
-                duration = null,
+                duration = 1231231,
                 onVideoClick = Clickable {},
             )
             VideoMessage(
                 assetSize = 123456,
                 assetName = "video.mp4",
                 assetExtension = "mp4",
-                assetDataPath = null,
+                assetDataPath = "",
                 transferStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 width = 1920,
                 height = 1080,
@@ -262,7 +261,7 @@ private fun PreviewVideoMessageError() {
                 transferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
                 width = null,
                 height = null,
-                duration = null,
+                duration = 123123,
                 onVideoClick = Clickable {},
             )
         }
@@ -285,7 +284,7 @@ private fun PreviewVideoMessageVertical() {
                 transferStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 width = 1080,
                 height = 1920,
-                duration = null,
+                duration = 12412412,
                 onVideoClick = Clickable {},
             )
         }

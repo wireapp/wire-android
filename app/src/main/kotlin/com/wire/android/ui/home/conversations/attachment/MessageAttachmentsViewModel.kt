@@ -42,6 +42,7 @@ import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -160,7 +161,7 @@ class MessageAttachmentsViewModel @Inject constructor(
         }
 
     fun showAttachment(attachment: AttachmentDraftUi) {
-        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(attachment.fileName.substringAfterLast("."))
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(attachment.fileName.fileExtension() ?: "")
         fileManager.openWithExternalApp(attachment.localFilePath.toPath(), attachment.fileName, mimeType) {
             Log.e("MessageAttachmentsViewModel", "Failed to open: ${attachment.localFilePath}")
             // TODO: show message to user?

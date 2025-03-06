@@ -40,6 +40,7 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.util.fileExtension
 
 @Composable
 fun CellListItem(
@@ -52,7 +53,7 @@ fun CellListItem(
         ) {
             FileHeaderView(
                 modifier = Modifier.padding(10.dp),
-                extension = file.fileName.substringAfterLast('.'),
+                extension = file.fileName.fileExtension() ?: "",
                 size = file.fileSize
             )
             Spacer(

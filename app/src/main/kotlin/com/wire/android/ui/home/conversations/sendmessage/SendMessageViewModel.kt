@@ -70,6 +70,7 @@ import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
+import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -156,7 +157,7 @@ class SendMessageViewModel @Inject constructor(
         viewModelScope.launch {
             if (attachments.isNotEmpty()) {
                 attachments.map {
-                    val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(it.fileName.substringAfterLast("."))
+                    val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(it.fileName.fileExtension() ?: "")
                     AssetBundle(
                         key = it.uuid,
                         mimeType = mimeType.toString(),

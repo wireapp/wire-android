@@ -94,6 +94,7 @@ private fun CellScreenContent(
                         is CellNodeItem -> it.node.uuid
                     }
                 },
+                contentType = { it is CellListHeader }
             ) { file ->
                 when (file) {
                     is CellListHeader -> Header(title = file.title)

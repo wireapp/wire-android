@@ -32,12 +32,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.model.icon
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.DeviceUtil
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -49,15 +50,15 @@ fun FileHeaderView(
     labelColor: Color? = null,
 ) {
     val fileType = remember(extension) { AttachmentFileType.fromExtension(extension) }
-    val sizeString = remember(size) { size.formattedFileSize() }
+    val sizeString = remember(size) { DeviceUtil.formatSize(size) }
 
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)
     ) {
         Image(
-            modifier = Modifier.size(16.dp),
+            modifier = Modifier.size(dimensions().spacing16x),
             painter = painterResource(id = fileType.icon()),
             contentDescription = null,
         )
@@ -77,20 +78,13 @@ fun FileHeaderView(
     }
 }
 
-@Suppress("MagicNumber")
-private fun Long.formattedFileSize() = when {
-    this >= 1 shl 20 -> "%.1f MB".format(toDouble() / (1 shl 20))
-    this >= 1 shl 10 -> "%.0f kB".format(toDouble() / (1 shl 10))
-    else -> "$this B"
-}
-
 @PreviewMultipleThemes
 @Composable
 private fun PreviewFileHeader() {
     WireTheme {
         Column(
-            modifier = Modifier.padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(dimensions().spacing8x),
+            verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
         ) {
             FileHeaderView(
                 extension = "PDF",

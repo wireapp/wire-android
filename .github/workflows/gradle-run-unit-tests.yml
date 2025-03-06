@@ -61,8 +61,8 @@ jobs:
       - name: Upload zipped test results
         uses: actions/upload-artifact@v4
         with:
-          name: unit-tests-android_${{ env.COMMIT_HASH }}
-          path: unit-tests-android_${{ env.COMMIT_HASH }}.zip
+          name: unit-tests-android_${{ env.COMMIT_HASH }}-${{ matrix.shardIndex }}
+          path: unit-tests-android_${{ env.COMMIT_HASH }}-${{ matrix.shardIndex }}.zip
 
       # Uploads test results as GitHub artifacts, so publish-test-results can find them later.
       - name: Upload Test Results
@@ -78,13 +78,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: report
-          path: app/build/reports/kover
+          path: app/build/reports/kover-${{ matrix.shardIndex }}
 
       - name: Download Test Reports Folder
         uses: actions/download-artifact@v4
         with:
           name: report
-          path: app/build/reports/kover
+          path: app/build/reports/kover-${{ matrix.shardIndex }}
           merge-multiple: true
 
       - name: Upload code coverage to codecov

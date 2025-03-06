@@ -384,7 +384,7 @@ class NewLoginViewModelTest {
     fun `given not supported failure, when enterprise login, then call EnterpriseLoginNotSupported action`() =
         testEnterpriseLoginActions(
             result = EnterpriseLoginResult.Failure.NotSupported,
-            expected = NewLoginAction.EnterpriseLoginNotSupported,
+            expected = NewLoginAction.EnterpriseLoginNotSupported(email),
         )
 
     @Test

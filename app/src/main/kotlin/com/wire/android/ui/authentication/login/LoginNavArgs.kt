@@ -21,11 +21,25 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.serialization.Serializable
 
+@Serializable
 data class LoginNavArgs(
-    val userHandle: String? = null,
+    val userHandle: PreFilledUserIdentifierType = PreFilledUserIdentifierType.None,
     val ssoLoginResult: DeepLinkResult.SSOLogin? = null,
     val loginPasswordPath: LoginPasswordPath? = null,
 )
+
+@Serializable
+sealed interface PreFilledUserIdentifierType {
+    @Serializable
+    data object None : PreFilledUserIdentifierType
+    @Serializable
+    data class PreFilled(val userIdentifier: String, val editable: Boolean = false) : PreFilledUserIdentifierType
+
+    val userIdentifierEditable: Boolean get() = when (this) {
+        is PreFilled -> this.editable
+        is None -> true
+    }
+}
 
 @Serializable
 data class LoginPasswordPath(

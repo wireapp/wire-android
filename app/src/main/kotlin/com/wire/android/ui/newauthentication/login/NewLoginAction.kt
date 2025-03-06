@@ -22,7 +22,7 @@ import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 sealed interface NewLoginAction {
-    data object EnterpriseLoginNotSupported : NewLoginAction
+    data class EnterpriseLoginNotSupported(val userIdentifier: String) : NewLoginAction
     data class EmailPassword(val userIdentifier: String, val loginPasswordPath: LoginPasswordPath) : NewLoginAction
     data class CustomConfig(val userIdentifier: String, val customServerConfig: ServerConfig.Links) : NewLoginAction
     data class SSO(val url: String, val config: SSOUrlConfig) : NewLoginAction

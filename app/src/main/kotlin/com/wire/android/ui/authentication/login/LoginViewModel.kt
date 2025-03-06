@@ -95,10 +95,5 @@ fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginState.Error 
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginState.Error.DialogError.UserAlreadyExists
 }
 
-sealed interface PreFilledUserIdentifierType {
-    data object None : PreFilledUserIdentifierType
-    data class PreFilled(val userIdentifier: String) : PreFilledUserIdentifierType
-}
-
 val ServerConfig.Links.isProxyEnabled get() = this.apiProxy != null
 val ServerConfig.Links.isProxyAuthRequired get() = apiProxy?.needsAuthentication ?: false

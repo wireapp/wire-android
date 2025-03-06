@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,6 +26,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.model.previewSupported
@@ -32,6 +35,8 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
+import com.wire.kalium.logic.data.message.height
+import com.wire.kalium.logic.data.message.width
 
 @Composable
 fun AssetPreview(
@@ -48,27 +53,53 @@ fun AssetPreview(
     Box(
         modifier = modifier
             .clickable { onClick() }
-            .background(color = colorsScheme().backdrop.copy(alpha = 0.2f), shape = RoundedCornerShape(dimensions().buttonCornerSize))
-            .border(width = 1.dp, color = colorsScheme().outline, shape = RoundedCornerShape(dimensions().buttonCornerSize))
-            .clip(RoundedCornerShape(dimensions().buttonCornerSize))
+            .background(
+                color = colorsScheme().scrim,
+                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+            )
+            .border(
+                width = 1.dp,
+                color = colorsScheme().outline,
+                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+            )
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
-
         when (item.assetType) {
-            AttachmentFileType.IMAGE -> {
-                ImageAssetPreview(item)
-            }
+            AttachmentFileType.IMAGE -> ImageAssetPreview(item)
+            AttachmentFileType.VIDEO -> VideoAssetPreview(item)
+            AttachmentFileType.PDF -> PdfAssetPreview(item)
+            else -> FileAssetPreview(item)
+        }
+    }
+}
 
-            AttachmentFileType.VIDEO -> {
-                VideoAssetPreview(item)
-            }
+@Composable
+internal fun calculateMaxMediaAssetWidth(
+    item: MultipartAttachmentUi,
+    maxDefaultWidth: Dp,
+    maxDefaultWidthLandscape: Dp,
+): Dp {
 
-            AttachmentFileType.PDF -> {
-                PdfAssetPreview(item)
-            }
+    val width = item.metadata?.width() ?: 0
+    val height = item.metadata?.height() ?: 0
 
-            else -> {
-                FileAssetPreview(item)
+    return when (LocalConfiguration.current.orientation) {
+        Configuration.ORIENTATION_PORTRAIT -> {
+            if (width < height) {
+                maxDefaultWidth
+            } else {
+                Dp.Unspecified
             }
         }
+
+        Configuration.ORIENTATION_LANDSCAPE -> {
+            if (width < height) {
+                maxDefaultWidth
+            } else {
+                maxDefaultWidthLandscape
+            }
+        }
+
+        else -> Dp.Unspecified
     }
 }

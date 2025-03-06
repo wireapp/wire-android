@@ -36,50 +36,55 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.getDownloadStatusText
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.TransferStatusIcon
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PdfPreviewDecoder
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.isFailed
+import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
+import com.wire.kalium.logic.util.fileExtension
 
 @Composable
 internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
 
-    val width = item.metadata?.width()
-    val height = item.metadata?.height()
+    val width = item.metadata?.width() ?: 0
+    val height = item.metadata?.height() ?: 0
 
-    val maxWidth = if (width != null && height != null) {
-        if (width < height) {
-            240.dp
-        } else {
-            Dp.Unspecified
-        }
-    } else {
-        Dp.Unspecified
-    }
+    val maxWidth = calculateMaxMediaAssetWidth(
+        item = item,
+        maxDefaultWidth = dimensions().attachmentPdfMaxWidth,
+        maxDefaultWidthLandscape = dimensions().attachmentPdfMaxWidthLandscape
+    )
 
     Column(
         modifier = Modifier
             .widthIn(max = maxWidth)
-            .background(color = colorsScheme().surface, shape = RoundedCornerShape(dimensions().buttonCornerSize))
+            .background(
+                color = colorsScheme().surface,
+                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+            )
             .border(
-                width = dimensions().spacing1x,
+                width = 1.dp,
                 color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
             )
             .clip(RoundedCornerShape(dimensions().buttonCornerSize))
             .padding(dimensions().spacing10x),
@@ -88,7 +93,7 @@ internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
     ) {
 
         FileHeaderView(
-            extension = item.mimeType.substringAfter("/"),
+            extension = item.fileName?.fileExtension() ?: item.mimeType.substringAfter("/"),
             size = item.assetSize,
             label = getDownloadStatusText(item.transferStatus),
             labelColor = if (item.transferStatus.isFailed()) colorsScheme().error else null
@@ -99,7 +104,6 @@ internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
                 modifier = Modifier.fillMaxWidth(),
                 text = it,
                 style = MaterialTheme.wireTypography.body02,
-                fontSize = 15.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -112,14 +116,11 @@ internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
                     color = colorsScheme().outline,
                     shape = RoundedCornerShape(dimensions().buttonCornerSize)
                 )
-                .border(
-                    width = 1.dp,
-                    color = colorsScheme().outline,
-                    shape = RoundedCornerShape(dimensions().buttonCornerSize)
-                )
                 .clip(RoundedCornerShape(dimensions().buttonCornerSize)),
             contentAlignment = Alignment.Center
         ) {
+
+            // Pdf preview image
             if (item.previewAvailable()) {
                 AsyncImage(
                     modifier = Modifier.fillMaxSize(),
@@ -132,13 +133,17 @@ internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
                 )
             }
 
-            TransferStatusIcon(item, 38.dp)
+            // Download icon
+            TransferStatusIcon(item)
 
+            // Download progress
             item.progress?.let {
                 WireLinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomStart),
                     progress = { item.progress },
-                    color = if (item.transferStatus == FAILED_DOWNLOAD) colorsScheme().error else colorsScheme().primary,
+                    color = transferProgressColor(item.transferStatus),
                     trackColor = Color.Transparent,
                 )
             }
@@ -153,3 +158,60 @@ private fun aspectRatio(width: Int?, height: Int?) =
     } else {
         10f / 14f
     }
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewPdfAsset() {
+    val attachment = MultipartAttachmentUi(
+        assetSize = 123456,
+        fileName = "Test file.pdf",
+        mimeType = "image/pdf",
+        transferStatus = AssetTransferStatus.SAVED_INTERNALLY,
+        uuid = "assetUuid",
+        source = AssetSource.CELL,
+        localPath = null,
+        previewUrl = null,
+        assetType = AttachmentFileType.PDF,
+        metadata = AssetContent.AssetMetadata.Image(
+            width = 3,
+            height = 1,
+        ),
+        progress = null,
+    )
+
+    WireTheme {
+        Column(
+            modifier = Modifier.padding(dimensions().spacing8x),
+            verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+        ) {
+            Box {
+                PdfAssetPreview(
+                    item = attachment.copy(
+                        transferStatus = AssetTransferStatus.NOT_DOWNLOADED
+                    )
+                )
+            }
+            Box {
+                PdfAssetPreview(
+                    item = attachment.copy(
+                        transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
+                        progress = 0.75f
+                    )
+                )
+            }
+            Box {
+                PdfAssetPreview(
+                    item = attachment
+                )
+            }
+            Box {
+                PdfAssetPreview(
+                    item = attachment.copy(
+                        transferStatus = FAILED_DOWNLOAD,
+                        progress = 0.75f
+                    )
+                )
+            }
+        }
+    }
+}

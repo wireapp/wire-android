@@ -46,10 +46,11 @@ fun FileHeaderView(
     extension: String,
     size: Long?,
     modifier: Modifier = Modifier,
+    type: AttachmentFileType? = null,
     label: String? = null,
     labelColor: Color? = null,
 ) {
-    val fileType = remember(extension) { AttachmentFileType.fromExtension(extension) }
+    val fileType = type ?: remember(extension) { AttachmentFileType.fromExtension(extension) }
     val sizeString = remember(size) { size?.let { DeviceUtil.formatSize(size) } ?: "" }
 
     Row(

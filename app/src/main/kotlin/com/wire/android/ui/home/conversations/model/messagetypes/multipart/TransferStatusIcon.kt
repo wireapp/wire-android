@@ -26,15 +26,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 @Composable
 internal fun BoxScope.TransferStatusIcon(
     item: MultipartAttachmentUi,
-    size: Dp = 32.dp,
+    size: Dp = dimensions().spacing32x,
     onLoaded: @Composable () -> Unit = {}
 ) {
 

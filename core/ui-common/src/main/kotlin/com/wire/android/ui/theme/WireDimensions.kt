@@ -213,6 +213,12 @@ data class WireDimensions(
     val legalHoldBannerMinHeight: Dp,
     // Attachment draft
     val attachmentDraftHeight: Dp,
+    val messageAttachmentGridCornerSize: Dp,
+    val messageAttachmentCornerSize: Dp,
+    val attachmentPdfMaxWidth: Dp,
+    val attachmentPdfMaxWidthLandscape: Dp,
+    val attachmentVideoMaxWidth: Dp,
+    val attachmentVideoMaxWidthLandscape: Dp,
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -373,6 +379,12 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     inCallReactionButtonSize = 48.dp,
     inCallReactionRecentReactionSize = 32.dp,
     attachmentDraftHeight = 100.dp,
+    messageAttachmentGridCornerSize = 8.dp,
+    messageAttachmentCornerSize = 10.dp,
+    attachmentPdfMaxWidth = 240.dp,
+    attachmentPdfMaxWidthLandscape = 400.dp,
+    attachmentVideoMaxWidth = 240.dp,
+    attachmentVideoMaxWidthLandscape = 400.dp,
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

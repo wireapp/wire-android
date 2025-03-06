@@ -39,24 +39,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import com.wire.android.R
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.getDownloadStatusText
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.TransferStatusIcon
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.isFailed
+import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.durationMs
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
@@ -66,29 +72,28 @@ internal fun VideoAssetPreview(
     item: MultipartAttachmentUi
 ) {
 
-    val width = item.metadata?.width()
-    val height = item.metadata?.height()
-
-    val maxWidth = if (width != null && height != null) {
-        if (width < height) {
-            240.dp
-        } else {
-            Dp.Unspecified
-        }
-    } else {
-        Dp.Unspecified
-    }
+    val width = item.metadata?.width() ?: 0
+    val height = item.metadata?.height() ?: 0
+    
+    val maxWidth = calculateMaxMediaAssetWidth(
+        item = item,
+        maxDefaultWidth = dimensions().attachmentVideoMaxWidth,
+        maxDefaultWidthLandscape = dimensions().attachmentVideoMaxWidthLandscape
+    )
 
     Column(
         modifier = Modifier
             .widthIn(max = maxWidth)
-            .background(color = colorsScheme().surface, shape = RoundedCornerShape(dimensions().buttonCornerSize))
+            .background(
+                color = colorsScheme().surface,
+                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+            )
             .border(
                 width = dimensions().spacing1x,
                 color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
             )
-            .clip(RoundedCornerShape(dimensions().buttonCornerSize))
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
             .padding(dimensions().spacing10x),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
@@ -107,17 +112,18 @@ internal fun VideoAssetPreview(
                 .aspectRatio(aspectRatio(width, height))
                 .background(
                     color = colorsScheme().outline,
-                    shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
                 .border(
                     width = 1.dp,
                     color = colorsScheme().outline,
-                    shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
-                .clip(RoundedCornerShape(dimensions().buttonCornerSize)),
+                .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize)),
             contentAlignment = Alignment.Center
         ) {
 
+            // Video preview image
             if (item.previewAvailable()) {
                 AsyncImage(
                     modifier = Modifier.fillMaxSize(),
@@ -131,35 +137,40 @@ internal fun VideoAssetPreview(
                 )
             }
 
+            // Video duration text
             item.metadata?.durationMs()?.let {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomEnd)
-                        .background(color = Color.Black.copy(alpha = 0.5f))
-                        .padding(4.dp),
+                        .background(color = colorsScheme().scrim)
+                        .padding(dimensions().spacing4x),
                     text = DateAndTimeParsers.videoMessageTime(it),
-                    fontSize = 12.sp,
+                    style = typography().subline01,
                     color = Color.White,
                     textAlign = TextAlign.Center
                 )
             }
 
-            TransferStatusIcon(item, 38.dp) {
+            // Icon (play / download)
+            TransferStatusIcon(item) {
                 Image(
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(dimensions().spacing40x)
                         .align(Alignment.Center),
                     painter = painterResource(id = R.drawable.ic_play_circle_filled),
                     contentDescription = null,
                 )
             }
 
+            // Download progress
             item.progress?.let {
                 WireLinearProgressIndicator(
-                    modifier = Modifier.widthIn(max = maxWidth).align(Alignment.BottomStart),
+                    modifier = Modifier
+                        .widthIn(max = maxWidth)
+                        .align(Alignment.BottomStart),
                     progress = { item.progress },
-                    color = if (item.transferStatus == FAILED_DOWNLOAD) colorsScheme().error else colorsScheme().primary,
+                    color = transferProgressColor(item.transferStatus),
                     trackColor = Color.Transparent,
                 )
             }
@@ -174,3 +185,61 @@ private fun aspectRatio(width: Int?, height: Int?) =
     } else {
         16f / 9f
     }
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewVideoAsset() {
+    val attachment = MultipartAttachmentUi(
+        assetSize = 123456,
+        fileName = "Test file.mp4",
+        mimeType = "video/mp4",
+        transferStatus = AssetTransferStatus.SAVED_INTERNALLY,
+        uuid = "assetUuid",
+        source = AssetSource.CELL,
+        localPath = null,
+        previewUrl = null,
+        assetType = AttachmentFileType.VIDEO,
+        metadata = AssetContent.AssetMetadata.Video(
+            width = 3,
+            height = 1,
+            durationMs = 30000,
+        ),
+        progress = null,
+    )
+
+    WireTheme {
+        Column(
+            modifier = Modifier.padding(dimensions().spacing8x),
+            verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+        ) {
+            Box {
+                VideoAssetPreview(
+                    item = attachment.copy(
+                        transferStatus = AssetTransferStatus.NOT_DOWNLOADED
+                    )
+                )
+            }
+            Box {
+                VideoAssetPreview(
+                    item = attachment.copy(
+                        transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
+                        progress = 0.75f
+                    )
+                )
+            }
+            Box {
+                VideoAssetPreview(
+                    item = attachment
+                )
+            }
+            Box {
+                VideoAssetPreview(
+                    item = attachment.copy(
+                        transferStatus = FAILED_DOWNLOAD,
+                        progress = 0.75f
+                    )
+                )
+            }
+        }
+    }
+}

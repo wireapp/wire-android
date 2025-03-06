@@ -20,8 +20,11 @@ package com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,9 +37,15 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.model.previewSupported
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.message.AssetContent
 
 @Composable
 internal fun AssetGridPreview(
@@ -54,21 +63,31 @@ internal fun AssetGridPreview(
         modifier = modifier
             .aspectRatio(1f)
             .clickable { onClick() }
-            .background(color = colorsScheme().backdrop.copy(alpha = 0.2f), shape = RoundedCornerShape(8.dp))
-            .border(width = 1.dp, color = colorsScheme().outline, shape = RoundedCornerShape(8.dp))
-            .clip(RoundedCornerShape(8.dp))
+            .background(
+                color = colorsScheme().outline,
+                shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
+            )
+            .border(
+                width = 1.dp,
+                color = colorsScheme().outline,
+                shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
+            )
+            .clip(RoundedCornerShape(dimensions().messageAttachmentGridCornerSize))
     ) {
 
         when (item.assetType) {
             AttachmentFileType.IMAGE -> {
                 ImageAssetGridPreview(item)
             }
+
             AttachmentFileType.VIDEO -> {
                 VideoAssetGridPreview(item)
             }
+
             AttachmentFileType.PDF -> {
                 PdfAssetGridPreview(item)
             }
+
             else -> {
                 FileAssetGridPreview(item)
             }
@@ -76,17 +95,52 @@ internal fun AssetGridPreview(
 
         item.progress?.let {
             CircularProgressIndicator(
-                modifier = Modifier.size(32.dp).align(Alignment.Center),
+                modifier = Modifier
+                    .size(dimensions().spacing32x)
+                    .align(Alignment.Center),
                 progress = { it },
-                color = if (item.transferStatus == AssetTransferStatus.FAILED_DOWNLOAD) colorsScheme().error else colorsScheme().primary,
+                color = transferProgressColor(item.transferStatus),
                 trackColor = Color.Transparent,
             )
-//            WireLinearProgressIndicator(
-//                modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart),
-//                progress = { item.progress },
-//                color = if (item.transferStatus == AssetTransferStatus.FAILED_DOWNLOAD) colorsScheme().error else colorsScheme().primary,
-//                trackColor = Color.Transparent,
-//            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewAssetGrid() {
+
+    val attachment = MultipartAttachmentUi(
+        assetSize = 123456,
+        fileName = "Test file.pdf",
+        mimeType = "",
+        transferStatus = AssetTransferStatus.SAVED_INTERNALLY,
+        uuid = "assetUuid",
+        source = AssetSource.CELL,
+        localPath = "localPath",
+        previewUrl = "previewUrl",
+        assetType = AttachmentFileType.PDF,
+        metadata = AssetContent.AssetMetadata.Image(
+            width = 100,
+            height = 100,
+        ),
+        progress = null,
+    )
+
+    WireTheme {
+        Column(
+            modifier = Modifier.padding(dimensions().spacing8x),
+            verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+        ) {
+            AssetGridPreview(
+                item = attachment.copy(
+                    assetType = AttachmentFileType.CODE,
+                    fileName = "Test file.kt",
+                    transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+                ),
+                onClick = {},
+                onLoadPreview = {}
+            )
         }
     }
 }

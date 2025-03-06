@@ -17,42 +17,38 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
-import android.util.Log
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import coil.decode.Decoder
 import coil.request.ImageRequest
-import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
-import com.wire.android.ui.common.multipart.AssetSource
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.AssetGridPreview
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview
-import com.wire.android.util.FileManager
-import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.GetPreviewUrlUseCase
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
-import kotlinx.coroutines.launch
-import okio.Path.Companion.toPath
-import javax.inject.Inject
 
+/**
+ * Displays a list of message attachments as a grid or a single attachment card.
+ * Uses [MultipartAttachmentsViewModel] to handle preview image loading and interactions handling.
+ */
 @Composable
 fun MultipartAttachmentsView(
     conversationId: ConversationId,
@@ -68,17 +64,16 @@ fun MultipartAttachmentsView(
                 onLoadPreview = { viewModel.loadAssetPreview(it) },
                 modifier = modifier,
             )
-        else ->
-            attachments.firstOrNull()
-                ?.let { it.toUiModel(viewModel.uploadProgress[it.assetId()]) }
-                ?.let { item ->
-                    AssetPreview(
-                        item,
-                        onClick = { viewModel.onClick(item) },
-                        onLoadPreview = { viewModel.loadAssetPreview(item) },
-                        modifier = modifier,
-                    )
-                }
+        else -> attachments.firstOrNull()
+            ?.let { it.toUiModel(viewModel.uploadProgress[it.assetId()]) }
+            ?.let { item ->
+                AssetPreview(
+                    item,
+                    onClick = { viewModel.onClick(item) },
+                    onLoadPreview = { viewModel.loadAssetPreview(item) },
+                    modifier = modifier,
+                )
+            }
     }
 }
 
@@ -91,9 +86,9 @@ private fun AttachmentsGrid(
 ) {
     LazyVerticalGrid(
         modifier = modifier.heightIn(max = 1000.dp),
-        columns = GridCells.Fixed(2),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        columns = GridCells.Fixed(attachmentColumnCount(LocalConfiguration.current)),
+        verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
+        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
     ) {
         items(
             items = attachments,
@@ -108,75 +103,11 @@ private fun AttachmentsGrid(
     }
 }
 
-@HiltViewModel
-class MultipartAttachmentsViewModel @Inject constructor(
-    private val loadPreview: GetPreviewUrlUseCase,
-    private val download: DownloadCellFileUseCase,
-    private val fileManager: FileManager,
-    private val kaliumFileSystem: KaliumFileSystem,
-) : ViewModel() {
-
-    private val refreshed = mutableListOf<String>()
-
-    val uploadProgress = mutableStateMapOf<String, Float>()
-
-    fun onClick(attachment: MultipartAttachmentUi) {
-        when {
-            attachment.localFileAvailable() -> openLocalFile(attachment)
-            attachment.canOpenWithUrl() -> openUrl(attachment)
-            else -> downloadAsset(attachment)
-        }
+private fun attachmentColumnCount(configuration: Configuration) =
+    when (configuration.orientation) {
+        Configuration.ORIENTATION_LANDSCAPE -> 4
+        else -> 2
     }
-
-    fun loadAssetPreview(attachment: MultipartAttachmentUi) {
-        if (refreshed.contains(attachment.uuid).not()) {
-            refreshed.add(attachment.uuid)
-            when (attachment.source) {
-                AssetSource.CELL -> viewModelScope.launch { loadPreview(attachment.uuid) }
-                AssetSource.ASSET_STORAGE -> TODO()
-            }
-        }
-    }
-
-    private fun openLocalFile(attachment: MultipartAttachmentUi) {
-        fileManager.openWithExternalApp(
-            assetDataPath = attachment.localPath?.toPath() ?: error("No local path"),
-            assetName = attachment.fileName ?: "",
-            mimeType = attachment.mimeType
-        ) {
-            Log.e("MessageAttachmentsViewModel", "Failed to open: ${attachment.localPath}")
-        }
-    }
-
-    private fun openUrl(attachment: MultipartAttachmentUi) {
-        fileManager.openUrlWithExternalApp(
-            url = attachment.previewUrl ?: error("No preview URL"),
-            mimeType = attachment.mimeType
-        ) {
-            Log.e("MessageAttachmentsViewModel", "Failed to open: ${attachment.previewUrl}")
-        }
-    }
-
-    private fun downloadAsset(attachment: MultipartAttachmentUi) = viewModelScope.launch {
-
-        val path = kaliumFileSystem.providePersistentAssetPath(attachment.fileName ?: error("No asset path"))
-
-        if (kaliumFileSystem.exists(path)) {
-            kaliumFileSystem.delete(path)
-        }
-
-        download(attachment.uuid, path) { progress ->
-            attachment.assetSize?.let {
-                val value = progress.toFloat() / it
-                if (value < 1) {
-                    uploadProgress[attachment.uuid] = value
-                } else {
-                    uploadProgress.remove(attachment.uuid)
-                }
-            }
-        }
-    }
-}
 
 private fun MessageAttachment.assetId() =
     when (this) {
@@ -184,16 +115,12 @@ private fun MessageAttachment.assetId() =
         is CellAssetContent -> id
     }
 
-private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
-private fun MultipartAttachmentUi.canOpenWithUrl() = previewUrl != null && assetType == AttachmentFileType.IMAGE
 internal fun MultipartAttachmentUi.previewAvailable() = localPath != null || previewUrl != null
 internal fun MultipartAttachmentUi.getPreview() = localPath ?: previewUrl
 
 @Composable
 internal fun MultipartAttachmentUi.previewImageModel(decoderFactory: Decoder.Factory? = null): Any? =
-
     if (previewAvailable()) {
-
         val builder = ImageRequest.Builder(LocalContext.current)
             .data(getPreview())
             .crossfade(true)
@@ -201,8 +128,10 @@ internal fun MultipartAttachmentUi.previewImageModel(decoderFactory: Decoder.Fac
         if (localPath != null && decoderFactory != null) {
             builder.decoderFactory(decoderFactory)
         }
-
         builder.build()
     } else {
         null
     }
+
+@Composable
+internal fun transferProgressColor(status: AssetTransferStatus) = if (status.isFailed()) colorsScheme().error else colorsScheme().primary

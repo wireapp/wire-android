@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.wire.android.ui.common.attachmentdraft.model.icon
 import com.wire.android.ui.common.dimensions
@@ -42,9 +41,11 @@ internal fun BoxScope.PdfAssetGridPreview(item: MultipartAttachmentUi) {
     if (item.previewAvailable()) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
-            model = item.previewImageModel(decoderFactory = { result, options, _ ->
-                PdfPreviewDecoder(result.source, options)
-            }),
+            model = item.previewImageModel(
+                decoderFactory = { result, options, _ ->
+                    PdfPreviewDecoder(result.source, options)
+                }
+            ),
             contentScale = ContentScale.Crop,
             contentDescription = null,
         )
@@ -54,7 +55,7 @@ internal fun BoxScope.PdfAssetGridPreview(item: MultipartAttachmentUi) {
         modifier = Modifier.padding(dimensions().spacing8x),
     ) {
         Image(
-            modifier = Modifier.size(16.dp),
+            modifier = Modifier.size(dimensions().spacing16x),
             painter = painterResource(id = item.assetType.icon()),
             contentDescription = null,
         )

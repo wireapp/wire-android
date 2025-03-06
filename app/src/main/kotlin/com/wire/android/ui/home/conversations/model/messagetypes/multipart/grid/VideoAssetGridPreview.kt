@@ -59,7 +59,7 @@ internal fun BoxScope.VideoAssetGridPreview(item: MultipartAttachmentUi) {
     TransferStatusIcon(item) {
         Image(
             modifier = Modifier
-                .size(42.dp)
+                .size(dimensions().spacing40x)
                 .align(Alignment.Center),
             painter = painterResource(id = R.drawable.ic_play_circle_filled),
             contentDescription = null,

@@ -17,21 +17,18 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
@@ -56,15 +53,16 @@ internal fun ImageAssetPreview(item: MultipartAttachmentUi) {
         modifier = Modifier
             .width(imageSize.normalizedWidth)
             .height(imageSize.normalizedHeight)
-            .border(width = 1.dp, color = colorsScheme().outline, shape = RoundedCornerShape(dimensions().buttonCornerSize)),
     ) {
         if (item.previewAvailable()) {
+            // Image preview
             AsyncImage(
                 modifier = Modifier.fillMaxSize(),
                 model = item.previewImageModel(),
                 contentDescription = null,
             )
         } else {
+            // File card if no preview available
             FileHeaderView(
                 modifier = Modifier.padding(dimensions().spacing12x),
                 extension = item.mimeType.substringAfter("/"),
@@ -73,11 +71,11 @@ internal fun ImageAssetPreview(item: MultipartAttachmentUi) {
             if (item.transferStatus == AssetTransferStatus.NOT_FOUND) {
                 Icon(
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(dimensions().spacing32x)
                         .align(Alignment.Center),
                     imageVector = Icons.Default.VisibilityOff,
                     contentDescription = null,
-                    tint = colorsScheme().backdrop
+                    tint = colorsScheme().scrim
                 )
             }
         }

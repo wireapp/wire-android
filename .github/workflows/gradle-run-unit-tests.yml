@@ -76,18 +76,18 @@ jobs:
             **/build/test-results/**/*.xml
             **/build/outputs/androidTest-results/**/*.xml
 
-      - name: Generate report
-        uses: actions/upload-artifact@v4
-        with:
-          name: report-${{ matrix.shardIndex }}
-          path: app/build/reports/kover
-
-      - name: Download Test Reports Folder
-        uses: actions/download-artifact@v4
-        with:
-          name: report-${{ matrix.shardIndex }}
-          path: app/build/reports/kover
-          merge-multiple: true
+#      - name: Generate report
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: report-${{ matrix.shardIndex }}
+#          path: app/build/reports/kover
+#
+#      - name: Download Test Reports Folder
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: report-${{ matrix.shardIndex }}
+#          path: app/build/reports/kover
+#          merge-multiple: true
 
       - name: Upload code coverage to codecov
         uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3

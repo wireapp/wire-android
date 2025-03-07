@@ -155,23 +155,6 @@ private fun MessageContent(
             }
         }
 
-        is UIMessageContent.VideoMessage -> {
-            Column {
-                VideoMessage(
-                    assetSize = messageContent.assetSizeInBytes,
-                    assetName = messageContent.assetName,
-                    assetExtension = messageContent.assetExtension,
-                    assetDataPath = messageContent.assetDataPath,
-                    width = messageContent.width,
-                    height = messageContent.height,
-                    duration = messageContent.duration,
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    onVideoClick = onAssetClick,
-                )
-                PartialDeliveryInformation(messageContent.deliveryStatus)
-            }
-        }
-
         is UIMessageContent.TextMessage -> {
             Column {
                 messageContent.messageBody.quotedMessage?.let {

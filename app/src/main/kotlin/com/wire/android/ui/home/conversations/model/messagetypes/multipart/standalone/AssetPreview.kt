@@ -54,7 +54,7 @@ fun AssetPreview(
         modifier = modifier
             .clickable { onClick() }
             .background(
-                color = colorsScheme().scrim,
+                color = colorsScheme().outline,
                 shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
             )
             .border(

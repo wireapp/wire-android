@@ -154,34 +154,11 @@ class SendMessageViewModel @Inject constructor(
         }
     }
 
-    fun trySendMessage(messageBundle: MessageBundle, attachments: List<AttachmentDraftUi>) {
-
-        viewModelScope.launch {
-            if (attachments.isNotEmpty()) {
-                attachments.map {
-                    val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(it.fileName.fileExtension() ?: "")
-                    AssetBundle(
-                        key = it.uuid,
-                        mimeType = mimeType.toString(),
-                        dataPath = it.localFilePath.toPath(),
-                        dataSize = it.fileSize,
-                        fileName = it.fileName,
-                        assetType = AttachmentType.fromMimeTypeString(mimeType.toString())
-                    )
-                }.onEach {
-                    sendAttachment(it, messageBundle.conversationId)
-                }
-            }
-        }
-
-        trySendMessages(listOf(messageBundle))
-    }
-
     fun trySendMessage(messageBundle: MessageBundle) {
         trySendMessages(listOf(messageBundle))
     }
 
-    fun trySendMessages(messageBundleList: List<MessageBundle>) {
+    internal fun trySendMessages(messageBundleList: List<MessageBundle>) {
         if (messageBundleList.size > MAX_LIMIT_MESSAGE_SEND) {
             onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached)
         } else {

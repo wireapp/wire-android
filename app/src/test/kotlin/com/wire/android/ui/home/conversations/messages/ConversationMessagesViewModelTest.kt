@@ -69,7 +69,7 @@ class ConversationMessagesViewModelTest {
             .withGetMessageByIdReturning(message)
             .arrange()
 
-        viewModel.downloadOrFetchAssetAndShowDialog(message.id)
+        viewModel.openOrFetchAsset(message.id)
 
         coVerify(exactly = 1) { arrangement.getMessageById(arrangement.conversationId, message.id) }
     }

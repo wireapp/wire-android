@@ -294,7 +294,8 @@ fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = U
         assetName = "This is some test asset message that has a not so long title",
         assetExtension = "ZIP",
         assetId = UserAssetId(assetId, "domain"),
-        assetSizeInBytes = 21957335
+        assetSizeInBytes = 21957335,
+        assetDataPath = null,
     ),
     messageFooter = mockEmptyFooter,
     source = MessageSource.Self
@@ -324,7 +325,9 @@ fun mockAssetAudioMessage(assetId: String = "asset1", messageId: String = "msg1"
         assetName = "Audio message",
         assetExtension = "WAV",
         assetId = UserAssetId(assetId, "domain"),
+
         audioMessageDurationInMs = 60_000,
+        sizeInBytes = 10_000,
     ),
     messageFooter = mockEmptyFooter,
     source = MessageSource.Self

@@ -58,6 +58,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
@@ -80,12 +81,14 @@ fun AudioMessage(
     currentPositionInMs: Int,
     audioSpeed: AudioSpeed,
     waveMask: List<Int>,
+    extension: String,
+    size: Long,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
     onAudioSpeedChange: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    Column(
         modifier = modifier
             .padding(top = dimensions().spacing4x)
             .background(
@@ -97,8 +100,15 @@ fun AudioMessage(
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
-            .padding(dimensions().spacing8x)
+            .padding(dimensions().spacing8x),
+        verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
+
+        FileHeaderView(
+            extension = extension,
+            size = size,
+        )
+
         if (audioMediaPlayingState is AudioMediaPlayingState.Failed) {
             FailedAudioMessage()
         } else {

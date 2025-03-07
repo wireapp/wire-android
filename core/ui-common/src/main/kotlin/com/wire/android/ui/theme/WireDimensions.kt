@@ -211,6 +211,8 @@ data class WireDimensions(
     val importedMediaAssetSize: Dp,
     // legal hold banner
     val legalHoldBannerMinHeight: Dp,
+    // Attachment draft
+    val attachmentDraftHeight: Dp,
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -370,6 +372,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     legalHoldBannerMinHeight = 26.dp,
     inCallReactionButtonSize = 48.dp,
     inCallReactionRecentReactionSize = 32.dp,
+    attachmentDraftHeight = 100.dp,
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

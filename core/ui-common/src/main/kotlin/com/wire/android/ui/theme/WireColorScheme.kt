@@ -84,6 +84,7 @@ class WireColorScheme(
 
     val emojiBackgroundColor: Color,
 ) {
+
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
         primaryContainer = primaryVariant, onPrimaryContainer = onPrimaryVariant,

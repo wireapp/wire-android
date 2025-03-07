@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.sendmessage
 
+import android.webkit.MimeTypeMap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,6 +31,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
@@ -46,6 +48,9 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
@@ -65,9 +70,7 @@ import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.onFailure
-import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -76,6 +79,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.Path.Companion.toPath
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -146,6 +150,29 @@ class SendMessageViewModel @Inject constructor(
         viewModelScope.launch {
             sendMessage(ComposableMessageBundle.SendTextMessageBundle(conversationId, pendingMessage, emptyList()))
         }
+    }
+
+    fun trySendMessage(messageBundle: MessageBundle, attachments: List<AttachmentDraftUi>) {
+
+        viewModelScope.launch {
+            if (attachments.isNotEmpty()) {
+                attachments.map {
+                    val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(it.fileName.fileExtension() ?: "")
+                    AssetBundle(
+                        key = it.uuid,
+                        mimeType = mimeType.toString(),
+                        dataPath = it.localFilePath.toPath(),
+                        dataSize = it.fileSize,
+                        fileName = it.fileName,
+                        assetType = AttachmentType.fromMimeTypeString(mimeType.toString())
+                    )
+                }.onEach {
+                    sendAttachment(it, messageBundle.conversationId)
+                }
+            }
+        }
+
+        trySendMessages(listOf(messageBundle))
     }
 
     fun trySendMessage(messageBundle: MessageBundle) {

@@ -325,6 +325,7 @@ sealed interface UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val assetSizeInBytes: Long,
+        val assetDataPath: String?,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable
 
@@ -337,6 +338,19 @@ sealed interface UIMessageContent {
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable
 
+    @Serializable
+    data class VideoMessage(
+        val assetName: String,
+        val assetExtension: String,
+        val assetId: AssetId,
+        val assetSizeInBytes: Long,
+        val assetDataPath: String?,
+        val width: Int?,
+        val height: Int?,
+        val duration: Long?,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular, PartialDeliverable
+
     @Stable
     @Serializable
     data class AudioAssetMessage(
@@ -344,7 +358,8 @@ sealed interface UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val audioMessageDurationInMs: Long,
-        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery,
+        val sizeInBytes: Long,
     ) : Regular, PartialDeliverable
 
     @Stable

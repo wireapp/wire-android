@@ -59,7 +59,11 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
     }
 
     fun openWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {
-        openAssetFileWithExternalApp(assetDataPath, context, assetName, onError)
+        openAssetFileWithExternalApp(assetDataPath, context, assetName, null, onError)
+    }
+
+    fun openWithExternalApp(assetDataPath: Path, assetName: String, mimeType: String?, onError: () -> Unit) {
+        openAssetFileWithExternalApp(assetDataPath, context, assetName, mimeType, onError)
     }
 
     fun shareWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {

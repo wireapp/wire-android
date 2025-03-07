@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
 import com.wire.android.util.ui.PreviewMultipleThemes
 
+@Suppress("ArgumentListWrapping")
 @Composable
 fun CustomGroupAvatarDrawing(
     rightSideShapeColor: Color,

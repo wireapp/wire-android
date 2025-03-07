@@ -62,9 +62,9 @@ fun GroupConversationAvatar(
         val colors = colorsScheme().conversationColor(id = conversationId)
         CustomGroupAvatarDrawing(
             modifier = Modifier.padding(dimensions().spacing4x),
-            rightSideShapeColor = colors.first,
+            leftSideShapeColor = colors.first,
             middleSideShapeColor = colors.second,
-            leftSideShapeColor = colors.third
+            rightSideShapeColor = colors.third
         )
     }
 }

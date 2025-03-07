@@ -103,6 +103,8 @@ fun VideoMessage(
         FileHeaderView(
             extension = assetExtension,
             size = assetSize,
+            modifier = Modifier
+                .fillMaxWidth(),
         )
 
         Text(
@@ -114,6 +116,7 @@ fun VideoMessage(
 
         Box(
             modifier = Modifier
+                .fillMaxWidth(widthFraction(width, height))
                 .aspectRatio(aspectRatio(width, height))
                 .background(
                     color = colorsScheme().scrim,

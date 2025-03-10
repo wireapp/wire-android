@@ -18,16 +18,10 @@
 
 package scripts
 
-import IncludeGitBuildTask
 import WriteKeyValuesToFileTask
 
 plugins {
     id("com.android.application") apply false
-}
-
-// TODO: Extract to a convention plugin
-val gitIdTask = project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
-    println("> Registering Task :includeGitBuildIdentifier")
 }
 
 val dependenciesVersionTask = project.tasks.register("dependenciesVersionTask", WriteKeyValuesToFileTask::class) {
@@ -47,7 +41,6 @@ project.afterEvaluate {
                 it.name.endsWith("Assets") ||
                 it.name.contains("LintVital", true)
     }.configureEach {
-        dependsOn(gitIdTask)
         dependsOn(dependenciesVersionTask)
     }
 }

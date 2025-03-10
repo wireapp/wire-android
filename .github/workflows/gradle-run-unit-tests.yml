@@ -7,6 +7,7 @@ permissions:
 
 env:
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  DISABLE_ABOUT_LIBRARIES: TRUE
 
 jobs:
   coverage:
@@ -24,6 +25,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
 

@@ -16,12 +16,10 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-import java.util.*
-import java.util.concurrent.TimeUnit
-import org.codehaus.groovy.runtime.ProcessGroovyMethods
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.kotlin.dsl.ivy
+import java.util.Properties
 
 /**
  * Convenience method to obtain a property from `$projectRoot/local.properties` file
@@ -48,18 +46,6 @@ internal fun <T> getLocalProperty(propertyName: String, defaultValue: T, project
 
     return localValue
 }
-
-/**
- * Run command and return the [Process]
- */
-fun String.execute(): Process = ProcessGroovyMethods.execute(this).also {
-    it.waitFor(30, TimeUnit.SECONDS)
-}
-
-/**
- * Run command and return the output as text
- */
-fun Process.text(): String = ProcessGroovyMethods.getText(this)
 
 /**
  * Configure the repository for wire's detekt custom rules

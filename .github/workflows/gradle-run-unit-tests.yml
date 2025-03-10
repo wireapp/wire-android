@@ -71,7 +71,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: shards
-          path: shards.json
 
       - name: Test with with shards
         run: |

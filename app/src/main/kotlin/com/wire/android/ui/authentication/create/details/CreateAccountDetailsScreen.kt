@@ -48,7 +48,7 @@ import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.authentication.ServerTitle
+import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph

@@ -18,9 +18,11 @@
 
 package com.wire.android.ui.authentication.welcome
 
+import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.mockUri
-import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.ui.navArgs
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -29,16 +31,15 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
 class WelcomeViewModelTest {
 
     @MockK
-    lateinit var authServerConfigProvider: AuthServerConfigProvider
+    lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     lateinit var getSessions: GetSessionsUseCase
@@ -50,9 +51,8 @@ class WelcomeViewModelTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
         val authServer = newServerConfig(1)
-        every { authServerConfigProvider.authServer } returns MutableStateFlow(authServer.links)
-        coEvery { authServerConfigProvider.authServer } returns MutableStateFlow(authServer.links)
+        every { savedStateHandle.navArgs<WelcomeNavArgs>() } returns WelcomeNavArgs(authServer.links)
         coEvery { getSessions() } returns GetAllSessionsResult.Success(listOf())
-        welcomeViewModel = WelcomeViewModel(authServerConfigProvider, getSessions)
+        welcomeViewModel = WelcomeViewModel(savedStateHandle, getSessions)
     }
 }

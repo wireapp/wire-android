@@ -9,8 +9,42 @@ env:
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 jobs:
+  generate-shards:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.generate-shards.outputs.shards }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Generate sharded tests
+        id: generate-shards
+        run: |
+          ./gradlew generateShardsForTests
+
+      - name: Display Shards created
+        run: python3 -mjson.tool shards.json
+
+      - name: Upload Shards as output
+        uses: actions/upload-artifact@v4
+        with:
+          name: shards
+          path: shards.json
   coverage:
     runs-on: buildjet-8vcpu-ubuntu-2204
+    needs: [ generate-shards ]
     strategy:
       matrix:
         shardIndex: [ 0,  1,  2,  3 ]
@@ -35,16 +69,14 @@ jobs:
           ./gradlew -p buildSrc test
           ./gradlew -p build-logic :plugins:test
 
-      - name: Create sharded tests
-        run: |
-          ./gradlew generateShardsForTests
-
-      - name: Display Shards created
-        run: python3 -mjson.tool shards.json
+      - name: Download Shards as input
+        uses: actions/download-artifact@v4
+        with:
+          name: shards
+          path: shards.json
 
       - name: Test with with shards
         run: |
-          cat shards.json
           ./gradlew :app:unitTestShard${{ matrix.shardIndex }}
         env:
           GITHUB_USER: ${{ github.actor }}
@@ -76,18 +108,18 @@ jobs:
             **/build/test-results/**/*.xml
             **/build/outputs/androidTest-results/**/*.xml
 
-#      - name: Generate report
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: report-${{ matrix.shardIndex }}
-#          path: app/build/reports/kover
-#
-#      - name: Download Test Reports Folder
-#        uses: actions/download-artifact@v4
-#        with:
-#          name: report-${{ matrix.shardIndex }}
-#          path: app/build/reports/kover
-#          merge-multiple: true
+      #      - name: Generate report
+      #        uses: actions/upload-artifact@v4
+      #        with:
+      #          name: report-${{ matrix.shardIndex }}
+      #          path: app/build/reports/kover
+      #
+      #      - name: Download Test Reports Folder
+      #        uses: actions/download-artifact@v4
+      #        with:
+      #          name: report-${{ matrix.shardIndex }}
+      #          path: app/build/reports/kover
+      #          merge-multiple: true
 
       - name: Upload code coverage to codecov
         uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3

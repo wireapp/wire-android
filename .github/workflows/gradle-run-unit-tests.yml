@@ -39,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: shards
-          path: app/shards.json
+          path: shards.json
   coverage:
     runs-on: buildjet-8vcpu-ubuntu-2204
     needs: [ generate-shards ]
@@ -71,7 +71,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: shards
-          path: app/shards.json
+          path: shards.json
 
       - name: Test with with shards
         run: |

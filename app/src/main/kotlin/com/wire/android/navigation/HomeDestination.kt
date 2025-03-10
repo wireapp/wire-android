@@ -23,6 +23,7 @@ import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.ui.destinations.AllConversationsScreenDestination
 import com.wire.android.ui.destinations.ArchiveScreenDestination
+import com.wire.android.ui.destinations.BrowseChannelsScreenDestination
 import com.wire.android.ui.destinations.SettingsScreenDestination
 import com.wire.android.ui.destinations.VaultScreenDestination
 import com.wire.android.ui.destinations.WhatsNewScreenDestination
@@ -76,6 +77,13 @@ sealed class HomeDestination(
         icon = R.drawable.ic_star,
         direction = WhatsNewScreenDestination
     )
+
+    data object BrowseChannels : HomeDestination(
+        title = UIText.StringResource(R.string.channels_screen_title),
+        icon = R.drawable.ic_search,
+        direction = BrowseChannelsScreenDestination
+    )
+
 
     val itemName: String get() = ITEM_NAME_PREFIX + this
 

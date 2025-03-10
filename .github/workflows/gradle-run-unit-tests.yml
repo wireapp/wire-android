@@ -10,9 +10,7 @@ env:
 
 jobs:
   generate-shards:
-    runs-on: ubuntu-latest
-    outputs:
-      shards: ${{ steps.generate-shards.outputs.shards }}
+    runs-on: buildjet-8vcpu-ubuntu-2204
     steps:
       - name: Checkout
         uses: actions/checkout@v4

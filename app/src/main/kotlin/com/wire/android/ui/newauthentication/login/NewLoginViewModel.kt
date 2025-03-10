@@ -98,9 +98,7 @@ class NewLoginViewModel(
     )
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
-        if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
-    }
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig.orDefault())
         private set
 
@@ -163,7 +161,8 @@ class NewLoginViewModel(
                     }
 
                     is EnterpriseLoginResult.Failure.NotSupported -> withContext(dispatchers.main()) {
-                        action(NewLoginAction.EnterpriseLoginNotSupported)
+                        action(NewLoginAction.EnterpriseLoginNotSupported(email))
+                        updateLoginFlowState(NewLoginFlowState.Default)
                     }
 
                     is EnterpriseLoginResult.Success -> {
@@ -250,6 +249,7 @@ class NewLoginViewModel(
                     withContext(dispatchers.main()) {
                         updateLoginFlowState(NewLoginFlowState.Default)
                         action(NewLoginAction.SSO(requestUrl, SSOUrlConfig(serverConfig, ssoCode)))
+                        updateLoginFlowState(NewLoginFlowState.Default)
                     }
                 }
             )
@@ -275,16 +275,23 @@ class NewLoginViewModel(
                             loginExtension.registerClient(storedUserId, null).let { result ->
                                 withContext(dispatchers.main()) {
                                     when (result) {
-                                        is RegisterClientResult.Success -> when (loginExtension.isInitialSyncCompleted(storedUserId)) {
-                                            true -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
-                                            false -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                                        is RegisterClientResult.Success -> {
+                                            when (loginExtension.isInitialSyncCompleted(storedUserId)) {
+                                                true -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
+                                                false -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                                            }
+                                            updateLoginFlowState(NewLoginFlowState.Default)
                                         }
 
-                                        is RegisterClientResult.E2EICertificateRequired ->
+                                        is RegisterClientResult.E2EICertificateRequired -> {
                                             action(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
+                                            updateLoginFlowState(NewLoginFlowState.Default)
+                                        }
 
-                                        is RegisterClientResult.Failure.TooManyClients ->
+                                        is RegisterClientResult.Failure.TooManyClients -> {
                                             action(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
+                                            updateLoginFlowState(NewLoginFlowState.Default)
+                                        }
 
                                         is RegisterClientResult.Failure.Generic ->
                                             updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(result.genericFailure))

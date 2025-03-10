@@ -36,6 +36,7 @@ import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.common.SettingUpWireScreenContent
 import com.wire.android.ui.common.SettingUpWireScreenType
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -62,8 +63,10 @@ fun MigrationScreen(
         is MigrationState.LoginRequired -> navigator.navigate(
             NavigationCommand(
                 when {
-                    loginTypeSelector.canUseNewLogin() -> NewLoginScreenDestination(userHandle = state.userHandle)
-                    else -> LoginScreenDestination(userHandle = state.userHandle)
+                    loginTypeSelector.canUseNewLogin() ->
+                        NewLoginScreenDestination(userHandle = PreFilledUserIdentifierType.PreFilled(state.userHandle))
+                    else ->
+                        LoginScreenDestination(userHandle = PreFilledUserIdentifierType.PreFilled(state.userHandle))
                 },
                 BackStackMode.CLEAR_WHOLE
             )

@@ -75,6 +75,7 @@ import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.ui.authentication.login.LoginPasswordPath
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
@@ -769,8 +770,8 @@ class WireActivity : AppCompatActivity() {
                     navigate(
                         NavigationCommand(
                             when (loginTypeSelector.canUseNewLogin()) {
-                                true -> NewLoginScreenDestination(userHandle = it.userHandle)
-                                false -> LoginScreenDestination(userHandle = it.userHandle)
+                                true -> NewLoginScreenDestination(userHandle = PreFilledUserIdentifierType.PreFilled(it.userHandle))
+                                false -> LoginScreenDestination(userHandle = PreFilledUserIdentifierType.PreFilled(it.userHandle))
                             },
                             // if "welcome empty start" screen then switch "start" screen to proper one
                             when (navigator.shouldReplaceWelcomeLoginStartDestination()) {

@@ -58,6 +58,7 @@ import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.NewLoginNavGraph
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
@@ -76,6 +77,7 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
@@ -103,7 +105,7 @@ fun NewLoginScreen(
         when (newLoginAction) {
             is NewLoginAction.EmailPassword -> {
                 val loginNavArgs = LoginNavArgs(
-                    userHandle = newLoginAction.userIdentifier,
+                    userHandle = PreFilledUserIdentifierType.PreFilled(newLoginAction.userIdentifier),
                     loginPasswordPath = newLoginAction.loginPasswordPath
                 )
                 navigator.navigate(NavigationCommand(NewLoginPasswordScreenDestination(loginNavArgs)))
@@ -111,7 +113,7 @@ fun NewLoginScreen(
 
             is NewLoginAction.CustomConfig -> {
                 val loginNavArgs = LoginNavArgs(
-                    userHandle = newLoginAction.userIdentifier,
+                    userHandle = PreFilledUserIdentifierType.PreFilled(newLoginAction.userIdentifier),
                     loginPasswordPath = LoginPasswordPath(customServerConfig = newLoginAction.customServerConfig)
                 )
                 navigator.navigate(NavigationCommand(NewLoginScreenDestination(loginNavArgs), BackStackMode.CLEAR_WHOLE))
@@ -134,7 +136,12 @@ fun NewLoginScreen(
             }
 
             is NewLoginAction.EnterpriseLoginNotSupported -> {
-                navigator.navigate(NavigationCommand(WelcomeScreenDestination(viewModel.serverConfig)))
+                navigator.navigate(NavigationCommand(WelcomeScreenDestination(viewModel.serverConfig), BackStackMode.CLEAR_WHOLE))
+                val loginNavArgs = LoginNavArgs(
+                    userHandle = PreFilledUserIdentifierType.PreFilled(userIdentifier = newLoginAction.userIdentifier, editable = true),
+                    loginPasswordPath = LoginPasswordPath(viewModel.serverConfig),
+                )
+                navigator.navigate(NavigationCommand(LoginScreenDestination(loginNavArgs)))
             }
         }
     }

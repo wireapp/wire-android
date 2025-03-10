@@ -74,15 +74,13 @@ class LoginEmailViewModel @Inject constructor(
     coreLogic
 ) {
     val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
-        if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
-    }
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
 
     val userIdentifierTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
     val proxyIdentifierTextState: TextFieldState = TextFieldState()
     val proxyPasswordTextState: TextFieldState = TextFieldState()
-    var loginState by mutableStateOf(LoginEmailState(preFilledUserIdentifier is PreFilledUserIdentifierType.None))
+    var loginState by mutableStateOf(LoginEmailState(preFilledUserIdentifier.userIdentifierEditable))
 
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState by mutableStateOf(VerificationCodeState())

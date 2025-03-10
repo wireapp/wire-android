@@ -54,6 +54,7 @@ import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.NewLoginNavGraph
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.email.ForgotPasswordLabel
 import com.wire.android.ui.authentication.login.email.LoginButton
@@ -104,7 +105,7 @@ fun NewLoginPasswordScreen(
         if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
             val verificationCodeNavArgs = LoginNavArgs(
                 loginPasswordPath = navArgs.loginPasswordPath,
-                userHandle = loginEmailViewModel.userIdentifierTextState.text.toString()
+                userHandle = PreFilledUserIdentifierType.PreFilled(loginEmailViewModel.userIdentifierTextState.text.toString())
             )
             navigator.navigate(NavigationCommand(NewLoginVerificationCodeScreenDestination(verificationCodeNavArgs)))
         }

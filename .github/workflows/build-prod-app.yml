@@ -102,7 +102,7 @@ jobs:
         with:
           serviceAccountJson: service_account.json
           packageName: com.wire
-          releaseFiles: app/build/outputs/bundle/prod/compatrelease/*.aab
+          releaseFiles: app/build/outputs/bundle/prodCompatrelease/*.aab
           track: alpha
       - name: Deploy ProdCompatRelease to S3
         uses: ./.github/actions/deploy-to-s3
@@ -117,5 +117,5 @@ jobs:
         uses: softprops/action-gh-release@v2.2.0
         with:
           files: |
-            app/build/outputs/apk/prodCompatrelease/*.apk
+            app/build/outputs/apk/prod/compatrelease/*.apk
             app/version.txt

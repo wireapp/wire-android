@@ -30,8 +30,10 @@ data class LoginNavArgs(
 
 @Serializable
 sealed interface PreFilledUserIdentifierType {
+
     @Serializable
     data object None : PreFilledUserIdentifierType
+
     @Serializable
     data class PreFilled(val userIdentifier: String, val editable: Boolean = false) : PreFilledUserIdentifierType
 
@@ -50,6 +52,7 @@ data class LoginPasswordPath(
 
 @Serializable
 sealed interface DomainClaimedByOrg {
+
     @Serializable
     data object NotClaimed : DomainClaimedByOrg
 

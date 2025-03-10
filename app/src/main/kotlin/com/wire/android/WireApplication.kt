@@ -221,10 +221,7 @@ class WireApplication : BaseApp() {
         val analyticsResultFlow = ObserveCurrentSessionAnalyticsUseCase(
             currentSessionFlow = coreLogic.get().getGlobalScope().session.currentSessionFlow(),
             getAnalyticsContactsData = { userId ->
-                coreLogic.get().getSessionScope(userId).let {
-                    it.asyncUpdateContactsAmountsCache()
-                    it.getAnalyticsContactsData()
-                }
+                coreLogic.get().getSessionScope(userId).getAnalyticsContactsData()
             },
             observeAnalyticsTrackingIdentifierStatusFlow = { userId ->
                 coreLogic.get().getSessionScope(userId).observeAnalyticsTrackingIdentifierStatus()

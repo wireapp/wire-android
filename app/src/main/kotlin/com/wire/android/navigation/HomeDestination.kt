@@ -94,6 +94,6 @@ sealed class HomeDestination(
             values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
 
         fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Settings, Vault, Archive, Support, WhatsNew)
+            arrayOf(Conversations, Settings, Vault, Archive, Support, WhatsNew, BrowseChannels)
     }
 }

@@ -141,6 +141,10 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         }
     }
 
+    fun openUrlWithExternalApp(url: String, mimeType: String, onError: () -> Unit) {
+        openAssetUrlWithExternalApp(url, mimeType, context, onError)
+    }
+
     companion object {
         private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
         private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "video_attachment.mp4"

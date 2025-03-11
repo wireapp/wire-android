@@ -332,6 +332,29 @@ fun openAssetFileWithExternalApp(
     }
 }
 
+fun openAssetUrlWithExternalApp(
+    url: String,
+    mimeType: String,
+    context: Context,
+    onError: () -> Unit
+) {
+    try {
+        val intent = Intent()
+        intent.apply {
+            action = Intent.ACTION_VIEW
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            setDataAndType(Uri.parse(url), mimeType)
+        }
+        context.startActivity(intent)
+    } catch (e: java.lang.IllegalArgumentException) {
+        appLogger.e("The file couldn't be found on the internal storage \n$e")
+        onError()
+    } catch (noActivityFoundException: ActivityNotFoundException) {
+        appLogger.e("Couldn't find a proper app to process the asset")
+        onError()
+    }
+}
+
 fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetName: String?, onError: () -> Unit) {
     try {
         val assetUri = context.pathToUri(assetDataPath, assetName)
@@ -399,6 +422,10 @@ fun isVideoFile(mimeType: String?): Boolean {
 
 fun isAudioFile(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("audio/")
+}
+
+fun isPdfFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType == "application/pdf"
 }
 
 fun isText(mimeType: String?): Boolean {

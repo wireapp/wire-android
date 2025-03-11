@@ -49,7 +49,7 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import javax.inject.Inject
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "CyclomaticComplexMethod")
 class RegularMessageMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
     private val isoFormatter: ISOFormatter,
@@ -122,6 +122,8 @@ class RegularMessageMapper @Inject constructor(
         }
 
         is MessageContent.Location -> toLocation(content, userList, message)
+
+        is MessageContent.Multipart -> toMultipart(message.conversationId, content, userList, message.deliveryStatus)
 
         else -> toText(message.conversationId, content, userList, message.deliveryStatus)
     }
@@ -302,6 +304,29 @@ class RegularMessageMapper @Inject constructor(
             assetName = assetName,
             deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
         )
+    }
+
+    private fun toMultipart(
+        conversationId: ConversationId,
+        content: MessageContent.Multipart,
+        userList: List<User>,
+        deliveryStatus: DeliveryStatus
+    ): UIMessageContent.Multipart {
+
+        val quotedMessage = content.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
+            ?: if (content.quotedMessageReference?.quotedMessageId != null) {
+                UIQuotedMessage.UnavailableData
+            } else {
+                null
+            }
+
+        return MessageBody(UIText.DynamicString(content.value ?: "", content.mentions), quotedMessage = quotedMessage).let { messageBody ->
+            UIMessageContent.Multipart(
+                messageBody = messageBody,
+                attachments = content.attachments.toPersistentList(),
+                deliveryStatus = mapRecipientsFailure(userList, deliveryStatus),
+            )
+        }
     }
 }
 

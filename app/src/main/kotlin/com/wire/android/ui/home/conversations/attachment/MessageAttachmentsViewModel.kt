@@ -32,6 +32,7 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.FileManager
+import com.wire.android.util.MediaMetadata
 import com.wire.kalium.cells.domain.CellUploadEvent
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.model.AttachmentDraft
@@ -104,6 +105,8 @@ class MessageAttachmentsViewModel @Inject constructor(
             fileName = bundle.fileName,
             assetPath = bundle.dataPath,
             assetSize = bundle.dataSize,
+            mimeType = bundle.mimeType,
+            assetMetadata = MediaMetadata.getMediaMetadata(bundle.dataPath, bundle.mimeType),
         )
             .onFailure {
                 Log.e("MessageAttachmentsViewModel", "Failed to add attachment: $it")

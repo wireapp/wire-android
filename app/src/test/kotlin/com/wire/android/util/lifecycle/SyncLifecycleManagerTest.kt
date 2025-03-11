@@ -21,15 +21,12 @@ package com.wire.android.util.lifecycle
 import com.wire.android.framework.fake.FakeSyncExecutor
 import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.session.SessionRepository
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.common.functional.Either
-import com.wire.kalium.logic.sync.SetConnectionPolicyUseCase
-import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every

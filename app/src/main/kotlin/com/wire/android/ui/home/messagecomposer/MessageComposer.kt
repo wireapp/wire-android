@@ -141,7 +141,7 @@ fun MessageComposer(
                     attachments = attachments,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
-                        onSendMessageBundle(messageCompositionHolder.value.toMessageBundle(conversationId))
+                        onSendMessageBundle(messageCompositionHolder.value.toMessageBundle(conversationId, attachments))
                         messageComposition.update { it.copy(selectedMentions = emptyList()) }
                         onClearMentionSearchResult()
                         clearMessage()

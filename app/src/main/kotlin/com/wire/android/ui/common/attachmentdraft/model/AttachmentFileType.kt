@@ -46,6 +46,10 @@ enum class AttachmentFileType(private val extensions: List<String>) {
 
             return OTHER
         }
+
+        fun fromMimeType(mimeType: String): AttachmentFileType {
+            return fromExtension(mimeType.substringAfterLast("/"))
+        }
     }
 }
 
@@ -62,3 +66,6 @@ fun AttachmentFileType.icon(): Int =
         AttachmentFileType.CODE -> R.drawable.ic_file_type_code
         AttachmentFileType.OTHER -> R.drawable.ic_file_type_other
     }
+
+fun AttachmentFileType.previewSupported(): Boolean =
+    this in listOf(AttachmentFileType.IMAGE, AttachmentFileType.VIDEO, AttachmentFileType.PDF)

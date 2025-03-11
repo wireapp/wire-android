@@ -27,14 +27,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import com.wire.android.R
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.ui.home.conversations.model.messagetypes.multipart.TransferStatusIcon
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 
@@ -56,10 +54,10 @@ internal fun BoxScope.VideoAssetGridPreview(item: MultipartAttachmentUi) {
             size = item.assetSize,
         )
     }
-    TransferStatusIcon(item) {
+    item.contentUrl?.let {
         Image(
             modifier = Modifier
-                .size(dimensions().spacing40x)
+                .size(dimensions().spacing48x)
                 .align(Alignment.Center),
             painter = painterResource(id = R.drawable.ic_play_circle_filled),
             contentDescription = null,

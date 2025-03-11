@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -61,19 +62,21 @@ fun MultipartAttachmentsView(
             AttachmentsGrid(
                 attachments = attachments.map { it.toUiModel(viewModel.uploadProgress[it.assetId()]) },
                 onClick = { viewModel.onClick(it) },
-                onLoadPreview = { viewModel.loadAssetPreview(it) },
                 modifier = modifier,
             )
         else -> attachments.firstOrNull()
             ?.let { it.toUiModel(viewModel.uploadProgress[it.assetId()]) }
             ?.let { item ->
                 AssetPreview(
-                    item,
+                    item = item,
                     onClick = { viewModel.onClick(item) },
-                    onLoadPreview = { viewModel.loadAssetPreview(item) },
                     modifier = modifier,
                 )
             }
+    }
+
+    LaunchedEffect(attachments) {
+        attachments.onEach { viewModel.refreshAssetState(it.toUiModel()) }
     }
 }
 
@@ -81,7 +84,6 @@ fun MultipartAttachmentsView(
 private fun AttachmentsGrid(
     attachments: List<MultipartAttachmentUi>,
     onClick: (MultipartAttachmentUi) -> Unit,
-    onLoadPreview: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
@@ -97,12 +99,12 @@ private fun AttachmentsGrid(
             AssetGridPreview(
                 item,
                 onClick = { onClick(item) },
-                onLoadPreview = { onLoadPreview(item) },
             )
         }
     }
 }
 
+@Suppress("MagicNumber")
 private fun attachmentColumnCount(configuration: Configuration) =
     when (configuration.orientation) {
         Configuration.ORIENTATION_LANDSCAPE -> 4
@@ -122,6 +124,8 @@ internal fun MultipartAttachmentUi.getPreview() = localPath ?: previewUrl
 internal fun MultipartAttachmentUi.previewImageModel(decoderFactory: Decoder.Factory? = null): Any? =
     if (previewAvailable()) {
         val builder = ImageRequest.Builder(LocalContext.current)
+            .diskCacheKey(contentHash)
+            .memoryCacheKey(contentHash)
             .data(getPreview())
             .crossfade(true)
 

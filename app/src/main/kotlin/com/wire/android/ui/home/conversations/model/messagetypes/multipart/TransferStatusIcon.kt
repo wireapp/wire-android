@@ -17,8 +17,11 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.Icon
@@ -34,7 +37,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus
 @Composable
 internal fun BoxScope.TransferStatusIcon(
     item: MultipartAttachmentUi,
-    size: Dp = dimensions().spacing32x,
+    size: Dp = dimensions().spacing40x,
     onLoaded: @Composable () -> Unit = {}
 ) {
 
@@ -43,7 +46,11 @@ internal fun BoxScope.TransferStatusIcon(
         AssetTransferStatus.FAILED_DOWNLOAD,
         AssetTransferStatus.NOT_DOWNLOADED -> {
             Icon(
-                modifier = Modifier.size(size).align(Alignment.Center),
+                modifier = Modifier
+                    .size(size)
+                    .background(color = colorsScheme().surface, shape = CircleShape)
+                    .padding(dimensions().spacing6x)
+                    .align(Alignment.Center),
                 imageVector = Icons.Default.Download,
                 contentDescription = null,
                 tint = colorsScheme().secondaryText

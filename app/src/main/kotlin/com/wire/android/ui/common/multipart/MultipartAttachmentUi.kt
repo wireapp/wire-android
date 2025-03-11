@@ -29,7 +29,9 @@ data class MultipartAttachmentUi(
     val source: AssetSource,
     val fileName: String?,
     val localPath: String?,
-    val previewUrl: String?,
+    val contentHash: String? = null,
+    val contentUrl: String? = null,
+    val previewUrl: String? = null,
     val mimeType: String,
     val assetType: AttachmentFileType,
     val assetSize: Long?,
@@ -42,7 +44,7 @@ enum class AssetSource {
     CELL, ASSET_STORAGE
 }
 
-fun MessageAttachment.toUiModel(progress: Float?) = when (this) {
+fun MessageAttachment.toUiModel(progress: Float? = null) = when (this) {
     is AssetContent -> this.toUiModel(progress)
     is CellAssetContent -> this.toUiModel(progress)
 }
@@ -52,6 +54,7 @@ fun CellAssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     source = AssetSource.CELL,
     fileName = this.assetPath?.substringAfterLast("/"),
     localPath = this.localPath,
+    contentUrl = this.contentUrl,
     previewUrl = this.previewUrl,
     mimeType = this.mimeType,
     assetType = AttachmentFileType.fromMimeType(mimeType),
@@ -59,6 +62,7 @@ fun CellAssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     metadata = this.metadata,
     transferStatus = this.transferStatus,
     progress = progress,
+    contentHash = contentHash,
 )
 
 fun AssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
@@ -73,4 +77,6 @@ fun AssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     metadata = this.metadata,
     transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
     progress = progress,
+    contentHash = null,
+    contentUrl = null,
 )

@@ -19,7 +19,6 @@ package com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,13 +30,12 @@ import coil.compose.AsyncImage
 import com.wire.android.ui.common.attachmentdraft.model.icon
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.ui.home.conversations.model.messagetypes.multipart.TransferStatusIcon
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.util.ui.PdfPreviewDecoder
 
 @Composable
-internal fun BoxScope.PdfAssetGridPreview(item: MultipartAttachmentUi) {
+internal fun PdfAssetGridPreview(item: MultipartAttachmentUi) {
     if (item.previewAvailable()) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
@@ -60,5 +58,4 @@ internal fun BoxScope.PdfAssetGridPreview(item: MultipartAttachmentUi) {
             contentDescription = null,
         )
     }
-    TransferStatusIcon(item)
 }

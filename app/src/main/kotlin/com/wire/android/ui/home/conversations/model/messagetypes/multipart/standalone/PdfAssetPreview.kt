@@ -45,8 +45,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.getDownloadStatusText
-import com.wire.android.ui.home.conversations.model.messagetypes.multipart.TransferStatusIcon
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
@@ -56,7 +54,6 @@ import com.wire.android.util.ui.PdfPreviewDecoder
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
-import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
@@ -95,8 +92,6 @@ internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
         FileHeaderView(
             extension = item.fileName?.fileExtension() ?: item.mimeType.substringAfter("/"),
             size = item.assetSize,
-            label = getDownloadStatusText(item.transferStatus),
-            labelColor = if (item.transferStatus.isFailed()) colorsScheme().error else null
         )
 
         item.fileName?.let {
@@ -132,9 +127,6 @@ internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
                     contentDescription = null,
                 )
             }
-
-            // Download icon
-            TransferStatusIcon(item)
 
             // Download progress
             item.progress?.let {

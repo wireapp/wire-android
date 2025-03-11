@@ -27,7 +27,10 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,12 +38,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
-import com.wire.android.ui.common.attachmentdraft.model.previewSupported
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -51,14 +52,8 @@ import com.wire.kalium.logic.data.message.AssetContent
 internal fun AssetGridPreview(
     item: MultipartAttachmentUi,
     onClick: () -> Unit,
-    onLoadPreview: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
-    if (item.assetType.previewSupported() && item.previewAvailable().not()) {
-        onLoadPreview()
-    }
-
     Box(
         modifier = modifier
             .aspectRatio(1f)
@@ -75,32 +70,41 @@ internal fun AssetGridPreview(
             .clip(RoundedCornerShape(dimensions().messageAttachmentGridCornerSize))
     ) {
 
-        when (item.assetType) {
-            AttachmentFileType.IMAGE -> {
-                ImageAssetGridPreview(item)
+        if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
+            when (item.assetType) {
+                AttachmentFileType.IMAGE -> {
+                    ImageAssetGridPreview(item)
+                }
+
+                AttachmentFileType.VIDEO -> {
+                    VideoAssetGridPreview(item)
+                }
+
+                AttachmentFileType.PDF -> {
+                    PdfAssetGridPreview(item)
+                }
+
+                else -> {
+                    FileAssetGridPreview(item)
+                }
             }
 
-            AttachmentFileType.VIDEO -> {
-                VideoAssetGridPreview(item)
+            item.progress?.let {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(dimensions().spacing32x)
+                        .align(Alignment.Center),
+                    progress = { it },
+                    color = transferProgressColor(item.transferStatus),
+                    trackColor = Color.Transparent,
+                )
             }
-
-            AttachmentFileType.PDF -> {
-                PdfAssetGridPreview(item)
-            }
-
-            else -> {
-                FileAssetGridPreview(item)
-            }
-        }
-
-        item.progress?.let {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(dimensions().spacing32x)
-                    .align(Alignment.Center),
-                progress = { it },
-                color = transferProgressColor(item.transferStatus),
-                trackColor = Color.Transparent,
+        } else {
+            Icon(
+                modifier = Modifier.size(dimensions().spacing32x).align(Alignment.Center),
+                imageVector = Icons.Default.Block,
+                contentDescription = null,
+                tint = colorsScheme().secondaryText
             )
         }
     }
@@ -139,7 +143,6 @@ private fun PreviewAssetGrid() {
                     transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
                 ),
                 onClick = {},
-                onLoadPreview = {}
             )
         }
     }

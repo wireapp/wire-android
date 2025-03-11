@@ -30,11 +30,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
-import com.wire.android.ui.common.attachmentdraft.model.previewSupported
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
 
@@ -42,14 +41,8 @@ import com.wire.kalium.logic.data.message.width
 fun AssetPreview(
     item: MultipartAttachmentUi,
     onClick: () -> Unit,
-    onLoadPreview: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
-    if (item.assetType.previewSupported() && item.previewAvailable().not()) {
-        onLoadPreview()
-    }
-
     Box(
         modifier = modifier
             .clickable { onClick() }
@@ -64,11 +57,15 @@ fun AssetPreview(
             )
             .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
-        when (item.assetType) {
-            AttachmentFileType.IMAGE -> ImageAssetPreview(item)
-            AttachmentFileType.VIDEO -> VideoAssetPreview(item)
-            AttachmentFileType.PDF -> PdfAssetPreview(item)
-            else -> FileAssetPreview(item)
+        if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
+            when (item.assetType) {
+                AttachmentFileType.IMAGE -> ImageAssetPreview(item)
+                AttachmentFileType.VIDEO -> VideoAssetPreview(item)
+                AttachmentFileType.PDF -> PdfAssetPreview(item)
+                else -> FileAssetPreview(item)
+            }
+        } else {
+            FileAssetPreview(item)
         }
     }
 }

@@ -51,8 +51,6 @@ import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.getDownloadStatusText
-import com.wire.android.ui.home.conversations.model.messagetypes.multipart.TransferStatusIcon
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
@@ -61,7 +59,6 @@ import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
-import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.durationMs
 import com.wire.kalium.logic.data.message.height
@@ -74,7 +71,6 @@ internal fun VideoAssetPreview(
 
     val width = item.metadata?.width() ?: 0
     val height = item.metadata?.height() ?: 0
-    
     val maxWidth = calculateMaxMediaAssetWidth(
         item = item,
         maxDefaultWidth = dimensions().attachmentVideoMaxWidth,
@@ -103,8 +99,6 @@ internal fun VideoAssetPreview(
             modifier = Modifier.padding(dimensions().spacing8x),
             extension = item.mimeType.substringAfter("/"),
             size = item.assetSize,
-            label = getDownloadStatusText(item.transferStatus),
-            labelColor = if (item.transferStatus.isFailed()) colorsScheme().error else null
         )
 
         Box(
@@ -152,8 +146,7 @@ internal fun VideoAssetPreview(
                 )
             }
 
-            // Icon (play / download)
-            TransferStatusIcon(item) {
+            item.contentUrl?.let {
                 Image(
                     modifier = Modifier
                         .size(dimensions().spacing40x)

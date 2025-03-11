@@ -21,12 +21,16 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType.IMAGE
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType.PDF
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType.VIDEO
+import com.wire.android.ui.common.attachmentdraft.model.previewSupported
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.GetPreviewUrlUseCase
+import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -35,7 +39,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MultipartAttachmentsViewModel @Inject constructor(
-    private val loadPreview: GetPreviewUrlUseCase,
+    private val refreshAsset: RefreshCellAssetStateUseCase,
     private val download: DownloadCellFileUseCase,
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
@@ -47,18 +51,18 @@ class MultipartAttachmentsViewModel @Inject constructor(
 
     fun onClick(attachment: MultipartAttachmentUi) {
         when {
+            attachment.fileNotFound() -> { refreshAssetState(attachment) }
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
             else -> downloadAsset(attachment)
         }
     }
 
-    fun loadAssetPreview(attachment: MultipartAttachmentUi) {
+    fun refreshAssetState(attachment: MultipartAttachmentUi) {
         if (refreshed.contains(attachment.uuid).not()) {
             refreshed.add(attachment.uuid)
-            when (attachment.source) {
-                AssetSource.CELL -> viewModelScope.launch { loadPreview(attachment.uuid) }
-                AssetSource.ASSET_STORAGE -> TODO()
+            if (attachment.source == AssetSource.CELL) {
+                viewModelScope.launch { refreshAsset(attachment.uuid, attachment.assetType.previewSupported()) }
             }
         }
     }
@@ -75,7 +79,7 @@ class MultipartAttachmentsViewModel @Inject constructor(
 
     private fun openUrl(attachment: MultipartAttachmentUi) {
         fileManager.openUrlWithExternalApp(
-            url = attachment.previewUrl ?: error("No preview URL"),
+            url = attachment.contentUrl ?: error("No preview URL"),
             mimeType = attachment.mimeType
         ) {
             Log.e("MessageAttachmentsViewModel", "Failed to open: ${attachment.previewUrl}")
@@ -104,5 +108,6 @@ class MultipartAttachmentsViewModel @Inject constructor(
     }
 }
 
+private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
-private fun MultipartAttachmentUi.canOpenWithUrl() = previewUrl != null && assetType == AttachmentFileType.IMAGE
+private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)

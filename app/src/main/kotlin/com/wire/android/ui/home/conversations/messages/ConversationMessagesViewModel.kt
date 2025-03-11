@@ -135,11 +135,12 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope,
         conversationId,
         ::updateDeleteDialogState
-    ) { messageId, deleteForEveryone, _ ->
+    ) { messageId, deleteForEveryone, deleteAttachments, _ ->
         deleteMessage(
             conversationId = conversationId,
             messageId = messageId,
-            deleteForEveryone = deleteForEveryone
+            deleteForEveryone = deleteForEveryone,
+            deleteAttachments = deleteAttachments,
         )
             .onFailure { onSnackbarMessage(ConversationSnackbarMessages.ErrorDeletingMessage) }
     }
@@ -437,13 +438,14 @@ class ConversationMessagesViewModel @Inject constructor(
         return null
     }
 
-    fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean) =
+    fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean, isMultipart: Boolean) =
         if (deleteForEveryone) {
             updateDeleteDialogState {
                 it.copy(
                     forEveryone = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
-                        conversationId = conversationId
+                        conversationId = conversationId,
+                        deleteAttachments = isMultipart,
                     )
                 )
             }
@@ -452,7 +454,8 @@ class ConversationMessagesViewModel @Inject constructor(
                 it.copy(
                     forYourself = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
-                        conversationId = conversationId
+                        conversationId = conversationId,
+                        deleteAttachments = isMultipart,
                     )
                 )
             }

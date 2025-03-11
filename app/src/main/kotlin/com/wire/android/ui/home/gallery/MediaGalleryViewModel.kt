@@ -85,8 +85,13 @@ class MediaGalleryViewModel @Inject constructor(
         viewModelScope,
         conversationId,
         ::updateDeleteDialogState
-    ) { messageId: String, deleteForEveryone: Boolean, onDeleted: () -> Unit ->
-        deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+    ) { messageId: String, deleteForEveryone: Boolean, deleteAttachments, onDeleted: () -> Unit ->
+        deleteMessage(
+            conversationId = conversationId,
+            messageId = messageId,
+            deleteForEveryone = deleteForEveryone,
+            deleteAttachments = deleteAttachments,
+        )
             .onFailure { onSnackbarMessage(MediaGallerySnackbarMessages.DeletingMessageError) }
             .onSuccess { onDeleted() }
     }

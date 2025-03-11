@@ -42,7 +42,7 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 fun MessageOptionsModalSheetLayout(
     sheetState: WireModalSheetState<UIMessage.Regular>,
     onCopyClick: (text: String) -> Unit,
-    onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
+    onDeleteClick: (messageId: String, isMyMessage: Boolean, isMultipart: Boolean) -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onReplyClick: (UIMessage.Regular) -> Unit,
@@ -81,7 +81,11 @@ fun MessageOptionsModalSheetLayout(
                     onDeleteClick = remember(message.header.messageId) {
                         {
                             sheetState.hide {
-                                onDeleteClick(message.header.messageId, message.isMyMessage)
+                                onDeleteClick(
+                                    message.header.messageId,
+                                    message.isMyMessage,
+                                    message.messageContent is UIMessageContent.Multipart
+                                )
                             }
                         }
                     },
@@ -166,7 +170,7 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
     MessageOptionsModalSheetLayout(
         sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded(mockAssetMessage())),
         onCopyClick = {},
-        onDeleteClick = { _, _ -> },
+        onDeleteClick = { _, _, _ -> },
         onReactionClick = { _, _ -> },
         onDetailsClick = { _, _ -> },
         onReplyClick = { },

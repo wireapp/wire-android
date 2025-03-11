@@ -18,10 +18,21 @@
 
 package com.wire.android.ui.home.conversations.delete
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -37,8 +48,13 @@ internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: Dele
                     state = state.forEveryone,
                     onDialogDismiss = actions::onDeleteDialogDismissed,
                     onDeleteForMe = actions::showDeleteMessageForYourselfDialog,
-                    onDeleteForEveryone = { messageId: String ->
-                        actions.onDeleteMessage(messageId = messageId, deleteForEveryone = true, onDeleted = onDeleted)
+                    onDeleteForEveryone = { messageId: String, deleteAttachments: Boolean ->
+                        actions.onDeleteMessage(
+                            messageId = messageId,
+                            deleteForEveryone = true,
+                            deleteAttachments = deleteAttachments,
+                            onDeleted = onDeleted,
+                        )
                     },
                 )
                 if (state.forEveryone.error is DeleteMessageError.GenericError) {
@@ -52,8 +68,13 @@ internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: Dele
                     DeleteMessageForYourselfDialog(
                         state = state.forYourself,
                         onDialogDismiss = actions::onDeleteDialogDismissed,
-                        onDeleteForMe = { messageId: String ->
-                            actions.onDeleteMessage(messageId = messageId, deleteForEveryone = false, onDeleted = onDeleted)
+                        onDeleteForMe = { messageId: String, deleteAttachments: Boolean ->
+                            actions.onDeleteMessage(
+                                messageId = messageId,
+                                deleteForEveryone = false,
+                                onDeleted = onDeleted,
+                                deleteAttachments = deleteAttachments,
+                            )
                         },
                     )
                 }
@@ -66,9 +87,11 @@ internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: Dele
 private fun DeleteMessageDialog(
     state: DeleteMessageDialogActiveState.Visible,
     onDialogDismiss: () -> Unit,
-    onDeleteForMe: (String) -> Unit,
-    onDeleteForEveryone: (String) -> Unit,
+    onDeleteForMe: (String, Boolean) -> Unit,
+    onDeleteForEveryone: (String, Boolean) -> Unit,
 ) {
+    var deleteAttachmentsCheck by remember { mutableStateOf(false) }
+
     WireDialog(
         title = stringResource(R.string.delete_message_dialog_title),
         text = stringResource(R.string.delete_message_dialog_message),
@@ -79,19 +102,39 @@ private fun DeleteMessageDialog(
             state = WireButtonState.Default
         ),
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = { onDeleteForMe(state.messageId) },
+            onClick = { onDeleteForMe(state.messageId, deleteAttachmentsCheck) },
             text = stringResource(R.string.label_delete_for_me),
             type = WireDialogButtonType.Primary,
             state = WireButtonState.Error
         ),
         optionButton2Properties = WireDialogButtonProperties(
-            onClick = { onDeleteForEveryone(state.messageId) },
+            onClick = { onDeleteForEveryone(state.messageId, deleteAttachmentsCheck) },
             text = stringResource(R.string.label_delete_for_everyone),
             type = WireDialogButtonType.Primary,
             state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
             loading = state.loading
         ),
-        buttonsHorizontalAlignment = false
+        buttonsHorizontalAlignment = false,
+        content = {
+            if (state.deleteAttachments) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { deleteAttachmentsCheck = !deleteAttachmentsCheck },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    WireCheckbox(
+                        checked = deleteAttachmentsCheck,
+                        onCheckedChange = {
+                            deleteAttachmentsCheck = !deleteAttachmentsCheck
+                        }
+                    )
+                    Text(
+                        text = stringResource(R.string.delete_with_attachments)
+                    )
+                }
+            }
+        }
     )
 }
 
@@ -99,7 +142,7 @@ private fun DeleteMessageDialog(
 private fun DeleteMessageForYourselfDialog(
     state: DeleteMessageDialogActiveState.Visible,
     onDialogDismiss: () -> Unit,
-    onDeleteForMe: (String) -> Unit,
+    onDeleteForMe: (String, Boolean) -> Unit,
 ) {
     WireDialog(
         title = stringResource(R.string.delete_message_for_yourself_dialog_title),
@@ -111,7 +154,7 @@ private fun DeleteMessageForYourselfDialog(
             state = WireButtonState.Default
         ),
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = { onDeleteForMe(state.messageId) },
+            onClick = { onDeleteForMe(state.messageId, state.deleteAttachments) },
             text = stringResource(R.string.label_delete_for_me),
             type = WireDialogButtonType.Primary,
             state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,

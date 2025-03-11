@@ -36,6 +36,7 @@ sealed class DeleteMessageDialogActiveState {
         val messageId: String,
         val conversationId: ConversationId,
         val loading: Boolean = false,
+        val deleteAttachments: Boolean = false,
         val error: DeleteMessageError = DeleteMessageError.None
     ) : DeleteMessageDialogActiveState()
 }

@@ -96,7 +96,7 @@ fun ConversationMediaScreen(
     val state: ConversationAssetMessagesViewState = conversationAssetMessagesViewModel.viewState
     val sheetState: WireModalSheetState<AssetOptionsData> = rememberWireModalSheetState()
     val onOpenAssetOptions: (messageId: String, isMyMessage: Boolean) -> Unit = { messageId, isMyMessage ->
-        sheetState.show(AssetOptionsData(messageId, isMyMessage))
+        sheetState.show(AssetOptionsData(messageId, isMyMessage, false))
     }
 
     Content(
@@ -244,18 +244,18 @@ private fun Content(
 @Composable
 private fun AssetOptionsModalSheetLayout(
     sheetState: WireModalSheetState<AssetOptionsData>,
-    deleteAsset: (messageId: String, isMyMessage: Boolean) -> Unit,
+    deleteAsset: (messageId: String, isMyMessage: Boolean, isMultipart: Boolean) -> Unit,
     shareAsset: (messageId: String) -> Unit,
     downloadAsset: (messageId: String) -> Unit,
 ) {
     WireModalSheetLayout(
         sheetState = sheetState,
-        sheetContent = { (messageId: String, isMyMessage: Boolean) ->
+        sheetContent = { (messageId: String, isMyMessage: Boolean, isMultipart: Boolean) ->
             WireMenuModalSheetContent(
                 menuItems = assetOptionsMenuItems(
                     isUploading = false, // only uploaded assets
                     isEphemeral = false, // only non-self-deleting assets
-                    onDeleteClick = remember { { sheetState.hide { deleteAsset(messageId, isMyMessage) } } },
+                    onDeleteClick = remember { { sheetState.hide { deleteAsset(messageId, isMyMessage, isMultipart) } } },
                     onShareAsset = remember { { sheetState.hide { shareAsset(messageId) } } },
                     onDownloadAsset = remember { { sheetState.hide { downloadAsset(messageId) } } },
                 )
@@ -271,7 +271,7 @@ enum class ConversationMediaScreenTabItem(@StringRes val titleResId: Int) : TabI
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
-data class AssetOptionsData(val messageId: String, val isMyMessage: Boolean)
+data class AssetOptionsData(val messageId: String, val isMyMessage: Boolean, val isMultipart: Boolean)
 
 @PreviewMultipleThemes
 @Composable
@@ -312,8 +312,12 @@ fun PreviewConversationMediaScreenFilesContent() = WireTheme {
 @Composable
 fun PreviewAssetOptionsModalSheetLayout() = WireTheme {
     AssetOptionsModalSheetLayout(
-        sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded(AssetOptionsData("id", true))),
-        deleteAsset = { _, _ -> },
+        sheetState = rememberWireModalSheetState(
+            initialValue = WireSheetValue.Expanded(
+                AssetOptionsData(messageId = "id", isMyMessage = true, isMultipart = false)
+            )
+        ),
+        deleteAsset = { _, _, _ -> },
         shareAsset = { },
         downloadAsset = { }
     )

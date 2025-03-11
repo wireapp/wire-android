@@ -120,6 +120,12 @@ jobs:
     needs: [ tests ]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
+
       - name: Install Pip for test result publishing
         run: sudo apt-get install -y python3-pip
 

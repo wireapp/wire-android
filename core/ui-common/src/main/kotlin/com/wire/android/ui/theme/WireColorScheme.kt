@@ -23,6 +23,14 @@ package com.wire.android.ui.theme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.theme.WireColorPalette.Gray30
+import com.wire.android.ui.theme.WireColorPalette.Gray80
+import com.wire.android.ui.theme.WireColorPalette.LightAmber50
+import com.wire.android.ui.theme.WireColorPalette.LightBlue50
+import com.wire.android.ui.theme.WireColorPalette.LightGreen50
+import com.wire.android.ui.theme.WireColorPalette.LightPetrol50
+import com.wire.android.ui.theme.WireColorPalette.LightPurple50
+import com.wire.android.ui.theme.WireColorPalette.LightRed50
 import io.github.esentsov.PackagePrivate
 
 @Suppress("LongParameterList")
@@ -80,6 +88,7 @@ class WireColorScheme(
 
     // accents
     val groupAvatarColors: List<Triple<Color, Color, Color>>,
+    val channelAvatarColors: List<Triple<Color, Color, Color>>,
     val wireAccentColors: WireAccentColors,
 
     val emojiBackgroundColor: Color,
@@ -166,7 +175,7 @@ private val LightWireColorScheme = WireColorScheme(
     scrim = WireColorPalette.BlackAlpha55,
 
     // accents
-    groupAvatarColors = listOf(
+    groupAvatarColors = listOf( // left, middle, right
         Triple(WireColorPalette.LightGreen500, WireColorPalette.LightPurple500, WireColorPalette.LightRed500),
         Triple(WireColorPalette.LightBlue500, WireColorPalette.LightGreen500, WireColorPalette.LightAmber500),
         Triple(WireColorPalette.LightBlue500, WireColorPalette.LightRed500, WireColorPalette.LightPurple500),
@@ -182,6 +191,15 @@ private val LightWireColorScheme = WireColorScheme(
         Triple(WireColorPalette.LightPurple500, WireColorPalette.LightBlue500, WireColorPalette.LightGreen500),
         Triple(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightAmber500),
         Triple(WireColorPalette.LightGreen500, WireColorPalette.LightAmber500, WireColorPalette.LightPurple500)
+    ),
+    channelAvatarColors = listOf( // border, background, icon
+        Triple(WireColorPalette.LightBlue100, LightBlue50, WireColorPalette.LightBlue500),
+        Triple(WireColorPalette.LightPurple100, LightPurple50, WireColorPalette.LightPurple500),
+        Triple(WireColorPalette.LightRed100, LightRed50, WireColorPalette.LightRed500),
+        Triple(WireColorPalette.LightGreen100, LightGreen50, WireColorPalette.LightGreen500),
+        Triple(WireColorPalette.LightAmber100, LightAmber50, WireColorPalette.LightAmber500),
+        Triple(WireColorPalette.LightPetrol100, LightPetrol50, WireColorPalette.LightPetrol500),
+        Triple(WireColorPalette.Gray40, Gray30, Gray80)
     ),
     wireAccentColors = WireAccentColors {
         when (it) {
@@ -251,7 +269,7 @@ private val DarkWireColorScheme = WireColorScheme(
     scrim = WireColorPalette.BlackAlpha55,
 
     // accents
-    groupAvatarColors = listOf(
+    groupAvatarColors = listOf( // left, middle, right
         Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500, WireColorPalette.DarkRed500),
         Triple(WireColorPalette.DarkBlue500, WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500),
         Triple(WireColorPalette.DarkBlue500, WireColorPalette.DarkRed500, WireColorPalette.DarkPurple500),
@@ -267,6 +285,16 @@ private val DarkWireColorScheme = WireColorScheme(
         Triple(WireColorPalette.DarkPurple500, WireColorPalette.DarkBlue500, WireColorPalette.DarkGreen500),
         Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkAmber500),
         Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500, WireColorPalette.DarkPurple500)
+    ),
+
+    channelAvatarColors = listOf( // border, background, icon
+        Triple(WireColorPalette.DarkBlue900, WireColorPalette.DarkBlue800, WireColorPalette.DarkBlue500),
+        Triple(WireColorPalette.DarkPurple900, WireColorPalette.DarkPurple800, WireColorPalette.DarkPurple500),
+        Triple(WireColorPalette.DarkRed900, WireColorPalette.DarkRed800, WireColorPalette.DarkRed500),
+        Triple(WireColorPalette.DarkGreen900, WireColorPalette.DarkGreen800, WireColorPalette.DarkGreen500),
+        Triple(WireColorPalette.DarkAmber900, WireColorPalette.DarkAmber800, WireColorPalette.DarkAmber500),
+        Triple(WireColorPalette.DarkPetrol900, WireColorPalette.DarkPetrol800, WireColorPalette.DarkPetrol500),
+        Triple(WireColorPalette.Gray90, Gray80, WireColorPalette.Gray40)
     ),
     wireAccentColors = WireAccentColors {
         when (it) {

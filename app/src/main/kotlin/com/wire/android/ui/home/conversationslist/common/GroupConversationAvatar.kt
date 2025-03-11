@@ -47,7 +47,7 @@ fun GroupConversationAvatar(
     cornerRadius: Dp = MaterialTheme.wireDimensions.groupAvatarCornerRadius,
     padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
     borderWidth: Dp = dimensions().avatarBorderWidth,
-    borderColor: Color = colorsScheme().avatarBorderColor
+    borderColor: Color = colorsScheme().outline
 ) {
     Row(
         horizontalArrangement = Arrangement.Center,

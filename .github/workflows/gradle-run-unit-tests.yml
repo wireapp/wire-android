@@ -74,7 +74,7 @@ jobs:
 
       - name: Test with with shards
         run: |
-          ./gradlew :app:unitTestShard${{ matrix.shardIndex }} koverXmlReport
+          ./gradlew :app:unitTestShard${{ matrix.shardIndex }}
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

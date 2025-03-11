@@ -22,6 +22,7 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.dp
@@ -236,10 +237,11 @@ class MessageCompositionInputStateHolderTest {
 
         val softwareKeyboardController = mockk<SoftwareKeyboardController>()
 
+        private val focusManager = mockk<FocusManager>()
         private val focusRequester = mockk<FocusRequester>()
 
         private val state by lazy {
-            MessageCompositionInputStateHolder(textFieldState, softwareKeyboardController, focusRequester)
+            MessageCompositionInputStateHolder(textFieldState, softwareKeyboardController, focusManager, focusRequester)
         }
 
         init {

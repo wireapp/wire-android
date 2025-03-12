@@ -58,7 +58,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             // then
             val item = awaitItem()
             assertIs<AnalyticsIdentifierResult.Disabled>(item.identifierResult)
-            assertEquals(false, item.profileProperties.isTeamMember)
+            assertEquals(false, item.profileProperties().isTeamMember)
             assertEquals(null, item.manager)
         }
     }
@@ -80,7 +80,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             // then
             val item = awaitItem()
             assertIs<AnalyticsIdentifierResult.ExistingIdentifier>(item.identifierResult)
-            assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties)
+            assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
         }
     }
 
@@ -101,7 +101,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             // then
             val item = awaitItem()
             assertIs<AnalyticsIdentifierResult.ExistingIdentifier>(item.identifierResult)
-            assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties)
+            assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
         }
     }
 
@@ -125,7 +125,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 // then
                 val item = awaitItem()
                 assertIs<AnalyticsIdentifierResult.Disabled>(item.identifierResult)
-                assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties)
+                assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
                 assertEquals(true, item.manager != null)
             }
         }
@@ -154,7 +154,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 // then
                 val item = awaitItem()
                 assertIs<AnalyticsIdentifierResult.Disabled>(item.identifierResult)
-                assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties)
+                assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
                 assertEquals(true, item.manager != null)
             }
         }
@@ -179,7 +179,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 // then
                 val item = awaitItem()
                 assertIs<AnalyticsIdentifierResult.Disabled>(item.identifierResult)
-                assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties)
+                assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
                 assertEquals(true, item.manager != null)
             }
         }
@@ -201,7 +201,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             // then
             val item = awaitItem()
             assertIs<AnalyticsIdentifierResult.ExistingIdentifier>(item.identifierResult)
-            assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties)
+            assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
 
             // when changing user
             arrangement.setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.OTHER_USER.id)))

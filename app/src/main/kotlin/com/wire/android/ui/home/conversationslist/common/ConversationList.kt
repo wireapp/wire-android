@@ -21,15 +21,23 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
@@ -37,7 +45,12 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -47,6 +60,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -107,7 +121,11 @@ fun ConversationList(
                         if (LocalInspectionMode.current) it else it.animateItem()
                     }
             ) {
-                when (val item = lazyPagingConversations[index]) {
+                val item = lazyPagingConversations[index]
+                if (item is ConversationFolder.Predefined.BrowseChannels) {
+                    BrowsePublicChannelsItem()
+                }
+                when (item) {
                     is ConversationFolder -> when (item) {
                         is ConversationFolder.Predefined -> FolderHeader(context.getString(item.folderNameResId))
                         is ConversationFolder.Custom -> FolderHeader(item.folderName)
@@ -137,6 +155,43 @@ fun ConversationList(
             keepOnTopWhenNotScrolled(lazyListState)
         }
     }
+}
+
+@Composable
+private fun BrowsePublicChannelsItem() {
+    RowItemTemplate(
+        modifier = Modifier.padding(horizontal = dimensions().spacing8x),
+        leadingIcon = {
+            Icon(
+                modifier = Modifier.size(dimensions().systemMessageIconSize),
+                painter = painterResource(id = R.drawable.ic_hash),
+                contentDescription = null,
+            )
+        },
+        title = {
+            Text(
+                text = "Browse Public Channels",
+                style = MaterialTheme.wireTypography.body01,
+                modifier = Modifier
+                    .padding(
+                        start = dimensions().spacing4x,
+                        end = dimensions().spacing4x
+                    )
+            )
+        },
+        clickable = Clickable(), // todo change to action to navigate to browse channels
+        actions = {
+            Box(
+                modifier = Modifier
+                    .wrapContentWidth()
+            ) {
+                ArrowRightIcon(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    contentDescription = R.string.content_description_empty
+                )
+            }
+        }
+    )
 }
 
 @Deprecated("This is old version without pagination")
@@ -260,13 +315,30 @@ fun previewConversationFoldersFlow(
     )
 )
 
-fun previewConversationFolders(withFolders: Boolean = true, searchQuery: String = "", unreadCount: Int = 3, readCount: Int = 6) =
+fun previewConversationFolders(
+    isChannels: Boolean = false,
+    withFolders: Boolean = true,
+    searchQuery: String = "",
+    unreadCount: Int = 3,
+    readCount: Int = 6
+) =
     buildList {
+        if (isChannels) add(ConversationFolder.Predefined.BrowseChannels)
         if (withFolders) add(ConversationFolder.Predefined.NewActivities)
         addAll(previewConversationList(unreadCount, 0, true, searchQuery))
         if (withFolders) add(ConversationFolder.Predefined.Conversations)
         addAll(previewConversationList(readCount, unreadCount, false, searchQuery))
     }
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewChannelsList() = WireTheme {
+    ConversationList(
+        lazyPagingConversations = previewConversationFoldersFlow(list = previewConversationFolders(isChannels = true))
+            .collectAsLazyPagingItems(),
+        isSelectableList = false,
+    )
+}
 
 @PreviewMultipleThemes
 @Composable

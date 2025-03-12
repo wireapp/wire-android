@@ -384,6 +384,7 @@ fun HomeContent(
                             enter = fadeIn(),
                             exit = fadeOut(),
                         ) {
+                            // todo: add extended FAB when currentFilter is Channels as an alternative.
                             FloatingActionButton(
                                 text = stringResource(R.string.label_new),
                                 icon = {

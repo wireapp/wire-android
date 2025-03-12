@@ -139,11 +139,11 @@ jobs:
 
       - name: Combine and zip results
         run: |
-          mkdir -p combined-results
+          mkdir -p test-results
           # Find all XML files from downloaded artifacts and copy them
-          find all-test-results -type f -name "*.xml" -exec cp {} combined-results \;
+          find all-test-results -type f -name "*.xml" -exec cp {} test-results \;
           # Create zip file
-          zip -r unit-tests-android_${{ env.COMMIT_HASH }}.zip combined-results
+          zip -r unit-tests-android_${{ env.COMMIT_HASH }}.zip test-results
 
       - name: Upload zipped test results
         uses: actions/upload-artifact@v4

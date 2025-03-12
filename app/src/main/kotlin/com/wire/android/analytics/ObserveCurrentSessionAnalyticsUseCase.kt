@@ -85,8 +85,6 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                         is SelfServerConfigUseCase.Result.Failure -> false
                     }
 
-                    val analyticsContactsData = getAnalyticsContactsData(userId)
-
                     val identifierResult = if (enabled && isProdBackend) {
                         analyticsIdentifierResult
                     } else {
@@ -95,13 +93,17 @@ fun ObserveCurrentSessionAnalyticsUseCase(
 
                     AnalyticsResult(
                         identifierResult = identifierResult,
-                        profileProperties = AnalyticsProfileProperties(
-                            isTeamMember = analyticsContactsData.isTeamMember,
-                            teamId = analyticsContactsData.teamId,
-                            contactsAmount = analyticsContactsData.contactsSize,
-                            teamMembersAmount = analyticsContactsData.teamSize,
-                            isEnterprise = analyticsContactsData.isEnterprise
-                        ),
+                        profileProperties = {
+                            getAnalyticsContactsData(userId).let { analyticsContactsData ->
+                                AnalyticsProfileProperties(
+                                    isTeamMember = analyticsContactsData.isTeamMember,
+                                    teamId = analyticsContactsData.teamId,
+                                    contactsAmount = analyticsContactsData.contactsSize,
+                                    teamMembersAmount = analyticsContactsData.teamSize,
+                                    isEnterprise = analyticsContactsData.isEnterprise
+                                )
+                            }
+                        },
                         manager = analyticsIdentifierManager
                     )
                 }
@@ -109,13 +111,15 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                 flowOf(
                     AnalyticsResult<AnalyticsIdentifierManager>(
                         identifierResult = AnalyticsIdentifierResult.Disabled,
-                        profileProperties = AnalyticsProfileProperties(
-                            isTeamMember = false,
-                            teamId = null,
-                            contactsAmount = null,
-                            teamMembersAmount = null,
-                            isEnterprise = null
-                        ),
+                        profileProperties = {
+                            AnalyticsProfileProperties(
+                                isTeamMember = false,
+                                teamId = null,
+                                contactsAmount = null,
+                                teamMembersAmount = null,
+                                isEnterprise = null
+                            )
+                        },
                         manager = null
                     )
                 )

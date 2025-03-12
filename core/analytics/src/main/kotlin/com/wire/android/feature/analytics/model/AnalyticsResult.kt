@@ -21,7 +21,7 @@ import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 
 data class AnalyticsResult<T>(
     val identifierResult: AnalyticsIdentifierResult,
-    val profileProperties: AnalyticsProfileProperties,
+    val profileProperties: suspend () -> AnalyticsProfileProperties,
     val manager: T?
 )
 

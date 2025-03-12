@@ -77,7 +77,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
 
                             handleTrackingIdentifier(
                                 analyticsIdentifierResult = analyticsResult.identifierResult,
-                                analyticsProfileProperties = analyticsResult.profileProperties,
+                                analyticsProfileProperties = analyticsResult.profileProperties(),
                                 propagateIdentifier = {
                                     analyticsResult.manager?.let { propagationHandler.propagate(it, result.identifier) }
                                 },

@@ -90,7 +90,8 @@ fun ConversationList(
     onConversationSelectedOnRadioGroup: (ConversationItem) -> Unit = {},
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
-    onStopCurrentAudio: () -> Unit = {}
+    onStopCurrentAudio: () -> Unit = {},
+    onBrowsePublicChannels: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -124,7 +125,7 @@ fun ConversationList(
             ) {
                 val item = lazyPagingConversations[index]
                 if (item is ConversationFolder.Predefined.BrowseChannels) {
-                    BrowsePublicChannelsItem()
+                    BrowsePublicChannelsItem(onBrowsePublicChannels)
                 }
                 when (item) {
                     is ConversationFolder -> when (item) {
@@ -159,7 +160,7 @@ fun ConversationList(
 }
 
 @Composable
-private fun BrowsePublicChannelsItem() {
+private fun BrowsePublicChannelsItem(onBrowsePublicChannels: () -> Unit = {}) {
     RowItemTemplate(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
         leadingIcon = {
@@ -180,7 +181,7 @@ private fun BrowsePublicChannelsItem() {
                     )
             )
         },
-        clickable = Clickable(), // todo change to action to navigate to browse channels
+        clickable = Clickable { onBrowsePublicChannels.invoke() },
         actions = {
             Box(
                 modifier = Modifier

@@ -95,12 +95,16 @@ class ConversationAudioMessagePlayer
     private var audioMessageStateHistory: Map<MessageIdWrapper, AudioState> = emptyMap()
     private var currentAudioMessageId: MessageIdWrapper? = null
 
-    private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate>(onBufferOverflow = BufferOverflow.SUSPEND)
+    private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate>(
+        onBufferOverflow = BufferOverflow.SUSPEND
+    )
 
     private val _audioSpeed = MutableStateFlow<AudioSpeed>(AudioSpeed.NORMAL)
     val audioSpeed: Flow<AudioSpeed> = _audioSpeed.onStart { emit(_audioSpeed.value) }
 
-    private val seekToAudioPosition = MutableSharedFlow<Pair<MessageIdWrapper, Int>>(onBufferOverflow = BufferOverflow.SUSPEND)
+    private val seekToAudioPosition = MutableSharedFlow<Pair<MessageIdWrapper, Int>>(
+        onBufferOverflow = BufferOverflow.SUSPEND
+    )
 
     private val positionCheckTrigger = MutableSharedFlow<Unit>()
 
@@ -408,14 +412,14 @@ class ConversationAudioMessagePlayer
         }
     }
 
-    private val getAssetMessageDeferredMap = ConcurrentHashMap<Triple<UserId, ConversationId, String>, Deferred<MessageAssetResult>>()
+    private val getAssetMessageDeferredMap = ConcurrentHashMap<GetAssetMessageKey, Deferred<MessageAssetResult>>()
 
     private suspend fun getAssetMessage(
         userId: UserId,
         conversationId: ConversationId,
         messageId: String,
     ): MessageAssetResult = withContext(Dispatchers.IO) {
-        val key = Triple(userId, conversationId, messageId)
+        val key = GetAssetMessageKey(userId, conversationId, messageId)
         // keep deferred in the map to prevent multiple calls to the same asset at the same time, instead just reuse the existing deferred
         getAssetMessageDeferredMap.getOrPut(key) {
             coreLogic
@@ -518,3 +522,5 @@ class ConversationAudioMessagePlayer
 
     data class MessageIdWrapper(val conversationId: ConversationId, val messageId: String)
 }
+
+typealias GetAssetMessageKey = Triple<UserId, ConversationId, String>

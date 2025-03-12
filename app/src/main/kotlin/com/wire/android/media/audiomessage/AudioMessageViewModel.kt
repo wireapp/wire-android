@@ -48,7 +48,7 @@ interface AudioMessageViewModel {
 class AudioMessageViewModelImpl @Inject constructor(
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
     savedStateHandle: SavedStateHandle,
-): ViewModel(), AudioMessageViewModel {
+) : ViewModel(), AudioMessageViewModel {
 
     private val args: AudioMessageArgs = savedStateHandle.scopedArgs()
 
@@ -100,7 +100,6 @@ class AudioMessageViewModelImpl @Inject constructor(
         viewModelScope.launch {
             audioMessagePlayer.setPosition(args.conversationId, args.messageId, position.toInt())
         }
-
     }
 
     override fun changeAudioSpeed(audioSpeed: AudioSpeed) {
@@ -111,7 +110,9 @@ class AudioMessageViewModelImpl @Inject constructor(
 }
 
 @Serializable
-data class AudioMessageArgs(val conversationId: ConversationId, val messageId: String,
+data class AudioMessageArgs(
+    val conversationId: ConversationId,
+    val messageId: String
 ) : ScopedArgs {
     override val key = "$ARGS_KEY:$conversationId:$messageId"
 

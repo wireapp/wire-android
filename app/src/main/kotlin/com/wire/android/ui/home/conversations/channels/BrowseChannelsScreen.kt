@@ -68,13 +68,12 @@ private fun Content(
                 elevation = lazyListState.rememberTopBarElevationState().value,
                 title = stringResource(R.string.label_public_channels),
                 navigationIconType = NavigationIconType.Close(),
-                onNavigationPressed = { }
+                onNavigationPressed = onCloseSearchClicked
             ) {
                 SearchTopBar(
                     isSearchActive = true, // todo get from vm?
                     searchBarHint = stringResource(id = R.string.label_search_public_channels),
                     searchQueryTextState = searchQueryTextState,
-                    onCloseSearchClicked = onCloseSearchClicked,
                     isLoading = false // todo get from vm
                 )
             }

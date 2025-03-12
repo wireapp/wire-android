@@ -22,30 +22,33 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
-import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.topBarElevation
+import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@HomeNavGraph
-@WireDestination
+@RootNavGraph
+@WireDestination(
+    style = PopUpNavigationAnimation::class,
+)
 @Composable
-fun BrowseChannelsScreen() {
+fun BrowseChannelsScreen(navigator: Navigator) {
     Content(
         searchQueryTextState = TextFieldState(),
         onChannelClick = { /*TODO*/ },
-        onCloseSearchClicked = { /*TODO*/ }
+        onCloseSearchClicked = navigator::navigateBack
     )
 }
 
@@ -61,13 +64,15 @@ private fun Content(
     WireScaffold(
         modifier = modifier,
         topBar = {
-            Surface(
-                shadowElevation = lazyListState.topBarElevation(maxAppBarElevation),
-                color = MaterialTheme.wireColorScheme.background
+            WireCenterAlignedTopAppBar(
+                elevation = lazyListState.rememberTopBarElevationState().value,
+                title = stringResource(R.string.label_public_channels),
+                navigationIconType = NavigationIconType.Close(),
+                onNavigationPressed = { }
             ) {
                 SearchTopBar(
                     isSearchActive = true, // todo get from vm?
-                    searchBarHint = stringResource(id = R.string.label_search_channels),
+                    searchBarHint = stringResource(id = R.string.label_search_public_channels),
                     searchQueryTextState = searchQueryTextState,
                     onCloseSearchClicked = onCloseSearchClicked,
                     isLoading = false // todo get from vm

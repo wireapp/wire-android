@@ -99,12 +99,6 @@ fun HomeDrawer(
             onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Archive) } }
         )
 
-        DrawerItem(
-            destination = HomeDestination.BrowseChannels,
-            selected = currentRoute == HomeDestination.BrowseChannels.direction.route,
-            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.BrowseChannels) } }
-        )
-
         Spacer(modifier = Modifier.weight(1f))
 
         val bottomItems = listOf(HomeDestination.WhatsNew, HomeDestination.Settings, HomeDestination.Support)

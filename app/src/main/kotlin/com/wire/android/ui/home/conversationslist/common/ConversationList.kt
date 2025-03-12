@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
@@ -170,7 +171,7 @@ private fun BrowsePublicChannelsItem() {
         },
         title = {
             Text(
-                text = "Browse Public Channels",
+                text = stringResource(id = R.string.label_browse_public_channels),
                 style = MaterialTheme.wireTypography.body01,
                 modifier = Modifier
                     .padding(

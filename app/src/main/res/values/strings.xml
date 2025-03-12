@@ -891,6 +891,9 @@
     </plurals>
     <!-- Search Channels -->
     <string name="label_search_channels">Search channels</string>
+    <string name="label_public_channels">Public channels</string>
+    <string name="label_search_public_channels">Search public channels</string>
+    <string name="label_browse_public_channels">Browse public channels</string>
     <string name="label_search_channels_empty_title">No public channels have been created for this team yet.</string>
     <string name="label_learn_more_about_channels">Learn more about channels</string>
     <string name="label_new_conversation">New Conversation</string>

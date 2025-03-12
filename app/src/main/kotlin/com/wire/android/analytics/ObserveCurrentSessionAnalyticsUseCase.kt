@@ -58,6 +58,7 @@ fun ObserveCurrentSessionAnalyticsUseCase(
 
     private var previousAnalyticsResult: AnalyticsIdentifierResult? = null
 
+    @Suppress("LongMethod")
     override fun invoke(): Flow<AnalyticsResult<AnalyticsIdentifierManager>> = currentSessionFlow
         .flatMapLatest {
             if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {

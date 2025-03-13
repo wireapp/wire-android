@@ -58,6 +58,7 @@ import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.BrowseChannelsScreenDestination
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
@@ -226,8 +227,10 @@ fun ConversationsScreenContent(
                             )
                         },
                         onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
-                        onStopCurrentAudio = onStopCurrentAudio
-
+                        onStopCurrentAudio = onStopCurrentAudio,
+                        onBrowsePublicChannels = {
+                            navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination))
+                        }
                     )
                     // when there is no conversation in any folder
                     searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)

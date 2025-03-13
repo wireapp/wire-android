@@ -374,6 +374,10 @@ object AnalyticsEventConstants {
     const val APP_OPEN = "app.open"
 
     const val IS_TEAM_MEMBER = "is_team_member"
+    const val TEAM_IS_ENTERPRISE = "team_is_enterprise"
+    const val TEAM_TEAM_ID = "team_team_id"
+    const val TEAM_TEAM_SIZE = "team_team_size"
+    const val USER_CONTACTS = "user_contacts"
 
     /**
      * Calling

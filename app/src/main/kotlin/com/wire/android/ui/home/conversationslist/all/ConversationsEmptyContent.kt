@@ -47,6 +47,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.debug.FeatureVisibilityFlags.ChannelsEnabled
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
@@ -119,15 +120,17 @@ private fun EmptyContentFooter(currentFilter: ConversationFilter, navigator: Nav
                     CustomTabsHelper.launchUrl(context, supportUrl)
                 }
             )
-            VerticalSpace.x8()
-            WirePrimaryButton(
-                modifier = Modifier
-                    .height(dimensions().buttonSmallMinSize.height)
-                    .wrapContentWidth(),
-                fillMaxWidth = false,
-                text = stringResource(R.string.label_browse_public_channels),
-                onClick = { navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination)) }
-            )
+            if (ChannelsEnabled) { // remove this feature flag later after mvp 1
+                VerticalSpace.x8()
+                WirePrimaryButton(
+                    modifier = Modifier
+                        .height(dimensions().buttonSmallMinSize.height)
+                        .wrapContentWidth(),
+                    fillMaxWidth = false,
+                    text = stringResource(R.string.label_browse_public_channels),
+                    onClick = { navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination)) }
+                )
+            }
         }
 
         else -> {

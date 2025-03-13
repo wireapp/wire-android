@@ -62,6 +62,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.debug.FeatureVisibilityFlags.ChannelsEnabled
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -124,7 +125,7 @@ fun ConversationList(
                     }
             ) {
                 val item = lazyPagingConversations[index]
-                if (item is ConversationFolder.Predefined.BrowseChannels) {
+                if (item is ConversationFolder.Predefined.BrowseChannels && ChannelsEnabled) {
                     BrowsePublicChannelsItem(onBrowsePublicChannels)
                 }
                 when (item) {

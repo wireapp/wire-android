@@ -884,7 +884,8 @@
     <string name="label_selected">Selected</string>
     <string name="label_contacts">Contacts</string>
     <string name="label_new_group">New Group</string>
-    <string name="label_create_new_group">Create New Group</string>
+    <string name="label_create_new_group">New Group</string>
+    <string name="label_create_new_channel">New Channel</string>
     <plurals name="label_x_participants">
         <item quantity="one">%1$d Participant</item>
         <item quantity="other">%1$d Participants</item>

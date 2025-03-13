@@ -35,6 +35,9 @@ sealed class ConversationsSource {
     data object GROUPS : ConversationsSource()
 
     @Serializable
+    data object CHANNELS : ConversationsSource()
+
+    @Serializable
     data object ONE_ON_ONE : ConversationsSource()
 
     @Serializable

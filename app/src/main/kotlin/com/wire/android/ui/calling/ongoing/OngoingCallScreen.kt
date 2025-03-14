@@ -335,6 +335,7 @@ private fun OngoingCallContent(
 
     var showInCallReactionsPanel by remember { mutableStateOf(false) }
     var showEmojiPicker by remember { mutableStateOf(false) }
+    val isConnecting = participants.isEmpty()
 
     WireBottomSheetScaffold(
         sheetDragHandle = null,
@@ -366,6 +367,7 @@ private fun OngoingCallContent(
                     isCameraOn = callState.isCameraOn,
                     isSpeakerOn = callState.isSpeakerOn,
                     isShowingCallReactions = showInCallReactionsPanel,
+                    isConnecting = isConnecting,
                     toggleSpeaker = toggleSpeaker,
                     toggleMute = toggleMute,
                     onHangUpCall = hangUpCall,
@@ -393,7 +395,7 @@ private fun OngoingCallContent(
                     .weight(1f)
             ) {
 
-                if (participants.isEmpty()) {
+                if (isConnecting) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
@@ -572,6 +574,7 @@ private fun CallingControls(
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
     isShowingCallReactions: Boolean,
+    isConnecting: Boolean,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
@@ -607,6 +610,7 @@ private fun CallingControls(
 
             InCallReactionsButton(
                 isSelected = isShowingCallReactions,
+                isEnabled = !isConnecting,
                 onInCallReactionsClick = onCallReactionsClick
             )
 

@@ -219,18 +219,18 @@ class WireApplication : BaseApp() {
 
         val analyticsResultFlow = ObserveCurrentSessionAnalyticsUseCase(
             currentSessionFlow = coreLogic.get().getGlobalScope().session.currentSessionFlow(),
-            getAnalyticsContactsData = { userId ->
-                coreLogic.get().getSessionScope(userId).getAnalyticsContactsData()
+            isUserTeamMember = {
+                coreLogic.get().getSessionScope(it).team.isSelfATeamMember()
             },
-            observeAnalyticsTrackingIdentifierStatusFlow = { userId ->
-                coreLogic.get().getSessionScope(userId).observeAnalyticsTrackingIdentifierStatus()
+            observeAnalyticsTrackingIdentifierStatusFlow = {
+                coreLogic.get().getSessionScope(it).observeAnalyticsTrackingIdentifierStatus()
             },
-            analyticsIdentifierManagerProvider = { userId ->
-                coreLogic.get().getSessionScope(userId).analyticsIdentifierManager
+            analyticsIdentifierManagerProvider = {
+                coreLogic.get().getSessionScope(it).analyticsIdentifierManager
             },
             userDataStoreProvider = userDataStoreProvider.get(),
-            currentBackend = { userId ->
-                coreLogic.get().getSessionScope(userId).users.serverLinks()
+            currentBackend = {
+                coreLogic.get().getSessionScope(it).users.serverLinks()
             }
         ).invoke()
 

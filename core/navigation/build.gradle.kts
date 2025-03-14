@@ -5,10 +5,6 @@ plugins {
 
 android {
     namespace = "com.wire.android.navigation"
-    buildTypes {
-        create("benchmark") {
-        }
-    }
 }
 
 dependencies {

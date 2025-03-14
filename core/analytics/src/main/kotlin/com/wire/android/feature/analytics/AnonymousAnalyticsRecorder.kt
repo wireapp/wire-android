@@ -20,7 +20,6 @@ package com.wire.android.feature.analytics
 import android.app.Activity
 import android.content.Context
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 
 interface AnonymousAnalyticsRecorder {
@@ -39,14 +38,14 @@ interface AnonymousAnalyticsRecorder {
 
     suspend fun setTrackingIdentifierWithMerge(
         identifier: String,
-        analyticsProfileProperties: AnalyticsProfileProperties,
+        isTeamMember: Boolean,
         migrationComplete: suspend () -> Unit
     )
 
     suspend fun setTrackingIdentifierWithoutMerge(
         identifier: String,
         shouldPropagateIdentifier: Boolean,
-        analyticsProfileProperties: AnalyticsProfileProperties,
+        isTeamMember: Boolean,
         propagateIdentifier: suspend () -> Unit
     )
 

@@ -21,7 +21,6 @@ import app.cash.turbine.test
 import com.wire.android.assertIs
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.framework.TestUser
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
@@ -29,7 +28,6 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.analytics.AnalyticsContactsData
 import com.wire.kalium.logic.feature.analytics.AnalyticsIdentifierManager
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -58,7 +56,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             // then
             val item = awaitItem()
             assertIs<AnalyticsIdentifierResult.Disabled>(item.identifierResult)
-            assertEquals(false, item.profileProperties().isTeamMember)
+            assertEquals(false, item.isTeamMember)
             assertEquals(null, item.manager)
         }
     }
@@ -70,7 +68,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             .withIsAnonymousUsageDataEnabled(true)
             .apply {
                 setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
-                setAnalyticsContactsData(TestUser.SELF_USER.id, Arrangement.ANALYTICS_CONTACTS_DATA)
+                setIsTeamMember(TestUser.SELF_USER.id)
                 setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
                 setSelfServerConfig(Arrangement.SERVER_CONFIG_PRODUCTION)
             }.arrange()
@@ -80,7 +78,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             // then
             val item = awaitItem()
             assertIs<AnalyticsIdentifierResult.ExistingIdentifier>(item.identifierResult)
-            assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
+            assertEquals(true, item.isTeamMember)
         }
     }
 
@@ -91,7 +89,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             .withIsAnonymousUsageDataEnabled(true)
             .apply {
                 setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
-                setAnalyticsContactsData(TestUser.SELF_USER.id, Arrangement.ANALYTICS_CONTACTS_DATA)
+                setIsTeamMember(TestUser.SELF_USER.id)
                 setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
                 setSelfServerConfig(Arrangement.SERVER_CONFIG_STAGING)
             }.arrange()
@@ -101,7 +99,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             // then
             val item = awaitItem()
             assertIs<AnalyticsIdentifierResult.ExistingIdentifier>(item.identifierResult)
-            assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
+            assertEquals(true, item.isTeamMember)
         }
     }
 
@@ -113,7 +111,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 .withIsAnonymousUsageDataEnabled(false)
                 .apply {
                     setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
-                    setAnalyticsContactsData(TestUser.SELF_USER.id, Arrangement.ANALYTICS_CONTACTS_DATA)
+                    setIsTeamMember(TestUser.SELF_USER.id)
                     setObservingTrackingIdentifierStatus(
                         AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER)
                     )
@@ -125,7 +123,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 // then
                 val item = awaitItem()
                 assertIs<AnalyticsIdentifierResult.Disabled>(item.identifierResult)
-                assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
+                assertEquals(true, item.isTeamMember)
                 assertEquals(true, item.manager != null)
             }
         }
@@ -138,7 +136,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 .withIsAnonymousUsageDataEnabled(true)
                 .apply {
                     setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
-                    setAnalyticsContactsData(TestUser.SELF_USER.id, Arrangement.ANALYTICS_CONTACTS_DATA)
+                    setIsTeamMember(TestUser.SELF_USER.id)
                     setObservingTrackingIdentifierStatus(
                         AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER)
                     )
@@ -154,7 +152,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 // then
                 val item = awaitItem()
                 assertIs<AnalyticsIdentifierResult.Disabled>(item.identifierResult)
-                assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
+                assertEquals(true, item.isTeamMember)
                 assertEquals(true, item.manager != null)
             }
         }
@@ -167,7 +165,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 .withIsAnonymousUsageDataEnabled(true)
                 .apply {
                     setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
-                    setAnalyticsContactsData(TestUser.SELF_USER.id, Arrangement.ANALYTICS_CONTACTS_DATA)
+                    setIsTeamMember(TestUser.SELF_USER.id)
                     setObservingTrackingIdentifierStatus(
                         AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER)
                     )
@@ -179,7 +177,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 // then
                 val item = awaitItem()
                 assertIs<AnalyticsIdentifierResult.Disabled>(item.identifierResult)
-                assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
+                assertEquals(true, item.isTeamMember)
                 assertEquals(true, item.manager != null)
             }
         }
@@ -191,7 +189,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             .withIsAnonymousUsageDataEnabled(true)
             .apply {
                 setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
-                setAnalyticsContactsData(TestUser.SELF_USER.id, Arrangement.ANALYTICS_CONTACTS_DATA)
+                setIsTeamMember(TestUser.SELF_USER.id)
                 setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
                 setSelfServerConfig(Arrangement.SERVER_CONFIG_PRODUCTION)
             }.arrange()
@@ -201,7 +199,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             // then
             val item = awaitItem()
             assertIs<AnalyticsIdentifierResult.ExistingIdentifier>(item.identifierResult)
-            assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, item.profileProperties())
+            assertEquals(true, item.isTeamMember)
 
             // when changing user
             arrangement.setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.OTHER_USER.id)))
@@ -214,15 +212,8 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             // then
             val nextItem = awaitItem()
             assertIs<AnalyticsIdentifierResult.ExistingIdentifier>(nextItem.identifierResult)
+            assertEquals(false, nextItem.isTeamMember)
         }
-    }
-
-    private fun assertAnalyticsProfileProperties(expected: AnalyticsContactsData, actual: AnalyticsProfileProperties) {
-        assertEquals(expected.teamId, actual.teamId)
-        assertEquals(expected.isTeamMember, actual.isTeamMember)
-        assertEquals(expected.isEnterprise, actual.isEnterprise)
-        assertEquals(expected.contactsSize, actual.contactsAmount)
-        assertEquals(expected.teamSize, actual.teamMembersAmount)
     }
 
     private class Arrangement {
@@ -242,11 +233,9 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
 
         private val selfServerConfigChannel = Channel<SelfServerConfigUseCase.Result>(Channel.UNLIMITED)
 
-        private var analyticsContactsData: MutableMap<UserId, AnalyticsContactsData> = mutableMapOf()
+        private val teamMembers = mutableSetOf<UserId>()
 
-        private val getAnalyticsContactsData: (UserId) -> AnalyticsContactsData = {
-            analyticsContactsData.getOrDefault(it, ANALYTICS_CONTACTS_DATA_DEFAULT)
-        }
+        private val isTeamMember: (UserId) -> Boolean = { teamMembers.contains(it) }
 
         init {
             // Tests setup
@@ -257,8 +246,8 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             currentSessionChannel.send(result)
         }
 
-        fun setAnalyticsContactsData(userId: UserId, data: AnalyticsContactsData) {
-            analyticsContactsData[userId] = data
+        fun setIsTeamMember(userId: UserId) {
+            teamMembers.add(userId)
         }
 
         suspend fun setObservingTrackingIdentifierStatus(result: AnalyticsIdentifierResult) {
@@ -276,7 +265,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
 
         var useCase: ObserveCurrentSessionAnalyticsUseCase = ObserveCurrentSessionAnalyticsUseCase(
             currentSessionFlow = currentSessionChannel.receiveAsFlow(),
-            getAnalyticsContactsData = getAnalyticsContactsData,
+            isUserTeamMember = isTeamMember,
             observeAnalyticsTrackingIdentifierStatusFlow = {
                 analyticsTrackingIdentifierStatusChannel.receiveAsFlow()
             },
@@ -311,22 +300,6 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 serverLinks = SERVER_CONFIG_PRODUCTION.serverLinks.copy(
                     links = ServerConfig.STAGING
                 )
-            )
-
-            val ANALYTICS_CONTACTS_DATA = AnalyticsContactsData(
-                teamId = "teamId",
-                contactsSize = 12,
-                teamSize = 13,
-                isEnterprise = true,
-                isTeamMember = true
-            )
-
-            val ANALYTICS_CONTACTS_DATA_DEFAULT = AnalyticsContactsData(
-                teamId = null,
-                contactsSize = null,
-                teamSize = null,
-                isEnterprise = null,
-                isTeamMember = false
             )
         }
     }

@@ -28,7 +28,6 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.APP_NAME
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.APP_VERSION
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.DEVICE_MODEL
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.OS_VERSION
-import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import ly.count.android.sdk.Countly
 import ly.count.android.sdk.CountlyConfig
@@ -102,7 +101,7 @@ class AnonymousAnalyticsRecorderImpl(
 
     override suspend fun setTrackingIdentifierWithMerge(
         identifier: String,
-        analyticsProfileProperties: AnalyticsProfileProperties,
+        isTeamMember: Boolean,
         migrationComplete: suspend () -> Unit
     ) {
         wrapCountlyRequest {
@@ -111,42 +110,31 @@ class AnonymousAnalyticsRecorderImpl(
             migrationComplete()
         }
 
-        setUserProfileProperties(profileProperties = analyticsProfileProperties)
+        setUserProfileProperties(isTeamMember = isTeamMember)
     }
 
     override suspend fun setTrackingIdentifierWithoutMerge(
         identifier: String,
         shouldPropagateIdentifier: Boolean,
-        analyticsProfileProperties: AnalyticsProfileProperties,
+        isTeamMember: Boolean,
         propagateIdentifier: suspend () -> Unit
     ) {
         wrapCountlyRequest {
             Countly.sharedInstance()?.deviceId()?.changeWithoutMerge(identifier)
         }
 
-        setUserProfileProperties(profileProperties = analyticsProfileProperties)
+        setUserProfileProperties(isTeamMember = isTeamMember)
 
         if (shouldPropagateIdentifier) {
             propagateIdentifier()
         }
     }
 
-    private fun setUserProfileProperties(profileProperties: AnalyticsProfileProperties) = wrapCountlyRequest {
-        Countly.sharedInstance()?.userProfile()?.apply {
-            setProperty(AnalyticsEventConstants.TEAM_IS_TEAM, profileProperties.isTeamMember)
-            profileProperties.teamId?.let {
-                setProperty(AnalyticsEventConstants.TEAM_TEAM_ID, it)
-            }
-            profileProperties.teamMembersAmount?.let {
-                setProperty(AnalyticsEventConstants.TEAM_TEAM_SIZE, it)
-            }
-            profileProperties.isEnterprise?.let {
-                setProperty(AnalyticsEventConstants.TEAM_IS_ENTERPRISE, it)
-            }
-            profileProperties.contactsAmount?.let {
-                setProperty(AnalyticsEventConstants.USER_CONTACTS, it)
-            }
-        }
+    private fun setUserProfileProperties(isTeamMember: Boolean) = wrapCountlyRequest {
+        Countly.sharedInstance()?.userProfile()?.setProperty(
+            AnalyticsEventConstants.TEAM_IS_TEAM,
+            isTeamMember
+        )
         Countly.sharedInstance()?.userProfile()?.save()
     }
 

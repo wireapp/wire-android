@@ -17,11 +17,8 @@
  */
 package com.wire.benchmark
 
-import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,28 +35,9 @@ class BaselineGenerator {
     ) {
         pressHome()
         startActivityAndWait()
-        login()
-    }
-
-    private fun MacrobenchmarkScope.login() {
-        device.findObject(By.res("loginButton"))?.let {
-            it.click()
-        }
-        device.findObject(By.res("userIdentifierInput"))?.let {
-            it.text = EMAIL
-        }
-        device.findObject(By.res("PasswordInput"))?.let {
-            it.text = PASSWORD
-        }
-        device.findObject(By.res("loginButton"))?.let {
-            it.click()
-        }
-        device.wait(Until.hasObject(By.text("Conversations")), 30_000)
     }
 
     companion object {
         private const val PACKAGE_NAME = "com.wire.android.internal"
-        private const val EMAIL = ""
-        private const val PASSWORD = ""
     }
 }

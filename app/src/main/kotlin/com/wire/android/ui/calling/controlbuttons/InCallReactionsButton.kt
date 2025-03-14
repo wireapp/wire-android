@@ -64,7 +64,6 @@ fun PreviewInCallReactionsButtonSelected() = WireTheme {
     )
 }
 
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewInCallReactionsButtonDisabled() = WireTheme {

@@ -29,6 +29,7 @@ import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.message.GetNextAudioMessageInConversationUseCase
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
@@ -36,6 +37,8 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -51,6 +54,8 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -91,16 +96,14 @@ class ConversationAudioMessagePlayer
     private var currentAudioMessageId: MessageIdWrapper? = null
 
     private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate>(
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-        extraBufferCapacity = 1
+        onBufferOverflow = BufferOverflow.SUSPEND
     )
 
     private val _audioSpeed = MutableStateFlow<AudioSpeed>(AudioSpeed.NORMAL)
     val audioSpeed: Flow<AudioSpeed> = _audioSpeed.onStart { emit(_audioSpeed.value) }
 
     private val seekToAudioPosition = MutableSharedFlow<Pair<MessageIdWrapper, Int>>(
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-        extraBufferCapacity = 1
+        onBufferOverflow = BufferOverflow.SUSPEND
     )
 
     private val positionCheckTrigger = MutableSharedFlow<Unit>()
@@ -275,14 +278,13 @@ class ConversationAudioMessagePlayer
 
         val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
         if (currentAccountResult is CurrentSessionResult.Failure) return
+        val userId = (currentAccountResult as CurrentSessionResult.Success).accountInfo.userId
 
         audioMessageStateUpdate.emit(
             AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(conversationId, messageId, AudioMediaPlayingState.Fetching)
         )
 
-        val assetMessage = getAssetMessage(currentAccountResult, conversationId, messageId)
-
-        when (val result = assetMessage.await()) {
+        when (val result = getAssetMessage(userId, conversationId, messageId)) {
             is MessageAssetResult.Success -> {
                 audioMessageStateUpdate.emit(
                     AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
@@ -358,12 +360,9 @@ class ConversationAudioMessagePlayer
     suspend fun fetchWavesMask(conversationId: ConversationId, messageId: String) {
         val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
         if (currentAccountResult is CurrentSessionResult.Failure) return
+        val userId = (currentAccountResult as CurrentSessionResult.Success).accountInfo.userId
 
-        val result = coreLogic
-            .getSessionScope((currentAccountResult as CurrentSessionResult.Success).accountInfo.userId)
-            .messages
-            .getAssetMessage(conversationId, messageId)
-            .await()
+        val result = getAssetMessage(userId, conversationId, messageId)
 
         if (result is MessageAssetResult.Success) {
             audioMessageStateUpdate.emit(
@@ -413,14 +412,27 @@ class ConversationAudioMessagePlayer
         }
     }
 
+    private val getAssetMessageDeferredMap = ConcurrentHashMap<GetAssetMessageKey, Deferred<MessageAssetResult>>()
+
     private suspend fun getAssetMessage(
-        currentAccountResult: CurrentSessionResult,
+        userId: UserId,
         conversationId: ConversationId,
-        messageId: String
-    ) = coreLogic
-        .getSessionScope((currentAccountResult as CurrentSessionResult.Success).accountInfo.userId)
-        .messages
-        .getAssetMessage(conversationId, messageId)
+        messageId: String,
+    ): MessageAssetResult = withContext(Dispatchers.IO) {
+        val key = GetAssetMessageKey(userId, conversationId, messageId)
+        // keep deferred in the map to prevent multiple calls to the same asset at the same time, instead just reuse the existing deferred
+        getAssetMessageDeferredMap.getOrPut(key) {
+            coreLogic
+                .getSessionScope(userId)
+                .messages
+                .getAssetMessage(conversationId, messageId)
+                .also {
+                    it.invokeOnCompletion {
+                        getAssetMessageDeferredMap.remove(key)
+                    }
+                }
+        }.await()
+    }
 
     private suspend fun resume(conversationId: ConversationId, messageId: String) {
         audioMediaPlayer.start()
@@ -510,3 +522,5 @@ class ConversationAudioMessagePlayer
 
     data class MessageIdWrapper(val conversationId: ConversationId, val messageId: String)
 }
+
+typealias GetAssetMessageKey = Triple<UserId, ConversationId, String>

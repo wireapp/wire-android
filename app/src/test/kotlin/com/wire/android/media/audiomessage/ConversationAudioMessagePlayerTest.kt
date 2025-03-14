@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.media
+package com.wire.android.media.audiomessage
 
 import android.content.Context
 import android.media.MediaPlayer
@@ -23,12 +23,6 @@ import android.media.PlaybackParams
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.media.audiomessage.AudioFocusHelper
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
-import com.wire.android.media.audiomessage.AudioSpeed
-import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.media.audiomessage.AudioWavesMaskHelper
-import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.services.ServicesManager
 import com.wire.kalium.logic.CoreLogic

@@ -28,8 +28,10 @@ fun InCallReactionsButton(
     isSelected: Boolean,
     onInCallReactionsClick: () -> Unit,
     modifier: Modifier = Modifier,
+    isEnabled: Boolean = true,
 ) {
     WireCallControlButton(
+        isEnabled = isEnabled,
         isSelected = isSelected,
         iconResId = when (isSelected) {
             true -> R.drawable.ic_incall_reactions
@@ -58,6 +60,17 @@ fun PreviewInCallReactionsButton() = WireTheme {
 fun PreviewInCallReactionsButtonSelected() = WireTheme {
     InCallReactionsButton(
         isSelected = true,
+        onInCallReactionsClick = { }
+    )
+}
+
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewInCallReactionsButtonDisabled() = WireTheme {
+    InCallReactionsButton(
+        isSelected = false,
+        isEnabled = false,
         onInCallReactionsClick = { }
     )
 }

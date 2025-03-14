@@ -48,7 +48,6 @@ import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -159,10 +158,10 @@ private fun GeneralConversationItem(
     isSelectable: Boolean,
     onConversationItemClick: Clickable,
     onJoinCallClick: () -> Unit,
+    onAudioPermissionPermanentlyDenied: () -> Unit,
     modifier: Modifier = Modifier,
     selectOnRadioGroup: () -> Unit = {},
     subTitle: @Composable () -> Unit = {},
-    onAudioPermissionPermanentlyDenied: () -> Unit,
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {}
 ) {
@@ -178,7 +177,7 @@ private fun GeneralConversationItem(
                                     selectOnRadioGroup()
                                 })
                             }
-                            GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId))
+                            GroupConversationAvatar(conversation.conversationId)
                         }
                     },
                     title = {

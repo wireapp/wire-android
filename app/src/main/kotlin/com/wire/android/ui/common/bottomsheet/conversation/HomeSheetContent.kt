@@ -38,8 +38,6 @@ import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
-import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
@@ -79,10 +77,7 @@ internal fun ConversationMainSheetContent(
             title = conversationSheetContent.title,
             leadingIcon = {
                 if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
-                    GroupConversationAvatar(
-                        color = colorsScheme()
-                            .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
-                    )
+                    GroupConversationAvatar(conversationSheetContent.conversationTypeDetail.conversationId)
                 } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
                     val connectionState: ConnectionState? = conversationSheetContent.conversationTypeDetail.blockingState.let {
                         if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null

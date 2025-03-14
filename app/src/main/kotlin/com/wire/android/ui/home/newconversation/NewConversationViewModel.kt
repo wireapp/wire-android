@@ -81,6 +81,10 @@ class NewConversationViewModel @Inject constructor(
         observeGroupNameChanges()
     }
 
+    fun setDoesSupportChannel(doesSupportChannel: Boolean) {
+        newGroupState = newGroupState.copy(doesSupportChannel = doesSupportChannel)
+    }
+
     private fun setConversationCreationParam() {
         viewModelScope.launch {
             val selfUser = getSelfUser()

@@ -38,8 +38,13 @@ fun NewGroupConversationSearchPeopleScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel,
 ) {
+    val screenTitle = if (newConversationViewModel.newGroupState.doesSupportChannel) {
+        stringResource(id = R.string.label_new_channel)
+    } else {
+        stringResource(id = R.string.label_new_group)
+    }
     SearchUsersAndServicesScreen(
-        searchTitle = stringResource(id = R.string.label_new_group),
+        searchTitle = screenTitle,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }

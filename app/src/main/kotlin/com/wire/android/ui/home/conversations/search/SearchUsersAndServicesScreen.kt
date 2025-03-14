@@ -58,7 +58,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.newconversation.common.ContinueWithParticipantsCountButton
-import com.wire.android.ui.home.newconversation.common.CreateGroupOrChannelButtons
+import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.UIText
 import kotlinx.collections.immutable.ImmutableSet
@@ -77,6 +77,8 @@ fun SearchUsersAndServicesScreen(
     onClose: () -> Unit,
     screenType: SearchPeopleScreenType,
     modifier: Modifier = Modifier,
+    isSelfTeamMember: Boolean = false,
+    isChannelsAllowed: Boolean = false,
     isGroupSubmitVisible: Boolean = true,
     isServicesAllowed: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
@@ -193,8 +195,10 @@ fun SearchUsersAndServicesScreen(
             if (isGroupSubmitVisible) {
                 when (screenType) {
                     SearchPeopleScreenType.NEW_CONVERSATION -> {
-                        CreateGroupOrChannelButtons(
-                            onCreateNewGroup = onCreateNewGroup,
+                        CreateRegularGroupOrChannelButtons(
+                            isSelfTeamMember = isSelfTeamMember,
+                            shouldShowChannelButton = isChannelsAllowed,
+                            onCreateNewRegularGroup = onCreateNewGroup,
                             onCreateNewChannel = onCreateNewChannel
                         )
                     }

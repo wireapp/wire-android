@@ -661,11 +661,11 @@ class GroupConversationDetailsViewModelTest {
 
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-        val testGroup = ConversationDetails.Group(
+        val testGroup = ConversationDetails.Group.Regular(
             Conversation(
                 id = dummyConversationId,
                 name = "Conv Name",
-                type = Conversation.Type.ONE_ON_ONE,
+                type = Conversation.Type.OneOnOne,
                 teamId = TeamId("team_id"),
                 protocol = Conversation.ProtocolInfo.Proteus,
                 mutedStatus = MutedConversationStatus.AllAllowed,

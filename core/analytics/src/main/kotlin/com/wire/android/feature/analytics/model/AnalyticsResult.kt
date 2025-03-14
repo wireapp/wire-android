@@ -21,6 +21,14 @@ import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 
 data class AnalyticsResult<T>(
     val identifierResult: AnalyticsIdentifierResult,
-    val isTeamMember: Boolean,
+    val profileProperties: suspend () -> AnalyticsProfileProperties,
     val manager: T?
+)
+
+data class AnalyticsProfileProperties(
+    val isTeamMember: Boolean,
+    val teamId: String?,
+    val contactsAmount: Int?,
+    val teamMembersAmount: Int?,
+    val isEnterprise: Boolean?
 )

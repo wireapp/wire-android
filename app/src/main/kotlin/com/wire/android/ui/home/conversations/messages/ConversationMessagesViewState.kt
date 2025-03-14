@@ -19,8 +19,6 @@
 package com.wire.android.ui.home.conversations.messages
 
 import androidx.paging.PagingData
-import com.wire.android.media.audiomessage.AudioSpeed
-import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -36,18 +34,12 @@ data class ConversationMessagesViewState(
     val firstUnreadInstant: Instant? = null,
     val firstUnreadEventIndex: Int = 0,
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
-    val audioMessagesState: AudioMessagesState = AudioMessagesState(),
+    val playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None,
     val assetStatuses: PersistentMap<String, MessageAssetStatus> = persistentMapOf(),
     val searchedMessageId: String? = null
 )
 
-data class AudioMessagesState(
-    val audioStates: PersistentMap<String, AudioState> = persistentMapOf(),
-    val audioSpeed: AudioSpeed = AudioSpeed.NORMAL,
-    val playingAudiMessage: PlayingAudioMessage = PlayingAudioMessage.None
-)
-
 sealed class DownloadedAssetDialogVisibilityState {
-    object Hidden : DownloadedAssetDialogVisibilityState()
+    data object Hidden : DownloadedAssetDialogVisibilityState()
     data class Displayed(val assetData: AssetBundle, val messageId: String) : DownloadedAssetDialogVisibilityState()
 }

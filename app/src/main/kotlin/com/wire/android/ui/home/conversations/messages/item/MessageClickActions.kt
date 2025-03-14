@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.messages.item
 
-import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -28,9 +27,6 @@ sealed class MessageClickActions {
     open val onProfileClicked: (String) -> Unit = {}
     open val onReactionClicked: (String, String) -> Unit = { _, _ -> }
     open val onAssetClicked: (String) -> Unit = {}
-    open val onPlayAudioClicked: (String) -> Unit = {}
-    open val onAudioPositionChanged: (String, Int) -> Unit = { _, _ -> }
-    open val onAudioSpeedChange: (AudioSpeed) -> Unit = { _ -> }
     open val onImageClicked: (UIMessage.Regular, Boolean) -> Unit = { _, _ -> }
     open val onLinkClicked: (String) -> Unit = {}
     open val onReplyClicked: (UIMessage.Regular) -> Unit = {}
@@ -48,9 +44,6 @@ sealed class MessageClickActions {
         override val onProfileClicked: (String) -> Unit = {},
         override val onReactionClicked: (String, String) -> Unit = { _, _ -> },
         override val onAssetClicked: (String) -> Unit = {},
-        override val onPlayAudioClicked: (String) -> Unit = {},
-        override val onAudioPositionChanged: (String, Int) -> Unit = { _, _ -> },
-        override val onAudioSpeedChange: (AudioSpeed) -> Unit = { _ -> },
         override val onImageClicked: (UIMessage.Regular, Boolean) -> Unit = { _, _ -> },
         override val onLinkClicked: (String) -> Unit = {},
         override val onReplyClicked: (UIMessage.Regular) -> Unit = {},

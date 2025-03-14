@@ -60,7 +60,6 @@ fun SearchConversationMessagesResultsScreen(
                         message = message,
                         conversationDetailsData = ConversationDetailsData.None(null),
                         searchQuery = searchQuery,
-                        audioState = null,
                         clickActions = MessageClickActions.FullItem(
                             onFullMessageLongClicked = null,
                             onFullMessageClicked = onMessageClick,

@@ -41,8 +41,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.media.audiomessage.AudioSpeed
-import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
@@ -73,8 +71,6 @@ fun RegularMessageItem(
     clickActions: MessageClickActions,
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
-    audioState: AudioState?,
-    audioSpeed: AudioSpeed,
     modifier: Modifier = Modifier,
     searchQuery: String = "",
     showAuthor: Boolean = true,
@@ -150,16 +146,11 @@ fun RegularMessageItem(
                             onAssetClicked = clickActions.onAssetClicked,
                             onImageClicked = clickActions.onImageClicked,
                             searchQuery = searchQuery,
-                            audioState = audioState,
-                            audioSpeed = audioSpeed,
-                            onAudioClicked = clickActions.onPlayAudioClicked,
-                            onAudioPositionChanged = clickActions.onAudioPositionChanged,
                             onProfileClicked = clickActions.onProfileClicked,
                             onLinkClicked = clickActions.onLinkClicked,
                             shouldDisplayMessageStatus = shouldDisplayMessageStatus,
                             conversationDetailsData = conversationDetailsData,
                             onReplyClicked = clickActions.onReplyClicked,
-                            onAudioSpeedChange = clickActions.onAudioSpeedChange
                         )
                         if (shouldDisplayFooter) {
                             VerticalSpace.x4()

@@ -436,7 +436,6 @@
     <!-- Search Contact-->
     <string name="label_contacts">Kontakter</string>
     <string name="label_new_group">Ny grupp</string>
-    <string name="label_create_new_group">Skapa ny grupp</string>
     <plurals name="label_x_participants">
         <item quantity="one">%1$d deltagare</item>
         <item quantity="other">%1$d deltagare</item>

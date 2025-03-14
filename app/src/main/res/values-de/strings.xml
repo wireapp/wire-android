@@ -792,7 +792,6 @@
     <string name="label_selected">Ausgewählt</string>
     <string name="label_contacts">Kontakte</string>
     <string name="label_new_group">Neue Gruppe</string>
-    <string name="label_create_new_group">Neue Gruppe erstellen</string>
     <plurals name="label_x_participants">
         <item quantity="one">%1$d Teilnehmer</item>
         <item quantity="other">%1$d Teilnehmer</item>

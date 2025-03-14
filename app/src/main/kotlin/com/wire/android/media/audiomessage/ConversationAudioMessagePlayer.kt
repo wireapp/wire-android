@@ -25,6 +25,7 @@ import com.wire.android.R
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.services.ServicesManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreLogic
@@ -38,12 +39,12 @@ import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -69,7 +70,8 @@ class ConversationAudioMessagePlayer
     private val servicesManager: Lazy<ServicesManager>,
     private val audioFocusHelper: AudioFocusHelper,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    @ApplicationScope private val scope: CoroutineScope
+    @ApplicationScope private val scope: CoroutineScope,
+    private val dispatchers: DispatcherProvider,
 ) {
     private companion object {
         const val UPDATE_POSITION_INTERVAL_IN_MS = 1000L
@@ -121,13 +123,16 @@ class ConversationAudioMessagePlayer
         .flatMapLatest { isAnythingPlaying ->
             if (isAnythingPlaying) {
                 intervalFlow(UPDATE_POSITION_INTERVAL_IN_MS)
+                    .conflate()
                     .map {
                         if (audioMediaPlayer.isPlaying) {
                             currentAudioMessageId to audioMediaPlayer.currentPosition
                         } else {
                             null
                         }
-                    }.filterNotNull()
+                    }
+                    .filterNotNull()
+                    .distinctUntilChanged()
             } else {
                 // no need for tick-tack checking if there no playing message
                 emptyFlow<Pair<MessageIdWrapper, Int>>()
@@ -418,7 +423,7 @@ class ConversationAudioMessagePlayer
         userId: UserId,
         conversationId: ConversationId,
         messageId: String,
-    ): MessageAssetResult = withContext(Dispatchers.IO) {
+    ): MessageAssetResult = withContext(dispatchers.io()) {
         val key = GetAssetMessageKey(userId, conversationId, messageId)
         // keep deferred in the map to prevent multiple calls to the same asset at the same time, instead just reuse the existing deferred
         getAssetMessageDeferredMap.getOrPut(key) {

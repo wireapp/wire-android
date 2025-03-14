@@ -40,12 +40,13 @@ fun NewGroupConversationSearchPeopleScreen(
 ) {
     SearchUsersAndServicesScreen(
         searchTitle = stringResource(id = R.string.label_new_group),
+        actionButtonTitle = stringResource(id = R.string.label_continue),
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         onContactChecked = newConversationViewModel::updateSelectedContacts,
-        onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
+        onGroupSelectionSubmitAction = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
         onServiceClicked = { },

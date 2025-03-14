@@ -650,6 +650,7 @@
     <string name="label_filter_folders">Папки</string>
     <string name="label_filter_group">Группы</string>
     <string name="label_filter_one_on_one">Беседы 1:1</string>
+    <string name="label_filter_channels">Каналы</string>
     <string name="label_folders">Папки</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Все</string>
@@ -878,7 +879,8 @@
     <string name="label_selected">Выбрано</string>
     <string name="label_contacts">Контакты</string>
     <string name="label_new_group">Новая группа</string>
-    <string name="label_create_new_group">Создать новую группу</string>
+    <string name="label_create_new_group">Новая группа</string>
+    <string name="label_create_new_channel">Новый канал</string>
     <plurals name="label_x_participants">
         <item quantity="one">%1$d участник</item>
         <item quantity="few">%1$d участника</item>
@@ -1231,8 +1233,10 @@
     <string name="conversation_empty_list_description">Свяжитесь с друзьями или создайте новую группу, чтобы начать совместную работу!</string>
     <string name="favorites_empty_list_description">Отметьте свои любимые беседы, и вы найдете их здесь</string>
     <string name="group_empty_list_description">Вы еще не участвуете ни в одной групповой беседе.\nНачните новую!</string>
+    <string name="channels_empty_list_description">Вы не являетесь участником какого-либо канала. Присоединитесь к публичному каналу, кликнув на \"Обзор\".</string>
     <string name="one_on_one_empty_list_description">У вас пока нет контактов.\nИщите друзей в %1$s и общайтесь.</string>
     <string name="favorites_empty_list_how_to_label">Как помечать беседы как избранные</string>
+    <string name="channels_empty_list_learn_more">Подробнее о каналах</string>
     <string name="folders_empty_list_description">Добавляйте беседы в папки, чтобы сохранять их упорядоченность.</string>
     <string name="folders_empty_list_how_to_add">Как добавить беседу в папку</string>
     <string name="conversation_empty_list_title">Добро пожаловать 👋</string>

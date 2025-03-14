@@ -845,7 +845,6 @@
     <string name="label_selected">Kiválasztva</string>
     <string name="label_contacts">Névjegyek</string>
     <string name="label_new_group">Új csoport</string>
-    <string name="label_create_new_group">Új csoport létrehozása</string>
     <plurals name="label_x_participants">
         <item quantity="one">%1$d résztvevő</item>
         <item quantity="other">%1$d résztvevő</item>

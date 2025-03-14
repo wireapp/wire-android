@@ -167,7 +167,7 @@ class ConversationCallListViewModelTest {
             isCbrEnabled = false,
             callerId = QualifiedID("some_id", "some_domain"),
             conversationName = "some_name",
-            conversationType = Conversation.Type.Group.Regular,
+            conversationType = Conversation.Type.GROUP,
             callerName = "some_name",
             callerTeamName = "some_team_name"
         )

@@ -220,7 +220,7 @@ internal fun withMockConversationDetailsOneOnOne(
 internal fun mockConversationDetailsGroup(
     conversationName: String,
     mockedConversationId: ConversationId = ConversationId("someId", "someDomain")
-) = ConversationDetails.Group.Regular(
+) = ConversationDetails.Group(
     conversation = TestConversation.GROUP()
         .copy(name = conversationName, id = mockedConversationId),
     hasOngoingCall = false,

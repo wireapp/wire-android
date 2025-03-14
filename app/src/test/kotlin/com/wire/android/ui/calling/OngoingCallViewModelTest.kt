@@ -357,7 +357,7 @@ class OngoingCallViewModelTest {
         isCameraOn = false,
         maxParticipants = 0,
         conversationName = "ONE_ON_ONE Name",
-        conversationType = Conversation.Type.OneOnOne,
+        conversationType = Conversation.Type.ONE_ON_ONE,
         callerName = "otherUsername",
         callerTeamName = "team_1",
         isCbrEnabled = false

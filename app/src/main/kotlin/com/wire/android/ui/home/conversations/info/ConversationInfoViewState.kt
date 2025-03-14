@@ -32,7 +32,7 @@ data class ConversationInfoViewState(
     val conversationDetailsData: ConversationDetailsData = ConversationDetailsData.None(null),
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
     val hasUserPermissionToEdit: Boolean = false,
-    val conversationType: Conversation.Type = Conversation.Type.OneOnOne,
+    val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE,
     val protocolInfo: Conversation.ProtocolInfo? = null,
     val mlsVerificationStatus: Conversation.VerificationStatus? = null,
     val proteusVerificationStatus: Conversation.VerificationStatus? = null,

@@ -156,11 +156,10 @@ class MigrationMapper @Inject constructor() {
     }
 
     private fun mapConversationType(type: Int): Type? = when (type) {
-        // There were no channels in the old app. So 0 -> Regular
-        0 -> Type.Group.Regular
-        1 -> Type.Self
-        2 -> Type.OneOnOne
-        3, 4 -> Type.ConnectionPending
+        0 -> Type.GROUP
+        1 -> Type.SELF
+        2 -> Type.ONE_ON_ONE
+        3, 4 -> Type.CONNECTION_PENDING
         else -> null
     }
 

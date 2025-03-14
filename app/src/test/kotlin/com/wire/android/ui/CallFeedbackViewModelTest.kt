@@ -202,7 +202,7 @@ class CallFeedbackViewModelTest {
                 callVideoEnabled = false
             ),
             conversationDetails = RecentlyEndedCallMetadata.ConversationDetails(
-                conversationType = Conversation.Type.OneOnOne,
+                conversationType = Conversation.Type.ONE_ON_ONE,
                 conversationSize = 5,
                 conversationGuests = 2,
                 conversationGuestsPro = 1

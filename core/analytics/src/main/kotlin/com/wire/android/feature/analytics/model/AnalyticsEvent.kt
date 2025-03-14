@@ -212,9 +212,8 @@ interface AnalyticsEvent {
 
         private fun RecentlyEndedCallMetadata.toConversationType(): String {
             return when (conversationDetails.conversationType) {
-                Conversation.Type.OneOnOne -> "one_to_one"
-                Conversation.Type.Group.Regular -> "group"
-                Conversation.Type.Group.Channel -> "channel"
+                Conversation.Type.ONE_ON_ONE -> "one_to_one"
+                Conversation.Type.GROUP -> "group"
                 else -> throw IllegalStateException("Call should not happen for ${conversationDetails.conversationType}")
             }
         }

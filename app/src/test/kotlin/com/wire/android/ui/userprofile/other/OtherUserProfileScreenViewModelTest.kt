@@ -267,7 +267,7 @@ class OtherUserProfileScreenViewModelTest {
         val CONVERSATION = Conversation(
             id = CONVERSATION_ID,
             name = "some_name",
-            type = Conversation.Type.OneOnOne,
+            type = Conversation.Type.ONE_ON_ONE,
             teamId = null,
             protocol = Conversation.ProtocolInfo.Proteus,
             mutedStatus = MutedConversationStatus.AllAllowed,

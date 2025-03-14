@@ -283,7 +283,7 @@ class MediaGalleryViewModelTest {
             conversation = Conversation(
                 id = mockedConversationId,
                 name = mockedConversationTitle,
-                type = Conversation.Type.OneOnOne,
+                type = Conversation.Type.ONE_ON_ONE,
                 teamId = null,
                 protocol = Conversation.ProtocolInfo.Proteus,
                 mutedStatus = AllAllowed,

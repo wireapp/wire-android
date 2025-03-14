@@ -297,7 +297,7 @@ class CallNotificationBuilder @Inject constructor(
     // Notifications content
     private fun getNotificationBody(data: CallNotificationData) =
         when (data.conversationType) {
-            is Conversation.Type.Group -> {
+            Conversation.Type.GROUP -> {
                 val name = data.callerName ?: context.getString(R.string.notification_call_default_caller_name)
                 (data.callerTeamName?.let { "$name @$it" } ?: name)
                     .let { context.getString(R.string.notification_group_call_content, it) }
@@ -308,7 +308,7 @@ class CallNotificationBuilder @Inject constructor(
 
     fun getNotificationTitle(data: CallNotificationData): String =
         when (data.conversationType) {
-            is Conversation.Type.Group -> data.conversationName ?: context.getString(R.string.notification_call_default_group_name)
+            Conversation.Type.GROUP -> data.conversationName ?: context.getString(R.string.notification_call_default_group_name)
             else -> {
                 val name = data.callerName ?: context.getString(R.string.notification_call_default_caller_name)
                 data.callerTeamName?.let { "$name @$it" } ?: name

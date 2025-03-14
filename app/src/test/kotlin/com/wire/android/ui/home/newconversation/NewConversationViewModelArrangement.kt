@@ -76,7 +76,7 @@ internal class NewConversationViewModelArrangement {
         val CONVERSATION = Conversation(
             id = CONVERSATION_ID,
             name = null,
-            type = Conversation.Type.OneOnOne,
+            type = Conversation.Type.ONE_ON_ONE,
             teamId = null,
             protocol = Conversation.ProtocolInfo.Proteus,
             mutedStatus = MutedConversationStatus.AllAllowed,

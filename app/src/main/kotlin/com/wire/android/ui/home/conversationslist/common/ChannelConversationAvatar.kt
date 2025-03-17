@@ -61,14 +61,14 @@ fun ChannelConversationAvatar(
             modifier = modifier
                 .padding(padding)
                 .size(size + borderWidth * 2)
-                .border(color = colors.first, width = borderWidth, shape = RoundedCornerShape(cornerRadius + borderWidth))
+                .border(color = colors.border, width = borderWidth, shape = RoundedCornerShape(cornerRadius + borderWidth))
                 .padding(borderWidth)
-                .background(color = colors.second, shape = RoundedCornerShape(cornerRadius))
+                .background(color = colors.background, shape = RoundedCornerShape(cornerRadius))
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_channel),
                 contentDescription = null,
-                tint = colors.third
+                tint = colors.icon
             )
         }
         if (isPrivateChannel) {

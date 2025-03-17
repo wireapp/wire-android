@@ -88,13 +88,12 @@ class WireColorScheme(
 
     // accents
     val groupAvatarColors: List<GroupAvatarColors>,
-    val channelAvatarColors: List<Triple<Color, Color, Color>>,
+    val channelAvatarColors: List<ChannelAvatarColors>,
     val wireAccentColors: WireAccentColors,
 
     val emojiBackgroundColor: Color,
 
-    val avatarBorderColor: Color
-) {
+    ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
         primaryContainer = primaryVariant, onPrimaryContainer = onPrimaryVariant,
@@ -192,14 +191,14 @@ private val LightWireColorScheme = WireColorScheme(
         GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightAmber500),
         GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightAmber500, WireColorPalette.LightPurple500)
     ),
-    channelAvatarColors = listOf( // border, background, icon
-        Triple(WireColorPalette.LightBlue100, LightBlue50, WireColorPalette.LightBlue500),
-        Triple(WireColorPalette.LightPurple100, LightPurple50, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightRed100, LightRed50, WireColorPalette.LightRed500),
-        Triple(WireColorPalette.LightGreen100, LightGreen50, WireColorPalette.LightGreen500),
-        Triple(WireColorPalette.LightAmber100, LightAmber50, WireColorPalette.LightAmber500),
-        Triple(WireColorPalette.LightPetrol100, LightPetrol50, WireColorPalette.LightPetrol500),
-        Triple(WireColorPalette.Gray40, Gray30, Gray80)
+    channelAvatarColors = listOf(
+        ChannelAvatarColors(WireColorPalette.LightBlue100, LightBlue50, WireColorPalette.LightBlue500),
+        ChannelAvatarColors(WireColorPalette.LightPurple100, LightPurple50, WireColorPalette.LightPurple500),
+        ChannelAvatarColors(WireColorPalette.LightRed100, LightRed50, WireColorPalette.LightRed500),
+        ChannelAvatarColors(WireColorPalette.LightGreen100, LightGreen50, WireColorPalette.LightGreen500),
+        ChannelAvatarColors(WireColorPalette.LightAmber100, LightAmber50, WireColorPalette.LightAmber500),
+        ChannelAvatarColors(WireColorPalette.LightPetrol100, LightPetrol50, WireColorPalette.LightPetrol500),
+        ChannelAvatarColors(WireColorPalette.Gray40, Gray30, Gray80)
     ),
     wireAccentColors = WireAccentColors {
         when (it) {
@@ -213,7 +212,6 @@ private val LightWireColorScheme = WireColorScheme(
         }
     },
     emojiBackgroundColor = Color.White,
-    avatarBorderColor = WireColorPalette.Gray40
 )
 
 // Dark WireColorScheme
@@ -286,14 +284,14 @@ private val DarkWireColorScheme = WireColorScheme(
         GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkAmber500),
         GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500, WireColorPalette.DarkPurple500)
     ),
-    channelAvatarColors = listOf( // border, background, icon
-        Triple(WireColorPalette.DarkBlue900, WireColorPalette.DarkBlue800, WireColorPalette.DarkBlue500),
-        Triple(WireColorPalette.DarkPurple900, WireColorPalette.DarkPurple800, WireColorPalette.DarkPurple500),
-        Triple(WireColorPalette.DarkRed900, WireColorPalette.DarkRed800, WireColorPalette.DarkRed500),
-        Triple(WireColorPalette.DarkGreen900, WireColorPalette.DarkGreen800, WireColorPalette.DarkGreen500),
-        Triple(WireColorPalette.DarkAmber900, WireColorPalette.DarkAmber800, WireColorPalette.DarkAmber500),
-        Triple(WireColorPalette.DarkPetrol900, WireColorPalette.DarkPetrol800, WireColorPalette.DarkPetrol500),
-        Triple(WireColorPalette.Gray90, Gray80, WireColorPalette.Gray40)
+    channelAvatarColors = listOf(
+        ChannelAvatarColors(WireColorPalette.DarkBlue900, WireColorPalette.DarkBlue800, WireColorPalette.DarkBlue500),
+        ChannelAvatarColors(WireColorPalette.DarkPurple900, WireColorPalette.DarkPurple800, WireColorPalette.DarkPurple500),
+        ChannelAvatarColors(WireColorPalette.DarkRed900, WireColorPalette.DarkRed800, WireColorPalette.DarkRed500),
+        ChannelAvatarColors(WireColorPalette.DarkGreen900, WireColorPalette.DarkGreen800, WireColorPalette.DarkGreen500),
+        ChannelAvatarColors(WireColorPalette.DarkAmber900, WireColorPalette.DarkAmber800, WireColorPalette.DarkAmber500),
+        ChannelAvatarColors(WireColorPalette.DarkPetrol900, WireColorPalette.DarkPetrol800, WireColorPalette.DarkPetrol500),
+        ChannelAvatarColors(WireColorPalette.Gray90, Gray80, WireColorPalette.Gray40)
     ),
     wireAccentColors = WireAccentColors {
         when (it) {
@@ -307,7 +305,6 @@ private val DarkWireColorScheme = WireColorScheme(
         }
     },
     emojiBackgroundColor = Color.Black,
-    avatarBorderColor = WireColorPalette.Gray90
 )
 
 @PackagePrivate

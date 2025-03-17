@@ -289,6 +289,7 @@
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
     <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
     <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
+    <string name="url_wire_create_team" translatable="false">https://teams.wire.com/register/email</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -1286,7 +1287,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!--    report bug-->
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
     <string name="send_bug_report_subject">Bug Report</string>
-    <string name="send_bug_report_email" translatable="false" >wire-newandroid@wearezeta.zendesk.com</string>
+    <string name="send_bug_report_email" translatable="false">wire-newandroid@wearezeta.zendesk.com</string>
 
     <string name="backup_dialog_create_backup_save">Save File</string>
     <string name="backup_dialog_create_backup_share">Share File</string>
@@ -1712,6 +1713,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="new_folder_failure">“%1$s” folder could not be added</string>
     <string name="press_enter_to_send_title">Press Enter to send</string>
     <string name="press_enter_to_send_text">When this is on, you can send messages with the Enter key on your keyboard.</string>
-    <string name="custimization_options_header_title">Options</string>
+    <string name="customization_options_header_title">Options</string>
 
+    <!--    channel not available dialog-->
+    <string name="channel_not_available_dialog_title">Channels are available for team members.</string>
+    <string name="channel_not_available_dialog_description">Create a team and start collaborating for free!</string>
+    <string name="channel_not_available_dialog_create_team_button">Create Wire Team</string>
 </resources>

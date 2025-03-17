@@ -1698,5 +1698,5 @@
     <string name="new_folder_failure">Папка “%1$s” не может быть добавлена</string>
     <string name="press_enter_to_send_title">Нажмите Enter для отправки</string>
     <string name="press_enter_to_send_text">Когда эта опция включена, вы можете отправлять сообщения с помощью клавиши Enter на клавиатуре.</string>
-    <string name="custimization_options_header_title">Настройки</string>
+    <string name="customization_options_header_title">Настройки</string>
 </resources>

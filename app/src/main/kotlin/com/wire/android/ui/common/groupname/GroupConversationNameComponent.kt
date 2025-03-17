@@ -94,7 +94,7 @@ fun GroupNameScreen(
                         .verticalScroll(scrollState)
                 ) {
                     val keyboardController = LocalSoftwareKeyboardController.current
-                    val description = if (newGroupState.doesSupportChannel) {
+                    val description = if (newGroupState.isChannel) {
                         R.string.channel_name_description
                     } else {
                         R.string.group_name_description
@@ -115,12 +115,12 @@ fun GroupNameScreen(
                                 animate()
                                 onGroupNameErrorAnimated()
                             }
-                            val labelText = if (newGroupState.doesSupportChannel) {
+                            val labelText = if (newGroupState.isChannel) {
                                 R.string.channel_name_title
                             } else {
                                 R.string.group_name_title
                             }
-                            val semanticDescriptionTextField = if (newGroupState.doesSupportChannel) {
+                            val semanticDescriptionTextField = if (newGroupState.isChannel) {
                                 R.string.content_description_new_channel_name_field
                             } else {
                                 R.string.content_description_new_group_name_field
@@ -129,7 +129,7 @@ fun GroupNameScreen(
                                 textState = newGroupNameTextState,
                                 placeholderText = stringResource(R.string.group_name_placeholder),
                                 labelText = stringResource(labelText).uppercase(),
-                                state = computeGroupMetadataState(newGroupState.doesSupportChannel, error),
+                                state = computeGroupMetadataState(newGroupState.isChannel, error),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                                 onKeyboardAction = { keyboardController?.hide() },
                                 semanticDescription = stringResource(id = semanticDescriptionTextField),
@@ -137,7 +137,7 @@ fun GroupNameScreen(
                             )
                         }
                     }
-                    if (mode == CREATION && !newGroupState.doesSupportChannel) {
+                    if (mode == CREATION && !newGroupState.isChannel) {
                         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
                         Text(
                             text = stringResource(R.string.protocol),
@@ -182,8 +182,8 @@ fun GroupNameScreen(
 }
 
 fun GroupMetadataState.getScreenName(): Int = when {
-    doesSupportChannel && mode == CREATION -> R.string.new_channel_title
-    doesSupportChannel -> R.string.channel_name_title
+    isChannel && mode == CREATION -> R.string.new_channel_title
+    isChannel -> R.string.channel_name_title
     mode == CREATION -> R.string.new_group_title
     else -> R.string.group_name_title
 }

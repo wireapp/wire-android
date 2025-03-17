@@ -116,7 +116,7 @@ fun CreateRegularGroupOrChannelButtons(
 fun PreviewCreateGroupOrChannelButtons() {
     WireTheme {
         CreateRegularGroupOrChannelButtons(
-            isSelfTeamMember = true,
+            isSelfTeamMember = false,
             shouldShowChannelButton = true,
             onCreateNewRegularGroup = { },
             onCreateNewChannel = { }

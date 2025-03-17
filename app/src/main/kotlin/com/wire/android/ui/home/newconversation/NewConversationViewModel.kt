@@ -81,8 +81,8 @@ class NewConversationViewModel @Inject constructor(
         observeGroupNameChanges()
     }
 
-    fun setDoesSupportChannel(doesSupportChannel: Boolean) {
-        newGroupState = newGroupState.copy(doesSupportChannel = doesSupportChannel)
+    fun setIsChannel(isChannel: Boolean) {
+        newGroupState = newGroupState.copy(isChannel = isChannel)
     }
 
     private fun setConversationCreationParam() {

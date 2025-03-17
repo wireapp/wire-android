@@ -1640,5 +1640,5 @@ Kérjük, próbálja meg újra.</string>
     <string name="new_folder_failure">\"%1$s\" mappa létrehozása nem sikerült</string>
     <string name="press_enter_to_send_title">Nyomja meg az Entert a küldéshez</string>
     <string name="press_enter_to_send_text">Ha ez aktív, a billentyűzet Enter gombjával tud üzenetet küldeni.</string>
-    <string name="custimization_options_header_title">Beállítások</string>
+    <string name="customization_options_header_title">Beállítások</string>
 </resources>

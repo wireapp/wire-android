@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.common
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,10 +38,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.paneTitle
@@ -137,8 +134,6 @@ fun WireDialog(
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     centerContent: Boolean = false,
     titleLoading: Boolean = false,
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    shouldShowWaveShapeInBackground: Boolean = false,
     dialogDescription: String = stringResource(R.string.content_description_alert),
     content: @Composable (() -> Unit)? = null
 ) {
@@ -151,8 +146,6 @@ fun WireDialog(
             optionButton2Properties = optionButton2Properties,
             dismissButtonProperties = dismissButtonProperties,
             buttonsHorizontalAlignment = buttonsHorizontalAlignment,
-            backgroundColor = backgroundColor,
-            shouldShowWaveShapeInBackground = shouldShowWaveShapeInBackground,
             modifier = modifier.semantics { paneTitle = dialogDescription },
             shape = shape,
             contentPadding = contentPadding,
@@ -180,8 +173,6 @@ fun WireDialogContent(
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     centerContent: Boolean = false,
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    shouldShowWaveShapeInBackground: Boolean = false,
     content: @Composable (() -> Unit)? = null
 ) {
     val uriHandler = LocalUriHandler.current
@@ -189,16 +180,9 @@ fun WireDialogContent(
     Surface(
         modifier = modifier.padding(MaterialTheme.wireDimensions.dialogCardMargin),
         shape = shape,
-        color = backgroundColor,
+        color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
-        if (shouldShowWaveShapeInBackground) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_wave),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()

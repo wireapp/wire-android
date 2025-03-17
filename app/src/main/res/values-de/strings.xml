@@ -1558,5 +1558,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="new_folder_error_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
     <string name="new_folder_failure">Ordner “%1$s” konnte nicht hinzugefügt werden</string>
     <string name="press_enter_to_send_title">Enter zum Senden drücken</string>
-    <string name="custimization_options_header_title">Optionen</string>
+    <string name="customization_options_header_title">Optionen</string>
 </resources>

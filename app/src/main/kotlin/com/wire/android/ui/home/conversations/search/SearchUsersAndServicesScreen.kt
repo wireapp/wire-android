@@ -78,7 +78,7 @@ fun SearchUsersAndServicesScreen(
     screenType: SearchPeopleScreenType,
     modifier: Modifier = Modifier,
     isSelfTeamMember: Boolean = false,
-    isChannelsAllowed: Boolean = false,
+    isChannelsAllowed: Boolean = true,
     isGroupSubmitVisible: Boolean = true,
     isServicesAllowed: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,

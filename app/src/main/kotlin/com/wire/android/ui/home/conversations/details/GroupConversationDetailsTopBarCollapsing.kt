@@ -34,8 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
-import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
@@ -68,7 +66,7 @@ fun GroupConversationDetailsTopBarCollapsing(
     ) {
         Box(contentAlignment = Alignment.Center) {
             GroupConversationAvatar(
-                color = colorsScheme().conversationColor(id = conversationId),
+                conversationId = conversationId,
                 size = dimensions().groupAvatarConversationDetailsTopBarSize,
                 cornerRadius = dimensions().groupAvatarConversationDetailsCornerRadius,
                 padding = dimensions().avatarConversationTopBarClickablePadding,

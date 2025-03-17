@@ -79,7 +79,7 @@ class WireColorScheme(
     val scrim: Color,
 
     // accents
-    val groupAvatarColors: List<Triple<Color, Color, Color>>,
+    val groupAvatarColors: List<GroupAvatarColors>,
     val wireAccentColors: WireAccentColors,
 
     val emojiBackgroundColor: Color,
@@ -167,21 +167,21 @@ private val LightWireColorScheme = WireColorScheme(
 
     // accents
     groupAvatarColors = listOf(
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightPurple500, WireColorPalette.LightRed500),
-        Triple(WireColorPalette.LightBlue500, WireColorPalette.LightGreen500, WireColorPalette.LightAmber500),
-        Triple(WireColorPalette.LightBlue500, WireColorPalette.LightRed500, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightAmber500, WireColorPalette.LightGreen500, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightBlue500, WireColorPalette.LightAmber500, WireColorPalette.LightGreen500),
-        Triple(WireColorPalette.LightRed500, WireColorPalette.LightPetrol500, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightRed500, WireColorPalette.LightBlue500),
-        Triple(WireColorPalette.LightAmber500, WireColorPalette.LightBlue500, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightPurple500, WireColorPalette.LightPetrol500, WireColorPalette.LightGreen500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightPurple500, WireColorPalette.LightRed500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightRed500),
-        Triple(WireColorPalette.LightPurple500, WireColorPalette.LightBlue500, WireColorPalette.LightGreen500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightAmber500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightAmber500, WireColorPalette.LightPurple500)
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightPurple500, WireColorPalette.LightRed500),
+        GroupAvatarColors(WireColorPalette.LightBlue500, WireColorPalette.LightGreen500, WireColorPalette.LightAmber500),
+        GroupAvatarColors(WireColorPalette.LightBlue500, WireColorPalette.LightRed500, WireColorPalette.LightPurple500),
+        GroupAvatarColors(WireColorPalette.LightAmber500, WireColorPalette.LightGreen500, WireColorPalette.LightPurple500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightPurple500),
+        GroupAvatarColors(WireColorPalette.LightBlue500, WireColorPalette.LightAmber500, WireColorPalette.LightGreen500),
+        GroupAvatarColors(WireColorPalette.LightRed500, WireColorPalette.LightPetrol500, WireColorPalette.LightPurple500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightRed500, WireColorPalette.LightBlue500),
+        GroupAvatarColors(WireColorPalette.LightAmber500, WireColorPalette.LightBlue500, WireColorPalette.LightPurple500),
+        GroupAvatarColors(WireColorPalette.LightPurple500, WireColorPalette.LightPetrol500, WireColorPalette.LightGreen500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightPurple500, WireColorPalette.LightRed500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightRed500),
+        GroupAvatarColors(WireColorPalette.LightPurple500, WireColorPalette.LightBlue500, WireColorPalette.LightGreen500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightAmber500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightAmber500, WireColorPalette.LightPurple500)
     ),
     wireAccentColors = WireAccentColors {
         when (it) {
@@ -252,21 +252,21 @@ private val DarkWireColorScheme = WireColorScheme(
 
     // accents
     groupAvatarColors = listOf(
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500, WireColorPalette.DarkRed500),
-        Triple(WireColorPalette.DarkBlue500, WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500),
-        Triple(WireColorPalette.DarkBlue500, WireColorPalette.DarkRed500, WireColorPalette.DarkPurple500),
-        Triple(WireColorPalette.DarkAmber500, WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500),
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkPurple500),
-        Triple(WireColorPalette.DarkBlue500, WireColorPalette.DarkAmber500, WireColorPalette.DarkGreen500),
-        Triple(WireColorPalette.DarkRed500, WireColorPalette.DarkPetrol500, WireColorPalette.DarkPurple500), //
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkRed500, WireColorPalette.DarkBlue500),
-        Triple(WireColorPalette.DarkAmber500, WireColorPalette.DarkBlue500, WireColorPalette.DarkPurple500),
-        Triple(WireColorPalette.DarkPurple500, WireColorPalette.DarkPetrol500, WireColorPalette.DarkGreen500), //
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500, WireColorPalette.DarkRed500),
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkRed500),
-        Triple(WireColorPalette.DarkPurple500, WireColorPalette.DarkBlue500, WireColorPalette.DarkGreen500),
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkAmber500),
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500, WireColorPalette.DarkPurple500)
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500, WireColorPalette.DarkRed500),
+        GroupAvatarColors(WireColorPalette.DarkBlue500, WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500),
+        GroupAvatarColors(WireColorPalette.DarkBlue500, WireColorPalette.DarkRed500, WireColorPalette.DarkPurple500),
+        GroupAvatarColors(WireColorPalette.DarkAmber500, WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500),
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkPurple500),
+        GroupAvatarColors(WireColorPalette.DarkBlue500, WireColorPalette.DarkAmber500, WireColorPalette.DarkGreen500),
+        GroupAvatarColors(WireColorPalette.DarkRed500, WireColorPalette.DarkPetrol500, WireColorPalette.DarkPurple500), //
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkRed500, WireColorPalette.DarkBlue500),
+        GroupAvatarColors(WireColorPalette.DarkAmber500, WireColorPalette.DarkBlue500, WireColorPalette.DarkPurple500),
+        GroupAvatarColors(WireColorPalette.DarkPurple500, WireColorPalette.DarkPetrol500, WireColorPalette.DarkGreen500), //
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500, WireColorPalette.DarkRed500),
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkRed500),
+        GroupAvatarColors(WireColorPalette.DarkPurple500, WireColorPalette.DarkBlue500, WireColorPalette.DarkGreen500),
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkAmber500),
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500, WireColorPalette.DarkPurple500)
     ),
     wireAccentColors = WireAccentColors {
         when (it) {

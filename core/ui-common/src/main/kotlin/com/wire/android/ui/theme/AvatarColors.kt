@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.theme
 
-package com.wire.android.ui.common
+import androidx.compose.ui.graphics.Color
 
-import androidx.compose.runtime.Composable
-import com.wire.android.ui.theme.GroupAvatarColors
-import com.wire.android.ui.theme.WireColorScheme
-import com.wire.kalium.logic.data.id.ConversationId
-import kotlin.math.absoluteValue
-
-@Composable
-internal fun WireColorScheme.conversationColor(id: ConversationId): GroupAvatarColors {
-    val colors = this.groupAvatarColors
-    return colors[(id.hashCode() % colors.size).absoluteValue]
-}
+data class GroupAvatarColors(val left: Color, val middle: Color, val right: Color)

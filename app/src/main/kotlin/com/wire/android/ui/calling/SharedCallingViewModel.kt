@@ -199,7 +199,7 @@ class SharedCallingViewModel @AssistedInject constructor(
                 callStatus = call.status,
                 callerName = call.callerName,
                 isCameraOn = call.isCameraOn,
-                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.ONE_ON_ONE
+                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.OneOnOne
             )
         }
     }
@@ -213,7 +213,7 @@ class SharedCallingViewModel @AssistedInject constructor(
                 isMuted = call.isMuted,
                 callStatus = call.status,
                 isCameraOn = call.isCameraOn,
-                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.ONE_ON_ONE,
+                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.OneOnOne,
                 callerName = call.callerName,
             )
             participantsState = call.participants.map {

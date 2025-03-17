@@ -247,6 +247,7 @@ dependencies {
         if (configs["analytics_enabled"] as? Boolean == true) {
             println(">> Adding Anonymous Analytics dependency to [$key] flavor")
             add("${key}Implementation", project(":core:analytics-enabled"))
+            add("test${key.capitalize()}Implementation", project(":core:analytics-disabled"))
         } else {
             add("${key}Implementation", project(":core:analytics-disabled"))
         }

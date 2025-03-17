@@ -149,6 +149,7 @@ dependencies {
     // kover
     kover(project(":features:sketch"))
     kover(project(":core:ui-common"))
+    kover(project(":core:analytics-enabled"))
 
     // Application dependencies
     implementation(libs.androidx.appcompat)

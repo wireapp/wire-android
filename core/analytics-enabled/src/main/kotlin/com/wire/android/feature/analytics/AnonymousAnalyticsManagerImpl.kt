@@ -23,6 +23,7 @@ import android.util.Log
 import com.wire.android.feature.analytics.handler.AnalyticsMigrationHandler
 import com.wire.android.feature.analytics.handler.AnalyticsPropagationHandler
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.feature.analytics.model.AnalyticsResult
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
@@ -76,7 +77,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
 
                             handleTrackingIdentifier(
                                 analyticsIdentifierResult = analyticsResult.identifierResult,
-                                isTeamMember = analyticsResult.isTeamMember,
+                                analyticsProfileProperties = analyticsResult.profileProperties(),
                                 propagateIdentifier = {
                                     analyticsResult.manager?.let { propagationHandler.propagate(it, result.identifier) }
                                 },
@@ -133,7 +134,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
 
     private suspend fun handleTrackingIdentifier(
         analyticsIdentifierResult: AnalyticsIdentifierResult,
-        isTeamMember: Boolean,
+        analyticsProfileProperties: AnalyticsProfileProperties,
         propagateIdentifier: suspend () -> Unit,
         migrationComplete: suspend () -> Unit
     ) {
@@ -142,7 +143,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                 anonymousAnalyticsRecorder?.setTrackingIdentifierWithoutMerge(
                     identifier = analyticsIdentifierResult.identifier,
                     shouldPropagateIdentifier = true,
-                    isTeamMember = isTeamMember,
+                    analyticsProfileProperties = analyticsProfileProperties,
                     propagateIdentifier = propagateIdentifier
                 )
             }
@@ -151,7 +152,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                 anonymousAnalyticsRecorder?.setTrackingIdentifierWithoutMerge(
                     identifier = analyticsIdentifierResult.identifier,
                     shouldPropagateIdentifier = false,
-                    isTeamMember = isTeamMember,
+                    analyticsProfileProperties = analyticsProfileProperties,
                     propagateIdentifier = {}
                 )
             }
@@ -159,7 +160,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             is AnalyticsIdentifierResult.MigrationIdentifier -> {
                 anonymousAnalyticsRecorder?.setTrackingIdentifierWithMerge(
                     identifier = analyticsIdentifierResult.identifier,
-                    isTeamMember = isTeamMember,
+                    analyticsProfileProperties = analyticsProfileProperties,
                     migrationComplete = migrationComplete
                 )
             }

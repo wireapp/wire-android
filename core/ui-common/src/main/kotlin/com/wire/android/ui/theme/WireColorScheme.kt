@@ -87,7 +87,7 @@ class WireColorScheme(
     val scrim: Color,
 
     // accents
-    val groupAvatarColors: List<Triple<Color, Color, Color>>,
+    val groupAvatarColors: List<GroupAvatarColors>,
     val channelAvatarColors: List<Triple<Color, Color, Color>>,
     val wireAccentColors: WireAccentColors,
 
@@ -175,22 +175,22 @@ private val LightWireColorScheme = WireColorScheme(
     scrim = WireColorPalette.BlackAlpha55,
 
     // accents
-    groupAvatarColors = listOf( // left, middle, right
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightPurple500, WireColorPalette.LightRed500),
-        Triple(WireColorPalette.LightBlue500, WireColorPalette.LightGreen500, WireColorPalette.LightAmber500),
-        Triple(WireColorPalette.LightBlue500, WireColorPalette.LightRed500, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightAmber500, WireColorPalette.LightGreen500, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightBlue500, WireColorPalette.LightAmber500, WireColorPalette.LightGreen500),
-        Triple(WireColorPalette.LightRed500, WireColorPalette.LightPetrol500, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightRed500, WireColorPalette.LightBlue500),
-        Triple(WireColorPalette.LightAmber500, WireColorPalette.LightBlue500, WireColorPalette.LightPurple500),
-        Triple(WireColorPalette.LightPurple500, WireColorPalette.LightPetrol500, WireColorPalette.LightGreen500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightPurple500, WireColorPalette.LightRed500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightRed500),
-        Triple(WireColorPalette.LightPurple500, WireColorPalette.LightBlue500, WireColorPalette.LightGreen500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightAmber500),
-        Triple(WireColorPalette.LightGreen500, WireColorPalette.LightAmber500, WireColorPalette.LightPurple500)
+    groupAvatarColors = listOf(
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightPurple500, WireColorPalette.LightRed500),
+        GroupAvatarColors(WireColorPalette.LightBlue500, WireColorPalette.LightGreen500, WireColorPalette.LightAmber500),
+        GroupAvatarColors(WireColorPalette.LightBlue500, WireColorPalette.LightRed500, WireColorPalette.LightPurple500),
+        GroupAvatarColors(WireColorPalette.LightAmber500, WireColorPalette.LightGreen500, WireColorPalette.LightPurple500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightPurple500),
+        GroupAvatarColors(WireColorPalette.LightBlue500, WireColorPalette.LightAmber500, WireColorPalette.LightGreen500),
+        GroupAvatarColors(WireColorPalette.LightRed500, WireColorPalette.LightPetrol500, WireColorPalette.LightPurple500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightRed500, WireColorPalette.LightBlue500),
+        GroupAvatarColors(WireColorPalette.LightAmber500, WireColorPalette.LightBlue500, WireColorPalette.LightPurple500),
+        GroupAvatarColors(WireColorPalette.LightPurple500, WireColorPalette.LightPetrol500, WireColorPalette.LightGreen500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightPurple500, WireColorPalette.LightRed500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightRed500),
+        GroupAvatarColors(WireColorPalette.LightPurple500, WireColorPalette.LightBlue500, WireColorPalette.LightGreen500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightBlue500, WireColorPalette.LightAmber500),
+        GroupAvatarColors(WireColorPalette.LightGreen500, WireColorPalette.LightAmber500, WireColorPalette.LightPurple500)
     ),
     channelAvatarColors = listOf( // border, background, icon
         Triple(WireColorPalette.LightBlue100, LightBlue50, WireColorPalette.LightBlue500),
@@ -269,24 +269,23 @@ private val DarkWireColorScheme = WireColorScheme(
     scrim = WireColorPalette.BlackAlpha55,
 
     // accents
-    groupAvatarColors = listOf( // left, middle, right
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500, WireColorPalette.DarkRed500),
-        Triple(WireColorPalette.DarkBlue500, WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500),
-        Triple(WireColorPalette.DarkBlue500, WireColorPalette.DarkRed500, WireColorPalette.DarkPurple500),
-        Triple(WireColorPalette.DarkAmber500, WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500),
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkPurple500),
-        Triple(WireColorPalette.DarkBlue500, WireColorPalette.DarkAmber500, WireColorPalette.DarkGreen500),
-        Triple(WireColorPalette.DarkRed500, WireColorPalette.DarkPetrol500, WireColorPalette.DarkPurple500), //
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkRed500, WireColorPalette.DarkBlue500),
-        Triple(WireColorPalette.DarkAmber500, WireColorPalette.DarkBlue500, WireColorPalette.DarkPurple500),
-        Triple(WireColorPalette.DarkPurple500, WireColorPalette.DarkPetrol500, WireColorPalette.DarkGreen500), //
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500, WireColorPalette.DarkRed500),
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkRed500),
-        Triple(WireColorPalette.DarkPurple500, WireColorPalette.DarkBlue500, WireColorPalette.DarkGreen500),
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkAmber500),
-        Triple(WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500, WireColorPalette.DarkPurple500)
+    groupAvatarColors = listOf(
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500, WireColorPalette.DarkRed500),
+        GroupAvatarColors(WireColorPalette.DarkBlue500, WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500),
+        GroupAvatarColors(WireColorPalette.DarkBlue500, WireColorPalette.DarkRed500, WireColorPalette.DarkPurple500),
+        GroupAvatarColors(WireColorPalette.DarkAmber500, WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500),
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkPurple500),
+        GroupAvatarColors(WireColorPalette.DarkBlue500, WireColorPalette.DarkAmber500, WireColorPalette.DarkGreen500),
+        GroupAvatarColors(WireColorPalette.DarkRed500, WireColorPalette.DarkPetrol500, WireColorPalette.DarkPurple500), //
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkRed500, WireColorPalette.DarkBlue500),
+        GroupAvatarColors(WireColorPalette.DarkAmber500, WireColorPalette.DarkBlue500, WireColorPalette.DarkPurple500),
+        GroupAvatarColors(WireColorPalette.DarkPurple500, WireColorPalette.DarkPetrol500, WireColorPalette.DarkGreen500), //
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkPurple500, WireColorPalette.DarkRed500),
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkRed500),
+        GroupAvatarColors(WireColorPalette.DarkPurple500, WireColorPalette.DarkBlue500, WireColorPalette.DarkGreen500),
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkBlue500, WireColorPalette.DarkAmber500),
+        GroupAvatarColors(WireColorPalette.DarkGreen500, WireColorPalette.DarkAmber500, WireColorPalette.DarkPurple500)
     ),
-
     channelAvatarColors = listOf( // border, background, icon
         Triple(WireColorPalette.DarkBlue900, WireColorPalette.DarkBlue800, WireColorPalette.DarkBlue500),
         Triple(WireColorPalette.DarkPurple900, WireColorPalette.DarkPurple800, WireColorPalette.DarkPurple500),

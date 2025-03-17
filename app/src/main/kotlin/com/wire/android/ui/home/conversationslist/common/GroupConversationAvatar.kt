@@ -47,7 +47,7 @@ fun GroupConversationAvatar(
     cornerRadius: Dp = MaterialTheme.wireDimensions.groupAvatarCornerRadius,
     padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
     borderWidth: Dp = dimensions().avatarBorderWidth,
-    borderColor: Color = colorsScheme().avatarBorderColor
+    borderColor: Color = colorsScheme().outline
 ) {
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -62,9 +62,9 @@ fun GroupConversationAvatar(
         val colors = colorsScheme().groupConversationColor(id = conversationId)
         CustomGroupAvatarDrawing(
             modifier = Modifier.padding(dimensions().spacing4x),
-            leftSideShapeColor = colors.first,
-            middleSideShapeColor = colors.second,
-            rightSideShapeColor = colors.third
+            leftSideShapeColor = colors.left,
+            middleSideShapeColor = colors.middle,
+            rightSideShapeColor = colors.right
         )
     }
 }

@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -48,7 +49,6 @@ fun ConversationsEmptyContent(
     filter: ConversationFilter = ConversationFilter.All,
     domain: String = "wire.com"
 ) {
-    val context = LocalContext.current
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -76,7 +76,16 @@ fun ConversationsEmptyContent(
             textAlign = TextAlign.Center,
             color = MaterialTheme.wireColorScheme.onSurface,
         )
-        if (filter == ConversationFilter.Favorites) {
+        VerticalSpace.x8()
+        EmptyContentFooter(currentFilter = filter)
+    }
+}
+
+@Composable
+private fun EmptyContentFooter(currentFilter: ConversationFilter) {
+    val context = LocalContext.current
+    when (currentFilter) {
+        ConversationFilter.Favorites -> {
             val supportUrl = stringResource(id = R.string.url_how_to_add_favorites)
             Text(
                 text = stringResource(R.string.favorites_empty_list_how_to_label),
@@ -88,7 +97,23 @@ fun ConversationsEmptyContent(
                     CustomTabsHelper.launchUrl(context, supportUrl)
                 }
             )
-        } else {
+        }
+
+        ConversationFilter.Channels -> {
+            val supportUrl = stringResource(id = R.string.url_support) // todo. change to url for channels
+            Text(
+                text = stringResource(R.string.channels_empty_list_learn_more),
+                style = MaterialTheme.wireTypography.body02.copy(
+                    textDecoration = TextDecoration.Underline,
+                    color = MaterialTheme.colorScheme.onBackground
+                ),
+                modifier = Modifier.clickable {
+                    CustomTabsHelper.launchUrl(context, supportUrl)
+                }
+            )
+        }
+
+        else -> {
             Image(
                 modifier = Modifier.padding(start = dimensions().spacing100x),
                 painter = painterResource(
@@ -105,6 +130,7 @@ private fun ConversationFilter.emptyDescription(backendName: String): String = w
     ConversationFilter.All -> stringResource(R.string.conversation_empty_list_description)
     ConversationFilter.Favorites -> stringResource(R.string.favorites_empty_list_description)
     ConversationFilter.Groups -> stringResource(R.string.group_empty_list_description)
+    ConversationFilter.Channels -> stringResource(R.string.channels_empty_list_description)
     ConversationFilter.OneOnOne -> stringResource(R.string.one_on_one_empty_list_description, backendName)
     // currently not used, because empty folders are removed from filters
     is ConversationFilter.Folder -> ""
@@ -114,6 +140,12 @@ private fun ConversationFilter.emptyDescription(backendName: String): String = w
 @Composable
 fun PreviewAllConversationsEmptyContent() = WireTheme {
     ConversationsEmptyContent(filter = ConversationFilter.All)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewChannelsConversationsEmptyContent() = WireTheme {
+    ConversationsEmptyContent(filter = ConversationFilter.Channels)
 }
 
 @PreviewMultipleThemes

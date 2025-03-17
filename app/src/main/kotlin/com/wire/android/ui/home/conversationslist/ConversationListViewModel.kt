@@ -184,6 +184,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         ConversationsSource.FAVORITES,
         is ConversationsSource.FOLDER,
         ConversationsSource.GROUPS,
+        ConversationsSource.CHANNELS,
         ConversationsSource.ONE_ON_ONE -> true
 
         ConversationsSource.ARCHIVE -> false
@@ -525,6 +526,7 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
     ConversationsSource.MAIN -> ConversationFilter.All
     ConversationsSource.ARCHIVE -> ConversationFilter.All
     ConversationsSource.GROUPS -> ConversationFilter.Groups
+    ConversationsSource.CHANNELS -> ConversationFilter.Channels
     ConversationsSource.FAVORITES -> ConversationFilter.Favorites
     ConversationsSource.ONE_ON_ONE -> ConversationFilter.OneOnOne
     is ConversationsSource.FOLDER -> ConversationFilter.Folder(folderId = folderId, folderName = folderName)
@@ -558,6 +560,7 @@ private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map
 
         ConversationsSource.FAVORITES,
         ConversationsSource.GROUPS,
+        ConversationsSource.CHANNELS,
         ConversationsSource.ONE_ON_ONE,
         is ConversationsSource.FOLDER,
         ConversationsSource.MAIN -> {

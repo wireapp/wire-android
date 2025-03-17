@@ -970,7 +970,7 @@ class WireActivityViewModelTest {
             isCbrEnabled = false,
             callerId = UserId("caller", "domain"),
             conversationName = "ONE_ON_ONE Name",
-            conversationType = Conversation.Type.ONE_ON_ONE,
+            conversationType = Conversation.Type.OneOnOne,
             callerName = "otherUsername",
             callerTeamName = "team1"
         )
@@ -989,7 +989,7 @@ class WireActivityViewModelTest {
                 callVideoEnabled = false
             ),
             conversationDetails = RecentlyEndedCallMetadata.ConversationDetails(
-                conversationType = Conversation.Type.ONE_ON_ONE,
+                conversationType = Conversation.Type.OneOnOne,
                 conversationSize = 5,
                 conversationGuests = 2,
                 conversationGuestsPro = 1

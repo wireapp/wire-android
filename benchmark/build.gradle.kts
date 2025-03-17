@@ -16,10 +16,22 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 plugins {
-    id(libs.plugins.wire.android.library.get().pluginId)
+    id(libs.plugins.android.library.get().pluginId)
+    id(libs.plugins.kotlin.android.get().pluginId)
 }
 
 android {
+    defaultConfig {
+        minSdk = 23
+        compileSdk = 34
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
     namespace = "com.wire.benchmark"
     defaultConfig.missingDimensionStrategy("contentType", "beta")
 }

@@ -26,6 +26,7 @@ import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.dimensions
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @Composable
@@ -71,6 +72,24 @@ fun ConversationFiltersSheetContent(
                     ),
                     state = state
                 )
+            }
+            if (FeatureVisibilityFlags.ChannelsEnabled) { // thi flag needs to be based on team settings later
+                add {
+                    val state = if (ConversationFilter.Channels == sheetData.currentFilter) {
+                        RichMenuItemState.SELECTED
+                    } else {
+                        RichMenuItemState.DEFAULT
+                    }
+                    SelectableMenuBottomSheetItem(
+                        title = ConversationFilter.Channels.toSheetItemLabel().asString(),
+                        onItemClick = Clickable(
+                            enabled = state == RichMenuItemState.DEFAULT,
+                            onClickDescription = stringResource(id = R.string.content_description_select_label),
+                            onClick = { onChangeFilter(ConversationFilter.Channels) },
+                        ),
+                        state = state
+                    )
+                }
             }
             add {
                 val state = if (ConversationFilter.Groups == sheetData.currentFilter) {

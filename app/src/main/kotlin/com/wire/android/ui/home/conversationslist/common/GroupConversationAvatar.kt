@@ -33,7 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.conversationColor
+import com.wire.android.ui.common.groupConversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -59,7 +59,7 @@ fun GroupConversationAvatar(
             .padding(borderWidth)
             .background(color = colorsScheme().surface, shape = RoundedCornerShape(cornerRadius))
     ) {
-        val colors = colorsScheme().conversationColor(id = conversationId)
+        val colors = colorsScheme().groupConversationColor(id = conversationId)
         CustomGroupAvatarDrawing(
             modifier = Modifier.padding(dimensions().spacing4x),
             leftSideShapeColor = colors.left,

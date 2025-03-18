@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>auto-all</artifactId>
+        <groupId>com.wearezeta.auto</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>androidreloaded</artifactId>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Java version (see also maven-compiler-plugin settings) -->
+        <maven.compiler.release>17</maven.compiler.release>
+        <skipTests>false</skipTests>
+        <url>http://127.0.0.1:4723</url>
+        <isOnGrid>false</isOnGrid>
+        <appPath/>
+        <testingGalleryPath/>
+        <package>com.waz.zclient.dev</package>
+        <driverTimeoutSeconds>7</driverTimeoutSeconds>
+        <defaultEmail>smoketester@wire.com</defaultEmail>
+        <defaultEmailPassword>bsmquxrcdverabbp</defaultEmailPassword>
+        <specialEmail>smoketester.android@wire.com</specialEmail>
+        <specialPassword>esjasabkpuugatao</specialPassword>
+        <backendType>staging</backendType>
+        <showLogcat>true</showLogcat>
+        <enableAppiumOutput>false</enableAppiumOutput>
+        <!-- For selecting the device to run on -->
+        <browserName></browserName>
+        <picklejar.tags></picklejar.tags>
+        <picklejar.parallelism>1</picklejar.parallelism>
+        <maven.test.failure.ignore/>
+        <test/>
+        <surefire.rerunFailingTestsCount>0</surefire.rerunFailingTestsCount>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Central Repository</name>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.wire.qa</groupId>
+            <artifactId>qa-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.24.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.appium</groupId>
+            <artifactId>java-client</artifactId>
+            <!-- When changing versions make sure that selenium version above corresponds -->
+            <version>9.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-remote-driver</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-support</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <!-- TODO: CHECK IF I CAN USE DIFFERENT VERSION (DefaultArtifactVersion) -->
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>3.8.3</version>
+            <scope>compile</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <sourceDirectory>src/main/java</sourceDirectory>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <!-- specify UTF-8, ISO-8859-1 or any other file encoding -->
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>java</executable>
+                    <includeProjectDependencies>true</includeProjectDependencies>
+                    <includePluginDependencies>false</includePluginDependencies>
+                    <skip>${skipTests}</skip>
+                    <classpathScope>test</classpathScope>
+                    <arguments>
+                        <!-- The add-opens parameter fixes a bug with pagefactory -->
+                        <!-- See https://github.com/appium/java-client/issues/1619 -->
+                        <argument>--add-opens</argument>
+                        <argument>java.base/java.lang=ALL-UNNAMED</argument>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>-DappPath=${appPath}</argument>
+                        <argument>-DtestingGalleryPath=${testingGalleryPath}</argument>
+                        <argument>-DbrowserName=${browserName}</argument>
+                        <argument>-Dpicklejar.tags=${picklejar.tags}</argument>
+                        <argument>-Djunit.jupiter.execution.parallel.enabled=true</argument>
+                        <argument>-Djunit.jupiter.execution.parallel.mode.default=concurrent</argument>
+                        <argument>-Djunit.jupiter.execution.parallel.mode.classes.default=concurrent</argument>
+                        <argument>-Djunit.jupiter.execution.parallel.config.strategy=fixed</argument>
+                        <argument>-Djunit.jupiter.execution.parallel.config.strategy=custom</argument>
+                        <argument>
+                            -Djunit.jupiter.execution.parallel.config.custom.class=com.wire.qa.picklejar.engine.CustomStrategy
+                        </argument>
+                        <argument>-Dpicklejar.parallelism=${picklejar.parallelism}</argument>
+                        <argument>-Dmaven.test.failure.ignore=${maven.test.failure.ignore}</argument>
+                        <!-- Uncomment the next line to have more logging -->
+                        <!-- <argument>-Djava.util.logging.config.file=/Users/sven/workspace/zautomation/tests/webapp/src/test/resources/logging.properties</argument> -->
+                        <argument>-Dtest=${test}</argument>
+                        <argument>-Dsurefire.rerunFailingTestsCount=${surefire.rerunFailingTestsCount}</argument>
+                        <mainClass>com.wire.qa.picklejar.launcher.PicklejarLauncher</mainClass>
+                        <argument>${project.build.directory}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+
+            <!-- This is needed because maven magically always includes surefire by default and makes it impossible to use test property otherwise -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.1</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>isOnGrid</id>
+            <properties>
+                <url>http://192.168.2.80:44080/wd/hub</url>
+                <isOnGrid>true</isOnGrid>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

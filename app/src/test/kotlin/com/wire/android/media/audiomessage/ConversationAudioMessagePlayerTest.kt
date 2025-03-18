@@ -24,7 +24,6 @@ import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.Companion.GET_ASSET_MESSAGE_CACHE_EXPIRATION_MS
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.services.ServicesManager
 import com.wire.kalium.common.error.NetworkFailure
@@ -44,7 +43,6 @@ import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import okio.Path
 import org.amshove.kluent.internal.assertEquals
@@ -592,7 +590,7 @@ class ConversationAudioMessagePlayerTest {
     }
 
     @Test
-    fun givenSuccessfulAudioMessageFetch_whenPlayingBeforeCacheExpirationTime_thenReuseTheSameAssetResult() = runTest(dispatcher) {
+    fun givenSuccessfulAudioMessageFetch_whenAlreadyCached_thenReuseTheSameAssetResult() = runTest(dispatcher) {
         val (arrangement, conversationAudioMessagePlayer) = Arrangement()
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withSuccessfulAssetFetch()
@@ -603,42 +601,18 @@ class ConversationAudioMessagePlayerTest {
         val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
         conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the first time
-        advanceTimeBy(GET_ASSET_MESSAGE_CACHE_EXPIRATION_MS - 100) // advance time to be before the cache expiration time
         conversationAudioMessagePlayer.forceToStopCurrentAudioMessage() // mock the completion of the audio media player
         conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the second time
 
         with(arrangement) {
-            coVerify(exactly = 1) { // only one time because the cache is not expired so the same result is reused
+            coVerify(exactly = 1) { // only one time because the result is cached
                 getAssetMessage(conversationId, audioMessageId)
             }
         }
     }
 
     @Test
-    fun givenSuccessfulAudioMessageFetch_whenPlayingAfterCacheExpirationTime_thenGetAssetAgain() = runTest(dispatcher) {
-        val (arrangement, conversationAudioMessagePlayer) = Arrangement()
-            .withAudioMediaPlayerReturningTotalTime(1000)
-            .withSuccessfulAssetFetch()
-            .withCurrentSession()
-            .arrange()
-
-        val audioMessageId = "some-dummy-message-id"
-        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-
-        conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the first time
-        advanceTimeBy(GET_ASSET_MESSAGE_CACHE_EXPIRATION_MS + 100) // advance time to be after the cache expiration time
-        conversationAudioMessagePlayer.forceToStopCurrentAudioMessage() // mock the completion of the audio media player
-        conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the second time
-
-        with(arrangement) {
-            coVerify(exactly = 2) { // two times because the cache is expired so the result is fetched again
-                getAssetMessage(conversationId, audioMessageId)
-            }
-        }
-    }
-
-    @Test
-    fun givenFailedAudioMessageFetch_whenPlayingBeforeCacheExpirationTime_thenGetAssetAgain() = runTest(dispatcher) {
+    fun givenFailedAudioMessageFetch_whenAlreadyCached_thenGetAssetAgain() = runTest(dispatcher) {
         val (arrangement, conversationAudioMessagePlayer) = Arrangement()
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withFailedAssetFetch()
@@ -649,12 +623,11 @@ class ConversationAudioMessagePlayerTest {
         val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
         conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the first time
-        advanceTimeBy(GET_ASSET_MESSAGE_CACHE_EXPIRATION_MS - 100) // advance time to be before the cache expiration time
         conversationAudioMessagePlayer.forceToStopCurrentAudioMessage() // mock the completion of the audio media player
         conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the second time
 
         with(arrangement) {
-            coVerify(exactly = 2) { // two times because the result is failed so it's fetched again even before the cache expiration time
+            coVerify(exactly = 2) { // two times because the result is failed so it's fetched again
                 getAssetMessage(conversationId, audioMessageId)
             }
         }
@@ -703,7 +676,6 @@ class Arrangement {
             coreLogic = coreLogic,
             scope = testScope,
             dispatchers = TestDispatcherProvider(dispatcher),
-            currentTime = dispatcher.scheduler::currentTime,
         )
     }
 

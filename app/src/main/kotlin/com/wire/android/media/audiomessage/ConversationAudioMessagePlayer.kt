@@ -21,12 +21,10 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaPlayer.SEEK_CLOSEST_SYNC
 import android.net.Uri
-import androidx.annotation.VisibleForTesting
 import com.wire.android.R
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.services.ServicesManager
-import com.wire.android.util.ExpiringMap
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.ui.UIText
@@ -75,13 +73,9 @@ class ConversationAudioMessagePlayer
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     @ApplicationScope private val scope: CoroutineScope,
     private val dispatchers: DispatcherProvider,
-    currentTime: () -> Long = { System.currentTimeMillis() },
 ) {
-    companion object {
-        private const val UPDATE_POSITION_INTERVAL_IN_MS = 1000L
-
-        @VisibleForTesting
-        internal const val GET_ASSET_MESSAGE_CACHE_EXPIRATION_MS = 5 * 60_000L // 5 minutes
+    private companion object {
+        const val UPDATE_POSITION_INTERVAL_IN_MS = 1000L
     }
 
     init {
@@ -425,12 +419,7 @@ class ConversationAudioMessagePlayer
     }
 
     private val getAssetMessageMutex = Mutex()
-    private val getAssetMessageDeferredMap = ExpiringMap<GetAssetMessageKey, Deferred<MessageAssetResult>>(
-        scope = scope,
-        expiration = GET_ASSET_MESSAGE_CACHE_EXPIRATION_MS,
-        delegate = mutableMapOf(),
-        currentTime = currentTime,
-    )
+    private val getAssetMessageDeferredMap = mutableMapOf<GetAssetMessageKey, Deferred<MessageAssetResult>>()
 
     private suspend fun getAssetMessage(
         userId: UserId,

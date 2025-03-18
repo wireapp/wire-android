@@ -113,7 +113,7 @@ fun CreateRegularGroupOrChannelButtons(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCreateGroupOrChannelButtons() {
+fun PreviewCreateRegularGroupOrChannelButtons() {
     WireTheme {
         CreateRegularGroupOrChannelButtons(
             isSelfTeamMember = false,

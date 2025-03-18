@@ -450,7 +450,9 @@ class ConversationAudioMessagePlayer
                     .also {
                         getAssetMessageDeferredMap[key] = it
                     }
-            } else deferredResult
+            } else {
+                deferredResult
+            }
         }.await()
     }
 

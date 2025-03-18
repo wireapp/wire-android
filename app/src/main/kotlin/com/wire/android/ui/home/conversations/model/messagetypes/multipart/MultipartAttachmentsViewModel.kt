@@ -21,10 +21,10 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType.IMAGE
-import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType.PDF
-import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType.VIDEO
-import com.wire.android.ui.common.attachmentdraft.model.previewSupported
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
+import com.wire.android.feature.cells.domain.model.previewSupported
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.util.FileManager
@@ -95,7 +95,11 @@ class MultipartAttachmentsViewModel @Inject constructor(
             kaliumFileSystem.delete(path)
         }
 
-        download(attachment.uuid, path) { progress ->
+        download(
+            assetId = attachment.uuid,
+            outFilePath = path,
+            assetSize = attachment.assetSize ?: 0,
+        ) { progress ->
             attachment.assetSize?.let {
                 val value = progress.toFloat() / it
                 if (value < 1) {

@@ -143,6 +143,7 @@ dependencies {
     androidTestImplementation("com.wire.kalium:kalium-network")
 
     // features
+    implementation(project(":features:cells"))
     implementation(project(":features:sketch"))
     implementation(project(":core:ui-common"))
     implementation(project(":core:navigation"))

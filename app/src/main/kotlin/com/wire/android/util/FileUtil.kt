@@ -489,22 +489,24 @@ fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
 
 @Suppress("TooGenericExceptionCaught", "MagicNumber")
 fun getVideoMetaData(dataPath: String): AssetContent.AssetMetadata.Video? =
-    try {
-        MediaMetadataRetriever().use { retriever ->
-            retriever.setDataSource(dataPath)
-            val width = retriever.extractMetadata(METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
-            val height = retriever.extractMetadata(METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
-            val duration = retriever.extractMetadata(METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
-            val rotation = retriever.extractMetadata(METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0L
+    with(MediaMetadataRetriever()) {
+        try {
+            setDataSource(dataPath)
+            val width = extractMetadata(METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
+            val height = extractMetadata(METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
+            val duration = extractMetadata(METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
+            val rotation = extractMetadata(METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0L
             if (rotation == 90 || rotation == 270) {
                 AssetContent.AssetMetadata.Video(height, width, duration)
             } else {
                 AssetContent.AssetMetadata.Video(width, height, duration)
             }
+        } catch (e: Exception) {
+            appLogger.e("Error while extracting video metadata", e)
+            null
+        } finally {
+            close()
         }
-    } catch (e: Exception) {
-        appLogger.e("Error while extracting video metadata", e)
-        null
     }
 
 private const val ATTACHMENT_FILENAME = "attachment"

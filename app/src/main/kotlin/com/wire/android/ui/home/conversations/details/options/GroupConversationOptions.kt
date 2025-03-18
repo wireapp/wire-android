@@ -85,6 +85,7 @@ fun GroupConversationOptions(
     }
 }
 
+@Suppress("UnusedParameter")
 @Composable
 fun GroupConversationSettings(
     state: GroupConversationOptionsState,

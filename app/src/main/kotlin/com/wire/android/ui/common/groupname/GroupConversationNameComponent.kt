@@ -190,23 +190,25 @@ fun GroupMetadataState.getScreenName(): Int = when {
 
 @Composable
 private fun computeGroupMetadataState(isChannelsAllowed: Boolean, error: GroupMetadataState.NewGroupError) =
-    if (error is GroupMetadataState.NewGroupError.TextFieldError) when (error) {
-        GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError -> {
-            val errorMessage = if (isChannelsAllowed) {
-                R.string.empty_channel_name_error
-            } else {
-                R.string.empty_regular_group_name_error
+    if (error is GroupMetadataState.NewGroupError.TextFieldError) {
+        when (error) {
+            GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError -> {
+                val errorMessage = if (isChannelsAllowed) {
+                    R.string.empty_channel_name_error
+                } else {
+                    R.string.empty_regular_group_name_error
+                }
+                WireTextFieldState.Error(stringResource(id = errorMessage))
             }
-            WireTextFieldState.Error(stringResource(id = errorMessage))
-        }
 
-        GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError -> {
-            val errorMessage = if (isChannelsAllowed) {
-                R.string.channel_name_exceeded_limit_error
-            } else {
-                R.string.regular_group_name_exceeded_limit_error
+            GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError -> {
+                val errorMessage = if (isChannelsAllowed) {
+                    R.string.channel_name_exceeded_limit_error
+                } else {
+                    R.string.regular_group_name_exceeded_limit_error
+                }
+                WireTextFieldState.Error(stringResource(id = errorMessage))
             }
-            WireTextFieldState.Error(stringResource(id = errorMessage))
         }
     } else {
         WireTextFieldState.Default

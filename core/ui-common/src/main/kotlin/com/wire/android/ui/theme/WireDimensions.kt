@@ -219,6 +219,7 @@ data class WireDimensions(
     val attachmentPdfMaxWidthLandscape: Dp,
     val attachmentVideoMaxWidth: Dp,
     val attachmentVideoMaxWidthLandscape: Dp,
+    val attachmentGridMaxHeight: Dp,
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -385,6 +386,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     attachmentPdfMaxWidthLandscape = 400.dp,
     attachmentVideoMaxWidth = 240.dp,
     attachmentVideoMaxWidthLandscape = 400.dp,
+    attachmentGridMaxHeight = 1000.dp,
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

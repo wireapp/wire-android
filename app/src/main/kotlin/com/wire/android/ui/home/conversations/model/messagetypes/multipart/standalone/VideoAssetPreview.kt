@@ -46,6 +46,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.darkColorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
@@ -141,7 +142,7 @@ internal fun VideoAssetPreview(
                         .padding(dimensions().spacing4x),
                     text = DateAndTimeParsers.videoMessageTime(it),
                     style = typography().subline01,
-                    color = Color.White,
+                    color = darkColorsScheme().onSurface,
                     textAlign = TextAlign.Center
                 )
             }

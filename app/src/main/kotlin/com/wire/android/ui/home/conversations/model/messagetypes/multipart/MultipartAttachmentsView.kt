@@ -87,7 +87,7 @@ private fun AttachmentsGrid(
     modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
-        modifier = modifier.heightIn(max = 1000.dp),
+        modifier = modifier.heightIn(max = dimensions().attachmentGridMaxHeight),
         columns = GridCells.Fixed(attachmentColumnCount(LocalConfiguration.current)),
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),

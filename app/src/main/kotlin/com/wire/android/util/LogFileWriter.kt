@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
@@ -51,7 +52,14 @@ class LogFileWriter(private val logsDirectory: File) {
     private val fileWriterCoroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var writingJob: Job? = null
 
-    fun start() {
+    /**
+     * Initializes logging, waiting until the logger is actually initialized before returning.
+     * ```kotlin
+     * logFileWriter.start()
+     * logger.i("something") // Is guaranteed to be recorded in the log file
+     * ```
+     */
+    suspend fun start() {
         appLogger.i("KaliumFileWritter.start called")
         val isWriting = writingJob?.isActive ?: false
         if (isWriting) {
@@ -59,12 +67,13 @@ class LogFileWriter(private val logsDirectory: File) {
             return
         }
         ensureLogDirectoryAndFileExistence()
-
-        appLogger.i("KaliumFileWritter.start: Starting log collection.")
+        val waitInitializationJob = Job()
 
         writingJob = fileWriterCoroutineScope.launch {
             observeLogCatWritingToLoggingFile().catch {
                 appLogger.e("Write to file failed :$it", it)
+            }.onEach {
+                waitInitializationJob.complete()
             }.filter {
                 it > LOG_FILE_MAX_SIZE_THRESHOLD
             }.collect {
@@ -74,6 +83,8 @@ class LogFileWriter(private val logsDirectory: File) {
                 deleteOldCompressedFiles()
             }
         }
+        appLogger.i("KaliumFileWritter.start: Starting log collection.")
+        waitInitializationJob.join()
     }
 
     /**
@@ -86,6 +97,7 @@ class LogFileWriter(private val logsDirectory: File) {
 
         val reader = process.inputStream.bufferedReader()
 
+        appLogger.i("Starting to write log files, grabbing from logcat")
         while (isActive) {
             val text = reader.readLine()
             if (!text.isNullOrBlank()) {

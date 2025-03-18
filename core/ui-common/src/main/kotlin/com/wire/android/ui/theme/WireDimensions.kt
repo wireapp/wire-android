@@ -184,6 +184,7 @@ data class WireDimensions(
     // Search People
     val defaultSearchLazyColumnHeight: Dp,
     val groupButtonHeight: Dp,
+    val newConversationButtonsHeight: Dp,
     // Calling
     val defaultCallingControlsSize: Dp,
     val defaultCallingControlsHeight: Dp,
@@ -239,7 +240,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     avatarTemporaryUserBorderWidth = 2.dp,
     avatarBigTemporaryUserBorderWidth = 4.dp,
     avatarLegalHoldIndicatorBorderWidth = 4.dp,
-    groupAvatarCornerRadius = 10.dp,
+    groupAvatarCornerRadius = 8.dp,
     avatarConversationTopBarSize = 24.dp,
     groupAvatarConversationTopBarCornerRadius = 8.dp,
     groupAvatarConversationDetailsTopBarSize = 64.dp,
@@ -355,6 +356,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     systemMessageIconSize = 16.dp,
     systemMessageIconLargeSize = 18.dp,
     groupButtonHeight = 82.dp,
+    newConversationButtonsHeight = 150.dp,
     defaultCallingControlsSize = 56.dp,
     defaultCallingControlsHeight = 40.dp,
     defaultCallingControlsWidth = 56.dp,

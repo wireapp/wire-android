@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.analytics.model
 
-import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
+@file:Suppress("MatchingDeclarationName")
 
-data class AnalyticsResult<T>(
-    val identifierResult: AnalyticsIdentifierResult,
-    val profileProperties: suspend () -> AnalyticsProfileProperties,
-    val manager: T?
-)
+package com.wire.android.ui.theme
 
-data class AnalyticsProfileProperties(
-    val isTeamMember: Boolean,
-    val teamId: String?,
-    val contactsAmount: Int?,
-    val teamMembersAmount: Int?,
-    val isEnterprise: Boolean?
-)
+import androidx.compose.ui.graphics.Color
+
+data class GroupAvatarColors(val left: Color, val middle: Color, val right: Color)
+
+data class ChannelAvatarColors(val border: Color, val background: Color, val icon: Color)

@@ -67,6 +67,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         return when (conversationFilter) {
             ConversationFilter.All,
             ConversationFilter.Groups,
+            ConversationFilter.Channels,
             ConversationFilter.OneOnOne -> useCase(
                 queryConfig = ConversationQueryConfig(
                     searchQuery = searchQuery,

@@ -212,8 +212,9 @@ interface AnalyticsEvent {
 
         private fun RecentlyEndedCallMetadata.toConversationType(): String {
             return when (conversationDetails.conversationType) {
-                Conversation.Type.ONE_ON_ONE -> "one_to_one"
-                Conversation.Type.GROUP -> "group"
+                Conversation.Type.OneOnOne -> "one_to_one"
+                Conversation.Type.Group.Regular -> "group"
+                Conversation.Type.Group.Channel -> "channel"
                 else -> throw IllegalStateException("Call should not happen for ${conversationDetails.conversationType}")
             }
         }
@@ -374,6 +375,10 @@ object AnalyticsEventConstants {
     const val APP_OPEN = "app.open"
 
     const val IS_TEAM_MEMBER = "is_team_member"
+    const val TEAM_IS_ENTERPRISE = "team_is_enterprise"
+    const val TEAM_TEAM_ID = "team_team_id"
+    const val TEAM_TEAM_SIZE = "team_team_size"
+    const val USER_CONTACTS = "user_contacts"
 
     /**
      * Calling

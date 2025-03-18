@@ -102,12 +102,6 @@ fun HomeDrawer(
 //        )
 
         DrawerItem(
-            destination = HomeDestination.Cells,
-            selected = currentRoute == HomeDestination.Cells.direction.route,
-            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Cells) } }
-        )
-
-        DrawerItem(
             destination = HomeDestination.Archive,
             unreadCount = homeDrawerState.unreadArchiveConversationsCount,
             selected = currentRoute == HomeDestination.Archive.direction.route,

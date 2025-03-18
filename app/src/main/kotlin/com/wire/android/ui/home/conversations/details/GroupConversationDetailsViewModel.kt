@@ -42,6 +42,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
+import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -106,6 +107,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val workManager: WorkManager,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
+    private val enableCell: SetWireCellForConversationUseCase,
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata
 ), GroupConversationDetailsBottomSheetEventsHandler {
@@ -185,7 +187,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingSelfDeletingAllowed = isSelfAnAdmin,
                         mlsEnabled = isMLSEnabled(),
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
-                        selfDeletionTimer = selfDeletionTimer
+                        selfDeletionTimer = selfDeletionTimer,
+                        loadingWireCellState = false,
+                        isWireCellEnabled = groupDetails.wireCell != null,
                     )
                 )
             }.collect {}
@@ -285,6 +289,18 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun onServiceDialogConfirm() {
         updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = false, loadingServicesOption = true))
         updateServicesRemoteRequest(false)
+    }
+
+    fun onWireCellStateChange(enableWireCell: Boolean) {
+        updateState(
+            groupOptionsState.value.copy(
+                loadingWireCellState = true,
+                isWireCellEnabled = enableWireCell,
+            )
+        )
+        viewModelScope.launch {
+            enableCell(conversationId, enableWireCell)
+        }
     }
 
     private fun updateServicesRemoteRequest(enableServices: Boolean) {

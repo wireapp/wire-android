@@ -84,6 +84,7 @@ private fun PreviewAttachmentDraftFileView() {
         AttachmentDraftView(
             attachment = AttachmentDraftUi(
                 uuid = "123",
+                versionId = "123",
                 fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus.doc",
                 fileSize = 23462346,
                 localFilePath = "",
@@ -101,6 +102,7 @@ private fun PreviewAttachmentDraftViewWithProgress() {
         AttachmentDraftView(
             attachment = AttachmentDraftUi(
                 uuid = "123",
+                versionId = "123",
                 fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus.doc",
                 fileSize = 23462346,
                 uploadProgress = 0.75f,

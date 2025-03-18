@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
@@ -59,7 +61,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 @Composable
 fun VideoMessage(
-    assetSize: Long,
+    assetSize: Long?,
     assetName: String,
     assetExtension: String,
     assetDataPath: String?,
@@ -72,9 +74,19 @@ fun VideoMessage(
 ) {
     val context = LocalContext.current
 
+    val maxWidth = if (width != null && height != null) {
+        if (width < height) {
+            240.dp
+        } else {
+            Dp.Unspecified
+        }
+    } else {
+        Dp.Unspecified
+    }
+
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .widthIn(max = maxWidth)
             .background(color = colorsScheme().surface, shape = RoundedCornerShape(dimensions().buttonCornerSize))
             .border(
                 width = dimensions().spacing1x,
@@ -153,7 +165,7 @@ fun VideoMessage(
                 AssetTransferStatus.NOT_DOWNLOADED ->
                     Text(
                         text = stringResource(R.string.asset_message_tap_to_download_text),
-                        color = colorsScheme().inverseOnSurface,
+                        color = colorsScheme().onSurface,
                         style = typography().subline01,
                     )
                 AssetTransferStatus.DOWNLOAD_IN_PROGRESS ->
@@ -164,7 +176,7 @@ fun VideoMessage(
                 AssetTransferStatus.FAILED_DOWNLOAD ->
                     Text(
                         text = stringResource(R.string.asset_message_failed_download_text),
-                        color = colorsScheme().inverseOnSurface,
+                        color = colorsScheme().onSurface,
                         style = typography().subline01,
                     )
                 AssetTransferStatus.UPLOADED,

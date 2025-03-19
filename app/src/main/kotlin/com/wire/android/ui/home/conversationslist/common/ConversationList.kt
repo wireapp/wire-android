@@ -167,7 +167,7 @@ private fun BrowsePublicChannelsItem(onBrowsePublicChannels: () -> Unit = {}) {
         leadingIcon = {
             Icon(
                 modifier = Modifier.size(dimensions().systemMessageIconSize),
-                painter = painterResource(id = R.drawable.ic_hash),
+                painter = painterResource(id = R.drawable.ic_channel),
                 contentDescription = null,
             )
         },

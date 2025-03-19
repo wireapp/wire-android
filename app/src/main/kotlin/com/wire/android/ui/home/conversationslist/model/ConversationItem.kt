@@ -57,6 +57,7 @@ sealed class ConversationItem : ConversationFolderItem {
         val hasOnGoingCall: Boolean = false,
         val selfMemberRole: Conversation.Member.Role?,
         val isFromTheSameTeam: Boolean,
+        val isChannel: Boolean,
         val isSelfUserMember: Boolean = true,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,

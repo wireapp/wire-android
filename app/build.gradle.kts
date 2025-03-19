@@ -46,9 +46,9 @@ repositories {
     google()
 }
 
-val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
+val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev", "imai")
 val fossFlavors = setOf("fdroid")
-val internalFlavors = setOf("internal", "staging", "beta", "dev")
+val internalFlavors = setOf("internal", "staging", "beta", "dev", "imai")
 val allFlavors = nonFreeFlavors + fossFlavors
 
 private fun getFlavorsSettings(): NormalizedFlavorSettings =
@@ -316,11 +316,13 @@ dependencies {
     internalImplementation(libs.dataDog.core)
     betaImplementation(libs.dataDog.core)
     stagingImplementation(libs.dataDog.core)
+    imaiImplementation(libs.dataDog.core)
 
     devImplementation(libs.dataDog.compose)
     internalImplementation(libs.dataDog.compose)
     betaImplementation(libs.dataDog.compose)
     stagingImplementation(libs.dataDog.compose)
+    imaiImplementation(libs.dataDog.compose)
 
     implementation(project(":ksp"))
     ksp(project(":ksp"))

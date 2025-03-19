@@ -57,6 +57,7 @@ data class GroupConversationOptionsState(
     val mlsEnabled: Boolean = false,
     val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled,
     val loadingWireCellState: Boolean = false,
+    val isWireCellFeatureEnabled: Boolean = false,
     val isWireCellEnabled: Boolean = false,
 ) {
 

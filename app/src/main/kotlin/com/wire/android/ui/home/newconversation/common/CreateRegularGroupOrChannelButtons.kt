@@ -21,7 +21,6 @@ package com.wire.android.ui.home.newconversation.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -43,8 +42,10 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun CreateGroupOrChannelButtons(
-    onCreateNewGroup: () -> Unit,
+fun CreateRegularGroupOrChannelButtons(
+    isSelfTeamMember: Boolean,
+    shouldShowChannelButton: Boolean,
+    onCreateNewRegularGroup: () -> Unit,
     onCreateNewChannel: () -> Unit,
     modifier: Modifier = Modifier,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
@@ -56,28 +57,38 @@ fun CreateGroupOrChannelButtons(
         Column(
             verticalArrangement = Arrangement.Center,
             modifier = modifier
-                .height(dimensions().newConversationButtonsHeight)
-                .padding(horizontal = dimensions().spacing16x)
+                .padding(dimensions().spacing16x)
         ) {
-            WirePrimaryButton(
-                text = stringResource(R.string.label_create_new_channel),
-                onClick = onCreateNewChannel,
-                state = WireButtonState.Default,
-                leadingIcon = {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_channel),
-                        contentDescription = null,
-                        modifier = Modifier.padding(end = dimensions().spacing12x),
-                        colorFilter = ColorFilter.tint(colorsScheme().onPrimaryButtonEnabled)
-                    )
-                },
-                clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                modifier = Modifier.padding(bottom = dimensions().spacing12x)
-            )
+            if (shouldShowChannelButton) {
+                WirePrimaryButton(
+                    text = stringResource(R.string.label_create_new_channel),
+                    onClick = onCreateNewChannel,
+                    state = WireButtonState.Default,
+                    leadingIcon = {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_channel),
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = dimensions().spacing12x),
+                            colorFilter = ColorFilter.tint(colorsScheme().onPrimaryButtonEnabled)
+                        )
+                    },
+                    trailingIcon = {
+                        if (!isSelfTeamMember) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_upgrade),
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = dimensions().spacing12x),
+                            )
+                        }
+                    },
+                    clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                    modifier = Modifier.padding(bottom = dimensions().spacing12x)
+                )
+            }
 
             WirePrimaryButton(
                 text = stringResource(R.string.label_create_new_group),
-                onClick = onCreateNewGroup,
+                onClick = onCreateNewRegularGroup,
                 state = WireButtonState.Default,
                 leadingIcon = {
                     Image(
@@ -95,10 +106,12 @@ fun CreateGroupOrChannelButtons(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCreateGroupOrChannelButtons() {
+fun PreviewCreateRegularGroupOrChannelButtons() {
     WireTheme {
-        CreateGroupOrChannelButtons(
-            onCreateNewGroup = { },
+        CreateRegularGroupOrChannelButtons(
+            isSelfTeamMember = false,
+            shouldShowChannelButton = true,
+            onCreateNewRegularGroup = { },
             onCreateNewChannel = { }
         )
     }

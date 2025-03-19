@@ -315,8 +315,8 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="cipher_suite">Pakiet Szyfr&#243;w</string>
     <string name="last_key_material_update_label">Ostatni Update Key Material</string>
     <string name="group_state_label">Status grupy</string>
-    <string name="empty_group_name_error">Prosz&#281; poda&#263; nazw&#281; grupy</string>
-    <string name="group_name_exceeded_limit_error">Nazwa grupy nie mo&#380;e przekracza&#263; 64 znak&#243;w</string>
+    <string name="empty_regular_group_name_error">Prosz&#281; poda&#263; nazw&#281; grupy</string>
+    <string name="regular_group_name_exceeded_limit_error">Nazwa grupy nie mo&#380;e przekracza&#263; 64 znak&#243;w</string>
     <string name="asset_message_tap_to_download_text">Kliknij, aby pobra&#263;</string>
     <string name="asset_message_upload_in_progress_text">&#321;adowanie...</string>
     <string name="asset_message_download_in_progress_text">Pobieranie...</string>
@@ -713,9 +713,9 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="allow_guests">Zezw&#243;l na go&#347;ci</string>
     <string name="allow_guest_switch_description">Otw&#243;rz t&#281; rozmow&#281; dla os&#243;b spoza twojego zespo&#322;u. Zawsze mo&#380;esz to zmieni&#263; p&#243;&#378;niej.</string>
     <string name="allow_services">Zezw&#243;l na serwisy</string>
-    <string name="allow_services_description">Otw&#243;rz t&#281; rozmow&#281; dla us&#322;ug. Zawsze mo&#380;esz to zmieni&#263; p&#243;&#378;niej.</string>
+    <string name="allow_services_regular_group_description">Otw&#243;rz t&#281; rozmow&#281; dla us&#322;ug. Zawsze mo&#380;esz to zmieni&#263; p&#243;&#378;niej.</string>
     <string name="read_receipts">Potwierdzenia odczytu</string>
-    <string name="read_receipts_description">Kiedy ta opcja jest w&#322;&#261;czona, ludzie mog&#261; zobaczy&#263;, kiedy ich wiadomo&#347;ci w tej rozmowie s&#261; odczytane.</string>
+    <string name="read_receipts_regular_group_description">Kiedy ta opcja jest w&#322;&#261;czona, ludzie mog&#261; zobaczy&#263;, kiedy ich wiadomo&#347;ci w tej rozmowie s&#261; odczytane.</string>
     <string name="disable_guests_dialog_title">Nie zezwalaj na go&#347;ci?</string>
     <string name="disable_guests_dialog_description">Go&#347;cie, kt&#243;rych wybra&#322;e&#347; w poprzednim kroku, nie b&#281;d&#261; cz&#281;&#347;ci&#261; tej grupy, je&#347;li nie zezwolisz na dost&#281;p dla go&#347;ci.</string>
     <string name="disable_guests_dialog_button">Nie zezwalaj na go&#347;ci</string>

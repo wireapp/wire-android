@@ -70,14 +70,13 @@ fun GroupNameScreen(
 ) {
     with(newGroupState) {
         val scrollState = rememberScrollState()
-
         WireScaffold(
             modifier = modifier,
             topBar = {
                 WireCenterAlignedTopAppBar(
                     elevation = scrollState.rememberTopBarElevationState().value,
                     onNavigationPressed = onBackPressed,
-                    title = stringResource(id = if (mode == CREATION) R.string.new_group_title else R.string.group_name_title),
+                    title = stringResource(id = getScreenName()),
                     navigationIconType = NavigationIconType.Back(R.string.content_description_new_conversation_name_back_btn)
                 )
             }
@@ -95,8 +94,13 @@ fun GroupNameScreen(
                         .verticalScroll(scrollState)
                 ) {
                     val keyboardController = LocalSoftwareKeyboardController.current
+                    val description = if (newGroupState.isChannel) {
+                        R.string.channel_name_description
+                    } else {
+                        R.string.group_name_description
+                    }
                     Text(
-                        text = stringResource(id = R.string.group_name_description),
+                        text = stringResource(id = description),
                         style = MaterialTheme.wireTypography.body01,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -111,19 +115,29 @@ fun GroupNameScreen(
                                 animate()
                                 onGroupNameErrorAnimated()
                             }
+                            val labelText = if (newGroupState.isChannel) {
+                                R.string.channel_name_title
+                            } else {
+                                R.string.group_name_title
+                            }
+                            val semanticDescriptionTextField = if (newGroupState.isChannel) {
+                                R.string.content_description_new_channel_name_field
+                            } else {
+                                R.string.content_description_new_group_name_field
+                            }
                             WireTextField(
                                 textState = newGroupNameTextState,
                                 placeholderText = stringResource(R.string.group_name_placeholder),
-                                labelText = stringResource(R.string.group_name_title).uppercase(),
-                                state = computeGroupMetadataState(error),
+                                labelText = stringResource(labelText).uppercase(),
+                                state = computeGroupMetadataState(newGroupState.isChannel, error),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                                 onKeyboardAction = { keyboardController?.hide() },
-                                semanticDescription = stringResource(id = R.string.content_description_new_conversation_name_field),
+                                semanticDescription = stringResource(id = semanticDescriptionTextField),
                                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                             )
                         }
                     }
-                    if (mode == CREATION) {
+                    if (mode == CREATION && !newGroupState.isChannel) {
                         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
                         Text(
                             text = stringResource(R.string.protocol),
@@ -167,14 +181,35 @@ fun GroupNameScreen(
     }
 }
 
-@Composable
-private fun computeGroupMetadataState(error: GroupMetadataState.NewGroupError) =
-    if (error is GroupMetadataState.NewGroupError.TextFieldError) when (error) {
-        GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError ->
-            WireTextFieldState.Error(stringResource(id = R.string.empty_group_name_error))
+fun GroupMetadataState.getScreenName(): Int = when {
+    isChannel && mode == CREATION -> R.string.new_channel_title
+    isChannel -> R.string.channel_name_title
+    mode == CREATION -> R.string.new_group_title
+    else -> R.string.group_name_title
+}
 
-        GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError ->
-            WireTextFieldState.Error(stringResource(id = R.string.group_name_exceeded_limit_error))
+@Composable
+private fun computeGroupMetadataState(isChannelsAllowed: Boolean, error: GroupMetadataState.NewGroupError) =
+    if (error is GroupMetadataState.NewGroupError.TextFieldError) {
+        when (error) {
+            GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError -> {
+                val errorMessage = if (isChannelsAllowed) {
+                    R.string.empty_channel_name_error
+                } else {
+                    R.string.empty_regular_group_name_error
+                }
+                WireTextFieldState.Error(stringResource(id = errorMessage))
+            }
+
+            GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError -> {
+                val errorMessage = if (isChannelsAllowed) {
+                    R.string.channel_name_exceeded_limit_error
+                } else {
+                    R.string.regular_group_name_exceeded_limit_error
+                }
+                WireTextFieldState.Error(stringResource(id = errorMessage))
+            }
+        }
     } else {
         WireTextFieldState.Default
     }

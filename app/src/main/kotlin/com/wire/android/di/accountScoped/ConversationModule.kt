@@ -26,7 +26,8 @@ import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCas
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationScope
-import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationProtocolInfoUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
@@ -211,6 +212,11 @@ class ConversationModule {
     @Provides
     fun provideCreateGroupConversationUseCase(conversationScope: ConversationScope): CreateGroupConversationUseCase =
         conversationScope.createGroupConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreateChannelUseCase(conversationScope: ConversationScope): CreateChannelUseCase =
+        conversationScope.createChannel
 
     @ViewModelScoped
     @Provides

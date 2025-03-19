@@ -82,7 +82,7 @@ fun GroupOptionScreen(
         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
         onContinuePressed = {
             if (newConversationViewModel.newGroupState.isChannel) {
-                // TODO() create channel
+                newConversationViewModel.createChannel(::navigateToGroup)
             } else {
                 newConversationViewModel.createGroup(::navigateToGroup)
             }

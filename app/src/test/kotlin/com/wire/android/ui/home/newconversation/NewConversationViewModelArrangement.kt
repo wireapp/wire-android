@@ -33,7 +33,8 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
@@ -56,6 +57,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var createGroupConversation: CreateGroupConversationUseCase
+
+    @MockK
+    lateinit var createChannel: CreateChannelUseCase
 
     @MockK
     lateinit var isMLSEnabledUseCase: IsMLSEnabledUseCase
@@ -183,6 +187,7 @@ internal class NewConversationViewModelArrangement {
 
     fun arrange() = this to NewConversationViewModel(
         createGroupConversation = createGroupConversation,
+        createChannel = createChannel,
         getSelfUser = getSelf,
         getDefaultProtocol = getDefaultProtocol
     ).also {

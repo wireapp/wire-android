@@ -37,7 +37,8 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -51,6 +52,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
+    private val createChannel: CreateChannelUseCase,
     private val getSelfUser: GetSelfUserUseCase,
     getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
@@ -185,6 +187,28 @@ class NewConversationViewModel @Inject constructor(
                 // Personal Account
                 createGroupForPersonalAccounts(onCreated)
             }
+        }
+    }
+
+    fun createChannel(onCreated: (ConversationId) -> Unit) {
+//        if (shouldCheckGuests && checkIfGuestAdded()) return
+        viewModelScope.launch {
+            groupOptionsState = groupOptionsState.copy(isLoading = true)
+            val result = createChannel(
+                name = newGroupNameTextState.text.toString(),
+                userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
+                options = ConversationOptions().copy(
+                    protocol = newGroupState.groupProtocol,
+                    readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
+                    accessRole = Conversation.accessRolesFor(
+                        guestAllowed = groupOptionsState.isAllowGuestEnabled,
+                        servicesAllowed = groupOptionsState.isAllowServicesEnabled,
+                        nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
+                    ),
+                    access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled)
+                )
+            )
+            handleNewGroupCreationResult(result)?.let(onCreated)
         }
     }
 

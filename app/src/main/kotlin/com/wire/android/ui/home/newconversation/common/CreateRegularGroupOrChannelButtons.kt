@@ -21,7 +21,6 @@ package com.wire.android.ui.home.newconversation.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -55,16 +54,10 @@ fun CreateRegularGroupOrChannelButtons(
         color = MaterialTheme.wireColorScheme.background,
         shadowElevation = elevation
     ) {
-        val height = if (shouldShowChannelButton) {
-            dimensions().newConversationButtonsHeight
-        } else {
-            dimensions().newConversationButtonsHeight / 2
-        }
         Column(
             verticalArrangement = Arrangement.Center,
             modifier = modifier
-                .height(height)
-                .padding(horizontal = dimensions().spacing16x)
+                .padding(dimensions().spacing16x)
         ) {
             if (shouldShowChannelButton) {
                 WirePrimaryButton(

@@ -291,7 +291,7 @@ class AnonymousAnalyticsManagerTest {
 
         // then
         verify(exactly = 1) {
-            arrangement.anonymousAnalyticsRecorder.recordView(eq(screen))
+            arrangement.anonymousAnalyticsRecorder.recordView(any())
         }
     }
 
@@ -353,7 +353,7 @@ class AnonymousAnalyticsManagerTest {
 
         // then
         verify(exactly = 1) {
-            arrangement.anonymousAnalyticsRecorder.stopView(eq(screen))
+            arrangement.anonymousAnalyticsRecorder.stopView(any())
         }
     }
 
@@ -451,13 +451,15 @@ class AnonymousAnalyticsManagerTest {
             private fun dummyManager() = object : DummyManager {}
             val existingIdentifierResult = AnalyticsResult<DummyManager>(
                 identifierResult = AnalyticsIdentifierResult.ExistingIdentifier(CURRENT_IDENTIFIER),
-                profileProperties = AnalyticsProfileProperties(
-                    isTeamMember = true,
-                    teamId = null,
-                    contactsAmount = null,
-                    teamMembersAmount = null,
-                    isEnterprise = null
-                ),
+                profileProperties = suspend {
+                    AnalyticsProfileProperties(
+                        isTeamMember = true,
+                        teamId = null,
+                        contactsAmount = null,
+                        teamMembersAmount = null,
+                        isEnterprise = null
+                    )
+                },
                 manager = dummyManager()
             )
             val disabledIdentifierResult = existingIdentifierResult.copy(

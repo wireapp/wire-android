@@ -560,6 +560,7 @@ private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map
 
         ConversationsSource.FAVORITES,
         ConversationsSource.GROUPS,
+        ConversationsSource.CHANNELS,
         ConversationsSource.ONE_ON_ONE,
         is ConversationsSource.FOLDER,
         ConversationsSource.MAIN -> {

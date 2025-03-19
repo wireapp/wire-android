@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -80,23 +79,13 @@ private fun Content() {
         Row {
             val bullet = stringResource(R.string.bullet_finger_point) + "  "
             val changeEmail = stringResource(id = R.string.claimed_domain_change_email_label) + "\n"
-            val deletePersonalAccount = stringResource(id = R.string.claimed_domain_delete_personal_account) + "\n"
-            val or = "${stringResource(id = R.string.label_or)} "
-            val removeTeamMember = stringResource(id = R.string.claimed_domain_remove_team_member)
+            val deletePersonalAccount = stringResource(id = R.string.claimed_domain_delete_personal_account)
             val fullAnnotatedString = buildAnnotatedString {
                 append(bullet)
                 append(changeEmail)
                 append(bullet)
                 append(deletePersonalAccount)
-                append(bullet)
-                append(or)
-                append(removeTeamMember)
 
-                addStyle( // to make last line's bullet invisible
-                    style = SpanStyle(color = Color.Transparent),
-                    start = (bullet + changeEmail + bullet + deletePersonalAccount).length,
-                    end = (bullet + changeEmail + bullet + deletePersonalAccount + bullet).length,
-                )
                 addStyledLink(
                     url = stringResource(id = R.string.url_change_email),
                     start = bullet.length,
@@ -106,11 +95,6 @@ private fun Content() {
                     url = stringResource(id = R.string.url_delete_personal_account),
                     start = (bullet + changeEmail + bullet).length,
                     end = (bullet + changeEmail + bullet + deletePersonalAccount).length
-                )
-                addStyledLink(
-                    url = stringResource(id = R.string.url_remove_team_member),
-                    start = (bullet + changeEmail + bullet + deletePersonalAccount + bullet + or).length,
-                    end = (bullet + changeEmail + bullet + deletePersonalAccount + bullet + or + removeTeamMember).length,
                 )
             }
             Text(

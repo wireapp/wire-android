@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -36,7 +35,6 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
@@ -47,7 +45,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun BrowseChannelsScreen(navigator: Navigator) {
     Content(
         searchQueryTextState = TextFieldState(),
-        onChannelClick = { /*TODO*/ },
+//        onChannelClick = { /*TODO when BE supports public search*/ },
         onCloseSearchClicked = navigator::navigateBack
     )
 }
@@ -55,12 +53,11 @@ fun BrowseChannelsScreen(navigator: Navigator) {
 @Composable
 private fun Content(
     searchQueryTextState: TextFieldState,
-    onChannelClick: () -> Unit,
+//    onChannelClick: () -> Unit,
     onCloseSearchClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
-    val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -71,22 +68,21 @@ private fun Content(
                 onNavigationPressed = onCloseSearchClicked
             ) {
                 SearchTopBar(
-                    isSearchActive = true, // todo get from vm?
+                    isSearchActive = true,
                     searchBarHint = stringResource(id = R.string.label_search_public_channels),
                     searchQueryTextState = searchQueryTextState,
-                    isLoading = false // todo get from vm
+                    isLoading = false
                 )
             }
         },
         content = { internalPadding ->
             Column(modifier = Modifier.padding(internalPadding)) {
-//                val lazyPagingChannels = state.searchResult.collectAsLazyPagingItems()
                 val lazyPagingChannels = listOf(1, 2)
                 if (searchQueryTextState.text.isEmpty()) {
                     BrowseChannelsEmptyScreen()
                 } else {
                     if (lazyPagingChannels.size > 0) {
-                        // load channels list
+                        // todo: load channels list when BE supports it
                     } else {
                         BrowseChannelsEmptyScreen()
                     }
@@ -102,8 +98,7 @@ fun PreviewBrowseChannelsScreen() {
     WireTheme {
         Content(
             searchQueryTextState = TextFieldState(),
-            onChannelClick = { /*TODO*/ },
-            onCloseSearchClicked = { /*TODO*/ }
+            onCloseSearchClicked = { }
         )
     }
 }

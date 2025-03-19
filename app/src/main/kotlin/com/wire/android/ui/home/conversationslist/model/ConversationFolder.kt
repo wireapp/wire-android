@@ -27,8 +27,9 @@ sealed class ConversationFolder : ConversationFolderItem {
         data object Conversations : Predefined(R.string.conversation_label_conversations)
         data object Favorites : Predefined(R.string.conversation_label_favorites)
         data object NewActivities : Predefined(R.string.conversation_label_new_activity)
-        data object BrowseChannels: Predefined(R.string.content_description_empty)
+        data object BrowseChannels : Predefined(R.string.content_description_empty)
     }
+
     data class Custom(val folderName: String) : ConversationFolder()
     data object WithoutHeader : ConversationFolder()
 }

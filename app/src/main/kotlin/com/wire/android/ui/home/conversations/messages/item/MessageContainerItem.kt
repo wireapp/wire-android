@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.wire.android.media.audiomessage.AudioSpeed
-import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
@@ -42,8 +40,6 @@ fun MessageContainerItem(
     searchQuery: String = "",
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
-    audioState: AudioState? = null,
-    audioSpeed: AudioSpeed = AudioSpeed.NORMAL,
     assetStatus: AssetTransferStatus? = null,
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
@@ -86,8 +82,6 @@ fun MessageContainerItem(
                 conversationDetailsData = conversationDetailsData,
                 clickActions = clickActions,
                 showAuthor = showAuthor,
-                audioState = audioState,
-                audioSpeed = audioSpeed,
                 assetStatus = assetStatus,
                 swipableMessageConfiguration = swipableMessageConfiguration,
                 failureInteractionAvailable = failureInteractionAvailable,

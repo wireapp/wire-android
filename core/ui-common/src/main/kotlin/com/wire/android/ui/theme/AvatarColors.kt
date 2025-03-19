@@ -23,3 +23,5 @@ package com.wire.android.ui.theme
 import androidx.compose.ui.graphics.Color
 
 data class GroupAvatarColors(val left: Color, val middle: Color, val right: Color)
+
+data class ChannelAvatarColors(val border: Color, val background: Color, val icon: Color)

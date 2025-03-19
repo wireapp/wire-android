@@ -85,6 +85,5 @@ fun NewConversationSearchPeopleScreen(
                 CustomTabsHelper.launchUrl(context, createTeamLink)
             }
         )
-
     }
 }

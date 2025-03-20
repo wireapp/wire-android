@@ -19,6 +19,7 @@
 package com.wire.android.ui.common.topappbar
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -31,11 +32,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.wire.android.ui.common.R
+import com.wire.android.ui.common.dimensions
 
 @Composable
 fun NavigationIconButton(iconType: NavigationIconType, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    IconButton(onClick = onClick, modifier = modifier) {
-        Icon(imageVector = iconType.icon, contentDescription = stringResource(iconType.contentDescription))
+    IconButton(
+        onClick = onClick,
+        modifier = modifier.size(dimensions().spacing48x)
+    ) {
+        Icon(
+            imageVector = iconType.icon,
+            contentDescription = stringResource(iconType.contentDescription),
+            modifier = Modifier.size(dimensions().spacing24x)
+        )
     }
 }
 

@@ -28,8 +28,10 @@ dependencies {
     implementation(libs.compose.ui.preview)
     debugImplementation(libs.compose.ui.tooling)
 
-    implementation(libs.accompanist.systemUI)
     implementation(libs.visibilityModifiers)
+
+    // Compose Preview
+    implementation(libs.compose.edgetoedge.preview)
 
     // Image loading
     implementation(libs.coil.core)

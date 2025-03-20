@@ -73,7 +73,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.authentication.ServerTitle
+import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
@@ -101,9 +102,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
-@RootNavGraph(start = true)
+@RootNavGraph
 @WireDestination(
     style = PopUpNavigationAnimation::class,
+    navArgsDelegate = WelcomeNavArgs::class
 )
 @Composable
 fun WelcomeScreen(
@@ -162,7 +164,11 @@ private fun WelcomeContent(
             )
 
             if (state.isOnPremises) {
-                ServerTitle(serverLinks = state, modifier = Modifier.padding(top = dimensions().spacing16x))
+                ServerTitle(
+                    serverLinks = state,
+                    modifier = Modifier
+                        .padding(top = dimensions().spacing16x, start = dimensions().spacing32x, end = dimensions().spacing32x)
+                )
             }
 
             WelcomeCarousel(modifier = Modifier.weight(1f, true))
@@ -177,7 +183,9 @@ private fun WelcomeContent(
                         testTagsAsResourceId = true
                     }
             ) {
-                LoginButton(onClick = { navigate(NavigationCommand(LoginScreenDestination())) })
+                LoginButton(
+                    onClick = { navigate(NavigationCommand(LoginScreenDestination(loginPasswordPath = LoginPasswordPath(state)))) }
+                )
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
@@ -196,7 +204,7 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination))
+                            navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(state)))
                         }
                     }
                 }
@@ -213,7 +221,7 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination))
+                            navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
                         }
                     }
                 )

@@ -45,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
@@ -63,6 +64,7 @@ fun LoginSSOScreen(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoUrlConfigHolder: SSOUrlConfigHolder,
     loginSSOViewModel: LoginSSOViewModel = hiltViewModel(),
     scrollState: ScrollState = rememberScrollState()
 ) {
@@ -70,7 +72,7 @@ fun LoginSSOScreen(
     val context = LocalContext.current
 
     LaunchedEffect(ssoLoginResult) {
-        loginSSOViewModel.handleSSOResult(ssoLoginResult)
+        loginSSOViewModel.handleSSOResult(ssoLoginResult, ssoUrlConfigHolder.get()?.serverConfig)
     }
     LoginSSOContent(
         scrollState = scrollState,
@@ -81,15 +83,16 @@ fun LoginSSOScreen(
             loginSSOViewModel.clearLoginErrors()
             onRemoveDeviceNeeded()
         },
-        // TODO: replace with retrieved ServerConfig from sso login
         onLoginButtonClick = loginSSOViewModel::login,
-        ssoLoginResult = ssoLoginResult,
         onCustomServerDialogDismiss = loginSSOViewModel::onCustomServerDialogDismiss,
-        onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm
+         onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm
     )
 
     LaunchedEffect(loginSSOViewModel) {
-        loginSSOViewModel.openWebUrl.onEach { CustomTabsHelper.launchUrl(context, it) }.launchIn(scope)
+        loginSSOViewModel.openWebUrl.onEach { (url, serverConfig) ->
+            ssoUrlConfigHolder.set(SSOUrlConfig(serverConfig))
+            CustomTabsHelper.launchUrl(context, url)
+        }.launchIn(scope)
     }
     LaunchedEffect(loginSSOViewModel.loginState.flowState) {
         (loginSSOViewModel.loginState.flowState as? LoginState.Success)?.let {
@@ -108,7 +111,6 @@ private fun LoginSSOContent(
     onLoginButtonClick: () -> Unit,
     onCustomServerDialogDismiss: () -> Unit,
     onCustomServerDialogConfirm: () -> Unit,
-    ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
     Column(
         modifier = Modifier
@@ -136,7 +138,7 @@ private fun LoginSSOContent(
         )
     }
     if (loginSSOState.flowState is LoginState.Error.DialogError) {
-        LoginErrorDialog(loginSSOState.flowState, onErrorDialogDismiss, {}, ssoLoginResult)
+        LoginErrorDialog(loginSSOState.flowState.toLoginDialogErrorData(), onErrorDialogDismiss)
     } else if (loginSSOState.flowState is LoginState.Error.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }
@@ -201,6 +203,5 @@ fun PreviewLoginSSOScreen() = WireTheme {
         onLoginButtonClick = { },
         onCustomServerDialogDismiss = { },
         onCustomServerDialogConfirm = { },
-        ssoLoginResult = null
     )
 }

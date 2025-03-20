@@ -18,16 +18,13 @@
 
 package com.wire.android.ui.authentication.login
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
+import com.wire.android.config.orDefault
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
@@ -36,54 +33,44 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 @Suppress("TooManyFunctions")
-open class LoginViewModel @Inject constructor(
-    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    protected val authServerConfigProvider: AuthServerConfigProvider,
-    private val userDataStoreProvider: UserDataStoreProvider,
-    @KaliumCoreLogic protected val coreLogic: CoreLogic
+open class LoginViewModel(
+    savedStateHandle: SavedStateHandle,
+    val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    val userDataStoreProvider: UserDataStoreProvider,
+    val coreLogic: CoreLogic,
+    private val loginExtension: LoginViewModelExtension
 ) : ViewModel() {
-    var serverConfig: ServerConfig.Links by mutableStateOf(authServerConfigProvider.authServer.value)
-        private set
 
-    init {
-        viewModelScope.launch {
-            authServerConfigProvider.authServer.collect {
-                serverConfig = it
-            }
-        }
-    }
+    @Inject
+    constructor(
+        savedStateHandle: SavedStateHandle,
+        clientScopeProviderFactory: ClientScopeProvider.Factory,
+        userDataStoreProvider: UserDataStoreProvider,
+        @KaliumCoreLogic coreLogic: CoreLogic
+    ) : this(
+        savedStateHandle,
+        clientScopeProviderFactory,
+        userDataStoreProvider,
+        coreLogic,
+        LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider)
+    )
+
+    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
+    val serverConfig: ServerConfig.Links = loginNavArgs.loginPasswordPath?.customServerConfig.orDefault()
 
     suspend fun registerClient(
         userId: UserId,
         password: String?,
         secondFactorVerificationCode: String? = null,
         capabilities: List<ClientCapability>? = null,
-    ): RegisterClientResult {
-        val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.getOrRegister(
-            RegisterClientUseCase.RegisterClientParam(
-                password = password,
-                capabilities = capabilities,
-                secondFactorVerificationCode = secondFactorVerificationCode,
-                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
-            )
-        )
-    }
+    ): RegisterClientResult = loginExtension.registerClient(userId, password, secondFactorVerificationCode, capabilities)
 
-    internal suspend fun isInitialSyncCompleted(userId: UserId): Boolean =
-        userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()
-
-    fun updateTheApp() {
-        // todo : update the app after releasing on the store
-    }
+    internal suspend fun isInitialSyncCompleted(userId: UserId): Boolean = loginExtension.isInitialSyncCompleted(userId)
 }
 
 fun AuthenticationResult.Failure.toLoginError() = when (this) {
@@ -91,6 +78,8 @@ fun AuthenticationResult.Failure.toLoginError() = when (this) {
     is AuthenticationResult.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
     is AuthenticationResult.Failure.InvalidCredentials -> LoginState.Error.DialogError.InvalidCredentialsError
     is AuthenticationResult.Failure.InvalidUserIdentifier -> LoginState.Error.TextFieldError.InvalidValue
+    is AuthenticationResult.Failure.AccountSuspended -> LoginState.Error.DialogError.AccountSuspended
+    is AuthenticationResult.Failure.AccountPendingActivation -> LoginState.Error.DialogError.AccountPendingActivation
 }
 
 fun RegisterClientResult.Failure.toLoginError() = when (this) {
@@ -104,11 +93,6 @@ fun DomainLookupUseCase.Result.Failure.toLoginError() = LoginState.Error.DialogE
 fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginState.Error = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginState.Error.DialogError.UserAlreadyExists
-}
-
-sealed interface PreFilledUserIdentifierType {
-    data object None : PreFilledUserIdentifierType
-    data class PreFilled(val userIdentifier: String) : PreFilledUserIdentifierType
 }
 
 val ServerConfig.Links.isProxyEnabled get() = this.apiProxy != null

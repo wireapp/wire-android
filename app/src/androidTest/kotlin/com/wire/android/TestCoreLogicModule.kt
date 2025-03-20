@@ -20,17 +20,16 @@ package com.wire.android
 
 import android.content.Context
 import androidx.work.WorkManager
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.CoreLogicModule
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.util.UserAgentProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.mocks.requests.ClientRequests
@@ -101,6 +100,10 @@ class TestCoreLogicModule {
         coreLogic.getGlobalScope().session.allSessions
 
     @Provides
+    fun provideObserveAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveSessionsUseCase =
+        coreLogic.getGlobalScope().session.allSessionsFlow
+
+    @Provides
     fun provideServerConfigForAccountUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ServerConfigForAccountUseCase =
         coreLogic.getGlobalScope().serverConfigForAccounts
 
@@ -112,34 +115,4 @@ class TestCoreLogicModule {
     @Singleton
     @Provides
     fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
-
-    @Singleton
-    @Provides
-    fun provideAuthServerConfigProvider(): AuthServerConfigProvider {
-        return AuthServerConfigProvider().apply {
-            updateAuthServer(
-                ServerConfig.Links(
-                    api = TestServerConfig.TEST_BACKEND_URL_BASE_API,
-                    accounts = TestServerConfig.TEST_BACKEND_URL_ACCOUNTS,
-                    webSocket = TestServerConfig.TEST_BACKEND_URL_BASE_WEBSOCKET,
-                    teams = TestServerConfig.TEST_BACKEND_URL_TEAM_MANAGEMENT,
-                    blackList = TestServerConfig.TEST_BACKEND_URL_BLACKLIST,
-                    website = TestServerConfig.TEST_BACKEND_URL_WEBSITE,
-                    title = TestServerConfig.TEST_BACKEND_TITLE,
-                    isOnPremises = false,
-                    apiProxy = null
-                )
-            )
-        }
-    }
-}
-
-object TestServerConfig {
-    const val TEST_BACKEND_URL_BASE_API = "https://test.api.com/"
-    const val TEST_BACKEND_URL_ACCOUNTS = "https://test.api.com/"
-    const val TEST_BACKEND_URL_BASE_WEBSOCKET = "wss://test.api.com/"
-    const val TEST_BACKEND_URL_TEAM_MANAGEMENT = "https://test.api.com/"
-    const val TEST_BACKEND_URL_BLACKLIST = "https://test.api.com/"
-    const val TEST_BACKEND_URL_WEBSITE = "https://test.api.com/"
-    const val TEST_BACKEND_TITLE = "Test Backend"
 }

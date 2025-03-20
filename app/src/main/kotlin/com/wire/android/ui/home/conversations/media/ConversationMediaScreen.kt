@@ -244,18 +244,18 @@ private fun Content(
 @Composable
 private fun AssetOptionsModalSheetLayout(
     sheetState: WireModalSheetState<AssetOptionsData>,
-    deleteAsset: (messageId: String, isMyMessage: Boolean, isMultipart: Boolean) -> Unit,
+    deleteAsset: (messageId: String, isMyMessage: Boolean) -> Unit,
     shareAsset: (messageId: String) -> Unit,
     downloadAsset: (messageId: String) -> Unit,
 ) {
     WireModalSheetLayout(
         sheetState = sheetState,
-        sheetContent = { (messageId: String, isMyMessage: Boolean, isMultipart: Boolean) ->
+        sheetContent = { (messageId: String, isMyMessage: Boolean) ->
             WireMenuModalSheetContent(
                 menuItems = assetOptionsMenuItems(
                     isUploading = false, // only uploaded assets
                     isEphemeral = false, // only non-self-deleting assets
-                    onDeleteClick = remember { { sheetState.hide { deleteAsset(messageId, isMyMessage, isMultipart) } } },
+                    onDeleteClick = remember { { sheetState.hide { deleteAsset(messageId, isMyMessage) } } },
                     onShareAsset = remember { { sheetState.hide { shareAsset(messageId) } } },
                     onDownloadAsset = remember { { sheetState.hide { downloadAsset(messageId) } } },
                 )
@@ -317,7 +317,7 @@ fun PreviewAssetOptionsModalSheetLayout() = WireTheme {
                 AssetOptionsData(messageId = "id", isMyMessage = true, isMultipart = false)
             )
         ),
-        deleteAsset = { _, _, _ -> },
+        deleteAsset = { _, _ -> },
         shareAsset = { },
         downloadAsset = { }
     )

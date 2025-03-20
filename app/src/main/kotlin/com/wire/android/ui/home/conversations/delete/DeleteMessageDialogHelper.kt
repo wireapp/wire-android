@@ -29,7 +29,6 @@ class DeleteMessageDialogHelper(
     private val deleteMessage: suspend (
         messageId: String,
         deleteForEveryone: Boolean,
-        deleteAttachments: Boolean,
         onDeleted: () -> Unit
     ) -> Unit
 ) {
@@ -43,14 +42,13 @@ class DeleteMessageDialogHelper(
             }
         }
 
-    fun showDeleteMessageForYourselfDialog(messageId: String, deleteAttachments: Boolean) {
+    fun showDeleteMessageForYourselfDialog(messageId: String) {
         updateDeleteDialogState {
             it.copy(
                 forEveryone = DeleteMessageDialogActiveState.Hidden,
                 forYourself = DeleteMessageDialogActiveState.Visible(
                     messageId = messageId,
                     conversationId = conversationId,
-                    deleteAttachments = deleteAttachments
                 )
             )
         }
@@ -72,7 +70,6 @@ class DeleteMessageDialogHelper(
     fun onDeleteMessage(
         messageId: String,
         deleteForEveryone: Boolean,
-        deleteAttachments: Boolean,
         onDeleted: () -> Unit = {}
     ) {
         scope.launch {
@@ -99,7 +96,7 @@ class DeleteMessageDialogHelper(
                 }
             }
 
-            deleteMessage(messageId, deleteForEveryone, deleteAttachments, onDeleted)
+            deleteMessage(messageId, deleteForEveryone, onDeleted)
 
             onDeleteDialogDismissed()
         }

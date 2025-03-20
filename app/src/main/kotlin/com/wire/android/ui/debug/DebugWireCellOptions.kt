@@ -25,7 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.WireSwitch
+import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.WireTheme
@@ -66,9 +66,7 @@ fun DebugWireCellOptions(
                 )
             }
         )
-
     }
-
 }
 
 @PreviewMultipleThemes

@@ -22,6 +22,7 @@ includeBuild("kalium") {
         substitute(module("com.wire.kalium:kalium-util")).using(project(":util"))
         substitute(module("com.wire.kalium:kalium-data")).using(project(":data"))
         substitute(module("com.wire.kalium:kalium-cells")).using(project(":cells"))
+        substitute(module("com.wire.kalium:kalium-common")).using(project(":common"))
         // test modules
         substitute(module("com.wire.kalium:kalium-mocks")).using(project(":mocks"))
         substitute(module("com.wire.kalium:kalium-network")).using(project(":network"))

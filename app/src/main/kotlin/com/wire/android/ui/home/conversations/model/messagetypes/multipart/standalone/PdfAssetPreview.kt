@@ -38,7 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions

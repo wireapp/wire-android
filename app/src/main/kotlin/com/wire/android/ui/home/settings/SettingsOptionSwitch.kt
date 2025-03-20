@@ -25,7 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.WireSwitch
+import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography

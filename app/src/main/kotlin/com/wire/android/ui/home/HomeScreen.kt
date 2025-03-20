@@ -25,6 +25,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -344,13 +346,19 @@ fun HomeContent(
                         }
                     },
                     topBarCollapsing = {
-                        if (currentNavigationItem.isSearchable) {
-                            SearchTopBar(
-                                isSearchActive = searchBarState.isSearchActive,
-                                searchBarHint = stringResource(R.string.search_bar_conversations_hint),
-                                searchQueryTextState = searchBarState.searchQueryTextState,
-                                onActiveChanged = searchBarState::searchActiveChanged,
-                            )
+                        currentNavigationItem.searchBar?.let { searchBar ->
+                            AnimatedVisibility(
+                                visible = searchBarState.isSearchVisible,
+                                enter = fadeIn() + slideInVertically(),
+                                exit = fadeOut() + slideOutVertically()
+                            ) {
+                                SearchTopBar(
+                                    isSearchActive = searchBarState.isSearchActive,
+                                    searchBarHint = stringResource(searchBar.hint),
+                                    searchQueryTextState = searchBarState.searchQueryTextState,
+                                    onActiveChanged = searchBarState::searchActiveChanged,
+                                )
+                            }
                         }
                     },
                     collapsingEnabled = !searchBarState.isSearchActive,

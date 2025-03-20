@@ -29,7 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi

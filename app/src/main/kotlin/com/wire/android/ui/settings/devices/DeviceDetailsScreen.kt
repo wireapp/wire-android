@@ -62,7 +62,7 @@ import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.WireSwitch
+import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.wirePrimaryButtonColors

@@ -139,7 +139,7 @@ class ConversationMessagesViewModel @Inject constructor(
         deleteMessage(
             conversationId = conversationId,
             messageId = messageId,
-            deleteForEveryone = deleteForEveryone
+            deleteForEveryone = deleteForEveryone,
         )
             .onFailure { onSnackbarMessage(ConversationSnackbarMessages.ErrorDeletingMessage) }
     }
@@ -443,7 +443,7 @@ class ConversationMessagesViewModel @Inject constructor(
                 it.copy(
                     forEveryone = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
-                        conversationId = conversationId
+                        conversationId = conversationId,
                     )
                 )
             }
@@ -452,7 +452,7 @@ class ConversationMessagesViewModel @Inject constructor(
                 it.copy(
                     forYourself = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
-                        conversationId = conversationId
+                        conversationId = conversationId,
                     )
                 )
             }

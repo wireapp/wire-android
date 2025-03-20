@@ -32,8 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
-import com.wire.android.ui.common.attachmentdraft.model.icon
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography

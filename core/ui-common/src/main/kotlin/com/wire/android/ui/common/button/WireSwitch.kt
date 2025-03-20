@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.common
+package com.wire.android.ui.common.button
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
@@ -34,7 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.PreviewMultipleThemes
 
 @Composable
 fun WireSwitch(

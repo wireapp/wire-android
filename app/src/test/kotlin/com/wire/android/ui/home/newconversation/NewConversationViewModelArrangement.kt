@@ -33,8 +33,9 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
-import com.wire.kalium.logic.feature.conversation.createconversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
@@ -51,12 +52,12 @@ internal class NewConversationViewModelArrangement {
 
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true
-        coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
+        coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.Success(CONVERSATION)
         every { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
     }
 
     @MockK
-    lateinit var createGroupConversation: CreateGroupConversationUseCase
+    lateinit var createRegularGroup: CreateRegularGroupUseCase
 
     @MockK
     lateinit var createChannel: CreateChannelUseCase
@@ -159,11 +160,11 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withSyncFailureOnCreatingGroup() = apply {
-        coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.SyncFailure
+        coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.SyncFailure
     }
 
     fun withUnknownFailureOnCreatingGroup() = apply {
-        coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.UnknownFailure(
+        coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.UnknownFailure(
             CoreFailure.MissingClientRegistration
         )
     }
@@ -186,7 +187,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun arrange() = this to NewConversationViewModel(
-        createGroupConversation = createGroupConversation,
+        createRegularGroup = createRegularGroup,
         createChannel = createChannel,
         getSelfUser = getSelf,
         getDefaultProtocol = getDefaultProtocol

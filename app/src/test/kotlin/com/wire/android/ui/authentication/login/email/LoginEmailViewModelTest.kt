@@ -249,7 +249,9 @@ class LoginEmailViewModelTest {
         loginViewModel.login()
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+        coVerify(exactly = 1) {
+            arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
+        }
     }
 
     @Test
@@ -283,7 +285,9 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
 
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
-        coVerify(exactly = 1) { arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+        coVerify(exactly = 1) {
+            arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
+        }
     }
 
     @Test
@@ -303,7 +307,9 @@ class LoginEmailViewModelTest {
             advanceUntilIdle()
 
             loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
-            coVerify(exactly = 1) { arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+            coVerify(exactly = 1) {
+                arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
+            }
         }
 
     @Test
@@ -320,7 +326,9 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
 
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
-        coVerify(exactly = 1) { arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+        coVerify(exactly = 1) {
+            arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
+        }
     }
 
     @Test
@@ -366,7 +374,9 @@ class LoginEmailViewModelTest {
         loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
         coVerify(exactly = 1) { arrangement.loginUseCase(email, any(), any(), any(), code) }
-        coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
+        coVerify(exactly = 1) {
+            arrangement.getOrRegisterClientUseCase(any())
+        }
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
     }
 
@@ -382,7 +392,6 @@ class LoginEmailViewModelTest {
             .withGetOrRegisterClientReturning(RegisterClientResult.Failure.TooManyClients)
             .withInitialSyncCompletedReturning(true)
             .arrange()
-
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)

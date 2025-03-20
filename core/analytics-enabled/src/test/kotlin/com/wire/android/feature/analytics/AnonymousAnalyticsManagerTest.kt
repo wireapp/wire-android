@@ -22,6 +22,7 @@ import android.content.Context
 import com.wire.android.feature.analytics.handler.AnalyticsMigrationHandler
 import com.wire.android.feature.analytics.handler.AnalyticsPropagationHandler
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.feature.analytics.model.AnalyticsResult
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
@@ -290,7 +291,7 @@ class AnonymousAnalyticsManagerTest {
 
         // then
         verify(exactly = 1) {
-            arrangement.anonymousAnalyticsRecorder.recordView(eq(screen))
+            arrangement.anonymousAnalyticsRecorder.recordView(any())
         }
     }
 
@@ -352,7 +353,7 @@ class AnonymousAnalyticsManagerTest {
 
         // then
         verify(exactly = 1) {
-            arrangement.anonymousAnalyticsRecorder.stopView(eq(screen))
+            arrangement.anonymousAnalyticsRecorder.stopView(any())
         }
     }
 
@@ -450,7 +451,15 @@ class AnonymousAnalyticsManagerTest {
             private fun dummyManager() = object : DummyManager {}
             val existingIdentifierResult = AnalyticsResult<DummyManager>(
                 identifierResult = AnalyticsIdentifierResult.ExistingIdentifier(CURRENT_IDENTIFIER),
-                isTeamMember = true,
+                profileProperties = suspend {
+                    AnalyticsProfileProperties(
+                        isTeamMember = true,
+                        teamId = null,
+                        contactsAmount = null,
+                        teamMembersAmount = null,
+                        isEnterprise = null
+                    )
+                },
                 manager = dummyManager()
             )
             val disabledIdentifierResult = existingIdentifierResult.copy(

@@ -687,6 +687,7 @@
     <string name="label_filter_folders">Folders</string>
     <string name="label_filter_group">Groups</string>
     <string name="label_filter_one_on_one">1:1 Conversations</string>
+    <string name="label_filter_channels">Channels</string>
     <string name="label_folders">Folders</string>
 
     <!-- Muting options BottomSheet -->
@@ -886,7 +887,8 @@
     <string name="label_selected">Selected</string>
     <string name="label_contacts">Contacts</string>
     <string name="label_new_group">New Group</string>
-    <string name="label_create_new_group">Create New Group</string>
+    <string name="label_create_new_group">New Group</string>
+    <string name="label_create_new_channel">New Channel</string>
     <plurals name="label_x_participants">
         <item quantity="one">%1$d Participant</item>
         <item quantity="other">%1$d Participants</item>
@@ -1238,8 +1240,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
     <string name="favorites_empty_list_description">Select your favorite conversations, and you’ll find them here</string>
     <string name="group_empty_list_description">You are not part of any group conversation yet.\nStart a new conversation!</string>
+    <string name="channels_empty_list_description">You are not a member of any channel. Join a public channel by clicking on “browse”.</string>
     <string name="one_on_one_empty_list_description">You have no contacts yet.\nSearch for people on %1$s and get connected.</string>
     <string name="favorites_empty_list_how_to_label">How to label conversations as favorites</string>
+    <string name="channels_empty_list_learn_more">Learn more about channels</string>
     <string name="folders_empty_list_description">Add your conversations to folders to stay organized.</string>
     <string name="folders_empty_list_how_to_add">How to add a conversation to a folder</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
@@ -1708,4 +1712,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="cells_screen_title">All files</string>
     <string name="cells_screen_search_hint">Search files</string>
     <string name="delete_with_attachments">Delete with attachments</string>
+    <string name="enable_wire_cell">Enable Wire Cell</string>
+    <string name="enable_wire_cell_switch_description">All files in this conversation will be uploaded in Wire Cell storage.</string>
 </resources>

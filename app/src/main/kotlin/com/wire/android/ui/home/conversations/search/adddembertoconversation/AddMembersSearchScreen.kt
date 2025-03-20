@@ -46,13 +46,12 @@ fun AddMembersSearchScreen(
 ) {
     SearchUsersAndServicesScreen(
         searchTitle = stringResource(id = R.string.label_add_participants),
-        actionButtonTitle = stringResource(id = R.string.label_continue),
         onOpenUserProfile = { contact: Contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         onContactChecked = addMembersToConversationViewModel::updateSelectedContacts,
-        onGroupSelectionSubmitAction = {
+        onContinue = {
             addMembersToConversationViewModel.addMembersToConversation(
                 onCompleted = navigator::navigateBack // TODO: move the navigation to the screen not view model
             )
@@ -65,6 +64,6 @@ fun AddMembersSearchScreen(
         },
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
         selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
-        isServicesAllowed = navArgs.isServicesAllowed
+        isServicesAllowed = navArgs.isServicesAllowed,
     )
 }

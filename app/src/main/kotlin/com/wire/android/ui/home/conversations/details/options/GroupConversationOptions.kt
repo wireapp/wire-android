@@ -176,16 +176,15 @@ fun GroupConversationSettings(
                 protocolInfo = state.protocolInfo
             )
         }
-//
-//        Disabled to hide the Wire Cell support flag
-//
-//        item {
-//            ConversationCellDetails(
-//                isWireCellEnabled = state.isWireCellEnabled,
-//                isLoading = state.loadingWireCellState,
-//                onCheckedChange = onWireCellSwitchClicked,
-//            )
-//        }
+        if (state.isWireCellFeatureEnabled) {
+            item {
+                ConversationCellDetails(
+                    isWireCellEnabled = state.isWireCellEnabled,
+                    isLoading = state.loadingWireCellState,
+                    onCheckedChange = onWireCellSwitchClicked,
+                )
+            }
+        }
     }
 }
 

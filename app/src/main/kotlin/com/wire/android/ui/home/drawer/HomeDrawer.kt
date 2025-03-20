@@ -92,20 +92,13 @@ fun HomeDrawer(
             onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Conversations) } }
         )
 
-//
-//        Disabled to hide the cells feature
-//
-//        DrawerItem(
-//            destination = HomeDestination.Cells,
-//            selected = currentRoute == HomeDestination.Cells.direction.route,
-//            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Cells) } }
-//        )
-
-        DrawerItem(
-            destination = HomeDestination.Cells,
-            selected = currentRoute == HomeDestination.Cells.direction.route,
-            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Cells) } }
-        )
+        if (homeDrawerState.showFilesOption) {
+            DrawerItem(
+                destination = HomeDestination.Cells,
+                selected = currentRoute == HomeDestination.Cells.direction.route,
+                onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Cells) } }
+            )
+        }
 
         DrawerItem(
             destination = HomeDestination.Archive,

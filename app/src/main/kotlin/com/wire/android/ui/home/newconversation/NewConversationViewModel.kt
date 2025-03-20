@@ -201,7 +201,6 @@ class NewConversationViewModel @Inject constructor(
     }
 
     fun createChannel(onCreated: (ConversationId) -> Unit) {
-//        if (shouldCheckGuests && checkIfGuestAdded()) return
         viewModelScope.launch {
             groupOptionsState = groupOptionsState.copy(isLoading = true)
             val result = createChannel(

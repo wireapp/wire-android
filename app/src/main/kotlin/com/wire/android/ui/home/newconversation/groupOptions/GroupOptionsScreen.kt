@@ -49,6 +49,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.ChannelAccessScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
@@ -76,7 +77,11 @@ fun GroupOptionScreen(
     GroupOptionScreenContent(
         groupOptionState = newConversationViewModel.groupOptionsState,
         createGroupState = newConversationViewModel.createGroupState,
+        accessTypeLabel = newConversationViewModel.newGroupState.channelAccessType.label,
         isChannelsAllowed = newConversationViewModel.newGroupState.isChannel,
+        onAccessClicked = {
+            navigator.navigate(NavigationCommand(ChannelAccessScreenDestination))
+        },
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
@@ -107,7 +112,9 @@ fun GroupOptionScreen(
 fun GroupOptionScreenContent(
     groupOptionState: GroupOptionState,
     createGroupState: CreateGroupState,
+    accessTypeLabel: Int,
     isChannelsAllowed: Boolean,
+    onAccessClicked: () -> Unit,
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
@@ -141,8 +148,10 @@ fun GroupOptionScreenContent(
             )
         }) { internalPadding ->
             GroupOptionsScreenMainContent(
+                accessTypeLabel,
                 isChannelsAllowed,
                 internalPadding,
+                onAccessClicked,
                 onAllowGuestChanged,
                 onAllowServicesChanged,
                 onReadReceiptChanged,
@@ -161,8 +170,10 @@ fun GroupOptionScreenContent(
 
 @Composable
 private fun GroupOptionState.GroupOptionsScreenMainContent(
+    accessTypeLabel: Int,
     isChannelsAllowed: Boolean,
     internalPadding: PaddingValues,
+    onAccessClicked: () -> Unit,
     onAllowGuestChanged: (Boolean) -> Unit,
     onAllowServicesChanged: (Boolean) -> Unit,
     onReadReceiptChanged: (Boolean) -> Unit,
@@ -176,6 +187,7 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
+            AccessOptions(accessTypeLabel, onAccessClicked)
             AllowGuestsOptions(isChannelsAllowed, onAllowGuestChanged)
             AllowServicesOptions(isChannelsAllowed, onAllowServicesChanged)
             ReadReceiptsOptions(isChannelsAllowed, onReadReceiptChanged)
@@ -240,6 +252,20 @@ private fun GroupOptionState.AllowServicesOptions(isChannelsAllowed: Boolean, on
         modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
         textAlign = TextAlign.Left,
         fontSize = 16.sp
+    )
+}
+
+@Composable
+fun AccessOptions(
+    accessTypeLabel: Int,
+    onAccessClicked: () -> Unit
+) {
+    GroupConversationOptionsItem(
+        title = stringResource(R.string.channel_access_label),
+        arrowType = ArrowType.TITLE_ALIGNED,
+        arrowLabel = stringResource(accessTypeLabel),
+        onClick = onAccessClicked,
+        isClickable = true,
     )
 }
 
@@ -321,7 +347,8 @@ fun PreviewGroupOptionScreen() {
     GroupOptionScreenContent(
         GroupOptionState(),
         CreateGroupState(),
+        accessTypeLabel = R.string.channel_private_label,
         isChannelsAllowed = false,
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     )
 }

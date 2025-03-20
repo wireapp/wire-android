@@ -205,7 +205,7 @@
     <string name="content_description_connection_request_close_btn">Close connection request view</string>
     <string name="content_description_search_text_in_conversation_btn">Search text messages</string>
     <string name="content_description_see_media_in_conversation_btn">Open overview of pictures and files</string>
-    <string name="content_description_add_participants_close">Close add partipants view</string>
+    <string name="content_description_add_participants_close">Close add participants view</string>
     <string name="content_description_add_participants_search_field">Search people by name or username</string>
     <string name="content_description_add_participants_back_btn">Go back to add participants view</string>
     <string name="content_description_home_profile_btn">Your profile</string>
@@ -235,9 +235,11 @@
     <string name="content_description_new_conversation_close_btn">Close new conversation view</string>
     <string name="content_description_new_group_conversation_back_btn">Go back to new conversation view</string>
     <string name="content_description_new_conversation_name_back_btn">Go back to new conversation view</string>
-    <string name="content_description_new_conversation_name_field">Type group name</string>
+    <string name="content_description_new_group_name_field">Type group name</string>
+    <string name="content_description_new_channel_name_field">Type channel name</string>
     <string name="content_description_new_conversation_options_heading">Conversation options</string>
-    <string name="content_description_new_conversation_options_back_btn">Go back to new group creation</string>
+    <string name="content_description_new_group_options_back_btn">Go back to new group creation</string>
+    <string name="content_description_new_channel_options_back_btn">Go back to new channel creation</string>
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
     <string name="content_description_self_profile_close">Close your profile</string>
     <string name="content_description_self_profile_heading">Your profile</string>
@@ -288,6 +290,7 @@
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
     <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
     <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
+    <string name="url_wire_create_team" translatable="false">https://teams.wire.com/register/email</string>
     <string name="url_change_email" translatable="false">https://support.wire.com/hc/articles/203762940</string>
     <string name="url_delete_personal_account" translatable="false">https://support.wire.com/hc/articles/207555795</string>
     <!-- Navigation -->
@@ -525,18 +528,24 @@
     <string name="sent_a_message_with_content">sent a message with %s content</string>
     <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
     <string name="new_group_title">New Group</string>
+    <string name="new_channel_title">New Channel</string>
+    <string name="create_regular_group_button_label">Create Group</string>
+    <string name="create_channel_button_label">Create Channel</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name_title">Group Name</string>
+    <string name="channel_name_title">Channel Name</string>
     <string name="group_name_placeholder">Enter a name</string>
     <string name="group_name_description">Give this group a meaningful name.</string>
+    <string name="channel_name_description">Give this channel a meaningful name.</string>
     <string name="protocol">Protocol</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
     <string name="last_key_material_update_label">Last Key Material Update</string>
     <string name="group_state_label">Group State</string>
-    <string name="empty_group_name_error">Please enter a group name</string>
-    <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
-    </string>
+    <string name="empty_regular_group_name_error">Please enter a group name</string>
+    <string name="empty_channel_name_error">Please enter a channel name</string>
+    <string name="regular_group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
+    <string name="channel_name_exceeded_limit_error">Channel name should not exceed 64 characters</string>
     <string name="group_can_not_be_created_title">Group can\'t be created</string>
     <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can\'t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Edit Participants List</string>
@@ -702,6 +711,7 @@
     <string name="label_filter_folders">Folders</string>
     <string name="label_filter_group">Groups</string>
     <string name="label_filter_one_on_one">1:1 Conversations</string>
+    <string name="label_filter_channels">Channels</string>
     <string name="label_folders">Folders</string>
 
     <!-- Muting options BottomSheet -->
@@ -901,7 +911,9 @@
     <string name="label_selected">Selected</string>
     <string name="label_contacts">Contacts</string>
     <string name="label_new_group">New Group</string>
-    <string name="label_create_new_group">Create New Group</string>
+    <string name="label_new_channel">New Channel</string>
+    <string name="label_create_new_group">New Group</string>
+    <string name="label_create_new_channel">New Channel</string>
     <plurals name="label_x_participants">
         <item quantity="one">%1$d Participant</item>
         <item quantity="other">%1$d Participants</item>
@@ -1095,7 +1107,8 @@
     <string name="allow_guests">Allow guests</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
     <string name="allow_services">Allow services</string>
-    <string name="allow_services_description">Open this conversation to services. You can always change it later.</string>
+    <string name="allow_services_regular_group_description">Open this conversation to services. You can always change it later.</string>
+    <string name="allow_services_channel_description">Open this conversation to to people outside your team or services. You can always change it later.</string>
     <string name="service_details_label">Service</string>
     <string name="service_details_add_service_label">Add To Group</string>
     <string name="service_details_remove_service_label">Remove From Group</string>
@@ -1106,7 +1119,8 @@
     <string name="service_no_information_available_title">No information available</string>
     <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Read receipts</string>
-    <string name="read_receipts_description">When this is on, people can see when their messages in this conversation are read.</string>
+    <string name="read_receipts_regular_group_description">When this is on, people can see when their messages in this conversation are read.</string>
+    <string name="read_receipts_channel_description">When this is on, people can see when their messages in this channel are read.</string>
     <string name="disable_guests_dialog_title">Not Allow Guests?</string>
     <string name="disable_guests_dialog_description">Guests you selected in the previous step won\'t be part of the group if you do not allow guest access.</string>
     <string name="disable_guests_dialog_button">Not Allow Guests</string>
@@ -1253,8 +1267,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
     <string name="favorites_empty_list_description">Select your favorite conversations, and you’ll find them here</string>
     <string name="group_empty_list_description">You are not part of any group conversation yet.\nStart a new conversation!</string>
+    <string name="channels_empty_list_description">You are not a member of any channel. Join a public channel by clicking on “browse”.</string>
     <string name="one_on_one_empty_list_description">You have no contacts yet.\nSearch for people on %1$s and get connected.</string>
     <string name="favorites_empty_list_how_to_label">How to label conversations as favorites</string>
+    <string name="channels_empty_list_learn_more">Learn more about channels</string>
     <string name="folders_empty_list_description">Add your conversations to folders to stay organized.</string>
     <string name="folders_empty_list_how_to_add">How to add a conversation to a folder</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
@@ -1293,7 +1309,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!--    report bug-->
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
     <string name="send_bug_report_subject">Bug Report</string>
-    <string name="send_bug_report_email" translatable="false" >wire-newandroid@wearezeta.zendesk.com</string>
+    <string name="send_bug_report_email" translatable="false">wire-newandroid@wearezeta.zendesk.com</string>
 
     <string name="backup_dialog_create_backup_save">Save File</string>
     <string name="backup_dialog_create_backup_share">Share File</string>
@@ -1725,6 +1741,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="new_folder_failure">“%1$s” folder could not be added</string>
     <string name="press_enter_to_send_title">Press Enter to send</string>
     <string name="press_enter_to_send_text">When this is on, you can send messages with the Enter key on your keyboard.</string>
-    <string name="custimization_options_header_title">Options</string>
+    <string name="customization_options_header_title">Options</string>
 
+    <!--    channel not available dialog-->
+    <string name="channel_not_available_dialog_title">Channels are available for team members.</string>
+    <string name="channel_not_available_dialog_description">Create a team and start collaborating for free!</string>
+    <string name="channel_not_available_dialog_create_team_button">Create Wire Team</string>
 </resources>

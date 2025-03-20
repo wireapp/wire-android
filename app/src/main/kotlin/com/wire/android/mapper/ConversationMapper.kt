@@ -62,6 +62,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             ),
             hasOnGoingCall = conversationDetails.hasOngoingCall && conversationDetails.isSelfUserMember,
             isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
+            isChannel = conversationDetails is Group.Channel,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,
             selfMemberRole = conversationDetails.selfRole,

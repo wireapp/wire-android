@@ -380,8 +380,8 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="cipher_suite">Suite di Crittografia</string>
     <string name="last_key_material_update_label">Ultimo Aggiornamento del Materiale Chiave</string>
     <string name="group_state_label">Stato del gruppo</string>
-    <string name="empty_group_name_error">Per favore, inserisci un nome per il gruppo</string>
-    <string name="group_name_exceeded_limit_error">Il nome del gruppo non deve superare i 64 caratteri</string>
+    <string name="empty_regular_group_name_error">Per favore, inserisci un nome per il gruppo</string>
+    <string name="regular_group_name_exceeded_limit_error">Il nome del gruppo non deve superare i 64 caratteri</string>
     <string name="group_can_not_be_created_edit_participiant_list">Modifica l\'elenco dei partecipanti</string>
     <string name="group_can_not_be_created_discard_group_creation">Scarta la creazione del gruppo</string>
     <string name="asset_message_tap_to_download_text">Tocca per scaricare</string>
@@ -568,9 +568,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="other">%1$s sono stati rimossi dal team</item>
     </plurals>
     <string name="label_system_message_user_not_available">Questo utente non &#232; pi&#249; disponibile</string>
-    <string name="label_system_message_unsupported_protocol">La conversazione sta utilizzando un protocollo crittografico
-        non supportato da questo dispositivo. Alcuni dispositivi dal coinvolgimento degli utenti potrebbero necessitare dell\'aggiornamento.
-    </string>
     <string name="label_system_message_new_conversation_receipt_mode">Le ricevute di lettura sono %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s ha %2$s le ricevute di lettura per tutti</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s ha %2$s le ricevute di lettura per tutti</string>
@@ -850,7 +847,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="allow_guests">Consenti ospiti</string>
     <string name="allow_guest_switch_description">Apri questa conversazione a persone esterne al tuo team. Puoi sempre cambiarla successivamente.</string>
     <string name="allow_services">Consenti servizi</string>
-    <string name="allow_services_description">Apri questa conversazione ai servizi. Puoi sempre cambiarla successivamente.</string>
+    <string name="allow_services_regular_group_description">Apri questa conversazione ai servizi. Puoi sempre cambiarla successivamente.</string>
     <string name="service_details_label">Servizio</string>
     <string name="service_details_add_service_label">Aggiungi Al Gruppo</string>
     <string name="service_details_remove_service_label">Rimuovi Dal Gruppo</string>
@@ -861,7 +858,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="service_no_information_available_title">Nessuna informazione disponibile</string>
     <string name="service_no_information_available_subtitle">Riprova o contatta l\'amministratore del tuo team</string>
     <string name="read_receipts">Ricevute di lettura</string>
-    <string name="read_receipts_description">Quando questa opzione è attiva, le persone possono vedere quando i loro messaggi in questa conversazione sono stati letti.</string>
+    <string name="read_receipts_regular_group_description">Quando questa opzione è attiva, le persone possono vedere quando i loro messaggi in questa conversazione sono stati letti.</string>
     <string name="disable_guests_dialog_title">Non consentire ospiti?</string>
     <string name="disable_guests_dialog_description">Gli ospiti selezionati nel passaggio precedente non faranno parte del gruppo se non consenti l\'accesso agli ospiti.</string>
     <string name="disable_guests_dialog_button">Non consentire ospiti</string>

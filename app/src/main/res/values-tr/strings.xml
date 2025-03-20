@@ -293,7 +293,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--sso dialog-->
     <!--prohibited asset messages -->
     <!--wire dropdown-->
-    <string name="read_receipts_description">Bu açıkken, insanlar bu görüşmedeki mesajlarının ne zaman okunduğunu görebilir.</string>
+    <string name="read_receipts_regular_group_description">Bu açıkken, insanlar bu görüşmedeki mesajlarının ne zaman okunduğunu görebilir.</string>
     <!--block user dialog -->
     <!--Settings -->
     <!--Settings, Appearance -->

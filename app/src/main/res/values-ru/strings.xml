@@ -228,9 +228,9 @@
     <string name="content_description_new_conversation_close_btn">Закрыть просмотр новой беседы</string>
     <string name="content_description_new_group_conversation_back_btn">Вернуться к просмотру новой беседы</string>
     <string name="content_description_new_conversation_name_back_btn">Вернуться к просмотру новой беседы</string>
-    <string name="content_description_new_conversation_name_field">Введите имя группы</string>
+    <string name="content_description_new_group_name_field">Введите имя группы</string>
     <string name="content_description_new_conversation_options_heading">Настройки беседы</string>
-    <string name="content_description_new_conversation_options_back_btn">Вернуться к созданию новой группы</string>
+    <string name="content_description_new_group_options_back_btn">Вернуться к созданию новой группы</string>
     <string name="content_description_pending_connection_badge">ожидание подтверждения запроса</string>
     <string name="content_description_self_profile_close">Закрыть профиль</string>
     <string name="content_description_self_profile_heading">Ваш профиль</string>
@@ -480,8 +480,8 @@
     <string name="cipher_suite">Набор шифров</string>
     <string name="last_key_material_update_label">Последнее обновление набора ключей</string>
     <string name="group_state_label">Статус группы</string>
-    <string name="empty_group_name_error">Пожалуйста, введите название группы</string>
-    <string name="group_name_exceeded_limit_error">Название группы не должно превышать 64 символа
+    <string name="empty_regular_group_name_error">Пожалуйста, введите название группы</string>
+    <string name="regular_group_name_exceeded_limit_error">Название группы не должно превышать 64 символа
     </string>
     <string name="group_can_not_be_created_title">Невозможно создать группу</string>
     <string name="group_can_not_be_created_federation_conflict_description">Пользователи бэкэндов %1$s и %2$s не могут присоединиться к одной групповой беседе.\n\nДля создания группы удалите затронутых участников.</string>
@@ -961,6 +961,8 @@
     <string name="notification_action_reply">Ответить</string>
     <string name="notification_receiver_name">Вы</string>
     <string name="label_type_a_message">Введите сообщение</string>
+    <string name="notification_action_open_call">Открыть вызов</string>
+    <string name="notification_action_decline_call">Отклонить</string>
     <string name="notification_incoming_call_content">Вызов…</string>
     <string name="notification_ongoing_call_content">Исходящий вызов…</string>
     <string name="notification_group_call_content">%s вызывает...</string>
@@ -968,6 +970,7 @@
     <string name="notification_call_default_group_name">Входящий групповой вызов</string>
     <string name="notification_outgoing_call_tap_to_return">Нажмите, чтобы вернуться к вызову - Вызов...</string>
     <string name="notification_audio_message_body">Аудиосообщение</string>
+    <string name="notification_deleting_conversation">Удаление беседы…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Постоянный битрейт</string>
     <string name="calling_button_label_microphone">Микрофон</string>
@@ -1068,7 +1071,7 @@
     <string name="allow_guests">Разрешить гостей</string>
     <string name="allow_guest_switch_description">Открыть эту беседу для пользователей не из вашей команды. Вы всегда сможете изменить это позже.</string>
     <string name="allow_services">Разрешить сервисы</string>
-    <string name="allow_services_description">Открыть эту беседу для сервисов. Вы всегда сможете изменить это позже.</string>
+    <string name="allow_services_regular_group_description">Открыть эту беседу для сервисов. Вы всегда сможете изменить это позже.</string>
     <string name="service_details_label">Сервис</string>
     <string name="service_details_add_service_label">Добавить в группу</string>
     <string name="service_details_remove_service_label">Удалить из группы</string>
@@ -1079,7 +1082,7 @@
     <string name="service_no_information_available_title">Информация недоступна</string>
     <string name="service_no_information_available_subtitle">Попробуйте еще раз или свяжитесь с администратором группы</string>
     <string name="read_receipts">Отчеты о прочтении</string>
-    <string name="read_receipts_description">При включении ваши собеседники смогут видеть когда было прочитано их сообщение.</string>
+    <string name="read_receipts_regular_group_description">При включении ваши собеседники смогут видеть когда было прочитано их сообщение.</string>
     <string name="disable_guests_dialog_title">Не разрешать гостей?</string>
     <string name="disable_guests_dialog_description">Гости, выбранные на предыдущем этапе, не смогут войти в группу, если не разрешить гостевой доступ.</string>
     <string name="disable_guests_dialog_button">Не разрешать гостей</string>
@@ -1103,6 +1106,7 @@
     <string name="settings_keep_connection_to_websocket_description">Позволяет оптимизировать получение уведомлений, поддерживая постоянное соединение с %1$s. Эта опция заменит службу уведомлений, если Google Services недоступны на устройстве.</string>
     <string name="settings_service_is_running">активен</string>
     <!--Settings, Appearance -->
+    <string name="settings_customization_label">Внешний вид</string>
     <string name="settings_appearance_theme_label">Тема</string>
     <string name="settings_appearance_theme_option_system">Как в системе</string>
     <string name="settings_appearance_theme_option_default_hint">(По умолчанию)</string>
@@ -1241,6 +1245,7 @@
     <string name="label_textfield_optional_password">Пароль (необязательно)</string>
     <string name="label_proteus_details">Информация устройства Proteus</string>
     <string name="label_mls_signature">MLS с подписью %1$s</string>
+    <string name="label_mls_no_signature_type">MLS</string>
     <string name="label_mls_thumbprint">Отпечаток MLS</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Установить пароль</string>
@@ -1691,4 +1696,7 @@
     <string name="new_folder_error_name_empty">Пожалуйста, введите название папки.</string>
     <string name="new_folder_error_name_exceeded_limit_error">Минимум 1 и не более 64 символов</string>
     <string name="new_folder_failure">Папка “%1$s” не может быть добавлена</string>
+    <string name="press_enter_to_send_title">Нажмите Enter для отправки</string>
+    <string name="press_enter_to_send_text">Когда эта опция включена, вы можете отправлять сообщения с помощью клавиши Enter на клавиатуре.</string>
+    <string name="customization_options_header_title">Настройки</string>
 </resources>

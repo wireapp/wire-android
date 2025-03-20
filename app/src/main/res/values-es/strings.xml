@@ -338,8 +338,8 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="cipher_suite">Suite de Cifrado</string>
     <string name="last_key_material_update_label">&#218;ltima Actualizaci&#243;n de Material de Clave</string>
     <string name="group_state_label">Estado del grupo</string>
-    <string name="empty_group_name_error">Por favor ingrese un nombre de grupo</string>
-    <string name="group_name_exceeded_limit_error">El nombre del grupo no debe exceder los 64 caracteres</string>
+    <string name="empty_regular_group_name_error">Por favor ingrese un nombre de grupo</string>
+    <string name="regular_group_name_exceeded_limit_error">El nombre del grupo no debe exceder los 64 caracteres</string>
     <string name="asset_message_tap_to_download_text">Toque para descargar</string>
     <string name="asset_message_upload_in_progress_text">Cargando...</string>
     <string name="asset_message_download_in_progress_text">Descargando...</string>
@@ -738,7 +738,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="allow_guests">Permitir invitados</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
     <string name="allow_services">Permitir servicios</string>
-    <string name="allow_services_description">Abra esta conversaci&#243;n a servicios. Siempre puede cambiarlo m&#225;s tarde.</string>
+    <string name="allow_services_regular_group_description">Abra esta conversaci&#243;n a servicios. Siempre puede cambiarlo m&#225;s tarde.</string>
     <string name="service_details_label">Servicio</string>
     <string name="service_details_add_service_label">Añadir al grupo</string>
     <string name="service_details_remove_service_label">Eliminar del grupo</string>
@@ -749,7 +749,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="service_no_information_available_title">Ninguna información disponible</string>
     <string name="service_no_information_available_subtitle">Inténtalo de nuevo o contacta con el administrador de tu equipo</string>
     <string name="read_receipts">Recibos de lectura</string>
-    <string name="read_receipts_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo sus mensajes en esta conversaci&#243;n han sido le&#237;dos.</string>
+    <string name="read_receipts_regular_group_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo sus mensajes en esta conversaci&#243;n han sido le&#237;dos.</string>
     <string name="disable_guests_dialog_title">&#191;No permitir invitados?</string>
     <string name="disable_guests_dialog_description">Los invitados que seleccion&#243; en el paso anterior no formar&#225;n parte del grupo si no permite el acceso de invitados.</string>
     <string name="disable_guests_dialog_button">No permitir invitados</string>

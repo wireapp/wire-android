@@ -378,8 +378,6 @@
     <string name="mls">MLS</string>
     <string name="cipher_suite">කේතාංකන කට්ටලය</string>
     <string name="group_state_label">සමූහයේ තත්‍වය</string>
-    <string name="empty_regular_group_name_error">සමූහයට නමක් යොදන්න</string>
-    <string name="regular_group_name_exceeded_limit_error">සමූහයේ නම අකුරු 64 ක් නොඉක්මවිය යුතුය.</string>
     <string name="group_can_not_be_created_edit_participiant_list">සහභාගීන් සංස්කරණය</string>
     <string name="group_can_not_be_created_discard_group_creation">සමූහය සෑදීම ඉවතලන්න</string>
     <string name="asset_message_tap_to_download_text">බාගැනීමට ඔබන්න</string>
@@ -694,7 +692,6 @@
     <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
     <!-- Search Contact-->
     <string name="label_new_group">නව සමූහයක්</string>
-    <string name="label_create_new_group">නව සමූහයක් සාදන්න</string>
     <plurals name="label_x_participants">
         <item quantity="one">සහභාගීන් %1$d</item>
         <item quantity="other">සහභාගීන් %1$d</item>
@@ -860,7 +857,6 @@
     <string name="allow_guests">අමුත්තන්ට ඉඩදෙන්න</string>
     <string name="allow_guest_switch_description">ඔබගේ කණ්ඩායමෙන් පිටත පුද්ගලයින්ට මෙම සංවාදය විවෘත කරන්න. මෙය පසුව වෙනස් කිරීමට හැකිය.</string>
     <string name="allow_services">සේවාවලට ඉඩදෙන්න</string>
-    <string name="allow_services_regular_group_description">සේවා වෙත මෙම සංවාදය අරින්න. පසුව වෙනස් කිරීමට ද හැකිය.</string>
     <string name="service_details_label">සේවාව</string>
     <string name="service_details_add_service_label">සමූහයට දමන්න</string>
     <string name="service_details_remove_service_label">සමූහයෙන් ඉවත් කරන්න</string>
@@ -871,7 +867,6 @@
     <string name="service_no_information_available_title">තොරතුරු නොතිබේ</string>
     <string name="service_no_information_available_subtitle">නැවත උත්සාහ කරන්න හෝ කණ්ඩායමේ පරිපාලකයා අමතන්න</string>
     <string name="read_receipts">කියවූ බවට ලදුපත්</string>
-    <string name="read_receipts_regular_group_description">මෙය සක්‍රිය නම්, පුද්ගලයින්ට මෙම සංවාදය තුළ ඔවුන්ගේ පණිවිඩ කියවූ විට දැකගත හැකිය.</string>
     <string name="disable_guests_dialog_title">අමුත්තන්ට ඉඩ නොදේ ද?</string>
     <string name="disable_guests_dialog_description">ඔබ අමුත්තන්ට ප්‍රවේශය නොදෙන්නේ නම්, ඔබ කලින් පියවරේ දී තෝරාගත් අමුත්තන් සමූහයේ කොටසක් නොවනු ඇත.</string>
     <string name="disable_guests_dialog_button">අමුත්තන්ට ඉඩ නොදෙන්න</string>
@@ -1338,4 +1333,5 @@
     <string name="debug_settings_screen_title">නිදොස්කරණ සැකසුම්</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!--    channel not available dialog-->
 </resources>

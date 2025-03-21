@@ -174,9 +174,7 @@
     <string name="allow_guests">Дозволити гостям</string>
     <string name="allow_guest_switch_description">Відкрийте цю бесіду людям, які не належать до вашої команди. Ви завжди можете змінити це пізніше.</string>
     <string name="allow_services">Дозволити служби</string>
-    <string name="allow_services_regular_group_description">Відкрийте цю розмову для служб. Ви завжди можете змінити це пізніше.</string>
     <string name="read_receipts">Прочитати квитанції</string>
-    <string name="read_receipts_regular_group_description">Коли цей параметр увімкнено, люди бачать, коли читаються їхні повідомлення в цій бесіді.</string>
     <!--block user dialog -->
     <!--Settings -->
     <!--Settings, Appearance -->
@@ -225,4 +223,5 @@
     <string name="debug_settings_screen_title">Налаштування Debug</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!--    channel not available dialog-->
 </resources>

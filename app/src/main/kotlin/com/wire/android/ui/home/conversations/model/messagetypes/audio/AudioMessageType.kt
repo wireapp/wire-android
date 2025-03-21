@@ -82,6 +82,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun AudioMessage(
     audioMessageArgs: AudioMessageArgs,
     audioMessageDurationInMs: Long,
+    extension: String,
+    size: Long,
     modifier: Modifier = Modifier,
     viewModel: AudioMessageViewModel =
         hiltViewModelScoped<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(audioMessageArgs),
@@ -101,6 +103,8 @@ fun AudioMessage(
             viewModel.changeAudioSpeed(viewModel.state.audioSpeed.toggle())
         },
         modifier = modifier,
+        extension = extension,
+        size = size,
     )
 }
 

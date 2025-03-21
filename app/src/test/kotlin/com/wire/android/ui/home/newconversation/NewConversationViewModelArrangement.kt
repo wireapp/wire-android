@@ -182,6 +182,14 @@ internal class NewConversationViewModelArrangement {
         )
     }
 
+    fun withCreateChannelSuccess() = apply {
+        coEvery { createChannel(any(), any(), any()) } returns ConversationCreationResult.Success(CONVERSATION)
+    }
+
+    fun withCreateChannelFailure() = apply {
+        coEvery { createChannel(any(), any(), any()) } returns ConversationCreationResult.SyncFailure
+    }
+
     fun withDefaultProtocol(supportedProtocol: SupportedProtocol) = apply {
         every { getDefaultProtocol() } returns supportedProtocol
     }

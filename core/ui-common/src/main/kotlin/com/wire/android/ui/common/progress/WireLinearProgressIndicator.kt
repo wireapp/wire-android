@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -33,11 +34,13 @@ import com.wire.android.util.PreviewMultipleThemes
 fun WireLinearProgressIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
+    color: Color = colorsScheme().primary,
+    trackColor: Color = colorsScheme().primaryVariant,
 ) {
     LinearProgressIndicator(
         progress = progress,
-        color = colorsScheme().primary,
-        trackColor = colorsScheme().primaryVariant,
+        color = color,
+        trackColor = trackColor,
         modifier = modifier,
         drawStopIndicator = {}
     )

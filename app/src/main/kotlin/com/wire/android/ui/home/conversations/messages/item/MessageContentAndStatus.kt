@@ -3,6 +3,8 @@ package com.wire.android.ui.home.conversations.messages.item
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -32,6 +34,8 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.Restricte
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsView
+import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMessage
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
@@ -118,6 +122,23 @@ private fun MessageContent(
             }
         }
 
+        is UIMessageContent.VideoMessage -> {
+            Column {
+                VideoMessage(
+                    assetSize = messageContent.assetSizeInBytes,
+                    assetName = messageContent.assetName,
+                    assetExtension = messageContent.assetExtension,
+                    assetDataPath = messageContent.assetDataPath,
+                    width = messageContent.width,
+                    height = messageContent.height,
+                    duration = messageContent.duration,
+                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    onVideoClick = onAssetClick,
+                )
+                PartialDeliveryInformation(messageContent.deliveryStatus)
+            }
+        }
+
         is UIMessageContent.TextMessage -> {
             Column {
                 messageContent.messageBody.quotedMessage?.let {
@@ -176,6 +197,7 @@ private fun MessageContent(
                     assetName = messageContent.assetName,
                     assetExtension = messageContent.assetExtension,
                     assetSizeInBytes = messageContent.assetSizeInBytes,
+                    assetDataPath = messageContent.assetDataPath,
                     assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onAssetClick = onAssetClick
                 )
@@ -217,6 +239,8 @@ private fun MessageContent(
                 AudioMessage(
                     audioMessageArgs = AudioMessageArgs(message.conversationId, message.header.messageId),
                     audioMessageDurationInMs = messageContent.audioMessageDurationInMs,
+                    extension = messageContent.assetExtension,
+                    size = messageContent.sizeInBytes,
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -238,7 +262,29 @@ private fun MessageContent(
             }
         }
 
+        is UIMessageContent.Multipart ->
+            Column {
+                if (messageContent.messageBody?.message?.asString()?.isNotEmpty() == true) {
+                    MessageBody(
+                        messageBody = messageContent.messageBody,
+                        searchQuery = searchQuery,
+                        isAvailable = !message.isPending && message.isAvailable,
+                        onOpenProfile = onOpenProfile,
+                        buttonList = null,
+                        messageId = message.header.messageId,
+                        onLinkClick = onLinkClick,
+                    )
+                    Spacer(modifier = Modifier.height(dimensions().spacing8x))
+                }
+                MultipartAttachmentsView(
+                    message.conversationId,
+                    messageContent.attachments
+                )
+                PartialDeliveryInformation(messageContent.deliveryStatus)
+            }
+
         UIMessageContent.Deleted -> {}
+
         null -> {
             throw NullPointerException("messageContent is null")
         }

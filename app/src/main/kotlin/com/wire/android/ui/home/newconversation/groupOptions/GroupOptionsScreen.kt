@@ -171,7 +171,7 @@ fun GroupOptionScreenContent(
 @Composable
 private fun GroupOptionState.GroupOptionsScreenMainContent(
     accessTypeLabel: Int,
-    isChannelsAllowed: Boolean,
+    isChannel: Boolean,
     internalPadding: PaddingValues,
     onAccessClicked: () -> Unit,
     onAllowGuestChanged: (Boolean) -> Unit,
@@ -187,17 +187,19 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            AccessOptions(accessTypeLabel, onAccessClicked)
-            AllowGuestsOptions(isChannelsAllowed, onAllowGuestChanged)
-            AllowServicesOptions(isChannelsAllowed, onAllowServicesChanged)
-            ReadReceiptsOptions(isChannelsAllowed, onReadReceiptChanged)
+            if (isChannel) {
+                AccessOptions(accessTypeLabel, onAccessClicked)
+            }
+            AllowGuestsOptions(isChannel, onAllowGuestChanged)
+            AllowServicesOptions(isChannel, onAllowServicesChanged)
+            ReadReceiptsOptions(isChannel, onReadReceiptChanged)
         }
-        CreateGroupButton(isChannelsAllowed, onContinuePressed)
+        CreateGroupButton(isChannel, onContinuePressed)
     }
 }
 
 @Composable
-private fun GroupOptionState.ReadReceiptsOptions(isChannelsAllowed: Boolean, onReadReceiptChanged: (Boolean) -> Unit) {
+private fun GroupOptionState.ReadReceiptsOptions(isChannel: Boolean, onReadReceiptChanged: (Boolean) -> Unit) {
     GroupConversationOptionsItem(
         title = stringResource(R.string.read_receipts),
         switchState = SwitchState.Enabled(value = isReadReceiptEnabled,
@@ -209,7 +211,7 @@ private fun GroupOptionState.ReadReceiptsOptions(isChannelsAllowed: Boolean, onR
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
     )
-    val description = if (isChannelsAllowed) {
+    val description = if (isChannel) {
         R.string.read_receipts_channel_description
     } else {
         R.string.read_receipts_regular_group_description
@@ -225,7 +227,7 @@ private fun GroupOptionState.ReadReceiptsOptions(isChannelsAllowed: Boolean, onR
 }
 
 @Composable
-private fun GroupOptionState.AllowServicesOptions(isChannelsAllowed: Boolean, onAllowServicesChanged: (Boolean) -> Unit) {
+private fun GroupOptionState.AllowServicesOptions(isChannel: Boolean, onAllowServicesChanged: (Boolean) -> Unit) {
     if (!isAllowServicesPossible) return
 
     GroupConversationOptionsItem(
@@ -240,7 +242,7 @@ private fun GroupOptionState.AllowServicesOptions(isChannelsAllowed: Boolean, on
             .background(MaterialTheme.colorScheme.surface)
     )
 
-    val description = if (isChannelsAllowed) {
+    val description = if (isChannel) {
         R.string.allow_services_channel_description
     } else {
         R.string.allow_services_regular_group_description
@@ -270,7 +272,7 @@ fun AccessOptions(
 }
 
 @Composable
-private fun GroupOptionState.AllowGuestsOptions(isChannelsAllowed: Boolean, onAllowGuestChanged: (Boolean) -> Unit) {
+private fun GroupOptionState.AllowGuestsOptions(isChannel: Boolean, onAllowGuestChanged: (Boolean) -> Unit) {
     GroupConversationOptionsItem(
         title = stringResource(R.string.allow_guests),
         switchState = SwitchState.Enabled(value = isAllowGuestEnabled,
@@ -281,7 +283,7 @@ private fun GroupOptionState.AllowGuestsOptions(isChannelsAllowed: Boolean, onAl
         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
     )
 
-    if (!isChannelsAllowed) {
+    if (!isChannel) {
         Text(
             text = stringResource(R.string.allow_guest_switch_description),
             fontWeight = FontWeight.Normal,
@@ -295,10 +297,10 @@ private fun GroupOptionState.AllowGuestsOptions(isChannelsAllowed: Boolean, onAl
 
 @Composable
 private fun GroupOptionState.CreateGroupButton(
-    isChannelsAllowed: Boolean,
+    isChannel: Boolean,
     onCreate: () -> Unit
 ) {
-    val buttonLabel = if (isChannelsAllowed) {
+    val buttonLabel = if (isChannel) {
         R.string.create_channel_button_label
     } else {
         R.string.create_regular_group_button_label

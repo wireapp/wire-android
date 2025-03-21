@@ -21,44 +21,55 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun ContinueWithParticipantsCountButton(
+    onContinue: () -> Unit,
     modifier: Modifier = Modifier,
     selectedParticipantsCount: Int = 0,
     leadingIcon: @Composable (() -> Unit)? = null,
-    onContinue: () -> Unit,
+    elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
 ) {
     val countText = pluralStringResource(
         R.plurals.label_x_participants,
         selectedParticipantsCount,
         selectedParticipantsCount
     )
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .padding(horizontal = dimensions().spacing16x)
-            .height(dimensions().groupButtonHeight)
+    Surface(
+        color = MaterialTheme.wireColorScheme.background,
+        shadowElevation = elevation
     ) {
-        WirePrimaryButton(
-            text = "${stringResource(R.string.label_continue)} ($countText)",
-            leadingIcon = leadingIcon,
-            onClick = onContinue,
-            state = if (selectedParticipantsCount > 0) WireButtonState.Default else WireButtonState.Disabled,
-            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-        )
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .padding(horizontal = dimensions().spacing16x)
+                .height(dimensions().groupButtonHeight)
+        ) {
+            WirePrimaryButton(
+                text = "${stringResource(R.string.label_continue)} ($countText)",
+                leadingIcon = leadingIcon,
+                onClick = onContinue,
+                state = if (selectedParticipantsCount > 0) WireButtonState.Default else WireButtonState.Disabled,
+                clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+            )
+        }
     }
 }
 

@@ -132,7 +132,7 @@ fun CustomizationOptionsContent(
         modifier = modifier
             .fillMaxWidth()
     ) {
-        FolderHeader(stringResource(R.string.custimization_options_header_title))
+        FolderHeader(stringResource(R.string.customization_options_header_title))
         GroupConversationOptionsItem(
             title = stringResource(R.string.press_enter_to_send_title),
             switchState = SwitchState.Enabled(value = enterToSendState, onCheckedChange = enterToSendClicked),

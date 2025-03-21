@@ -51,7 +51,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
+import com.wire.android.media.audiomessage.AudioMessageArgs
+import com.wire.android.media.audiomessage.AudioMessageViewModel
+import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
 import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
@@ -76,6 +80,32 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun AudioMessage(
+    audioMessageArgs: AudioMessageArgs,
+    audioMessageDurationInMs: Long,
+    modifier: Modifier = Modifier,
+    viewModel: AudioMessageViewModel =
+        hiltViewModelScoped<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(audioMessageArgs),
+) {
+    val totalTimeInMs = remember(viewModel.state.audioState.totalTimeInMs, audioMessageDurationInMs) {
+        viewModel.state.audioState.sanitizeTotalTime(audioMessageDurationInMs.toInt())
+    }
+    AudioMessage(
+        audioMediaPlayingState = viewModel.state.audioState.audioMediaPlayingState,
+        totalTimeInMs = totalTimeInMs,
+        currentPositionInMs = viewModel.state.audioState.currentPositionInMs,
+        audioSpeed = viewModel.state.audioSpeed,
+        waveMask = viewModel.state.audioState.wavesMask,
+        onPlayButtonClick = viewModel::playAudio,
+        onSliderPositionChange = viewModel::changeAudioPosition,
+        onAudioSpeedChange = {
+            viewModel.changeAudioSpeed(viewModel.state.audioSpeed.toggle())
+        },
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun AudioMessage(
     audioMediaPlayingState: AudioMediaPlayingState,
     totalTimeInMs: AudioState.TotalTimeInMs,
     currentPositionInMs: Int,

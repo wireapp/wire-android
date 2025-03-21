@@ -1096,7 +1096,7 @@
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
     <string name="allow_services">Allow services</string>
     <string name="allow_services_regular_group_description">Open this conversation to services. You can always change it later.</string>
-    <string name="allow_services_channel_description">Open this conversation to to people outside your team or services. You can always change it later.</string>
+    <string name="allow_services_channel_description">Open this conversation to people outside your team or services. You can always change it later.</string>
     <string name="service_details_label">Service</string>
     <string name="service_details_add_service_label">Add To Group</string>
     <string name="service_details_remove_service_label">Remove From Group</string>

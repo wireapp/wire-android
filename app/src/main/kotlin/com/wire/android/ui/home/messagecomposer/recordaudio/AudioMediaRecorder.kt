@@ -36,11 +36,13 @@ import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
@@ -64,7 +66,7 @@ class AudioMediaRecorder @Inject constructor(
     }
 
     private var audioRecorder: AudioRecord? = null
-    private var recordingThread: Thread? = null
+    private var recordingJob: Job? = null
     private var isRecording = false
     private var assetLimitInMB: Long = ASSET_SIZE_DEFAULT_LIMIT_BYTES
 
@@ -104,8 +106,7 @@ class AudioMediaRecorder @Inject constructor(
     fun startRecording(): Boolean = try {
         audioRecorder?.startRecording()
         isRecording = true
-        recordingThread = Thread { writeAudioDataToFile() }
-        recordingThread?.start()
+        recordingJob = scope.launch { writeAudioDataToFile() }
         true
     } catch (e: IllegalStateException) {
         e.printStackTrace()
@@ -167,7 +168,8 @@ class AudioMediaRecorder @Inject constructor(
     fun stop() {
         isRecording = false
         audioRecorder?.stop()
-        recordingThread?.join()
+        recordingJob?.cancel()
+        recordingJob = null
     }
 
     fun release() {
@@ -176,40 +178,40 @@ class AudioMediaRecorder @Inject constructor(
     }
 
     @Suppress("NestedBlockDepth")
-    private fun writeAudioDataToFile() {
-        val data = ByteArray(BUFFER_SIZE)
+    private suspend fun writeAudioDataToFile() {
+        withContext(dispatcherProvider.io()) {
+            val data = ByteArray(BUFFER_SIZE)
 
-        try {
-            kaliumFileSystem.sink(originalOutputPath!!).use { sink ->
-                sink.buffer()
-                    .use {
-                        writeWavHeader(it, SAMPLING_RATE, AUDIO_CHANNELS, BITS_PER_SAMPLE)
-                        while (isRecording) {
-                            val read = audioRecorder?.read(data, 0, BUFFER_SIZE) ?: 0
-                            if (read > 0) {
-                                it.write(data, 0, read)
-                            }
+            try {
+                kaliumFileSystem.sink(originalOutputPath!!).use { sink ->
+                    sink.buffer()
+                        .use {
+                            writeWavHeader(it, SAMPLING_RATE, AUDIO_CHANNELS, BITS_PER_SAMPLE)
+                            while (isRecording && isActive) {
+                                val read = audioRecorder?.read(data, 0, BUFFER_SIZE) ?: 0
+                                if (read > 0) {
+                                    it.write(data, 0, read)
+                                }
 
-                            // Check if the file size exceeds the limit
-                            val currentSize = originalOutputPath!!.toFile().length()
-                            if (currentSize > (assetLimitInMB * SIZE_OF_1MB)) {
-                                isRecording = false
-                                scope.launch {
+                                // Check if the file size exceeds the limit
+                                val currentSize = originalOutputPath!!.toFile().length()
+                                if (currentSize > (assetLimitInMB * SIZE_OF_1MB)) {
+                                    isRecording = false
                                     _maxFileSizeReached.emit(
                                         RecordAudioDialogState.MaxFileSizeReached(
                                             maxSize = assetLimitInMB / SIZE_OF_1MB
                                         )
                                     )
+                                    break
                                 }
-                                break
                             }
+                            updateWavHeader(originalOutputPath!!)
                         }
-                        updateWavHeader(originalOutputPath!!)
-                    }
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${e.message}")
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${e.message}")
         }
     }
 

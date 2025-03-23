@@ -165,10 +165,10 @@ class AudioMediaRecorder @Inject constructor(
         appLogger.i("Updated WAV Header: Chunk Size = ${fileSize - CHUNK_ID_SIZE}, Data Size = $dataSize")
     }
 
-    fun stop() {
+    suspend fun stop() {
         isRecording = false
         audioRecorder?.stop()
-        recordingJob?.cancel()
+        recordingJob?.cancelAndJoin()
         recordingJob = null
     }
 

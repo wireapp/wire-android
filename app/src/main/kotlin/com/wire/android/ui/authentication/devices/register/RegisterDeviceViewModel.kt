@@ -105,10 +105,10 @@ class RegisterDeviceViewModel @Inject constructor(
                 capabilities = null,
                 modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
-        ).handle(secondFactorVerificationCode != null)
+        ).handle(secondFactorVerificationCode.isNullOrEmpty())
     }
 
-    private suspend fun RegisterClientResult.handle(userEntered2FA: Boolean) {
+    private suspend fun RegisterClientResult.handle(empty2FACodeInput: Boolean) {
         when (this) {
             is RegisterClientResult.Failure.TooManyClients -> updateFlowState(RegisterDeviceFlowState.TooManyDevices)
 
@@ -136,7 +136,7 @@ class RegisterDeviceViewModel @Inject constructor(
                     continueEnabled = true,
                     flowState = RegisterDeviceFlowState.Default
                 )
-                if (userEntered2FA) {
+                if (empty2FACodeInput) {
                     // code not yet entered so invalid code was the one reused from last login so just request a new one
                     request2FACode()
                 } else {

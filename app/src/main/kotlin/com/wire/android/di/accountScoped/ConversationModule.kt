@@ -26,7 +26,6 @@ import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCas
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationScope
-import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationProtocolInfoUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
@@ -58,6 +57,8 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
@@ -209,8 +210,13 @@ class ConversationModule {
 
     @ViewModelScoped
     @Provides
-    fun provideCreateGroupConversationUseCase(conversationScope: ConversationScope): CreateGroupConversationUseCase =
-        conversationScope.createGroupConversation
+    fun provideCreateRegularGroupUseCase(conversationScope: ConversationScope): CreateRegularGroupUseCase =
+        conversationScope.createRegularGroup
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreateChannelUseCase(conversationScope: ConversationScope): CreateChannelUseCase =
+        conversationScope.createChannel
 
     @ViewModelScoped
     @Provides

@@ -21,8 +21,6 @@ package com.wire.android.ui.authentication.devices.register
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.ui.authentication.devices.register.RegisterDeviceFlowState
-import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeScreenContent
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.theme.WireTheme

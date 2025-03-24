@@ -41,7 +41,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
-
 @Composable
 fun VerificationCodeScreenContent(
     verificationCodeTextState: TextFieldState,
@@ -94,9 +93,11 @@ private fun MainContent(
         style = typography().body01,
         textAlign = TextAlign.Start
     )
-    Spacer(modifier = Modifier
+    Spacer(
+        modifier = Modifier
         .height(dimensions().spacing8x)
-        .weight(1f))
+        .weight(1f)
+    )
     VerificationCode(
         codeLength = codeState.codeLength,
         codeState = codeTextState,
@@ -104,9 +105,11 @@ private fun MainContent(
         isCurrentCodeInvalid = codeState.isCurrentCodeInvalid,
         onResendCode = onResendCode,
     )
-    Spacer(modifier = Modifier
+    Spacer(
+        modifier = Modifier
         .height(dimensions().spacing8x)
-        .weight(1f))
+        .weight(1f)
+    )
 }
 
 @PreviewMultipleThemes

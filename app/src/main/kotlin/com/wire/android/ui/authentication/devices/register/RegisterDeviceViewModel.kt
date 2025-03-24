@@ -98,34 +98,34 @@ class RegisterDeviceViewModel @Inject constructor(
 
     private suspend fun registerClient(password: String?, secondFactorVerificationCode: String? = null) {
         state = state.copy(flowState = RegisterDeviceFlowState.Loading, continueEnabled = false)
-        val registerDeviceResult = registerClientUseCase(
+        registerClientUseCase(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 secondFactorVerificationCode = secondFactorVerificationCode,
                 capabilities = null,
                 modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
-        )
-        when (registerDeviceResult) {
-            is RegisterClientResult.Failure.TooManyClients ->
-                updateFlowState(RegisterDeviceFlowState.TooManyDevices)
+        ).handle(secondFactorVerificationCode != null)
+    }
 
-            is RegisterClientResult.Success ->
-                updateFlowState(
-                    RegisterDeviceFlowState.Success(
-                        userDataStore.initialSyncCompleted.first(),
-                        false,
-                        registerDeviceResult.client.id
-                    )
+    private suspend fun RegisterClientResult.handle(userEntered2FA: Boolean) {
+        when (this) {
+            is RegisterClientResult.Failure.TooManyClients -> updateFlowState(RegisterDeviceFlowState.TooManyDevices)
+
+            is RegisterClientResult.Success -> updateFlowState(
+                RegisterDeviceFlowState.Success(
+                    initialSyncCompleted = userDataStore.initialSyncCompleted.first(),
+                    isE2EIRequired = false,
+                    clientId = this.client.id
                 )
+            )
 
-            is RegisterClientResult.E2EICertificateRequired ->
-                updateFlowState(
+            is RegisterClientResult.E2EICertificateRequired -> updateFlowState(
                     RegisterDeviceFlowState.Success(
-                        userDataStore.initialSyncCompleted.first(),
-                        true,
-                        registerDeviceResult.client.id,
-                        registerDeviceResult.userId
+                        initialSyncCompleted = userDataStore.initialSyncCompleted.first(),
+                        isE2EIRequired = true,
+                        clientId = this.client.id,
+                        userId = this.userId
                     )
                 )
 
@@ -136,22 +136,21 @@ class RegisterDeviceViewModel @Inject constructor(
                     continueEnabled = true,
                     flowState = RegisterDeviceFlowState.Default
                 )
-                when (secondFactorVerificationCode.isNullOrEmpty()) {
-                     true -> { // code not yet entered so invalid code was the one reused from last login so just request a new one
-                        request2FACode()
-                    }
-                    false -> { // invalid code was the one already entered so show invalid code error
-                        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
-                            isCodeInputNecessary = true,
-                            isCurrentCodeInvalid = true,
-                        )
-                    }
+                if (userEntered2FA) {
+                    // code not yet entered so invalid code was the one reused from last login so just request a new one
+                    request2FACode()
+                } else {
+                    // invalid code was the one already entered so show invalid code error
+                    secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
+                        isCodeInputNecessary = true,
+                        isCurrentCodeInvalid = true,
+                    )
                 }
             }
 
             is RegisterClientResult.Failure.Generic -> state = state.copy(
                 continueEnabled = true,
-                flowState = RegisterDeviceFlowState.Error.GenericError(registerDeviceResult.genericFailure)
+                flowState = RegisterDeviceFlowState.Error.GenericError(this.genericFailure)
             )
 
             is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(
@@ -159,7 +158,8 @@ class RegisterDeviceViewModel @Inject constructor(
                 flowState = RegisterDeviceFlowState.Error.InvalidCredentialsError
             )
 
-            is RegisterClientResult.Failure.PasswordAuthRequired -> { /* app is already waiting for the user to enter the password */
+            is RegisterClientResult.Failure.PasswordAuthRequired -> {
+                /* app is already waiting for the user to enter the password */
             }
         }
     }

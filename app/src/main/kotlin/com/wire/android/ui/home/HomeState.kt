@@ -38,7 +38,7 @@ sealed class HomeRequirement {
     data class Migration(val userId: UserId) : HomeRequirement()
     data object RegisterDevice : HomeRequirement()
     data object CreateAccountUsername : HomeRequirement()
-    data object InitialSync: HomeRequirement()
+    data object InitialSync : HomeRequirement()
 
     fun navigate(navigate: (NavigationCommand) -> Unit) = when (this) {
         is Migration -> navigate(NavigationCommand(MigrationScreenDestination(this.userId), BackStackMode.CLEAR_WHOLE))

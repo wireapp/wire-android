@@ -19,6 +19,7 @@
 package com.wire.android.ui.authentication.devices.register
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,10 +27,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.kalium.logic.data.auth.verification.VerifiableAction
+import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -44,10 +49,16 @@ class RegisterDeviceViewModel @Inject constructor(
     private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val userDataStore: UserDataStore,
+    private val getSelfUser: GetSelfUserUseCase,
+    private val requestSecondFactorVerificationCodeUseCase: RequestSecondFactorVerificationCodeUseCase,
 ) : ViewModel() {
 
     val passwordTextState: TextFieldState = TextFieldState()
     var state: RegisterDeviceState by mutableStateOf(RegisterDeviceState())
+        private set
+
+    val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
+    var secondFactorVerificationCodeState: VerificationCodeState by mutableStateOf(VerificationCodeState())
         private set
 
     init {
@@ -71,21 +82,31 @@ class RegisterDeviceViewModel @Inject constructor(
                 state = state.copy(flowState = RegisterDeviceFlowState.Default, continueEnabled = it.isNotEmpty())
             }
         }
+        viewModelScope.launch {
+            secondFactorVerificationCodeTextState.textAsFlow().collectLatest {
+                secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCurrentCodeInvalid = false)
+                if (it.length == VerificationCodeState.DEFAULT_VERIFICATION_CODE_LENGTH) {
+                    registerClient(passwordTextState.text.toString(), it.toString())
+                }
+            }
+        }
     }
 
     fun onErrorDismiss() {
         updateFlowState(RegisterDeviceFlowState.Default)
     }
 
-    private suspend fun registerClient(password: String?) {
+    private suspend fun registerClient(password: String?, secondFactorVerificationCode: String? = null) {
         state = state.copy(flowState = RegisterDeviceFlowState.Loading, continueEnabled = false)
-        when (val registerDeviceResult = registerClientUseCase(
+        val registerDeviceResult = registerClientUseCase(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
+                secondFactorVerificationCode = secondFactorVerificationCode,
                 capabilities = null,
                 modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
-        )) {
+        )
+        when (registerDeviceResult) {
             is RegisterClientResult.Failure.TooManyClients ->
                 updateFlowState(RegisterDeviceFlowState.TooManyDevices)
 
@@ -108,6 +129,26 @@ class RegisterDeviceViewModel @Inject constructor(
                     )
                 )
 
+            is RegisterClientResult.Failure.InvalidCredentials.Missing2FA -> request2FACode()
+
+            is RegisterClientResult.Failure.InvalidCredentials.Invalid2FA -> {
+                state = state.copy(
+                    continueEnabled = true,
+                    flowState = RegisterDeviceFlowState.Default
+                )
+                when (secondFactorVerificationCode.isNullOrEmpty()) {
+                     true -> { // code not yet entered so invalid code was the one reused from last login so just request a new one
+                        request2FACode()
+                    }
+                    false -> { // invalid code was the one already entered so show invalid code error
+                        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
+                            isCodeInputNecessary = true,
+                            isCurrentCodeInvalid = true,
+                        )
+                    }
+                }
+            }
+
             is RegisterClientResult.Failure.Generic -> state = state.copy(
                 continueEnabled = true,
                 flowState = RegisterDeviceFlowState.Error.GenericError(registerDeviceResult.genericFailure)
@@ -126,6 +167,44 @@ class RegisterDeviceViewModel @Inject constructor(
     fun onContinue() {
         viewModelScope.launch {
             registerClient(passwordTextState.text.toString())
+        }
+    }
+
+    fun onCodeResend() {
+        viewModelScope.launch {
+            request2FACode()
+        }
+    }
+
+    fun onCodeVerificationBackPress() {
+        secondFactorVerificationCodeTextState.clearText()
+        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
+            isCodeInputNecessary = false,
+            emailUsed = "",
+        )
+    }
+
+    private suspend fun request2FACode() {
+        getSelfUser()?.email?.let { email ->
+            requestSecondFactorVerificationCodeUseCase(
+                email = email,
+                verifiableAction = VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION
+            ).let { result ->
+                when (result) {
+                    is RequestSecondFactorVerificationCodeUseCase.Result.Success,
+                    is RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests -> {
+                        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
+                            isCodeInputNecessary = true,
+                            emailUsed = email,
+                        )
+                        updateFlowState(RegisterDeviceFlowState.Default)
+                    }
+
+                    is RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic -> {
+                        updateFlowState(RegisterDeviceFlowState.Error.GenericError(result.cause))
+                    }
+                }
+            }
         }
     }
 

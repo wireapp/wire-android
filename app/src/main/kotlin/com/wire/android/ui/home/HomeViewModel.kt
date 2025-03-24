@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -97,18 +98,21 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val selfUser = getSelfUser() ?: return@launch
             when {
-                shouldTriggerMigrationForUser(selfUser.id) ->
+                shouldTriggerMigrationForUser(selfUser.id) -> // check if the user needs to be migrated from scala app
                     onRequirement(HomeRequirement.Migration(selfUser.id))
 
-                needsToRegisterClient() -> // check if the client has been registered and open the proper screen if not
+                needsToRegisterClient() -> // check if the client needs to be registered
                     onRequirement(HomeRequirement.RegisterDevice)
 
-                selfUser.handle.isNullOrEmpty() -> // check if the user handle has been set and open the proper screen if not
+                !dataStore.initialSyncCompleted.first() -> // check if the initial sync needs to be completed
+                    onRequirement(HomeRequirement.InitialSync)
+
+                selfUser.handle.isNullOrEmpty() -> // check if the user handle needs to be set
                     onRequirement(HomeRequirement.CreateAccountUsername)
 
-                shouldDisplayWelcomeToARScreen() -> {
+                // check if the "welcome to the new app" screen needs to be displayed
+                shouldDisplayWelcomeToARScreen() ->
                     homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
-                }
             }
         }
     }

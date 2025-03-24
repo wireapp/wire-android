@@ -201,6 +201,9 @@ class HomeViewModelTest {
         lateinit var observeSelfUser: ObserveSelfUserUseCase
 
         @MockK
+        lateinit var getSelf: GetSelfUserUseCase
+
+        @MockK
         lateinit var needsToRegisterClient: NeedsToRegisterClientUseCase
 
         @MockK

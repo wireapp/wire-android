@@ -21,7 +21,9 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
+import com.wire.android.util.cellFileDateTime
 import com.wire.kalium.cells.domain.model.CellFile
+import kotlinx.datetime.Instant
 
 internal data class CellFileUi(
     val uuid: String,
@@ -38,6 +40,7 @@ internal data class CellFileUi(
     val userName: String? = null,
     val conversationName: String? = null,
     val publicLinkId: String? = null,
+    val modifiedTime: String? = null,
 )
 
 internal fun CellFile.toUiModel(downloadProgress: Float?) = CellFileUi(
@@ -55,7 +58,10 @@ internal fun CellFile.toUiModel(downloadProgress: Float?) = CellFileUi(
     userName = userName,
     conversationName = conversationName,
     publicLinkId = publicLinkId,
+    modifiedTime = formattedModifiedTime(),
 )
+
+private fun CellFile.formattedModifiedTime() = lastModified?.let { Instant.fromEpochMilliseconds(it).cellFileDateTime() }
 
 internal fun CellFileUi.localFileAvailable() = localPath != null
 internal fun CellFileUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)

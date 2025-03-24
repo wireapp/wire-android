@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,6 +65,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -155,6 +157,8 @@ fun GroupConversationDetailsScreen(
     val snackbarHostState = LocalSnackbarHostState.current
     val showSnackbarMessage: (UIText) -> Unit = remember { { scope.launch { snackbarHostState.showSnackbar(it.asString(resources)) } } }
 
+    val groupOptions by viewModel.groupOptionsState.collectAsState()
+
     val onSearchConversationMessagesClick: () -> Unit = {
         navigator.navigate(
             NavigationCommand(
@@ -166,13 +170,11 @@ fun GroupConversationDetailsScreen(
     }
 
     val onConversationMediaClick: () -> Unit = {
-        navigator.navigate(
-            NavigationCommand(
-                ConversationMediaScreenDestination(
-                    conversationId = viewModel.conversationId
-                )
-            )
-        )
+        if (groupOptions.isWireCellEnabled) {
+            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(viewModel.conversationId.toString())))
+        } else {
+            navigator.navigate(NavigationCommand(ConversationMediaScreenDestination(viewModel.conversationId)))
+        }
     }
 
     GroupConversationDetailsContent(
@@ -252,6 +254,7 @@ fun GroupConversationDetailsScreen(
             navigator.navigate(NavigationCommand(EditConversationNameScreenDestination(viewModel.conversationId)))
         },
         isLoading = viewModel.requestInProgress,
+        isWireCellEnabled = groupOptions.isWireCellEnabled,
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
         onConversationMediaClick = onConversationMediaClick,
         isAbandonedOneOnOneConversation = viewModel.conversationSheetContent?.isAbandonedOneOnOneConversation(
@@ -311,6 +314,7 @@ private fun GroupConversationDetailsContent(
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
     isAbandonedOneOnOneConversation: Boolean,
+    isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
@@ -400,6 +404,7 @@ private fun GroupConversationDetailsContent(
                     onSearchConversationMessagesClick = onSearchConversationMessagesClick,
                     onConversationMediaClick = onConversationMediaClick,
                     isUnderLegalHold = it.isUnderLegalHold,
+                    isWireCellEnabled = isWireCellEnabled,
                     onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
                     modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
                 )
@@ -665,6 +670,7 @@ fun PreviewGroupConversationDetails() {
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},
             isAbandonedOneOnOneConversation = false,
+            isWireCellEnabled = false,
             initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS
         )
     }

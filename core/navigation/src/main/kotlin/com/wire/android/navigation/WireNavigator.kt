@@ -15,19 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.cell
+package com.wire.android.navigation
 
-import androidx.compose.runtime.Composable
-import com.wire.android.feature.cells.ui.WireCellScreen
-import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.home.HomeStateHolder
+import androidx.compose.runtime.compositionLocalOf
 
-@HomeNavGraph
-@WireDestination
-@Composable
-fun GlobalCellsScreen(
-    homeStateHolder: HomeStateHolder,
-) {
-    WireCellScreen(searchBarState = homeStateHolder.searchBarState,)
+interface WireNavigator {
+    fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean = false)
+    fun navigateBack(onlyIfResumed: Boolean = false)
 }
+
+val LocalNavigator = compositionLocalOf<WireNavigator> { error("No Navigator provided") }
+

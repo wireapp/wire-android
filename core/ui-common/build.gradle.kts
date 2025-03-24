@@ -36,6 +36,8 @@ dependencies {
     implementation(libs.coil.gif)
     implementation(libs.coil.compose)
 
+    implementation(libs.ktx.dateTime)
+
     testImplementation(libs.junit5.core)
     testImplementation(libs.junit5.params)
     testImplementation(libs.mockk.core)

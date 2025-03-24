@@ -19,7 +19,7 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.model.CellFileUi
@@ -28,6 +28,7 @@ import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.navigation.SavedStateViewModel
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
@@ -37,6 +38,7 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -51,19 +53,24 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class CellViewModel @Inject constructor(
+    override val savedStateHandle: SavedStateHandle,
     private val getCellFiles: GetCellFilesUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val download: DownloadCellFileUseCase,
     private val fileHelper: FileHelper,
     private val kaliumFileSystem: KaliumFileSystem,
-) : ViewModel() {
+) : SavedStateViewModel(savedStateHandle) {
+
+    private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
 
     private val _state: MutableStateFlow<CellViewState> = MutableStateFlow(CellViewState.Loading)
     internal val state = _state.asStateFlow()
 
+    // Show menu with actions for the selected file.
     private val _menu: MutableSharedFlow<MenuOptions> = MutableSharedFlow()
     internal val menu = _menu.asSharedFlow()
 
+    // Show bottom sheet with download progress.
     private val _downloadFile: MutableStateFlow<CellFileUi?> = MutableStateFlow(null)
     internal val downloadFile = _downloadFile.asStateFlow()
 
@@ -71,31 +78,31 @@ class CellViewModel @Inject constructor(
         capacity = Channel.BUFFERED,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-
     internal val actions = _actions.receiveAsFlow()
 
+    // Download progress value for each file being downloaded.
     private val uploadProgress = mutableStateMapOf<String, Float>()
 
     private var searchQuery: String = ""
 
-    internal fun loadFiles(clearList: Boolean = false, pullToRefresh: Boolean = false) {
+    private fun loadFiles(clearList: Boolean = false, pullToRefresh: Boolean = false) {
 
-        if (pullToRefresh) {
-            _state.update { currentState ->
-                if (currentState is CellViewState.Files) {
+        _state.update { currentState ->
+            when {
+                clearList -> CellViewState.Loading
+
+                pullToRefresh -> if (currentState is CellViewState.Files) {
                     currentState.copy(refreshing = searchQuery.isEmpty())
                 } else {
                     CellViewState.Loading
                 }
+
+                else -> currentState
             }
         }
 
-        if (clearList) {
-            _state.value = CellViewState.Loading
-        }
-
         viewModelScope.launch {
-            getCellFiles.invoke(searchQuery)
+            getCellFiles.invoke(navArgs.conversationId, searchQuery)
                 .onSuccess { nodes ->
                     _state.update {
                         if (nodes.isEmpty()) {
@@ -122,22 +129,34 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    internal fun onQueryUpdated(text: String) {
+    internal fun onSearchQueryUpdated(text: String) {
         if (searchQuery != text) {
             searchQuery = text
             loadFiles()
         }
     }
 
-    internal fun onFileClick(file: CellFileUi) {
+    internal fun sendIntent(intent: CellViewIntent) {
+        when (intent) {
+            is CellViewIntent.LoadFiles -> loadFiles(intent.clearList, intent.pullToRefresh)
+            is CellViewIntent.OnFileClick -> onFileClick(intent.file)
+            is CellViewIntent.OnFileMenuClick -> onFileMenuClick(intent.file)
+            is CellViewIntent.OnMenuActionSelected -> onMenuAction(intent.file, intent.action)
+            is CellViewIntent.OnFileDownloadConfirmed -> downloadFile(intent.file)
+            is CellViewIntent.OnFileDeleteConfirmed -> deleteFile(intent.file)
+            is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
+        }
+    }
+
+    private fun onFileClick(file: CellFileUi) {
         when {
             file.localFileAvailable() -> openLocalFile(file)
-            file.canOpenWithUrl() -> openUrl(file)
+            file.canOpenWithUrl() -> openFileContentUrl(file)
             else -> viewModelScope.launch { _downloadFile.emit(file) }
         }
     }
 
-    internal fun downloadFile(file: CellFileUi) = viewModelScope.launch {
+    private fun downloadFile(file: CellFileUi) = viewModelScope.launch {
 
         val path = kaliumFileSystem.providePersistentAssetPath(
             file.fileName ?: run {
@@ -194,7 +213,7 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    private fun openUrl(file: CellFileUi) {
+    private fun openFileContentUrl(file: CellFileUi) {
         file.contentUrl?.let { url ->
             fileHelper.openAssetUrlWithExternalApp(
                 url = url,
@@ -219,7 +238,7 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    internal fun onFileMenuClick(file: CellFileUi) = viewModelScope.launch {
+    private fun onFileMenuClick(file: CellFileUi) = viewModelScope.launch {
         _menu.emit(
             MenuOptions(
                 file = file,
@@ -236,7 +255,7 @@ class CellViewModel @Inject constructor(
         )
     }
 
-    internal fun onAction(file: CellFileUi, action: FileAction) {
+    private fun onMenuAction(file: CellFileUi, action: FileAction) {
         when (action) {
             FileAction.SAVE -> downloadFile(file)
             FileAction.SHARE -> shareFile(file)
@@ -258,15 +277,14 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    internal fun deleteFile(file: CellFileUi) = viewModelScope.launch {
+    private fun deleteFile(file: CellFileUi) = viewModelScope.launch {
 
         removeFile(file.uuid)
 
         deleteCellAsset(file.uuid, file.localPath)
-            .onSuccess {
-                loadFiles()
-            }.onFailure {
+            .onFailure {
                 sendAction(ShowError(CellError.OTHER_ERROR))
+                loadFiles()
             }
     }
 
@@ -304,13 +322,23 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    fun onDownloadMenuClosed() {
+    private fun onDownloadMenuClosed() {
         _downloadFile.update { null }
     }
 
     private fun sendAction(action: CellViewAction) {
         viewModelScope.launch { _actions.send(action) }
     }
+}
+
+internal sealed interface CellViewIntent {
+    data class LoadFiles(val clearList: Boolean = false, val pullToRefresh: Boolean = false) : CellViewIntent
+    data class OnFileClick(val file: CellFileUi) : CellViewIntent
+    data class OnFileMenuClick(val file: CellFileUi) : CellViewIntent
+    data class OnMenuActionSelected(val file: CellFileUi, val action: FileAction) : CellViewIntent
+    data class OnFileDownloadConfirmed(val file: CellFileUi) : CellViewIntent
+    data class OnFileDeleteConfirmed(val file: CellFileUi) : CellViewIntent
+    data object OnDownloadMenuClosed : CellViewIntent
 }
 
 internal sealed interface CellViewAction

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 package com.wire.android.util
 
 import androidx.compose.runtime.Stable
-import com.wire.android.appLogger
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
 import java.time.LocalDateTime
@@ -61,6 +60,9 @@ fun Date.toMediumOnlyDateTime(): String = DateAndTimeParsers.toMediumOnlyDateTim
 fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
 
 @Stable
+fun Instant.cellFileDateTime(): String = DateAndTimeParsers.cellFileDateTime(this)
+
+@Stable
 fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
 //endregion
 
@@ -83,6 +85,8 @@ class DateAndTimeParsers private constructor() {
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
         private val fileDateTimeFormat =
             DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss", Locale.getDefault()).withZone(ZoneId.systemDefault())
+        private val cellFileDateTimeFormat =
+            DateTimeFormatter.ofPattern("MMM dd,  hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val readReceiptDateTimeFormat =
             DateTimeFormatter.ofPattern("MMM dd yyyy,  hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val mediumOnlyDateTimeFormat =
@@ -101,7 +105,6 @@ class DateAndTimeParsers private constructor() {
             return try {
                 Date(LocalDateTime.parse(stringDate, dateTimeFormatter).toInstant(ZoneOffset.UTC).toEpochMilli())
             } catch (e: Exception) {
-                appLogger.e("There was an error parsing the server date")
                 null
             }
         }
@@ -128,6 +131,8 @@ class DateAndTimeParsers private constructor() {
             } catch (e: Exception) {
                 null
             }
+
+        fun cellFileDateTime(instant: Instant): String = cellFileDateTimeFormat.format(instant.toJavaInstant())
 
         fun fileDateTime(instant: Instant): String = fileDateTimeFormat.format(instant.toJavaInstant())
 

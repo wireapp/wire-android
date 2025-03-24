@@ -36,7 +36,6 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
-    id(libs.plugins.wire.kover.get().pluginId)
     id(libs.plugins.wire.versionizer.get().pluginId)
     alias(libs.plugins.screenshot)
 }
@@ -145,11 +144,6 @@ dependencies {
     implementation(project(":features:sketch"))
     implementation(project(":core:ui-common"))
     implementation(project(":core:navigation"))
-
-    // kover
-    kover(project(":features:sketch"))
-    kover(project(":core:ui-common"))
-    kover(project(":core:analytics-enabled"))
 
     // Application dependencies
     implementation(libs.androidx.appcompat)

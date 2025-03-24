@@ -27,6 +27,11 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
 
+      - name: Test Build Logic
+        run: |
+          ./gradlew -p buildSrc test
+          ./gradlew -p build-logic :plugins:test      
+
       - name: Generate sharded tests
         id: generate-shards
         run: |
@@ -62,11 +67,6 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
 
-      - name: Test Build Logic
-        run: |
-          ./gradlew -p buildSrc test
-          ./gradlew -p build-logic :plugins:test
-
       - name: Download Shards as input
         uses: actions/download-artifact@v4
         with:
@@ -88,25 +88,6 @@ jobs:
           path: |
             **/build/test-results/**/*.xml
             **/build/outputs/androidTest-results/**/*.xml
-
-      #      - name: Generate report
-      #        uses: actions/upload-artifact@v4
-      #        with:
-      #          name: report-${{ matrix.shardIndex }}
-      #          path: app/build/reports/kover
-      #
-      #      - name: Download Test Reports Folder
-      #        uses: actions/download-artifact@v4
-      #        with:
-      #          name: report-${{ matrix.shardIndex }}
-      #          path: app/build/reports/kover
-      #          merge-multiple: true
-
-      #      - name: Upload code coverage to codecov
-      #        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3
-      #        with:
-      #          token: ${{ secrets.CODECOV_TOKEN }}
-      #          files: "app/build/reports/kover/report.xml"
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.

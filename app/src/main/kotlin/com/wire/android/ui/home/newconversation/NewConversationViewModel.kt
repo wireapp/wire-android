@@ -95,6 +95,10 @@ class NewConversationViewModel @Inject constructor(
         }
     }
 
+    fun setIsChannel(isChannel: Boolean) {
+        newGroupState = newGroupState.copy(isChannel = isChannel)
+    }
+
     private fun setConversationCreationParam() {
         viewModelScope.launch {
             val selfUser = getSelfUser()

@@ -92,7 +92,6 @@ import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestinati
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
-import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
@@ -146,7 +145,6 @@ import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBackArgs
-import com.wire.android.ui.home.conversations.messages.AudioMessagesState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
@@ -558,9 +556,6 @@ fun ConversationScreen(
         onReactionClick = { messageId, emoji ->
             conversationMessagesViewModel.toggleReaction(messageId, emoji)
         },
-        onAudioClick = conversationMessagesViewModel::audioClick,
-        onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
-        onChangeAudioSpeed = conversationMessagesViewModel::changeAudioSpeed,
         onResetSessionClick = conversationMessagesViewModel::onResetSession,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = {
@@ -856,9 +851,6 @@ private fun ConversationScreen(
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onAudioClick: (String) -> Unit,
-    onChangeAudioPosition: (String, Int) -> Unit,
-    onChangeAudioSpeed: (AudioSpeed) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onStartCall: () -> Unit,
@@ -942,7 +934,7 @@ private fun ConversationScreen(
                     ConversationScreenContent(
                         conversationId = conversationInfoViewState.conversationId,
                         bottomSheetVisible = bottomSheetVisible,
-                        audioMessagesState = conversationMessagesViewState.audioMessagesState,
+                        playingAudioMessage = conversationMessagesViewState.playingAudioMessage,
                         assetStatuses = conversationMessagesViewState.assetStatuses,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                         unreadEventCount = conversationMessagesViewState.firstUnreadEventIndex,
@@ -955,9 +947,6 @@ private fun ConversationScreen(
                         onPingOptionClicked = onPingOptionClicked,
                         onImagesPicked = onImagesPicked,
                         onAssetItemClicked = onAssetItemClicked,
-                        onAudioItemClicked = onAudioClick,
-                        onChangeAudioPosition = onChangeAudioPosition,
-                        onChangeAudioSpeed = onChangeAudioSpeed,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
                         onResetSessionClicked = onResetSessionClick,
@@ -1026,7 +1015,7 @@ private fun ConversationScreenContent(
     bottomSheetVisible: Boolean,
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
-    audioMessagesState: AudioMessagesState,
+    playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
@@ -1036,9 +1025,6 @@ private fun ConversationScreenContent(
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onAssetItemClicked: (String) -> Unit,
-    onAudioItemClicked: (String) -> Unit,
-    onChangeAudioPosition: (String, Int) -> Unit,
-    onChangeAudioSpeed: (AudioSpeed) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
@@ -1079,7 +1065,7 @@ private fun ConversationScreenContent(
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
-                audioMessagesState = audioMessagesState,
+                playingAudioMessage = playingAudioMessage,
                 assetStatuses = assetStatuses,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
                 clickActions = MessageClickActions.Content(
@@ -1087,9 +1073,6 @@ private fun ConversationScreenContent(
                     onProfileClicked = onOpenProfile,
                     onReactionClicked = onReactionClicked,
                     onAssetClicked = onAssetItemClicked,
-                    onPlayAudioClicked = onAudioItemClicked,
-                    onAudioPositionChanged = onChangeAudioPosition,
-                    onAudioSpeedChange = onChangeAudioSpeed,
                     onImageClicked = onImageFullScreenMode,
                     onLinkClicked = onLinkClick,
                     onReplyClicked = onNavigateToReplyOriginalMessage,
@@ -1160,7 +1143,7 @@ fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
-    audioMessagesState: AudioMessagesState,
+    playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onUpdateConversationReadDate: (String) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
@@ -1274,8 +1257,6 @@ fun MessageList(
                         conversationDetailsData = conversationDetailsData,
                         showAuthor = showAuthor,
                         useSmallBottomPadding = useSmallBottomPadding,
-                        audioState = audioMessagesState.audioStates[message.header.messageId],
-                        audioSpeed = audioMessagesState.audioSpeed,
                         assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                         clickActions = clickActions,
                         swipableMessageConfiguration = swipableConfiguration,
@@ -1301,7 +1282,7 @@ fun MessageList(
             JumpToPlayingAudioButton(
                 lazyListState = lazyListState,
                 lazyPagingMessages = lazyPagingMessages,
-                playingAudiMessage = audioMessagesState.playingAudiMessage
+                playingAudioMessage = playingAudioMessage
             )
             JumpToLastMessageButton(lazyListState = lazyListState)
         }
@@ -1440,14 +1421,14 @@ fun JumpToLastMessageButton(
 @Composable
 fun BoxScope.JumpToPlayingAudioButton(
     lazyListState: LazyListState,
-    playingAudiMessage: PlayingAudioMessage,
+    playingAudioMessage: PlayingAudioMessage,
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
-    if (playingAudiMessage is PlayingAudioMessage.Some && playingAudiMessage.state.isPlaying()) {
+    if (playingAudioMessage is PlayingAudioMessage.Some && playingAudioMessage.state.isPlaying()) {
         val indexOfPlayedMessage = lazyPagingMessages.itemSnapshotList
-            .indexOfFirst { playingAudiMessage.messageId == it?.header?.messageId }
+            .indexOfFirst { playingAudioMessage.messageId == it?.header?.messageId }
 
         if (indexOfPlayedMessage < 0) return
 
@@ -1479,7 +1460,7 @@ fun BoxScope.JumpToPlayingAudioButton(
                 modifier = Modifier
                     .padding(horizontal = dimensions().spacing8x)
                     .weight(1f, fill = false),
-                text = playingAudiMessage.authorName.asString(),
+                text = playingAudioMessage.authorName.asString(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = colorsScheme().onPrimaryButtonEnabled,
@@ -1487,7 +1468,7 @@ fun BoxScope.JumpToPlayingAudioButton(
             )
             Text(
                 modifier = Modifier,
-                text = DateAndTimeParsers.audioMessageTime(playingAudiMessage.state.currentPositionInMs.toLong()),
+                text = DateAndTimeParsers.audioMessageTime(playingAudioMessage.state.currentPositionInMs.toLong()),
                 color = colorsScheme().onPrimaryButtonEnabled,
                 style = MaterialTheme.wireTypography.label03,
             )
@@ -1542,8 +1523,6 @@ fun PreviewConversationScreen() = WireTheme {
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },
-        onChangeAudioPosition = { _, _ -> },
-        onAudioClick = { },
         onResetSessionClick = { _, _ -> },
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
@@ -1566,7 +1545,6 @@ fun PreviewConversationScreen() = WireTheme {
         onLinkClick = { _ -> },
         openDrawingCanvas = {},
         onImagesPicked = {},
-        onChangeAudioSpeed = {},
         onAttachmentClick = {},
         onAttachmentDeleteClick = {},
     )

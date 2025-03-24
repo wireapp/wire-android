@@ -69,7 +69,6 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
-import com.wire.android.ui.home.conversations.messages.AudioMessagesState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -116,9 +115,6 @@ fun ConversationMediaScreen(
             )
         },
         onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
-        audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
-        onPlayAudioItemClicked = conversationMessagesViewModel::audioClick,
-        onAudioItemPositionChanged = conversationMessagesViewModel::changeAudioPosition,
         onOpenAssetOptions = remember { onOpenAssetOptions },
     )
 
@@ -167,11 +163,8 @@ fun ConversationMediaScreen(
 @Composable
 private fun Content(
     state: ConversationAssetMessagesViewState,
-    audioMessagesState: AudioMessagesState = AudioMessagesState(),
     initialPage: ConversationMediaScreenTabItem = ConversationMediaScreenTabItem.PICTURES,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit = { _, _, _ -> },
-    onPlayAudioItemClicked: (String) -> Unit = {},
-    onAudioItemPositionChanged: (String, Int) -> Unit = { _, _ -> },
     onAssetItemClicked: (String) -> Unit = {},
     onOpenAssetOptions: (messageId: String, isMyMessage: Boolean) -> Unit = { _, _ -> },
     onNavigationPressed: () -> Unit = {},
@@ -222,10 +215,7 @@ private fun Content(
 
                     ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
                         groupedAssetMessageList = state.assetMessages,
-                        audioMessagesState = audioMessagesState,
                         assetStatuses = state.assetStatuses,
-                        onPlayAudioItemClicked = onPlayAudioItemClicked,
-                        onAudioItemPositionChanged = onAudioItemPositionChanged,
                         onAssetItemClicked = onAssetItemClicked,
                         onItemLongClicked = onOpenAssetOptions
                     )
@@ -297,13 +287,12 @@ fun PreviewConversationMediaScreenImagesContent() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewConversationMediaScreenFilesContent() = WireTheme {
-    val (flowOfAssets, assetStatuses, audioStatuses) = mockAssets()
+    val (flowOfAssets, assetStatuses) = mockAssets()
     Content(
         state = ConversationAssetMessagesViewState(
             assetMessages = flowOfAssets,
             assetStatuses = assetStatuses,
         ),
-        audioMessagesState = audioStatuses,
         initialPage = ConversationMediaScreenTabItem.FILES,
     )
 }

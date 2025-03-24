@@ -38,15 +38,22 @@ fun NewGroupConversationSearchPeopleScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel,
 ) {
+    val isSelfTeamMember = newConversationViewModel.newGroupState.isSelfTeamMember ?: false
+
+    val screenTitle = if (newConversationViewModel.newGroupState.isChannel) {
+        stringResource(id = R.string.label_new_channel)
+    } else {
+        stringResource(id = R.string.label_new_group)
+    }
     SearchUsersAndServicesScreen(
-        searchTitle = stringResource(id = R.string.label_new_group),
-        actionButtonTitle = stringResource(id = R.string.label_continue),
+        searchTitle = screenTitle,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
+        isSelfTeamMember = isSelfTeamMember,
         onContactChecked = newConversationViewModel::updateSelectedContacts,
-        onGroupSelectionSubmitAction = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
+        onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
         onServiceClicked = { },

@@ -29,6 +29,8 @@ import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -37,7 +39,9 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,7 +54,8 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
-    private val createGroupConversation: CreateGroupConversationUseCase,
+    private val createRegularGroup: CreateRegularGroupUseCase,
+    private val createChannel: CreateChannelUseCase,
     private val getSelfUser: GetSelfUserUseCase,
     getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
@@ -79,6 +84,18 @@ class NewConversationViewModel @Inject constructor(
     init {
         setConversationCreationParam()
         observeGroupNameChanges()
+    }
+
+    fun setChannelAccess(channelAccessType: ChannelAccessType) {
+        newGroupState = newGroupState.copy(channelAccessType = channelAccessType)
+    }
+
+    fun setChannelPermission(channelPermissionType: ChannelPermissionType) {
+        newGroupState = newGroupState.copy(channelPermissionType = channelPermissionType)
+    }
+
+    fun setIsChannel(isChannel: Boolean) {
+        newGroupState = newGroupState.copy(isChannel = isChannel)
     }
 
     private fun setConversationCreationParam() {
@@ -184,10 +201,31 @@ class NewConversationViewModel @Inject constructor(
         }
     }
 
+    fun createChannel(onCreated: (ConversationId) -> Unit) {
+        viewModelScope.launch {
+            groupOptionsState = groupOptionsState.copy(isLoading = true)
+            val result = createChannel(
+                name = newGroupNameTextState.text.toString(),
+                userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
+                options = ConversationOptions().copy(
+                    protocol = newGroupState.groupProtocol,
+                    readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
+                    accessRole = Conversation.accessRolesFor(
+                        guestAllowed = groupOptionsState.isAllowGuestEnabled,
+                        servicesAllowed = groupOptionsState.isAllowServicesEnabled,
+                        nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
+                    ),
+                    access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled)
+                )
+            )
+            handleNewGroupCreationResult(result)?.let(onCreated)
+        }
+    }
+
     private fun createGroupForPersonalAccounts(onCreated: (ConversationId) -> Unit) {
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
-            val result = createGroupConversation(
+            val result = createRegularGroup(
                 name = newGroupNameTextState.text.toString(),
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = ConversationOptions().copy(
@@ -204,7 +242,7 @@ class NewConversationViewModel @Inject constructor(
         if (shouldCheckGuests && checkIfGuestAdded()) return
         viewModelScope.launch {
             groupOptionsState = groupOptionsState.copy(isLoading = true)
-            val result = createGroupConversation(
+            val result = createRegularGroup(
                 name = newGroupNameTextState.text.toString(),
                 // TODO: change the id in Contact to UserId instead of String
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
@@ -223,14 +261,14 @@ class NewConversationViewModel @Inject constructor(
         }
     }
 
-    private fun handleNewGroupCreationResult(result: CreateGroupConversationUseCase.Result): ConversationId? {
+    private fun handleNewGroupCreationResult(result: ConversationCreationResult): ConversationId? {
         return when (result) {
-            is CreateGroupConversationUseCase.Result.Success -> {
+            is ConversationCreationResult.Success -> {
                 newGroupState = newGroupState.copy(isLoading = false)
                 result.conversation.id
             }
 
-            CreateGroupConversationUseCase.Result.SyncFailure -> {
+            ConversationCreationResult.SyncFailure -> {
                 appLogger.d("Can't create group due to SyncFailure")
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
@@ -238,7 +276,7 @@ class NewConversationViewModel @Inject constructor(
                 null
             }
 
-            is CreateGroupConversationUseCase.Result.UnknownFailure -> {
+            is ConversationCreationResult.UnknownFailure -> {
                 appLogger.w("Error while creating a group ${result.cause}")
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
@@ -246,7 +284,7 @@ class NewConversationViewModel @Inject constructor(
                 null
             }
 
-            is CreateGroupConversationUseCase.Result.BackendConflictFailure -> {
+            is ConversationCreationResult.BackendConflictFailure -> {
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = createGroupState.copy(error = CreateGroupState.Error.ConflictedBackends(result.domains))

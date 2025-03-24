@@ -184,7 +184,7 @@
     <string name="content_description_new_group_conversation_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
     <string name="content_description_new_conversation_name_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
     <string name="content_description_new_conversation_options_heading">Unterhaltungsoptionen</string>
-    <string name="content_description_new_conversation_options_back_btn">Zurück zur neuen Gruppenerstellung</string>
+    <string name="content_description_new_group_options_back_btn">Zurück zur neuen Gruppenerstellung</string>
     <string name="content_description_pending_connection_badge">Ausstehende Genehmigung der Kontaktanfrage</string>
     <string name="content_description_self_profile_close">Ihr Profil schließen</string>
     <string name="content_description_self_profile_heading">Ihr Profil</string>
@@ -433,8 +433,8 @@
     <string name="cipher_suite">Cipher-Suite</string>
     <string name="last_key_material_update_label">Letzte Aktualisierung des Schlüssel-Materials</string>
     <string name="group_state_label">Gruppenstatus</string>
-    <string name="empty_group_name_error">Bitte geben Sie einen Gruppennamen ein</string>
-    <string name="group_name_exceeded_limit_error">Gruppenname darf 64 Zeichen nicht überschreiten
+    <string name="empty_regular_group_name_error">Bitte geben Sie einen Gruppennamen ein</string>
+    <string name="regular_group_name_exceeded_limit_error">Gruppenname darf 64 Zeichen nicht überschreiten
     
     </string>
     <string name="group_can_not_be_created_title">Gruppe kann nicht erstellt werden</string>
@@ -978,7 +978,7 @@
     <string name="allow_guests">Gäste zulassen</string>
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="allow_services">Dienste zulassen</string>
-    <string name="allow_services_description">Öffnen Sie diese Unterhaltung für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="service_details_label">Dienst</string>
     <string name="service_details_add_service_label">Zur Gruppe hinzufügen</string>
     <string name="service_details_remove_service_label">Aus Gruppe entfernen</string>
@@ -989,7 +989,7 @@
     <string name="service_no_information_available_title">Keine Informationen verfügbar</string>
     <string name="service_no_information_available_subtitle">Versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin</string>
     <string name="read_receipts">Lesebestätigungen</string>
-    <string name="read_receipts_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
+    <string name="read_receipts_regular_group_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
     <string name="disable_guests_dialog_title">Gäste nicht zulassen?</string>
     <string name="disable_guests_dialog_description">Gäste, die Sie im vorherigen Schritt ausgewählt haben, sind nicht Teil der Gruppe, wenn Sie den Gastzugang nicht erlauben.</string>
     <string name="disable_guests_dialog_button">Keine Gäste zulassen</string>
@@ -1558,5 +1558,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="new_folder_error_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
     <string name="new_folder_failure">Ordner “%1$s” konnte nicht hinzugefügt werden</string>
     <string name="press_enter_to_send_title">Enter zum Senden drücken</string>
-    <string name="custimization_options_header_title">Optionen</string>
+    <string name="customization_options_header_title">Optionen</string>
 </resources>

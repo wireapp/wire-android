@@ -366,8 +366,8 @@
     <string name="protocol">Protokol</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
-    <string name="empty_group_name_error">Unesite naziv grupe</string>
-    <string name="group_name_exceeded_limit_error">Naziv grupe ne smije biti dulji od 64 znaka
+    <string name="empty_regular_group_name_error">Unesite naziv grupe</string>
+    <string name="regular_group_name_exceeded_limit_error">Naziv grupe ne smije biti dulji od 64 znaka
     </string>
     <string name="group_can_not_be_created_edit_participiant_list">Uredite Popis Sudionika</string>
     <string name="group_can_not_be_created_discard_group_creation">Odbaci Stvaranje Grupe</string>

@@ -61,6 +61,7 @@ object TestConversationItem {
         badgeEventType = BadgeEventType.UnreadMessage(100),
         selfMemberRole = null,
         isFromTheSameTeam = false,
+        isChannel = false,
         teamId = null,
         isArchived = false,
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,

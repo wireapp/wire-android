@@ -372,7 +372,7 @@ class DeepLinkProcessorTest {
             isCbrEnabled = false,
             callerId = UserId("caller", "domain"),
             conversationName = "ONE_ON_ONE Name",
-            conversationType = Conversation.Type.ONE_ON_ONE,
+            conversationType = Conversation.Type.OneOnOne,
             callerName = "otherUsername",
             callerTeamName = "team1"
         )

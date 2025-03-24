@@ -51,8 +51,6 @@ import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryIconButton
-import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconButton
@@ -206,7 +204,7 @@ private fun Avatar(
     when (conversationAvatar) {
         is ConversationAvatar.Group ->
             GroupConversationAvatar(
-                color = colorsScheme().conversationColor(id = conversationAvatar.conversationId),
+                conversationId = conversationAvatar.conversationId,
                 size = dimensions().avatarConversationTopBarSize,
                 cornerRadius = dimensions().groupAvatarConversationTopBarCornerRadius,
                 padding = dimensions().avatarConversationTopBarClickablePadding,

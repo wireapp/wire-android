@@ -38,6 +38,7 @@ import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -174,6 +175,18 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     isDeletingConversationLocallyRunning = false
                 )
 
+                val channelPermissionType = if (groupDetails is ConversationDetails.Group.Channel) {
+                    groupDetails.permission.toUiEnum()
+                } else {
+                    null
+                }
+
+                val channelAccessType = if (groupDetails is ConversationDetails.Group.Channel) {
+                    groupDetails.access.toUiEnum()
+                } else {
+                    null
+                }
+
                 updateState(
                     groupOptionsState.value.copy(
                         groupName = groupDetails.conversation.name.orEmpty(),
@@ -189,7 +202,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         mlsEnabled = isMLSEnabled(),
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
                         selfDeletionTimer = selfDeletionTimer,
-                        isChannel = isChannel
+                        isChannel = isChannel,
+                        channelPermissionType = channelPermissionType,
+                        channelAccessType = channelAccessType
                     )
                 )
             }.collect {}

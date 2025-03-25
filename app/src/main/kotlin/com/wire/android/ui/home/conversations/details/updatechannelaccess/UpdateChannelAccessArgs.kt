@@ -24,6 +24,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class UpdateChannelAccessArgs(
+    val conversationId: String,
     val accessType: ChannelAccessType = ChannelAccessType.PRIVATE,
     val permissionType: ChannelPermissionType = ChannelPermissionType.ADMINS
 ) : Parcelable

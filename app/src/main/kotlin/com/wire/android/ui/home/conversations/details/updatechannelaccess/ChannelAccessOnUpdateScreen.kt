@@ -42,6 +42,7 @@ fun ChannelAccessOnUpdateScreen(
     fun navigateBack() {
         resultNavigator.setResult(
             UpdateChannelAccessArgs(
+                updateChannelAccessViewModel.getConversationId(),
                 updateChannelAccessViewModel.getAccessType(),
                 updateChannelAccessViewModel.getPermissionType(),
             )

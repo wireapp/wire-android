@@ -252,8 +252,9 @@ fun GroupConversationDetailsScreen(
             navigator.navigate(
                 NavigationCommand(
                     ChannelAccessOnUpdateScreenDestination(
-                        viewModel.groupOptionsState.value.channelAccessType,
-                        viewModel.groupOptionsState.value.channelPermissionType
+                        viewModel.conversationId.toString(),
+                        viewModel.groupOptionsState.value.channelAccessType!!,
+                        viewModel.groupOptionsState.value.channelPermissionType!!
                     )
                 )
             )

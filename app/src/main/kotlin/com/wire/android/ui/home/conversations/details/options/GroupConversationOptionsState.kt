@@ -56,8 +56,8 @@ data class GroupConversationOptionsState(
     val loadingServicesOption: Boolean = false,
     val loadingReadReceiptOption: Boolean = false,
     val isChannel: Boolean = false,
-    val channelAccessType: ChannelAccessType = ChannelAccessType.PRIVATE,
-    val channelPermissionType: ChannelPermissionType = ChannelPermissionType.ADMINS,
+    val channelAccessType: ChannelAccessType? = ChannelAccessType.PRIVATE,
+    val channelPermissionType: ChannelPermissionType? = ChannelPermissionType.ADMINS,
     val error: Error = Error.None,
     val mlsEnabled: Boolean = false,
     val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled

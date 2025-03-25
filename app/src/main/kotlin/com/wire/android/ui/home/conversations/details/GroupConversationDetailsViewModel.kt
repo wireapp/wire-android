@@ -36,6 +36,8 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -43,6 +45,7 @@ import com.wire.android.util.uiText
 import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -68,7 +71,6 @@ import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.common.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -150,6 +152,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 val isSelfExternalMember = selfUser?.userType == UserType.EXTERNAL
                 val isSelfAnAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
                 val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
+                val isChannel = groupDetails is ConversationDetails.Group.Channel
 
                 conversationSheetContent = ConversationSheetContent(
                     title = groupDetails.conversation.name.orEmpty(),
@@ -185,7 +188,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingSelfDeletingAllowed = isSelfAnAdmin,
                         mlsEnabled = isMLSEnabled(),
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
-                        selfDeletionTimer = selfDeletionTimer
+                        selfDeletionTimer = selfDeletionTimer,
+                        isChannel = isChannel
                     )
                 )
             }.collect {}
@@ -213,6 +217,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         onSuccess()
                     }
                 }
+
                 null -> {}
             }
             requestInProgress = false
@@ -256,6 +261,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    fun updateChannelAccess(channelAccessType: ChannelAccessType) {
+        updateState(groupOptionsState.value.copy(channelAccessType = channelAccessType))
+    }
+
+    fun updateChannelPermission(channelPermissionType: ChannelPermissionType) {
+        updateState(groupOptionsState.value.copy(channelPermissionType = channelPermissionType))
     }
 
     fun onServicesUpdate(enableServices: Boolean) {

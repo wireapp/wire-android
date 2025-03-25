@@ -63,7 +63,6 @@ import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.shareViaIntent
 
 @Suppress("ComplexMethod")
-@OptIn(ExperimentalMaterial3Api::class)
 @RootNavGraph
 @WireDestination(
     navArgsDelegate = EditGuestAccessNavArgs::class

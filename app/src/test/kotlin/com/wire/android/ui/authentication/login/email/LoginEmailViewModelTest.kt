@@ -535,9 +535,6 @@ class LoginEmailViewModelTest {
         internal lateinit var requestSecondFactorCodeUseCase: RequestSecondFactorVerificationCodeUseCase
 
         @MockK
-        internal lateinit var authServerConfigProvider: AuthServerConfigProvider
-
-        @MockK
         internal lateinit var userDataStoreProvider: UserDataStoreProvider
 
         @MockK
@@ -554,7 +551,6 @@ class LoginEmailViewModelTest {
             every { userScope.persistSelfUserEmail } returns persistSelfUserEmailUseCase
             every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
             every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-            every { authServerConfigProvider.authServer } returns MutableStateFlow((newServerConfig(1).links))
             every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
                 loginPasswordPath = LoginPasswordPath(newServerConfig(1).links)
             )
@@ -568,7 +564,6 @@ class LoginEmailViewModelTest {
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             savedStateHandle,
-            authServerConfigProvider,
             userDataStoreProvider,
             coreLogic,
             dispatcherProvider

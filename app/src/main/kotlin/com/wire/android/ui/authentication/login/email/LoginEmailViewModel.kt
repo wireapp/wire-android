@@ -46,6 +46,7 @@ import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.PersistSelfUserEmailResult
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
@@ -172,6 +173,20 @@ class LoginEmailViewModel @Inject constructor(
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
+
+            withContext(dispatchers.io()) {
+                if (coreLogic.getGlobalScope().validateEmailUseCase(userIdentifierTextState.text.toString())) {
+                    coreLogic.getSessionScope(storedUserId).users.persistSelfUserEmail(userIdentifierTextState.text.toString())
+                } else {
+                    null
+                }
+            }.let {
+                if (it is PersistSelfUserEmailResult.Failure) {
+                    updateEmailFlowState(LoginState.Error.DialogError.GenericError(it.coreFailure))
+                    return@launch
+                }
+            }
+
             withContext(dispatchers.io()) {
                 registerClient(
                     userId = storedUserId,

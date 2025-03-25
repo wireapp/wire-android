@@ -57,7 +57,10 @@ fun GroupConversationOptionsItem(
         .fillMaxWidth()
         .background(MaterialTheme.wireColorScheme.surface)
         .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight),
-    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }),
+    isClickable: Boolean = false,
+    onClick: () -> Unit = {},
+    clickable: Clickable = Clickable(enabled = isClickable, onClick = onClick),
+    arrowLabel: String? = null,
     subtitle: String? = null,
     label: String? = null,
     trailingOnText: String? = null,
@@ -106,6 +109,13 @@ fun GroupConversationOptionsItem(
                     trailingOnText = trailingOnText
                 )
 
+                arrowLabel?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.secondaryText
+                    )
+                }
                 if (arrowType == ArrowType.TITLE_ALIGNED) {
                     ArrowRight()
                 }

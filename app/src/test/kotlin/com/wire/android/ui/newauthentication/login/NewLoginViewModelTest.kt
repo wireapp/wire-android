@@ -495,10 +495,10 @@ class NewLoginViewModelTest {
                 .withAuthenticationScopeSuccess()
                 .withGetLoginFlowForDomainReturning(EnterpriseLoginResult.Success(LoginRedirectPath.SSO(ssoCodeWithoutPrefix)))
                 .arrange()
-    
+
             sut.getEnterpriseLoginFlow(email, arrangement.action)
             advanceUntilIdle()
-    
+
             verify(exactly = 0) {
                 arrangement.action(any())
             }
@@ -736,7 +736,7 @@ class NewLoginViewModelTest {
             dispatchers
         )
     }
-    
+
     companion object {
         private const val SSO_CODE_WITHOUT_PREFIX: String = "fd994b20-b9af-11ec-ae36-00163e9b33ca"
         private const val SSO_CODE_WITH_PREFIX: String = "$SSO_CODE_WIRE_PREFIX$SSO_CODE_WITHOUT_PREFIX"

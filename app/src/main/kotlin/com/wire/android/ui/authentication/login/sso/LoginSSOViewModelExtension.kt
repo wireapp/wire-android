@@ -114,4 +114,3 @@ class LoginSSOViewModelExtension(
 }
 
 fun String.ssoCodeWithPrefix() = if (this.startsWith(SSO_CODE_WIRE_PREFIX)) this else "$SSO_CODE_WIRE_PREFIX$this"
-

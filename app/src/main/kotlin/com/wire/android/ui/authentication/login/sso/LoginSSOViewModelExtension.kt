@@ -27,6 +27,7 @@ import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
+import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase.Companion.SSO_CODE_WIRE_PREFIX
 
 class LoginSSOViewModelExtension(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
@@ -72,12 +73,7 @@ class LoginSSOViewModelExtension(
             authScope.ssoLoginScope.fetchSSOSettings().also {
                 when (it) {
                     is FetchSSOSettingsUseCase.Result.Failure -> onFetchSSOSettingsFailure(it)
-                    is FetchSSOSettingsUseCase.Result.Success -> {
-                        val ssoCodeWithPrefix = it.defaultSSOCode?.let { ssoCode ->
-                            if (ssoCode.startsWith("wire-")) ssoCode else "wire-$ssoCode"
-                        }
-                        onSuccess(ssoCodeWithPrefix)
-                    }
+                    is FetchSSOSettingsUseCase.Result.Success -> onSuccess(it.defaultSSOCode?.ssoCodeWithPrefix())
                 }
             }
         }
@@ -116,3 +112,6 @@ class LoginSSOViewModelExtension(
         }
     }
 }
+
+fun String.ssoCodeWithPrefix() = if (this.startsWith(SSO_CODE_WIRE_PREFIX)) this else "$SSO_CODE_WIRE_PREFIX$this"
+

@@ -39,6 +39,7 @@ import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
+import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
@@ -168,7 +169,7 @@ class NewLoginViewModel(
                     is EnterpriseLoginResult.Success -> {
                         when (val loginRedirectPath = loginFlowResult.loginRedirectPath) {
                             is LoginRedirectPath.SSO -> {
-                                initiateSSO(serverConfig, loginRedirectPath.ssoCode, action)
+                                initiateSSO(serverConfig, loginRedirectPath.ssoCode.ssoCodeWithPrefix(), action)
                             }
 
                             is LoginRedirectPath.CustomBackend -> withContext(dispatchers.main()) {

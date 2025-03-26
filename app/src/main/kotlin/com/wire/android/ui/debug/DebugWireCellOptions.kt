@@ -66,9 +66,7 @@ fun DebugWireCellOptions(
                 )
             }
         )
-
     }
-
 }
 
 @PreviewMultipleThemes

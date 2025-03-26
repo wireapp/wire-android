@@ -306,9 +306,11 @@ private fun GroupOptionState.AllowGuestsOptions(isChannel: Boolean, onAllowGuest
 private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -> Unit) {
     GroupConversationOptionsItem(
         title = stringResource(R.string.enable_wire_cell),
-        switchState = SwitchState.Enabled(value = isWireCellsEnabled ?: false,
+        switchState = SwitchState.Enabled(
+            value = isWireCellsEnabled ?: false,
             isOnOffVisible = false,
-            onCheckedChange = { onEnableWireCell.invoke(it) }),
+            onCheckedChange = { onEnableWireCell.invoke(it) }
+        ),
         arrowType = ArrowType.NONE,
         clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier.background(MaterialTheme.colorScheme.surface)

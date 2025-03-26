@@ -37,7 +37,7 @@ import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -194,7 +194,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
                         selfDeletionTimer = selfDeletionTimer,
                         isChannel = isChannel,
-                        channelPermissionType = channelPermissionType,
+                        channelAddPermissionType = channelPermissionType,
                         channelAccessType = channelAccessType
                     )
                 )
@@ -202,7 +202,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun ConversationDetails.getChannelPermissionType(): ChannelPermissionType? = if (this is ConversationDetails.Group.Channel) {
+    private fun ConversationDetails.getChannelPermissionType(): ChannelAddPermissionType? = if (this is ConversationDetails.Group.Channel) {
         this.permission.toUiEnum()
     } else {
         null
@@ -285,8 +285,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
         updateState(groupOptionsState.value.copy(channelAccessType = channelAccessType))
     }
 
-    fun updateChannelPermission(channelPermissionType: ChannelPermissionType) {
-        updateState(groupOptionsState.value.copy(channelPermissionType = channelPermissionType))
+    fun updateChannelAddPermission(channelAddPermissionType: ChannelAddPermissionType) {
+        updateState(groupOptionsState.value.copy(channelAddPermissionType = channelAddPermissionType))
     }
 
     fun onServicesUpdate(enableServices: Boolean) {

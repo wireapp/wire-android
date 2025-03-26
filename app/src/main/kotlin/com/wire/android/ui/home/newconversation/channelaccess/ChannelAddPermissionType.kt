@@ -18,19 +18,19 @@
 package com.wire.android.ui.home.newconversation.channelaccess
 
 import com.wire.android.R
-import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelPermission
+import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAddPermission
 
-enum class ChannelPermissionType(val label: Int) {
-    ADMINS(R.string.channel_permission_admin_label),
-    ADMIN_AND_MEMBERS(R.string.channel_permission_admin_members_label)
+enum class ChannelAddPermissionType(val label: Int) {
+    ADMINS(R.string.channel_add_permission_admin_label),
+    ADMIN_AND_MEMBERS(R.string.channel_add_permission_admin_members_label)
 }
 
-fun ChannelPermissionType.toDomainEnum(): ChannelPermission = when (this) {
-    ChannelPermissionType.ADMINS -> ChannelPermission.ADMINS
-    ChannelPermissionType.ADMIN_AND_MEMBERS -> ChannelPermission.ADMINS_AND_MEMBERS
+fun ChannelAddPermissionType.toDomainEnum(): ChannelAddPermission = when (this) {
+    ChannelAddPermissionType.ADMINS -> ChannelAddPermission.ADMINS
+    ChannelAddPermissionType.ADMIN_AND_MEMBERS -> ChannelAddPermission.ADMINS_AND_MEMBERS
 }
 
-fun ChannelPermission.toUiEnum(): ChannelPermissionType = when (this) {
-    ChannelPermission.ADMINS -> ChannelPermissionType.ADMINS
-    ChannelPermission.ADMINS_AND_MEMBERS -> ChannelPermissionType.ADMIN_AND_MEMBERS
+fun ChannelAddPermission.toUiEnum(): ChannelAddPermissionType = when (this) {
+    ChannelAddPermission.ADMINS -> ChannelAddPermissionType.ADMINS
+    ChannelAddPermission.ADMINS_AND_MEMBERS -> ChannelAddPermissionType.ADMIN_AND_MEMBERS
 }

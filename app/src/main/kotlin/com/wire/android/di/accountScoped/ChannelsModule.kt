@@ -22,7 +22,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.channels.ChannelsScope
-import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelPermissionUseCase
+import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -42,6 +42,6 @@ class ChannelsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideUpdateChannelPermission(channelsScope: ChannelsScope): UpdateChannelPermissionUseCase =
-        channelsScope.updateChannelPermission
+    fun provideUpdateChannelAddPermission(channelsScope: ChannelsScope): UpdateChannelAddPermissionUseCase =
+        channelsScope.updateChannelAddPermission
 }

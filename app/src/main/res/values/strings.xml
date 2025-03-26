@@ -515,9 +515,9 @@
     <string name="channel_public_label">Public</string>
     <string name="channel_access_description">All team members can join public channels. But, only channel admins or members can add people to a private channel.\nA private channel can not be changed to public later.</string>
     <string name="channel_access_short_description">All team members can join public channels. But, only channel admins or members can add people to a private channel.</string>
-    <string name="channel_permission_description">Select who can add participants to a private channel</string>
-    <string name="channel_permission_admin_label">Admins</string>
-    <string name="channel_permission_admin_members_label">Admins and members</string>
+    <string name="channel_add_permission_description">Select who can add participants to a private channel</string>
+    <string name="channel_add_permission_admin_label">Admins</string>
+    <string name="channel_add_permission_admin_members_label">Admins and members</string>
     <string name="create_regular_group_button_label">Create Group</string>
     <string name="create_channel_button_label">Create Channel</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>

@@ -42,6 +42,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
+@Suppress("TooGenericExceptionCaught")
 @SuppressLint("MissingPermission")
 class LocationPickerHelper @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -126,7 +127,6 @@ class LocationPickerHelper @Inject constructor(
         timeoutJob.start()
     }
 
-    @Suppress("TooGenericExceptionCaught")
     internal fun isLocationServicesEnabled(): Boolean {
         return try {
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager

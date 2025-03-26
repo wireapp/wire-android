@@ -29,7 +29,7 @@ import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelPermissionUseCase
-import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelPermissionUseCaseResult
+import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelPermissionUseCase.UpdateChannelPermissionUseCaseResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,8 +43,10 @@ class UpdateChannelAccessViewModel @Inject constructor(
 
     private val channelAccessNavArgs: UpdateChannelAccessArgs = savedStateHandle.navArgs()
 
-    private val accessType: MutableState<ChannelAccessType> = mutableStateOf(channelAccessNavArgs.accessType)
-    private val permissionType: MutableState<ChannelPermissionType> = mutableStateOf(channelAccessNavArgs.permissionType)
+    private val accessType: MutableState<ChannelAccessType> =
+        mutableStateOf(channelAccessNavArgs.accessType)
+    private val permissionType: MutableState<ChannelPermissionType> =
+        mutableStateOf(channelAccessNavArgs.permissionType)
 
     fun getConversationId(): String = channelAccessNavArgs.conversationId
     fun getAccessType(): ChannelAccessType = accessType.value

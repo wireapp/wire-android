@@ -136,6 +136,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         .distinctUntilChanged()
         .flowOn(dispatcher.io())
 
+    @Suppress("LongMethod")
     private fun observeConversationDetails() {
         viewModelScope.launch {
             val groupDetailsFlow = groupDetailsFlow()
@@ -174,18 +175,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     folder = groupDetails.folder,
                     isDeletingConversationLocallyRunning = false
                 )
-
-                val channelPermissionType = if (groupDetails is ConversationDetails.Group.Channel) {
-                    groupDetails.permission.toUiEnum()
-                } else {
-                    null
-                }
-
-                val channelAccessType = if (groupDetails is ConversationDetails.Group.Channel) {
-                    groupDetails.access.toUiEnum()
-                } else {
-                    null
-                }
+                val channelPermissionType = groupDetails.getChannelPermissionType()
+                val channelAccessType = groupDetails.getChannelAccessType()
 
                 updateState(
                     groupOptionsState.value.copy(
@@ -209,6 +200,18 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 )
             }.collect {}
         }
+    }
+
+    private fun ConversationDetails.getChannelPermissionType(): ChannelPermissionType? = if (this is ConversationDetails.Group.Channel) {
+        this.permission.toUiEnum()
+    } else {
+        null
+    }
+
+    private fun ConversationDetails.getChannelAccessType(): ChannelAccessType? = if (this is ConversationDetails.Group.Channel) {
+        this.access.toUiEnum()
+    } else {
+        null
     }
 
     fun leaveGroup(

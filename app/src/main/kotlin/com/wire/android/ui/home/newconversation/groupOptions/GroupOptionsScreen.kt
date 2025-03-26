@@ -380,6 +380,6 @@ fun PreviewGroupOptionScreen() {
         CreateGroupState(),
         accessTypeLabel = R.string.channel_private_label,
         isChannelsAllowed = false,
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     )
 }

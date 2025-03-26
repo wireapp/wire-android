@@ -245,13 +245,13 @@ dependencies {
     val flavors = getFlavorsSettings()
     val isCustomBuild = isCustomizationEnabled()
     flavors.flavorMap.entries.forEach { (key, configs) ->
-        if (configs["analytics_enabled"] as? Boolean == false || isCustomBuild) {
-            println(">> Dependency Anonymous Analytics is disabled for [$key] flavor")
-            add("${key}Implementation", project(":core:analytics-disabled"))
-        } else {
+        if (configs["analytics_enabled"] as? Boolean == true && !isCustomBuild) {
             println(">> Dependency Anonymous Analytics is enabled for [$key] flavor")
             add("${key}Implementation", project(":core:analytics-enabled"))
             add("test${key.capitalize()}Implementation", project(":core:analytics-disabled"))
+        } else {
+            println(">> Dependency Anonymous Analytics is disabled for [$key] flavor")
+            add("${key}Implementation", project(":core:analytics-disabled"))
         }
     }
 

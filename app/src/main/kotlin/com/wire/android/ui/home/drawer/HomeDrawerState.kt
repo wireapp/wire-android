@@ -18,4 +18,7 @@
 
 package com.wire.android.ui.home.drawer
 
-data class HomeDrawerState(val unreadArchiveConversationsCount: Int)
+data class HomeDrawerState(
+    val unreadArchiveConversationsCount: Int,
+    val showFilesOption: Boolean,
+)

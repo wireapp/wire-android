@@ -104,7 +104,8 @@ fun GroupOptionScreen(
             newConversationViewModel.onCreateGroupErrorDismiss()
             navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
-        onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss
+        onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss,
+        onEnableWireCellChanged = newConversationViewModel::onEnableWireCellChanged
     )
 }
 
@@ -118,6 +119,7 @@ fun GroupOptionScreenContent(
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
+    onEnableWireCellChanged: ((Boolean) -> Unit),
     onContinuePressed: () -> Unit,
     onAllowGuestsDialogDismissed: () -> Unit,
     onNotAllowGuestsClicked: () -> Unit,
@@ -155,6 +157,7 @@ fun GroupOptionScreenContent(
                 onAllowGuestChanged,
                 onAllowServicesChanged,
                 onReadReceiptChanged,
+                onEnableWireCellChanged,
                 onContinuePressed
             )
         }
@@ -177,6 +180,7 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
     onAllowGuestChanged: (Boolean) -> Unit,
     onAllowServicesChanged: (Boolean) -> Unit,
     onReadReceiptChanged: (Boolean) -> Unit,
+    onEnableWireCellChanged: (Boolean) -> Unit,
     onContinuePressed: () -> Unit
 ) {
     Column(
@@ -193,6 +197,9 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
             AllowGuestsOptions(isChannel, onAllowGuestChanged)
             AllowServicesOptions(isChannel, onAllowServicesChanged)
             ReadReceiptsOptions(isChannel, onReadReceiptChanged)
+            isWireCellsEnabled?.let {
+                EnableWireCellOptions(onEnableWireCellChanged)
+            }
         }
         CreateGroupButton(isChannel, onContinuePressed)
     }
@@ -296,6 +303,30 @@ private fun GroupOptionState.AllowGuestsOptions(isChannel: Boolean, onAllowGuest
 }
 
 @Composable
+private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -> Unit) {
+    GroupConversationOptionsItem(
+        title = stringResource(R.string.enable_wire_cell),
+        switchState = SwitchState.Enabled(
+            value = isWireCellsEnabled ?: false,
+            isOnOffVisible = false,
+            onCheckedChange = { onEnableWireCell.invoke(it) }
+        ),
+        arrowType = ArrowType.NONE,
+        clickable = Clickable(enabled = false, onClick = {}),
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+    )
+
+    Text(
+        text = stringResource(R.string.enable_wire_cell_switch_description),
+        fontWeight = FontWeight.Normal,
+        color = MaterialTheme.wireColorScheme.secondaryText,
+        modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
+        textAlign = TextAlign.Left,
+        fontSize = 16.sp
+    )
+}
+
+@Composable
 private fun GroupOptionState.CreateGroupButton(
     isChannel: Boolean,
     onCreate: () -> Unit
@@ -351,6 +382,6 @@ fun PreviewGroupOptionScreen() {
         CreateGroupState(),
         accessTypeLabel = R.string.channel_private_label,
         isChannelsAllowed = false,
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     )
 }

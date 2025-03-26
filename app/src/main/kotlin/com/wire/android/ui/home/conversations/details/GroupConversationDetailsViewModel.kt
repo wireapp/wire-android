@@ -26,6 +26,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
@@ -78,6 +79,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -108,6 +110,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val workManager: WorkManager,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val enableCell: SetWireCellForConversationUseCase,
+    private val globalDataStore: GlobalDataStore,
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata
 ), GroupConversationDetailsBottomSheetEventsHandler {
@@ -190,6 +193,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         selfDeletionTimer = selfDeletionTimer,
                         loadingWireCellState = false,
                         isWireCellEnabled = groupDetails.wireCell != null,
+                        isWireCellFeatureEnabled = globalDataStore.wireCellsEnabled().firstOrNull() ?: false
                     )
                 )
             }.collect {}

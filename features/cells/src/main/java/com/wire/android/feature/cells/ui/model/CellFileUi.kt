@@ -61,7 +61,9 @@ internal fun CellFile.toUiModel(downloadProgress: Float?) = CellFileUi(
     modifiedTime = formattedModifiedTime(),
 )
 
-private fun CellFile.formattedModifiedTime() = lastModified?.let { Instant.fromEpochMilliseconds(it).cellFileDateTime() }
+private fun CellFile.formattedModifiedTime() = lastModified?.let {
+    Instant.fromEpochMilliseconds(it).cellFileDateTime()
+}
 
 internal fun CellFileUi.localFileAvailable() = localPath != null
 internal fun CellFileUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)

@@ -25,4 +25,3 @@ interface WireNavigator {
 }
 
 val LocalNavigator = compositionLocalOf<WireNavigator> { error("No Navigator provided") }
-

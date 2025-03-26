@@ -145,7 +145,6 @@ internal fun CellScreenContent(
             }
         }
     }
-
 }
 
 @Composable

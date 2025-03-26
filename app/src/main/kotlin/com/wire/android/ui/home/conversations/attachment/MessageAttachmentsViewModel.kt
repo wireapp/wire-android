@@ -20,7 +20,10 @@ package com.wire.android.ui.home.conversations.attachment
 import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.SavedStateViewModel
@@ -40,6 +43,7 @@ import com.wire.kalium.cells.domain.model.AttachmentUploadStatus
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -53,8 +57,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
+import java.io.File
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class MessageAttachmentsViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
@@ -62,6 +68,7 @@ class MessageAttachmentsViewModel @Inject constructor(
     private val observeAttachments: ObserveAttachmentDraftsUseCase,
     private val addAttachment: AddAttachmentDraftUseCase,
     private val removeAttachment: RemoveAttachmentDraftUseCase,
+    private val retryUpload: RetryAttachmentUploadUseCase,
     private val uploadManager: CellUploadManager,
     private val fileManager: FileManager,
 ) : SavedStateViewModel(savedStateHandle) {
@@ -72,6 +79,9 @@ class MessageAttachmentsViewModel @Inject constructor(
     private val removedAttachments = MutableStateFlow(emptyList<String>())
 
     val attachments = mutableStateListOf<AttachmentDraftUi>()
+
+    var failedAttachmentDialogState: FailedAttachmentDialogState by mutableStateOf(FailedAttachmentDialogState.Hidden)
+        private set
 
     init {
         viewModelScope.launch {
@@ -113,14 +123,25 @@ class MessageAttachmentsViewModel @Inject constructor(
             }
     }
 
-    fun deleteAttachment(uiNode: AttachmentDraftUi) = viewModelScope.launch {
-        removedAttachments.update { it + uiNode.uuid }
-        removeAttachment(uiNode.uuid)
+    fun onAttachmentMenuClicked(attachment: AttachmentDraftUi) {
+        if (attachment.uploadError) {
+            failedAttachmentDialogState = FailedAttachmentDialogState.Visible(
+                attachment = attachment,
+                showRetryOption = File(attachment.localFilePath).exists(),
+            )
+        } else {
+            deleteAttachment(attachment)
+        }
+    }
+
+    private fun deleteAttachment(attachment: AttachmentDraftUi) = viewModelScope.launch {
+        removedAttachments.update { it + attachment.uuid }
+        removeAttachment(attachment.uuid)
             .onSuccess {
-                removedAttachments.update { it - uiNode.uuid }
+                removedAttachments.update { it - attachment.uuid }
             }
             .onFailure { error ->
-                removedAttachments.update { it - uiNode.uuid }
+                removedAttachments.update { it - attachment.uuid }
                 Log.e("MessageAttachmentsViewModel", "Failed to remove attachment: $error")
             }
     }
@@ -163,11 +184,53 @@ class MessageAttachmentsViewModel @Inject constructor(
             )
         }
 
-    fun showAttachment(attachment: AttachmentDraftUi) {
+    fun onAttachmentClicked(attachment: AttachmentDraftUi) {
+        if (attachment.uploadError) {
+            failedAttachmentDialogState = FailedAttachmentDialogState.Visible(
+                attachment = attachment,
+                showRetryOption = File(attachment.localFilePath).exists(),
+            )
+        } else {
+            showAttachment(attachment)
+        }
+    }
+
+    private fun showAttachment(attachment: AttachmentDraftUi) {
         val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(attachment.fileName.fileExtension() ?: "")
         fileManager.openWithExternalApp(attachment.localFilePath.toPath(), attachment.fileName, mimeType) {
             Log.e("MessageAttachmentsViewModel", "Failed to open: ${attachment.localFilePath}")
             // TODO: show message to user?
         }
     }
+
+    fun onFailedAttachmentDialogDismissed() {
+        failedAttachmentDialogState = FailedAttachmentDialogState.Hidden
+    }
+
+    fun remove() {
+        (failedAttachmentDialogState as? FailedAttachmentDialogState.Visible)?.let {
+            failedAttachmentDialogState = FailedAttachmentDialogState.Hidden
+            deleteAttachment(it.attachment)
+        }
+    }
+
+    fun retryUpload() {
+        (failedAttachmentDialogState as? FailedAttachmentDialogState.Visible)?.let { state ->
+            failedAttachmentDialogState = FailedAttachmentDialogState.Hidden
+            viewModelScope.launch {
+                retryUpload(state.attachment.uuid)
+                    .onSuccess {
+                        observeUpload(state.attachment.uuid)
+                    }
+            }
+        }
+    }
+}
+
+sealed interface FailedAttachmentDialogState {
+    data object Hidden : FailedAttachmentDialogState
+    data class Visible(
+        val attachment: AttachmentDraftUi,
+        val showRetryOption: Boolean,
+    ) : FailedAttachmentDialogState
 }

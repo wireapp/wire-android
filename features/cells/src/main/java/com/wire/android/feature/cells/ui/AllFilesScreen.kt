@@ -62,6 +62,7 @@ fun WireCellScreen(
         sendIntent = { viewModel.sendIntent(it) },
         downloadFileState = viewModel.downloadFile,
         fileMenuState = viewModel.menu,
+        isAllFiles = true,
         showPublicLinkScreen = { assetId, fileName, linkId ->
             navigator.navigate(
                 NavigationCommand(
@@ -72,7 +73,7 @@ fun WireCellScreen(
                     )
                 )
             )
-        }
+        },
     )
 }
 

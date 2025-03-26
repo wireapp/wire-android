@@ -25,6 +25,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -49,6 +52,7 @@ fun FileHeaderView(
     type: AttachmentFileType? = null,
     label: String? = null,
     labelColor: Color? = null,
+    isError: Boolean = false,
 ) {
     val fileType = type ?: remember(extension) { AttachmentFileType.fromExtension(extension) }
     val sizeString = remember(size) { size?.let { DeviceUtil.formatSize(size) } ?: "" }
@@ -58,18 +62,25 @@ fun FileHeaderView(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)
     ) {
-        Image(
-            modifier = Modifier.size(dimensions().spacing16x),
-            painter = painterResource(id = fileType.icon()),
-            contentDescription = null,
-        )
-        sizeString?.let {
-            Text(
-                text = "${extension.uppercase()} ($sizeString)",
-                style = typography().subline01,
-                color = colorsScheme().secondaryText,
+        if (isError) {
+            Icon(
+                modifier = Modifier.size(dimensions().spacing16x),
+                imageVector = Icons.Outlined.WarningAmber,
+                tint = colorsScheme().error,
+                contentDescription = null,
+            )
+        } else {
+            Image(
+                modifier = Modifier.size(dimensions().spacing16x),
+                painter = painterResource(id = fileType.icon()),
+                contentDescription = null,
             )
         }
+        Text(
+            text = "${extension.uppercase()} ($sizeString)",
+            style = typography().subline01,
+            color = colorsScheme().secondaryText,
+        )
         Spacer(modifier = Modifier.weight(1f))
         label?.let {
             Text(
@@ -107,6 +118,11 @@ private fun PreviewFileHeader() {
             FileHeaderView(
                 extension = "OTHER",
                 size = 78238296,
+            )
+            FileHeaderView(
+                extension = "OTHER",
+                size = 78238296,
+                isError = true,
             )
         }
     }

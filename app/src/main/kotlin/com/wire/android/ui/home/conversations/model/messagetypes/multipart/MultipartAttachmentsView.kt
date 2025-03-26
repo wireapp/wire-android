@@ -19,6 +19,9 @@ package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -40,10 +43,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.multipart.stand
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.AssetContent
-import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
-import kotlinx.collections.immutable.PersistentList
 
 /**
  * Displays a list of message attachments as a grid or a single attachment card.
@@ -52,30 +52,52 @@ import kotlinx.collections.immutable.PersistentList
 @Composable
 fun MultipartAttachmentsView(
     conversationId: ConversationId,
-    attachments: PersistentList<MessageAttachment>,
+    attachments: List<MessageAttachment>,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = hiltViewModel<MultipartAttachmentsViewModel>(key = conversationId.value),
 ) {
-    when {
-        attachments.size > 1 ->
-            AttachmentsGrid(
-                attachments = attachments.map { it.toUiModel(viewModel.uploadProgress[it.assetId()]) },
-                onClick = { viewModel.onClick(it) },
-                modifier = modifier,
-            )
-        else -> attachments.firstOrNull()
-            ?.let { it.toUiModel(viewModel.uploadProgress[it.assetId()]) }
-            ?.let { item ->
-                AssetPreview(
-                    item = item,
-                    onClick = { viewModel.onClick(item) },
-                    modifier = modifier,
-                )
-            }
+
+    val (media, files) = viewModel.mapAttachments(conversationId, attachments)
+
+    if (media.size > 1) {
+        AttachmentsGrid(
+            attachments = media,
+            onClick = { viewModel.onClick(it) },
+            modifier = modifier,
+        )
+        Spacer(modifier = Modifier.height(dimensions().spacing8x))
+        AttachmentsList(
+            attachments = files,
+            onClick = { viewModel.onClick(it) }
+        )
+    } else {
+        AttachmentsList(
+            attachments = (media + files),
+            onClick = { viewModel.onClick(it) }
+        )
     }
 
     LaunchedEffect(attachments) {
         attachments.onEach { viewModel.refreshAssetState(it.toUiModel()) }
+    }
+}
+
+@Composable
+private fun AttachmentsList(
+    attachments: List<MultipartAttachmentUi>,
+    onClick: (MultipartAttachmentUi) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+    ) {
+        attachments.forEach {
+            AssetPreview(
+                item = it,
+                onClick = { onClick(it) },
+                modifier = modifier,
+            )
+        }
     }
 }
 
@@ -108,12 +130,6 @@ private fun attachmentColumnCount(configuration: Configuration) =
     when (configuration.orientation) {
         Configuration.ORIENTATION_LANDSCAPE -> 4
         else -> 2
-    }
-
-private fun MessageAttachment.assetId() =
-    when (this) {
-        is AssetContent -> remoteData.assetId
-        is CellAssetContent -> id
     }
 
 internal fun MultipartAttachmentUi.previewAvailable() = localPath != null || previewUrl != null

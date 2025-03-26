@@ -34,8 +34,10 @@ class UpdateChannelAccessViewModel @Inject constructor(
 
     private val channelAccessNavArgs: UpdateChannelAccessArgs = savedStateHandle.navArgs()
 
-    private val accessType: MutableState<ChannelAccessType> = mutableStateOf(channelAccessNavArgs.accessType)
-    private val permissionType: MutableState<ChannelPermissionType> = mutableStateOf(channelAccessNavArgs.permissionType)
+    private val accessType: MutableState<ChannelAccessType> =
+        mutableStateOf(channelAccessNavArgs.accessType)
+    private val permissionType: MutableState<ChannelPermissionType> =
+        mutableStateOf(channelAccessNavArgs.permissionType)
 
     fun getAccessType(): ChannelAccessType = accessType.value
     fun getPermissionType(): ChannelPermissionType = permissionType.value

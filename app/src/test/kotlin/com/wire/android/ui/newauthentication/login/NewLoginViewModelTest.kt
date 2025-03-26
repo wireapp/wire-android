@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScop
 import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
+import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase.Companion.SSO_CODE_WIRE_PREFIX
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -110,7 +111,7 @@ class NewLoginViewModelTest {
     @Test
     fun `given success, when initiating SSO, then call SSO action with url`() = runTest(dispatchers.main()) {
         val redirectUrl = "https://redirect.url"
-        val config = SSOUrlConfig(newServerConfig(1).links, "sso-code")
+        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val (arrangement, sut) = Arrangement()
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode)
             .withInitiateSSOSuccess(redirectUrl, config.serverConfig)
@@ -132,7 +133,7 @@ class NewLoginViewModelTest {
             .withInitiateSSOFailure(SSOInitiateLoginResult.Failure.InvalidCode)
             .arrange()
 
-        sut.initiateSSO(serverConfig, "sso-code", arrangement.action)
+        sut.initiateSSO(serverConfig, SSO_CODE_WITH_PREFIX, arrangement.action)
         advanceUntilIdle()
 
         verify(exactly = 0) {
@@ -149,7 +150,7 @@ class NewLoginViewModelTest {
             .withInitiateSSOAuthScopeFailure(AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion)
             .arrange()
 
-        sut.initiateSSO(serverConfig, "sso-code", arrangement.action)
+        sut.initiateSSO(serverConfig, SSO_CODE_WITH_PREFIX, arrangement.action)
         advanceUntilIdle()
 
         verify(exactly = 0) {
@@ -161,7 +162,7 @@ class NewLoginViewModelTest {
     @Test
     fun `given default SSO code, when confirming custom config dialog, then initiate SSO with that code`() = runTest(dispatchers.main()) {
         val serverConfig = newServerConfig(1).links
-        val ssoCode = "sso-code"
+        val ssoCode = SSO_CODE_WITH_PREFIX
         val (arrangement, sut) = Arrangement()
             .withFetchDefaultSSOCodeSuccess(ssoCode)
             .arrange()
@@ -235,7 +236,7 @@ class NewLoginViewModelTest {
     @Test
     fun `given SSO session established, when handling SSO result, then register client`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, "sso-code")
+        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val userId = UserId("user-id", "domain")
         val (arrangement, sut) = Arrangement()
             .withEstablishSSOSessionSuccess(userId)
@@ -254,7 +255,7 @@ class NewLoginViewModelTest {
     @Test
     fun `given auth scope failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, "sso-code")
+        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val (arrangement, sut) = Arrangement()
             .withEstablishSSOSessionAuthScopeFailure(AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion)
             .arrange()
@@ -271,7 +272,7 @@ class NewLoginViewModelTest {
     @Test
     fun `given SSO login failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, "sso-code")
+        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val (arrangement, sut) = Arrangement()
             .withEstablishSSOSessionLoginFailure(SSOLoginSessionResult.Failure.InvalidCookie)
             .arrange()
@@ -288,7 +289,7 @@ class NewLoginViewModelTest {
     @Test
     fun `given add user failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, "sso-code")
+        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val (arrangement, sut) = Arrangement()
             .withEstablishSSOSessionAddUserFailure(AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists)
             .arrange()
@@ -308,7 +309,7 @@ class NewLoginViewModelTest {
         isInitialSyncCompleted: Boolean = true,
     ) = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, "sso-code")
+        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val userId = UserId("user-id", "domain")
         val (arrangement, sut) = Arrangement()
             .withEstablishSSOSessionSuccess(userId)
@@ -355,7 +356,7 @@ class NewLoginViewModelTest {
     @Test
     fun `given register client other failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, "sso-code")
+        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
         val (arrangement, sut) = Arrangement()
             .withEstablishSSOSessionSuccess(UserId("user-id", "domain"))
@@ -392,7 +393,7 @@ class NewLoginViewModelTest {
 
     @Test
     fun `given custom config passed, when handling SSO result, then use custom config`() =
-        testCustomConfigWhenHandlingSSOResult(SSOUrlConfig(newServerConfig(2).links, "sso-code"))
+        testCustomConfigWhenHandlingSSOResult(SSOUrlConfig(newServerConfig(2).links, SSO_CODE_WITH_PREFIX))
 
     @Test
     fun `given no custom config passed, when handling SSO result, then use default config`() =
@@ -401,7 +402,7 @@ class NewLoginViewModelTest {
     @Test
     fun `given SSO result failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.NotFound)
-        val config = SSOUrlConfig(newServerConfig(2).links, "sso-code")
+        val config = SSOUrlConfig(newServerConfig(2).links, SSO_CODE_WITH_PREFIX)
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
         val (arrangement, sut) = Arrangement()
             .withEstablishSSOSessionSuccess(UserId("user-id", "domain"))
@@ -467,8 +468,8 @@ class NewLoginViewModelTest {
         )
 
     @Test
-    fun `given SSO path, when enterprise login, then initiate SSO with given SSO code`() = runTest(dispatchers.main()) {
-        val ssoCode = "sso-code"
+    fun `given SSO path & code with prefix, when enterprise login, then initiate SSO with given SSO code`() = runTest(dispatchers.main()) {
+        val ssoCode = SSO_CODE_WITH_PREFIX
         val (arrangement, sut) = Arrangement()
             .withAuthenticationScopeSuccess()
             .withGetLoginFlowForDomainReturning(EnterpriseLoginResult.Success(LoginRedirectPath.SSO(ssoCode)))
@@ -484,6 +485,27 @@ class NewLoginViewModelTest {
             arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCode, any(), any(), any())
         }
     }
+
+    @Test
+    fun `given SSO path & code without prefix, when enterprise login, then initiate SSO with given SSO code with prefix`() =
+        runTest(dispatchers.main()) {
+            val ssoCodeWithoutPrefix = SSO_CODE_WITHOUT_PREFIX
+            val ssoCodeWithPrefix = SSO_CODE_WITH_PREFIX
+            val (arrangement, sut) = Arrangement()
+                .withAuthenticationScopeSuccess()
+                .withGetLoginFlowForDomainReturning(EnterpriseLoginResult.Success(LoginRedirectPath.SSO(ssoCodeWithoutPrefix)))
+                .arrange()
+
+            sut.getEnterpriseLoginFlow(email, arrangement.action)
+            advanceUntilIdle()
+
+            verify(exactly = 0) {
+                arrangement.action(any())
+            }
+            coVerify(exactly = 1) {
+                arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCodeWithPrefix, any(), any(), any())
+            }
+        }
 
     @Test
     fun `given custom backend path, when enterprise login, then update custom backend state`() = runTest(dispatchers.main()) {
@@ -713,5 +735,10 @@ class NewLoginViewModelTest {
             loginSSOViewModelExtension,
             dispatchers
         )
+    }
+
+    companion object {
+        private const val SSO_CODE_WITHOUT_PREFIX: String = "fd994b20-b9af-11ec-ae36-00163e9b33ca"
+        private const val SSO_CODE_WITH_PREFIX: String = "$SSO_CODE_WIRE_PREFIX$SSO_CODE_WITHOUT_PREFIX"
     }
 }

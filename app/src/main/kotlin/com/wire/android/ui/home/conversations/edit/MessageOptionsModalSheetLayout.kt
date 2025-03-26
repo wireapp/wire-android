@@ -81,7 +81,10 @@ fun MessageOptionsModalSheetLayout(
                     onDeleteClick = remember(message.header.messageId) {
                         {
                             sheetState.hide {
-                                onDeleteClick(message.header.messageId, message.isMyMessage)
+                                onDeleteClick(
+                                    message.header.messageId,
+                                    message.isMyMessage,
+                                )
                             }
                         }
                     },

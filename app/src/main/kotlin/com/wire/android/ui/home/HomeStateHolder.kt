@@ -36,8 +36,8 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.topappbar.ConversationFilterState
 import com.wire.android.ui.common.topappbar.rememberConversationFilterState
-import com.wire.android.ui.common.topappbar.search.SearchBarState
-import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.common.search.SearchBarState
+import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.home.conversationslist.filter.toTopBarTitle
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import kotlinx.coroutines.CoroutineScope

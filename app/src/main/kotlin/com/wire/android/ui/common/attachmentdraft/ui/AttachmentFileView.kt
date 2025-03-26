@@ -66,10 +66,10 @@ fun AttachmentFileView(
             )
             Spacer(modifier = Modifier.height(dimensions().spacing10x))
         }
-        attachment.uploadProgress?.let {
+        attachment.uploadProgress?.let { progress ->
             WireLinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart),
-                progress = { attachment.uploadProgress },
+                progress = { progress },
                 color = if (attachment.uploadError) colorsScheme().error else colorsScheme().primary,
                 trackColor = Color.Transparent,
             )

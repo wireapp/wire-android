@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.common.multipart
 
-import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata

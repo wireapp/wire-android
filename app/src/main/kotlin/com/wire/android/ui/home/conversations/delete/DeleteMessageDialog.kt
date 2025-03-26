@@ -38,7 +38,11 @@ internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: Dele
                     onDialogDismiss = actions::onDeleteDialogDismissed,
                     onDeleteForMe = actions::showDeleteMessageForYourselfDialog,
                     onDeleteForEveryone = { messageId: String ->
-                        actions.onDeleteMessage(messageId = messageId, deleteForEveryone = true, onDeleted = onDeleted)
+                        actions.onDeleteMessage(
+                            messageId = messageId,
+                            deleteForEveryone = true,
+                            onDeleted = onDeleted,
+                        )
                     },
                 )
                 if (state.forEveryone.error is DeleteMessageError.GenericError) {
@@ -53,7 +57,11 @@ internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: Dele
                         state = state.forYourself,
                         onDialogDismiss = actions::onDeleteDialogDismissed,
                         onDeleteForMe = { messageId: String ->
-                            actions.onDeleteMessage(messageId = messageId, deleteForEveryone = false, onDeleted = onDeleted)
+                            actions.onDeleteMessage(
+                                messageId = messageId,
+                                deleteForEveryone = false,
+                                onDeleted = onDeleted,
+                            )
                         },
                     )
                 }
@@ -91,7 +99,7 @@ private fun DeleteMessageDialog(
             state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
             loading = state.loading
         ),
-        buttonsHorizontalAlignment = false
+        buttonsHorizontalAlignment = false,
     )
 }
 

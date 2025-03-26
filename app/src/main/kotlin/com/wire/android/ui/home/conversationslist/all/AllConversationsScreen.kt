@@ -25,7 +25,7 @@ import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.rememberNavigator
-import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
 import com.wire.android.ui.home.conversationslist.ConversationsScreenContent

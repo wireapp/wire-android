@@ -21,8 +21,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
-import com.wire.android.ui.common.attachmentdraft.model.AttachmentFileType
 import com.wire.android.ui.common.dimensions
 import com.wire.kalium.logic.util.fileExtension
 

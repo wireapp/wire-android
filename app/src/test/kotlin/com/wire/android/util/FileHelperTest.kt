@@ -50,7 +50,7 @@ import java.io.File
  * singleton and initializes itself only once for the first instance of WireApplication which then crashes for other instances.
  */
 @Config(application = Application::class)
-class FileUtilTest {
+class FileHelperTest {
 
     @get:Rule
     val tempDir: TemporaryFolder = TemporaryFolder()

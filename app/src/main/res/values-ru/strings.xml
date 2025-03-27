@@ -879,12 +879,7 @@
     <string name="label_contacts">Контакты</string>
     <string name="label_new_group">Новая группа</string>
     <string name="label_create_new_group">Создать новую группу</string>
-    <plurals name="label_x_participants">
-        <item quantity="one">%1$d участник</item>
-        <item quantity="few">%1$d участника</item>
-        <item quantity="many">%1$d участников</item>
-        <item quantity="other">%1$d участника</item>
-    </plurals>
+
     <string name="label_new_conversation">Новая беседа</string>
     <string name="label_search_people">Поиск пользователей</string>
     <string name="label_public_wire">Wire Public</string>

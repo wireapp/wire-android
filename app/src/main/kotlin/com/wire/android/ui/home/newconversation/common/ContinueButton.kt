@@ -26,7 +26,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
@@ -39,18 +38,12 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun ContinueWithParticipantsCountButton(
+fun ContinueButton(
     onContinue: () -> Unit,
     modifier: Modifier = Modifier,
-    selectedParticipantsCount: Int = 0,
     leadingIcon: @Composable (() -> Unit)? = null,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
 ) {
-    val countText = pluralStringResource(
-        R.plurals.label_x_participants,
-        selectedParticipantsCount,
-        selectedParticipantsCount
-    )
     Surface(
         color = MaterialTheme.wireColorScheme.background,
         shadowElevation = elevation
@@ -63,10 +56,10 @@ fun ContinueWithParticipantsCountButton(
                 .height(dimensions().groupButtonHeight)
         ) {
             WirePrimaryButton(
-                text = "${stringResource(R.string.label_continue)} ($countText)",
+                text = stringResource(R.string.label_continue),
                 leadingIcon = leadingIcon,
                 onClick = onContinue,
-                state = if (selectedParticipantsCount > 0) WireButtonState.Default else WireButtonState.Disabled,
+                state = WireButtonState.Default,
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
             )
         }
@@ -76,8 +69,7 @@ fun ContinueWithParticipantsCountButton(
 @PreviewMultipleThemes
 @Composable
 fun PreviewContinueWithParticipantsCountButton() {
-    ContinueWithParticipantsCountButton(
-        selectedParticipantsCount = 3,
+    ContinueButton(
         onContinue = {},
     )
 }
@@ -85,8 +77,7 @@ fun PreviewContinueWithParticipantsCountButton() {
 @PreviewMultipleThemes
 @Composable
 fun PreviewSContinueWithParticipantsCountButtonDisabled() {
-    ContinueWithParticipantsCountButton(
-        selectedParticipantsCount = 0,
+    ContinueButton(
         onContinue = {},
     )
 }

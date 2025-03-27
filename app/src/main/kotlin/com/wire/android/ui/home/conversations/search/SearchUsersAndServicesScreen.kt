@@ -57,7 +57,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
-import com.wire.android.ui.home.newconversation.common.ContinueWithParticipantsCountButton
+import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.UIText
@@ -204,16 +204,14 @@ fun SearchUsersAndServicesScreen(
                     }
 
                     SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> {
-                        ContinueWithParticipantsCountButton(
-                            selectedParticipantsCount = selectedContacts.size,
+                        ContinueButton(
                             onContinue = onContinue
                         )
                     }
 
                     SearchPeopleScreenType.CONVERSATION_DETAILS -> {
                         if (tabs[pagerState.currentPage] != SearchPeopleTabItem.SERVICES) {
-                            ContinueWithParticipantsCountButton(
-                                selectedParticipantsCount = selectedContacts.size,
+                            ContinueButton(
                                 onContinue = onContinue
                             )
                         }

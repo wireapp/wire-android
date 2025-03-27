@@ -846,10 +846,7 @@
     <string name="label_contacts">Névjegyek</string>
     <string name="label_new_group">Új csoport</string>
     <string name="label_create_new_group">Új csoport létrehozása</string>
-    <plurals name="label_x_participants">
-        <item quantity="one">%1$d résztvevő</item>
-        <item quantity="other">%1$d résztvevő</item>
-    </plurals>
+
     <string name="label_new_conversation">Új beszélgetés</string>
     <string name="label_search_people">Személyek keresése</string>
     <string name="label_public_wire">Nyilvános Wire</string>

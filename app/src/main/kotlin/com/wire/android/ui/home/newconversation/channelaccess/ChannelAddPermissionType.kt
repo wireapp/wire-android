@@ -22,15 +22,15 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel
 
 enum class ChannelAddPermissionType(val label: Int) {
     ADMINS(R.string.channel_add_permission_admin_label),
-    ADMINS_AND_MEMBERS(R.string.channel_add_permission_admin_members_label)
+    EVERYONE(R.string.channel_add_permission_admin_members_label)
 }
 
 fun ChannelAddPermissionType.toDomainEnum(): ChannelAddPermission = when (this) {
     ChannelAddPermissionType.ADMINS -> ChannelAddPermission.ADMINS
-    ChannelAddPermissionType.ADMINS_AND_MEMBERS -> ChannelAddPermission.EVERYONE
+    ChannelAddPermissionType.EVERYONE -> ChannelAddPermission.EVERYONE
 }
 
 fun ChannelAddPermission.toUiEnum(): ChannelAddPermissionType = when (this) {
     ChannelAddPermission.ADMINS -> ChannelAddPermissionType.ADMINS
-    ChannelAddPermission.EVERYONE -> ChannelAddPermissionType.ADMINS_AND_MEMBERS
+    ChannelAddPermission.EVERYONE -> ChannelAddPermissionType.EVERYONE
 }

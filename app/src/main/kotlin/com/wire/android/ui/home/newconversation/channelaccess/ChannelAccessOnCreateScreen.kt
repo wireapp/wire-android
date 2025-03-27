@@ -152,7 +152,7 @@ private fun PermissionSection(
             onItemClicked = onPermissionChange
         )
         PermissionItem(
-            channelAddPermissionType = ChannelAddPermissionType.ADMINS_AND_MEMBERS,
+            channelAddPermissionType = ChannelAddPermissionType.EVERYONE,
             selectedPermission = selectedPermission,
             onItemClicked = onPermissionChange
         )

@@ -19,7 +19,7 @@
 package com.wire.android.ui.common.groupname
 
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import kotlinx.collections.immutable.ImmutableSet
@@ -39,7 +39,7 @@ data class GroupMetadataState(
     val isGroupCreatingAllowed: Boolean? = null,
     val isServicesAllowed: Boolean = false,
     val channelAccessType: ChannelAccessType = ChannelAccessType.PRIVATE,
-    val channelPermissionType: ChannelPermissionType = ChannelPermissionType.ADMINS,
+    val channelAddPermissionType: ChannelAddPermissionType = ChannelAddPermissionType.ADMINS,
 ) {
     sealed interface NewGroupError {
         data object None : NewGroupError

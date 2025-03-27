@@ -94,6 +94,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
+import com.wire.android.ui.destinations.ChannelAccessOnUpdateScreenDestination
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
@@ -112,6 +113,7 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
@@ -146,6 +148,7 @@ fun GroupConversationDetailsScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
+    editChannelAccessResultRecipient: ResultRecipient<ChannelAccessOnUpdateScreenDestination, UpdateChannelAccessArgs>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
@@ -245,6 +248,17 @@ fun GroupConversationDetailsScreen(
                 )
             )
         },
+        onChannelAccessItemClicked = {
+            navigator.navigate(
+                NavigationCommand(
+                    ChannelAccessOnUpdateScreenDestination(
+                        viewModel.conversationId.toString(),
+                        viewModel.groupOptionsState.value.channelAccessType!!,
+                        viewModel.groupOptionsState.value.channelAddPermissionType!!
+                    )
+                )
+            )
+        },
         onEditSelfDeletingMessages = {
             navigator.navigate(NavigationCommand(EditSelfDeletingMessagesScreenDestination(viewModel.conversationId)))
         },
@@ -293,6 +307,16 @@ fun GroupConversationDetailsScreen(
             }
         }
     }
+
+    editChannelAccessResultRecipient.onNavResult { result ->
+        when (result) {
+            NavResult.Canceled -> {}
+            is NavResult.Value -> {
+                viewModel.updateChannelAccess(result.value.accessType)
+                viewModel.updateChannelAddPermission(result.value.permissionType)
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -304,6 +328,7 @@ private fun GroupConversationDetailsContent(
     onProfilePressed: (UIParticipant) -> Unit,
     onAddParticipantsPressed: () -> Unit,
     onEditGuestAccess: () -> Unit,
+    onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     onEditGroupName: () -> Unit,
     onLeaveGroup: (LeaveGroupDialogState) -> Unit,
@@ -463,6 +488,7 @@ private fun GroupConversationDetailsContent(
                     GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
                         lazyListState = lazyListStates[pageIndex],
                         onEditGuestAccess = onEditGuestAccess,
+                        onChannelAccessItemClicked = onChannelAccessItemClicked,
                         onEditSelfDeletingMessages = onEditSelfDeletingMessages,
                         onEditGroupName = onEditGroupName
                     )
@@ -547,7 +573,10 @@ private fun GroupConversationDetailsContent(
     ArchiveConversationDialog(
         dialogState = archiveConversationDialogState,
         onArchiveButtonClicked = {
-            bottomSheetEventsHandler.updateConversationArchiveStatus(dialogState = it, onMessage = closeBottomSheetAndShowSnackbarMessage)
+            bottomSheetEventsHandler.updateConversationArchiveStatus(
+                dialogState = it,
+                onMessage = closeBottomSheetAndShowSnackbarMessage
+            )
         }
     )
 
@@ -662,6 +691,7 @@ fun PreviewGroupConversationDetails() {
             onEditGroupName = {},
             onEditSelfDeletingMessages = {},
             onEditGuestAccess = {},
+            onChannelAccessItemClicked = {},
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},
             isAbandonedOneOnOneConversation = false,

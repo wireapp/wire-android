@@ -15,17 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.newconversation.channelaccess
+package com.wire.android.ui.home.conversations.details.updatechannelaccess
 
-import com.wire.android.R
-import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAccess
+import android.os.Parcelable
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import kotlinx.parcelize.Parcelize
 
-enum class ChannelAccessType(val label: Int) {
-    PUBLIC(R.string.channel_public_label),
-    PRIVATE(R.string.channel_private_label)
-}
-
-fun ChannelAccess.toUiEnum(): ChannelAccessType = when (this) {
-    ChannelAccess.PUBLIC -> ChannelAccessType.PUBLIC
-    ChannelAccess.PRIVATE -> ChannelAccessType.PRIVATE
-}
+@Parcelize
+data class UpdateChannelAccessArgs(
+    val conversationId: String,
+    val accessType: ChannelAccessType = ChannelAccessType.PRIVATE,
+    val permissionType: ChannelAddPermissionType = ChannelAddPermissionType.ADMINS
+) : Parcelable

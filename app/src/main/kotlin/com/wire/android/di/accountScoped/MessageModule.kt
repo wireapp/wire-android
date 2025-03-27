@@ -44,6 +44,7 @@ import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
+import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
@@ -228,4 +229,9 @@ class MessageModule {
     @Provides
     fun provideGetSenderNameByMessageIdUseCase(messageScope: MessageScope): GetSenderNameByMessageIdUseCase =
         messageScope.getSenderNameByMessageId
+
+    @ViewModelScoped
+    @Provides
+    fun provideSendMultipartMessageUseCase(messageScope: MessageScope): SendMultipartMessageUseCase =
+        messageScope.sendMultipartMessage
 }

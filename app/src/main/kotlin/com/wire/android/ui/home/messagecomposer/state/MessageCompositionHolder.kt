@@ -25,6 +25,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.substring
 import com.wire.android.appLogger
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
@@ -316,8 +317,8 @@ class MessageCompositionHolder(
         onSaveDraft(messageComposition.value.toDraft(String.EMPTY))
     }
 
-    fun toMessageBundle(conversationId: ConversationId) =
-        messageComposition.value.toMessageBundle(conversationId, messageTextState.text.toString())
+    fun toMessageBundle(conversationId: ConversationId, attachments: List<AttachmentDraftUi>) =
+        messageComposition.value.toMessageBundle(conversationId, messageTextState.text.toString(), attachments)
 
     private fun currentMentionStartIndex(messageText: String, selection: TextRange): Int {
         val lastIndexOfAt = messageText.lastIndexOf(String.MENTION_SYMBOL, selection.min - 1)

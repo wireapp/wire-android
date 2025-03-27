@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.messagecomposer.model
 
 import androidx.compose.runtime.MutableState
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.util.EMPTY
@@ -57,7 +58,11 @@ data class MessageComposition(
         return result.toList()
     }
 
-    fun toMessageBundle(conversationId: ConversationId, messageText: String): ComposableMessageBundle {
+    fun toMessageBundle(
+        conversationId: ConversationId,
+        messageText: String,
+        attachments: List<AttachmentDraftUi>
+    ): ComposableMessageBundle {
         return if (editMessageId != null) {
             ComposableMessageBundle.EditMessageBundle(
                 conversationId = conversationId,
@@ -66,12 +71,21 @@ data class MessageComposition(
                 newMentions = selectedMentions
             )
         } else {
-            ComposableMessageBundle.SendTextMessageBundle(
-                conversationId = conversationId,
-                message = messageText,
-                mentions = selectedMentions,
-                quotedMessageId = quotedMessageId
-            )
+            if (attachments.isEmpty()) {
+                ComposableMessageBundle.SendTextMessageBundle(
+                    conversationId = conversationId,
+                    message = messageText,
+                    mentions = selectedMentions,
+                    quotedMessageId = quotedMessageId
+                )
+            } else {
+                ComposableMessageBundle.SendMultipartMessageBundle(
+                    conversationId = conversationId,
+                    message = messageText,
+                    mentions = selectedMentions,
+                    quotedMessageId = quotedMessageId
+                )
+            }
         }
     }
 }

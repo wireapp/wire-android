@@ -28,6 +28,10 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
+import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT
+import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION
+import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -50,6 +54,7 @@ import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.isAudioMimeType
+import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.util.buildFileName
 import com.wire.kalium.logic.util.splitFileExtensionAndCopyCounter
 import kotlinx.coroutines.Dispatchers
@@ -299,10 +304,16 @@ fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
     return files
 }
 
-fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetName: String?, onError: () -> Unit) {
+fun openAssetFileWithExternalApp(
+    assetDataPath: Path,
+    context: Context,
+    assetName: String?,
+    assetType: String? = null,
+    onError: () -> Unit
+) {
     try {
         val assetUri = context.pathToUri(assetDataPath, assetName)
-        val mimeType = assetUri.getMimeType(context)
+        val mimeType = assetType ?: assetUri.getMimeType(context)
         // Set intent and launch
         val intent = Intent()
         intent.apply {
@@ -310,6 +321,29 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetNam
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             setDataAndType(assetUri, mimeType)
+        }
+        context.startActivity(intent)
+    } catch (e: java.lang.IllegalArgumentException) {
+        appLogger.e("The file couldn't be found on the internal storage \n$e")
+        onError()
+    } catch (noActivityFoundException: ActivityNotFoundException) {
+        appLogger.e("Couldn't find a proper app to process the asset")
+        onError()
+    }
+}
+
+fun openAssetUrlWithExternalApp(
+    url: String,
+    mimeType: String,
+    context: Context,
+    onError: () -> Unit
+) {
+    try {
+        val intent = Intent()
+        intent.apply {
+            action = Intent.ACTION_VIEW
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            setDataAndType(Uri.parse(url), mimeType)
         }
         context.startActivity(intent)
     } catch (e: java.lang.IllegalArgumentException) {
@@ -390,6 +424,10 @@ fun isAudioFile(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("audio/")
 }
 
+fun isPdfFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType == "application/pdf"
+}
+
 fun isText(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("text/")
 }
@@ -442,11 +480,33 @@ fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(dataPath.toFile().absolutePath)
         val rawDuration = retriever
-            .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            .extractMetadata(METADATA_KEY_DURATION)
             ?.toLong() ?: 0L
         rawDuration.milliseconds.inWholeMilliseconds
     } else {
         0L
+    }
+
+@Suppress("TooGenericExceptionCaught", "MagicNumber")
+fun getVideoMetaData(dataPath: String): AssetContent.AssetMetadata.Video? =
+    with(MediaMetadataRetriever()) {
+        try {
+            setDataSource(dataPath)
+            val width = extractMetadata(METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
+            val height = extractMetadata(METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
+            val duration = extractMetadata(METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
+            val rotation = extractMetadata(METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0L
+            if (rotation == 90 || rotation == 270) {
+                AssetContent.AssetMetadata.Video(height, width, duration)
+            } else {
+                AssetContent.AssetMetadata.Video(width, height, duration)
+            }
+        } catch (e: Exception) {
+            appLogger.e("Error while extracting video metadata", e)
+            null
+        } finally {
+            close()
+        }
     }
 
 private const val ATTACHMENT_FILENAME = "attachment"

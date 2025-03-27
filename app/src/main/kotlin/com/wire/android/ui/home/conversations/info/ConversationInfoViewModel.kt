@@ -116,7 +116,8 @@ class ConversationInfoViewModel @Inject constructor(
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
-            accentId = getAccentId(conversationDetails)
+            accentId = getAccentId(conversationDetails),
+            isWireCellEnabled = (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
         )
     }
 

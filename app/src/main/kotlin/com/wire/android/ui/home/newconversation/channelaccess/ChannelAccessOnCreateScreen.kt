@@ -44,7 +44,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @NewConversationNavGraph
 @WireDestination
 @Composable
-fun ChannelAccessScreen(
+fun ChannelAccessOnCreateScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel
 ) {
@@ -59,7 +59,6 @@ fun ChannelAccessScreen(
             )
         }
     ) { internalPadding ->
-        newConversationViewModel.newGroupState.channelPermissionType
         ChannelAccessScreenContent(
             internalPadding = internalPadding,
             newConversationViewModel.newGroupState.channelAccessType,

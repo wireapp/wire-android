@@ -36,24 +36,24 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun PermissionItem(
-    channelPermissionType: ChannelPermissionType,
-    selectedPermission: ChannelPermissionType,
+    channelAddPermissionType: ChannelAddPermissionType,
+    selectedPermission: ChannelAddPermissionType,
     modifier: Modifier = Modifier,
-    onItemClicked: (ChannelPermissionType) -> Unit
+    onItemClicked: (ChannelAddPermissionType) -> Unit
 ) {
-    val isSelected = channelPermissionType == selectedPermission
+    val isSelected = channelAddPermissionType == selectedPermission
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = dimensions().spacing1x)
-            .selectableBackground(isSelected, onClick = { onItemClicked(channelPermissionType) })
+            .selectableBackground(isSelected, onClick = { onItemClicked(channelAddPermissionType) })
             .background(color = MaterialTheme.wireColorScheme.surface),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(selected = isSelected, onClick = { onItemClicked(channelPermissionType) })
+        RadioButton(selected = isSelected, onClick = { onItemClicked(channelAddPermissionType) })
         Text(
-            text = stringResource(channelPermissionType.label),
+            text = stringResource(channelAddPermissionType.label),
             style = MaterialTheme.wireTypography.body01,
             color = MaterialTheme.wireColorScheme.onBackground,
             modifier = Modifier.padding(vertical = dimensions().spacing16x)
@@ -65,8 +65,8 @@ fun PermissionItem(
 @PreviewMultipleThemes
 fun PreviewPermissionItem() {
     PermissionItem(
-        channelPermissionType = ChannelPermissionType.ADMINS,
-        selectedPermission = ChannelPermissionType.ADMINS,
+        channelAddPermissionType = ChannelAddPermissionType.ADMINS,
+        selectedPermission = ChannelAddPermissionType.ADMINS,
         onItemClicked = {}
     )
 }

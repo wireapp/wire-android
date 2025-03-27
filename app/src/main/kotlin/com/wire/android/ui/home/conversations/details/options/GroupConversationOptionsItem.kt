@@ -61,6 +61,7 @@ fun GroupConversationOptionsItem(
     onClick: () -> Unit = {},
     clickable: Clickable = Clickable(enabled = isClickable, onClick = onClick),
     arrowLabel: String? = null,
+    arrowLabelColor: Color = MaterialTheme.wireColorScheme.secondaryText,
     subtitle: String? = null,
     label: String? = null,
     trailingOnText: String? = null,
@@ -113,7 +114,7 @@ fun GroupConversationOptionsItem(
                     Text(
                         text = it,
                         style = MaterialTheme.wireTypography.body01,
-                        color = MaterialTheme.wireColorScheme.secondaryText
+                        color = arrowLabelColor
                     )
                 }
                 if (arrowType == ArrowType.TITLE_ALIGNED) {

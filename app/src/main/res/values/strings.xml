@@ -902,10 +902,7 @@
     <string name="label_new_channel">New Channel</string>
     <string name="label_create_new_group">New Group</string>
     <string name="label_create_new_channel">New Channel</string>
-    <plurals name="label_x_participants">
-        <item quantity="one">%1$d Participant</item>
-        <item quantity="other">%1$d Participants</item>
-    </plurals>
+
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
     <string name="label_public_wire">Public Wire</string>

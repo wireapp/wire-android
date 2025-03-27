@@ -148,8 +148,11 @@ class LoginEmailViewModel @Inject constructor(
         updateEmailFlowState(LoginState.Loading)
         viewModelScope.launch {
             val previousSessionUserId = coreLogic.getGlobalScope().session.currentSession().let {
-                if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) it.accountInfo.userId
-                else null
+                if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
+                    it.accountInfo.userId
+                } else {
+                    null
+                }
             }
             startLoginJob().let {
                 loginJobData.value = LoginJobData(it, previousSessionUserId)

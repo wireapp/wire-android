@@ -191,6 +191,7 @@ fun GroupConversationDetailsScreen(
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
         },
+        shouldShowAddParticipantsButtonForChannel = { viewModel.groupOptionsState.value.shouldShowAddParticipantsButtonForChannel },
         onAddParticipantsPressed = {
             navigator.navigate(
                 NavigationCommand(
@@ -326,6 +327,7 @@ private fun GroupConversationDetailsContent(
     bottomSheetEventsHandler: GroupConversationDetailsBottomSheetEventsHandler,
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
+    shouldShowAddParticipantsButtonForChannel: () -> (Boolean),
     onAddParticipantsPressed: () -> Unit,
     onEditGuestAccess: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
@@ -459,7 +461,11 @@ private fun GroupConversationDetailsContent(
                         }
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> {
-                            if (groupParticipantsState.addParticipantsEnabled && !isAbandonedOneOnOneConversation) {
+                            val shouldShowAddParticipantsButton =
+                                (groupParticipantsState.addParticipantsEnabled && !isAbandonedOneOnOneConversation) ||
+                                        shouldShowAddParticipantsButtonForChannel()
+
+                            if (shouldShowAddParticipantsButton) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                                     WirePrimaryButton(
                                         text = stringResource(R.string.conversation_details_group_participants_add),
@@ -680,6 +686,7 @@ fun PreviewGroupConversationDetails() {
                 folder = null,
                 isDeletingConversationLocallyRunning = false
             ),
+            shouldShowAddParticipantsButtonForChannel = { false },
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},
             onProfilePressed = {},

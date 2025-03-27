@@ -28,6 +28,7 @@ import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.spec.NavGraphSpec
+import com.ramcosta.composedestinations.utils.findDestination
 import com.ramcosta.composedestinations.utils.navGraph
 import com.ramcosta.composedestinations.utils.route
 import com.wire.android.appLogger
@@ -99,7 +100,7 @@ private fun NavOptionsBuilder.popUpTo(
 }
 
 internal fun NavDestination.toDestination(): DestinationSpec<*>? =
-    this.route?.let { currentRoute -> WireMainNavGraph.destinationsByRoute[currentRoute] }
+    this.route?.let { currentRoute -> WireMainNavGraph.findDestination(currentRoute) }
 
 fun String.getBaseRoute(): String =
     this.indexOfAny(listOf("?", "/")).let {

@@ -22,6 +22,7 @@ package com.wire.android.ui.authentication.login.email
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -41,16 +42,19 @@ import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.AccountTokens
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.LoginUseCase
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.PersistSelfUserEmailResult
 import com.wire.kalium.logic.feature.auth.PersistSelfUserEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -59,13 +63,19 @@ import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerifi
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -75,6 +85,7 @@ import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldNotBe
 import org.amshove.kluent.shouldNotBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -493,6 +504,136 @@ class LoginEmailViewModelTest {
         }
     }
 
+    @Test
+    fun `given successful login, when logging in, then update login job data with proper values`() = runTest {
+        val previousUserId = UserId("currentUserId", "domain")
+        val newUserId = UserId("newUserId", "domain")
+        val failure = CoreFailure.Unknown(null)
+        val (arrangement, loginViewModel) = Arrangement()
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN.copy(userId = newUserId), SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Failure(failure))
+            .arrange()
+
+        loginViewModel.loginJobData.test {
+            // initial value
+            awaitItem() shouldBe null
+            // start the login process
+            loginViewModel.login()
+            advanceUntilIdle()
+            // after starting login, first is previous session user id
+            awaitItem()?.let {
+                it.job shouldNotBe null
+                it.previousSessionUserId shouldBe previousUserId
+                it.newSessionUserId shouldBe null
+            }
+            // then after login success, new session user id is set
+            awaitItem()?.let {
+                it.job shouldNotBe null
+                it.previousSessionUserId shouldBe previousUserId
+                it.newSessionUserId shouldBe newUserId
+            }
+            // after completion, it should be null
+            awaitItem() shouldBe null
+        }
+    }
+
+    @Test
+    fun `given login job data, when canceling login, then cancel login job and set state to Canceled`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        val loginJob: Job = mockk(relaxUnitFun = true)
+        viewModel.loginJobData.value = LoginJobData(job = loginJob)
+        // when
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+        // then
+        viewModel.loginState.flowState shouldBeEqualTo LoginState.Canceled
+        coVerify(exactly = 1) {
+            loginJob.cancel()
+        }
+    }
+
+    @Test
+    fun `given no new session yet, when canceling login, then do not logout and delete session`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        viewModel.loginJobData.value = LoginJobData(job = mockk(relaxUnitFun = true), newSessionUserId = null)
+        // when
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 0) {
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(any())
+        }
+    }
+
+    @Test
+    fun `given new session already set, when canceling login, then do logout and delete session`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        val newUserId = UserId("newUserId", "domain")
+        viewModel.loginJobData.value = LoginJobData(job = mockk(relaxUnitFun = true), newSessionUserId = newUserId)
+        // when
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 1) {
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(newUserId)
+        }
+    }
+
+    @Test
+    fun `given no previous session, when canceling login, then update current session to null`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        val newUserId = UserId("newUserId", "domain")
+        viewModel.loginJobData.value = LoginJobData(job = mockk(relaxUnitFun = true), newSessionUserId = newUserId)
+        // when
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 1) {
+            arrangement.updateCurrentSessionUseCase(null)
+        }
+    }
+
+    @Test
+    fun `given some previous session, when canceling login, then update current session to that session`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        val loginJob: Job = mockk(relaxUnitFun = true)
+        val newUserId = UserId("newUserId", "domain")
+        val previousUserId = UserId("previousUserId", "domain")
+        viewModel.loginJobData.value = LoginJobData(job = loginJob, previousSessionUserId = previousUserId, newSessionUserId = newUserId)
+        // when
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 1) {
+            arrangement.updateCurrentSessionUseCase(previousUserId)
+        }
+    }
+
     inner class Arrangement {
 
         @MockK
@@ -540,8 +681,20 @@ class LoginEmailViewModelTest {
         @MockK
         internal lateinit var authenticationScope: AuthenticationScope
 
+        @MockK
+        internal lateinit var currentSessionUseCase: CurrentSessionUseCase
+
+        @MockK
+        internal lateinit var logoutUseCase: LogoutUseCase
+
+        @MockK
+        internal lateinit var deleteSessionUseCase: DeleteSessionUseCase
+
+        @MockK
+        internal lateinit var updateCurrentSessionUseCase: UpdateCurrentSessionUseCase
+
         init {
-            MockKAnnotations.init(this)
+            MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
             every { savedStateHandle.get<String>(any()) } returns null
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns USER_ID
@@ -558,6 +711,11 @@ class LoginEmailViewModelTest {
             every { authenticationScope.login } returns loginUseCase
             every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
             every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+            every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
+            every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
+            every { coreLogic.getGlobalScope().session.updateCurrentSession } returns updateCurrentSessionUseCase
+            every { coreLogic.getGlobalScope().session.currentSession } returns currentSessionUseCase
+            coEvery { currentSessionUseCase() } returns CurrentSessionResult.Success(AccountInfo.Valid(USER_ID))
         }
 
         fun arrange() = this to LoginEmailViewModel(
@@ -609,6 +767,24 @@ class LoginEmailViewModelTest {
             every {
                 userDataStoreProvider.getOrCreate(any()).initialSyncCompleted
             } returns flowOf(result)
+        }
+
+        fun withCurrentSessionReturning(result: CurrentSessionResult) = apply {
+            coEvery {
+                currentSessionUseCase()
+            } returns result
+        }
+
+        fun withDeleteSessionReturning(result: DeleteSessionUseCase.Result) = apply {
+            coEvery {
+                deleteSessionUseCase(any())
+            } returns result
+        }
+
+        fun withUpdateCurrentSessionReturning(result: UpdateCurrentSessionUseCase.Result) = apply {
+            coEvery {
+                updateCurrentSessionUseCase(any())
+            } returns result
         }
     }
 

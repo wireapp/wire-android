@@ -97,8 +97,7 @@ object Customization {
     fun getBuildtimeConfiguration(
         rootDir: File
     ): BuildTimeConfiguration {
-        val isCustomFromGit = readCustomizationProperty(CustomizationGitProperty.CUSTOM_REPOSITORY) != null
-        return if (isCustomFromGit) {
+        return if (isCustomizationEnabled()) {
             val customFile = getCustomisationFileFromGitProperties(rootDir)
             getBuildtimeConfiguration(rootDir, CustomizationOption.FromFile(customFile))
         } else {
@@ -232,6 +231,8 @@ object Customization {
          */
         data class FromFile(val customJsonFile: File) : CustomizationOption()
     }
+
+    fun isCustomizationEnabled(): Boolean = readCustomizationProperty(CustomizationGitProperty.CUSTOM_REPOSITORY) != null
 
     private fun readCustomizationProperty(property: CustomizationGitProperty): String? =
         System.getenv(property.variableName) ?: properties.getProperty(property.variableName)

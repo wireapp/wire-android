@@ -43,4 +43,4 @@ class SSOUrlConfigHolderImpl(private val savedStateHandle: SavedStateHandle) : S
 private const val SSO_URL_CONFIG_KEY: String = "sso-url-config"
 
 @Serializable
-data class SSOUrlConfig(val serverConfig: ServerConfig.Links, val ssoCode: String = "")
+data class SSOUrlConfig(val serverConfig: ServerConfig.Links, val userIdentifier: String = "")

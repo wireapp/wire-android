@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
+import com.ramcosta.composedestinations.utils.findDestination
 
 class Navigator(
     val finish: () -> Unit,
@@ -63,7 +64,7 @@ fun rememberNavigator(
     finish: () -> Unit,
 ): Navigator {
     val navController = rememberTrackingAnimatedNavController {
-        WireMainNavGraph.destinationsByRoute[it]?.let { it::class.simpleName } // there is a proguard rule for Routes
+        WireMainNavGraph.findDestination(it)?.let { it::class.simpleName } // there is a proguard rule for Routes
     }
     return remember(finish, isAllowedToNavigate, navController) { Navigator(finish, navController, isAllowedToNavigate) }
 }

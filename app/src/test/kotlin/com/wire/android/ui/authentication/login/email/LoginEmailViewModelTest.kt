@@ -404,6 +404,7 @@ class LoginEmailViewModelTest {
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
             .withGetOrRegisterClientReturning(RegisterClientResult.Failure.TooManyClients)
             .withInitialSyncCompletedReturning(true)
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
             .arrange()
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
@@ -493,6 +494,7 @@ class LoginEmailViewModelTest {
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Failure(failure))
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
             .arrange()
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
@@ -508,13 +510,14 @@ class LoginEmailViewModelTest {
     fun `given successful login, when logging in, then update login job data with proper values`() = runTest {
         val previousUserId = UserId("currentUserId", "domain")
         val newUserId = UserId("newUserId", "domain")
-        val failure = CoreFailure.Unknown(null)
         val (arrangement, loginViewModel) = Arrangement()
             .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
             .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN.copy(userId = newUserId), SSO_ID, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
             .withValidateEmailReturning(true)
-            .withPersistEmailReturning(PersistSelfUserEmailResult.Failure(failure))
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+            .withInitialSyncCompletedReturning(true)
             .arrange()
 
         loginViewModel.loginJobData.test {
@@ -631,6 +634,43 @@ class LoginEmailViewModelTest {
         // then
         coVerify(exactly = 1) {
             arrangement.updateCurrentSessionUseCase(previousUserId)
+        }
+    }
+
+    @Test
+    fun `given login job is ongoing, when new login job is started, then cancel previous login job and start a new one`() = runTest {
+        // given
+        val loginJob1: Job = mockk(relaxUnitFun = true) // mocked first login job
+        val previousUserId = UserId("previousUserId", "domain") // current session user id
+        val newUserId1 = UserId("newUserId1", "domain") // new session user id for the first login job
+        val newUserId2 = UserId("newUserId2", "domain") // new session user id for the second login job
+        val authToken2 = AUTH_TOKEN.copy(userId = newUserId2) // auth token for the second login job
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
+            .withLoginReturning(AuthenticationResult.Success(authToken2, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId2))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+            .withInitialSyncCompletedReturning(true)
+            .arrange()
+        // first login job ongoing
+        viewModel.loginJobData.value = LoginJobData(job = loginJob1, previousSessionUserId = previousUserId, newSessionUserId = newUserId1)
+        // when
+        viewModel.login() // start login job again
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 1) { // verify that the first login job has been canceled and reverted
+            loginJob1.cancel()
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(newUserId1)
+            arrangement.updateCurrentSessionUseCase(previousUserId)
+        }
+        coVerify(exactly = 1) { // verify that the second login job has been started
+            arrangement.loginUseCase(any(), any(), any(), any(), any())
+            arrangement.addAuthenticatedUserUseCase(any(), any(), eq(authToken2), any())
         }
     }
 

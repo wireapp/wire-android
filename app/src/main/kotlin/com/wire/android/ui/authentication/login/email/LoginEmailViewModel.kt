@@ -154,6 +154,9 @@ class LoginEmailViewModel @Inject constructor(
                     null
                 }
             }
+            // first, cancel and revert any previous login if it's still running, just to be sure
+            revertLogin()
+            // then, start a new login job
             startLoginJob().let {
                 loginJobData.value = LoginJobData(it, previousSessionUserId)
                 it.invokeOnCompletion {
@@ -251,16 +254,20 @@ class LoginEmailViewModel @Inject constructor(
         coreLogic.getGlobalScope().deleteSession(newSessionUserId)
     }
 
+    private suspend fun revertLogin() {
+        loginJobData.value?.let { (job, previousSessionUserId) ->
+            job.cancel()
+            loginJobData.value?.newSessionUserId?.let { newSessionUserId ->
+                revertNewSession(newSessionUserId)
+            }
+            // set the previous session back
+            coreLogic.getGlobalScope().session.updateCurrentSession(previousSessionUserId)
+        }
+    }
+
     fun cancelLogin() {
         viewModelScope.launch {
-            loginJobData.value?.let { (job, previousSessionUserId) ->
-                job.cancel()
-                loginJobData.value?.newSessionUserId?.let { newSessionUserId ->
-                    revertNewSession(newSessionUserId)
-                }
-                // set the previous session back
-                coreLogic.getGlobalScope().session.updateCurrentSession(previousSessionUserId)
-            }
+            revertLogin()
             loginState = loginState.copy(flowState = LoginState.Canceled)
         }
     }

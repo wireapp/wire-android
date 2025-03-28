@@ -192,7 +192,11 @@ fun SearchUsersAndServicesScreen(
             }
         },
         bottomBar = {
-            if (isGroupSubmitVisible) {
+            AnimatedVisibility(
+                visible = isGroupSubmitVisible && !(searchBarState.isSearchActive && screenType == SearchPeopleScreenType.NEW_CONVERSATION),
+                enter = fadeIn() + expandVertically(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
                 when (screenType) {
                     SearchPeopleScreenType.NEW_CONVERSATION -> {
                         CreateRegularGroupOrChannelButtons(

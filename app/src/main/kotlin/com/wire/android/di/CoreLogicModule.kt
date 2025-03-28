@@ -32,6 +32,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
@@ -45,6 +46,7 @@ import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
@@ -126,6 +128,10 @@ class CoreLogicModule {
         coreLogic.getGlobalScope().session.allSessions
 
     @Provides
+    fun provideObserveAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveSessionsUseCase =
+        coreLogic.getGlobalScope().session.allSessionsFlow
+
+    @Provides
     fun provideServerConfigForAccountUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ServerConfigForAccountUseCase =
         coreLogic.getGlobalScope().serverConfigForAccounts
 
@@ -188,10 +194,13 @@ class UseCaseModule {
     fun provideLogoutUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): LogoutUseCase =
         coreLogic.getSessionScope(currentAccount).logout
 
-    @ViewModelScoped
     @Provides
     fun provideValidateEmailUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().validateEmailUseCase
+
+    @Provides
+    fun provideValidateSSOCodeUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ValidateSSOCodeUseCase =
+        coreLogic.getGlobalScope().validateSSOCodeUseCase
 
     @ViewModelScoped
     @Provides

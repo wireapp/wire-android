@@ -25,6 +25,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -55,7 +56,10 @@ internal fun CustomServerNoNetworkDialog(
     )
 }
 
-data class CustomServerNoNetworkDialogState(val customServerUrl: String) : CustomServerDialogState()
+data class CustomServerNoNetworkDialogState(
+    val customServerUrl: String,
+    override val loginType: LoginType = LoginType.Default,
+) : CustomServerDialogState
 
 @PreviewMultipleThemes
 @Composable

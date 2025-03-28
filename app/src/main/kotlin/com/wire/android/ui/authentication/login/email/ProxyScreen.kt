@@ -106,7 +106,7 @@ fun ProxyScreen(
 }
 
 @Composable
-private fun ProxyIdentifierInput(
+fun ProxyIdentifierInput(
     proxyIdentifierState: TextFieldState,
     error: String?,
     modifier: Modifier = Modifier,
@@ -122,7 +122,7 @@ private fun ProxyIdentifierInput(
 }
 
 @Composable
-private fun ProxyPasswordInput(proxyPasswordState: TextFieldState, modifier: Modifier = Modifier) {
+fun ProxyPasswordInput(proxyPasswordState: TextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = proxyPasswordState,

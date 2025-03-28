@@ -23,14 +23,17 @@ package com.wire.android.ui.authentication.login.email
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
+import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.common.error.CoreFailure
@@ -63,7 +66,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -78,7 +80,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
 class LoginEmailViewModelTest {
 
     private val dispatcherProvider = TestDispatcherProvider(StandardTestDispatcher())
@@ -533,9 +535,6 @@ class LoginEmailViewModelTest {
         internal lateinit var requestSecondFactorCodeUseCase: RequestSecondFactorVerificationCodeUseCase
 
         @MockK
-        internal lateinit var authServerConfigProvider: AuthServerConfigProvider
-
-        @MockK
         internal lateinit var userDataStoreProvider: UserDataStoreProvider
 
         @MockK
@@ -552,7 +551,9 @@ class LoginEmailViewModelTest {
             every { userScope.persistSelfUserEmail } returns persistSelfUserEmailUseCase
             every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
             every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-            every { authServerConfigProvider.authServer } returns MutableStateFlow((newServerConfig(1).links))
+            every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
+                loginPasswordPath = LoginPasswordPath(newServerConfig(1).links)
+            )
             coEvery { autoVersionAuthScopeUseCase(any()) } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
             every { authenticationScope.login } returns loginUseCase
             every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
@@ -563,11 +564,10 @@ class LoginEmailViewModelTest {
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             savedStateHandle,
-            authServerConfigProvider,
             userDataStoreProvider,
             coreLogic,
             dispatcherProvider
-        )
+        ).also { it.autoLoginWhenFullCodeEntered = true }
 
         fun withLoginReturning(result: AuthenticationResult) = apply {
             coEvery {

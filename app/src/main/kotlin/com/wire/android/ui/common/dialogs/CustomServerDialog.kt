@@ -45,6 +45,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
@@ -165,9 +166,14 @@ private fun CustomServerPropertyInfo(
     }
 }
 
-sealed class CustomServerDialogState
+sealed interface CustomServerDialogState {
+    val loginType: LoginType
+}
 
-data class CustomServerDetailsDialogState(val serverLinks: ServerConfig.Links) : CustomServerDialogState()
+data class CustomServerDetailsDialogState(
+    val serverLinks: ServerConfig.Links,
+    override val loginType: LoginType = LoginType.Default,
+) : CustomServerDialogState
 
 @PreviewMultipleThemes
 @Composable

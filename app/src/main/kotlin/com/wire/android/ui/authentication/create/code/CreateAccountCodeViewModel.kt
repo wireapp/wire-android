@@ -26,7 +26,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
-import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.config.orDefault
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
@@ -56,12 +56,11 @@ class CreateAccountCodeViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
 
     val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 
-    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
+    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig.orDefault()
 
     val codeTextState: TextFieldState = TextFieldState()
     var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(createAccountNavArgs.flowType))

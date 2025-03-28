@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
@@ -66,29 +65,27 @@ class LoginEmailViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
-    authServerConfigProvider: AuthServerConfigProvider,
     userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider
 ) : LoginViewModel(
+    savedStateHandle,
     clientScopeProviderFactory,
-    authServerConfigProvider,
     userDataStoreProvider,
     coreLogic
 ) {
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
-        if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
-    }
+    val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
 
     val userIdentifierTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
     val proxyIdentifierTextState: TextFieldState = TextFieldState()
     val proxyPasswordTextState: TextFieldState = TextFieldState()
-    var loginState by mutableStateOf(LoginEmailState(preFilledUserIdentifier is PreFilledUserIdentifierType.None))
+    var loginState by mutableStateOf(LoginEmailState(preFilledUserIdentifier.userIdentifierEditable))
 
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState by mutableStateOf(VerificationCodeState())
+    var autoLoginWhenFullCodeEntered: Boolean = false
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
@@ -115,7 +112,7 @@ class LoginEmailViewModel @Inject constructor(
         viewModelScope.launch {
             secondFactorVerificationCodeTextState.textAsFlow().collectLatest {
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCurrentCodeInvalid = false)
-                if (it.length == VerificationCodeState.DEFAULT_VERIFICATION_CODE_LENGTH) {
+                if (it.length == VerificationCodeState.DEFAULT_VERIFICATION_CODE_LENGTH && autoLoginWhenFullCodeEntered) {
                     login()
                 }
             }

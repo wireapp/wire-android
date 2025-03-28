@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
@@ -40,6 +41,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun ModalSheetHeaderItem(
     modifier: Modifier = Modifier,
+    titleStyle: TextStyle = MaterialTheme.wireTypography.title02,
     header: MenuModalSheetHeader = MenuModalSheetHeader.Gone,
 ) {
     when (header) {
@@ -62,7 +64,7 @@ fun ModalSheetHeaderItem(
                     Spacer(modifier = Modifier.width(dimensions().spacing8x))
                     Text(
                         text = header.title,
-                        style = MaterialTheme.wireTypography.title02,
+                        style = titleStyle,
                         modifier = Modifier.semantics { heading() }
                     )
                 }

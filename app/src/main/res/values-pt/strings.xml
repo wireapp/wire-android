@@ -371,8 +371,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="mls">MLS</string>
     <string name="last_key_material_update_label">Última atualização de material criptográfico</string>
     <string name="group_state_label">Estado do Grupo</string>
-    <string name="empty_regular_group_name_error">Por favor, insira um nome para o grupo</string>
-    <string name="regular_group_name_exceeded_limit_error">O nome do grupo não deve exceder 64 caracteres</string>
     <string name="group_can_not_be_created_edit_participiant_list">Editar lista de participantes</string>
     <string name="group_can_not_be_created_discard_group_creation">Descartar criação de grupo</string>
     <string name="asset_message_tap_to_download_text">Toque para baixar</string>
@@ -780,7 +778,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="allow_guests">Permitir convidados</string>
     <string name="allow_guest_switch_description">Abrir esta conversa para pessoas fora do seu time. Você pode sempre alterar isso depois.</string>
     <string name="allow_services">Permitir serviços</string>
-    <string name="allow_services_regular_group_description">Abrir esta conversa para serviços. Voce pode sempre alterar isso depois.</string>
     <string name="service_details_label">Serviço</string>
     <string name="service_details_add_service_label">Adicionar ao grupo</string>
     <string name="service_details_remove_service_label">Remover do grupo</string>
@@ -791,7 +788,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="service_no_information_available_title">Nenhuma informação disponível</string>
     <string name="service_no_information_available_subtitle">Tente novamente ou entre em contato com o administrador da sua equipe</string>
     <string name="read_receipts">Confirmações de leitura</string>
-    <string name="read_receipts_regular_group_description">Com isso ligado, pessoas podem ver quando suas próprias mensagens foram lidas nesta conversa.</string>
     <string name="disable_guests_dialog_title">Desabilitar Convidados?</string>
     <string name="disable_guests_dialog_description">Os convidados selecionados anteriormente não farão parte do grupo se não for permitido o acessso.</string>
     <string name="disable_guests_dialog_button">Desabilitar Convidados</string>
@@ -1090,4 +1086,5 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="debug_settings_screen_title">Configurações de depuração</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!--    channel not available dialog-->
 </resources>

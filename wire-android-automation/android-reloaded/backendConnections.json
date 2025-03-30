@@ -1,0 +1,4130 @@
+[
+{
+  "id": "ziqymyxpd32qj23y44ho5tnuu4",
+  "title": "BackendConnection QA-Fixed-SSO",
+  "version": 9,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:22:20Z",
+  "additional_information": "https://nginz-https.qa-fixed-sso-wire.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "QA-Fixed-SSO",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.qa-fixed-sso-wire.wire.link/",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.qa-fixed-sso-wire.wire.link/",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "qa-fixed-sso-wire.wire.link",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.qa-fixed-sso-wire.wire.link",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.qa-fixed-sso-wire.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.qa-fixed-sso-wire.wire.link/",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection QA-Fixed-SSO/socksProxy"
+    }
+  ]
+},{
+  "id": "3c2t44xlpqezx3habf3yqrczry",
+  "title": "BackendConnection bund-live-column-offline-ios",
+  "version": 5,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:11:13Z",
+  "additional_information": "https://nginz-https.bund-live-column-offline-ios.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-live-column-offline-ios",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-live-column-offline-ios.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-live-column-offline-ios.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-live-column-offline-ios.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-live-column-offline-ios.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-live-column-offline-ios.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-live-column-offline-ios.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-offline-ios",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/basicAuthPassword"
+    },
+    {
+      "id": "cmcmcszlexvegsciaefl62pfea",
+      "type": "CONCEALED",
+      "label": "basicAuth",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/basicAuth"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-ios/socksProxy"
+    }
+  ]
+},{
+  "id": "gnbda7e2wpzqcjv3p3yqnvh5qy",
+  "title": "BackendConnection bund-live-column-offline-android",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:11:37Z",
+  "additional_information": "https://nginz-https.bund-live-column-3.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-live-column-3",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-live-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-live-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-live-column-3.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-live-column-3.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-live-column-3.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-live-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-3",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-android/socksProxy"
+    }
+  ]
+},{
+  "id": "rjut4v6ubmei2lwttn3so62qum",
+  "title": "BackendConnection bund-qa-column-3",
+  "version": 7,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:21:27Z",
+  "additional_information": "https://nginz-https.bund-qa-column-3.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-qa-column-3",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-qa-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-qa-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-qa-column-3.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-qa-column-3.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-qa-column-3.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-qa-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.bund-qa.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "value": "https://acme.bund-qa-column-3.wire.link/acme/keycloakteams/directory",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-3",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-3/socksProxy"
+    }
+  ]
+},{
+  "id": "k5eyl6rhek76qnrc5s2ycw4uqa",
+  "title": "BackendConnection mobtown-red",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:17:28Z",
+  "additional_information": "https://nginz-https.red.mobtown.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "mobtown-red",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.red.mobtown.wire.link/",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.red.mobtown.wire.link/",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "default.domain",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.red.mobtown.wire.link",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://api.npoint.io/8793ea22b694171c7f0f",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "tNc4DZHFl6RDmscnWF7nvc5YGVI8dagsiTFuLeCW0k",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection mobtown-red/socksProxy"
+    }
+  ]
+},{
+  "id": "h5a7x2vaydyfsfoe5riyi7ik5i",
+  "title": "BackendConnection bund-live-column-1",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:17:37Z",
+  "additional_information": "https://nginz-https.bund-live-column-1.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-live-column-1",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-live-column-1.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-live-column-1.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-live-column-1.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-live-column-1.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-live-column-1.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-live-column-1.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-1",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-1/socksProxy"
+    }
+  ]
+},{
+  "id": "4w4hggllyugvajgg7ciu5rfpha",
+  "title": "BackendConnection bund-qa-external",
+  "version": 14,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:21:33Z",
+  "additional_information": "https://nginz-https.bund-qa-external.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-next-external",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-qa-external.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-qa-external.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-qa-external.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-qa-external.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-qa-external.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-qa-external.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "external",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-qa-external/socksProxy"
+    }
+  ]
+},{
+  "id": "2l6r4a2gomoqw7b42nxfunk7py",
+  "title": "BackendConnection bund-live-column-offline-web",
+  "version": 6,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:11:26Z",
+  "additional_information": "https://nginz-https.bund-live-column-offline-web.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-live-column-offline-web",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-live-column-offline-web.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-live-column-offline-web.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-live-column-offline-web.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-live-column-offline-web.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-live-column-offline-web.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-live-column-offline-web.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-offline-web",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-offline-web/socksProxy"
+    }
+  ]
+},{
+  "id": "hi4imh7w77t2f3mdtufeimw7yy",
+  "title": "BackendConnection diya",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:20:48Z",
+  "additional_information": "https://nginz-https.diya.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection diya/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "diya",
+      "reference": "op://Test Automation/BackendConnection diya/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.diya.wire.link/",
+      "reference": "op://Test Automation/BackendConnection diya/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.diya.wire.link/",
+      "reference": "op://Test Automation/BackendConnection diya/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "diya.wire.link",
+      "reference": "op://Test Automation/BackendConnection diya/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.diya.wire.link",
+      "reference": "op://Test Automation/BackendConnection diya/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.diya.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection diya/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.diya.wire.link/",
+      "reference": "op://Test Automation/BackendConnection diya/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.stars.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection diya/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection diya/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "diya",
+      "reference": "op://Test Automation/BackendConnection diya/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection diya/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection diya/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection diya/socksProxy"
+    }
+  ]
+},{
+  "id": "5titafhtqup7j2zc72jdkkdo3e",
+  "title": "BackendConnection bund-qa-column-1",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:21:44Z",
+  "additional_information": "https://nginz-https.bund-qa-column-1.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-qa-column-1",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-qa-column-1.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-qa-column-1.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-qa-column-1.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-qa-column-1.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-qa-column-1.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-qa-column-1.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.bund-qa.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "value": "https://acme.bund-qa-column-1.wire.link/acme/keycloakteams/directory",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-1",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-1/socksProxy"
+    }
+  ]
+},{
+  "id": "jtuvjl3velr6cqmqqzeknlh6mm",
+  "title": "BackendConnection bund-live-column-2",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:17:43Z",
+  "additional_information": "https://nginz-https.bund-live-column-2.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-live-column-2",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-live-column-2.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-live-column-2.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-live-column-2.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-live-column-2.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-live-column-2.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-live-column-2.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-2",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-2/socksProxy"
+    }
+  ]
+},{
+  "id": "inztnhw5fjexrnqc6l27dleika",
+  "title": "BackendConnection bund-next-external",
+  "version": 3,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:21:20Z",
+  "additional_information": "https://nginz-https.bund-next-external.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-next-external",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-next-external.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-next-external.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-next-external.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-next-external.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-next-external.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-next-external.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "external",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-next-external/socksProxy"
+    }
+  ]
+},{
+  "id": "trtqptr2gldfzasqaj5g5xax7q",
+  "title": "BackendConnection bund-next-column-1",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:22:26Z",
+  "additional_information": "https://nginz-https.bund-next-column-1.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-next-column-1",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-next-column-1.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-next-column-1.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-next-column-1.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-next-column-1.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-next-column-1.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-next-column-1.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.bund-next.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "value": "https://acme.bund-next-column-1.wire.link/acme/keycloakteams/directory",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-1",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-1/socksProxy"
+    }
+  ]
+},{
+  "id": "bjegcydm5e4jowe35f7i6uveti",
+  "title": "BackendConnection bund-live-external",
+  "version": 6,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:11:31Z",
+  "additional_information": "https://nginz-https.bund-live-external.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-live-external",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-live-external.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-live-external.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-live-external.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-live-external.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-live-external.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-live-external.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "external",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-live-external/socksProxy"
+    }
+  ]
+},{
+  "id": "uccj6u6k3bvcrafk2pkxlzllym",
+  "title": "BackendConnection foma",
+  "version": 13,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:20:26Z",
+  "additional_information": "https://nginz-https.foma.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection foma/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "foma",
+      "reference": "op://Test Automation/BackendConnection foma/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.foma.wire.link/",
+      "reference": "op://Test Automation/BackendConnection foma/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.foma.wire.link/",
+      "reference": "op://Test Automation/BackendConnection foma/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "foma.wire.link",
+      "reference": "op://Test Automation/BackendConnection foma/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.foma.wire.link",
+      "reference": "op://Test Automation/BackendConnection foma/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.foma.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection foma/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.foma.wire.link/",
+      "reference": "op://Test Automation/BackendConnection foma/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.stars.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection foma/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection foma/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "foma",
+      "reference": "op://Test Automation/BackendConnection foma/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection foma/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection foma/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection foma/socksProxy"
+    }
+  ]
+},{
+  "id": "qn7r4jlcwajvt4adzaj54zri24",
+  "title": "BackendConnection bund-next-column-2",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:22:14Z",
+  "additional_information": "https://nginz-https.bund-next-column-2.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-next-column-2",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-next-column-2.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-next-column-2.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-next-column-2.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-next-column-2.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-next-column-2.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-next-column-2.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.bund-next.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "value": "https://acme.bund-next-column-2.wire.link/acme/keycloakteams/directory",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-2",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-2/socksProxy"
+    }
+  ]
+},{
+  "id": "6bum6dvkjrllkc3t67f45qpasq",
+  "title": "BackendConnection bund-qa-column-offline-web",
+  "version": 5,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:11:55Z",
+  "additional_information": "https://nginz-https.bund-qa-column-offline-web.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-qa-column-offline-web",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-qa-column-offline-web.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-qa-column-offline-web.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-qa-column-offline-web.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-qa-column-offline-web.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-qa-column-offline-web.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-qa-column-offline-web.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-offline-web",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-web/socksProxy"
+    }
+  ]
+},{
+  "id": "rghs4fxtw2chow4zkotkyk4fui",
+  "title": "BackendConnection production",
+  "version": 5,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:22:33Z",
+  "additional_information": "https://prod-nginz-https.wire.com",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection production/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "production",
+      "reference": "op://Test Automation/BackendConnection production/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://prod-nginz-https.wire.com",
+      "reference": "op://Test Automation/BackendConnection production/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://wire-webapp-staging.wire.com/",
+      "reference": "op://Test Automation/BackendConnection production/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "wire.com",
+      "reference": "op://Test Automation/BackendConnection production/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://prod-nginz-ssl.wire.com",
+      "reference": "op://Test Automation/BackendConnection production/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://prod-nginz-https.wire.com/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection production/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "reference": "op://Test Automation/BackendConnection production/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection production/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection production/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "reference": "op://Test Automation/BackendConnection production/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection production/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "bXl1c2VySXNBd2Vzb21lOm15cGFzc3dvcmRJc0F3ZXNvbWU=",
+      "reference": "op://Test Automation/BackendConnection production/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection production/socksProxy"
+    }
+  ]
+},{
+  "id": "brvwuaaypztdu7o2g7dnikprs4",
+  "title": "BackendConnection bund-next-column-3",
+  "version": 9,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:21:58Z",
+  "additional_information": "https://nginz-https.bund-next-column-3.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-next-column-3",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-next-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-next-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-next-column-3.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-next-column-3.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-next-column-3.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-next-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.bund-next.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "value": "https://acme.bund-next-column-3.wire.link/acme/keycloakteams/directory",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-3",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-3/socksProxy"
+    }
+  ]
+},{
+  "id": "vw44oywcu3k5t4tjl4a7lxdasy",
+  "title": "BackendConnection bund-next-column-offline-android",
+  "version": 4,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:20:42Z",
+  "additional_information": "https://nginz-https.bund-next-column-offline-android.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-next-column-offline-android",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-next-column-offline-android.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-next-column-offline-android.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-next-column-offline-android.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-next-column-offline-android.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-next-column-offline-android.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-next-column-offline-android.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.bund-next.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "value": "https://acme.bund-next-column-offline-android.wire.link/acme/keycloakteams/directory",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-offline-android",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-android/socksProxy"
+    }
+  ]
+},{
+  "id": "yh7trzeyyk4ukchk646cr77uua",
+  "title": "BackendConnection anta",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:07:41Z",
+  "additional_information": "https://nginz-https.anta.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection anta/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "anta",
+      "reference": "op://Test Automation/BackendConnection anta/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.anta.wire.link/",
+      "reference": "op://Test Automation/BackendConnection anta/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.anta.wire.link/",
+      "reference": "op://Test Automation/BackendConnection anta/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "anta.wire.link",
+      "reference": "op://Test Automation/BackendConnection anta/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.anta.wire.link",
+      "reference": "op://Test Automation/BackendConnection anta/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.anta.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection anta/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.anta.wire.link/",
+      "reference": "op://Test Automation/BackendConnection anta/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.stars.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection anta/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection anta/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "anta",
+      "reference": "op://Test Automation/BackendConnection anta/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection anta/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection anta/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection anta/socksProxy"
+    }
+  ]
+},{
+  "id": "6lgnbi63lkkco6ijqhlzl37smq",
+  "title": "BackendConnection bund-qa-column-offline-android",
+  "version": 5,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:11:20Z",
+  "additional_information": "https://nginz-https.bund-qa-column-offline-android.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-qa-column-offline-android",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-qa-column-offline-android.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-qa-column-offline-android.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-qa-column-offline-android.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-qa-column-offline-android.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-qa-column-offline-android.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-qa-column-offline-android.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-offline-android",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/basicAuthPassword"
+    },
+    {
+      "id": "cmcmcszlexvegsciaefl62pfea",
+      "type": "CONCEALED",
+      "label": "basicAuth",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/basicAuth"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-android/socksProxy"
+    }
+  ]
+},{
+  "id": "w44fulvpxrzjn7jkqzw7kt5dwi",
+  "title": "BackendConnection bund-next-column-offline-web",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:13:50Z",
+  "additional_information": "https://nginz-https.bund-next-column-offline-web.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-next-column-offline-web",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-next-column-offline-web.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-next-column-offline-web.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-next-column-offline-web.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-next-column-offline-web.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-next-column-offline-web.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-next-column-offline-web.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.bund-next.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "value": "https://acme.bund-next-column-offline-web.wire.link/acme/keycloakteams/directory",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-offline-web",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-web/socksProxy"
+    }
+  ]
+},{
+  "id": "cvcl5464koglgastc6hjdokuae",
+  "title": "BackendConnection socks-access-backend-wire",
+  "version": 6,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:13:00Z",
+  "additional_information": "https://nginz-https.socks-access-backend-wire.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "socks-access-backend-wire",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.socks-access-backend-wire.wire.link/",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.socks-access-backend-wire.wire.link/",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "socks-access-backend-wire.wire.link",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.socks-access-backend-wire.wire.link",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://wire-taco-test.s3.eu-west-1.amazonaws.com/socks-access-backend-wire.json",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.socks-access-backend-wire.wire.link/",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/basicAuthPassword"
+    },
+    {
+      "id": "cmcmcszlexvegsciaefl62pfea",
+      "type": "CONCEALED",
+      "label": "basicAuth",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/basicAuth"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "value": "yes",
+      "reference": "op://Test Automation/BackendConnection socks-access-backend-wire/socksProxy"
+    }
+  ]
+},{
+  "id": "y5z6n76wn2rechec5rvceqdriq",
+  "title": "BackendConnection bella",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:21:13Z",
+  "additional_information": "https://nginz-https.bella.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bella/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bella",
+      "reference": "op://Test Automation/BackendConnection bella/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bella.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bella/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bella.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bella/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bella.wire.link",
+      "reference": "op://Test Automation/BackendConnection bella/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bella.wire.link",
+      "reference": "op://Test Automation/BackendConnection bella/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bella.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bella/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bella.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bella/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.stars.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection bella/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bella/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "bella",
+      "reference": "op://Test Automation/BackendConnection bella/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bella/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bella/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bella/socksProxy"
+    }
+  ]
+},{
+  "id": "7hooh7kw65dl4f6cmvrofcy2de",
+  "title": "BackendConnection staging-with-webapp-master",
+  "version": 4,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:11:49Z",
+  "additional_information": "https://staging-nginz-https.zinfra.io/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "staging-with-webapp-master",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://staging-nginz-https.zinfra.io/",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://wire-webapp-master.zinfra.io/",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "staging.zinfra.io",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://staging-nginz-ssl.zinfra.io",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://staging-nginz-https.zinfra.io/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/basicAuthPassword"
+    },
+    {
+      "id": "cmcmcszlexvegsciaefl62pfea",
+      "type": "CONCEALED",
+      "label": "basicAuth",
+      "value": "d2lyZS1zdGFnaW5nOnRqNGEzbl1BQzpFcn5yJTQ=",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/basicAuth"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection staging-with-webapp-master/socksProxy"
+    }
+  ]
+},{
+  "id": "whmuz6qfwwul3bio7w2rnaexnq",
+  "title": "BackendConnection chala",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:20:56Z",
+  "additional_information": "https://nginz-https.chala.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection chala/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "chala",
+      "reference": "op://Test Automation/BackendConnection chala/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.chala.wire.link/",
+      "reference": "op://Test Automation/BackendConnection chala/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.chala.wire.link/",
+      "reference": "op://Test Automation/BackendConnection chala/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "chala.wire.link",
+      "reference": "op://Test Automation/BackendConnection chala/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.chala.wire.link",
+      "reference": "op://Test Automation/BackendConnection chala/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.chala.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection chala/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.chala.wire.link/",
+      "reference": "op://Test Automation/BackendConnection chala/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.stars.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection chala/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection chala/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "chala",
+      "reference": "op://Test Automation/BackendConnection chala/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection chala/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection chala/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection chala/socksProxy"
+    }
+  ]
+},{
+  "id": "cydowfhbi4gcqk4o3i4dv5w75i",
+  "title": "BackendConnection bund-qa-column-2",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:21:51Z",
+  "additional_information": "https://nginz-https.bund-qa-column-2.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-qa-column-2",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-qa-column-2.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-qa-column-2.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-qa-column-2.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-qa-column-2.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-qa-column-2.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-qa-column-2.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.bund-qa.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "value": "https://acme.bund-qa-column-2.wire.link/acme/keycloakteams/directory",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-2",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-2/socksProxy"
+    }
+  ]
+},{
+  "id": "4grnlwudl2xw4sddj6w6f4r4wu",
+  "title": "BackendConnection mobtown-test",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:20:12Z",
+  "additional_information": "https://nginz-https.mobtown-test.mobtown.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "mobtown-test",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.mobtown-test.mobtown.wire.link/",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.mobtown-test.mobtown.wire.link/",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "default.domain",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.mobtown-test.mobtown.wire.link",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://api.npoint.io/b01243843d8138dd58cf",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "tNc4DZHFl6RDmscnWF7nvc5YGVI8dagsiTFuLeCW0k",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection mobtown-test/socksProxy"
+    }
+  ]
+},{
+  "id": "7vjnvgwk4ijbbiupuoymcohime",
+  "title": "BackendConnection bund-qa-column-offline-ios",
+  "version": 4,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:11:43Z",
+  "additional_information": "https://nginz-https.bund-qa-column-offline-ios.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-qa-column-offline-ios",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-qa-column-offline-ios.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-qa-column-offline-ios.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-qa-column-offline-ios.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-qa-column-offline-ios.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-qa-column-offline-ios.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-qa-column-offline-ios.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-offline-ios",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/basicAuthPassword"
+    },
+    {
+      "id": "cmcmcszlexvegsciaefl62pfea",
+      "type": "CONCEALED",
+      "label": "basicAuth",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/basicAuth"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-qa-column-offline-ios/socksProxy"
+    }
+  ]
+},{
+  "id": "aqnhzzguvfsf5x6yk66vt7u46e",
+  "title": "BackendConnection staging",
+  "version": 3,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:11:06Z",
+  "additional_information": "https://staging-nginz-https.zinfra.io/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection staging/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "staging",
+      "reference": "op://Test Automation/BackendConnection staging/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://staging-nginz-https.zinfra.io/",
+      "reference": "op://Test Automation/BackendConnection staging/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://wire-webapp-dev.zinfra.io/",
+      "reference": "op://Test Automation/BackendConnection staging/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "staging.zinfra.io",
+      "reference": "op://Test Automation/BackendConnection staging/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://staging-nginz-ssl.zinfra.io",
+      "reference": "op://Test Automation/BackendConnection staging/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://staging-nginz-https.zinfra.io/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection staging/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.wire.engineering/",
+      "reference": "op://Test Automation/BackendConnection staging/inbucketUrl"
+    },
+    {
+      "id": "gnpjzbudmmtpuszovdemwoiuxi",
+      "type": "STRING",
+      "label": "inbucketUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection staging/inbucketUsername"
+    },
+    {
+      "id": "z63rufptc5og7kd3xo2nf6rgsu",
+      "type": "CONCEALED",
+      "label": "inbucketPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection staging/inbucketPassword"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection staging/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection staging/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "reference": "op://Test Automation/BackendConnection staging/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "reference": "op://Test Automation/BackendConnection staging/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "reference": "op://Test Automation/BackendConnection staging/basicAuthPassword"
+    },
+    {
+      "id": "cmcmcszlexvegsciaefl62pfea",
+      "type": "CONCEALED",
+      "label": "basicAuth",
+      "value": "d2lyZS1zdGFnaW5nOnRqNGEzbl1BQzpFcn5yJTQ=",
+      "reference": "op://Test Automation/BackendConnection staging/basicAuth"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection staging/socksProxy"
+    }
+  ]
+},{
+  "id": "d6nisa5cuf75tuaehtjqx6hkq4",
+  "title": "BackendConnection elna",
+  "version": 2,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:20:32Z",
+  "additional_information": "https://nginz-https.elna.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection elna/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "elna",
+      "reference": "op://Test Automation/BackendConnection elna/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.elna.wire.link/",
+      "reference": "op://Test Automation/BackendConnection elna/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.elna.wire.link/",
+      "reference": "op://Test Automation/BackendConnection elna/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "elna.wire.link",
+      "reference": "op://Test Automation/BackendConnection elna/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.elna.wire.link",
+      "reference": "op://Test Automation/BackendConnection elna/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.elna.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection elna/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.elna.wire.link/",
+      "reference": "op://Test Automation/BackendConnection elna/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.stars.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection elna/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection elna/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "elna",
+      "reference": "op://Test Automation/BackendConnection elna/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection elna/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection elna/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection elna/socksProxy"
+    }
+  ]
+},{
+  "id": "wrv6ezixfzbkz3ilpema7jclma",
+  "title": "BackendConnection bund-live-column-3",
+  "version": 3,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:22:04Z",
+  "additional_information": "https://nginz-https.bund-live-column-3.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-live-column-3",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-live-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-live-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-live-column-3.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-live-column-3.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-live-column-3.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-live-column-3.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-3",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-live-column-3/socksProxy"
+    }
+  ]
+},{
+  "id": "ecq53lssmap7t72z6dipixjiii",
+  "title": "BackendConnection bund-next-column-offline-ios",
+  "version": 6,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:20:20Z",
+  "additional_information": "https://nginz-https.bund-next-column-offline-ios.wire.link/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "bund-next-column-offline-ios",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.bund-next-column-offline-ios.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.bund-next-column-offline-ios.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "bund-next-column-offline-ios.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.bund-next-column-offline-ios.wire.link",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.bund-next-column-offline-ios.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.bund-next-column-offline-ios.wire.link/",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.bund-next.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "value": "https://acme.bund-next-column-offline-ios.wire.link/acme/keycloakteams/directory",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "column-offline-ios",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection bund-next-column-offline-ios/socksProxy"
+    }
+  ]
+},{
+  "id": "3miagcbxmjs4oqk5nx4dxmtnra",
+  "title": "BackendConnection mobtown-ernie",
+  "version": 8,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:13:40Z",
+  "additional_information": "https://nginz-https.ernie.mobtown.wire.systems/",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "mobtown-ernie",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.ernie.mobtown.wire.systems/",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.ernie.mobtown.wire.systems/",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "default.domain",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.ernie.mobtown.wire.systems",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/backendWebsocket"
+    },
+    {
+      "id": "5aio4y6x65etc4fzyj2otec3lu",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://api.npoint.io/ace53d56e2e6810bc35e",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/inbucketUrl"
+    },
+    {
+      "id": "nxx5agpqoxduxqjfgwvqwbce2q",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/keycloakUrl"
+    },
+    {
+      "id": "xjgmwu3hfmbyd7wp264rjencbe",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/acmeDiscoveryUrl"
+    },
+    {
+      "id": "kuh6f57bvyy74odugvydwtnbau",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "tNc4DZHFl6RDmscnWF7nvc5YGVI8dagsiTFuLeCW0k",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/basicAuthPassword"
+    },
+    {
+      "id": "uphnrthh2zidq4kz745phsqqva",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection mobtown-ernie/socksProxy"
+    }
+  ]
+},{
+  "id": "3g65ops334uvupxm6fh3japrom",
+  "title": "BackendConnection stefan-test-jupiter",
+  "version": 5,
+  "vault": {
+    "id": "h3s3xbhufewsgy3dhgom76h7hu",
+    "name": "Test Automation"
+  },
+  "category": "SERVER",
+  "last_edited_by": "WQWWAK4RXNCSRLDZ4B4UCEYP4Y",
+  "created_at": "2024-11-12T17:05:38Z",
+  "updated_at": "2025-03-18T16:12:51Z",
+  "additional_information": "https://nginz-https.stefan-test-jupiter.wire.link/",
+  "fields": [
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/notesPlain"
+    },
+    {
+      "id": "url",
+      "type": "STRING",
+      "label": "name",
+      "value": "stefan-test-jupiter",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/name"
+    },
+    {
+      "id": "username",
+      "type": "STRING",
+      "label": "backendUrl",
+      "value": "https://nginz-https.stefan-test-jupiter.wire.link/",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/backendUrl"
+    },
+    {
+      "id": "kulbqyfkzhzl7cbpegjnzdrjuu",
+      "type": "STRING",
+      "label": "webappUrl",
+      "value": "https://webapp.stefan-test-jupiter.wire.link/",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/webappUrl"
+    },
+    {
+      "id": "gkqiyeal36wukdt2p6lxi6uuvy",
+      "type": "STRING",
+      "label": "domain",
+      "value": "stefan-test-jupiter.wire.link",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/domain"
+    },
+    {
+      "id": "6osugpdudbvdgwbu5azhcg3cie",
+      "type": "STRING",
+      "label": "backendWebsocket",
+      "value": "wss://nginz-ssl.stefan-test-jupiter.wire.link",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/backendWebsocket"
+    },
+    {
+      "id": "47ymf6co74gnlrchgg7n3sguf4",
+      "type": "STRING",
+      "label": "deeplink",
+      "value": "https://nginz-https.stefan-test-jupiter.wire.link/deeplink.json",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/deeplink"
+    },
+    {
+      "id": "gmjemhcxcqremypq3sj754kfye",
+      "type": "STRING",
+      "label": "inbucketUrl",
+      "value": "https://inbucket.stefan-test-jupiter.wire.link/",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/inbucketUrl"
+    },
+    {
+      "id": "phwvfbxe5c3kklnnng5grmpqpu",
+      "type": "STRING",
+      "label": "keycloakUrl",
+      "value": "https://keycloak.stefan-test-jupiter.wire.link/auth",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/keycloakUrl"
+    },
+    {
+      "id": "k5j3h7xwveim2cpgxx63w7pbzi",
+      "type": "STRING",
+      "label": "acmeDiscoveryUrl",
+      "value": "https://acme.stefan-test-jupiter.wire.link/acme/keycloakteams/directory",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/acmeDiscoveryUrl"
+    },
+    {
+      "id": "43ofdvqwlyyrjanhvczcgwzsqe",
+      "type": "STRING",
+      "label": "k8sNamespace",
+      "value": "jupiter",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/k8sNamespace"
+    },
+    {
+      "id": "zigla6i2iwhjvkz24s6lx7xfuq",
+      "type": "STRING",
+      "label": "basicAuthUsername",
+      "value": "basic-auth-user",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/basicAuthUsername"
+    },
+    {
+      "id": "ozzhbgjyuacvvukjqddffcqg5y",
+      "type": "CONCEALED",
+      "label": "basicAuthPassword",
+      "value": "I8fHIJ+i3PNDJQp+Yoc}QeqV",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/basicAuthPassword"
+    },
+    {
+      "id": "5576vi5pqgqn6crkefnr6cyea4",
+      "type": "STRING",
+      "label": "socksProxy",
+      "reference": "op://Test Automation/BackendConnection stefan-test-jupiter/socksProxy"
+    }
+  ]
+}
+]

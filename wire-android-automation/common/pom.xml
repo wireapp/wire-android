@@ -1,0 +1,240 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.wire.qa</groupId>
+    <artifactId>qa-common</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>qa-common</name>
+    <url>http://maven.apache.org</url>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/zinfra/zautomation</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Java version (see also maven-compiler-plugin settings) -->
+        <maven.compiler.release>17</maven.compiler.release>
+        <callingServiceUrl>loadbalanced</callingServiceUrl>
+        <com.wire.calling.env>master</com.wire.calling.env>
+        <!-- JavaX | REST -->
+        <mailboxHandlerType>REST</mailboxHandlerType>
+        <defaultEmailListenerUrl>http://192.168.2.11:80</defaultEmailListenerUrl>
+        <defaultEmailListenerUrl.internal>http://192.168.2.11:80</defaultEmailListenerUrl.internal>
+        <makeScreenshots>true</makeScreenshots>
+        <makeScreenshotOnPassedSteps>true</makeScreenshotOnPassedSteps>
+        <initNodeIp>true</initNodeIp>
+        <testrailServerUrl>https://192.168.2.34/</testrailServerUrl>
+        <testrailServerUrl.internal>https://192.168.2.34/</testrailServerUrl.internal>
+        <testrailProjectName></testrailProjectName>
+        <testrailPlanName></testrailPlanName>
+        <testrailRunName></testrailRunName>
+        <testrailRunConfigName></testrailRunConfigName>
+        <rcTestsCommentPath></rcTestsCommentPath>
+        <cucumberReportUrl></cucumberReportUrl>
+        <testinyProjectName></testinyProjectName>
+        <testinyRunName></testinyRunName>
+        <syncIsAutomated>False</syncIsAutomated>
+        <syncIsMuted>False</syncIsMuted>
+        <backendType>staging</backendType>
+        <backendConnections></backendConnections>
+        <customBackendUrl></customBackendUrl>
+        <customBackendWebsocket></customBackendWebsocket>
+        <customBackendBasicAuth></customBackendBasicAuth>
+        <customBackendDomain></customBackendDomain>
+        <testServiceUrl>http://192.168.2.18:8080</testServiceUrl>
+        <oldTestserviceUrl>http://192.168.2.190:21080</oldTestserviceUrl>
+        <jiraUrl>https://wearezeta.atlassian.net/browse/</jiraUrl>
+        <disableOpenCV>false</disableOpenCV>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Central Repository</name>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+
+        <dependency>
+            <!-- Used by ImageUtil class -->
+            <groupId>org.openpnp</groupId>
+            <artifactId>opencv</artifactId>
+            <version>4.5.5-1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>2.2</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed for JSON requests to Backend and other APIs -->
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed for Email-Listener -->
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.5.2</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed for Inbucket client -->
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>converter-jackson</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed for Inbucket client -->
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>retrofit</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed for REST request to Testrail, Backend, Okta API, SCIM and Email-Listener -->
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.39.1</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed to create video files -->
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec-javase</artifactId>
+            <version>0.2.2</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed to create random strings with certain characters -->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed for credit card setup in teams -->
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>22.16.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>1.12.455</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed for QR code checking -->
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+
+        <dependency>
+            <!-- jsoup HTML parser library needed for LegalHold service client -->
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.15.4</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed for reading PDF files from team management -->
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.28</version>
+        </dependency>
+
+        <dependency>
+            <!-- Needed for generating realistic user data -->
+            <groupId>net.datafaker</groupId>
+            <artifactId>datafaker</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.wire.qa</groupId>
+            <artifactId>picklejar-engine</artifactId>
+            <version>0.0.5</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <!-- specify UTF-8, ISO-8859-1 or any other file encoding -->
+                    <encoding>UTF-8</encoding>
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>jks</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                    <trimStackTrace>false</trimStackTrace>
+                    <failIfNoSpecifiedTests>false</failIfNoSpecifiedTests>
+                    <failIfNoTests>false</failIfNoTests>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+</project>

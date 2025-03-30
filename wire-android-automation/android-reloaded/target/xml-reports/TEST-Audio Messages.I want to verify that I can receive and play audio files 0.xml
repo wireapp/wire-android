@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="I want to verify that I can receive and play audio files 0" tests="1" skipped="0" failures="0" errors="0" time="123.624" hostname="emmanueloke-MacBook-Pro" timestamp="2025-03-30T21:23:02">
+<properties>
+<property name="appPath" value="/Users/emmanuel.oke/Documents/WireAppium/com.wire.android-v4.12.0-81617-staging-compat.apk"/>
+<property name="browserName" value=""/>
+<property name="file.encoding" value="UTF-8"/>
+<property name="file.separator" value="/"/>
+<property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+<property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+<property name="java.class.path" value="/Users/emmanuel.oke/Documents/wire-android/wire-android-automation/android-reloaded/target/test-classes:/Users/emmanuel.oke/Documents/wire-android/wire-android-automation/android-reloaded/target/classes:/Users/emmanuel.oke/Documents/wire-android/wire-android-automation/common/target/qa-common-1.0-SNAPSHOT.jar:/Users/emmanuel.oke/.m2/repository/org/openpnp/opencv/4.5.5-1/opencv-4.5.5-1.jar:/Users/emmanuel.oke/.m2/repository/org/hamcrest/hamcrest-library/2.2/hamcrest-library-2.2.jar:/Users/emmanuel.oke/.m2/repository/org/hamcrest/hamcrest-core/2.2/hamcrest-core-2.2.jar:/Users/emmanuel.oke/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/Users/emmanuel.oke/.m2/repository/org/json/json/20231013/json-20231013.jar:/Users/emmanuel.oke/.m2/repository/com/sun/mail/javax.mail/1.5.2/javax.mail-1.5.2.jar:/Users/emmanuel.oke/.m2/repository/javax/activation/activation/1.1/activation-1.1.jar:/Users/emmanuel.oke/.m2/repository/com/squareup/retrofit2/converter-jackson/2.11.0/converter-jackson-2.11.0.jar:/Users/emmanuel.oke/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.17.0/jackson-databind-2.17.0.jar:/Users/emmanuel.oke/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.17.0/jackson-core-2.17.0.jar:/Users/emmanuel.oke/.m2/repository/com/squareup/retrofit2/retrofit/2.11.0/retrofit-2.11.0.jar:/Users/emmanuel.oke/.m2/repository/com/squareup/okhttp3/okhttp/3.14.9/okhttp-3.14.9.jar:/Users/emmanuel.oke/.m2/repository/com/squareup/okio/okio/1.17.2/okio-1.17.2.jar:/Users/emmanuel.oke/.m2/repository/org/glassfish/jersey/core/jersey-client/2.39.1/jersey-client-2.39.1.jar:/Users/emmanuel.oke/.m2/repository/jakarta/ws/rs/jakarta.ws.rs-api/2.1.6/jakarta.ws.rs-api-2.1.6.jar:/Users/emmanuel.oke/.m2/repository/org/glassfish/jersey/core/jersey-common/2.39.1/jersey-common-2.39.1.jar:/Users/emmanuel.oke/.m2/repository/jakarta/annotation/jakarta.annotation-api/1.3.5/jakarta.annotation-api-1.3.5.jar:/Users/emmanuel.oke/.m2/repository/org/glassfish/hk2/osgi-resource-locator/1.0.3/osgi-resource-locator-1.0.3.jar:/Users/emmanuel.oke/.m2/repository/org/glassfish/hk2/external/jakarta.inject/2.6.1/jakarta.inject-2.6.1.jar:/Users/emmanuel.oke/.m2/repository/org/jcodec/jcodec-javase/0.2.2/jcodec-javase-0.2.2.jar:/Users/emmanuel.oke/.m2/repository/org/jcodec/jcodec/0.2.2/jcodec-0.2.2.jar:/Users/emmanuel.oke/.m2/repository/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar:/Users/emmanuel.oke/.m2/repository/org/apache/commons/commons-text/1.1/commons-text-1.1.jar:/Users/emmanuel.oke/.m2/repository/com/stripe/stripe-java/22.16.0/stripe-java-22.16.0.jar:/Users/emmanuel.oke/.m2/repository/com/amazonaws/aws-java-sdk-s3/1.12.455/aws-java-sdk-s3-1.12.455.jar:/Users/emmanuel.oke/.m2/repository/com/amazonaws/aws-java-sdk-kms/1.12.455/aws-java-sdk-kms-1.12.455.jar:/Users/emmanuel.oke/.m2/repository/com/amazonaws/aws-java-sdk-core/1.12.455/aws-java-sdk-core-1.12.455.jar:/Users/emmanuel.oke/.m2/repository/commons-codec/commons-codec/1.15/commons-codec-1.15.jar:/Users/emmanuel.oke/.m2/repository/org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.jar:/Users/emmanuel.oke/.m2/repository/org/apache/httpcomponents/httpcore/4.4.13/httpcore-4.4.13.jar:/Users/emmanuel.oke/.m2/repository/software/amazon/ion/ion-java/1.0.2/ion-java-1.0.2.jar:/Users/emmanuel.oke/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-cbor/2.12.6/jackson-dataformat-cbor-2.12.6.jar:/Users/emmanuel.oke/.m2/repository/joda-time/joda-time/2.8.1/joda-time-2.8.1.jar:/Users/emmanuel.oke/.m2/repository/com/amazonaws/jmespath-java/1.12.455/jmespath-java-1.12.455.jar:/Users/emmanuel.oke/.m2/repository/com/google/zxing/javase/3.5.1/javase-3.5.1.jar:/Users/emmanuel.oke/.m2/repository/com/google/zxing/core/3.5.1/core-3.5.1.jar:/Users/emmanuel.oke/.m2/repository/com/beust/jcommander/1.82/jcommander-1.82.jar:/Users/emmanuel.oke/.m2/repository/com/github/jai-imageio/jai-imageio-core/1.4.0/jai-imageio-core-1.4.0.jar:/Users/emmanuel.oke/.m2/repository/org/jsoup/jsoup/1.15.4/jsoup-1.15.4.jar:/Users/emmanuel.oke/.m2/repository/org/apache/pdfbox/pdfbox/2.0.28/pdfbox-2.0.28.jar:/Users/emmanuel.oke/.m2/repository/org/apache/pdfbox/fontbox/2.0.28/fontbox-2.0.28.jar:/Users/emmanuel.oke/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar:/Users/emmanuel.oke/.m2/repository/net/datafaker/datafaker/2.4.1/datafaker-2.4.1.jar:/Users/emmanuel.oke/.m2/repository/org/yaml/snakeyaml/2.3/snakeyaml-2.3.jar:/Users/emmanuel.oke/.m2/repository/com/github/curious-odd-man/rgxgen/2.0/rgxgen-2.0.jar:/Users/emmanuel.oke/.m2/repository/com/googlecode/libphonenumber/libphonenumber/8.13.48/libphonenumber-8.13.48.jar:/Users/emmanuel.oke/.m2/repository/com/wire/qa/picklejar-engine/0.0.5/picklejar-engine-0.0.5.jar:/Users/emmanuel.oke/.m2/repository/org/junit/platform/junit-platform-engine/1.8.1/junit-platform-engine-1.8.1.jar:/Users/emmanuel.oke/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/Users/emmanuel.oke/.m2/repository/org/junit/platform/junit-platform-commons/1.8.1/junit-platform-commons-1.8.1.jar:/Users/emmanuel.oke/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/gherkin3/3.1.2/gherkin3-3.1.2.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/gherkin-jvm-deps/1.0.4/gherkin-jvm-deps-1.0.4.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/cucumber-java/7.20.1/cucumber-java-7.20.1.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/cucumber-core/7.20.1/cucumber-core-7.20.1.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/cucumber-gherkin/7.20.1/cucumber-gherkin-7.20.1.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/cucumber-gherkin-messages/7.20.1/cucumber-gherkin-messages-7.20.1.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/gherkin/28.0.0/gherkin-28.0.0.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/messages/24.1.0/messages-24.1.0.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/testng-xml-formatter/0.2.0/testng-xml-formatter-0.2.0.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/query/12.2.0/query-12.2.0.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/tag-expressions/6.1.0/tag-expressions-6.1.0.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/cucumber-expressions/17.1.0/cucumber-expressions-17.1.0.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/datatable/7.20.1/datatable-7.20.1.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/cucumber-plugin/7.20.1/cucumber-plugin-7.20.1.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/docstring/7.20.1/docstring-7.20.1.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/html-formatter/21.7.0/html-formatter-21.7.0.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/junit-xml-formatter/0.5.0/junit-xml-formatter-0.5.0.jar:/Users/emmanuel.oke/.m2/repository/io/cucumber/ci-environment/10.0.1/ci-environment-10.0.1.jar:/Users/emmanuel.oke/.m2/repository/org/junit/platform/junit-platform-launcher/1.8.1/junit-platform-launcher-1.8.1.jar:/Users/emmanuel.oke/.m2/repository/org/junit/platform/junit-platform-reporting/1.8.1/junit-platform-reporting-1.8.1.jar:/Users/emmanuel.oke/.m2/repository/org/junit/platform/junit-platform-console/1.8.1/junit-platform-console-1.8.1.jar:/Users/emmanuel.oke/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.15.2/jackson-annotations-2.15.2.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-java/4.24.0/selenium-java-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-api/4.24.0/selenium-api-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-chrome-driver/4.24.0/selenium-chrome-driver-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/com/google/auto/service/auto-service-annotations/1.1.1/auto-service-annotations-1.1.1.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-chromium-driver/4.24.0/selenium-chromium-driver-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-json/4.24.0/selenium-json-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-manager/4.24.0/selenium-manager-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v126/4.24.0/selenium-devtools-v126-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v127/4.24.0/selenium-devtools-v127-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v128/4.24.0/selenium-devtools-v128-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v85/4.24.0/selenium-devtools-v85-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-edge-driver/4.24.0/selenium-edge-driver-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-firefox-driver/4.24.0/selenium-firefox-driver-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-http/4.24.0/selenium-http-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/dev/failsafe/failsafe/3.3.2/failsafe-3.3.2.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-ie-driver/4.24.0/selenium-ie-driver-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-remote-driver/4.24.0/selenium-remote-driver-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/com/google/guava/guava/33.3.0-jre/guava-33.3.0-jre.jar:/Users/emmanuel.oke/.m2/repository/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar:/Users/emmanuel.oke/.m2/repository/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/Users/emmanuel.oke/.m2/repository/org/checkerframework/checker-qual/3.43.0/checker-qual-3.43.0.jar:/Users/emmanuel.oke/.m2/repository/com/google/j2objc/j2objc-annotations/3.0.0/j2objc-annotations-3.0.0.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/semconv/opentelemetry-semconv/1.25.0-alpha/opentelemetry-semconv-1.25.0-alpha.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-api/1.41.0/opentelemetry-api-1.41.0.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-context/1.41.0/opentelemetry-context-1.41.0.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-exporter-logging/1.41.0/opentelemetry-exporter-logging-1.41.0.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-sdk-common/1.41.0/opentelemetry-sdk-common-1.41.0.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/1.41.0/opentelemetry-sdk-extension-autoconfigure-spi-1.41.0.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure/1.41.0/opentelemetry-sdk-extension-autoconfigure-1.41.0.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-api-incubator/1.41.0-alpha/opentelemetry-api-incubator-1.41.0-alpha.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-sdk-trace/1.41.0/opentelemetry-sdk-trace-1.41.0.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-sdk/1.41.0/opentelemetry-sdk-1.41.0.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-sdk-metrics/1.41.0/opentelemetry-sdk-metrics-1.41.0.jar:/Users/emmanuel.oke/.m2/repository/io/opentelemetry/opentelemetry-sdk-logs/1.41.0/opentelemetry-sdk-logs-1.41.0.jar:/Users/emmanuel.oke/.m2/repository/net/bytebuddy/byte-buddy/1.15.0/byte-buddy-1.15.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-os/4.24.0/selenium-os-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/apache/commons/commons-exec/1.4.0/commons-exec-1.4.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-safari-driver/4.24.0/selenium-safari-driver-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/org/seleniumhq/selenium/selenium-support/4.24.0/selenium-support-4.24.0.jar:/Users/emmanuel.oke/.m2/repository/io/appium/java-client/9.3.0/java-client-9.3.0.jar:/Users/emmanuel.oke/.m2/repository/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar:/Users/emmanuel.oke/.m2/repository/com/google/errorprone/error_prone_annotations/2.27.0/error_prone_annotations-2.27.0.jar:/Users/emmanuel.oke/.m2/repository/org/slf4j/slf4j-api/2.0.13/slf4j-api-2.0.13.jar:/Users/emmanuel.oke/.m2/repository/org/apache/maven/maven-artifact/3.8.3/maven-artifact-3.8.3.jar:/Users/emmanuel.oke/.m2/repository/org/codehaus/plexus/plexus-utils/3.3.0/plexus-utils-3.3.0.jar:/Users/emmanuel.oke/.m2/repository/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar"/>
+<property name="java.class.version" value="61.0"/>
+<property name="java.home" value="/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home"/>
+<property name="java.io.tmpdir" value="/var/folders/j6/9_qf14tn2gl8wlll2kk1xtf80000gn/T/"/>
+<property name="java.library.path" value="/Users/emmanuel.oke/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
+<property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+<property name="java.runtime.version" value="17.0.13+11-LTS"/>
+<property name="java.specification.maintenance.version" value="1"/>
+<property name="java.specification.name" value="Java Platform API Specification"/>
+<property name="java.specification.vendor" value="Oracle Corporation"/>
+<property name="java.specification.version" value="17"/>
+<property name="java.util.logging.SimpleFormatter.format" value="[%1$tF %1$tT] [%4$s]: %5$s%6$s%n"/>
+<property name="java.vendor" value="Azul Systems, Inc."/>
+<property name="java.vendor.url" value="http://www.azul.com/"/>
+<property name="java.vendor.url.bug" value="http://www.azul.com/support/"/>
+<property name="java.vendor.version" value="Zulu17.54+21-CA"/>
+<property name="java.version" value="17.0.13"/>
+<property name="java.version.date" value="2024-10-15"/>
+<property name="java.vm.compressedOopsMode" value="Zero based"/>
+<property name="java.vm.info" value="mixed mode, sharing"/>
+<property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+<property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+<property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+<property name="java.vm.specification.version" value="17"/>
+<property name="java.vm.vendor" value="Azul Systems, Inc."/>
+<property name="java.vm.version" value="17.0.13+11-LTS"/>
+<property name="jdk.debug" value="release"/>
+<property name="junit.jupiter.execution.parallel.config.custom.class" value="com.wire.qa.picklejar.engine.CustomStrategy"/>
+<property name="junit.jupiter.execution.parallel.config.strategy" value="custom"/>
+<property name="junit.jupiter.execution.parallel.enabled" value="true"/>
+<property name="junit.jupiter.execution.parallel.mode.classes.default" value="concurrent"/>
+<property name="junit.jupiter.execution.parallel.mode.default" value="concurrent"/>
+<property name="line.separator" value="
+"/>
+<property name="maven.test.failure.ignore" value=""/>
+<property name="native.encoding" value="UTF-8"/>
+<property name="os.arch" value="aarch64"/>
+<property name="os.name" value="Mac OS X"/>
+<property name="os.version" value="15.3.2"/>
+<property name="path.separator" value=":"/>
+<property name="picklejar.parallelism" value="1"/>
+<property name="picklejar.tags" value="@TC-4081"/>
+<property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+<property name="sun.arch.data.model" value="64"/>
+<property name="sun.awt.enableExtraMouseButtons" value="true"/>
+<property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home/lib"/>
+<property name="sun.cpu.endian" value="little"/>
+<property name="sun.font.fontmanager" value="sun.font.CFontManager"/>
+<property name="sun.io.unicode.encoding" value="UnicodeBig"/>
+<property name="sun.java.command" value="com.wire.qa.picklejar.launcher.PicklejarLauncher /Users/emmanuel.oke/Documents/wire-android/wire-android-automation/android-reloaded/target"/>
+<property name="sun.java.launcher" value="SUN_STANDARD"/>
+<property name="sun.jnu.encoding" value="UTF-8"/>
+<property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+<property name="surefire.rerunFailingTestsCount" value="0"/>
+<property name="test" value=""/>
+<property name="testingGalleryPath" value="//Users/emmanuel.oke/Documents/WireAppium/zautomation/tests/tools/android/"/>
+<property name="user.country" value="US"/>
+<property name="user.dir" value="/Users/emmanuel.oke/Documents/wire-android/wire-android-automation/android-reloaded"/>
+<property name="user.home" value="/Users/emmanuel.oke"/>
+<property name="user.language" value="en"/>
+<property name="user.name" value="emmanuel.oke"/>
+<property name="user.timezone" value="Europe/Berlin"/>
+</properties>
+<testcase name="I want to verify that I can receive and play audio files 0" classname="Audio Messages" time="123.624">
+<system-out><![CDATA[
+unique-id: [engine:picklejar-engine]/[Feature:Audio Messages]/[Scenario:I want to verify that I can receive and play audio files]/[Example:0]
+display-name: I want to verify that I can receive and play audio files 0
+]]></system-out>
+<system-out><![CDATA[
+Report Entry #1 (timestamp: 2025-03-30T21:20:58.48882)
+	- scenario: I want to verify that I can receive and play audio files 0
+	- class: com.wearezeta.auto.androidreloaded.common.Lifecycle.setUp
+	- status: started
+Report Entry #2 (timestamp: 2025-03-30T21:21:34.674135)
+	- scenario: I want to verify that I can receive and play audio files 0
+	- class: com.wearezeta.auto.androidreloaded.common.Lifecycle.setUp
+	- status: finished
+Report Entry #3 (timestamp: 2025-03-30T21:21:34.694207)
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonBackendSteps.thereIsATeamOwner
+	- step: There is a team owner "user1Name" with team "Audio"
+	- status: started
+Report Entry #4 (timestamp: 2025-03-30T21:21:44.799269)
+	- duration: 10104985000
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonBackendSteps.thereIsATeamOwner
+	- step: There is a team owner "user1Name" with team "Audio"
+	- status: passed
+Report Entry #5 (timestamp: 2025-03-30T21:21:44.850389)
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonBackendSteps.userXAddsUsersToTeam
+	- step: User user1Name adds users user2Name to team "Audio" with role Member
+	- status: started
+Report Entry #6 (timestamp: 2025-03-30T21:21:47.237847)
+	- duration: 2387425000
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonBackendSteps.userXAddsUsersToTeam
+	- step: User user1Name adds users user2Name to team "Audio" with role Member
+	- status: passed
+Report Entry #7 (timestamp: 2025-03-30T21:21:47.271245)
+	- method: com.wearezeta.auto.androidreloaded.steps.TestServiceSteps.userAddsDevice
+	- step: User user1Name adds a new device Device1 with label Device1
+	- status: started
+Report Entry #8 (timestamp: 2025-03-30T21:21:57.508455)
+	- duration: 10237195000
+	- method: com.wearezeta.auto.androidreloaded.steps.TestServiceSteps.userAddsDevice
+	- step: User user1Name adds a new device Device1 with label Device1
+	- status: passed
+Report Entry #9 (timestamp: 2025-03-30T21:21:57.547871)
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonBackendSteps.UserXIsMe
+	- step: User user2Name is me
+	- status: started
+Report Entry #10 (timestamp: 2025-03-30T21:21:58.835807)
+	- duration: 1287882000
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonBackendSteps.UserXIsMe
+	- step: User user2Name is me
+	- status: passed
+Report Entry #11 (timestamp: 2025-03-30T21:21:58.865767)
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonBackendSteps.UserHasGroupChatWithContacts
+	- step: User user1Name has group conversation SendYourAudioHere with user2Name in team "Audio"
+	- status: started
+Report Entry #12 (timestamp: 2025-03-30T21:21:59.115173)
+	- duration: 249382000
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonBackendSteps.UserHasGroupChatWithContacts
+	- step: User user1Name has group conversation SendYourAudioHere with user2Name in team "Audio"
+	- status: passed
+Report Entry #13 (timestamp: 2025-03-30T21:21:59.141116)
+	- method: com.wearezeta.auto.androidreloaded.steps.WelcomePageSteps.iSeeWelcomePage
+	- step: I see Welcome Page
+	- status: started
+Report Entry #14 (timestamp: 2025-03-30T21:22:09.066333)
+	- duration: 9925200000
+	- method: com.wearezeta.auto.androidreloaded.steps.WelcomePageSteps.iSeeWelcomePage
+	- step: I see Welcome Page
+	- status: passed
+Report Entry #15 (timestamp: 2025-03-30T21:22:09.631288)
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonDeviceSteps.iOpenDeepLinkForCustomBackend
+	- step: I open staging backend deep link
+	- status: started
+Report Entry #16 (timestamp: 2025-03-30T21:22:09.755088)
+	- duration: 123797000
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonDeviceSteps.iOpenDeepLinkForCustomBackend
+	- step: I open staging backend deep link
+	- status: passed
+Report Entry #17 (timestamp: 2025-03-30T21:22:10.171435)
+	- method: com.wearezeta.auto.androidreloaded.steps.WelcomePageSteps.iTapProceedButton
+	- step: I tap proceed button on custom backend alert
+	- status: started
+Report Entry #18 (timestamp: 2025-03-30T21:22:14.237092)
+	- duration: 4065665000
+	- method: com.wearezeta.auto.androidreloaded.steps.WelcomePageSteps.iTapProceedButton
+	- step: I tap proceed button on custom backend alert
+	- status: passed
+Report Entry #19 (timestamp: 2025-03-30T21:22:14.609209)
+	- method: com.wearezeta.auto.androidreloaded.steps.WelcomePageSteps.iTapLoginButton
+	- step: I tap login button on Welcome Page
+	- status: started
+Report Entry #20 (timestamp: 2025-03-30T21:22:15.076724)
+	- duration: 467509000
+	- method: com.wearezeta.auto.androidreloaded.steps.WelcomePageSteps.iTapLoginButton
+	- step: I tap login button on Welcome Page
+	- status: passed
+Report Entry #21 (timestamp: 2025-03-30T21:22:15.380914)
+	- method: com.wearezeta.auto.androidreloaded.steps.LoginPageSteps.iSignInUsingMyEmail
+	- step: I sign in using my email
+	- status: started
+Report Entry #22 (timestamp: 2025-03-30T21:22:20.699077)
+	- duration: 5318113000
+	- method: com.wearezeta.auto.androidreloaded.steps.LoginPageSteps.iSignInUsingMyEmail
+	- step: I sign in using my email
+	- status: passed
+Report Entry #23 (timestamp: 2025-03-30T21:22:21.129546)
+	- method: com.wearezeta.auto.androidreloaded.steps.LoginPageSteps.itapLoginButton
+	- step: I tap login button on email Login Page
+	- status: started
+Report Entry #24 (timestamp: 2025-03-30T21:22:22.830319)
+	- duration: 1700755000
+	- method: com.wearezeta.auto.androidreloaded.steps.LoginPageSteps.itapLoginButton
+	- step: I tap login button on email Login Page
+	- status: passed
+Report Entry #25 (timestamp: 2025-03-30T21:22:23.18776)
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationListPageSteps.iWaitUntilIAmLoggedIn
+	- step: I wait until I am fully logged in
+	- status: started
+Report Entry #26 (timestamp: 2025-03-30T21:22:35.508837)
+	- duration: 12321133000
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationListPageSteps.iWaitUntilIAmLoggedIn
+	- step: I wait until I am fully logged in
+	- status: passed
+Report Entry #27 (timestamp: 2025-03-30T21:22:35.985074)
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationListPageSteps.iDeclineShareDataAlert
+	- step: I decline share data alert
+	- status: started
+Report Entry #28 (timestamp: 2025-03-30T21:22:38.458722)
+	- duration: 2473632000
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationListPageSteps.iDeclineShareDataAlert
+	- step: I decline share data alert
+	- status: passed
+Report Entry #29 (timestamp: 2025-03-30T21:22:38.94709)
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationListPageSteps.iSeeConversationOnConversationList
+	- step: I see conversation "SendYourAudioHere" in conversation list
+	- status: started
+Report Entry #30 (timestamp: 2025-03-30T21:22:39.374935)
+	- duration: 427822000
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationListPageSteps.iSeeConversationOnConversationList
+	- step: I see conversation "SendYourAudioHere" in conversation list
+	- status: passed
+Report Entry #31 (timestamp: 2025-03-30T21:22:39.843527)
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationListPageSteps.iTapOnConversationName
+	- step: I tap on conversation name "SendYourAudioHere" in conversation list
+	- status: started
+Report Entry #32 (timestamp: 2025-03-30T21:22:40.343539)
+	- duration: 499996000
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationListPageSteps.iTapOnConversationName
+	- step: I tap on conversation name "SendYourAudioHere" in conversation list
+	- status: passed
+Report Entry #33 (timestamp: 2025-03-30T21:22:40.664657)
+	- method: com.wearezeta.auto.androidreloaded.steps.TestServiceSteps.contactSendsLocalAudio
+	- step: User user1Name sends local audio file named "test.m4a" via device Device1 to group conversation "SendYourAudioHere"
+	- status: started
+Report Entry #34 (timestamp: 2025-03-30T21:22:43.078909)
+	- duration: 2414282000
+	- method: com.wearezeta.auto.androidreloaded.steps.TestServiceSteps.contactSendsLocalAudio
+	- step: User user1Name sends local audio file named "test.m4a" via device Device1 to group conversation "SendYourAudioHere"
+	- status: passed
+Report Entry #35 (timestamp: 2025-03-30T21:22:43.468936)
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationViewPageSteps.iSeeAudioFileInConversation
+	- step: I see an audio file in the conversation view
+	- status: started
+Report Entry #36 (timestamp: 2025-03-30T21:22:45.854183)
+	- duration: 2385246000
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationViewPageSteps.iSeeAudioFileInConversation
+	- step: I see an audio file in the conversation view
+	- status: passed
+Report Entry #37 (timestamp: 2025-03-30T21:22:46.154171)
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationViewPageSteps.iSeeTimeAudioFile
+	- step: I see the time played in the audio file is 00:00
+	- status: started
+Report Entry #38 (timestamp: 2025-03-30T21:22:46.395647)
+	- duration: 241481000
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationViewPageSteps.iSeeTimeAudioFile
+	- step: I see the time played in the audio file is 00:00
+	- status: passed
+Report Entry #39 (timestamp: 2025-03-30T21:22:46.713677)
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationViewPageSteps.iTapPlayPauseAudioFile
+	- step: I tap play button on the audio file
+	- status: started
+Report Entry #40 (timestamp: 2025-03-30T21:22:47.79481)
+	- duration: 1081138000
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationViewPageSteps.iTapPlayPauseAudioFile
+	- step: I tap play button on the audio file
+	- status: passed
+Report Entry #41 (timestamp: 2025-03-30T21:22:48.101085)
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonAppPageSteps.WaitForTime
+	- step: I wait for 10 seconds
+	- status: started
+Report Entry #42 (timestamp: 2025-03-30T21:22:58.10743)
+	- duration: 10006307000
+	- method: com.wearezeta.auto.androidreloaded.steps.CommonAppPageSteps.WaitForTime
+	- step: I wait for 10 seconds
+	- status: passed
+Report Entry #43 (timestamp: 2025-03-30T21:22:58.565511)
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationViewPageSteps.iTapPlayPauseAudioFile
+	- step: I tap pause button on the audio file
+	- status: started
+Report Entry #44 (timestamp: 2025-03-30T21:22:59.466089)
+	- duration: 900558000
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationViewPageSteps.iTapPlayPauseAudioFile
+	- step: I tap pause button on the audio file
+	- status: passed
+Report Entry #45 (timestamp: 2025-03-30T21:22:59.870172)
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationViewPageSteps.iSeeTimeAudioFileIsNot
+	- step: I see the time played in the audio file is not 00:00
+	- status: started
+Report Entry #46 (timestamp: 2025-03-30T21:23:00.454484)
+	- duration: 584283000
+	- method: com.wearezeta.auto.androidreloaded.steps.ConversationViewPageSteps.iSeeTimeAudioFileIsNot
+	- step: I see the time played in the audio file is not 00:00
+	- status: passed
+Report Entry #47 (timestamp: 2025-03-30T21:23:00.879992)
+	- scenario: I want to verify that I can receive and play audio files 0
+	- class: com.wearezeta.auto.androidreloaded.common.Lifecycle.tearDown
+	- status: started
+]]></system-out>
+</testcase>
+<system-out><![CDATA[
+unique-id: [engine:picklejar-engine]/[Feature:Audio Messages]/[Scenario:I want to verify that I can receive and play audio files]/[Example:0]
+display-name: I want to verify that I can receive and play audio files 0
+]]></system-out>
+</testsuite>

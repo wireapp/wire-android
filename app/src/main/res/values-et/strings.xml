@@ -457,4 +457,5 @@
     <string name="debug_settings_screen_title">Silumise seaded</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!--    channel not available dialog-->
 </resources>

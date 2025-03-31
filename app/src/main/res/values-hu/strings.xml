@@ -196,7 +196,6 @@
     <string name="content_description_connection_request_close_btn">Kapcsolatkérelem lap bezárása</string>
     <string name="content_description_search_text_in_conversation_btn">Szöveges üzenetek keresése</string>
     <string name="content_description_see_media_in_conversation_btn">Képek és fájlok áttekintésének megnyitása</string>
-    <string name="content_description_add_participants_close">Résztvevők hozzáadása lap bezárása</string>
     <string name="content_description_add_participants_search_field">Személyek keresése név vagy felhasználónév alapján</string>
     <string name="content_description_add_participants_back_btn">Vissza a résztvevők hozzáadása lapra</string>
     <string name="content_description_home_profile_btn">Az Ön profilja</string>
@@ -226,9 +225,7 @@
     <string name="content_description_new_conversation_close_btn">Az új beszélgetés lap bezárása</string>
     <string name="content_description_new_group_conversation_back_btn">Vissza az új beszélgetés lapra</string>
     <string name="content_description_new_conversation_name_back_btn">Vissza az új beszélgetés lapra</string>
-    <string name="content_description_new_group_name_field">Adja meg a csoport nevét</string>
     <string name="content_description_new_conversation_options_heading">Beszélgetés beállításai</string>
-    <string name="content_description_new_group_options_back_btn">Vissza az új csoport létrehozásához</string>
     <string name="content_description_pending_connection_badge">kapcsolatkérelem jóváhagyása függőben</string>
     <string name="content_description_self_profile_close">Saját profil bezárása</string>
     <string name="content_description_self_profile_heading">Saját profil</string>
@@ -478,9 +475,6 @@
     <string name="cipher_suite">Titkosítási csomag</string>
     <string name="last_key_material_update_label">Legutóbbi kulcskészlet-frissítés</string>
     <string name="group_state_label">Csoport állapota</string>
-    <string name="empty_regular_group_name_error">Adja meg a csoport nevét</string>
-    <string name="regular_group_name_exceeded_limit_error">A csoport neve nem lehet 64 karakternél hosszabb
-    </string>
     <string name="group_can_not_be_created_title">A csoportot nem lehet létrehozni</string>
     <string name="group_can_not_be_created_federation_conflict_description">Felhasználók a(z) %1$s és a(z) %2$s kiszolgálóról nem csatlakoztathatók egyazon csoportos beszélgetésbe.\n\nA csoport létrehozásához távolítsa el az érintett résztvevőket.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Résztvevők listájának szerkesztése</string>
@@ -646,6 +640,7 @@
     <string name="label_filter_folders">Mappák</string>
     <string name="label_filter_group">Csoportok</string>
     <string name="label_filter_one_on_one">Kétszemélyes beszélgetések</string>
+    <string name="label_filter_channels">Csatornák</string>
     <string name="label_folders">Mappák</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Minden</string>
@@ -845,8 +840,8 @@
     <string name="label_selected">Kiválasztva</string>
     <string name="label_contacts">Névjegyek</string>
     <string name="label_new_group">Új csoport</string>
-    <string name="label_create_new_group">Új csoport létrehozása</string>
-
+    <string name="label_create_new_group">Új csoport</string>
+    <string name="label_create_new_channel">Új csatorna</string>
     <string name="label_new_conversation">Új beszélgetés</string>
     <string name="label_search_people">Személyek keresése</string>
     <string name="label_public_wire">Nyilvános Wire</string>
@@ -1033,7 +1028,6 @@
     <string name="allow_guests">Vendégek engedélyezése</string>
     <string name="allow_guest_switch_description">Megnyitja a beszélgetést a csapatán kívüli személyek számára is. Ezt később bármikor megváltoztathatja.</string>
     <string name="allow_services">Szolgáltatások engedélyezése</string>
-    <string name="allow_services_regular_group_description">Megnyitja a beszélgetést a szolgáltatások számára is. Ezt később bármikor megváltoztathatja.</string>
     <string name="service_details_label">Szolgáltatás</string>
     <string name="service_details_add_service_label">Hozzáadás a csoporthoz</string>
     <string name="service_details_remove_service_label">Eltávolítás a csoportból</string>
@@ -1044,7 +1038,6 @@
     <string name="service_no_information_available_title">Nincs elérhető információ</string>
     <string name="service_no_information_available_subtitle">Próbálja újra, vagy forduljon a csapatadminisztrátorhoz</string>
     <string name="read_receipts">Olvasási visszaigazolások</string>
-    <string name="read_receipts_regular_group_description">Amikor ez be van kapcsolva, az emberek láthatják, mikor olvasták el a beszélgetés üzeneteit.</string>
     <string name="disable_guests_dialog_title">Vendégek ne legyenek engedélyezve?</string>
     <string name="disable_guests_dialog_description">Az előző lépésben kijelölt vendégek nem lesznek részesei a csoportnak, ha nem engedélyezi a vendég hozzáférést.</string>
     <string name="disable_guests_dialog_button">Vendégek nem engedélyezettek</string>
@@ -1190,8 +1183,10 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="conversation_empty_list_description">Kapcsolódjon másokhoz, vagy alkosson új csoportot a közös munka megkezdéséhez!</string>
     <string name="favorites_empty_list_description">Válassza ki kedvenc beszélgetéseit, és itt megtalálja őket</string>
     <string name="group_empty_list_description">Ön még nem résztvevője csoportos beszélgetésnek.\nKezdjen el egyet!</string>
+    <string name="channels_empty_list_description">Ön egy csatornának sem tagja. Csatlakozhat egy nyilvános csatornához a \"böngészés\"-re kattintva.</string>
     <string name="one_on_one_empty_list_description">Önnek még nincsenek partnerei.\nKeressen személyeket %1$s tartományában és kapcsolódjon velük.</string>
     <string name="favorites_empty_list_how_to_label">Hogyan jelölhet meg kedvencként beszélgetéseket</string>
+    <string name="channels_empty_list_learn_more">Tudjon meg többet a csatornákról</string>
     <string name="folders_empty_list_description">A rendezettség érdekében helyezze beszélgetéseit mappákba.</string>
     <string name="folders_empty_list_how_to_add">Hogyan helyezzen egy beszélgetést egy mappába</string>
     <string name="conversation_empty_list_title">Üdvözöljük 👋</string>
@@ -1637,5 +1632,5 @@ Kérjük, próbálja meg újra.</string>
     <string name="new_folder_failure">\"%1$s\" mappa létrehozása nem sikerült</string>
     <string name="press_enter_to_send_title">Nyomja meg az Entert a küldéshez</string>
     <string name="press_enter_to_send_text">Ha ez aktív, a billentyűzet Enter gombjával tud üzenetet küldeni.</string>
-    <string name="customization_options_header_title">Beállítások</string>
+    <!--    channel not available dialog-->
 </resources>

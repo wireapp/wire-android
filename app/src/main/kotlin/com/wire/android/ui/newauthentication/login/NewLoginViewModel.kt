@@ -249,7 +249,7 @@ class NewLoginViewModel(
                 onSuccess = { requestUrl, serverConfig ->
                     withContext(dispatchers.main()) {
                         updateLoginFlowState(NewLoginFlowState.Default)
-                        action(NewLoginAction.SSO(requestUrl, SSOUrlConfig(serverConfig, ssoCode)))
+                        action(NewLoginAction.SSO(requestUrl, SSOUrlConfig(serverConfig, userIdentifierTextState.text.toString())))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
                 }
@@ -260,7 +260,7 @@ class NewLoginViewModel(
         updateLoginFlowState(NewLoginFlowState.Loading)
         if (config != null) {
             serverConfig = config.serverConfig
-            userIdentifierTextState.setTextAndPlaceCursorAtEnd(config.ssoCode)
+            userIdentifierTextState.setTextAndPlaceCursorAtEnd(config.userIdentifier)
         }
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {

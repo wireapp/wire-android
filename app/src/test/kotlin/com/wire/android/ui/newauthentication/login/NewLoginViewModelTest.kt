@@ -117,7 +117,7 @@ class NewLoginViewModelTest {
             .withInitiateSSOSuccess(redirectUrl, config.serverConfig)
             .arrange()
 
-        sut.initiateSSO(config.serverConfig, config.ssoCode, arrangement.action)
+        sut.initiateSSO(config.serverConfig, config.userIdentifier, arrangement.action)
         advanceUntilIdle()
 
         verify(exactly = 1) {

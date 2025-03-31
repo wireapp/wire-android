@@ -692,10 +692,8 @@
     <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
     <!-- Search Contact-->
     <string name="label_new_group">නව සමූහයක්</string>
-    <plurals name="label_x_participants">
-        <item quantity="one">සහභාගීන් %1$d</item>
-        <item quantity="other">සහභාගීන් %1$d</item>
-    </plurals>
+    <string name="label_create_new_group">නව සමූහයක් සාදන්න</string>
+
     <string name="label_new_conversation">නව සංවාදය</string>
     <string name="label_search_people">පුද්ගලයින් සොයන්න</string>
     <string name="label_search_people_instruction">සරල නමින් හෝ @නමින් පුද්ගලයින් සොයාගන්න</string>

@@ -433,10 +433,7 @@
     <!-- Search Contact-->
     <string name="label_contacts">Kontakter</string>
     <string name="label_new_group">Ny grupp</string>
-    <plurals name="label_x_participants">
-        <item quantity="one">%1$d deltagare</item>
-        <item quantity="other">%1$d deltagare</item>
-    </plurals>
+    <string name="label_create_new_group">Skapa ny grupp</string>
     <string name="label_new_conversation">Ny konversation</string>
     <string name="label_learn_more_searching_user">Läs mer</string>
     <string name="label_no_results_found">Inga resultat kunde hittas. Försök igen.</string>

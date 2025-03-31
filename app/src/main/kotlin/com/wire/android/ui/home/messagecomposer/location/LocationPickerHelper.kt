@@ -42,6 +42,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
+@Suppress("TooGenericExceptionCaught")
 @SuppressLint("MissingPermission")
 class LocationPickerHelper @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -59,7 +60,17 @@ class LocationPickerHelper @Inject constructor(
                 leadingMessage = "GetLocation",
                 jsonStringKeyValues = mapOf("isUsingGms" to false)
             )
-            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val locationManager = try {
+                context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            } catch (e: Exception) {
+                appLogger.e(
+                    message = "Failed to get location manager",
+                    throwable = e
+                )
+                onError()
+                return
+            }
+
             locationManager.getLastKnownLocation(LocationManager.FUSED_PROVIDER).let { lastLocation ->
                 if (
                     lastLocation != null
@@ -116,7 +127,6 @@ class LocationPickerHelper @Inject constructor(
         timeoutJob.start()
     }
 
-    @Suppress("TooGenericExceptionCaught")
     internal fun isLocationServicesEnabled(): Boolean {
         return try {
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager

@@ -17,6 +17,7 @@
  */
 package com.wire.android.config
 
+import com.ramcosta.composedestinations.utils.allDestinations
 import com.wire.android.navigation.WireMainNavGraph
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
@@ -44,11 +45,11 @@ import org.junit.jupiter.api.extension.ExtensionContext
 class NavigationTestExtension : BeforeEachCallback, AfterEachCallback {
     override fun beforeEach(context: ExtensionContext?) {
         mockkStatic("com.wire.android.ui.NavArgsGettersKt")
-        WireMainNavGraph.destinations.forEach { mockkObject(it) }
+        WireMainNavGraph.allDestinations.forEach { mockkObject(it) }
     }
 
     override fun afterEach(context: ExtensionContext?) {
         unmockkStatic("com.wire.android.ui.NavArgsGettersKt")
-        WireMainNavGraph.destinations.forEach { unmockkObject(it) }
+        WireMainNavGraph.allDestinations.forEach { unmockkObject(it) }
     }
 }

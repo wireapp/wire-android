@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.newauthentication.login.password
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -123,9 +124,13 @@ fun NewLoginPasswordScreen(
             navigator.navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
         },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
-        navigateBack = navigator::navigateBack,
+        navigateBack = loginEmailViewModel::cancelLogin,
         isCloudAccountCreationPossible = navArgs.loginPasswordPath?.isCloudAccountCreationPossible ?: true,
     )
+
+    BackHandler {
+        loginEmailViewModel.cancelLogin()
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -328,6 +333,10 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
             is LoginState.Error.TooManyDevicesError -> {
                 viewModel.clearLoginErrors()
                 navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+            }
+
+            is LoginState.Canceled -> {
+                navigator.navigateBack()
             }
 
             else -> {

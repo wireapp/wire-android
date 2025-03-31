@@ -24,6 +24,7 @@ import com.wire.kalium.common.error.CoreFailure
 sealed class LoginState {
     data object Default : LoginState()
     data object Loading : LoginState()
+    data object Canceled : LoginState()
     data class Success(val initialSyncCompleted: Boolean, val isE2EIRequired: Boolean) : LoginState()
     sealed class Error : LoginState() {
         sealed class TextFieldError : Error() {

@@ -1,5 +1,6 @@
 package com.wire.android.ui.newauthentication.login
 
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
@@ -116,6 +117,7 @@ class NewLoginViewModelTest {
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode)
             .withInitiateSSOSuccess(redirectUrl, config.serverConfig)
             .arrange()
+        sut.userIdentifierTextState.setTextAndPlaceCursorAtEnd(config.userIdentifier)
 
         sut.initiateSSO(config.serverConfig, config.userIdentifier, arrangement.action)
         advanceUntilIdle()

@@ -290,7 +290,7 @@
     <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
     <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
     <string name="url_wire_create_team" translatable="false">https://teams.wire.com/register/email</string>
-    <string name="url_create_channel_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/25732551379101-Create-a-channel</string>
+    <string name="url_create_channel_learn_more" translatable="false">https://support.wire.com/hc/articles/25732551379101</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="channels_screen_title">Channels</string>

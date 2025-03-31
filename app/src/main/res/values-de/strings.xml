@@ -809,10 +809,6 @@
     <string name="label_new_channel">Neuer Channel</string>
     <string name="label_create_new_group">Neue Gruppe</string>
     <string name="label_create_new_channel">Neuer Channel</string>
-    <plurals name="label_x_participants">
-        <item quantity="one">%1$d Teilnehmer</item>
-        <item quantity="other">%1$d Teilnehmer</item>
-    </plurals>
     <string name="label_new_conversation">Neue Unterhaltung</string>
     <string name="label_search_people">Personen suchen</string>
     <string name="label_search_people_instruction">Nach Personen anhand ihres Profilnamens oder @Benutzernamens suchen</string>

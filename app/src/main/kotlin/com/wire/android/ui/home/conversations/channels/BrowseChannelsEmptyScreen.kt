@@ -59,7 +59,7 @@ fun BrowseChannelsEmptyScreen(modifier: Modifier = Modifier) {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(dimensions().spacing8x))
-            val searchUrl = stringResource(id = R.string.url_support) // todo change to specific learn more url
+            val searchUrl = stringResource(id = R.string.url_create_channel_learn_more)
             Text(
                 text = stringResource(R.string.label_learn_more_about_channels),
                 style = MaterialTheme.wireTypography.body02.copy(

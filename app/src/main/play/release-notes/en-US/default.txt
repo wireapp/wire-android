@@ -1,16 +1,19 @@
 New
-- Fresh design - completely rebuilt
-- Add Reactions to messages
-- Swipe left to reply
-- Scroll to end button
-- Navigate to original message from a reply
-- Accessible main navigation & updated conversation list with activity section
-- Improved conversation search
-- Easier 1:1 & group creation
-- Group chats have distinct colors
-- Call controls always accessible
-- Text field adjusts for longer messages
+- Filter conversations by favorites or folders
+- Reactions in calls
+- Hit enter to send a message
+- Mentions on draft messages
+- Delete group conversations
+- Access team management from the app
+- Compliant with Audio Focus Request Restrictions (Android 15)
 
-Improved
-- Reliable notifications
-- Better visual contrast (WCAG 2.1 AA)
+Improvements
+- Play audio messages easily and adjust the speed
+- Show information during login when no network available
+
+Fixes
+- Calling issues
+- Loading and decrypting issues
+- Crashes
+- MLS issues
+- Connection requests issues

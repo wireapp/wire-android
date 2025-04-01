@@ -18,10 +18,13 @@
 package com.wire.android.ui.home.conversations.details.updatechannelaccess
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.framework.TestUser
 import com.wire.android.ui.destinations.ChannelAccessOnUpdateScreenDestination
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -36,9 +39,9 @@ class UpdateChannelAccessViewModelTest {
     fun `given channel permission, when updateChannelPermission is called, then update the state`() = runTest {
         val (_, viewModel) = Arrangement().arrange()
 
-        viewModel.updateChannelPermission(ChannelPermissionType.ADMIN_AND_MEMBERS)
+        viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
 
-        assertEquals(ChannelPermissionType.ADMIN_AND_MEMBERS, viewModel.getPermissionType())
+        assertEquals(ChannelAddPermissionType.EVERYONE, viewModel.getPermissionType())
     }
 
     @Test
@@ -56,19 +59,28 @@ class UpdateChannelAccessViewModelTest {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
+        @MockK
+        private lateinit var updateChannelAddPermission: UpdateChannelAddPermissionUseCase
+
         private val viewModel by lazy {
-            UpdateChannelAccessViewModel(savedStateHandle = savedStateHandle)
+            UpdateChannelAccessViewModel(
+                updateChannelAddPermission = updateChannelAddPermission,
+                savedStateHandle = savedStateHandle,
+                qualifiedIdMapper = QualifiedIdMapperImpl(TestUser.SELF_USER_ID)
+            )
         }
+
         init {
+            val conversationId = "conversationId"
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkObject(ChannelAccessOnUpdateScreenDestination)
             every {
                 ChannelAccessOnUpdateScreenDestination.argsFrom(any<SavedStateHandle>())
             } answers {
-                UpdateChannelAccessArgs()
+                UpdateChannelAccessArgs(conversationId)
             }
 
-            every { savedStateHandle.navArgs<UpdateChannelAccessArgs>() } returns UpdateChannelAccessArgs()
+            every { savedStateHandle.navArgs<UpdateChannelAccessArgs>() } returns UpdateChannelAccessArgs(conversationId)
         }
 
         fun arrange() = this to viewModel

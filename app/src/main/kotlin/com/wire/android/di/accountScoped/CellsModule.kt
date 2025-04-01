@@ -22,14 +22,18 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
-import com.wire.kalium.cells.domain.usecase.ObserveCellFilesUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
 import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
 import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import dagger.Module
@@ -38,6 +42,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
 
+@Suppress("TooManyFunctions")
 @Module
 @InstallIn(ViewModelComponent::class)
 class CellsModule {
@@ -75,7 +80,7 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveFilesUseCase(cellsScope: CellsScope): ObserveCellFilesUseCase = cellsScope.observeFiles
+    fun provideObserveFilesUseCase(cellsScope: CellsScope): GetCellFilesUseCase = cellsScope.observeFiles
 
     @ViewModelScoped
     @Provides
@@ -88,4 +93,20 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideRefreshAssetUseCase(cellsScope: CellsScope): RefreshCellAssetStateUseCase = cellsScope.refreshAsset
+
+    @ViewModelScoped
+    @Provides
+    fun provideDeleteCellAssetUseCase(cellsScope: CellsScope): DeleteCellAssetUseCase = cellsScope.deleteCellAssetUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreatePublicUrlUseCase(cellsScope: CellsScope): CreatePublicLinkUseCase = cellsScope.createPublicLinkUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetPublicUrlUseCase(cellsScope: CellsScope): GetPublicLinkUseCase = cellsScope.getPublicLinkUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideDeletePublicUrlUseCase(cellsScope: CellsScope): DeletePublicLinkUseCase = cellsScope.deletePublicLinkUseCase
 }

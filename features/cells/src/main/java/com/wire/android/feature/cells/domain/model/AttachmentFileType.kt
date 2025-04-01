@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.common.attachmentdraft.model
+package com.wire.android.feature.cells.domain.model
 
-import com.wire.android.R
+import com.wire.android.feature.cells.R
 
 enum class AttachmentFileType(private val extensions: List<String>) {
     IMAGE(listOf("jpg", "jpeg", "png", "gif", "webp")),

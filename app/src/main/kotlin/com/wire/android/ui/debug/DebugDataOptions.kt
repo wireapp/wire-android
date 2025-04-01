@@ -77,7 +77,8 @@ fun DebugDataOptions(
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
         checkCrlRevocationList = viewModel::checkCrlRevocationList,
-        onResendFCMToken = viewModel::forceSendFCMToken
+        onResendFCMToken = viewModel::forceSendFCMToken,
+        onOptimizeDb = viewModel::optimizeDatabase
     )
 }
 
@@ -97,6 +98,7 @@ fun DebugDataOptionsContent(
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
     onResendFCMToken: () -> Unit,
+    onOptimizeDb: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -213,6 +215,7 @@ fun DebugDataOptionsContent(
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
                 checkCrlRevocationList = checkCrlRevocationList,
                 onResendFCMToken = onResendFCMToken,
+                onOptimizeDb = onOptimizeDb
             )
         }
 
@@ -371,6 +374,7 @@ private fun DebugToolsOptionsPreview() {
             onForceUpdateApiVersions = {},
             checkCrlRevocationList = {},
             onResendFCMToken = {},
+            onOptimizeDb = {}
         )
     }
 }
@@ -382,6 +386,7 @@ private fun DebugToolsOptions(
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     checkCrlRevocationList: () -> Unit,
+    onOptimizeDb: () -> Unit,
     onResendFCMToken: () -> Unit,
 ) {
     FolderHeader(stringResource(R.string.label_debug_tools_title))
@@ -406,6 +411,28 @@ private fun DebugToolsOptions(
                     minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                     onClick = onRestartSlowSyncForRecovery,
                     text = stringResource(R.string.restart_slowsync_for_recovery_button),
+                    fillMaxWidth = false
+                )
+            }
+        )
+
+        // optimize db
+        RowItemTemplate(
+            modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.label_optimize_database),
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = onOptimizeDb,
+                    text = stringResource(R.string.label_apply),
                     fillMaxWidth = false
                 )
             }
@@ -532,6 +559,7 @@ fun PreviewOtherDebugOptions() = WireTheme {
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},
-        onResendFCMToken = {}
+        onResendFCMToken = {},
+        onOptimizeDb = {}
     )
 }

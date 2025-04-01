@@ -1211,6 +1211,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_share_logs">Share Logs</string>
     <string name="label_delete_logs">Delete All Logs</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
+    <string name="label_optimize_database">Optimize database</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>
     <string name="label_get_e2ei_cetificate">Get E2EI Certificate</string>
     <string name="label_mls_option_title">MLS Options</string>

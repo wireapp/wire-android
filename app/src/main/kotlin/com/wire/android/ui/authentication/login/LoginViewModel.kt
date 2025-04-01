@@ -91,6 +91,9 @@ fun AuthenticationResult.Failure.toLoginError() = when (this) {
     is AuthenticationResult.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
     is AuthenticationResult.Failure.InvalidCredentials -> LoginState.Error.DialogError.InvalidCredentialsError
     is AuthenticationResult.Failure.InvalidUserIdentifier -> LoginState.Error.TextFieldError.InvalidValue
+    // TODO KBX wait for merge pr
+    AuthenticationResult.Failure.AccountPendingActivation -> TODO()
+    AuthenticationResult.Failure.AccountSuspended -> TODO()
 }
 
 fun RegisterClientResult.Failure.toLoginError() = when (this) {

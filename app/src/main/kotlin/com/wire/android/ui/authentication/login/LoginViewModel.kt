@@ -90,7 +90,7 @@ fun AuthenticationResult.Failure.toLoginError() = when (this) {
     is AuthenticationResult.Failure.SocketError -> LoginState.Error.DialogError.ProxyError
     is AuthenticationResult.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
     is AuthenticationResult.Failure.InvalidCredentials -> LoginState.Error.DialogError.InvalidCredentialsError
-    is AuthenticationResult.Failure.InvalidUserIdentifier -> LoginState.Error.TextFieldError.InvalidValue
+    else -> LoginState.Error.TextFieldError.InvalidValue
 }
 
 fun RegisterClientResult.Failure.toLoginError() = when (this) {

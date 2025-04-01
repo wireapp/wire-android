@@ -510,8 +510,6 @@
     <string name="conversations_mentions_tab_title">Mentions</string>
     <string name="sent_a_message_with_content">sent a message with %s content</string>
     <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
-    <string name="channel_permission_admin_label">Admins</string>
-    <string name="channel_permission_admin_members_label">Admins and Members</string>
     <string name="new_group_title">New Group</string>
     <string name="new_channel_title">New Channel</string>
     <string name="channel_access_label">Access</string>

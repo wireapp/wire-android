@@ -432,8 +432,8 @@
     <string name="channel_private_label">Privat</string>
     <string name="channel_public_label">Öffentlich</string>
     <string name="channel_permission_description">Wählen Sie, wer Teilnehmer zu einem privaten Channel hinzufügen kann</string>
-    <string name="channel_permission_admin_label">Admins</string>
-    <string name="channel_permission_admin_members_label">Admins und Mitglieder</string>
+    <string name="channel_add_permission_admin_label">Admins</string>
+    <string name="channel_add_permission_admin_members_label">Admins und Mitglieder</string>
     <string name="create_regular_group_button_label">Gruppe erstellen</string>
     <string name="create_channel_button_label">Channel erstellen</string>
     <string name="new_group_description">Bis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>

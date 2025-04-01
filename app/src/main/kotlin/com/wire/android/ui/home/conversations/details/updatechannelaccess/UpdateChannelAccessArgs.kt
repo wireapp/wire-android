@@ -15,14 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.newconversation.channelaccess
+package com.wire.android.ui.home.conversations.details.updatechannelaccess
 
 import android.os.Parcelable
-import com.wire.android.R
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-enum class ChannelPermissionType(val label: Int) : Parcelable {
-    ADMINS(R.string.channel_permission_admin_label),
-    ADMIN_AND_MEMBERS(R.string.channel_permission_admin_members_label)
-}
+data class UpdateChannelAccessArgs(
+    val accessType: ChannelAccessType = ChannelAccessType.PRIVATE,
+    val permissionType: ChannelPermissionType = ChannelPermissionType.ADMINS
+) : Parcelable

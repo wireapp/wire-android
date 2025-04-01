@@ -31,14 +31,17 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -48,7 +51,6 @@ class HomeViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val globalDataStore: GlobalDataStore,
     private val dataStore: UserDataStore,
-    private val getSelfUser: GetSelfUserUseCase,
     private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
@@ -60,10 +62,29 @@ class HomeViewModel @Inject constructor(
     var homeState by mutableStateOf(HomeState())
         private set
 
+    private val selfUserFlow = MutableSharedFlow<SelfUser?>(replay = 1)
+
     init {
-        loadUserAvatar()
+        observeSelfUser()
         observeLegalHoldStatus()
         observeCreateTeamIndicator()
+    }
+
+    private fun observeSelfUser() {
+        viewModelScope.launch {
+            observeSelf().collectLatest { selfUser ->
+                selfUserFlow.emit(selfUser)
+                homeState = homeState.copy(
+                    userAvatarData = UserAvatarData(
+                        asset = selfUser.previewPicture?.let {
+                            UserAvatarAsset(it)
+                        },
+                        availabilityStatus = selfUser.availabilityStatus,
+                        nameBasedAvatar = NameBasedAvatar(selfUser.name, selfUser.accentId)
+                    )
+                )
+            }
+        }
     }
 
     private fun observeLegalHoldStatus() {
@@ -95,42 +116,29 @@ class HomeViewModel @Inject constructor(
 
     fun checkRequirements(onRequirement: (HomeRequirement) -> Unit) {
         viewModelScope.launch {
-            val selfUser = getSelfUser() ?: return@launch
+            val selfUser = selfUserFlow.firstOrNull() ?: return@launch
             when {
-                shouldTriggerMigrationForUser(selfUser.id) ->
+                shouldTriggerMigrationForUser(selfUser.id) -> // check if the user needs to be migrated from scala app
                     onRequirement(HomeRequirement.Migration(selfUser.id))
 
-                needsToRegisterClient() -> // check if the client has been registered and open the proper screen if not
+                needsToRegisterClient() -> // check if the client needs to be registered
                     onRequirement(HomeRequirement.RegisterDevice)
 
-                selfUser.handle.isNullOrEmpty() -> // check if the user handle has been set and open the proper screen if not
+                !dataStore.initialSyncCompleted.first() -> // check if the initial sync needs to be completed
+                    onRequirement(HomeRequirement.InitialSync)
+
+                selfUser.handle.isNullOrEmpty() -> // check if the user handle needs to be set
                     onRequirement(HomeRequirement.CreateAccountUsername)
 
-                shouldDisplayWelcomeToARScreen() -> {
+                // check if the "welcome to the new app" screen needs to be displayed
+                shouldDisplayWelcomeToARScreen() ->
                     homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
-                }
             }
         }
     }
 
     private suspend fun shouldDisplayWelcomeToARScreen() =
         globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
-
-    private fun loadUserAvatar() {
-        viewModelScope.launch {
-            observeSelf().collect { selfUser ->
-                homeState = homeState.copy(
-                    userAvatarData = UserAvatarData(
-                        asset = selfUser.previewPicture?.let {
-                            UserAvatarAsset(it)
-                        },
-                        availabilityStatus = selfUser.availabilityStatus,
-                        nameBasedAvatar = NameBasedAvatar(selfUser.name, selfUser.accentId)
-                    )
-                )
-            }
-        }
-    }
 
     fun dismissWelcomeMessage() {
         viewModelScope.launch {

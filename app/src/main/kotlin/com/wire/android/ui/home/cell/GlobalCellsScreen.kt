@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import com.wire.android.feature.cells.ui.WireCellScreen
 import com.wire.android.feature.cells.ui.publiclink.destinations.PublicLinkScreenDestination
 import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.home.HomeStateHolder
@@ -32,13 +31,10 @@ import com.wire.android.ui.home.HomeStateHolder
 fun GlobalCellsScreen(
     homeStateHolder: HomeStateHolder,
 ) {
-
-    val navigator = LocalNavigator.current
-
     WireCellScreen(
         searchBarState = homeStateHolder.searchBarState,
         showPublicLinkScreen = { assetId, fileName, linkId ->
-            navigator.navigate(
+            homeStateHolder.navigator.navigate(
                 NavigationCommand(
                     PublicLinkScreenDestination(
                         assetId = assetId,

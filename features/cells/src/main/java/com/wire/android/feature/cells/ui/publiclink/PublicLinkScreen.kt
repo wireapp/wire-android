@@ -49,6 +49,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
+import com.wire.android.navigation.WaitUntilTransitionEndsWrapper
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireSwitch
@@ -64,6 +65,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Destination(
     navArgsDelegate = PublicLinkNavArgs::class,
     style = PopUpNavigationAnimation::class,
+    wrappers = [WaitUntilTransitionEndsWrapper::class],
 )
 @Composable
 fun PublicLinkScreen(

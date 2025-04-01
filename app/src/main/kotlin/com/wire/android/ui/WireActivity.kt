@@ -64,7 +64,6 @@ import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -241,7 +240,7 @@ class WireActivity : AppCompatActivity() {
                         WireTopAppBar(
                             commonTopAppBarState = commonTopAppBarViewModel.state,
                         )
-                        CompositionLocalProvider(LocalNavigator provides navigator) {
+                        CompositionLocalProvider {
                             MainNavHost(
                                 navigator = navigator,
                                 startDestination = startDestination,

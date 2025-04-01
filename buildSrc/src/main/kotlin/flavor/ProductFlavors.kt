@@ -42,7 +42,7 @@ sealed class ProductFlavors(
         shareduserId = "com.waz.userid",
         versionNameSuffix = ""
     )
-    object Imai : ProductFlavors("imai", "Wire Imai")
+    object Fulu : ProductFlavors("fulu", "Wire Fulu")
 
     companion object {
         val all: Collection<ProductFlavors> = setOf(
@@ -52,7 +52,7 @@ sealed class ProductFlavors(
             Internal,
             Production,
             Fdroid,
-            Imai,
+            Fulu,
         )
     }
 }

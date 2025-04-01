@@ -34,18 +34,14 @@ jobs:
       - name: Compare versions
         id: compare_versions
         run: |
-        # Remove the 'v' prefix for numeric comparison
           cur_ver="${current_tag#v}"
-          lat_ver="${latest_tag#v}"
-          
-        # Determine the highest (latest) version of the two
+          lat_ver="${latest_tag#v}"          
           highest="$(printf '%s\n%s' "$cur_ver" "$lat_ver" | sort -V | tail -n1)"
-          
           if [[ "$cur_ver" != "$lat_ver" && "$highest" != "$cur_ver" ]]; then
-          echo "Current tag ($current_tag) is lower than latest tag ($latest_tag). Failing the workflow."
-          exit 1
+            echo "Current tag ($current_tag) is lower than latest tag ($latest_tag). Failing the workflow."
+            exit 1
           else
-          echo "Current tag ($current_tag) is equal or higher than $latest_tag. Continuing the workflow."
+            echo "Current tag ($current_tag) is equal or higher than $latest_tag. Continuing the workflow."
           fi
 
       - name: Set up JDK 17

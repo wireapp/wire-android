@@ -1734,5 +1734,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="channel_not_available_dialog_description">Create a team and start collaborating for free!</string>
     <string name="channel_not_available_dialog_create_team_button">Create Wire Team</string>
     <string name="custimization_options_header_title">Options</string>
-    <string name="cells_screen_title">Files</string>
+    <string name="cells_screen_title">All files</string>
+    <string name="cells_screen_search_hint">Search files</string>
+    <string name="enable_wire_cell">Enable Wire Cell</string>
+    <string name="enable_wire_cell_switch_description">All files in this conversation will be uploaded in Wire Cell storage.</string>
 </resources>

@@ -30,10 +30,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
@@ -49,6 +47,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.destinations.ChannelAccessScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -104,7 +103,8 @@ fun GroupOptionScreen(
             newConversationViewModel.onCreateGroupErrorDismiss()
             navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
-        onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss
+        onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss,
+        onEnableWireCellChanged = newConversationViewModel::onEnableWireCellChanged
     )
 }
 
@@ -118,6 +118,7 @@ fun GroupOptionScreenContent(
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
+    onEnableWireCellChanged: ((Boolean) -> Unit),
     onContinuePressed: () -> Unit,
     onAllowGuestsDialogDismissed: () -> Unit,
     onNotAllowGuestsClicked: () -> Unit,
@@ -155,6 +156,7 @@ fun GroupOptionScreenContent(
                 onAllowGuestChanged,
                 onAllowServicesChanged,
                 onReadReceiptChanged,
+                onEnableWireCellChanged,
                 onContinuePressed
             )
         }
@@ -177,6 +179,7 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
     onAllowGuestChanged: (Boolean) -> Unit,
     onAllowServicesChanged: (Boolean) -> Unit,
     onReadReceiptChanged: (Boolean) -> Unit,
+    onEnableWireCellChanged: (Boolean) -> Unit,
     onContinuePressed: () -> Unit
 ) {
     Column(
@@ -193,6 +196,9 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
             AllowGuestsOptions(isChannel, onAllowGuestChanged)
             AllowServicesOptions(isChannel, onAllowServicesChanged)
             ReadReceiptsOptions(isChannel, onReadReceiptChanged)
+            isWireCellsEnabled?.let {
+                EnableWireCellOptions(onEnableWireCellChanged)
+            }
         }
         CreateGroupButton(isChannel, onContinuePressed)
     }
@@ -218,11 +224,10 @@ private fun GroupOptionState.ReadReceiptsOptions(isChannel: Boolean, onReadRecei
     }
     Text(
         text = stringResource(description),
-        fontWeight = FontWeight.Normal,
         color = MaterialTheme.wireColorScheme.secondaryText,
         modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
         textAlign = TextAlign.Left,
-        fontSize = 16.sp
+        style = typography().body01,
     )
 }
 
@@ -249,11 +254,10 @@ private fun GroupOptionState.AllowServicesOptions(isChannel: Boolean, onAllowSer
     }
     Text(
         text = stringResource(description),
-        fontWeight = FontWeight.Normal,
         color = MaterialTheme.wireColorScheme.secondaryText,
         modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
         textAlign = TextAlign.Left,
-        fontSize = 16.sp
+        style = typography().body01,
     )
 }
 
@@ -286,13 +290,35 @@ private fun GroupOptionState.AllowGuestsOptions(isChannel: Boolean, onAllowGuest
     if (!isChannel) {
         Text(
             text = stringResource(R.string.allow_guest_switch_description),
-            fontWeight = FontWeight.Normal,
             color = MaterialTheme.wireColorScheme.secondaryText,
             modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
             textAlign = TextAlign.Left,
-            fontSize = 16.sp
+            style = typography().body01,
         )
     }
+}
+
+@Composable
+private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -> Unit) {
+    GroupConversationOptionsItem(
+        title = stringResource(R.string.enable_wire_cell),
+        switchState = SwitchState.Enabled(
+            value = isWireCellsEnabled ?: false,
+            isOnOffVisible = false,
+            onCheckedChange = { onEnableWireCell.invoke(it) }
+        ),
+        arrowType = ArrowType.NONE,
+        clickable = Clickable(enabled = false, onClick = {}),
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+    )
+
+    Text(
+        text = stringResource(R.string.enable_wire_cell_switch_description),
+        color = MaterialTheme.wireColorScheme.secondaryText,
+        modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
+        textAlign = TextAlign.Left,
+        style = typography().body01,
+    )
 }
 
 @Composable
@@ -351,6 +377,6 @@ fun PreviewGroupOptionScreen() {
         CreateGroupState(),
         accessTypeLabel = R.string.channel_private_label,
         isChannelsAllowed = false,
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     )
 }

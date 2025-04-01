@@ -17,9 +17,12 @@
  */
 package com.wire.android.ui.home.newconversation.channelaccess
 
+import android.os.Parcelable
 import com.wire.android.R
+import kotlinx.parcelize.Parcelize
 
-enum class ChannelAccessType(val label: Int) {
+@Parcelize
+enum class ChannelAccessType(val label: Int) : Parcelable {
     PUBLIC(R.string.channel_public_label),
     PRIVATE(R.string.channel_private_label)
 }

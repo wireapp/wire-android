@@ -34,8 +34,8 @@ jobs:
       - name: Compare versions
         id: compare_versions
         run: |
-          cur_ver="${current_tag#v}"
-          lat_ver="${latest_tag#v}"          
+          cur_ver="${{ github.event.release.tag_name#v }}"
+          lat_ver="${{ steps.get_latest_release.outputs.latest_tag#v }}"
           highest="$(printf '%s\n%s' "$cur_ver" "$lat_ver" | sort -V | tail -n1)"
           if [[ "$cur_ver" != "$lat_ver" && "$highest" != "$cur_ver" ]]; then
             echo "Current tag ($current_tag) is lower than latest tag ($latest_tag). Failing the workflow."

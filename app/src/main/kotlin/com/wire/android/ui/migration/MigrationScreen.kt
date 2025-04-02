@@ -32,13 +32,16 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.migration.MigrationData
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.common.SettingUpWireScreenContent
 import com.wire.android.ui.common.SettingUpWireScreenType
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -52,16 +55,30 @@ import com.wire.android.util.ui.stringWithStyledArgs
 @Composable
 fun MigrationScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     viewModel: MigrationViewModel = hiltViewModel()
 ) {
 
     when (val state = viewModel.state) {
-        is MigrationState.LoginRequired ->
-            navigator.navigate(NavigationCommand(LoginScreenDestination(state.userHandle), BackStackMode.CLEAR_WHOLE))
+        is MigrationState.LoginRequired -> navigator.navigate(
+            NavigationCommand(
+                when {
+                    loginTypeSelector.canUseNewLogin() ->
+                        NewLoginScreenDestination(userHandle = PreFilledUserIdentifierType.PreFilled(state.userHandle))
+                    else ->
+                        LoginScreenDestination(userHandle = PreFilledUserIdentifierType.PreFilled(state.userHandle))
+                },
+                BackStackMode.CLEAR_WHOLE
+            )
+        )
 
         is MigrationState.Success -> navigator.navigate(
             NavigationCommand(
-                if (state.currentSessionAvailable) HomeScreenDestination else WelcomeScreenDestination,
+                when {
+                    state.currentSessionAvailable -> HomeScreenDestination
+                    loginTypeSelector.canUseNewLogin() -> NewLoginScreenDestination()
+                    else -> WelcomeScreenDestination()
+                },
                 BackStackMode.CLEAR_WHOLE
             )
         )

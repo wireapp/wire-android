@@ -18,13 +18,18 @@
 package com.wire.android.ui.authentication.create.common
 
 import android.os.Parcelable
+import com.wire.android.ui.authentication.create.overview.ServerConfigLinksParceler
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.TypeParceler
 
 @Parcelize
+@TypeParceler<ServerConfig.Links?, ServerConfigLinksParceler>()
 data class CreateAccountNavArgs(
     val flowType: CreateAccountFlowType,
-    val userRegistrationInfo: UserRegistrationInfo = UserRegistrationInfo()
+    val userRegistrationInfo: UserRegistrationInfo = UserRegistrationInfo(),
+    val customServerConfig: ServerConfig.Links? = null,
 ) : Parcelable
 
 @Parcelize

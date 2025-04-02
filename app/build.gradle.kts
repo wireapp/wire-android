@@ -210,7 +210,6 @@ dependencies {
     ksp(libs.compose.destinations.ksp)
 
     // Accompanist
-    implementation(libs.accompanist.systemUI)
     implementation(libs.accompanist.placeholder)
 
     implementation(libs.androidx.paging3)

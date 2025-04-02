@@ -18,10 +18,13 @@
 
 package com.wire.android.ui.authentication.verificationcode
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -47,7 +50,8 @@ fun VerificationCode(
     isLoading: Boolean,
     isCurrentCodeInvalid: Boolean,
     onResendCode: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showLoadingProgress: Boolean = true,
 ) {
     val focusRequester = remember { FocusRequester() }
     Column(
@@ -67,18 +71,27 @@ fun VerificationCode(
             modifier = Modifier.focusRequester(focusRequester)
         )
 
-        AnimatedVisibility(visible = isLoading) {
-            WireCircularProgressIndicator(
-                progressColor = MaterialTheme.wireColorScheme.primary,
-                size = MaterialTheme.wireDimensions.spacing24x,
-                modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing16x)
-            )
-        }
+        Crossfade(
+            targetState = isLoading to showLoadingProgress,
+            modifier = Modifier
+                .padding(top = MaterialTheme.wireDimensions.spacing24x)
+                .animateContentSize(),
+        ) { (isLoading, showLoadingProgress) ->
+            when {
+                !isLoading -> ResendCodeText(
+                    onResendCodePressed = onResendCode,
+                    clickEnabled = true,
+                    modifier = Modifier
+                        .defaultMinSize(minHeight = MaterialTheme.wireDimensions.spacing24x)
+                        .wrapContentHeight(align = Alignment.CenterVertically),
+                )
 
-        ResendCodeText(
-            onResendCodePressed = onResendCode,
-            clickEnabled = !isLoading
-        )
+                isLoading && showLoadingProgress -> WireCircularProgressIndicator(
+                    progressColor = MaterialTheme.wireColorScheme.primary,
+                    size = MaterialTheme.wireDimensions.spacing24x,
+                )
+            }
+        }
     }
 }
 

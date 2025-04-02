@@ -18,27 +18,68 @@
 package com.wire.android.ui.home.conversations.details.updatechannelaccess
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.framework.TestUser
 import com.wire.android.ui.destinations.ChannelAccessOnUpdateScreenDestination
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockkObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class UpdateChannelAccessViewModelTest {
 
+    private val dispatcher: TestDispatcher = StandardTestDispatcher()
+
+    @BeforeEach
+    fun setup() {
+        Dispatchers.setMain(dispatcher)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
-    fun `given channel permission, when updateChannelPermission is called, then update the state`() = runTest {
-        val (_, viewModel) = Arrangement().arrange()
+    fun `given channel permission changed successfully, when updateChannelPermission is called, then update the state`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUpdateChannelAddPermissionUseCaseReturning(
+                UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult.Success
+            ).arrange()
 
-        viewModel.updateChannelPermission(ChannelPermissionType.ADMIN_AND_MEMBERS)
+        viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
+        advanceUntilIdle()
 
-        assertEquals(ChannelPermissionType.ADMIN_AND_MEMBERS, viewModel.getPermissionType())
+        assertEquals(ChannelAddPermissionType.EVERYONE, viewModel.getPermissionType())
+    }
+
+    @Test
+    fun `given channel permission failed to change, when updateChannelPermission is called, then do not update the state`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUpdateChannelAddPermissionUseCaseReturning(
+                UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult.Failure
+            ).arrange()
+
+        viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
+        advanceUntilIdle()
+
+        assertEquals(ChannelAddPermissionType.ADMINS, viewModel.getPermissionType())
     }
 
     @Test
@@ -56,20 +97,35 @@ class UpdateChannelAccessViewModelTest {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
+        @MockK
+        private lateinit var updateChannelAddPermission: UpdateChannelAddPermissionUseCase
+
         private val viewModel by lazy {
-            UpdateChannelAccessViewModel(savedStateHandle = savedStateHandle)
+            UpdateChannelAccessViewModel(
+                updateChannelAddPermission = updateChannelAddPermission,
+                savedStateHandle = savedStateHandle,
+                qualifiedIdMapper = QualifiedIdMapperImpl(TestUser.SELF_USER_ID)
+            )
         }
+
         init {
+            val conversationId = "conversationId"
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkObject(ChannelAccessOnUpdateScreenDestination)
             every {
                 ChannelAccessOnUpdateScreenDestination.argsFrom(any<SavedStateHandle>())
             } answers {
-                UpdateChannelAccessArgs()
+                UpdateChannelAccessArgs(conversationId)
             }
 
-            every { savedStateHandle.navArgs<UpdateChannelAccessArgs>() } returns UpdateChannelAccessArgs()
+            every { savedStateHandle.navArgs<UpdateChannelAccessArgs>() } returns UpdateChannelAccessArgs(conversationId)
         }
+
+        fun withUpdateChannelAddPermissionUseCaseReturning(
+            result: UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult
+        ) = apply {
+                coEvery { updateChannelAddPermission(any(), any()) } returns result
+            }
 
         fun arrange() = this to viewModel
     }

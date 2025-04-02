@@ -31,7 +31,7 @@ import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -104,8 +104,8 @@ class NewConversationViewModel @Inject constructor(
         newGroupState = newGroupState.copy(channelAccessType = channelAccessType)
     }
 
-    fun setChannelPermission(channelPermissionType: ChannelPermissionType) {
-        newGroupState = newGroupState.copy(channelPermissionType = channelPermissionType)
+    fun setChannelPermission(channelAddPermissionType: ChannelAddPermissionType) {
+        newGroupState = newGroupState.copy(channelAddPermissionType = channelAddPermissionType)
     }
 
     fun setIsChannel(isChannel: Boolean) {

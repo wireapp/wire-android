@@ -121,7 +121,7 @@ fun GroupConversationSettings(
                         title = stringResource(R.string.channel_access_label),
                         subtitle = stringResource(id = R.string.channel_access_short_description),
                         arrowType = ArrowType.TITLE_ALIGNED,
-                        arrowLabel = stringResource(state.channelAccessType.label),
+                        arrowLabel = stringResource(state.channelAccessType!!.label),
                         arrowLabelColor = colorsScheme().onBackground,
                         onClick = onChannelAccessItemClicked,
                         isClickable = true,

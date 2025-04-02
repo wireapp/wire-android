@@ -35,7 +35,7 @@ import com.wire.android.ui.home.conversations.details.participants.model.Convers
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
 import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.common.functional.Either
@@ -649,9 +649,9 @@ class GroupConversationDetailsViewModelTest {
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .arrange()
 
-        viewModel.updateChannelPermission(ChannelPermissionType.ADMIN_AND_MEMBERS)
+        viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
 
-        assertEquals(ChannelPermissionType.ADMIN_AND_MEMBERS, viewModel.groupOptionsState.value.channelPermissionType)
+        assertEquals(ChannelAddPermissionType.EVERYONE, viewModel.groupOptionsState.value.channelAddPermissionType)
     }
 
     @ParameterizedTest

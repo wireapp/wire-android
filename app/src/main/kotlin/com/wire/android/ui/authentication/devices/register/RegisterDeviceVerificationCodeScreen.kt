@@ -16,31 +16,30 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.authentication.login.email
+package com.wire.android.ui.authentication.devices.register
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeScreenContent
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun LoginEmailVerificationCodeScreen(
-    viewModel: LoginEmailViewModel = hiltViewModel()
+fun RegisterDeviceVerificationCodeScreen(
+    viewModel: RegisterDeviceViewModel = hiltViewModel()
 ) = VerificationCodeScreenContent(
     viewModel.secondFactorVerificationCodeTextState,
     viewModel.secondFactorVerificationCodeState,
-    viewModel.loginState.flowState is LoginState.Loading,
+    viewModel.state.flowState is RegisterDeviceFlowState.Loading,
     viewModel::onCodeResend,
     viewModel::onCodeVerificationBackPress
 )
 
 @PreviewMultipleThemes
 @Composable
-internal fun LoginEmailVerificationCodeScreenPreview() = WireTheme {
+internal fun RegisterDeviceVerificationCodeScreenPreview() = WireTheme {
     VerificationCodeScreenContent(
         verificationCodeTextState = TextFieldState(),
         verificationCodeState = VerificationCodeState(

@@ -79,7 +79,7 @@ class AudioFocusHelper @Inject constructor(private val audioManager: AudioManage
      * Abandon the exclusive audio focus.
      */
     fun abandonExclusive() {
-        audioManager.abandonAudioFocusRequest(focusRequest)
+        audioManager.abandonAudioFocusRequest(exclusiveFocusRequest)
     }
 
     fun setListener(onPauseCurrentAudio: () -> Unit, onResumeCurrentAudio: () -> Unit) {

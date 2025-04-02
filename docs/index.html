@@ -312,6 +312,64 @@ of these interfaces are also created to make it possible to generate composable 
                 </div>
             </div>
             
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse6">5. Simplified enterprise login</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse6" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>5. Simplified enterprise login</h1>
+<p>Date: 2025-01-23</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>Starting (potentially) from Android 4.12.x the app will support the new enterprise login flows, this means in practice that the app needs to support both flows current/old.</p>
+<h3>The current flow (old)</h3>
+<p>Customers configure their setup manually in their backend.
+The user experience for this makes the user selects manually which flow they must use by going to the correct screens, i.e. going to the tab and select login with SSO code, or login with email, or use a deeplink to load the on premise configuration, and then select the correct flow.</p>
+<h3>The new flow</h3>
+<p>Customers, via team settings and Back-office tools, will be able to load this config to facilitate the decision of which flow the user must use. This will make the app, in conjunction with the backend, decide for the user which path/flow they must use to login by just having one input field, “email or SSO code”.
+The adoption won’t be automatically via deprecation, hence the need to support both flows for some time. To clarify a bit how this looks in practice for the code we have, how this will be implemented, a high level look of the two flows living together, the following diagram can be used.</p>
+<h2>Decision</h2>
+<p>We will keep both flows, the current as-is and the new one, being the app able to decide which one to use based on the configuration received from the backend.</p>
+<pre><code class="language-mermaid">%%{
+  init: {
+    'theme': 'neutral'
+  }
+}%%
+
+flowchart LR
+    z((App loads&lt;/br&gt; BE/API context)) --&gt; di
+    di{BE supports &lt;/br&gt;API &gt;= 8 ?}:::someclass -- Yes --&gt; a1
+    di -- No&lt;/br&gt;OR Authenticated Proxy --&gt; b1
+    classDef someclass fill:#f96
+    subgraph new_flow
+      a0@{ shape: braces, label: &quot;These flows are selected by the app and the BE&quot; }
+      a1[StartLoginScreen &lt;/br&gt;'Enter email or SSO code'] -- looks like SSO code --&gt; a2[Go to SSO flow path 6-7] 
+      a1 -- Looks like an email? --&gt; a3[BE replies which path to go 1-4]
+    end
+    subgraph current_flow
+      b0@{ shape: braces, label: &quot;These flows are selected manually by the user&quot; }
+      b1[WelcomeScreen] --&gt; b2[LoginEmailScreen]
+      b1 --&gt; b3[LoginWithSSOCodeScreen]
+    end
+</code></pre>
+<h2>Consequences</h2>
+<ul>
+<li>The code base will have some duplication for some time, but this will be removed when the old flow is deprecated.</li>
+<li>To select the correct flow, the app will need to load the BE context, based on the API version, and then decide which flow to use.</li>
+<li>The navigation, entry point will need to be dynamic, based on the flow selected.</li>
+</ul>
+</div>
+                </div>
+            </div>
+            
         </div>
         <footer>
             Generated with &lt;3 using ADR Viewer

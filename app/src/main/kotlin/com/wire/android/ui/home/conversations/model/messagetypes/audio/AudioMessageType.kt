@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.model.messagetypes.audio
 
 import androidx.compose.foundation.background
@@ -133,7 +135,8 @@ private fun UploadedAudioMessage(
     audioMessageDurationInMs: Long,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel = hiltViewModelScoped<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(audioMessageArgs)
+    val viewModel: AudioMessageViewModel =
+        hiltViewModelScoped<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(audioMessageArgs)
     val sanitizedAudioState by remember(viewModel.state.audioState, audioMessageDurationInMs) {
         derivedStateOf {
             viewModel.state.audioState.copy(totalTimeInMs = viewModel.state.audioState.sanitizeTotalTime(audioMessageDurationInMs.toInt()))
@@ -206,17 +209,16 @@ fun SuccessfulAudioMessageContent(
     onAudioSpeedChange: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
-    val (audioMediaPlayingState, currentPositionInMs, totalTimeInMs, waveMask) = audioState
-    val audioDuration by remember(currentPositionInMs) {
+    val audioDuration by remember(audioState.currentPositionInMs) {
         mutableStateOf(
-            AudioDuration(totalTimeInMs, currentPositionInMs)
+            AudioDuration(audioState.totalTimeInMs, audioState.currentPositionInMs)
         )
     }
 
     Row(
         modifier = modifier.fillMaxWidth(),
     ) {
-        val (iconResource, contentDescriptionRes) = getPlayOrPauseIcon(audioMediaPlayingState)
+        val (iconResource, contentDescriptionRes) = getPlayOrPauseIcon(audioState.audioMediaPlayingState)
         WireSecondaryIconButton(
             minSize = DpSize(dimensions().spacing32x, dimensions().spacing32x),
             minClickableSize = dimensions().buttonMinClickableSize,
@@ -224,7 +226,10 @@ fun SuccessfulAudioMessageContent(
             iconResource = iconResource,
             shape = CircleShape,
             contentDescription = contentDescriptionRes,
-            state = if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) WireButtonState.Disabled else WireButtonState.Default,
+            state = when (audioState.audioMediaPlayingState) {
+                is AudioMediaPlayingState.Fetching -> WireButtonState.Disabled
+                else -> WireButtonState.Default
+            },
             onButtonClicked = onPlayButtonClick
         )
 
@@ -234,8 +239,8 @@ fun SuccessfulAudioMessageContent(
 
             AudioMessageSlider(
                 audioDuration = audioDuration,
-                totalTimeInMs = totalTimeInMs,
-                waveMask = waveMask,
+                totalTimeInMs = audioState.totalTimeInMs,
+                waveMask = audioState.wavesMask,
                 onSliderPositionChange = onSliderPositionChange
             )
 
@@ -250,7 +255,7 @@ fun SuccessfulAudioMessageContent(
                     maxLines = 1
                 )
 
-                if (audioMediaPlayingState is AudioMediaPlayingState.Playing && onAudioSpeedChange != null) {
+                if (audioState.audioMediaPlayingState is AudioMediaPlayingState.Playing && onAudioSpeedChange != null) {
                     WirePrimaryButton(
                         onClick = onAudioSpeedChange,
                         text = stringResource(audioSpeed.titleRes),
@@ -274,7 +279,7 @@ fun SuccessfulAudioMessageContent(
 
                 Spacer(Modifier.weight(1F))
 
-                if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) {
+                if (audioState.audioMediaPlayingState is AudioMediaPlayingState.Fetching) {
                     WireCircularProgressIndicator(
                         modifier = Modifier.align(Alignment.CenterVertically),
                         progressColor = MaterialTheme.wireColorScheme.secondaryButtonEnabled
@@ -497,6 +502,7 @@ private fun PreviewUploadedAudioMessageFailed() = WireTheme {
     )
 }
 
+@Suppress("MagicNumber")
 private val PREVIEW_AUDIO_STATE = AudioState(
     audioMediaPlayingState = AudioMediaPlayingState.SuccessfulFetching,
     currentPositionInMs = 0,

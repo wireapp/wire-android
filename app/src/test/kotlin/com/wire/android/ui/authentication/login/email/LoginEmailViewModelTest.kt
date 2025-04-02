@@ -702,6 +702,7 @@ class LoginEmailViewModelTest {
             arrangement.updateCurrentSessionUseCase(previousUserId)
         }
     }
+
     @Test
     fun `given other failure than too many clients, when registering client, then revert new session`() = runTest {
         // given

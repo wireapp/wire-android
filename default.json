@@ -84,28 +84,6 @@
             "analytics_enabled": false,
             "analytics_app_key": "",
             "analytics_server_url": ""
-        },
-        "fulu": {
-            "application_id": "com.waz.zclient.fulu",
-            "developer_features_enabled": true,
-            "logging_enabled": true,
-            "application_is_private_build": true,
-            "development_api_enabled": true,
-            "ignore_ssl_certificates": true,
-            "firebase_push_sender_id": "723990470614",
-            "firebase_app_id": "1:723990470614:android:10cf802bfcc7bb71d28e77",
-            "google_api_key": "AIzaSyAGCoJGUtDBLJJiQPLxHQRrdkbyI0wlbo8",
-            "fcm_project_id": "wiregcmpushstaging",
-            "default_backend_url_base_api": "https://nginz-https.fulu.wire.link",
-            "default_backend_url_accounts": "https://account.fulu.wire.link",
-            "default_backend_url_base_websocket": "https://nginz-ssl.fulu.wire.link",
-            "default_backend_url_teams": "https://teams.fulu.wire.link",
-            "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
-            "default_backend_url_website": "https://wire.com",
-            "default_backend_title": "fulu.wire.link",
-            "analytics_enabled": false,
-            "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
-            "analytics_server_url": "https://countly.wire.com/"
         }
     },
     "application_name": "Wire",

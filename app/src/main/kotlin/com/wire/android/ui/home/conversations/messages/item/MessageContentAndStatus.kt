@@ -217,6 +217,7 @@ private fun MessageContent(
                 AudioMessage(
                     audioMessageArgs = AudioMessageArgs(message.conversationId, message.header.messageId),
                     audioMessageDurationInMs = messageContent.audioMessageDurationInMs,
+                    assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }

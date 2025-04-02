@@ -40,8 +40,11 @@ sealed class LoginState {
             data object Request2FAWithHandle : DialogError()
             data class SSOResultError(val result: SSOFailureCodes) :
                 DialogError()
+
             data object ServerVersionNotSupported : DialogError()
             data object ClientUpdateRequired : DialogError()
+            data object AccountSuspended : DialogError()
+            data object AccountPendingActivation : DialogError()
         }
         data object TooManyDevicesError : Error()
     }

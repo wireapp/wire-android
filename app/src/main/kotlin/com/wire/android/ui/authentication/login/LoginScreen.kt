@@ -323,6 +323,13 @@ fun LoginErrorDialog(
                 onDismiss = onDialogDismiss
             )
         }
+        // TODO: handle AccountSuspended and AccountPendingActivation when resolving conflicts
+        // here https://github.com/wireapp/wire-android/pull/3904/files
+        else -> LoginDialogErrorData(
+            title = stringResource(R.string.error_unknown_title),
+            body = AnnotatedString(stringResource(R.string.error_unknown_message)),
+            onDismiss = onDialogDismiss
+        )
     }
 
     WireDialog(

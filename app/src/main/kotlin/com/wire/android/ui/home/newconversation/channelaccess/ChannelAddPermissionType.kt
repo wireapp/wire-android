@@ -17,12 +17,20 @@
  */
 package com.wire.android.ui.home.newconversation.channelaccess
 
-import android.os.Parcelable
 import com.wire.android.R
-import kotlinx.parcelize.Parcelize
+import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAddPermission
 
-@Parcelize
-enum class ChannelPermissionType(val label: Int) : Parcelable {
-    ADMINS(R.string.channel_permission_admin_label),
-    ADMIN_AND_MEMBERS(R.string.channel_permission_admin_members_label)
+enum class ChannelAddPermissionType(val label: Int) {
+    ADMINS(R.string.channel_add_permission_admin_label),
+    EVERYONE(R.string.channel_add_permission_admin_members_label)
+}
+
+fun ChannelAddPermissionType.toDomainEnum(): ChannelAddPermission = when (this) {
+    ChannelAddPermissionType.ADMINS -> ChannelAddPermission.ADMINS
+    ChannelAddPermissionType.EVERYONE -> ChannelAddPermission.EVERYONE
+}
+
+fun ChannelAddPermission.toUiEnum(): ChannelAddPermissionType = when (this) {
+    ChannelAddPermission.ADMINS -> ChannelAddPermissionType.ADMINS
+    ChannelAddPermission.EVERYONE -> ChannelAddPermissionType.EVERYONE
 }

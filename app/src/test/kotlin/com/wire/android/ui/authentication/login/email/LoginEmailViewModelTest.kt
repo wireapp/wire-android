@@ -405,6 +405,7 @@ class LoginEmailViewModelTest {
             .withGetOrRegisterClientReturning(RegisterClientResult.Failure.TooManyClients)
             .withInitialSyncCompletedReturning(true)
             .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
             .arrange()
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
@@ -495,6 +496,7 @@ class LoginEmailViewModelTest {
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Failure(failure))
             .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
             .arrange()
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
@@ -671,6 +673,60 @@ class LoginEmailViewModelTest {
         coVerify(exactly = 1) { // verify that the second login job has been started
             arrangement.loginUseCase(any(), any(), any(), any(), any())
             arrangement.addAuthenticatedUserUseCase(any(), any(), eq(authToken2), any())
+        }
+    }
+
+    @Test
+    fun `given too many clients failure, when registering client, then do not revert new session`() = runTest {
+        // given
+        val previousUserId = UserId("previousUserId", "domain")
+        val newUserId = UserId("newUserId", "domain")
+        val authToken = AUTH_TOKEN.copy(userId = newUserId)
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
+            .withLoginReturning(AuthenticationResult.Success(authToken, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Failure.TooManyClients)
+            .arrange()
+        // when
+        viewModel.login()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 0) {
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(newUserId)
+            arrangement.updateCurrentSessionUseCase(previousUserId)
+        }
+    }
+
+    @Test
+    fun `given other failure than too many clients, when registering client, then revert new session`() = runTest {
+        // given
+        val previousUserId = UserId("previousUserId", "domain")
+        val newUserId = UserId("newUserId", "domain")
+        val authToken = AUTH_TOKEN.copy(userId = newUserId)
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
+            .withLoginReturning(AuthenticationResult.Success(authToken, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Failure.Generic(CoreFailure.Unknown(null)))
+            .arrange()
+        // when
+        viewModel.login()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 1) {
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(newUserId)
+            arrangement.updateCurrentSessionUseCase(previousUserId)
         }
     }
 

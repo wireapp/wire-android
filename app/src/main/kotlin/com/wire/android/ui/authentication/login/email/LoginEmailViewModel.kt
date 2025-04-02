@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.authentication.login.email
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -27,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
@@ -44,6 +44,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
+import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
@@ -51,11 +53,15 @@ import com.wire.kalium.logic.feature.auth.PersistSelfUserEmailResult
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -66,29 +72,30 @@ class LoginEmailViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
-    authServerConfigProvider: AuthServerConfigProvider,
     userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider
 ) : LoginViewModel(
+    savedStateHandle,
     clientScopeProviderFactory,
-    authServerConfigProvider,
     userDataStoreProvider,
     coreLogic
 ) {
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
-        if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
-    }
+    val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
 
     val userIdentifierTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
     val proxyIdentifierTextState: TextFieldState = TextFieldState()
     val proxyPasswordTextState: TextFieldState = TextFieldState()
-    var loginState by mutableStateOf(LoginEmailState(preFilledUserIdentifier is PreFilledUserIdentifierType.None))
+    var loginState by mutableStateOf(LoginEmailState(preFilledUserIdentifier.userIdentifierEditable))
 
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState by mutableStateOf(VerificationCodeState())
+    var autoLoginWhenFullCodeEntered: Boolean = false
+
+    @VisibleForTesting
+    internal val loginJobData = MutableStateFlow<LoginJobData?>(null)
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
@@ -115,7 +122,7 @@ class LoginEmailViewModel @Inject constructor(
         viewModelScope.launch {
             secondFactorVerificationCodeTextState.textAsFlow().collectLatest {
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCurrentCodeInvalid = false)
-                if (it.length == VerificationCodeState.DEFAULT_VERIFICATION_CODE_LENGTH) {
+                if (it.length == VerificationCodeState.DEFAULT_VERIFICATION_CODE_LENGTH && autoLoginWhenFullCodeEntered) {
                     login()
                 }
             }
@@ -137,10 +144,31 @@ class LoginEmailViewModel @Inject constructor(
         updateEmailFlowState(LoginState.Default)
     }
 
-    @Suppress("LongMethod")
     fun login() {
         updateEmailFlowState(LoginState.Loading)
         viewModelScope.launch {
+            val previousSessionUserId = coreLogic.getGlobalScope().session.currentSession().let {
+                if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
+                    it.accountInfo.userId
+                } else {
+                    null
+                }
+            }
+            // first, cancel and revert any previous login if it's still running, just to be sure
+            revertLogin()
+            // then, start a new login job
+            startLoginJob().let {
+                loginJobData.value = LoginJobData(it, previousSessionUserId)
+                it.invokeOnCompletion {
+                    loginJobData.value = null
+                }
+            }
+        }
+    }
+
+    @Suppress("LongMethod")
+    private fun startLoginJob(): Job {
+        return viewModelScope.launch {
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
 
             val secondFactorVerificationCode = secondFactorVerificationCodeTextState.text.toString()
@@ -158,6 +186,8 @@ class LoginEmailViewModel @Inject constructor(
                 return@launch
             }
             secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
+            loginJobData.update { it?.copy(newSessionUserId = loginResult.authData.userId) }
+
             val storedUserId = withContext(dispatchers.io()) {
                 addAuthenticatedUser(
                     authTokens = loginResult.authData,
@@ -185,6 +215,7 @@ class LoginEmailViewModel @Inject constructor(
                 }
             }.let {
                 if (it is PersistSelfUserEmailResult.Failure) {
+                    revertNewSession(storedUserId)
                     updateEmailFlowState(LoginState.Error.DialogError.GenericError(it.coreFailure))
                     return@launch
                 }
@@ -198,6 +229,7 @@ class LoginEmailViewModel @Inject constructor(
             }.let {
                 when (it) {
                     is RegisterClientResult.Failure -> {
+                        revertNewSession(storedUserId)
                         updateEmailFlowState(it.toLoginError())
                         return@launch
                     }
@@ -212,6 +244,31 @@ class LoginEmailViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun revertNewSession(newSessionUserId: UserId) {
+        // logout to cancel all session-related actions, remove all sensitive data and free up resources
+        coreLogic.getSessionScope(newSessionUserId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
+        // delete the session to make it seem like the session was never logged in
+        coreLogic.getGlobalScope().deleteSession(newSessionUserId)
+    }
+
+    private suspend fun revertLogin() {
+        loginJobData.value?.let { (job, previousSessionUserId) ->
+            job.cancel()
+            loginJobData.value?.newSessionUserId?.let { newSessionUserId ->
+                revertNewSession(newSessionUserId)
+            }
+            // set the previous session back
+            coreLogic.getGlobalScope().session.updateCurrentSession(previousSessionUserId)
+        }
+    }
+
+    fun cancelLogin() {
+        viewModelScope.launch {
+            revertLogin()
+            loginState = loginState.copy(flowState = LoginState.Canceled)
         }
     }
 
@@ -309,3 +366,9 @@ class LoginEmailViewModel @Inject constructor(
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
     }
 }
+
+internal data class LoginJobData(
+    val job: Job,
+    val previousSessionUserId: UserId? = null,
+    val newSessionUserId: UserId? = null,
+)

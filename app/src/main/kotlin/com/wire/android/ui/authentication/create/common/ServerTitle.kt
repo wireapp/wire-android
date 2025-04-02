@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +16,14 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.authentication
+package com.wire.android.ui.authentication.create.common
 
-import androidx.compose.foundation.layout.padding
+import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,12 +33,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
@@ -42,7 +50,6 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -56,49 +63,59 @@ import java.net.URL
 fun ServerTitle(
     serverLinks: ServerConfig.Links,
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.wireTypography.title01
+    style: TextStyle = MaterialTheme.wireTypography.title01,
+    textColor: Color = MaterialTheme.wireColorScheme.secondaryText,
+    infoIconColor: Color = MaterialTheme.wireColorScheme.secondaryText,
+    @StringRes titleResId: Int? = null,
 ) {
-    ConstraintLayout(
-        modifier = Modifier
-            .padding(horizontal = dimensions().spacing32x)
-            .then(modifier)
-    ) {
-        val (serverTitle, infoIcon) = createRefs()
-
-        var serverFullDetailsDialogState: Boolean by remember { mutableStateOf(false) }
-
-        Text(
-            modifier = Modifier.constrainAs(serverTitle) {
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            },
-            text = URL(serverLinks.api).host,
-            style = style,
-            color = MaterialTheme.wireColorScheme.secondaryText,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-
-        Icon(painter = painterResource(id = R.drawable.ic_info),
-            contentDescription = null,
-            modifier = Modifier
-                .constrainAs(infoIcon) {
-                    start.linkTo(serverTitle.end)
-                    centerVerticallyTo(serverTitle)
-                }
-                .padding(start = dimensions().spacing8x)
-                .size(MaterialTheme.wireDimensions.wireIconButtonSize)
-                .clickable(Clickable(true, onClick = { serverFullDetailsDialogState = true })),
-            tint = MaterialTheme.wireColorScheme.secondaryText
-        )
-
-        if (serverFullDetailsDialogState) {
-            ServerEnrollmentDialogContent(
-                serverLinks = serverLinks,
-                onClick = { serverFullDetailsDialogState = false },
-                onDismiss = { serverFullDetailsDialogState = false }
+    var serverFullDetailsDialogState: Boolean by remember { mutableStateOf(false) }
+    val host = URL(serverLinks.api).host
+    val infoIconId = "info"
+    val text = titleResId?.let { stringResource(it, host) } ?: host
+    val annotatedText = buildAnnotatedString {
+        append(text)
+        append(" ")
+        appendInlineContent(infoIconId, "[info]")
+    }
+    val iconSizeDp = MaterialTheme.wireDimensions.wireIconButtonSize
+    val iconSizeSp = with(LocalDensity.current) {
+        iconSizeDp.toSp()
+    }
+    val inlineContent = mapOf(
+        "info" to InlineTextContent(
+            Placeholder(
+                width = iconSizeSp,
+                height = iconSizeSp,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
+            )
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_info),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(iconSizeDp)
+                    .clickable(Clickable(true, onClick = { serverFullDetailsDialogState = true })),
+                tint = infoIconColor,
             )
         }
+    )
+
+    Text(
+        text = annotatedText,
+        style = style,
+        color = textColor,
+        maxLines = if (titleResId != null) Int.MAX_VALUE else 1,
+        overflow = TextOverflow.Ellipsis,
+        inlineContent = inlineContent,
+        modifier = modifier,
+    )
+
+    if (serverFullDetailsDialogState) {
+        ServerEnrollmentDialogContent(
+            serverLinks = serverLinks,
+            onClick = { serverFullDetailsDialogState = false },
+            onDismiss = { serverFullDetailsDialogState = false }
+        )
     }
 }
 
@@ -141,6 +158,26 @@ private fun ServerEnrollmentDialogContent(
             type = WireDialogButtonType.Primary
         )
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewServerTitle() = WireTheme {
+    Box(modifier = Modifier.background(colorsScheme().surface)) {
+        ServerTitle(serverLinks = ServerConfig.DEFAULT)
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewServerTitleEnterprise() = WireTheme {
+    Box(modifier = Modifier.background(colorsScheme().surface)) {
+        ServerTitle(
+            serverLinks = ServerConfig.DEFAULT,
+            titleResId = R.string.enterprise_login_on_prem_welcome_title,
+            textColor = MaterialTheme.wireColorScheme.onSurface,
+        )
+    }
 }
 
 @PreviewMultipleThemes

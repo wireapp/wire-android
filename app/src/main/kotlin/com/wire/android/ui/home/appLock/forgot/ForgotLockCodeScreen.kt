@@ -49,6 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -59,6 +60,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -72,11 +74,13 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun ForgotLockCodeScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     viewModel: ForgotLockScreenViewModel = hiltViewModel(),
 ) {
     with(viewModel.state) {
         LaunchedEffect(completed) {
-            if (completed) navigator.navigate(NavigationCommand(WelcomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+            val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
+            if (completed) navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         }
         ForgotLockCodeScreenContent(
             scrollState = rememberScrollState(),

@@ -268,7 +268,6 @@ class RecordAudioViewModel @Inject constructor(
             state.originalOutputFile?.toPath()?.deleteIfExists()
             state.effectsOutputFile?.toPath()?.deleteIfExists()
             recordAudioMessagePlayer.stop()
-            recordAudioMessagePlayer.close()
             state = state.copy(
                 buttonState = RecordAudioButtonState.ENABLED,
                 discardDialogState = RecordAudioDialogState.Hidden,
@@ -285,7 +284,6 @@ class RecordAudioViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             recordAudioMessagePlayer.stop()
-            recordAudioMessagePlayer.close()
 
             val outputFile = state.originalOutputFile
             val effectsFile = state.effectsOutputFile

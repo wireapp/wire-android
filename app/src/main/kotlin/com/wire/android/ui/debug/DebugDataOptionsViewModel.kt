@@ -34,10 +34,14 @@ import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.E2EIFailure
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
+import com.wire.kalium.logic.feature.debug.OptimizeDatabaseResult
+import com.wire.kalium.logic.feature.debug.OptimizeDatabaseUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -46,8 +50,6 @@ import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -74,6 +76,7 @@ interface DebugDataOptionsViewModel {
     fun forceUpdateApiVersions() {}
     fun disableEventProcessing(disabled: Boolean) {}
     fun forceSendFCMToken() {}
+    fun optimizeDatabase() {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -92,6 +95,7 @@ class DebugDataOptionsViewModelImpl
     private val dispatcherProvider: DispatcherProvider,
     private val selfServerConfigUseCase: SelfServerConfigUseCase,
     private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
+    private val optimizeDatabaseUseCase: OptimizeDatabaseUseCase
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     override var state by mutableStateOf(
@@ -242,6 +246,17 @@ class DebugDataOptionsViewModelImpl
                         _infoMessage.emit(UIText.DynamicString("Token registered"))
                     }
                 )
+            }
+        }
+    }
+
+    override fun optimizeDatabase() {
+        viewModelScope.launch {
+            when (val result = optimizeDatabaseUseCase()) {
+                is OptimizeDatabaseResult.Failure ->
+                    _infoMessage.emit(UIText.DynamicString("Database optimization failed : ${result.coreFailure}"))
+
+                OptimizeDatabaseResult.Success -> _infoMessage.emit(UIText.DynamicString("Database optimized"))
             }
         }
     }

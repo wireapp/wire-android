@@ -46,6 +46,7 @@ import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.debug.OptimizeDatabaseUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import io.mockk.MockKAnnotations
@@ -242,6 +243,9 @@ internal class DebugDataOptionsHiltArrangement {
     @MockK
     lateinit var sendFCMToken: SendFCMTokenUseCase
 
+    @MockK
+    lateinit var optimizeDatabase: OptimizeDatabaseUseCase
+
     private val viewModel by lazy {
         DebugDataOptionsViewModelImpl(
             context = context,
@@ -256,6 +260,7 @@ internal class DebugDataOptionsHiltArrangement {
             dispatcherProvider = TestDispatcherProvider(),
             selfServerConfigUseCase = selfServerConfigUseCase,
             getDefaultProtocolUseCase = getDefaultProtocolUseCase,
+            optimizeDatabaseUseCase = optimizeDatabase,
         )
     }
 

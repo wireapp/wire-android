@@ -64,4 +64,9 @@ class DebugModule {
     @Provides
     fun provideObserveDatabaseLoggerState(debugScope: DebugScope) =
         debugScope.observeDatabaseLoggerState
+
+    @ViewModelScoped
+    @Provides
+    fun provideOptimizeDatabaseUseCase(debugScope: DebugScope) =
+        debugScope.optimizeDatabase
 }

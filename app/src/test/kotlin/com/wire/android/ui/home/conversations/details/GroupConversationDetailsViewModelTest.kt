@@ -34,7 +34,10 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -62,7 +65,6 @@ import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -630,6 +632,26 @@ class GroupConversationDetailsViewModelTest {
         testUpdatingAllowedFields(isSelfAnAdmin = false, isTeamGroup = false) {
             assertEquals(false, it.isUpdatingReadReceiptAllowed)
         }
+
+    @Test
+    fun `given channel access type, when updateChannelAccess is called, then update the state()`() {
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .arrange()
+
+        viewModel.updateChannelAccess(ChannelAccessType.PRIVATE)
+
+        assertEquals(ChannelAccessType.PRIVATE, viewModel.groupOptionsState.value.channelAccessType)
+    }
+
+    @Test
+    fun `given channelPermission, when updateChannelAccess is called, then update the state()`() {
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .arrange()
+
+        viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
+
+        assertEquals(ChannelAddPermissionType.EVERYONE, viewModel.groupOptionsState.value.channelAddPermissionType)
+    }
 
     @ParameterizedTest
     @EnumSource(IsServiceAllowedTestParams::class)

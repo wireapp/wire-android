@@ -22,5 +22,5 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 data class WelcomeScreenState(
     val links: ServerConfig.Links,
     val isThereActiveSession: Boolean = false,
-    val maxAccountsReached: Boolean = false
+    val maxAccountsReached: Boolean = false,
 )

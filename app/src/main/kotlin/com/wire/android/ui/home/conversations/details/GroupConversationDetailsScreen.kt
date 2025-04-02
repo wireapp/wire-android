@@ -191,7 +191,9 @@ fun GroupConversationDetailsScreen(
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
         },
-        shouldShowAddParticipantsButtonForChannel = { viewModel.groupOptionsState.value.shouldShowAddParticipantsButtonForChannel },
+        shouldShowAddParticipantsButtonForChannel = {
+            viewModel.groupOptionsState.value.shouldShowAddParticipantsButtonForChannel
+        },
         onAddParticipantsPressed = {
             navigator.navigate(
                 NavigationCommand(
@@ -320,6 +322,7 @@ fun GroupConversationDetailsScreen(
     }
 }
 
+@Suppress("CyclomaticComplexMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GroupConversationDetailsContent(

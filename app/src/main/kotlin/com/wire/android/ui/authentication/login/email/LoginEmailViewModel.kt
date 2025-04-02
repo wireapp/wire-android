@@ -215,7 +215,7 @@ class LoginEmailViewModel @Inject constructor(
                 }
             }.let {
                 if (it is PersistSelfUserEmailResult.Failure) {
-                    revertNewSession(storedUserId)
+                    revertNewSession()
                     updateEmailFlowState(LoginState.Error.DialogError.GenericError(it.coreFailure))
                     return@launch
                 }
@@ -228,40 +228,42 @@ class LoginEmailViewModel @Inject constructor(
                 )
             }.let {
                 when (it) {
-                    is RegisterClientResult.Failure -> {
-                        revertNewSession(storedUserId)
-                        updateEmailFlowState(it.toLoginError())
-                        return@launch
-                    }
-
                     is RegisterClientResult.Success -> {
                         updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
                         updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), true))
-                        return@launch
+                    }
+
+                    is RegisterClientResult.Failure.TooManyClients -> {
+                        updateEmailFlowState(LoginState.Error.TooManyDevicesError)
+                    }
+
+                    is RegisterClientResult.Failure -> {
+                        revertNewSession()
+                        updateEmailFlowState(it.toLoginError())
                     }
                 }
             }
         }
     }
 
-    private suspend fun revertNewSession(newSessionUserId: UserId) {
-        // logout to cancel all session-related actions, remove all sensitive data and free up resources
-        coreLogic.getSessionScope(newSessionUserId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
-        // delete the session to make it seem like the session was never logged in
-        coreLogic.getGlobalScope().deleteSession(newSessionUserId)
+    private suspend fun revertNewSession() {
+        loginJobData.value?.newSessionUserId?.let { newSessionUserId ->
+            // logout to cancel all session-related actions, remove all sensitive data and free up resources
+            coreLogic.getSessionScope(newSessionUserId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
+            // delete the session to make it seem like the session was never logged in
+            coreLogic.getGlobalScope().deleteSession(newSessionUserId)
+        }
+        // set the previous session back
+        coreLogic.getGlobalScope().session.updateCurrentSession(loginJobData.value?.previousSessionUserId)
     }
 
     private suspend fun revertLogin() {
-        loginJobData.value?.let { (job, previousSessionUserId) ->
-            job.cancel()
-            loginJobData.value?.newSessionUserId?.let { newSessionUserId ->
-                revertNewSession(newSessionUserId)
-            }
-            // set the previous session back
-            coreLogic.getGlobalScope().session.updateCurrentSession(previousSessionUserId)
+        loginJobData.value?.let {
+            it.job.cancel()
+            revertNewSession()
         }
     }
 

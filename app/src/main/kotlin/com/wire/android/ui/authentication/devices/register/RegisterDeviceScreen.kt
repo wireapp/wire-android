@@ -19,9 +19,12 @@
 package com.wire.android.ui.authentication.devices.register
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -44,6 +47,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.common.button.WireButtonState
@@ -94,16 +98,30 @@ fun RegisterDeviceScreen(
 
         is RegisterDeviceFlowState.TooManyDevices -> navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination))
         else ->
-            RegisterDeviceContent(
-                state = viewModel.state,
-                passwordTextState = viewModel.passwordTextState,
-                clearSessionState = clearSessionViewModel.state,
-                onContinuePressed = viewModel::onContinue,
-                onErrorDismiss = viewModel::onErrorDismiss,
-                onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
-                onCancelLoginClicked = { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) },
-                onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
-            )
+            AnimatedContent(
+                targetState = viewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
+                transitionSpec = {
+                    TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
+                },
+                modifier = Modifier.fillMaxSize()
+            ) { isCodeInputNecessary ->
+                if (isCodeInputNecessary) {
+                    RegisterDeviceVerificationCodeScreen(viewModel)
+                } else {
+                    RegisterDeviceContent(
+                        state = viewModel.state,
+                        passwordTextState = viewModel.passwordTextState,
+                        clearSessionState = clearSessionViewModel.state,
+                        onContinuePressed = viewModel::onContinue,
+                        onErrorDismiss = viewModel::onErrorDismiss,
+                        onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
+                        onCancelLoginClicked = {
+                            clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate))
+                        },
+                        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
+                    )
+                }
+            }
     }
 }
 

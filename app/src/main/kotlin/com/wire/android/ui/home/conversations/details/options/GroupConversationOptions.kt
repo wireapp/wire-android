@@ -60,6 +60,7 @@ import kotlin.time.Duration.Companion.days
 fun GroupConversationOptions(
     lazyListState: LazyListState,
     onEditGuestAccess: () -> Unit,
+    onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     onEditGroupName: () -> Unit
@@ -70,6 +71,7 @@ fun GroupConversationOptions(
         state = state,
         onGuestItemClicked = onEditGuestAccess,
         onSelfDeletingClicked = onEditSelfDeletingMessages,
+        onChannelAccessItemClicked = onChannelAccessItemClicked,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
@@ -88,6 +90,7 @@ fun GroupConversationOptions(
 @Composable
 fun GroupConversationSettings(
     state: GroupConversationOptionsState,
+    onChannelAccessItemClicked: () -> Unit,
     onGuestItemClicked: () -> Unit,
     onSelfDeletingClicked: () -> Unit,
     onServiceSwitchClicked: (Boolean) -> Unit,
@@ -109,8 +112,22 @@ fun GroupConversationSettings(
             )
         }
         if (state.areAccessOptionsAvailable) {
-            item { FolderHeader(name = stringResource(R.string.folder_label_access)) }
-
+            if (!state.isChannel) {
+                item { FolderHeader(name = stringResource(R.string.folder_label_access)) }
+            }
+            if (state.isChannel) {
+                item {
+                    GroupConversationOptionsItem(
+                        title = stringResource(R.string.channel_access_label),
+                        subtitle = stringResource(id = R.string.channel_access_short_description),
+                        arrowType = ArrowType.TITLE_ALIGNED,
+                        arrowLabel = stringResource(state.channelAccessType.label),
+                        arrowLabelColor = colorsScheme().onBackground,
+                        onClick = onChannelAccessItemClicked,
+                        isClickable = true,
+                    )
+                }
+            }
             item {
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.conversation_options_guests_label),
@@ -380,6 +397,7 @@ fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onChannelAccessItemClicked = {},
         onWireCellSwitchClicked = {},
     )
 }
@@ -406,6 +424,7 @@ fun PreviewGuestAdminTeamGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onChannelAccessItemClicked = {},
         onWireCellSwitchClicked = {},
     )
 }
@@ -432,6 +451,7 @@ fun PreviewExternalMemberAdminTeamGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onChannelAccessItemClicked = {},
         onWireCellSwitchClicked = {},
     )
 }
@@ -458,6 +478,7 @@ fun PreviewMemberTeamGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onChannelAccessItemClicked = {},
         onWireCellSwitchClicked = {},
     )
 }
@@ -476,6 +497,7 @@ fun PreviewNormalGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onChannelAccessItemClicked = {},
         onWireCellSwitchClicked = {},
     )
 }
@@ -496,6 +518,7 @@ fun PreviewNormalGroupConversationOptionsWithSelfDelet() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onChannelAccessItemClicked = {},
         onWireCellSwitchClicked = {},
     )
 }

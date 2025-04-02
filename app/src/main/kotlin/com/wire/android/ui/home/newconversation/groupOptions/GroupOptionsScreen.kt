@@ -48,7 +48,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.destinations.ChannelAccessScreenDestination
+import com.wire.android.ui.destinations.ChannelAccessOnCreateScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
@@ -79,7 +79,7 @@ fun GroupOptionScreen(
         accessTypeLabel = newConversationViewModel.newGroupState.channelAccessType.label,
         isChannelsAllowed = newConversationViewModel.newGroupState.isChannel,
         onAccessClicked = {
-            navigator.navigate(NavigationCommand(ChannelAccessScreenDestination))
+            navigator.navigate(NavigationCommand(ChannelAccessOnCreateScreenDestination))
         },
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,

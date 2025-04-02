@@ -391,7 +391,7 @@ class RecordAudioViewModelTest {
             coEvery { getAssetSizeLimit.invoke(false) } returns ASSET_SIZE_LIMIT
             every { audioMediaRecorder.setUp(ASSET_SIZE_LIMIT) } returns Unit
             every { audioMediaRecorder.startRecording() } returns true
-            every { audioMediaRecorder.stop() } returns Unit
+            coEvery { audioMediaRecorder.stop() } returns Unit
             every { audioMediaRecorder.release() } returns Unit
             coEvery { globalDataStore.setRecordAudioEffectsCheckboxEnabled(any()) } returns Unit
             every { audioMediaRecorder.originalOutputPath } returns fakeKaliumFileSystem

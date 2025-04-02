@@ -254,6 +254,7 @@
     <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
     <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
     <string name="content_description_login_email_field">enter your email or username</string>
+    <string name="content_description_enterprise_login_email_field">enter your email or sso code</string>
     <string name="content_description_login_password_field">enter your password</string>
     <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
     <string name="content_description_whats_new_welcome_item">Welcome to Wire\'s New Android App, link to support page</string>
@@ -291,6 +292,8 @@
     <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
     <string name="url_wire_create_team" translatable="false">https://teams.wire.com/register/email</string>
     <string name="url_create_channel_learn_more" translatable="false">https://support.wire.com/hc/articles/25732551379101</string>
+    <string name="url_change_email" translatable="false">https://support.wire.com/hc/articles/203762940</string>
+    <string name="url_delete_personal_account" translatable="false">https://support.wire.com/hc/articles/207555795</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="channels_screen_title">Channels</string>
@@ -363,6 +366,18 @@
     <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
     <string name="migration_cancel_title">Cancel migration</string>
     <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
+    <!-- Enterprise Login -->
+    <string name="enterprise_login_welcome">Enter your email to start!</string>
+    <string name="enterprise_login_password_title">Enter your password to log in</string>
+    <string name="enterprise_login_credentials_title">Enter your credentials to log in</string>
+    <string name="enterprise_login_next">Next</string>
+    <string name="enterprise_login_user_identifier_label">EMAIL OR SSO CODE</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">Enter Email or SSO Code</string>
+    <string name="enterprise_login_error_invalid_user_identifier">Please enter a valid email or SSO code</string>
+    <string name="enterprise_login_create_account_label">Don\'t have a Wire account?</string>
+    <string name="enterprise_login_create_account_text_button">Create account</string>
+    <string name="enterprise_login_on_prem_welcome_title">Welcome to Wire Enterprise for %s!</string>
+    <string name="enterprise_login_verification_code_title">You have mail</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>
@@ -389,6 +404,10 @@
     <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
     <string name="login_error_request_2fa_with_handle_title">Login with email</string>
     <string name="login_error_request_2fa_with_handle_message">You can\'t use your username as two-factor authentication is activated. Please log in with your email instead.</string>
+    <string name="login_error_unauthorized_title">Unauthorized</string>
+    <string name="login_error_unauthorized_message">This account is no longer authorized to log in.</string>
+    <string name="login_error_pending_activation_title">Pending activation</string>
+    <string name="login_error_pending_activation_message">The account you are trying to access is pending activation. Please verify your details.</string>
     <string name="deleted_user_error_title">Deleted account</string>
     <string name="deleted_user_error_message">You were logged out because your account was
         deleted.
@@ -1335,6 +1354,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="create_personal_account_not_supported_dialog_description">You can\'t create a personal account on an on-premises backend with proxy support.</string>
     <string name="create_team_not_supported_dialog_description">You can\'t create a new team on an on-premises backend with proxy support in the app.\nPlease use team management (%1$s) instead on this backend.</string>
     <string name="to_team_management_action">Open Team Management</string>
+    <!-- Claimed Domain dialog -->
+    <string name="claimed_domain_email_already_in_use_dialog_title">Email claimed by an on-premises backend</string>
+    <string name="claimed_domain_email_already_in_use_dialog_description">This email\'s domain belongs to an on-premises backend. Please change your email in the account settings or delete your account. If you are part of a team please contact your team admin.</string>
+    <string name="claimed_domain_change_email_label">How to change your email address</string>
+    <string name="claimed_domain_delete_personal_account">How to delete a personal account</string>
+    <string name="bullet_finger_point">👉</string>
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Update required</string>
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>

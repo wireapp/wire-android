@@ -27,6 +27,8 @@ import com.wire.android.appLogger
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
@@ -38,7 +40,8 @@ import javax.inject.Inject
 class ClearSessionViewModel @Inject constructor(
     private val currentSession: CurrentSessionUseCase,
     private val deleteSession: DeleteSessionUseCase,
-    private val switchAccount: AccountSwitchUseCase
+    private val switchAccount: AccountSwitchUseCase,
+    private val logout: LogoutUseCase,
 ) : ViewModel() {
     var state: ClearSessionState by mutableStateOf(
         ClearSessionState(showCancelLoginDialog = false)
@@ -59,13 +62,16 @@ class ClearSessionViewModel @Inject constructor(
             currentSession().let {
                 when (it) {
                     is CurrentSessionResult.Success -> {
+                        // logout to cancel all session-related actions, remove all sensitive data and free up resources
+                        logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
+                        // delete the session to make it seem like the session was never logged in
                         deleteSession(it.accountInfo.userId)
                     }
                     is CurrentSessionResult.Failure.Generic -> {
-                        appLogger.e("failed to delete session")
+                        appLogger.e("$TAG: failed to get current session")
                     }
                     CurrentSessionResult.Failure.SessionNotFound -> {
-                        appLogger.e("session not found")
+                        appLogger.e("$TAG: session not found")
                     }
                 }
             }
@@ -75,5 +81,9 @@ class ClearSessionViewModel @Inject constructor(
                     .callAction(switchAccountActions)
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "ClearSessionViewModel"
     }
 }

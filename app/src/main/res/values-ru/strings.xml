@@ -478,7 +478,7 @@
     <string name="channel_private_label">Приватный</string>
     <string name="channel_public_label">Публичный</string>
     <string name="channel_access_description">Все члены команды могут присоединяться к публичным каналам. Но только администраторы или участники канала могут добавлять людей в приватный канал.\nПриватный канал не может быть позже изменен на публичный.</string>
-    <string name="channel_permission_description">Выберите, кто может добавлять участников в приватный канал</string>
+    <string name="channel_add_permission_description">Выберите, кто может добавлять участников в приватный канал</string>
     <string name="channel_add_permission_admin_label">Администраторы</string>
     <string name="channel_add_permission_admin_members_label">Администраторы и члены</string>
     <string name="create_regular_group_button_label">Создать группу</string>

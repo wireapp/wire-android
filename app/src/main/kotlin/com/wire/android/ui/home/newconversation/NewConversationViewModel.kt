@@ -40,6 +40,8 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
+import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
@@ -49,6 +51,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -57,6 +60,7 @@ import javax.inject.Inject
 class NewConversationViewModel @Inject constructor(
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val createChannel: CreateChannelUseCase,
+    private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,
     private val getSelfUser: GetSelfUserUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
@@ -74,6 +78,7 @@ class NewConversationViewModel @Inject constructor(
     init {
         setConversationCreationParam()
         observeGroupNameChanges()
+        observeChannelCreationPermission()
     }
     var groupOptionsState: GroupOptionState by mutableStateOf(
         GroupOptionState().let {
@@ -136,6 +141,16 @@ class NewConversationViewModel @Inject constructor(
                 .collectLatest {
                     newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
                 }
+        }
+    }
+
+    private fun observeChannelCreationPermission() {
+        viewModelScope.launch {
+            isUserAllowedToCreateChannels()
+                .collectLatest {
+                val isChannelCreationPossible = it is ChannelCreationPermission.Allowed
+                newGroupState = newGroupState.copy(isChannelCreationPossible = isChannelCreationPossible)
+            }
         }
     }
 

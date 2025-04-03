@@ -42,9 +42,9 @@ fun ChannelAccessOnUpdateScreen(
     fun navigateBack() {
         resultNavigator.setResult(
             UpdateChannelAccessArgs(
-                updateChannelAccessViewModel.getConversationId(),
-                updateChannelAccessViewModel.getAccessType(),
-                updateChannelAccessViewModel.getPermissionType(),
+                updateChannelAccessViewModel.conversationId,
+                updateChannelAccessViewModel.accessType,
+                updateChannelAccessViewModel.permissionType,
             )
         )
         resultNavigator.navigateBack()
@@ -64,8 +64,8 @@ fun ChannelAccessOnUpdateScreen(
         with(updateChannelAccessViewModel) {
             ChannelAccessScreenContent(
                 internalPadding = internalPadding,
-                getAccessType(),
-                getPermissionType(),
+                accessType,
+                permissionType,
                 onAccessChange = ::updateChannelAccess,
                 onPermissionChange = ::updateChannelAddPermission
             )

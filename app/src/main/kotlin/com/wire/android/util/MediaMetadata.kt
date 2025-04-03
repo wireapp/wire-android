@@ -19,7 +19,13 @@ package com.wire.android.util
 
 import android.graphics.BitmapFactory
 import android.graphics.pdf.PdfRenderer
+import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
+import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT
+import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION
+import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH
 import android.os.ParcelFileDescriptor
+import com.wire.android.appLogger
 import com.wire.kalium.logic.data.message.AssetContent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -53,5 +59,27 @@ private fun getPdfMetaData(pdfFile: File): AssetContent.AssetMetadata.Image =
             renderer.openPage(0).use { page ->
                 AssetContent.AssetMetadata.Image(page.width, page.height)
             }
+        }
+    }
+
+@Suppress("TooGenericExceptionCaught", "MagicNumber")
+fun getVideoMetaData(dataPath: String): AssetContent.AssetMetadata.Video? =
+    with(MediaMetadataRetriever()) {
+        try {
+            setDataSource(dataPath)
+            val width = extractMetadata(METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
+            val height = extractMetadata(METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
+            val duration = extractMetadata(METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
+            val rotation = extractMetadata(METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0L
+            if (rotation == 90 || rotation == 270) {
+                AssetContent.AssetMetadata.Video(height, width, duration)
+            } else {
+                AssetContent.AssetMetadata.Video(width, height, duration)
+            }
+        } catch (e: Exception) {
+            appLogger.e("Error while extracting video metadata", e)
+            null
+        } finally {
+            close()
         }
     }

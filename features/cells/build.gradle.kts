@@ -50,7 +50,7 @@ dependencies {
 
 android {
     ksp {
-        arg("compose-destinations.moduleName", "sketch")
+        arg("compose-destinations.moduleName", "cells")
         arg("compose-destinations.mode", "destinations")
     }
 }

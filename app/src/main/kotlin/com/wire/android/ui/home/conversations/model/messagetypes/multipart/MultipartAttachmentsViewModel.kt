@@ -17,10 +17,10 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
@@ -73,7 +73,7 @@ class MultipartAttachmentsViewModel @Inject constructor(
             assetName = attachment.fileName ?: "",
             mimeType = attachment.mimeType
         ) {
-            Log.e("MessageAttachmentsViewModel", "Failed to open: ${attachment.localPath}")
+            appLogger.e("Failed to open: ${attachment.localPath}", tag = "MultipartAttachmentsViewModel")
         }
     }
 
@@ -82,7 +82,7 @@ class MultipartAttachmentsViewModel @Inject constructor(
             url = attachment.contentUrl ?: error("No preview URL"),
             mimeType = attachment.mimeType
         ) {
-            Log.e("MessageAttachmentsViewModel", "Failed to open: ${attachment.previewUrl}")
+            appLogger.e("Failed to open: ${attachment.previewUrl}", tag = "MultipartAttachmentsViewModel")
         }
     }
 

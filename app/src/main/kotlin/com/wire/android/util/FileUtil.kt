@@ -29,9 +29,6 @@ import android.content.Intent
 import android.database.Cursor
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
-import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT
-import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION
-import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -54,7 +51,6 @@ import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.isAudioMimeType
-import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.util.buildFileName
 import com.wire.kalium.logic.util.splitFileExtensionAndCopyCounter
 import kotlinx.coroutines.Dispatchers
@@ -485,28 +481,6 @@ fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
         rawDuration.milliseconds.inWholeMilliseconds
     } else {
         0L
-    }
-
-@Suppress("TooGenericExceptionCaught", "MagicNumber")
-fun getVideoMetaData(dataPath: String): AssetContent.AssetMetadata.Video? =
-    with(MediaMetadataRetriever()) {
-        try {
-            setDataSource(dataPath)
-            val width = extractMetadata(METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
-            val height = extractMetadata(METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
-            val duration = extractMetadata(METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
-            val rotation = extractMetadata(METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0L
-            if (rotation == 90 || rotation == 270) {
-                AssetContent.AssetMetadata.Video(height, width, duration)
-            } else {
-                AssetContent.AssetMetadata.Video(width, height, duration)
-            }
-        } catch (e: Exception) {
-            appLogger.e("Error while extracting video metadata", e)
-            null
-        } finally {
-            close()
-        }
     }
 
 private const val ATTACHMENT_FILENAME = "attachment"

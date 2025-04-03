@@ -325,7 +325,6 @@ fun mockAssetAudioMessage(assetId: String = "asset1", messageId: String = "msg1"
         assetName = "Audio message",
         assetExtension = "WAV",
         assetId = UserAssetId(assetId, "domain"),
-
         audioMessageDurationInMs = 60_000,
         sizeInBytes = 10_000,
     ),

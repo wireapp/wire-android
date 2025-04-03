@@ -18,11 +18,11 @@
 package com.wire.android.ui.home.conversations.attachment
 
 import android.net.Uri
-import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.toUiModel
@@ -109,7 +109,7 @@ class MessageAttachmentsViewModel @Inject constructor(
             assetMetadata = MediaMetadata.getMediaMetadata(bundle.dataPath, bundle.mimeType),
         )
             .onFailure {
-                Log.e("MessageAttachmentsViewModel", "Failed to add attachment: $it")
+                appLogger.e("Failed to add attachment: $it", tag = "MessageAttachmentsViewModel")
             }
     }
 
@@ -121,7 +121,7 @@ class MessageAttachmentsViewModel @Inject constructor(
             }
             .onFailure { error ->
                 removedAttachments.update { it - uiNode.uuid }
-                Log.e("MessageAttachmentsViewModel", "Failed to remove attachment: $error")
+                appLogger.e("Failed to remove attachment: $error", tag = "MessageAttachmentsViewModel")
             }
     }
 
@@ -166,8 +166,7 @@ class MessageAttachmentsViewModel @Inject constructor(
     fun showAttachment(attachment: AttachmentDraftUi) {
         val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(attachment.fileName.fileExtension() ?: "")
         fileManager.openWithExternalApp(attachment.localFilePath.toPath(), attachment.fileName, mimeType) {
-            Log.e("MessageAttachmentsViewModel", "Failed to open: ${attachment.localFilePath}")
-            // TODO: show message to user?
+            appLogger.e("Failed to open: ${attachment.localFilePath}", tag = "MessageAttachmentsViewModel")
         }
     }
 }

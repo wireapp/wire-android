@@ -191,6 +191,9 @@ fun GroupConversationDetailsScreen(
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
         },
+        shouldShowAddParticipantsButtonForChannel = {
+            viewModel.groupOptionsState.value.shouldShowAddParticipantsButtonForChannel
+        },
         onAddParticipantsPressed = {
             navigator.navigate(
                 NavigationCommand(
@@ -252,8 +255,9 @@ fun GroupConversationDetailsScreen(
             navigator.navigate(
                 NavigationCommand(
                     ChannelAccessOnUpdateScreenDestination(
-                        viewModel.groupOptionsState.value.channelAccessType,
-                        viewModel.groupOptionsState.value.channelPermissionType
+                        viewModel.conversationId.toString(),
+                        viewModel.groupOptionsState.value.channelAccessType!!,
+                        viewModel.groupOptionsState.value.channelAddPermissionType!!
                     )
                 )
             )
@@ -312,12 +316,13 @@ fun GroupConversationDetailsScreen(
             NavResult.Canceled -> {}
             is NavResult.Value -> {
                 viewModel.updateChannelAccess(result.value.accessType)
-                viewModel.updateChannelPermission(result.value.permissionType)
+                viewModel.updateChannelAddPermission(result.value.permissionType)
             }
         }
     }
 }
 
+@Suppress("CyclomaticComplexMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GroupConversationDetailsContent(
@@ -325,6 +330,7 @@ private fun GroupConversationDetailsContent(
     bottomSheetEventsHandler: GroupConversationDetailsBottomSheetEventsHandler,
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
+    shouldShowAddParticipantsButtonForChannel: () -> (Boolean),
     onAddParticipantsPressed: () -> Unit,
     onEditGuestAccess: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
@@ -458,7 +464,11 @@ private fun GroupConversationDetailsContent(
                         }
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> {
-                            if (groupParticipantsState.addParticipantsEnabled && !isAbandonedOneOnOneConversation) {
+                            val shouldShowAddParticipantsButton =
+                                (groupParticipantsState.addParticipantsEnabled && !isAbandonedOneOnOneConversation) ||
+                                        shouldShowAddParticipantsButtonForChannel()
+
+                            if (shouldShowAddParticipantsButton) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                                     WirePrimaryButton(
                                         text = stringResource(R.string.conversation_details_group_participants_add),
@@ -679,6 +689,7 @@ fun PreviewGroupConversationDetails() {
                 folder = null,
                 isDeletingConversationLocallyRunning = false
             ),
+            shouldShowAddParticipantsButtonForChannel = { false },
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},
             onProfilePressed = {},

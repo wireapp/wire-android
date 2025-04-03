@@ -19,10 +19,16 @@ package com.wire.android.ui.home.newconversation.channelaccess
 
 import android.os.Parcelable
 import com.wire.android.R
+import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAccess
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 enum class ChannelAccessType(val label: Int) : Parcelable {
     PUBLIC(R.string.channel_public_label),
     PRIVATE(R.string.channel_private_label)
+}
+
+fun ChannelAccess.toUiEnum(): ChannelAccessType = when (this) {
+    ChannelAccess.PUBLIC -> ChannelAccessType.PUBLIC
+    ChannelAccess.PRIVATE -> ChannelAccessType.PRIVATE
 }

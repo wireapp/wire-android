@@ -35,7 +35,7 @@ import com.wire.android.ui.home.conversations.details.participants.model.Convers
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -58,6 +58,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.channel.IsSelfEligibleToAddParticipantsToChannelUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -648,9 +649,9 @@ class GroupConversationDetailsViewModelTest {
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .arrange()
 
-        viewModel.updateChannelPermission(ChannelPermissionType.ADMIN_AND_MEMBERS)
+        viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
 
-        assertEquals(ChannelPermissionType.ADMIN_AND_MEMBERS, viewModel.groupOptionsState.value.channelPermissionType)
+        assertEquals(ChannelAddPermissionType.EVERYONE, viewModel.groupOptionsState.value.channelAddPermissionType)
     }
 
     @ParameterizedTest
@@ -770,6 +771,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
 
     @MockK
+    lateinit var isSelfEligibleToAddParticipantsToChannel: IsSelfEligibleToAddParticipantsToChannelUseCase
+
+    @MockK
     private lateinit var workManager: WorkManager
 
     private val viewModel by lazy {
@@ -788,6 +792,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase,
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
+            isSelfEligibleToAddParticipantsToChannel = isSelfEligibleToAddParticipantsToChannel,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             updateConversationArchivedStatus = updateConversationArchivedStatus,
             getDefaultProtocol = getDefaultProtocolUseCase,

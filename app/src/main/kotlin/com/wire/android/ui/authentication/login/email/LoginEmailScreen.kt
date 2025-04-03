@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
@@ -42,6 +43,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -56,10 +58,10 @@ import com.wire.android.appLogger
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
+import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.textfield.DefaultEmailNext
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WireAutoFillType
@@ -81,7 +83,8 @@ fun LoginEmailScreen(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
-    scrollState: ScrollState = rememberScrollState()
+    scrollState: ScrollState = rememberScrollState(),
+    fillMaxHeight: Boolean = true,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -102,9 +105,9 @@ fun LoginEmailScreen(
             onRemoveDeviceNeeded()
         },
         onLoginButtonClick = loginEmailViewModel::login,
-        onUpdateApp = loginEmailViewModel::updateTheApp,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
-        scope = scope
+        scope = scope,
+        fillMaxHeight = fillMaxHeight,
     )
 
     LaunchedEffect(loginEmailViewModel.loginState.flowState) {
@@ -128,18 +131,21 @@ private fun LoginEmailContent(
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: () -> Unit,
-    onUpdateApp: () -> Unit,
     forgotPasswordUrl: String,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    fillMaxHeight: Boolean = true,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxHeight()
+        modifier = Modifier.let {
+            if (fillMaxHeight) it.fillMaxHeight() else it.wrapContentHeight()
+        }
     ) {
 
         Column(
             modifier = Modifier
-                .weight(weight = 1f, fill = true)
+                .let {
+                    if (fillMaxHeight) it.weight(weight = 1f, fill = true) else it
+                }
                 .verticalScroll(scrollState)
                 .padding(MaterialTheme.wireDimensions.spacing16x)
                 .semantics {
@@ -195,8 +201,7 @@ private fun LoginEmailContent(
         }
 
         Surface(
-            shadowElevation = scrollState.rememberBottomBarElevationState().value,
-            color = MaterialTheme.wireColorScheme.background,
+            color = MaterialTheme.wireColorScheme.surface,
             modifier = Modifier.semantics {
                 testTagsAsResourceId = true
             }
@@ -216,14 +221,14 @@ private fun LoginEmailContent(
     }
 
     if (loginEmailState.flowState is LoginState.Error.DialogError) {
-        LoginErrorDialog(loginEmailState.flowState, onDialogDismiss, onUpdateApp)
+        LoginErrorDialog(loginEmailState.flowState.toLoginDialogErrorData(), onDialogDismiss)
     } else if (loginEmailState.flowState is LoginState.Error.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }
 }
 
 @Composable
-private fun UserIdentifierInput(
+fun UserIdentifierInput(
     userIdentifierState: TextFieldState,
     error: String?,
     isEnabled: Boolean,
@@ -247,7 +252,7 @@ private fun UserIdentifierInput(
 }
 
 @Composable
-private fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
+fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,
@@ -261,14 +266,18 @@ private fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Mo
 }
 
 @Composable
-private fun ForgotPasswordLabel(forgotPasswordUrl: String, modifier: Modifier = Modifier) {
+fun ForgotPasswordLabel(
+    forgotPasswordUrl: String,
+    textColor: Color = colorsScheme().primary,
+    modifier: Modifier = Modifier
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
         Text(
             text = stringResource(R.string.login_forgot_password),
             style = MaterialTheme.wireTypography.body02.copy(
                 textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.primary
+                color = textColor,
             ),
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -290,19 +299,20 @@ private fun openForgotPasswordPage(context: Context, forgotPasswordUrl: String) 
 }
 
 @Composable
-private fun LoginButton(
+fun LoginButton(
     loading: Boolean,
     enabled: Boolean,
+    text: String = stringResource(R.string.label_login),
+    loadingText: String = stringResource(R.string.label_logging_in),
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
-        val text = if (loading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
         WirePrimaryButton(
-            text = text,
+            text = if (loading) loadingText else text,
             onClick = onClick,
-            state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
+            state = if (enabled && !loading) WireButtonState.Default else WireButtonState.Disabled,
             loading = loading,
             interactionSource = interactionSource,
             modifier = Modifier
@@ -327,7 +337,6 @@ fun PreviewLoginEmailScreen() = WireTheme {
         onDialogDismiss = { },
         onRemoveDeviceOpen = { },
         onLoginButtonClick = { },
-        onUpdateApp = {},
         forgotPasswordUrl = "",
         scope = rememberCoroutineScope()
     )

@@ -15,14 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.newconversation.channelaccess
+package com.wire.android.config
 
-import android.os.Parcelable
-import com.wire.android.R
-import kotlinx.parcelize.Parcelize
+import com.wire.android.BuildConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@Parcelize
-enum class ChannelPermissionType(val label: Int) : Parcelable {
-    ADMINS(R.string.channel_permission_admin_label),
-    ADMIN_AND_MEMBERS(R.string.channel_permission_admin_members_label)
-}
+val DefaultServerConfig = ServerConfig.Links(
+    api = BuildConfig.DEFAULT_BACKEND_URL_BASE_API,
+    accounts = BuildConfig.DEFAULT_BACKEND_URL_ACCOUNTS,
+    webSocket = BuildConfig.DEFAULT_BACKEND_URL_BASE_WEBSOCKET,
+    teams = BuildConfig.DEFAULT_BACKEND_URL_TEAM_MANAGEMENT,
+    blackList = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
+    website = BuildConfig.DEFAULT_BACKEND_URL_WEBSITE,
+    title = BuildConfig.DEFAULT_BACKEND_TITLE,
+    isOnPremises = false,
+    apiProxy = null
+)
+
+fun ServerConfig.Links?.orDefault() = this ?: DefaultServerConfig

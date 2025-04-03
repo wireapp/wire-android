@@ -37,7 +37,8 @@ import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -63,6 +64,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.channel.IsSelfEligibleToAddParticipantsToChannelUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -103,6 +105,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
+    private val isSelfEligibleToAddParticipantsToChannel: IsSelfEligibleToAddParticipantsToChannelUseCase,
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
@@ -126,6 +129,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     init {
         observeConversationDetails()
+        checkIfAddParticipantsButtonForChannelShouldBeShown()
+    }
+
+    private fun checkIfAddParticipantsButtonForChannelShouldBeShown() {
+        viewModelScope.launch {
+            if (groupOptionsState.value.isChannel) {
+                val result = isSelfEligibleToAddParticipantsToChannel.invoke(conversationId)
+                updateState(groupOptionsState.value.copy(shouldShowAddParticipantsButtonForChannel = result))
+            }
+        }
     }
 
     private suspend fun groupDetailsFlow(): Flow<ConversationDetails.Group> = observeConversationDetails(conversationId)
@@ -135,6 +148,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         .distinctUntilChanged()
         .flowOn(dispatcher.io())
 
+    @Suppress("LongMethod")
     private fun observeConversationDetails() {
         viewModelScope.launch {
             val groupDetailsFlow = groupDetailsFlow()
@@ -173,6 +187,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     folder = groupDetails.folder,
                     isDeletingConversationLocallyRunning = false
                 )
+                val channelPermissionType = groupDetails.getChannelPermissionType()
+                val channelAccessType = groupDetails.getChannelAccessType()
 
                 updateState(
                     groupOptionsState.value.copy(
@@ -189,11 +205,25 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         mlsEnabled = isMLSEnabled(),
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
                         selfDeletionTimer = selfDeletionTimer,
-                        isChannel = isChannel
+                        isChannel = isChannel,
+                        channelAddPermissionType = channelPermissionType,
+                        channelAccessType = channelAccessType
                     )
                 )
             }.collect {}
         }
+    }
+
+    private fun ConversationDetails.getChannelPermissionType(): ChannelAddPermissionType? = if (this is ConversationDetails.Group.Channel) {
+        this.permission.toUiEnum()
+    } else {
+        null
+    }
+
+    private fun ConversationDetails.getChannelAccessType(): ChannelAccessType? = if (this is ConversationDetails.Group.Channel) {
+        this.access.toUiEnum()
+    } else {
+        null
     }
 
     fun leaveGroup(
@@ -267,8 +297,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
         updateState(groupOptionsState.value.copy(channelAccessType = channelAccessType))
     }
 
-    fun updateChannelPermission(channelPermissionType: ChannelPermissionType) {
-        updateState(groupOptionsState.value.copy(channelPermissionType = channelPermissionType))
+    fun updateChannelAddPermission(channelAddPermissionType: ChannelAddPermissionType) {
+        updateState(groupOptionsState.value.copy(channelAddPermissionType = channelAddPermissionType))
     }
 
     fun onServicesUpdate(enableServices: Boolean) {

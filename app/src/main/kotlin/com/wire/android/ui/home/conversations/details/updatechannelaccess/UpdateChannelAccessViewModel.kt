@@ -17,38 +17,61 @@
  */
 package com.wire.android.ui.home.conversations.details.updatechannelaccess
 
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.toDomainEnum
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.toQualifiedID
+import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
+import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class UpdateChannelAccessViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    val updateChannelAddPermission: UpdateChannelAddPermissionUseCase,
+    private val qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
 
     private val channelAccessNavArgs: UpdateChannelAccessArgs = savedStateHandle.navArgs()
 
-    private val accessType: MutableState<ChannelAccessType> =
-        mutableStateOf(channelAccessNavArgs.accessType)
-    private val permissionType: MutableState<ChannelPermissionType> =
-        mutableStateOf(channelAccessNavArgs.permissionType)
+    var accessType: ChannelAccessType by mutableStateOf(channelAccessNavArgs.accessType)
+        private set
 
-    fun getAccessType(): ChannelAccessType = accessType.value
-    fun getPermissionType(): ChannelPermissionType = permissionType.value
+    var permissionType: ChannelAddPermissionType by mutableStateOf(channelAccessNavArgs.permissionType)
+        private set
 
-    fun updateChannelPermission(newPermission: ChannelPermissionType) {
-        permissionType.value = newPermission
-        // TODO: call use case to update the channel permission
+    val conversationId: String = channelAccessNavArgs.conversationId
+
+    fun updateChannelAddPermission(newPermission: ChannelAddPermissionType) {
+        viewModelScope.launch {
+            val result = updateChannelAddPermission(
+                channelAccessNavArgs.conversationId.toQualifiedID(qualifiedIdMapper),
+                newPermission.toDomainEnum()
+            )
+            when (result) {
+                is UpdateChannelAddPermissionUseCaseResult.Success -> {
+                    permissionType = newPermission
+                }
+
+                is UpdateChannelAddPermissionUseCaseResult.Failure -> {
+                    // TODO handle failure, show dialog or snackbar
+                }
+            }
+        }
     }
 
     fun updateChannelAccess(newAccessType: ChannelAccessType) {
-        accessType.value = newAccessType
+        accessType = newAccessType
         // TODO call use case to update the channel access
     }
 }

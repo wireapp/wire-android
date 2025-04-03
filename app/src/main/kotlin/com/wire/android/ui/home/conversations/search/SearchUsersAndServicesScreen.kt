@@ -193,9 +193,6 @@ fun SearchUsersAndServicesScreen(
             }
         },
         bottomBar = {
-            if (!isProduction()) {
-                appLogger.d("cccc: searchBarState.isSearchActive = ${searchBarState.isSearchActive}, screenType = $screenType")
-            }
             AnimatedVisibility(
                 visible = isGroupSubmitVisible && !(searchBarState.isSearchActive && screenType == SearchPeopleScreenType.NEW_CONVERSATION),
                 enter = fadeIn() + expandVertically(),
@@ -203,7 +200,6 @@ fun SearchUsersAndServicesScreen(
             ) {
                 when (screenType) {
                     SearchPeopleScreenType.NEW_CONVERSATION -> {
-                        appLogger.d("cccc: CreateRegularGroupOrChannelButtons: isGroupSubmitVisible = $isGroupSubmitVisible")
                         CreateRegularGroupOrChannelButtons(
                             isSelfTeamMember = isSelfTeamMember,
                             shouldShowChannelButton = isUserAllowedToCreateChannels,
@@ -213,14 +209,12 @@ fun SearchUsersAndServicesScreen(
                     }
 
                     SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> {
-                        appLogger.d("cccc: NEW_GROUP_CONVERSATION: isGroupSubmitVisible = $isGroupSubmitVisible")
                         ContinueButton(
                             onContinue = onContinue
                         )
                     }
 
                     SearchPeopleScreenType.CONVERSATION_DETAILS -> {
-                        appLogger.d("cccc: CONVERSATION_DETAILS: isGroupSubmitVisible = $isGroupSubmitVisible")
                         if (tabs[pagerState.currentPage] != SearchPeopleTabItem.SERVICES) {
                             ContinueButton(
                                 onContinue = onContinue

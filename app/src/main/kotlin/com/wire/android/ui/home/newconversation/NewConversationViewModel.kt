@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.newconversation
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -57,7 +58,7 @@ class NewConversationViewModel @Inject constructor(
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val createChannel: CreateChannelUseCase,
     private val getSelfUser: GetSelfUserUseCase,
-    getDefaultProtocol: GetDefaultProtocolUseCase
+    private val getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
 
     val newGroupNameTextState: TextFieldState = TextFieldState()
@@ -70,6 +71,10 @@ class NewConversationViewModel @Inject constructor(
         }
     )
 
+    init {
+        setConversationCreationParam()
+        observeGroupNameChanges()
+    }
     var groupOptionsState: GroupOptionState by mutableStateOf(
         GroupOptionState().let {
             val isMLS = newGroupState.groupProtocol == ConversationOptions.Protocol.MLS
@@ -81,9 +86,23 @@ class NewConversationViewModel @Inject constructor(
     )
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState())
 
-    init {
+    fun resetState() {
+        newGroupNameTextState.clearText()
+        newGroupState = GroupMetadataState().let {
+            val defaultProtocol = ConversationOptions
+                .Protocol
+                .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
+            it.copy(groupProtocol = defaultProtocol)
+        }
         setConversationCreationParam()
-        observeGroupNameChanges()
+        groupOptionsState = GroupOptionState().let {
+            val isMLS = newGroupState.groupProtocol == ConversationOptions.Protocol.MLS
+            it.copy(
+                isAllowServicesEnabled = !isMLS,
+                isAllowServicesPossible = !isMLS
+            )
+        }
+        createGroupState = CreateGroupState()
     }
 
     fun setChannelAccess(channelAccessType: ChannelAccessType) {

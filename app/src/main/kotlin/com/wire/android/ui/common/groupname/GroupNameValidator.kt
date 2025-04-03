@@ -27,6 +27,13 @@ object GroupNameValidator {
     fun onGroupNameChange(newText: String, currentGroupState: GroupMetadataState): GroupMetadataState {
         val cleanText = newText.trim()
         return when {
+            cleanText == currentGroupState.originalGroupName -> {
+                currentGroupState.copy(
+                    animatedGroupNameError = false,
+                    continueEnabled = false,
+                    error = GroupMetadataState.NewGroupError.None
+                )
+            }
             cleanText.isEmpty() -> {
                 currentGroupState.copy(
                     animatedGroupNameError = true,
@@ -39,13 +46,6 @@ object GroupNameValidator {
                     animatedGroupNameError = true,
                     continueEnabled = false,
                     error = GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError
-                )
-            }
-            cleanText == currentGroupState.originalGroupName -> {
-                currentGroupState.copy(
-                    animatedGroupNameError = false,
-                    continueEnabled = false,
-                    error = GroupMetadataState.NewGroupError.None
                 )
             }
             else -> {

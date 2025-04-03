@@ -25,10 +25,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -43,23 +40,24 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.ChannelAccessOnCreateScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
+import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.wireColorScheme
@@ -79,10 +77,21 @@ fun GroupOptionScreen(
     GroupOptionScreenContent(
         groupOptionState = newConversationViewModel.groupOptionsState,
         createGroupState = newConversationViewModel.createGroupState,
+        accessTypeLabel = newConversationViewModel.newGroupState.channelAccessType.label,
+        isChannelsAllowed = newConversationViewModel.newGroupState.isChannel,
+        onAccessClicked = {
+            navigator.navigate(NavigationCommand(ChannelAccessOnCreateScreenDestination))
+        },
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
-        onContinuePressed = { newConversationViewModel.createGroup(::navigateToGroup) },
+        onContinuePressed = {
+            if (newConversationViewModel.newGroupState.isChannel) {
+                newConversationViewModel.createChannel(::navigateToGroup)
+            } else {
+                newConversationViewModel.createGroup(::navigateToGroup)
+            }
+        },
         onBackPressed = navigator::navigateBack,
         onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
         onNotAllowGuestsClicked = { newConversationViewModel.onNotAllowGuestClicked(::navigateToGroup) },
@@ -103,6 +112,9 @@ fun GroupOptionScreen(
 fun GroupOptionScreenContent(
     groupOptionState: GroupOptionState,
     createGroupState: CreateGroupState,
+    accessTypeLabel: Int,
+    isChannelsAllowed: Boolean,
+    onAccessClicked: () -> Unit,
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
@@ -117,16 +129,29 @@ fun GroupOptionScreenContent(
 ) {
     with(groupOptionState) {
         WireScaffold(topBar = {
+            val screenTitle = if (isChannelsAllowed) {
+                R.string.new_channel_title
+            } else {
+                R.string.new_group_title
+            }
+            val navigationIconType = if (isChannelsAllowed) {
+                NavigationIconType.Back(R.string.content_description_new_channel_options_back_btn)
+            } else {
+                NavigationIconType.Back(R.string.content_description_new_group_options_back_btn)
+            }
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onBackPressed,
                 elevation = dimensions().spacing0x,
-                title = stringResource(id = R.string.new_group_title),
+                title = stringResource(id = screenTitle),
                 titleContentDescription = stringResource(id = R.string.content_description_new_conversation_options_heading),
-                navigationIconType = NavigationIconType.Back(R.string.content_description_new_conversation_options_back_btn)
+                navigationIconType = navigationIconType
             )
         }) { internalPadding ->
             GroupOptionsScreenMainContent(
+                accessTypeLabel,
+                isChannelsAllowed,
                 internalPadding,
+                onAccessClicked,
                 onAllowGuestChanged,
                 onAllowServicesChanged,
                 onReadReceiptChanged,
@@ -145,7 +170,10 @@ fun GroupOptionScreenContent(
 
 @Composable
 private fun GroupOptionState.GroupOptionsScreenMainContent(
+    accessTypeLabel: Int,
+    isChannel: Boolean,
     internalPadding: PaddingValues,
+    onAccessClicked: () -> Unit,
     onAllowGuestChanged: (Boolean) -> Unit,
     onAllowServicesChanged: (Boolean) -> Unit,
     onReadReceiptChanged: (Boolean) -> Unit,
@@ -158,17 +186,20 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
             .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Column() {
-            AllowGuestsOptions(onAllowGuestChanged)
-            AllowServicesOptions(onAllowServicesChanged)
-            ReadReceiptsOptions(onReadReceiptChanged)
+        Column {
+            if (isChannel) {
+                AccessOptions(accessTypeLabel, onAccessClicked)
+            }
+            AllowGuestsOptions(isChannel, onAllowGuestChanged)
+            AllowServicesOptions(isChannel, onAllowServicesChanged)
+            ReadReceiptsOptions(isChannel, onReadReceiptChanged)
         }
-        ContinueButton(onContinuePressed)
+        CreateGroupButton(isChannel, onContinuePressed)
     }
 }
 
 @Composable
-private fun GroupOptionState.ReadReceiptsOptions(onReadReceiptChanged: (Boolean) -> Unit) {
+private fun GroupOptionState.ReadReceiptsOptions(isChannel: Boolean, onReadReceiptChanged: (Boolean) -> Unit) {
     GroupConversationOptionsItem(
         title = stringResource(R.string.read_receipts),
         switchState = SwitchState.Enabled(value = isReadReceiptEnabled,
@@ -180,9 +211,13 @@ private fun GroupOptionState.ReadReceiptsOptions(onReadReceiptChanged: (Boolean)
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
     )
-
+    val description = if (isChannel) {
+        R.string.read_receipts_channel_description
+    } else {
+        R.string.read_receipts_regular_group_description
+    }
     Text(
-        text = stringResource(R.string.read_receipts_description),
+        text = stringResource(description),
         fontWeight = FontWeight.Normal,
         color = MaterialTheme.wireColorScheme.secondaryText,
         modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
@@ -192,7 +227,7 @@ private fun GroupOptionState.ReadReceiptsOptions(onReadReceiptChanged: (Boolean)
 }
 
 @Composable
-private fun GroupOptionState.AllowServicesOptions(onAllowServicesChanged: (Boolean) -> Unit) {
+private fun GroupOptionState.AllowServicesOptions(isChannel: Boolean, onAllowServicesChanged: (Boolean) -> Unit) {
     if (!isAllowServicesPossible) return
 
     GroupConversationOptionsItem(
@@ -207,8 +242,13 @@ private fun GroupOptionState.AllowServicesOptions(onAllowServicesChanged: (Boole
             .background(MaterialTheme.colorScheme.surface)
     )
 
+    val description = if (isChannel) {
+        R.string.allow_services_channel_description
+    } else {
+        R.string.allow_services_regular_group_description
+    }
     Text(
-        text = stringResource(R.string.allow_services_description),
+        text = stringResource(description),
         fontWeight = FontWeight.Normal,
         color = MaterialTheme.wireColorScheme.secondaryText,
         modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
@@ -218,7 +258,21 @@ private fun GroupOptionState.AllowServicesOptions(onAllowServicesChanged: (Boole
 }
 
 @Composable
-private fun GroupOptionState.AllowGuestsOptions(onAllowGuestChanged: (Boolean) -> Unit) {
+fun AccessOptions(
+    accessTypeLabel: Int,
+    onAccessClicked: () -> Unit
+) {
+    GroupConversationOptionsItem(
+        title = stringResource(R.string.channel_access_label),
+        arrowType = ArrowType.TITLE_ALIGNED,
+        arrowLabel = stringResource(accessTypeLabel),
+        onClick = onAccessClicked,
+        isClickable = true,
+    )
+}
+
+@Composable
+private fun GroupOptionState.AllowGuestsOptions(isChannel: Boolean, onAllowGuestChanged: (Boolean) -> Unit) {
     GroupConversationOptionsItem(
         title = stringResource(R.string.allow_guests),
         switchState = SwitchState.Enabled(value = isAllowGuestEnabled,
@@ -229,26 +283,33 @@ private fun GroupOptionState.AllowGuestsOptions(onAllowGuestChanged: (Boolean) -
         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
     )
 
-    Text(
-        text = stringResource(R.string.allow_guest_switch_description),
-        fontWeight = FontWeight.Normal,
-        color = MaterialTheme.wireColorScheme.secondaryText,
-        modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
-        textAlign = TextAlign.Left,
-        fontSize = 16.sp
-    )
+    if (!isChannel) {
+        Text(
+            text = stringResource(R.string.allow_guest_switch_description),
+            fontWeight = FontWeight.Normal,
+            color = MaterialTheme.wireColorScheme.secondaryText,
+            modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
+            textAlign = TextAlign.Left,
+            fontSize = 16.sp
+        )
+    }
 }
 
 @Composable
-private fun GroupOptionState.ContinueButton(
-    onContinuePressed: () -> Unit
+private fun GroupOptionState.CreateGroupButton(
+    isChannel: Boolean,
+    onCreate: () -> Unit
 ) {
+    val buttonLabel = if (isChannel) {
+        R.string.create_channel_button_label
+    } else {
+        R.string.create_regular_group_button_label
+    }
     WirePrimaryButton(
-        text = stringResource(R.string.label_continue),
-        onClick = onContinuePressed,
+        text = stringResource(buttonLabel),
+        onClick = onCreate,
         fillMaxWidth = true,
         loading = isLoading,
-        trailingIcon = if (isLoading) null else Icons.Filled.ChevronRight.Icon(),
         state = if (continueEnabled && !isLoading) WireButtonState.Default else WireButtonState.Disabled,
         modifier = Modifier
             .fillMaxWidth()
@@ -288,6 +349,8 @@ fun PreviewGroupOptionScreen() {
     GroupOptionScreenContent(
         GroupOptionState(),
         CreateGroupState(),
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        accessTypeLabel = R.string.channel_private_label,
+        isChannelsAllowed = false,
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     )
 }

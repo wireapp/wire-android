@@ -36,10 +36,13 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.authentication.devices.common.ClearSessionState
+import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.common.ClickableText
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -61,9 +64,9 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.functional.Either
 
 @RootNavGraph
 @WireDestination(
@@ -72,12 +75,15 @@ import com.wire.kalium.logic.functional.Either
 @Composable
 fun E2EIEnrollmentScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     viewModel: E2EIEnrollmentViewModel = hiltViewModel(),
+    clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state
 
     E2EIEnrollmentScreenContent(
         state = state,
+        clearSessionState = clearSessionViewModel.state,
         dismissSuccess = {
             navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
             viewModel.finalizeMLSClient()
@@ -94,15 +100,20 @@ fun E2EIEnrollmentScreen(
                 )
             )
         },
-        onBackButtonClicked = viewModel::onBackButtonClicked,
-        onCancelEnrollmentClicked = { viewModel.onCancelEnrollmentClicked(NavigationSwitchAccountActions(navigator::navigate)) },
-        onProceedEnrollmentClicked = viewModel::onProceedEnrollmentClicked
+        onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
+        onCancelEnrollmentClicked = {
+            clearSessionViewModel.onCancelLoginClicked(
+                NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
+            )
+        },
+        onProceedEnrollmentClicked = clearSessionViewModel::onProceedLoginClicked,
     )
 }
 
 @Composable
 private fun E2EIEnrollmentScreenContent(
     state: E2EIEnrollmentState,
+    clearSessionState: ClearSessionState,
     dismissSuccess: () -> Unit,
     dismissErrorDialog: () -> Unit,
     enrollE2EICertificate: () -> Unit,
@@ -119,14 +130,10 @@ private fun E2EIEnrollmentScreenContent(
     val cancelLoginDialogState = rememberVisibilityState<CancelLoginDialogState>()
     CancelLoginDialogContent(
         dialogState = cancelLoginDialogState,
-        onActionButtonClicked = {
-            onCancelEnrollmentClicked()
-        },
-        onProceedButtonClicked = {
-            onProceedEnrollmentClicked()
-        }
+        onActionButtonClicked = onCancelEnrollmentClicked,
+        onProceedButtonClicked = onProceedEnrollmentClicked,
     )
-    if (state.showCancelLoginDialog) {
+    if (clearSessionState.showCancelLoginDialog) {
         cancelLoginDialogState.show(
             cancelLoginDialogState.savedState ?: CancelLoginDialogState
         )
@@ -224,7 +231,9 @@ private fun E2EIEnrollmentScreenContent(
 @Composable
 fun PreviewE2EIEnrollmentScreenContent() {
     WireTheme {
-        E2EIEnrollmentScreenContent(E2EIEnrollmentState(), {}, {}, {}, {}, {}, {}, {}) { }
+        E2EIEnrollmentScreenContent(
+            E2EIEnrollmentState(), ClearSessionState(), {}, {}, {}, {}, {}, {}, {}, {},
+        )
     }
 }
 
@@ -232,7 +241,9 @@ fun PreviewE2EIEnrollmentScreenContent() {
 @Composable
 fun PreviewE2EIEnrollmentScreenContentWithSuccess() {
     WireTheme {
-        E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollSuccess = true), {}, {}, {}, {}, {}, {}, {}) { }
+        E2EIEnrollmentScreenContent(
+            E2EIEnrollmentState(isCertificateEnrollSuccess = true), ClearSessionState(), {}, {}, {}, {}, {}, {}, {}, {},
+        )
     }
 }
 
@@ -240,6 +251,8 @@ fun PreviewE2EIEnrollmentScreenContentWithSuccess() {
 @Composable
 fun PreviewE2EIEnrollmentScreenContentWithError() {
     WireTheme {
-        E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollError = true), {}, {}, {}, {}, {}, {}, {}) { }
+        E2EIEnrollmentScreenContent(
+            E2EIEnrollmentState(isCertificateEnrollError = true), ClearSessionState(), {}, {}, {}, {}, {}, {}, {}, {},
+        )
     }
 }

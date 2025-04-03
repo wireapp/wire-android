@@ -36,13 +36,16 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
 import io.mockk.coVerify
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.fail
 import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.internal.assertFalse
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -116,7 +119,7 @@ class NewConversationViewModelTest {
         viewModel.createGroupState.error.shouldBeNull()
 
         coVerify {
-            arrangement.createGroupConversation(
+            arrangement.createRegularGroup(
                 viewModel.newGroupNameTextState.text.toString(),
                 viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                 ConversationOptions(
@@ -145,7 +148,7 @@ class NewConversationViewModelTest {
             viewModel.createGroupState.error.shouldBeNull()
 
             coVerify {
-                arrangement.createGroupConversation(
+                arrangement.createRegularGroup(
                     viewModel.newGroupNameTextState.text.toString(),
                     viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                     ConversationOptions(
@@ -252,7 +255,7 @@ class NewConversationViewModelTest {
         assertTrue(viewModel.groupOptionsState.showAllowGuestsDialog)
 
         coVerify(exactly = 0) {
-            arrangement.createGroupConversation(any(), any(), any())
+            arrangement.createRegularGroup(any(), any(), any())
         }
     }
 
@@ -287,7 +290,61 @@ class NewConversationViewModelTest {
         assertTrue(viewModel.groupOptionsState.showAllowGuestsDialog)
 
         coVerify(exactly = 0) {
-            arrangement.createGroupConversation(any(), any(), any())
+            arrangement.createRegularGroup(any(), any(), any())
         }
+    }
+
+    @Test
+    fun `given valid data, when createChannel is called, then it creates the channel and invokes onCreated`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withCreateChannelSuccess()
+            .arrange()
+        var isInvoked = false
+
+        // When
+        viewModel.createChannel(onCreated = { isInvoked = true })
+
+        // Then
+        assertEquals(true, isInvoked)
+    }
+
+    @Test
+    fun `given createChannel fails when createChannel is called then it does not invoke onCreated`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withCreateChannelFailure()
+            .arrange()
+        var isInvoked = false
+
+        // When
+        viewModel.createChannel(onCreated = { isInvoked = true })
+
+        // Then
+        assertEquals(false, isInvoked)
+    }
+
+    @Test
+    fun `given user is allowed to create channel, when initializing viewModel, then state should reflect that`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withChannelCreationPermissionReturning(flowOf(ChannelCreationPermission.Allowed(false)))
+            .arrange()
+
+        assertTrue(viewModel.newGroupState.isChannelCreationPossible)
+    }
+
+    @Test
+    fun `given user is NOT allowed to create channel, when initializing viewModel, then state should reflect that`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withChannelCreationPermissionReturning(flowOf(ChannelCreationPermission.Forbidden))
+            .arrange()
+
+        assertFalse(viewModel.newGroupState.isChannelCreationPossible)
     }
 }

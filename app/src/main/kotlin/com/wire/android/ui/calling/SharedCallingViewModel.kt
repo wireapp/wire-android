@@ -60,7 +60,7 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
-import com.wire.kalium.logic.functional.onSuccess
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.PlatformView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -199,7 +199,7 @@ class SharedCallingViewModel @AssistedInject constructor(
                 callStatus = call.status,
                 callerName = call.callerName,
                 isCameraOn = call.isCameraOn,
-                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.ONE_ON_ONE
+                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.OneOnOne
             )
         }
     }
@@ -213,7 +213,7 @@ class SharedCallingViewModel @AssistedInject constructor(
                 isMuted = call.isMuted,
                 callStatus = call.status,
                 isCameraOn = call.isCameraOn,
-                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.ONE_ON_ONE,
+                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.OneOnOne,
                 callerName = call.callerName,
             )
             participantsState = call.participants.map {

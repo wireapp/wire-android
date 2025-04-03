@@ -52,8 +52,6 @@ import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-const val TEAM_MIGRATION_DONE_STEP = 4
-
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
     style = SlideNavigationAnimation::class
@@ -67,9 +65,6 @@ fun TeamMigrationDoneStepScreen(
 
     TeamMigrationDoneStepContent(
         onBackToWireClicked = {
-            teamMigrationViewModel.sendPersonalTeamCreationFlowCompletedEvent(
-                backToWireButtonClicked = true
-            )
             navigator.navigate(
                 NavigationCommand(
                     HomeScreenDestination,
@@ -79,10 +74,6 @@ fun TeamMigrationDoneStepScreen(
         },
         onOpenTeamManagementClicked = {
             val teamManagementUrl = teamMigrationViewModel.teamMigrationState.teamUrl
-
-            teamMigrationViewModel.sendPersonalTeamCreationFlowCompletedEvent(
-                modalOpenTeamManagementButtonClicked = true
-            )
             CustomTabsHelper.launchUrl(context, teamManagementUrl)
         },
         username = teamMigrationViewModel.teamMigrationState.username,
@@ -90,7 +81,7 @@ fun TeamMigrationDoneStepScreen(
     )
 
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.setCurrentStep(TEAM_MIGRATION_DONE_STEP)
+        teamMigrationViewModel.setCurrentStep(TeamMigrationViewModel.TEAM_MIGRATION_DONE_STEP)
     }
 
     BackHandler { }

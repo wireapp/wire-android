@@ -18,38 +18,19 @@
 
 package com.wire.android.ui.authentication.login.email
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.R
 import com.wire.android.ui.authentication.login.LoginState
-import com.wire.android.ui.authentication.verificationcode.VerificationCode
+import com.wire.android.ui.authentication.verificationcode.VerificationCodeScreenContent
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
-import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.util.ui.UIText
 
 @Composable
 fun LoginEmailVerificationCodeScreen(
     viewModel: LoginEmailViewModel = hiltViewModel()
-) = LoginEmailVerificationCodeContent(
+) = VerificationCodeScreenContent(
     viewModel.secondFactorVerificationCodeTextState,
     viewModel.secondFactorVerificationCodeState,
     viewModel.loginState.flowState is LoginState.Loading,
@@ -57,77 +38,10 @@ fun LoginEmailVerificationCodeScreen(
     viewModel::onCodeVerificationBackPress
 )
 
-@Composable
-private fun LoginEmailVerificationCodeContent(
-    verificationCodeTextState: TextFieldState,
-    verificationCodeState: VerificationCodeState,
-    isLoading: Boolean,
-    onCodeResend: () -> Unit,
-    onBackPressed: () -> Unit,
-) {
-    BackHandler { onBackPressed() }
-    WireScaffold(
-        topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = dimensions().spacing0x,
-                title = stringResource(id = R.string.second_factor_authentication_title),
-                navigationIconType = null,
-            )
-        }
-    ) { internalPadding ->
-        MainContent(
-            codeTextState = verificationCodeTextState,
-            codeState = verificationCodeState,
-            isLoading = isLoading,
-            onResendCode = onCodeResend,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(internalPadding)
-                .padding(dimensions().spacing16x)
-        )
-    }
-}
-
-@Composable
-private fun MainContent(
-    codeTextState: TextFieldState,
-    codeState: VerificationCodeState,
-    isLoading: Boolean,
-    onResendCode: () -> Unit,
-    modifier: Modifier = Modifier
-) = Column(
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.Center,
-    modifier = modifier
-) {
-    Text(
-        text = UIText.StringResource(
-            R.string.second_factor_authentication_instructions_label,
-            codeState.emailUsed
-        ).asString(),
-        color = colorsScheme().onBackground,
-        style = typography().body01,
-        textAlign = TextAlign.Start
-    )
-    Spacer(modifier = Modifier
-        .height(dimensions().spacing8x)
-        .weight(1f))
-    VerificationCode(
-        codeLength = codeState.codeLength,
-        codeState = codeTextState,
-        isLoading = isLoading,
-        isCurrentCodeInvalid = codeState.isCurrentCodeInvalid,
-        onResendCode = onResendCode,
-    )
-    Spacer(modifier = Modifier
-        .height(dimensions().spacing8x)
-        .weight(1f))
-}
-
 @PreviewMultipleThemes
 @Composable
 internal fun LoginEmailVerificationCodeScreenPreview() = WireTheme {
-    LoginEmailVerificationCodeContent(
+    VerificationCodeScreenContent(
         verificationCodeTextState = TextFieldState(),
         verificationCodeState = VerificationCodeState(
             codeLength = 6,

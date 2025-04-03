@@ -32,7 +32,7 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
-import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -157,7 +157,8 @@ class ConversationInfoViewModel @Inject constructor(
                     conversationDetails.otherUser.availabilityStatus
                 )
 
-            is ConversationDetails.Group -> ConversationAvatar.Group(conversationDetails.conversation.id)
+            is ConversationDetails.Group.Regular -> ConversationAvatar.Group.Regular(conversationDetails.conversation.id)
+            is ConversationDetails.Group.Channel -> ConversationAvatar.Group.Channel(conversationDetails.conversation.id)
             else -> ConversationAvatar.None
         }
 

@@ -34,7 +34,10 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -55,6 +58,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.channel.IsSelfEligibleToAddParticipantsToChannelUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -62,7 +66,6 @@ import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -631,6 +634,26 @@ class GroupConversationDetailsViewModelTest {
             assertEquals(false, it.isUpdatingReadReceiptAllowed)
         }
 
+    @Test
+    fun `given channel access type, when updateChannelAccess is called, then update the state()`() {
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .arrange()
+
+        viewModel.updateChannelAccess(ChannelAccessType.PRIVATE)
+
+        assertEquals(ChannelAccessType.PRIVATE, viewModel.groupOptionsState.value.channelAccessType)
+    }
+
+    @Test
+    fun `given channelPermission, when updateChannelAccess is called, then update the state()`() {
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .arrange()
+
+        viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
+
+        assertEquals(ChannelAddPermissionType.EVERYONE, viewModel.groupOptionsState.value.channelAddPermissionType)
+    }
+
     @ParameterizedTest
     @EnumSource(IsServiceAllowedTestParams::class)
     fun `isServicesAllowed test`(params: IsServiceAllowedTestParams) = runTest {
@@ -661,11 +684,11 @@ class GroupConversationDetailsViewModelTest {
 
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-        val testGroup = ConversationDetails.Group(
+        val testGroup = ConversationDetails.Group.Regular(
             Conversation(
                 id = dummyConversationId,
                 name = "Conv Name",
-                type = Conversation.Type.ONE_ON_ONE,
+                type = Conversation.Type.OneOnOne,
                 teamId = TeamId("team_id"),
                 protocol = Conversation.ProtocolInfo.Proteus,
                 mutedStatus = MutedConversationStatus.AllAllowed,
@@ -748,6 +771,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
 
     @MockK
+    lateinit var isSelfEligibleToAddParticipantsToChannel: IsSelfEligibleToAddParticipantsToChannelUseCase
+
+    @MockK
     private lateinit var workManager: WorkManager
 
     private val viewModel by lazy {
@@ -766,6 +792,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase,
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
+            isSelfEligibleToAddParticipantsToChannel = isSelfEligibleToAddParticipantsToChannel,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             updateConversationArchivedStatus = updateConversationArchivedStatus,
             getDefaultProtocol = getDefaultProtocolUseCase,

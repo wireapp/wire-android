@@ -184,6 +184,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         ConversationsSource.FAVORITES,
         is ConversationsSource.FOLDER,
         ConversationsSource.GROUPS,
+        ConversationsSource.CHANNELS,
         ConversationsSource.ONE_ON_ONE -> true
 
         ConversationsSource.ARCHIVE -> false
@@ -525,6 +526,7 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
     ConversationsSource.MAIN -> ConversationFilter.All
     ConversationsSource.ARCHIVE -> ConversationFilter.All
     ConversationsSource.GROUPS -> ConversationFilter.Groups
+    ConversationsSource.CHANNELS -> ConversationFilter.Channels
     ConversationsSource.FAVORITES -> ConversationFilter.Favorites
     ConversationsSource.ONE_ON_ONE -> ConversationFilter.OneOnOne
     is ConversationsSource.FOLDER -> ConversationFilter.Folder(folderId = folderId, folderName = folderName)
@@ -558,38 +560,11 @@ private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map
 
         ConversationsSource.FAVORITES,
         ConversationsSource.GROUPS,
+        ConversationsSource.CHANNELS,
         ConversationsSource.ONE_ON_ONE,
         is ConversationsSource.FOLDER,
         ConversationsSource.MAIN -> {
-            val unreadConversations = filter {
-                when (it.mutedStatus) {
-                    MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
-                        BadgeEventType.Blocked -> false
-                        BadgeEventType.Deleted -> false
-                        BadgeEventType.Knock -> true
-                        BadgeEventType.MissedCall -> true
-                        BadgeEventType.None -> false
-                        BadgeEventType.ReceivedConnectionRequest -> true
-                        BadgeEventType.SentConnectRequest -> false
-                        BadgeEventType.UnreadMention -> true
-                        is BadgeEventType.UnreadMessage -> true
-                        BadgeEventType.UnreadReply -> true
-                    }
-
-                    MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
-                        when (it.badgeEventType) {
-                            BadgeEventType.UnreadReply -> true
-                            BadgeEventType.UnreadMention -> true
-                            BadgeEventType.ReceivedConnectionRequest -> true
-                            else -> false
-                        }
-
-                    MutedConversationStatus.AllMuted -> false
-                } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
-            }
-
-            val remainingConversations = this - unreadConversations.toSet()
-
+            val (unreadConversations, remainingConversations) = unreadToReadConversationsItems()
             buildMap {
                 if (unreadConversations.isNotEmpty()) {
                     put(ConversationFolder.Predefined.NewActivities, unreadConversations)
@@ -599,7 +574,53 @@ private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map
                 }
             }
         }
+
+        is ConversationsSource.CHANNELS -> {
+            val (unreadConversations, remainingConversations) = unreadToReadConversationsItems()
+            buildMap {
+                put(ConversationFolder.Predefined.BrowseChannels, emptyList())
+                if (unreadConversations.isNotEmpty()) {
+                    put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+                }
+                if (remainingConversations.isNotEmpty()) {
+                    put(ConversationFolder.Predefined.Conversations, remainingConversations)
+                }
+            }
+        }
     }
+}
+
+@Suppress("CyclomaticComplexMethod")
+private fun List<ConversationItem>.unreadToReadConversationsItems(): Pair<List<ConversationItem>, List<ConversationItem>> {
+    val unreadConversations = filter {
+        when (it.mutedStatus) {
+            MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
+                BadgeEventType.Blocked -> false
+                BadgeEventType.Deleted -> false
+                BadgeEventType.Knock -> true
+                BadgeEventType.MissedCall -> true
+                BadgeEventType.None -> false
+                BadgeEventType.ReceivedConnectionRequest -> true
+                BadgeEventType.SentConnectRequest -> false
+                BadgeEventType.UnreadMention -> true
+                is BadgeEventType.UnreadMessage -> true
+                BadgeEventType.UnreadReply -> true
+            }
+
+            MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
+                when (it.badgeEventType) {
+                    BadgeEventType.UnreadReply -> true
+                    BadgeEventType.UnreadMention -> true
+                    BadgeEventType.ReceivedConnectionRequest -> true
+                    else -> false
+                }
+
+            MutedConversationStatus.AllMuted -> false
+        } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
+    }
+
+    val remainingConversations = this - unreadConversations.toSet()
+    return unreadConversations to remainingConversations
 }
 
 private fun searchConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> =

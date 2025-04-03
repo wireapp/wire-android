@@ -98,8 +98,10 @@
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
     <string name="archive_screen_title">Архівувати</string>
+    <string name="settings_screen_title">Налаштування</string>
     <string name="support_screen_title">Підтримка</string>
     <!--Whats New -->
+    <string name="whats_new_screen_title">Що нового</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Резервні копії</string>
     <!-- Welcome -->
@@ -114,11 +116,23 @@
     <!-- Replies/Quotes to other messages -->
     <!-- Create Account -->
     <!-- Conversations -->
+    <string name="conversation_label_conversations">Розмова</string>
+    <string name="last_key_material_update_label">Останній ключ матеріального оновлення</string>
+    <string name="conversation_details_title">Деталі розмови</string>
+    <string name="conversation_details_options_tab">Опції</string>
+    <string name="conversation_options_guests_label">Гість</string>
+    <string name="conversation_options_services_label">Сервіси</string>
+    <string name="disable_guest_dialog_title">Вимкнути гостьовий доступ?</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
+    <string name="attachment_share_image">Галерея</string>
+    <string name="attachment_take_photo">Камера</string>
+    <string name="attachment_record_video">Відео</string>
+    <string name="attachment_voice_message">Аудіо</string>
+    <string name="attachment_share_location">Локація</string>
     <!-- User Profile -->
     <!-- Remove Conversation Member Dialog -->
     <!-- Logout Wipe Data Dialog -->
@@ -134,13 +148,16 @@
     <!-- Unread Events -->
     <!--Typing Indicator-->
     <!-- Search Messages -->
+    <string name="label_search_button">Пошук</string>
     <!-- Conversation Media -->
+    <string name="label_conversation_media">Медіа</string>
     <!-- Search Contact-->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
     <!-- Animation label -->
     <!-- Notifications -->
+    <string name="label_type_a_message">Напишіть повідомлення</string>
     <!-- Calling-->
     <!-- Connectivity Status Bar -->
     <!-- Connections -->
@@ -157,9 +174,7 @@
     <string name="allow_guests">Дозволити гостям</string>
     <string name="allow_guest_switch_description">Відкрийте цю бесіду людям, які не належать до вашої команди. Ви завжди можете змінити це пізніше.</string>
     <string name="allow_services">Дозволити служби</string>
-    <string name="allow_services_description">Відкрийте цю розмову для служб. Ви завжди можете змінити це пізніше.</string>
     <string name="read_receipts">Прочитати квитанції</string>
-    <string name="read_receipts_description">Коли цей параметр увімкнено, люди бачать, коли читаються їхні повідомлення в цій бесіді.</string>
     <!--block user dialog -->
     <!--Settings -->
     <!--Settings, Appearance -->
@@ -170,19 +185,28 @@
     <!--Devices -->
     <!--unblock user dialog -->
     <!--max account reached dialog-->
+    <string name="label_share_logs">Поширити Логи</string>
+    <string name="label_delete_logs">Видалити Всі логи</string>
+    <string name="label_restart_slowsync_for_recovery">Перезапустити повільну синхронізацію</string>
+    <string name="label_proteus_option_title">Налаштування Proteus</string>
+    <string name="label_code_commit_id">Здійснити хеш</string>
     <!--create and restore backup-->
     <!--    report bug-->
     <!-- Update App dialog -->
+    <string name="update_app_dialog_button">Оновити</string>
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <!-- join conversation dialog -->
+    <string name="join_conversation_dialog_title">Приєднатися до розмови?</string>
     <!-- edit self-deleting messages -->
+    <string name="self_deleting_messages_title">Власне видалення повідомлень</string>
     <!-- visit link -->
     <!-- invalid link -->
     <!-- guest room link -->
     <!-- New Device dialog -->
     <!-- Asset limits error messages -->
     <!-- Expiring messages -->
+    <string name="label_debug_data">Debug дата</string>
     <!-- Record Audio -->
     <!--    biometrics-->
     <!--    e2ei-->
@@ -196,6 +220,8 @@
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Налаштування Debug</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!--    channel not available dialog-->
 </resources>

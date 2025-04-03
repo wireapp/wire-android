@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -59,6 +60,9 @@ class MessageComposerStateHolderTest {
     @MockK
     lateinit var focusRequester: FocusRequester
 
+    @MockK
+    lateinit var focusManager: FocusManager
+
     private lateinit var messageComposerViewState: MutableState<MessageComposerViewState>
     private lateinit var messageComposition: MutableState<MessageComposition>
     private lateinit var messageCompositionInputStateHolder: MessageCompositionInputStateHolder
@@ -78,6 +82,7 @@ class MessageComposerStateHolderTest {
         messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
             messageTextState = messageTextState,
             keyboardController = null,
+            focusManager = focusManager,
             focusRequester = focusRequester
         )
         messageCompositionHolder = mutableStateOf(

@@ -28,7 +28,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
-import com.wire.kalium.logic.CoreLogger
+import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
@@ -89,13 +89,13 @@ class UserDebugViewModel
     fun setLoggingEnabledState(isEnabled: Boolean) {
         viewModelScope.launch {
             globalDataStore.setLoggingEnabled(isEnabled)
-        }
-        if (isEnabled) {
-            logFileWriter.start()
-            CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE)
-        } else {
-            logFileWriter.stop()
-            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
+            if (isEnabled) {
+                logFileWriter.start()
+                CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE)
+            } else {
+                logFileWriter.stop()
+                CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
+            }
         }
     }
 

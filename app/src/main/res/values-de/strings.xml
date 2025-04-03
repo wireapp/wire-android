@@ -183,8 +183,11 @@
     <string name="content_description_new_conversation_close_btn">Ansicht neue Unterhaltung schließen</string>
     <string name="content_description_new_group_conversation_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
     <string name="content_description_new_conversation_name_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
+    <string name="content_description_new_group_name_field">Gruppen-Name eingeben</string>
+    <string name="content_description_new_channel_name_field">Gruppen-Name eingeben</string>
     <string name="content_description_new_conversation_options_heading">Unterhaltungsoptionen</string>
-    <string name="content_description_new_conversation_options_back_btn">Zurück zur neuen Gruppenerstellung</string>
+    <string name="content_description_new_group_options_back_btn">Zurück zur neuen Gruppenerstellung</string>
+    <string name="content_description_new_channel_options_back_btn">Zurück zur neuen Channel-Erstellung</string>
     <string name="content_description_pending_connection_badge">Ausstehende Genehmigung der Kontaktanfrage</string>
     <string name="content_description_self_profile_close">Ihr Profil schließen</string>
     <string name="content_description_self_profile_heading">Ihr Profil</string>
@@ -424,19 +427,30 @@
     <string name="sent_a_message_with_content">hat eine Nachricht mit %s Inhalt gesendet</string>
     <string name="sent_a_message_with_unknown_content">hat eine Nachricht mit unbekanntem Inhalt gesendet</string>
     <string name="new_group_title">Neue Gruppe</string>
+    <string name="new_channel_title">Neuer Channel</string>
+    <string name="channel_access_label">Zugang</string>
+    <string name="channel_private_label">Privat</string>
+    <string name="channel_public_label">Öffentlich</string>
+    <string name="channel_add_permission_description">Wählen Sie, wer Teilnehmer zu einem privaten Channel hinzufügen kann</string>
+    <string name="channel_add_permission_admin_label">Admins</string>
+    <string name="channel_add_permission_admin_members_label">Admins und Mitglieder</string>
+    <string name="create_regular_group_button_label">Gruppe erstellen</string>
+    <string name="create_channel_button_label">Channel erstellen</string>
     <string name="new_group_description">Bis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
     <string name="group_name_title">Gruppenname</string>
+    <string name="channel_name_title">Channel-Name</string>
     <string name="group_name_placeholder">Namen eingeben</string>
     <string name="group_name_description">Geben Sie dieser Gruppe einen aussagekräftigen Namen.</string>
+    <string name="channel_name_description">Geben Sie diesem Channel einen aussagekräftigen Namen.</string>
     <string name="protocol">Protokoll</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher-Suite</string>
     <string name="last_key_material_update_label">Letzte Aktualisierung des Schlüssel-Materials</string>
     <string name="group_state_label">Gruppenstatus</string>
-    <string name="empty_group_name_error">Bitte geben Sie einen Gruppennamen ein</string>
-    <string name="group_name_exceeded_limit_error">Gruppenname darf 64 Zeichen nicht überschreiten
-    
-    </string>
+    <string name="empty_regular_group_name_error">Bitte geben Sie einen Gruppennamen ein</string>
+    <string name="empty_channel_name_error">Bitte geben Sie einen Channel-Namen ein</string>
+    <string name="regular_group_name_exceeded_limit_error">Gruppenname darf 64 Zeichen nicht überschreiten</string>
+    <string name="channel_name_exceeded_limit_error">Channel-Name darf 64 Zeichen nicht überschreiten</string>
     <string name="group_can_not_be_created_title">Gruppe kann nicht erstellt werden</string>
     <string name="group_can_not_be_created_federation_conflict_description">Personen der Backends %1$s und %2$s können nicht derselben Gruppenunterhaltung beitreten.\n\nUm die Gruppe zu erstellen, entfernen Sie die betroffenen Teilnehmer.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Teilnehmerliste bearbeiten</string>
@@ -792,11 +806,9 @@
     <string name="label_selected">Ausgewählt</string>
     <string name="label_contacts">Kontakte</string>
     <string name="label_new_group">Neue Gruppe</string>
-    <string name="label_create_new_group">Neue Gruppe erstellen</string>
-    <plurals name="label_x_participants">
-        <item quantity="one">%1$d Teilnehmer</item>
-        <item quantity="other">%1$d Teilnehmer</item>
-    </plurals>
+    <string name="label_new_channel">Neuer Channel</string>
+    <string name="label_create_new_group">Neue Gruppe</string>
+    <string name="label_create_new_channel">Neuer Channel</string>
     <string name="label_new_conversation">Neue Unterhaltung</string>
     <string name="label_search_people">Personen suchen</string>
     <string name="label_search_people_instruction">Nach Personen anhand ihres Profilnamens oder @Benutzernamens suchen</string>
@@ -877,6 +889,7 @@
     <string name="notification_call_default_caller_name">Jemand</string>
     <string name="notification_call_default_group_name">Eingehender Gruppenanruf</string>
     <string name="notification_audio_message_body">Audionachricht</string>
+    <string name="notification_deleting_conversation">Unterhaltung wird gelöscht…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Konstante Bitrate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -977,7 +990,8 @@
     <string name="allow_guests">Gäste zulassen</string>
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="allow_services">Dienste zulassen</string>
-    <string name="allow_services_description">Öffnen Sie diese Unterhaltung für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="allow_services_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="service_details_label">Dienst</string>
     <string name="service_details_add_service_label">Zur Gruppe hinzufügen</string>
     <string name="service_details_remove_service_label">Aus Gruppe entfernen</string>
@@ -988,7 +1002,8 @@
     <string name="service_no_information_available_title">Keine Informationen verfügbar</string>
     <string name="service_no_information_available_subtitle">Versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin</string>
     <string name="read_receipts">Lesebestätigungen</string>
-    <string name="read_receipts_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
+    <string name="read_receipts_regular_group_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
+    <string name="read_receipts_channel_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten in diesem Channel gelesen werden.</string>
     <string name="disable_guests_dialog_title">Gäste nicht zulassen?</string>
     <string name="disable_guests_dialog_description">Gäste, die Sie im vorherigen Schritt ausgewählt haben, sind nicht Teil der Gruppe, wenn Sie den Gastzugang nicht erlauben.</string>
     <string name="disable_guests_dialog_button">Keine Gäste zulassen</string>
@@ -1012,6 +1027,7 @@
     <string name="settings_keep_connection_to_websocket_description">Verbessern Sie den Empfang von Benachrichtigungen, indem Sie eine ständige Verbindung zu %1$s aufrechterhalten. Es ersetzt die Benachrichtigungsdienste, wenn die Google-Dienste auf Ihrem Gerät nicht verfügbar sind.</string>
     <string name="settings_service_is_running">Dienst wird ausgeführt</string>
     <!--Settings, Appearance -->
+    <string name="settings_customization_label">Anpassung</string>
     <string name="settings_appearance_theme_label">Hintergrund</string>
     <string name="settings_appearance_theme_option_system">Mit Systemeinstellungen synchronisieren</string>
     <string name="settings_appearance_theme_option_default_hint">(Standard)</string>
@@ -1125,6 +1141,9 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="label_mls_client_id">MLS Client-ID</string>
     <string name="conversation_empty_list_description">Verbinden Sie sich mit anderen oder erstellen Sie eine neue Gruppe, um zu kommunizieren!</string>
     <string name="favorites_empty_list_description">Wählen Sie Ihre Lieblingsunterhaltungen aus, und Sie werden sie hier finden 👍</string>
+    <string name="group_empty_list_description">Bislang sind Sie an keiner Gruppenunterhaltung beteiligt.\nBeginnen Sie eine neue Unterhaltung!</string>
+    <string name="one_on_one_empty_list_description">Sie haben noch keine Kontakte.\nSuchen Sie nach Personen auf %1$s und treten Sie in Kontakt.</string>
+    <string name="favorites_empty_list_how_to_label">So kennzeichnen Sie Unterhaltungen als Favoriten</string>
     <string name="folders_empty_list_description">Fügen Sie Ihre Unterhaltungen Ordnern hinzu, um organisiert zu bleiben.</string>
     <string name="folders_empty_list_how_to_add">Hinzufügen einer Unterhaltung zu einem Ordner</string>
     <string name="conversation_empty_list_title">Willkommen 👋</string>
@@ -1137,6 +1156,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="label_textfield_optional_password">Passwort (optional)</string>
     <string name="label_proteus_details">Proteus-Gerätedetails</string>
     <string name="label_mls_signature">MLS mit %1$s Signatur</string>
+    <string name="label_mls_no_signature_type">MLS</string>
     <string name="label_mls_thumbprint">MLS-Daumenabdruck</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Passwort festlegen</string>
@@ -1160,6 +1180,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="backup_dialog_restore_backup_password_message">Dieses Backup ist passwortgeschützt.</string>
     <!--    report bug-->
     <string name="send_feedback_choose_email">\"E-Mail-Anbieter auswählen:\"</string>
+    <string name="send_bug_report_subject">Fehlerbericht</string>
     <string name="backup_dialog_create_backup_save">Datei speichern</string>
     <string name="backup_dialog_create_backup_share">Datei teilen</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Inkompatibles Backup</string>
@@ -1480,6 +1501,9 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <string name="ping_confirm_sending_title_dialog">Ping senden</string>
+    <string name="ping_confirm_sending_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anpingen möchten?</string>
+    <string name="ping_confirm_sending_action_dialog">Ping</string>
     <!-- Call Feedback Dialog -->
     <string name="call_feedback_dialog_message">Wie beurteilen Sie die Gesamtqualität des Anrufs?</string>
     <string name="call_feedback_dialog_skip">Überspringen</string>
@@ -1547,4 +1571,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="new_folder_error_name_empty">Bitte Ordnernamen eingeben.</string>
     <string name="new_folder_error_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
     <string name="new_folder_failure">Ordner “%1$s” konnte nicht hinzugefügt werden</string>
+    <string name="press_enter_to_send_title">Enter zum Senden drücken</string>
+    <string name="customization_options_header_title">Optionen</string>
+    <!--    channel not available dialog-->
+    <string name="channel_not_available_dialog_title">Channels sind für Team-Mitglieder verfügbar.</string>
+    <string name="channel_not_available_dialog_description">Erstellen Sie ein Team und arbeiten Sie kostenlos zusammen!</string>
+    <string name="channel_not_available_dialog_create_team_button">Wire Team erstellen</string>
 </resources>

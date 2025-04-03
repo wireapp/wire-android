@@ -19,6 +19,7 @@
 package com.wire.android.util.debug
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.wire.android.BuildConfig
 
 //As a Beta user I don’t want to press on buttons that don’t have functions yet,
 // because then I will think something is not working in the app.
@@ -57,6 +58,7 @@ object FeatureVisibilityFlags {
     const val SearchConversationMessages = true
     const val DrawingIcon = true
     const val QRCodeEnabled = true
+    val ChannelsEnabled = BuildConfig.PRIVATE_BUILD
 }
 
 val LocalFeatureVisibilityFlags = staticCompositionLocalOf { FeatureVisibilityFlags }

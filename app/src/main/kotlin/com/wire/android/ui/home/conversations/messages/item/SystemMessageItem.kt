@@ -75,7 +75,7 @@ fun SystemMessageItem(
         fullAvatarOuterPadding = dimensions().avatarClickablePadding,
         leading = {
             SystemMessageItemLeading(
-                modifier = Modifier.padding(end = dimensions().avatarClickablePadding),
+                modifier = Modifier.padding(end = dimensions().spacing16x),
                 messageContent = message.messageContent
             )
         },

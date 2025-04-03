@@ -293,7 +293,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--sso dialog-->
     <!--prohibited asset messages -->
     <!--wire dropdown-->
-    <string name="read_receipts_description">Bu açıkken, insanlar bu görüşmedeki mesajlarının ne zaman okunduğunu görebilir.</string>
     <!--block user dialog -->
     <!--Settings -->
     <!--Settings, Appearance -->
@@ -336,4 +335,5 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="debug_settings_screen_title">Hata Ayıklama Günlüğü Ayarları</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!--    channel not available dialog-->
 </resources>

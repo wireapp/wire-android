@@ -23,7 +23,7 @@ import android.database.sqlite.SQLiteDatabase
 import com.wire.android.migration.failure.MigrationFailure.MissingUserDatabase
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.android.migration.util.openDatabaseIfExists
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

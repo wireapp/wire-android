@@ -76,6 +76,7 @@ fun ConversationFilter.toSheetItemLabel(): UIText = when (this) {
     ConversationFilter.Favorites -> UIText.StringResource(R.string.label_filter_favorites)
     ConversationFilter.Groups -> UIText.StringResource(R.string.label_filter_group)
     ConversationFilter.OneOnOne -> UIText.StringResource(R.string.label_filter_one_on_one)
+    ConversationFilter.Channels -> UIText.StringResource(R.string.label_filter_channels)
     is ConversationFilter.Folder -> UIText.DynamicString(this.folderName)
 }
 
@@ -84,5 +85,6 @@ fun ConversationFilter.toTopBarTitle(): UIText = when (this) {
     ConversationFilter.Favorites -> UIText.StringResource(R.string.label_filter_favorites)
     ConversationFilter.Groups -> UIText.StringResource(R.string.label_filter_group)
     ConversationFilter.OneOnOne -> UIText.StringResource(R.string.label_filter_one_on_one)
+    ConversationFilter.Channels -> UIText.StringResource(R.string.label_filter_channels)
     is ConversationFilter.Folder -> UIText.DynamicString(this.folderName)
 }

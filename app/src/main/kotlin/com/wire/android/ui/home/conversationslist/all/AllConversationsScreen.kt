@@ -53,9 +53,10 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
                     is ConversationFilter.Groups -> ConversationsSource.GROUPS
                     is ConversationFilter.OneOnOne -> ConversationsSource.ONE_ON_ONE
                     is ConversationFilter.Folder -> ConversationsSource.FOLDER(filter.folderId, filter.folderName)
+                    is ConversationFilter.Channels -> ConversationsSource.CHANNELS
                 },
                 lazyListState = lazyListStateFor(HomeDestination.Conversations, filter),
-                emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.All) }
+                emptyListContent = { ConversationsEmptyContent(filter = filter, navigator = navigator) }
             )
         }
     }
@@ -68,7 +69,7 @@ fun PreviewAllConversationsEmptyScreen() = WireTheme {
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { ConversationsEmptyContent() },
+        emptyListContent = { ConversationsEmptyContent(navigator = rememberNavigator {}) },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(list = listOf())),
     )
 }
@@ -80,7 +81,7 @@ fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { ConversationsEmptyContent() },
+        emptyListContent = { ConversationsEmptyContent(navigator = rememberNavigator {}) },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(searchQuery = "er", list = listOf())),
     )
 }
@@ -92,7 +93,7 @@ fun PreviewAllConversationsSearchScreen() = WireTheme {
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { ConversationsEmptyContent() },
+        emptyListContent = { ConversationsEmptyContent(navigator = rememberNavigator {}) },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow("er")),
     )
 }

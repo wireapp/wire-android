@@ -23,6 +23,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
+import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.AudioWavesMaskHelper
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
@@ -286,7 +287,7 @@ class RecordAudioViewModelTest {
     fun `given user recorded an audio, when discarding the audio, then file is deleted`() =
         runTest {
             // given
-            val (_, viewModel) = Arrangement()
+            val (arrangement, viewModel) = Arrangement()
                 .withFilterEnabled(false)
                 .arrange()
 
@@ -309,6 +310,9 @@ class RecordAudioViewModelTest {
                     viewModel.state.originalOutputFile
                 )
             }
+
+            verify(exactly = 1) { arrangement.audioFocusHelper.requestExclusive() }
+            verify(exactly = 2) { arrangement.audioFocusHelper.abandonExclusive() } // 1 before start recording, 1 after
         }
 
     @Test
@@ -333,7 +337,7 @@ class RecordAudioViewModelTest {
     fun `given start recording failed, when recording audio, then info message is shown`() =
         runTest {
             // given
-            val (_, viewModel) = Arrangement()
+            val (arrangement, viewModel) = Arrangement()
                 .withStartRecordingFailed()
                 .withFilterEnabled(false)
                 .arrange()
@@ -344,6 +348,8 @@ class RecordAudioViewModelTest {
                 // then
                 assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
                 assertEquals(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText, awaitItem())
+
+                verify(exactly = 1) { arrangement.audioFocusHelper.requestExclusive() }
             }
         }
 
@@ -360,6 +366,7 @@ class RecordAudioViewModelTest {
         val dispatchers = TestDispatcherProvider()
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
         val audioWavesMaskHelper = mockk<AudioWavesMaskHelper>()
+        val audioFocusHelper = mockk<AudioFocusHelper>()
 
         val viewModel by lazy {
             RecordAudioViewModel(
@@ -373,7 +380,8 @@ class RecordAudioViewModelTest {
                 globalDataStore = globalDataStore,
                 dispatchers = dispatchers,
                 audioWavesMaskHelper = audioWavesMaskHelper,
-                kaliumFileSystem = fakeKaliumFileSystem
+                kaliumFileSystem = fakeKaliumFileSystem,
+                audioFocusHelper = audioFocusHelper
             )
         }
 
@@ -383,7 +391,7 @@ class RecordAudioViewModelTest {
             coEvery { getAssetSizeLimit.invoke(false) } returns ASSET_SIZE_LIMIT
             every { audioMediaRecorder.setUp(ASSET_SIZE_LIMIT) } returns Unit
             every { audioMediaRecorder.startRecording() } returns true
-            every { audioMediaRecorder.stop() } returns Unit
+            coEvery { audioMediaRecorder.stop() } returns Unit
             every { audioMediaRecorder.release() } returns Unit
             coEvery { globalDataStore.setRecordAudioEffectsCheckboxEnabled(any()) } returns Unit
             every { audioMediaRecorder.originalOutputPath } returns fakeKaliumFileSystem
@@ -409,6 +417,9 @@ class RecordAudioViewModelTest {
 
             every { audioWavesMaskHelper.getWaveMask(any<File>()) } returns listOf()
             every { audioWavesMaskHelper.getWaveMask(any<Path>()) } returns listOf()
+
+            every { audioFocusHelper.requestExclusive() } returns true
+            every { audioFocusHelper.abandonExclusive() } returns Unit
         }
 
         fun withEstablishedCall() = apply {
@@ -443,7 +454,7 @@ class RecordAudioViewModelTest {
                 isCbrEnabled = false,
                 maxParticipants = 0,
                 conversationName = "ONE_ON_ONE Name",
-                conversationType = Conversation.Type.ONE_ON_ONE,
+                conversationType = Conversation.Type.OneOnOne,
                 callerName = "otherUsername",
                 callerTeamName = "team_1"
             )

@@ -25,11 +25,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryIconButton
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun WireCallControlButton(
@@ -38,11 +41,12 @@ fun WireCallControlButton(
     @StringRes contentDescription: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    isEnabled: Boolean = true,
     width: Dp = dimensions().defaultCallingControlsWidth,
     height: Dp = dimensions().defaultCallingControlsHeight,
     iconSize: Dp = dimensions().defaultCallingControlsIconSize
 ) {
-    WirePrimaryIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = onClick,
         iconResource = iconResId,
         shape = CircleShape,
@@ -53,16 +57,54 @@ fun WireCallControlButton(
                 onSelected = inverseOnSurface,
                 selectedRipple = inverseOnSurface,
                 enabled = secondaryButtonEnabled,
-                enabledOutline = secondaryButtonEnabledOutline,
+                enabledOutline = secondaryButtonDisabledOutline,
                 onEnabled = onSecondaryButtonEnabled,
                 enabledRipple = secondaryButtonRipple,
             )
         },
         contentDescription = contentDescription,
-        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
+        state = when {
+            !isEnabled -> WireButtonState.Disabled
+            isSelected -> WireButtonState.Selected
+            else -> WireButtonState.Default
+        },
         minSize = DpSize(width, height),
         minClickableSize = DpSize(width, height),
         iconSize = iconSize,
         modifier = modifier,
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireCallControlButton() = WireTheme {
+    WireCallControlButton(
+        isSelected = false,
+        iconResId = R.drawable.ic_camera_off,
+        contentDescription = 0,
+        onClick = { }
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireCallControlButtonSelected() = WireTheme {
+    WireCallControlButton(
+        isSelected = true,
+        iconResId = R.drawable.ic_camera_on,
+        contentDescription = 0,
+        onClick = { }
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireCallControlButtonDisabled() = WireTheme {
+    WireCallControlButton(
+        isSelected = false,
+        isEnabled = false,
+        iconResId = R.drawable.ic_camera_on,
+        contentDescription = 0,
+        onClick = { }
     )
 }

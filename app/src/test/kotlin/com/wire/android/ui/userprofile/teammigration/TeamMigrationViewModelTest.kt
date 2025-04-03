@@ -19,9 +19,10 @@ package com.wire.android.ui.userprofile.teammigration
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
@@ -66,112 +67,20 @@ class TeamMigrationViewModelTest {
         }
 
     @Test
-    fun `given close modal event, when sendPersonalToTeamMigrationDismissed is called, then send the event`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .arrange()
-
-            viewModel.sendPersonalToTeamMigrationDismissed()
-
-            verify(exactly = 1) {
-                arrangement.anonymousAnalyticsManager.sendEvent(
-                    AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                        dismissCreateTeamButtonClicked = true
-                    )
-                )
-            }
-        }
-
-    @Test
-    fun `given the step of migration flow, when sendPersonalTeamCreationFlowStartedEvent is called, then send the event`() =
+    fun `given the step of migration flow, when setCurrentStep is called, then update currentStep and send the event`() =
         runTest {
             val step = 2
             val (arrangement, viewModel) = Arrangement()
                 .arrange()
 
-            viewModel.sendPersonalTeamCreationFlowStartedEvent(2)
+            viewModel.setCurrentStep(step)
 
             verify(exactly = 1) {
                 arrangement.anonymousAnalyticsManager.sendEvent(
-                    AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(
-                        step = step
-                    )
+                    AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamName
                 )
             }
-        }
-
-    @Test
-    fun `given modalLeaveClicked event, when sendPersonalTeamCreationFlowCanceledEvent is called, then send the event`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .arrange()
-
-            viewModel.sendPersonalTeamCreationFlowCanceledEvent(modalLeaveClicked = true)
-
-            verify(exactly = 1) {
-                arrangement.anonymousAnalyticsManager.sendEvent(
-                    AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
-                        teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        modalLeaveClicked = true
-                    )
-                )
-            }
-        }
-
-    @Test
-    fun `given modalContinueClicked event, when sendPersonalTeamCreationFlowCanceledEvent is called, then send the event`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .arrange()
-
-            viewModel.sendPersonalTeamCreationFlowCanceledEvent(modalContinueClicked = true)
-
-            verify(exactly = 1) {
-                arrangement.anonymousAnalyticsManager.sendEvent(
-                    AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
-                        teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        modalContinueClicked = true
-                    )
-                )
-            }
-        }
-
-    @Test
-    fun `given modalOpenTeamManagementButtonClicked event, when sendPersonalTeamCreationFlowCompletedEvent is called, then send the event`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .arrange()
-
-            viewModel.sendPersonalTeamCreationFlowCompletedEvent(
-                modalOpenTeamManagementButtonClicked = true
-            )
-
-            verify(exactly = 1) {
-                arrangement.anonymousAnalyticsManager.sendEvent(
-                    AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
-                        teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        modalOpenTeamManagementButtonClicked = true
-                    )
-                )
-            }
-        }
-
-    @Test
-    fun `given backToWireButtonClicked event, when sendPersonalTeamCreationFlowCompletedEvent is called, then send the event`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .arrange()
-
-            viewModel.sendPersonalTeamCreationFlowCompletedEvent(backToWireButtonClicked = true)
-
-            verify(exactly = 1) {
-                arrangement.anonymousAnalyticsManager.sendEvent(
-                    AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
-                        teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        backToWireButtonClicked = true
-                    )
-                )
-            }
+            assertEquals(step, viewModel.teamMigrationState.currentStep)
         }
 
     @Test
@@ -278,16 +187,21 @@ class TeamMigrationViewModelTest {
         @MockK
         lateinit var getTeamUrl: GetTeamUrlUseCase
 
+        @MockK
+        lateinit var dataStore: UserDataStore
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { getSelfUser() } returns flowOf()
             coEvery { getTeamUrl() } returns "TeamUrl"
+            coEvery { dataStore.isCreateTeamNoticeRead() } returns flowOf(false)
         }
 
         fun arrange() = this to TeamMigrationViewModel(
             anonymousAnalyticsManager = anonymousAnalyticsManager,
             migrateFromPersonalToTeam = migrateFromPersonalToTeam,
             observeSelfUser = getSelfUser,
+            dataStore = dataStore,
             getTeamUrl = getTeamUrl
         ).also { viewModel ->
             viewModel.teamMigrationState.teamNameTextState.setTextAndPlaceCursorAtEnd(TEAM_NAME)

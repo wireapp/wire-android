@@ -22,44 +22,60 @@ package com.wire.android.ui.authentication.login.email
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
+import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.AccountTokens
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.LoginUseCase
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.auth.PersistSelfUserEmailResult
+import com.wire.kalium.logic.feature.auth.PersistSelfUserEmailUseCase
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
+import com.wire.kalium.logic.feature.user.UserScope
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -69,94 +85,22 @@ import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldNotBe
 import org.amshove.kluent.shouldNotBeInstanceOf
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
 class LoginEmailViewModelTest {
-
-    @MockK
-    private lateinit var loginUseCase: LoginUseCase
-
-    @MockK
-    private lateinit var addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase
-
-    @MockK
-    private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
-
-    @MockK
-    private lateinit var clientScope: ClientScope
-
-    @MockK
-    private lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
-
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-    @MockK
-    private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
-
-    @MockK
-    private lateinit var coreLogic: CoreLogic
-
-    @MockK
-    private lateinit var requestSecondFactorCodeUseCase: RequestSecondFactorVerificationCodeUseCase
-
-    @MockK
-    private lateinit var authServerConfigProvider: AuthServerConfigProvider
-
-    @MockK
-    private lateinit var userDataStoreProvider: UserDataStoreProvider
-
-    @MockK
-    private lateinit var authenticationScope: AuthenticationScope
-
-    private lateinit var loginViewModel: LoginEmailViewModel
-
-    private val userId: QualifiedID = QualifiedID("userId", "domain")
 
     private val dispatcherProvider = TestDispatcherProvider(StandardTestDispatcher())
 
     private fun runTest(test: suspend TestScope.() -> Unit) = runTest(dispatcherProvider.main(), testBody = test)
 
-    @BeforeEach
-    fun setup() {
-        MockKAnnotations.init(this)
-        mockUri()
-        every { savedStateHandle.get<String>(any()) } returns null
-        every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns userId
-        every { savedStateHandle.set(any(), any<String>()) } returns Unit
-        every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
-        every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { authServerConfigProvider.authServer } returns MutableStateFlow((newServerConfig(1).links))
-        coEvery {
-            autoVersionAuthScopeUseCase(any())
-        } returns AutoVersionAuthScopeUseCase.Result.Success(
-            authenticationScope
-        )
-
-        every { authenticationScope.login } returns loginUseCase
-        every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
-        every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
-        loginViewModel = LoginEmailViewModel(
-            addAuthenticatedUserUseCase,
-            clientScopeProviderFactory,
-            savedStateHandle,
-            authServerConfigProvider,
-            userDataStoreProvider,
-            coreLogic,
-            dispatcherProvider
-        )
-    }
-
     @Test
     fun `given empty strings, when entering credentials, then button is disabled`() {
+        val (arrangement, loginViewModel) = Arrangement().arrange()
         loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
         loginViewModel.loginState.loginEnabled shouldBeEqualTo false
@@ -165,6 +109,7 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given non-empty strings, when entering credentials, then button is enabled`() {
+        val (arrangement, loginViewModel) = Arrangement().arrange()
         loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("abc")
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd("abc")
         loginViewModel.loginState.loginEnabled shouldBeEqualTo true
@@ -173,12 +118,10 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when logging in, then show loading`() = runTest {
-        coEvery {
-            loginUseCase(any(), any(), any(), any(), any())
-        } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
-        coEvery {
-            addAuthenticatedUserUseCase(any(), any(), any(), any())
-        } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination)
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+            .arrange()
 
         loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("abc")
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd("abc")
@@ -194,23 +137,23 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked and initial sync is completed, when login returns Success, then navigate to home screen`() = runTest {
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+            .withInitialSyncCompletedReturning(true)
+            .arrange()
         val password = "abc"
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
-            AUTH_TOKEN,
-            SSO_ID,
-            SERVER_CONFIG.id,
-            null
-        )
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
 
         loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
 
         loginViewModel.login()
         advanceUntilIdle()
-        coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
-        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.loginUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.persistSelfUserEmailUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
             it.initialSyncCompleted shouldBe true
             it.isE2EIRequired shouldBe false
@@ -221,22 +164,22 @@ class LoginEmailViewModelTest {
     fun `given button is clicked and initial sync is not completed, when login returns Success, then navigate to initial sync screen`() =
         runTest {
             val password = "abc"
-            coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
-                AUTH_TOKEN,
-                SSO_ID,
-                SERVER_CONFIG.id,
-                null
-            )
-            coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-            coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-            every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
+            val (arrangement, loginViewModel) = Arrangement()
+                .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+                .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+                .withValidateEmailReturning(true)
+                .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+                .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+                .withInitialSyncCompletedReturning(false)
+                .arrange()
 
             loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
 
             loginViewModel.login()
             advanceUntilIdle()
-            coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
-            coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
+            coVerify(exactly = 1) { arrangement.loginUseCase(any(), any(), any(), any(), any()) }
+            coVerify(exactly = 1) { arrangement.persistSelfUserEmailUseCase(any()) }
+            coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
             loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
                 it.initialSyncCompleted shouldBe false
                 it.isE2EIRequired shouldBe false
@@ -245,9 +188,9 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when login returns InvalidUserIdentifier error, then InvalidUserIdentifierError is passed`() = runTest {
-        coEvery {
-            loginUseCase(any(), any(), any(), any(), any())
-        } returns AuthenticationResult.Failure.InvalidUserIdentifier
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidUserIdentifier)
+            .arrange()
 
         loginViewModel.login()
         advanceUntilIdle()
@@ -256,15 +199,9 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when login returns InvalidCredentials error, then InvalidCredentialsError is passed`() = runTest {
-        coEvery {
-            loginUseCase(
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
-            )
-        } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination)
+            .arrange()
 
         loginViewModel.login()
         advanceUntilIdle()
@@ -274,9 +211,9 @@ class LoginEmailViewModelTest {
     @Test
     fun `given button is clicked, when login returns Generic error, then GenericError is passed`() = runTest {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
-        coEvery {
-            loginUseCase(any(), any(), any(), any(), any())
-        } returns AuthenticationResult.Failure.Generic(networkFailure)
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.Generic(networkFailure))
+            .arrange()
 
         loginViewModel.login()
         advanceUntilIdle()
@@ -288,15 +225,9 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given dialog is dismissed, when login returns DialogError, then hide error`() = runTest {
-        coEvery {
-            loginUseCase(
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
-            )
-        } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination)
+            .arrange()
 
         loginViewModel.login()
         advanceUntilIdle()
@@ -307,20 +238,10 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() = runTest {
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
-            AUTH_TOKEN,
-            SSO_ID,
-            SERVER_CONFIG.id,
-            null
-        )
-        coEvery {
-            addAuthenticatedUserUseCase(
-                any(),
-                any(),
-                any(),
-                any()
-            )
-        } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists)
+            .arrange()
 
         loginViewModel.login()
         advanceUntilIdle()
@@ -331,21 +252,28 @@ class LoginEmailViewModelTest {
     @Test
     fun `given login fails with missing 2fa, when logging in, then should send an email to input`() = runTest {
         val email = "some.email@example.org"
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
-        coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.Missing2FA)
+            .withRequestSecondFactorVerificationCodeReturning(RequestSecondFactorVerificationCodeUseCase.Result.Success)
+            .arrange()
+
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
 
         loginViewModel.login()
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+        coVerify(exactly = 1) {
+            arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
+        }
     }
 
     @Test
     fun `given missing 2fa, when logging in, then email should be enabled and not loading`() = runTest {
         val email = "some.email@example.org"
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
-        coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.Missing2FA)
+            .withRequestSecondFactorVerificationCodeReturning(RequestSecondFactorVerificationCodeUseCase.Result.Success)
+            .arrange()
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("somePassword")
@@ -359,60 +287,71 @@ class LoginEmailViewModelTest {
     @Test
     fun `given login fails with 2fa missing and 2fa request succeeds, when logging in, then should request user input`() = runTest {
         val email = "some.email@example.org"
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
-        coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.Missing2FA)
+            .withRequestSecondFactorVerificationCodeReturning(RequestSecondFactorVerificationCodeUseCase.Result.Success)
+            .arrange()
+
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
 
         loginViewModel.login()
         advanceUntilIdle()
 
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
-        coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+        coVerify(exactly = 1) {
+            arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
+        }
     }
 
     @Test
     fun `given login fails with 2fa missing and 2fa request fails generically, when logging in, then should NOT request user input`() =
         runTest {
             val email = "some.email@example.org"
-            coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
-            coEvery {
-                requestSecondFactorCodeUseCase(
-                    any(),
-                    any()
+            val (arrangement, loginViewModel) = Arrangement()
+                .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.Missing2FA)
+                .withRequestSecondFactorVerificationCodeReturning(
+                    RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic(CoreFailure.Unknown(null))
                 )
-            } returns RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic(
-                CoreFailure.Unknown(null)
-            )
+                .arrange()
+
             loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
 
             loginViewModel.login()
             advanceUntilIdle()
 
             loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
-            coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+            coVerify(exactly = 1) {
+                arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
+            }
         }
 
     @Test
     fun `given 2fa code request fails with too many requests, when logging in, then should request user input`() = runTest {
         val email = "some.email@example.org"
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
-        coEvery {
-            requestSecondFactorCodeUseCase(any(), any())
-        } returns RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.Missing2FA)
+            .withRequestSecondFactorVerificationCodeReturning(RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests)
+            .arrange()
+
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
 
         loginViewModel.login()
         advanceUntilIdle()
 
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
-        coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+        coVerify(exactly = 1) {
+            arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
+        }
     }
 
     @Test
     fun `given login fails with missing 2fa, when logging in, then should state 2FA input is needed`() = runTest {
         val email = "some.email@example.org"
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
-        coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.Missing2FA)
+            .withRequestSecondFactorVerificationCodeReturning(RequestSecondFactorVerificationCodeUseCase.Result.Success)
+            .arrange()
+
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.login()
         advanceUntilIdle()
@@ -421,7 +360,9 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given login fails with invalid 2fa, when logging in, then should mark the current code as invalid`() = runTest {
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Invalid2FA
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.Invalid2FA)
+            .arrange()
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd("some.email@example.org")
 
         loginViewModel.login()
@@ -433,21 +374,22 @@ class LoginEmailViewModelTest {
     fun `given 2fa is needed, when code is filled, then should login with entered code and navigate out of login`() = runTest {
         val email = "some.email@example.org"
         val code = "123456"
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
-            AUTH_TOKEN,
-            SSO_ID,
-            SERVER_CONFIG.id,
-            null
-        )
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+            .withInitialSyncCompletedReturning(true)
+            .arrange()
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
-        coVerify(exactly = 1) { loginUseCase(email, any(), any(), any(), code) }
-        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.loginUseCase(email, any(), any(), any(), code) }
+        coVerify(exactly = 1) {
+            arrangement.getOrRegisterClientUseCase(any())
+        }
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
     }
 
@@ -455,16 +397,16 @@ class LoginEmailViewModelTest {
     fun `given 2fa login succeeds and registration fails, when code is filled, then should no longer require input`() = runTest {
         val email = "some.email@example.org"
         val code = "123456"
-
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
-            AUTH_TOKEN,
-            SSO_ID,
-            SERVER_CONFIG.id,
-            null
-        )
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Failure.TooManyClients
-        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Failure.TooManyClients)
+            .withInitialSyncCompletedReturning(true)
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
@@ -476,38 +418,475 @@ class LoginEmailViewModelTest {
     fun `given 2fa is needed, when code is filled, then should register client without explicit 2fa code`() = runTest {
         val email = "some.email@example.org"
         val code = "123456"
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
-            AUTH_TOKEN,
-            SSO_ID,
-            SERVER_CONFIG.id,
-            null
-        )
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+            .withInitialSyncCompletedReturning(true)
+            .arrange()
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
-        coVerify(exactly = 1) { getOrRegisterClientUseCase(match { it.secondFactorVerificationCode == null }) }
+        coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(match { it.secondFactorVerificationCode == null }) }
     }
 
     @Test
     fun `given 2fa is needed, when user used handle to login, then show correct error message`() = runTest {
         val email = "some.handle"
         val code = "123456"
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.Missing2FA)
+            .arrange()
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
-        coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        coVerify(exactly = 0) { getOrRegisterClientUseCase(any()) }
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.getOrRegisterClientUseCase(any()) }
         assertEquals(LoginState.Error.DialogError.Request2FAWithHandle, loginViewModel.loginState.flowState)
+    }
+
+    @Test
+    fun `given email, when logging in, then persist email`() = runTest {
+        val email = "some.email@example.org"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+            .withInitialSyncCompletedReturning(true)
+            .arrange()
+
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
+        loginViewModel.login()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.persistSelfUserEmailUseCase(eq(email)) }
+    }
+
+    @Test
+    fun `given handle, when logging in, then do not persist email`() = runTest {
+        val handle = "some.handle"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+            .withValidateEmailReturning(false)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+            .withInitialSyncCompletedReturning(true)
+            .arrange()
+
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(handle)
+        loginViewModel.login()
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.persistSelfUserEmailUseCase(any()) }
+    }
+
+    @Test
+    fun `given email and persist email failure, when logging in, then GenericError is passed`() = runTest {
+        val email = "some.email@example.org"
+        val failure = CoreFailure.Unknown(null)
+        val (arrangement, loginViewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Failure(failure))
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
+        loginViewModel.login()
+        advanceUntilIdle()
+
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+            it.coreFailure shouldBe failure
+        }
+    }
+
+    @Test
+    fun `given successful login, when logging in, then update login job data with proper values`() = runTest {
+        val previousUserId = UserId("currentUserId", "domain")
+        val newUserId = UserId("newUserId", "domain")
+        val (arrangement, loginViewModel) = Arrangement()
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN.copy(userId = newUserId), SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+            .withInitialSyncCompletedReturning(true)
+            .arrange()
+
+        loginViewModel.loginJobData.test {
+            // initial value
+            awaitItem() shouldBe null
+            // start the login process
+            loginViewModel.login()
+            advanceUntilIdle()
+            // after starting login, first is previous session user id
+            awaitItem()?.let {
+                it.job shouldNotBe null
+                it.previousSessionUserId shouldBe previousUserId
+                it.newSessionUserId shouldBe null
+            }
+            // then after login success, new session user id is set
+            awaitItem()?.let {
+                it.job shouldNotBe null
+                it.previousSessionUserId shouldBe previousUserId
+                it.newSessionUserId shouldBe newUserId
+            }
+            // after completion, it should be null
+            awaitItem() shouldBe null
+        }
+    }
+
+    @Test
+    fun `given login job data, when canceling login, then cancel login job and set state to Canceled`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        val loginJob: Job = mockk(relaxUnitFun = true)
+        viewModel.loginJobData.value = LoginJobData(job = loginJob)
+        // when
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+        // then
+        viewModel.loginState.flowState shouldBeEqualTo LoginState.Canceled
+        coVerify(exactly = 1) {
+            loginJob.cancel()
+        }
+    }
+
+    @Test
+    fun `given no new session yet, when canceling login, then do not logout and delete session`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        viewModel.loginJobData.value = LoginJobData(job = mockk(relaxUnitFun = true), newSessionUserId = null)
+        // when
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 0) {
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(any())
+        }
+    }
+
+    @Test
+    fun `given new session already set, when canceling login, then do logout and delete session`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        val newUserId = UserId("newUserId", "domain")
+        viewModel.loginJobData.value = LoginJobData(job = mockk(relaxUnitFun = true), newSessionUserId = newUserId)
+        // when
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 1) {
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(newUserId)
+        }
+    }
+
+    @Test
+    fun `given no previous session, when canceling login, then update current session to null`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        val newUserId = UserId("newUserId", "domain")
+        viewModel.loginJobData.value = LoginJobData(job = mockk(relaxUnitFun = true), newSessionUserId = newUserId)
+        // when
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 1) {
+            arrangement.updateCurrentSessionUseCase(null)
+        }
+    }
+
+    @Test
+    fun `given some previous session, when canceling login, then update current session to that session`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        val loginJob: Job = mockk(relaxUnitFun = true)
+        val newUserId = UserId("newUserId", "domain")
+        val previousUserId = UserId("previousUserId", "domain")
+        viewModel.loginJobData.value = LoginJobData(job = loginJob, previousSessionUserId = previousUserId, newSessionUserId = newUserId)
+        // when
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 1) {
+            arrangement.updateCurrentSessionUseCase(previousUserId)
+        }
+    }
+
+    @Test
+    fun `given login job is ongoing, when new login job is started, then cancel previous login job and start a new one`() = runTest {
+        // given
+        val loginJob1: Job = mockk(relaxUnitFun = true) // mocked first login job
+        val previousUserId = UserId("previousUserId", "domain") // current session user id
+        val newUserId1 = UserId("newUserId1", "domain") // new session user id for the first login job
+        val newUserId2 = UserId("newUserId2", "domain") // new session user id for the second login job
+        val authToken2 = AUTH_TOKEN.copy(userId = newUserId2) // auth token for the second login job
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
+            .withLoginReturning(AuthenticationResult.Success(authToken2, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId2))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+            .withInitialSyncCompletedReturning(true)
+            .arrange()
+        // first login job ongoing
+        viewModel.loginJobData.value = LoginJobData(job = loginJob1, previousSessionUserId = previousUserId, newSessionUserId = newUserId1)
+        // when
+        viewModel.login() // start login job again
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 1) { // verify that the first login job has been canceled and reverted
+            loginJob1.cancel()
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(newUserId1)
+            arrangement.updateCurrentSessionUseCase(previousUserId)
+        }
+        coVerify(exactly = 1) { // verify that the second login job has been started
+            arrangement.loginUseCase(any(), any(), any(), any(), any())
+            arrangement.addAuthenticatedUserUseCase(any(), any(), eq(authToken2), any())
+        }
+    }
+
+    @Test
+    fun `given too many clients failure, when registering client, then do not revert new session`() = runTest {
+        // given
+        val previousUserId = UserId("previousUserId", "domain")
+        val newUserId = UserId("newUserId", "domain")
+        val authToken = AUTH_TOKEN.copy(userId = newUserId)
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
+            .withLoginReturning(AuthenticationResult.Success(authToken, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Failure.TooManyClients)
+            .arrange()
+        // when
+        viewModel.login()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 0) {
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(newUserId)
+            arrangement.updateCurrentSessionUseCase(previousUserId)
+        }
+    }
+
+    @Test
+    fun `given other failure than too many clients, when registering client, then revert new session`() = runTest {
+        // given
+        val previousUserId = UserId("previousUserId", "domain")
+        val newUserId = UserId("newUserId", "domain")
+        val authToken = AUTH_TOKEN.copy(userId = newUserId)
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
+            .withLoginReturning(AuthenticationResult.Success(authToken, SSO_ID, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Failure.Generic(CoreFailure.Unknown(null)))
+            .arrange()
+        // when
+        viewModel.login()
+        advanceUntilIdle()
+        // then
+        coVerify(exactly = 1) {
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(newUserId)
+            arrangement.updateCurrentSessionUseCase(previousUserId)
+        }
+    }
+
+    inner class Arrangement {
+
+        @MockK
+        internal lateinit var loginUseCase: LoginUseCase
+
+        @MockK
+        internal lateinit var addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase
+
+        @MockK
+        internal lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
+
+        @MockK
+        internal lateinit var userScope: UserScope
+
+        @MockK
+        internal lateinit var clientScope: ClientScope
+
+        @MockK
+        internal lateinit var validateEmailUseCase: ValidateEmailUseCase
+
+        @MockK
+        internal lateinit var persistSelfUserEmailUseCase: PersistSelfUserEmailUseCase
+
+        @MockK
+        internal lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
+
+        @MockK
+        internal lateinit var savedStateHandle: SavedStateHandle
+
+        @MockK
+        internal lateinit var qualifiedIdMapper: QualifiedIdMapper
+
+        @MockK
+        internal lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
+
+        @MockK
+        internal lateinit var coreLogic: CoreLogic
+
+        @MockK
+        internal lateinit var requestSecondFactorCodeUseCase: RequestSecondFactorVerificationCodeUseCase
+
+        @MockK
+        internal lateinit var userDataStoreProvider: UserDataStoreProvider
+
+        @MockK
+        internal lateinit var authenticationScope: AuthenticationScope
+
+        @MockK
+        internal lateinit var currentSessionUseCase: CurrentSessionUseCase
+
+        @MockK
+        internal lateinit var logoutUseCase: LogoutUseCase
+
+        @MockK
+        internal lateinit var deleteSessionUseCase: DeleteSessionUseCase
+
+        @MockK
+        internal lateinit var updateCurrentSessionUseCase: UpdateCurrentSessionUseCase
+
+        init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+            mockUri()
+            every { savedStateHandle.get<String>(any()) } returns null
+            every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns USER_ID
+            every { savedStateHandle.set(any(), any<String>()) } returns Unit
+            every { coreLogic.getGlobalScope().validateEmailUseCase } returns validateEmailUseCase
+            every { coreLogic.getSessionScope(any()).users } returns userScope
+            every { userScope.persistSelfUserEmail } returns persistSelfUserEmailUseCase
+            every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
+            every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
+            every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
+                loginPasswordPath = LoginPasswordPath(newServerConfig(1).links)
+            )
+            coEvery { autoVersionAuthScopeUseCase(any()) } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+            every { authenticationScope.login } returns loginUseCase
+            every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
+            every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+            every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
+            every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
+            every { coreLogic.getGlobalScope().session.updateCurrentSession } returns updateCurrentSessionUseCase
+            every { coreLogic.getGlobalScope().session.currentSession } returns currentSessionUseCase
+            coEvery { currentSessionUseCase() } returns CurrentSessionResult.Success(AccountInfo.Valid(USER_ID))
+        }
+
+        fun arrange() = this to LoginEmailViewModel(
+            addAuthenticatedUserUseCase,
+            clientScopeProviderFactory,
+            savedStateHandle,
+            userDataStoreProvider,
+            coreLogic,
+            dispatcherProvider
+        ).also { it.autoLoginWhenFullCodeEntered = true }
+
+        fun withLoginReturning(result: AuthenticationResult) = apply {
+            coEvery {
+                loginUseCase(any(), any(), any(), any(), any())
+            } returns result
+        }
+
+        fun withAddAuthenticatedUserReturning(result: AddAuthenticatedUserUseCase.Result) = apply {
+            coEvery {
+                addAuthenticatedUserUseCase(any(), any(), any(), any())
+            } returns result
+        }
+
+        fun withValidateEmailReturning(result: Boolean) = apply {
+            coEvery {
+                validateEmailUseCase(any())
+            } returns result
+        }
+
+        fun withPersistEmailReturning(result: PersistSelfUserEmailResult) = apply {
+            coEvery {
+                persistSelfUserEmailUseCase(any())
+            } returns result
+        }
+
+        fun withGetOrRegisterClientReturning(result: RegisterClientResult) = apply {
+            coEvery {
+                getOrRegisterClientUseCase(any())
+            } returns result
+        }
+
+        fun withRequestSecondFactorVerificationCodeReturning(result: RequestSecondFactorVerificationCodeUseCase.Result) = apply {
+            coEvery {
+                requestSecondFactorCodeUseCase(any(), any())
+            } returns result
+        }
+
+        fun withInitialSyncCompletedReturning(result: Boolean) = apply {
+            every {
+                userDataStoreProvider.getOrCreate(any()).initialSyncCompleted
+            } returns flowOf(result)
+        }
+
+        fun withCurrentSessionReturning(result: CurrentSessionResult) = apply {
+            coEvery {
+                currentSessionUseCase()
+            } returns result
+        }
+
+        fun withDeleteSessionReturning(result: DeleteSessionUseCase.Result) = apply {
+            coEvery {
+                deleteSessionUseCase(any())
+            } returns result
+        }
+
+        fun withUpdateCurrentSessionReturning(result: UpdateCurrentSessionUseCase.Result) = apply {
+            coEvery {
+                updateCurrentSessionUseCase(any())
+            } returns result
+        }
     }
 
     companion object {
         val CLIENT = TestClient.CLIENT
+        val USER_ID: QualifiedID = QualifiedID("userId", "domain")
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
         val AUTH_TOKEN = AccountTokens(
             userId = UserId("user_id", "domain"),

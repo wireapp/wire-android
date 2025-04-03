@@ -20,33 +20,28 @@ package com.wire.android.ui.home.conversations.messages
 
 import androidx.paging.PagingData
 import androidx.paging.map
-import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.GENERIC_ASSET_CONTENT
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
-import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
-import com.wire.android.ui.home.conversations.composer.mockUIAudioMessage
 import com.wire.android.ui.home.conversations.composer.mockUITextMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import io.mockk.coVerify
 import io.mockk.verify
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
@@ -311,27 +306,6 @@ class ConversationMessagesViewModelTest {
         }
 
     @Test
-    fun `given the AudioMessage in list, when getting paging flow, then fetching the waveMask for AudioMessage is called`() = runTest {
-        // Given
-        val firstMessage = mockUITextMessage(id = "firstId")
-        val secondMessage = mockUIAudioMessage(id = "secondId")
-        val pagingData = PagingData.from(listOf(firstMessage, secondMessage))
-
-        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withPaginatedMessagesReturning(pagingData)
-            .arrange()
-
-        val job = launch { viewModel.conversationViewState.messages.asSnapshot() }
-        job.start()
-        advanceUntilIdle()
-
-        coVerify(exactly = 1) { arrangement.conversationAudioMessagePlayer.fetchWavesMask(any(), any()) }
-
-        job.cancel()
-    }
-
-    @Test
     fun `given an message ID, when some Audio is played, then state contains it`() = runTest {
         val message = TestMessage.ASSET_MESSAGE
         val audioState = AudioState.DEFAULT.copy(
@@ -339,20 +313,15 @@ class ConversationMessagesViewModelTest {
             totalTimeInMs = AudioState.TotalTimeInMs.Known(10000),
             currentPositionInMs = 300
         )
-        val playingAudiMessage = PlayingAudioMessage.Some(
+        val playingAudioMessage = PlayingAudioMessage.Some(
             conversationId = message.conversationId,
             messageId = message.id,
             authorName = UIText.DynamicString("some name"),
             state = AudioState.DEFAULT.copy(currentPositionInMs = audioState.currentPositionInMs)
         )
-        val expectedAudioMessagesState = AudioMessagesState(
-            audioStates = persistentMapOf(message.id to audioState),
-            audioSpeed = AudioSpeed.NORMAL,
-            playingAudiMessage = playingAudiMessage
-        )
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
-            .withPlayingAudioMessageFlow(flowOf(playingAudiMessage))
+            .withPlayingAudioMessageFlow(flowOf(playingAudioMessage))
             .withObservableAudioMessagesState(
                 flowOf(
                     mapOf(
@@ -365,7 +334,7 @@ class ConversationMessagesViewModelTest {
 
         advanceUntilIdle()
 
-        assertEquals(expectedAudioMessagesState, viewModel.conversationViewState.audioMessagesState)
+        assertEquals(playingAudioMessage, viewModel.conversationViewState.playingAudioMessage)
     }
 
     @Test
@@ -376,11 +345,6 @@ class ConversationMessagesViewModelTest {
             totalTimeInMs = AudioState.TotalTimeInMs.Known(10000),
             currentPositionInMs = 300
         )
-        val expectedAudioMessagesState = AudioMessagesState(
-            audioStates = persistentMapOf(message.id to audioState),
-            audioSpeed = AudioSpeed.NORMAL,
-            playingAudiMessage = PlayingAudioMessage.None
-        )
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withPlayingAudioMessageFlow(flowOf(PlayingAudioMessage.None))
@@ -389,6 +353,6 @@ class ConversationMessagesViewModelTest {
 
         advanceUntilIdle()
 
-        assertEquals(expectedAudioMessagesState, viewModel.conversationViewState.audioMessagesState)
+        assertEquals(PlayingAudioMessage.None, viewModel.conversationViewState.playingAudioMessage)
     }
 }

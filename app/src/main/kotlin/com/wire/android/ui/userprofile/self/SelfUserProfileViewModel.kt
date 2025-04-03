@@ -39,6 +39,7 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
@@ -61,7 +62,6 @@ import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
-import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -321,14 +321,6 @@ class SelfUserProfileViewModel @Inject constructor(
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.QrCode.Click(
                 isTeam = !userProfileState.teamName.isNullOrBlank()
-            )
-        )
-    }
-
-    fun sendPersonalToTeamMigrationEvent() {
-        anonymousAnalyticsManager.sendEvent(
-            AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
-                createTeamButtonClicked = true
             )
         )
     }

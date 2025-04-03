@@ -1,4 +1,5 @@
 import customization.ConfigurationFileImporter
+import customization.Customization.isCustomizationEnabled
 import customization.NormalizedFlavorSettings
 
 /*
@@ -149,6 +150,7 @@ dependencies {
     // kover
     kover(project(":features:sketch"))
     kover(project(":core:ui-common"))
+    kover(project(":core:analytics-enabled"))
 
     // Application dependencies
     implementation(libs.androidx.appcompat)
@@ -205,7 +207,6 @@ dependencies {
     ksp(libs.compose.destinations.ksp)
 
     // Accompanist
-    implementation(libs.accompanist.systemUI)
     implementation(libs.accompanist.placeholder)
 
     implementation(libs.androidx.paging3)
@@ -242,11 +243,14 @@ dependencies {
 
     // Anonymous Analytics
     val flavors = getFlavorsSettings()
+    val isCustomBuild = isCustomizationEnabled()
     flavors.flavorMap.entries.forEach { (key, configs) ->
-        if (configs["analytics_enabled"] as? Boolean == true) {
-            println(">> Adding Anonymous Analytics dependency to [$key] flavor")
+        if (configs["analytics_enabled"] as? Boolean == true && !isCustomBuild) {
+            println(">> Dependency Anonymous Analytics is enabled for [$key] flavor")
             add("${key}Implementation", project(":core:analytics-enabled"))
+            add("test${key.capitalize()}Implementation", project(":core:analytics-disabled"))
         } else {
+            println(">> Dependency Anonymous Analytics is disabled for [$key] flavor")
             add("${key}Implementation", project(":core:analytics-disabled"))
         }
     }

@@ -22,18 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
-import com.wire.android.feature.AccountSwitchUseCase
-import com.wire.android.feature.SwitchAccountActions
-import com.wire.android.feature.SwitchAccountParam
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -44,56 +37,18 @@ data class E2EIEnrollmentState(
     val isLoading: Boolean = false,
     val isCertificateEnrollError: Boolean = false,
     val isCertificateEnrollSuccess: Boolean = false,
-    val showCancelLoginDialog: Boolean = false,
     val startGettingE2EICertificate: Boolean = false
 )
 
 @HiltViewModel
 class E2EIEnrollmentViewModel @Inject constructor(
     private val finalizeMLSClientAfterE2EIEnrollment: FinalizeMLSClientAfterE2EIEnrollment,
-    private val currentSession: CurrentSessionUseCase,
-    private val deleteSession: DeleteSessionUseCase,
-    private val switchAccount: AccountSwitchUseCase
 ) : ViewModel() {
     var state by mutableStateOf(E2EIEnrollmentState())
 
     fun finalizeMLSClient() {
         viewModelScope.launch {
             finalizeMLSClientAfterE2EIEnrollment.invoke()
-        }
-    }
-
-    fun onBackButtonClicked() {
-        state = state.copy(showCancelLoginDialog = true)
-    }
-
-    fun onProceedEnrollmentClicked() {
-        state = state.copy(showCancelLoginDialog = false)
-    }
-
-    fun onCancelEnrollmentClicked(switchAccountActions: SwitchAccountActions) {
-        state = state.copy(showCancelLoginDialog = false)
-        viewModelScope.launch {
-            currentSession().let {
-                when (it) {
-                    is CurrentSessionResult.Success -> {
-                        deleteSession(it.accountInfo.userId)
-                    }
-
-                    is CurrentSessionResult.Failure.Generic -> {
-                        appLogger.e("failed to delete session")
-                    }
-
-                    CurrentSessionResult.Failure.SessionNotFound -> {
-                        appLogger.e("session not found")
-                    }
-                }
-            }
-        }.invokeOnCompletion {
-            viewModelScope.launch {
-                switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
-                    .callAction(switchAccountActions)
-            }
         }
     }
 

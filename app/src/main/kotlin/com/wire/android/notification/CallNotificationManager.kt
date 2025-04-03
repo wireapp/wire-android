@@ -50,7 +50,6 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -143,12 +142,6 @@ class CallNotificationManager @Inject constructor(
 
     private fun StatusBarNotification.hideIncomingCallNotification() {
         appLogger.i("$TAG: hiding incoming call")
-
-        // This delay is just so when the user receives two calling signals one straight after the other [INCOMING -> CANCEL]
-        // Due to the signals being one after the other we are creating a notification when we are trying to cancel it, it wasn't
-        // properly cancelling vibration as probably when we were cancelling, the vibration object was still being created and started
-        // and thus never stopped.
-        TimeUnit.MILLISECONDS.sleep(CANCEL_CALL_NOTIFICATION_DELAY)
         notificationManager.cancel(tag, id)
     }
 
@@ -167,7 +160,6 @@ class CallNotificationManager @Inject constructor(
 
     companion object {
         private const val TAG = "CallNotificationManager"
-        private const val CANCEL_CALL_NOTIFICATION_DELAY = 300L
 
         @VisibleForTesting
         internal const val DEBOUNCE_TIME = 200L
@@ -278,7 +270,7 @@ class CallNotificationBuilder @Inject constructor(
                 )
             )
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setContentIntent(openOngoingCallPendingIntent(context, conversationIdString))
+            .setContentIntent(openOngoingCallPendingIntent(context, conversationIdString, userIdString))
             .build()
     }
 
@@ -305,7 +297,7 @@ class CallNotificationBuilder @Inject constructor(
     // Notifications content
     private fun getNotificationBody(data: CallNotificationData) =
         when (data.conversationType) {
-            Conversation.Type.GROUP -> {
+            is Conversation.Type.Group -> {
                 val name = data.callerName ?: context.getString(R.string.notification_call_default_caller_name)
                 (data.callerTeamName?.let { "$name @$it" } ?: name)
                     .let { context.getString(R.string.notification_group_call_content, it) }
@@ -316,7 +308,7 @@ class CallNotificationBuilder @Inject constructor(
 
     fun getNotificationTitle(data: CallNotificationData): String =
         when (data.conversationType) {
-            Conversation.Type.GROUP -> data.conversationName ?: context.getString(R.string.notification_call_default_group_name)
+            is Conversation.Type.Group -> data.conversationName ?: context.getString(R.string.notification_call_default_group_name)
             else -> {
                 val name = data.callerName ?: context.getString(R.string.notification_call_default_caller_name)
                 data.callerTeamName?.let { "$name @$it" } ?: name
@@ -329,8 +321,6 @@ class CallNotificationBuilder @Inject constructor(
 }
 
 data class IncomingCallsForUser(val userId: UserId, val userName: String, val incomingCalls: List<Call>)
-
-data class CallNotificationIds(val userIdString: String, val conversationIdString: String)
 
 data class CallNotificationData(
     val userId: QualifiedID,

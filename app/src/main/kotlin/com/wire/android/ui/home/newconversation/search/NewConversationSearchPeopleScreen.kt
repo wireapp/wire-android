@@ -18,6 +18,9 @@
 package com.wire.android.ui.home.newconversation.search
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -30,6 +33,7 @@ import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
+import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @NewConversationNavGraph(start = true)
@@ -41,19 +45,46 @@ fun NewConversationSearchPeopleScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel,
 ) {
+    val isSelfTeamMember = newConversationViewModel.newGroupState.isSelfTeamMember ?: false
+    val showCreateTeamDialog = remember { mutableStateOf(false) }
     SearchUsersAndServicesScreen(
         searchTitle = stringResource(id = R.string.label_new_conversation),
-        actionButtonTitle = stringResource(id = R.string.label_create_new_group),
+        isSelfTeamMember = isSelfTeamMember,
+        isUserAllowedToCreateChannels = newConversationViewModel.newGroupState.isChannelCreationPossible,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         onContactChecked = newConversationViewModel::updateSelectedContacts,
-        onGroupSelectionSubmitAction = { navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination)) },
+        onCreateNewGroup = {
+            newConversationViewModel.setIsChannel(false)
+            navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
+        },
+        onCreateNewChannel = {
+            if (isSelfTeamMember) {
+                newConversationViewModel.setIsChannel(true)
+                navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
+            } else {
+                showCreateTeamDialog.value = true
+            }
+        },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
         onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
     )
+
+    if (showCreateTeamDialog.value) {
+        val context = LocalContext.current
+        val createTeamLink = stringResource(R.string.url_wire_create_team)
+        ChannelNotAvailableDialog(
+            onDismiss = {
+                showCreateTeamDialog.value = false
+            },
+            onCreateTeam = {
+                CustomTabsHelper.launchUrl(context, createTeamLink)
+            }
+        )
+    }
 }

@@ -205,7 +205,7 @@
     <string name="content_description_connection_request_close_btn">Close connection request view</string>
     <string name="content_description_search_text_in_conversation_btn">Search text messages</string>
     <string name="content_description_see_media_in_conversation_btn">Open overview of pictures and files</string>
-    <string name="content_description_add_participants_close">Close add partipants view</string>
+    <string name="content_description_add_participants_close">Close add participants view</string>
     <string name="content_description_add_participants_search_field">Search people by name or username</string>
     <string name="content_description_add_participants_back_btn">Go back to add participants view</string>
     <string name="content_description_home_profile_btn">Your profile</string>
@@ -235,9 +235,11 @@
     <string name="content_description_new_conversation_close_btn">Close new conversation view</string>
     <string name="content_description_new_group_conversation_back_btn">Go back to new conversation view</string>
     <string name="content_description_new_conversation_name_back_btn">Go back to new conversation view</string>
-    <string name="content_description_new_conversation_name_field">Type group name</string>
+    <string name="content_description_new_group_name_field">Type group name</string>
+    <string name="content_description_new_channel_name_field">Type channel name</string>
     <string name="content_description_new_conversation_options_heading">Conversation options</string>
-    <string name="content_description_new_conversation_options_back_btn">Go back to new group creation</string>
+    <string name="content_description_new_group_options_back_btn">Go back to new group creation</string>
+    <string name="content_description_new_channel_options_back_btn">Go back to new channel creation</string>
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
     <string name="content_description_self_profile_close">Close your profile</string>
     <string name="content_description_self_profile_heading">Your profile</string>
@@ -252,6 +254,7 @@
     <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
     <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
     <string name="content_description_login_email_field">enter your email or username</string>
+    <string name="content_description_enterprise_login_email_field">enter your email or sso code</string>
     <string name="content_description_login_password_field">enter your password</string>
     <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
     <string name="content_description_whats_new_welcome_item">Welcome to Wire\'s New Android App, link to support page</string>
@@ -287,8 +290,13 @@
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
     <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
     <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
+    <string name="url_wire_create_team" translatable="false">https://teams.wire.com/register/email</string>
+    <string name="url_create_channel_learn_more" translatable="false">https://support.wire.com/hc/articles/25732551379101</string>
+    <string name="url_change_email" translatable="false">https://support.wire.com/hc/articles/203762940</string>
+    <string name="url_delete_personal_account" translatable="false">https://support.wire.com/hc/articles/207555795</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
+    <string name="channels_screen_title">Channels</string>
     <string name="archive_screen_title">Archive</string>
     <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
     <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
@@ -358,6 +366,18 @@
     <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
     <string name="migration_cancel_title">Cancel migration</string>
     <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
+    <!-- Enterprise Login -->
+    <string name="enterprise_login_welcome">Enter your email to start!</string>
+    <string name="enterprise_login_password_title">Enter your password to log in</string>
+    <string name="enterprise_login_credentials_title">Enter your credentials to log in</string>
+    <string name="enterprise_login_next">Next</string>
+    <string name="enterprise_login_user_identifier_label">EMAIL OR SSO CODE</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">Enter Email or SSO Code</string>
+    <string name="enterprise_login_error_invalid_user_identifier">Please enter a valid email or SSO code</string>
+    <string name="enterprise_login_create_account_label">Don\'t have a Wire account?</string>
+    <string name="enterprise_login_create_account_text_button">Create account</string>
+    <string name="enterprise_login_on_prem_welcome_title">Welcome to Wire Enterprise for %s!</string>
+    <string name="enterprise_login_verification_code_title">You have mail</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>
@@ -384,6 +404,10 @@
     <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
     <string name="login_error_request_2fa_with_handle_title">Login with email</string>
     <string name="login_error_request_2fa_with_handle_message">You can\'t use your username as two-factor authentication is activated. Please log in with your email instead.</string>
+    <string name="login_error_unauthorized_title">Unauthorized</string>
+    <string name="login_error_unauthorized_message">This account is no longer authorized to log in.</string>
+    <string name="login_error_pending_activation_title">Pending activation</string>
+    <string name="login_error_pending_activation_message">The account you are trying to access is pending activation. Please verify your details.</string>
     <string name="deleted_user_error_title">Deleted account</string>
     <string name="deleted_user_error_message">You were logged out because your account was
         deleted.
@@ -506,18 +530,32 @@
     <string name="sent_a_message_with_content">sent a message with %s content</string>
     <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
     <string name="new_group_title">New Group</string>
+    <string name="new_channel_title">New Channel</string>
+    <string name="channel_access_label">Access</string>
+    <string name="channel_private_label">Private</string>
+    <string name="channel_public_label">Public</string>
+    <string name="channel_access_description">All team members can join public channels. But, only channel admins or members can add people to a private channel.\nA private channel can not be changed to public later.</string>
+    <string name="channel_access_short_description">All team members can join public channels. But, only channel admins or members can add people to a private channel.</string>
+    <string name="channel_add_permission_description">Select who can add participants to a private channel</string>
+    <string name="channel_add_permission_admin_label">Admins</string>
+    <string name="channel_add_permission_admin_members_label">Admins and members</string>
+    <string name="create_regular_group_button_label">Create Group</string>
+    <string name="create_channel_button_label">Create Channel</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name_title">Group Name</string>
+    <string name="channel_name_title">Channel Name</string>
     <string name="group_name_placeholder">Enter a name</string>
     <string name="group_name_description">Give this group a meaningful name.</string>
+    <string name="channel_name_description">Give this channel a meaningful name.</string>
     <string name="protocol">Protocol</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
     <string name="last_key_material_update_label">Last Key Material Update</string>
     <string name="group_state_label">Group State</string>
-    <string name="empty_group_name_error">Please enter a group name</string>
-    <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
-    </string>
+    <string name="empty_regular_group_name_error">Please enter a group name</string>
+    <string name="empty_channel_name_error">Please enter a channel name</string>
+    <string name="regular_group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
+    <string name="channel_name_exceeded_limit_error">Channel name should not exceed 64 characters</string>
     <string name="group_can_not_be_created_title">Group can\'t be created</string>
     <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can\'t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Edit Participants List</string>
@@ -683,6 +721,7 @@
     <string name="label_filter_folders">Folders</string>
     <string name="label_filter_group">Groups</string>
     <string name="label_filter_one_on_one">1:1 Conversations</string>
+    <string name="label_filter_channels">Channels</string>
     <string name="label_folders">Folders</string>
 
     <!-- Muting options BottomSheet -->
@@ -749,7 +788,7 @@
     </plurals>
     <string name="label_system_message_user_not_available">This user is no longer available</string>
     <string name="label_system_message_unsupported_protocol">The conversation is using an encryption protocol that is
-        not supported by this device. Some devices from the involve users might need updating.
+        not supported by this device. Some devices from the involved users might need updating.
     </string>
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
@@ -882,11 +921,20 @@
     <string name="label_selected">Selected</string>
     <string name="label_contacts">Contacts</string>
     <string name="label_new_group">New Group</string>
-    <string name="label_create_new_group">Create New Group</string>
+    <string name="label_new_channel">New Channel</string>
+    <string name="label_create_new_group">New Group</string>
+    <string name="label_create_new_channel">New Channel</string>
     <plurals name="label_x_participants">
         <item quantity="one">%1$d Participant</item>
         <item quantity="other">%1$d Participants</item>
     </plurals>
+    <!-- Search Channels -->
+    <string name="label_search_channels">Search channels</string>
+    <string name="label_public_channels">Public channels</string>
+    <string name="label_search_public_channels">Search public channels</string>
+    <string name="label_browse_public_channels">Browse public channels</string>
+    <string name="label_search_channels_empty_title">No public channels have been created for this team yet.</string>
+    <string name="label_learn_more_about_channels">Learn more about channels</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
     <string name="label_public_wire">Public Wire</string>
@@ -1076,7 +1124,8 @@
     <string name="allow_guests">Allow guests</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
     <string name="allow_services">Allow services</string>
-    <string name="allow_services_description">Open this conversation to services. You can always change it later.</string>
+    <string name="allow_services_regular_group_description">Open this conversation to services. You can always change it later.</string>
+    <string name="allow_services_channel_description">Open this conversation to people outside your team or services. You can always change it later.</string>
     <string name="service_details_label">Service</string>
     <string name="service_details_add_service_label">Add To Group</string>
     <string name="service_details_remove_service_label">Remove From Group</string>
@@ -1087,7 +1136,8 @@
     <string name="service_no_information_available_title">No information available</string>
     <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Read receipts</string>
-    <string name="read_receipts_description">When this is on, people can see when their messages in this conversation are read.</string>
+    <string name="read_receipts_regular_group_description">When this is on, people can see when their messages in this conversation are read.</string>
+    <string name="read_receipts_channel_description">When this is on, people can see when their messages in this channel are read.</string>
     <string name="disable_guests_dialog_title">Not Allow Guests?</string>
     <string name="disable_guests_dialog_description">Guests you selected in the previous step won\'t be part of the group if you do not allow guest access.</string>
     <string name="disable_guests_dialog_button">Not Allow Guests</string>
@@ -1234,8 +1284,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
     <string name="favorites_empty_list_description">Select your favorite conversations, and you’ll find them here</string>
     <string name="group_empty_list_description">You are not part of any group conversation yet.\nStart a new conversation!</string>
+    <string name="channels_empty_list_description">You are not a member of any channel. Join a public channel by clicking on “browse”.</string>
     <string name="one_on_one_empty_list_description">You have no contacts yet.\nSearch for people on %1$s and get connected.</string>
     <string name="favorites_empty_list_how_to_label">How to label conversations as favorites</string>
+    <string name="channels_empty_list_learn_more">Learn more about channels</string>
     <string name="folders_empty_list_description">Add your conversations to folders to stay organized.</string>
     <string name="folders_empty_list_how_to_add">How to add a conversation to a folder</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
@@ -1274,7 +1326,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!--    report bug-->
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
     <string name="send_bug_report_subject">Bug Report</string>
-    <string name="send_bug_report_email" translatable="false" >wire-newandroid@wearezeta.zendesk.com</string>
+    <string name="send_bug_report_email" translatable="false">wire-newandroid@wearezeta.zendesk.com</string>
 
     <string name="backup_dialog_create_backup_save">Save File</string>
     <string name="backup_dialog_create_backup_share">Share File</string>
@@ -1302,6 +1354,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="create_personal_account_not_supported_dialog_description">You can\'t create a personal account on an on-premises backend with proxy support.</string>
     <string name="create_team_not_supported_dialog_description">You can\'t create a new team on an on-premises backend with proxy support in the app.\nPlease use team management (%1$s) instead on this backend.</string>
     <string name="to_team_management_action">Open Team Management</string>
+    <!-- Claimed Domain dialog -->
+    <string name="claimed_domain_email_already_in_use_dialog_title">Email claimed by an on-premises backend</string>
+    <string name="claimed_domain_email_already_in_use_dialog_description">This email\'s domain belongs to an on-premises backend. Please change your email in the account settings or delete your account. If you are part of a team please contact your team admin.</string>
+    <string name="claimed_domain_change_email_label">How to change your email address</string>
+    <string name="claimed_domain_delete_personal_account">How to delete a personal account</string>
+    <string name="bullet_finger_point">👉</string>
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Update required</string>
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
@@ -1700,6 +1758,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="new_folder_failure">“%1$s” folder could not be added</string>
     <string name="press_enter_to_send_title">Press Enter to send</string>
     <string name="press_enter_to_send_text">When this is on, you can send messages with the Enter key on your keyboard.</string>
-    <string name="custimization_options_header_title">Options</string>
+    <string name="customization_options_header_title">Options</string>
 
+    <!--    channel not available dialog-->
+    <string name="channel_not_available_dialog_title">Channels are available for team members.</string>
+    <string name="channel_not_available_dialog_description">Create a team and start collaborating for free!</string>
+    <string name="channel_not_available_dialog_create_team_button">Create Wire Team</string>
 </resources>

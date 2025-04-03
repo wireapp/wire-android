@@ -29,7 +29,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveSt
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
-import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
@@ -44,7 +44,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -283,7 +283,7 @@ class MediaGalleryViewModelTest {
             conversation = Conversation(
                 id = mockedConversationId,
                 name = mockedConversationTitle,
-                type = Conversation.Type.ONE_ON_ONE,
+                type = Conversation.Type.OneOnOne,
                 teamId = null,
                 protocol = Conversation.ProtocolInfo.Proteus,
                 mutedStatus = AllAllowed,

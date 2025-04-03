@@ -20,7 +20,6 @@ package com.wire.android.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -39,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -53,9 +53,10 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.spec.Route
+import com.ramcosta.composedestinations.utils.route
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -64,11 +65,18 @@ import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LocalNavigator
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.navigation.startDestination
+import com.wire.android.navigation.style.BackgroundStyle
+import com.wire.android.navigation.style.BackgroundType
+import com.wire.android.ui.authentication.login.LoginPasswordPath
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
+import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
@@ -86,6 +94,8 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.destinations.NewLoginScreenDestination
+import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
@@ -115,21 +125,22 @@ import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+import com.wire.android.util.deeplink.LoginType
+import com.wire.android.util.launchUpdateTheApp
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LargeClass")
 class WireActivity : AppCompatActivity() {
 
     @Inject
@@ -141,19 +152,21 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var switchAccountObserver: SwitchAccountObserver
 
-    private val viewModel: WireActivityViewModel by viewModels()
+    @Inject
+    lateinit var loginTypeSelector: LoginTypeSelector
 
+    private val viewModel: WireActivityViewModel by viewModels()
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
+    private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
 
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
     private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
     private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
 
-    val navigationCommands: MutableSharedFlow<NavigationCommand> = MutableSharedFlow()
+    private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
-    private var isNavigationCollecting = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -175,20 +188,27 @@ class WireActivity : AppCompatActivity() {
             appLogger.i("$TAG legal hold requested status")
             legalHoldRequestedViewModel.observeLegalHoldRequest()
 
+            appLogger.i("$TAG init login type selector")
+            loginTypeSelector.init()
+
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
-                InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
+                InitialAppState.NOT_LOGGED_IN -> when (loginTypeSelector.canUseNewLogin()) {
+                    true -> NewWelcomeEmptyStartScreenDestination
+                    false -> WelcomeScreenDestination
+                }
+
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
                 InitialAppState.LOGGED_IN -> HomeScreenDestination
             }
             appLogger.i("$TAG composable content")
+            setComposableContent(startDestination)
 
-            setComposableContent(startDestination) {
-                appLogger.i("$TAG splash hide")
-                shouldKeepSplashOpen = false
-                handleDeepLink(intent, savedInstanceState)
-            }
+            appLogger.i("$TAG splash hide")
+            shouldKeepSplashOpen = false
+
+            handleNewIntent(intent, savedInstanceState)
         }
     }
 
@@ -199,26 +219,16 @@ class WireActivity : AppCompatActivity() {
             handleSynchronizeExternalData(intent)
             return
         }
-
         setIntent(intent)
-        if (isNavigationCollecting) {
-            /*
-             * - When true then navigationCommands is subscribed and can handle navigation commands right away.
-             * - When false then navigationCommands needs to be subscribed again to be able to receive and handle navigation commands.
-             *
-             * Activity intent is updated anyway using setIntent(intent) so that we always keep the latest intent received, so when
-             * isNavigationCollecting is false then we handle it after navigationCommands is subscribed again and onComplete called again.
-             * We make sure to handle particular intent only once thanks to the flag HANDLED_DEEPLINK_FLAG put into the handled intent.
-             */
-            handleDeepLink(intent)
-        }
+        handleNewIntent(intent)
+    }
+
+    private fun handleNewIntent(intent: Intent, savedInstanceState: Bundle? = null) = lifecycleScope.launch {
+        newIntents.send(intent to savedInstanceState)
     }
 
     @Suppress("LongMethod")
-    private fun setComposableContent(
-        startDestination: Route,
-        onComplete: () -> Unit
-    ) {
+    private fun setComposableContent(startDestination: Route) {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
 
@@ -232,27 +242,53 @@ class WireActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
+                    val navigator = rememberNavigator(
+                        finish = this@WireActivity::finish,
+                        isAllowedToNavigate = { navigationCommand ->
+                            when {
+                                navigationCommand.destination.route.getBaseRoute() == NewLoginScreenDestination.route.getBaseRoute() -> {
+                                    /**
+                                     * This is a case when the app tries to open the "enterprise login" screen so first it needs to verify
+                                     * whether it's possible to have another session, if not then do not navigate and show proper dialog.
+                                     */
+                                    viewModel.checkNumberOfSessions()
+                                }
+
+                                else -> true
+                            }
+                        }
+                    )
+                    val currentBackStackEntryState = navigator.navController.currentBackStackEntryAsState()
+                    val backgroundType by remember {
+                        derivedStateOf {
+                            currentBackStackEntryState.value?.appDestination()?.style.let {
+                                (it as? BackgroundStyle)?.backgroundType() ?: BackgroundType.Default
+                            }
+                        }
+                    }
+                    if (backgroundType == BackgroundType.Auth) {
+                        WireAuthBackgroundLayout()
+                    }
                     Column(
                         modifier = Modifier
                             .semantics { testTagsAsResourceId = true }
                     ) {
-                        val navigator = rememberNavigator(this@WireActivity::finish)
                         WireTopAppBar(
                             commonTopAppBarState = commonTopAppBarViewModel.state,
+                            backgroundType = backgroundType,
                         )
-                        CompositionLocalProvider(LocalNavigator provides navigator) {
-                            MainNavHost(
-                                navigator = navigator,
-                                startDestination = startDestination,
-                                modifier = Modifier.consumeWindowInsets(WindowInsets.statusBars)
-                            )
-                        }
+                        MainNavHost(
+                            navigator = navigator,
+                            loginTypeSelector = loginTypeSelector,
+                            startDestination = startDestination,
+                            modifier = Modifier.consumeWindowInsets(WindowInsets.statusBars)
+                        )
 
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-                        SetUpNavigation(navigator, onComplete)
+                        SetUpNavigation(navigator)
                         HandleScreenshotCensoring()
-                        HandleDialogs(navigator::navigate)
+                        HandleDialogs(navigator)
                     }
                 }
             }
@@ -262,11 +298,13 @@ class WireActivity : AppCompatActivity() {
     @Composable
     private fun WireTopAppBar(
         commonTopAppBarState: CommonTopAppBarState,
+        backgroundType: BackgroundType,
         modifier: Modifier = Modifier,
     ) {
         CommonTopAppBar(
             modifier = modifier,
             commonTopAppBarState = commonTopAppBarState,
+            backgroundType = backgroundType,
             onReturnToCallClick = { establishedCall ->
                 getOngoingCallIntent(
                     this@WireActivity,
@@ -311,28 +349,18 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun SetUpNavigation(
-        navigator: Navigator,
-        onComplete: () -> Unit,
-    ) {
+    private fun SetUpNavigation(navigator: Navigator) {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
         val currentNavigator by rememberUpdatedState(navigator)
         LaunchedEffect(Unit) {
             lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    navigationCommands
-                        .onSubscription {
-                            isNavigationCollecting = true
-                            onComplete()
-                        }
-                        .onCompletion {
-                            isNavigationCollecting = false
-                        }
-                        .collectLatest {
-                            currentKeyboardController?.hide()
-                            currentNavigator.navigate(it)
-                        }
-                }
+                newIntents
+                    .receiveAsFlow()
+                    .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                    .collectLatest { (intent, savedInstanceState) ->
+                        currentKeyboardController?.hide()
+                        handleDeepLink(currentNavigator, intent, savedInstanceState)
+                    }
             }
         }
 
@@ -353,11 +381,14 @@ class WireActivity : AppCompatActivity() {
         }
 
         DisposableEffect(switchAccountObserver, navigator) {
-            NavigationSwitchAccountActions {
-                lifecycleScope.launch(Dispatchers.Main) {
-                    navigator.navigate(it)
-                }
-            }.let {
+            NavigationSwitchAccountActions(
+                {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        navigator.navigate(it)
+                    }
+                },
+                loginTypeSelector::canUseNewLogin
+            ).let {
                 switchAccountObserver.register(it)
                 onDispose {
                     switchAccountObserver.unregister(it)
@@ -379,11 +410,12 @@ class WireActivity : AppCompatActivity() {
 
     @Suppress("ComplexMethod")
     @Composable
-    private fun HandleDialogs(navigate: (NavigationCommand) -> Unit) {
+    private fun HandleDialogs(navigator: Navigator) {
+        val navigate: (NavigationCommand) -> Unit = { navigator.navigate(it) }
         val context = LocalContext.current
         val callFeedbackSheetState =
             rememberWireModalSheetState<Unit>(onDismissAction = {
-                featureFlagNotificationViewModel.skipCallFeedback(false)
+                callFeedbackViewModel.skipCallFeedback(false)
             })
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
@@ -456,7 +488,7 @@ class WireActivity : AppCompatActivity() {
                     logout = {
                         viewModel.doHardLogout(
                             { UserDataStore(context, it) },
-                            NavigationSwitchAccountActions(navigate)
+                            NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin)
                         )
                         logoutOptionsDialogState.dismiss()
                     }
@@ -517,11 +549,38 @@ class WireActivity : AppCompatActivity() {
                     viewModel::onJoinConversationFlowCompleted
                 )
                 CustomBackendDialog(
-                    viewModel.globalAppState,
-                    viewModel::dismissCustomBackendDialog,
-                    onConfirm = {
-                        viewModel.customBackendDialogProceedButtonClicked {
-                            navigate(NavigationCommand(WelcomeScreenDestination))
+                    state = viewModel.globalAppState.customBackendDialog,
+                    onDismiss = {
+                        viewModel.dismissCustomBackendDialog()
+                        if (navigator.isEmptyWelcomeStartDestination()) {
+                            // if "welcome empty start" screen then switch "start" screen to proper one
+                            navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+                        }
+                    },
+                    onConfirm = { loginType ->
+                        viewModel.customBackendDialogProceedButtonClicked { serverLinks ->
+                            lifecycleScope.launch {
+                                val destination = when (loginType) {
+                                    LoginType.New -> NewLoginScreenDestination(loginPasswordPath = LoginPasswordPath(serverLinks))
+                                    LoginType.Old -> WelcomeScreenDestination(customServerConfig = serverLinks)
+                                    LoginType.Default -> when (loginTypeSelector.canUseNewLogin(serverLinks)) {
+                                        true -> NewLoginScreenDestination(loginPasswordPath = LoginPasswordPath(serverLinks))
+                                        false -> WelcomeScreenDestination(customServerConfig = serverLinks)
+                                    }
+                                }
+                                withContext(Dispatchers.Main) {
+                                    navigate(
+                                        NavigationCommand(
+                                            destination = destination,
+                                            // if "welcome empty start" screen then switch "start" screen to proper one
+                                            backStackMode = when (navigator.shouldReplaceWelcomeLoginStartDestination()) {
+                                                true -> BackStackMode.CLEAR_WHOLE
+                                                else -> BackStackMode.UPDATE_EXISTED
+                                            }
+                                        )
+                                    )
+                                }
+                            }
                         }
                     },
                     onTryAgain = viewModel::onCustomServerConfig
@@ -536,15 +595,16 @@ class WireActivity : AppCompatActivity() {
                 )
                 AccountLoggedOutDialog(
                     viewModel.globalAppState.blockUserUI
-                ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate)) }
+                ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin)) }
                 NewClientDialog(
                     viewModel.globalAppState.newClientDialog,
                     { navigate(NavigationCommand(SelfDevicesScreenDestination)) },
                     {
                         viewModel.switchAccount(
                             userId = it,
-                            actions = NavigationSwitchAccountActions(navigate),
-                            onComplete = { navigate(NavigationCommand(SelfDevicesScreenDestination)) })
+                            actions = NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin),
+                            onComplete = { navigate(NavigationCommand(SelfDevicesScreenDestination)) }
+                        )
                     },
                     viewModel::dismissNewClientsDialog
                 )
@@ -557,8 +617,8 @@ class WireActivity : AppCompatActivity() {
 
             CallFeedbackDialog(
                 sheetState = callFeedbackSheetState,
-                onRated = featureFlagNotificationViewModel::rateCall,
-                onSkipClicked = featureFlagNotificationViewModel::skipCallFeedback
+                onRated = callFeedbackViewModel::rateCall,
+                onSkipClicked = callFeedbackViewModel::skipCallFeedback
             )
 
             if (startGettingE2EICertificate) {
@@ -572,17 +632,13 @@ class WireActivity : AppCompatActivity() {
         }
 
         LaunchedEffect(Unit) {
-            featureFlagNotificationViewModel.showCallFeedbackFlow.collectLatest {
+            callFeedbackViewModel.showCallFeedbackFlow.collectLatest {
                 callFeedbackSheetState.show()
             }
         }
     }
 
-    private fun updateTheApp() {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.UPDATE_APP_URL))
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-    }
+    private fun updateTheApp() = this.launchUpdateTheApp()
 
     override fun onResume() {
         super.onResume()
@@ -629,21 +685,33 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("ComplexCondition", "LongMethod")
+    @Suppress("ComplexCondition", "LongMethod", "CyclomaticComplexMethod")
+    /*
+     * This method is responsible for handling deep links from given intent
+     */
     private fun handleDeepLink(
+        navigator: Navigator,
         intent: Intent?,
         savedInstanceState: Bundle? = null
     ) {
+        val navigate: (NavigationCommand) -> Unit = {
+            runOnUiThread {
+                navigator.navigate(it)
+            }
+        }
         val originalIntent = savedInstanceState.getOriginalIntent()
         if (intent == null
+            || intent.action == Intent.ACTION_MAIN // This is the case when the app is opened from launcher so no deep link to handle
             || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
             || originalIntent == intent // This is the case when the activity is recreated and already handled
             || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
+            if (navigator.isEmptyWelcomeStartDestination()) {
+                // no deep link to handle so if "welcome empty start" screen then switch "start" screen to login by navigating to it
+                navigator.navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+            }
             return
         } else {
-            val navigate: (NavigationCommand) -> Unit =
-                { lifecycleScope.launch { navigationCommands.emit(it) } }
             viewModel.handleDeepLink(
                 intent = intent,
                 onOpenConversation = {
@@ -680,6 +748,10 @@ class WireActivity : AppCompatActivity() {
                     }
                 },
                 onAuthorizationNeeded = {
+                    if (navigator.isEmptyWelcomeStartDestination()) {
+                        // log in needed so if "welcome empty start" screen then switch "start" screen to login by navigating to it
+                        navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+                    }
                     runOnUiThread {
                         Toast.makeText(
                             this,
@@ -688,11 +760,24 @@ class WireActivity : AppCompatActivity() {
                         ).show()
                     }
                 },
+                onUnknown = {
+                    if (navigator.isEmptyWelcomeStartDestination()) {
+                        // log in needed so if "welcome empty start" screen then switch "start" screen to login by navigating to it
+                        navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+                    }
+                },
                 onMigrationLogin = {
                     navigate(
                         NavigationCommand(
-                            LoginScreenDestination(it.userHandle),
-                            BackStackMode.UPDATE_EXISTED
+                            when (loginTypeSelector.canUseNewLogin()) {
+                                true -> NewLoginScreenDestination(userHandle = PreFilledUserIdentifierType.PreFilled(it.userHandle))
+                                false -> LoginScreenDestination(userHandle = PreFilledUserIdentifierType.PreFilled(it.userHandle))
+                            },
+                            // if "welcome empty start" screen then switch "start" screen to proper one
+                            when (navigator.shouldReplaceWelcomeLoginStartDestination()) {
+                                true -> BackStackMode.CLEAR_WHOLE
+                                false -> BackStackMode.UPDATE_EXISTED
+                            },
                         )
                     )
                 },
@@ -715,8 +800,12 @@ class WireActivity : AppCompatActivity() {
                 onSSOLogin = {
                     navigate(
                         NavigationCommand(
-                            LoginScreenDestination(ssoLoginResult = it),
-                            BackStackMode.UPDATE_EXISTED
+                            when (navigator.navController.currentBackStackEntry?.appDestination()?.route?.getBaseRoute()) {
+                                // if SSO login started from new login screen then go back to the new login flow
+                                NewLoginScreenDestination.route.getBaseRoute() -> NewLoginScreenDestination(ssoLoginResult = it)
+                                else -> LoginScreenDestination(ssoLoginResult = it)
+                            },
+                            BackStackMode.UPDATE_EXISTED,
                         )
                     )
                 }
@@ -732,6 +821,19 @@ class WireActivity : AppCompatActivity() {
         } else {
             this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG, Intent::class.java)
         }
+    }
+
+    private fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {
+        val firstDestinationBaseRoute = navController.startDestination()?.route()?.route?.getBaseRoute()
+        val welcomeScreens = listOf(WelcomeScreenDestination, NewWelcomeEmptyStartScreenDestination)
+        val loginScreens = listOf(LoginScreenDestination, NewLoginScreenDestination)
+        val welcomeAndLoginBaseRoutes = (welcomeScreens + loginScreens).map { it.route.getBaseRoute() }
+        return welcomeAndLoginBaseRoutes.contains(firstDestinationBaseRoute)
+    }
+
+    private fun Navigator.isEmptyWelcomeStartDestination(): Boolean {
+        val firstDestinationBaseRoute = navController.startDestination()?.route()?.route?.getBaseRoute()
+        return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.route.getBaseRoute()
     }
 
     companion object {

@@ -21,8 +21,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.feature.analytics.AnonymousAnalyticsManager
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.kalium.logic.data.user.SelfUser
@@ -31,16 +29,17 @@ import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -89,7 +88,7 @@ class HomeViewModelTest {
                 MutableStateFlow(TestUser.SELF_USER.copy(availabilityStatus = UserAvailabilityStatus.AVAILABLE))
             val (_, viewModel) = Arrangement()
                 .withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Enabled))
-                .withGetSelf(selfFlow)
+                .withSelfUser(selfFlow)
                 .arrange()
             // when
             selfFlow.emit(TestUser.SELF_USER.copy(availabilityStatus = UserAvailabilityStatus.AWAY))
@@ -98,22 +97,93 @@ class HomeViewModelTest {
         }
 
     @Test
-    fun `given open profile event, when sendOpenProfileEvent is called, then send the event with the unread indicator value`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Enabled))
-                .arrange()
+    fun `given migration not completed, when checking requirements, then return HomeRequirement Migration`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withShouldTriggerMigrationForUserReturning(true)
+            .arrange()
+        // when
+        viewModel.checkRequirements(arrangement.onRequirement)
+        advanceUntilIdle()
+        // then
+        verify { arrangement.onRequirement(HomeRequirement.Migration(TestUser.SELF_USER.id)) }
+    }
 
-            viewModel.sendOpenProfileEvent()
+    @Test
+    fun `given client not registered, when checking requirements, then return HomeRequirement RegisterDevice`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withShouldTriggerMigrationForUserReturning(false)
+            .withNeedsToRegisterClientReturning(true)
+            .arrange()
+        // when
+        viewModel.checkRequirements(arrangement.onRequirement)
+        // then
+        verify { arrangement.onRequirement(HomeRequirement.RegisterDevice) }
+    }
 
-            verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(
-                    AnalyticsEvent.UserProfileOpened(
-                        isMigrationDotActive = viewModel.homeState.shouldShowCreateTeamUnreadIndicator
-                    )
-                )
-            }
-        }
+    @Test
+    fun `given initial sync not completed, when checking requirements, then return HomeRequirement InitialSync`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withShouldTriggerMigrationForUserReturning(false)
+            .withNeedsToRegisterClientReturning(false)
+            .withInitialSyncCompletedReturning(flowOf(false))
+            .arrange()
+        // when
+        viewModel.checkRequirements(arrangement.onRequirement)
+        // then
+        verify { arrangement.onRequirement(HomeRequirement.InitialSync) }
+    }
+
+    @Test
+    fun `given handle not set, when checking requirements, then return HomeRequirement CreateAccountUsername`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withShouldTriggerMigrationForUserReturning(false)
+            .withNeedsToRegisterClientReturning(false)
+            .withInitialSyncCompletedReturning(flowOf(true))
+            .withSelfUser(flowOf(TestUser.SELF_USER.copy(handle = null)))
+            .arrange()
+        // when
+        viewModel.checkRequirements(arrangement.onRequirement)
+        // then
+        verify { arrangement.onRequirement(HomeRequirement.CreateAccountUsername) }
+    }
+
+    @Test
+    fun `given migration completed and welcome not yet shown, when checking requirements, then show welcome message`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withShouldTriggerMigrationForUserReturning(false)
+            .withNeedsToRegisterClientReturning(false)
+            .withInitialSyncCompletedReturning(flowOf(true))
+            .withSelfUser(flowOf(TestUser.SELF_USER.copy(handle = "handle")))
+            .withMigrationCompletedReturning(true)
+            .withWelcomeScreenPresentedReturning(false)
+            .arrange()
+        // when
+        viewModel.checkRequirements(arrangement.onRequirement)
+        // then
+        assertEquals(true, viewModel.homeState.shouldDisplayWelcomeMessage)
+    }
+
+    @Test
+    fun `given migration completed and welcome already shown, when checking requirements, then do not show welcome message`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withShouldTriggerMigrationForUserReturning(false)
+            .withNeedsToRegisterClientReturning(false)
+            .withInitialSyncCompletedReturning(flowOf(true))
+            .withSelfUser(flowOf(TestUser.SELF_USER.copy(handle = "handle")))
+            .withMigrationCompletedReturning(true)
+            .withWelcomeScreenPresentedReturning(true)
+            .arrange()
+        // when
+        viewModel.checkRequirements(arrangement.onRequirement)
+        // then
+        assertEquals(false, viewModel.homeState.shouldDisplayWelcomeMessage)
+    }
 
     internal class Arrangement {
 
@@ -130,9 +200,6 @@ class HomeViewModelTest {
         lateinit var observeSelfUser: ObserveSelfUserUseCase
 
         @MockK
-        lateinit var getSelf: GetSelfUserUseCase
-
-        @MockK
         lateinit var needsToRegisterClient: NeedsToRegisterClientUseCase
 
         @MockK
@@ -142,10 +209,10 @@ class HomeViewModelTest {
         lateinit var shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 
         @MockK
-        lateinit var analyticsManager: AnonymousAnalyticsManager
-
-        @MockK
         lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
+
+        @RelaxedMockK
+        lateinit var onRequirement: (HomeRequirement) -> Unit
 
         private val viewModel by lazy {
             HomeViewModel(
@@ -156,19 +223,18 @@ class HomeViewModelTest {
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser,
-                analyticsManager = analyticsManager,
                 canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
-                getSelfUser = getSelf,
             )
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            withGetSelf(flowOf(TestUser.SELF_USER))
+            withSelfUser(flowOf(TestUser.SELF_USER))
             withCanMigrateFromPersonalToTeamReturning(true)
+            withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Disabled))
         }
 
-        fun withGetSelf(result: Flow<SelfUser>) = apply {
+        fun withSelfUser(result: Flow<SelfUser>) = apply {
             coEvery { observeSelfUser.invoke() } returns result
         }
 
@@ -179,6 +245,26 @@ class HomeViewModelTest {
 
         fun withLegalHoldStatus(result: Flow<LegalHoldStateForSelfUser>) = apply {
             coEvery { observeLegalHoldStatusForSelfUser.invoke() } returns result
+        }
+
+        fun withShouldTriggerMigrationForUserReturning(result: Boolean) = apply {
+            coEvery { shouldTriggerMigrationForUser(any()) } returns result
+        }
+
+        fun withNeedsToRegisterClientReturning(result: Boolean) = apply {
+            coEvery { needsToRegisterClient() } returns result
+        }
+
+        fun withInitialSyncCompletedReturning(result: Flow<Boolean>) = apply {
+            coEvery { dataStore.initialSyncCompleted } returns result
+        }
+
+        fun withMigrationCompletedReturning(result: Boolean) = apply {
+            coEvery { globalDataStore.isMigrationCompleted() } returns result
+        }
+
+        fun withWelcomeScreenPresentedReturning(result: Boolean) = apply {
+            coEvery { globalDataStore.isWelcomeScreenPresented() } returns result
         }
 
         fun arrange() = this to viewModel

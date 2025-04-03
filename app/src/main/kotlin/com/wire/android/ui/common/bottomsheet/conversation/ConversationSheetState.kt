@@ -69,10 +69,17 @@ fun rememberConversationSheetState(
                     conversationId = conversationId,
                     title = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
                     mutingConversationState = mutedStatus,
-                    conversationTypeDetail = ConversationTypeDetail.Group(
-                        conversationId = conversationId,
-                        isFromTheSameTeam = isFromTheSameTeam
-                    ),
+                    conversationTypeDetail = if (isChannel) {
+                        ConversationTypeDetail.Group.Channel(
+                            conversationId = conversationId,
+                            isFromTheSameTeam = isFromTheSameTeam
+                        )
+                    } else {
+                        ConversationTypeDetail.Group.Regular(
+                            conversationId = conversationId,
+                            isFromTheSameTeam = isFromTheSameTeam
+                        )
+                    },
                     isTeamConversation = teamId != null,
                     selfRole = selfMemberRole,
                     isArchived = conversationItem.isArchived,

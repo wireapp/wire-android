@@ -36,6 +36,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.theme.WireTheme
@@ -52,6 +53,7 @@ fun GroupConversationDetailsTopBarCollapsing(
     totalParticipants: Int,
     isLoading: Boolean,
     isUnderLegalHold: Boolean,
+    isChannel: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
     onLegalHoldLearnMoreClick: () -> Unit,
@@ -65,12 +67,21 @@ fun GroupConversationDetailsTopBarCollapsing(
             .wrapContentHeight()
     ) {
         Box(contentAlignment = Alignment.Center) {
-            GroupConversationAvatar(
-                conversationId = conversationId,
-                size = dimensions().groupAvatarConversationDetailsTopBarSize,
-                cornerRadius = dimensions().groupAvatarConversationDetailsCornerRadius,
-                padding = dimensions().avatarConversationTopBarClickablePadding,
-            )
+            if (isChannel) {
+                ChannelConversationAvatar(
+                    conversationId = conversationId,
+                    size = dimensions().groupAvatarConversationDetailsTopBarSize,
+                    cornerRadius = dimensions().groupAvatarConversationDetailsCornerRadius,
+                    padding = dimensions().avatarConversationTopBarClickablePadding,
+                )
+            } else {
+                GroupConversationAvatar(
+                    conversationId = conversationId,
+                    size = dimensions().groupAvatarConversationDetailsTopBarSize,
+                    cornerRadius = dimensions().groupAvatarConversationDetailsCornerRadius,
+                    padding = dimensions().avatarConversationTopBarClickablePadding,
+                )
+            }
         }
         ConstraintLayout(
             Modifier
@@ -142,6 +153,25 @@ fun PreviewGroupConversationDetailsTopBarCollapsing() {
             totalParticipants = 10,
             isUnderLegalHold = true,
             isLoading = false,
+            isChannel = false,
+            onSearchConversationMessagesClick = {},
+            onConversationMediaClick = {},
+            onLegalHoldLearnMoreClick = {},
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewChannelConversationDetailsTopBarCollapsing() {
+    WireTheme {
+        GroupConversationDetailsTopBarCollapsing(
+            title = "Conversation Title",
+            conversationId = ConversationId("ConversationId", "domain"),
+            totalParticipants = 10,
+            isUnderLegalHold = true,
+            isLoading = false,
+            isChannel = true,
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},
             onLegalHoldLearnMoreClick = {},

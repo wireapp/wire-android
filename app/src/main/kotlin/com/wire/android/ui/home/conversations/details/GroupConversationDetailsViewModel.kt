@@ -172,10 +172,17 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     title = groupDetails.conversation.name.orEmpty(),
                     conversationId = conversationId,
                     mutingConversationState = groupDetails.conversation.mutedStatus,
-                    conversationTypeDetail = ConversationTypeDetail.Group(
-                        conversationId = conversationId,
-                        isFromTheSameTeam = groupDetails.conversation.teamId == getSelfUser()?.teamId
-                    ),
+                    conversationTypeDetail = if (isChannel) {
+                        ConversationTypeDetail.Group.Channel(
+                            conversationId = conversationId,
+                            isFromTheSameTeam = groupDetails.conversation.teamId == getSelfUser()?.teamId
+                        )
+                    } else {
+                        ConversationTypeDetail.Group.Regular(
+                            conversationId = conversationId,
+                            isFromTheSameTeam = groupDetails.conversation.teamId == getSelfUser()?.teamId
+                        )
+                    },
                     isTeamConversation = groupDetails.conversation.teamId?.value != null,
                     selfRole = groupDetails.selfRole,
                     isArchived = groupDetails.conversation.archived,

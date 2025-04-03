@@ -193,7 +193,9 @@ fun SearchUsersAndServicesScreen(
             }
         },
         bottomBar = {
-            appLogger.d("cccc: searchBarState.isSearchActive = ${searchBarState.isSearchActive}, screenType = $screenType")
+            if (!isProduction()) {
+                appLogger.d("cccc: searchBarState.isSearchActive = ${searchBarState.isSearchActive}, screenType = $screenType")
+            }
             AnimatedVisibility(
                 visible = isGroupSubmitVisible && !(searchBarState.isSearchActive && screenType == SearchPeopleScreenType.NEW_CONVERSATION),
                 enter = fadeIn() + expandVertically(),

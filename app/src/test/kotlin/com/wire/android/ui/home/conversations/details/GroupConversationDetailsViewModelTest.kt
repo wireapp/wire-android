@@ -58,6 +58,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.channel.IsSelfEligibleToAddParticipantsToChannelUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -770,6 +771,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
 
     @MockK
+    lateinit var isSelfEligibleToAddParticipantsToChannel: IsSelfEligibleToAddParticipantsToChannelUseCase
+
+    @MockK
     private lateinit var workManager: WorkManager
 
     private val viewModel by lazy {
@@ -788,6 +792,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase,
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
+            isSelfEligibleToAddParticipantsToChannel = isSelfEligibleToAddParticipantsToChannel,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             updateConversationArchivedStatus = updateConversationArchivedStatus,
             getDefaultProtocol = getDefaultProtocolUseCase,

@@ -232,7 +232,7 @@ class ConversationSheetContentTest {
             title = title,
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
-            conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, false),
+            conversationTypeDetail = ConversationTypeDetail.Group.Regular(details.conversation.id, false),
             selfRole = selfRole,
             isTeamConversation = details.conversation.isTeamGroup(),
             isArchived = false,

@@ -163,7 +163,8 @@ class ConversationInfoViewModel @Inject constructor(
                     conversationDetails.otherUser.availabilityStatus
                 )
 
-            is ConversationDetails.Group -> ConversationAvatar.Group(conversationDetails.conversation.id)
+            is ConversationDetails.Group.Regular -> ConversationAvatar.Group.Regular(conversationDetails.conversation.id)
+            is ConversationDetails.Group.Channel -> ConversationAvatar.Group.Channel(conversationDetails.conversation.id)
             else -> ConversationAvatar.None
         }
 

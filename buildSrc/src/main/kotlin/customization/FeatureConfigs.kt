@@ -106,6 +106,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     PICTURE_IN_PICTURE_ENABLED("picture_in_picture_enabled", ConfigType.BOOLEAN),
     PAGINATED_CONVERSATION_LIST_ENABLED("paginated_conversation_list_enabled", ConfigType.BOOLEAN),
 
+    PUBLIC_CHANNELS_ENABLED("public_channels_enabled", ConfigType.BOOLEAN),
     /**
      * Anonymous Analytics
      */

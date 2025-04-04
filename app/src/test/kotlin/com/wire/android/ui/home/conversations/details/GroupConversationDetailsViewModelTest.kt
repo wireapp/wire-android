@@ -37,6 +37,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
+import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -710,7 +711,8 @@ class GroupConversationDetailsViewModelTest {
             ),
             hasOngoingCall = false,
             isSelfUserMember = true,
-            selfRole = Conversation.Member.Role.Member
+            selfRole = Conversation.Member.Role.Member,
+            wireCell = null,
         )
     }
 }
@@ -759,6 +761,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
 
+    @MockK
+    lateinit var setWireCellUseCase: SetWireCellForConversationUseCase
+
     private val conversationDetailsFlow = MutableSharedFlow<ConversationDetails>(replay = Int.MAX_VALUE)
 
     private val observeParticipantsForConversationFlow =
@@ -796,7 +801,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             updateConversationArchivedStatus = updateConversationArchivedStatus,
             getDefaultProtocol = getDefaultProtocolUseCase,
-            workManager = workManager
+            workManager = workManager,
+            enableCell = setWireCellUseCase,
         )
     }
 

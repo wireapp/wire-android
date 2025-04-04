@@ -26,6 +26,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
@@ -45,6 +46,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
+import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -81,6 +83,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -111,6 +114,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val workManager: WorkManager,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
+    private val enableCell: SetWireCellForConversationUseCase,
+    private val globalDataStore: GlobalDataStore,
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata
 ), GroupConversationDetailsBottomSheetEventsHandler {
@@ -207,7 +212,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         selfDeletionTimer = selfDeletionTimer,
                         isChannel = isChannel,
                         channelAddPermissionType = channelPermissionType,
-                        channelAccessType = channelAccessType
+                        channelAccessType = channelAccessType,
+                        loadingWireCellState = false,
+                        isWireCellEnabled = groupDetails.wireCell != null,
+                        isWireCellFeatureEnabled = globalDataStore.wireCellsEnabled().firstOrNull() ?: false,
                     )
                 )
             }.collect {}
@@ -328,6 +336,18 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun onServiceDialogConfirm() {
         updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = false, loadingServicesOption = true))
         updateServicesRemoteRequest(false)
+    }
+
+    fun onWireCellStateChange(enableWireCell: Boolean) {
+        updateState(
+            groupOptionsState.value.copy(
+                loadingWireCellState = true,
+                isWireCellEnabled = enableWireCell,
+            )
+        )
+        viewModelScope.launch {
+            enableCell(conversationId, enableWireCell)
+        }
     }
 
     private fun updateServicesRemoteRequest(enableServices: Boolean) {

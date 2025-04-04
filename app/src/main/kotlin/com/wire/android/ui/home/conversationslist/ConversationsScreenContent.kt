@@ -55,8 +55,8 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
-import com.wire.android.ui.common.topappbar.search.SearchBarState
-import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.common.search.SearchBarState
+import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.BrowseChannelsScreenDestination
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
@@ -206,7 +206,7 @@ fun ConversationsScreenContent(
             is ConversationListState.Paginated -> {
                 val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
                 val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
-
+                searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0)
                 when {
                     // when conversation list is not yet fetched, show loading indicator
                     showLoading -> loadingListContent(lazyListState)
@@ -239,11 +239,13 @@ fun ConversationsScreenContent(
             }
 
             is ConversationListState.NotPaginated -> {
+                val hasConversations = state.conversations.isNotEmpty() && state.conversations.any { it.value.isNotEmpty() }
+                searchBarState.searchVisibleChanged(isSearchVisible = hasConversations)
                 when {
                     // when conversation list is not yet fetched, show loading indicator
                     state.isLoading -> loadingListContent(lazyListState)
                     // when there is at least one conversation in any folder
-                    state.conversations.isNotEmpty() && state.conversations.any { it.value.isNotEmpty() } -> ConversationList(
+                    hasConversations -> ConversationList(
                         lazyListState = lazyListState,
                         conversationListItems = state.conversations,
                         onOpenConversation = onOpenConversation,

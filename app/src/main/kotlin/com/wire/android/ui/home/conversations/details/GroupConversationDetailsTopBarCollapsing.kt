@@ -52,6 +52,7 @@ fun GroupConversationDetailsTopBarCollapsing(
     totalParticipants: Int,
     isLoading: Boolean,
     isUnderLegalHold: Boolean,
+    isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
     onLegalHoldLearnMoreClick: () -> Unit,
@@ -126,6 +127,7 @@ fun GroupConversationDetailsTopBarCollapsing(
 
         VerticalSpace.x24()
         SearchAndMediaRow(
+            isWireCellEnabled = isWireCellEnabled,
             onSearchConversationMessagesClick = onSearchConversationMessagesClick,
             onConversationMediaClick = onConversationMediaClick
         )
@@ -142,6 +144,7 @@ fun PreviewGroupConversationDetailsTopBarCollapsing() {
             totalParticipants = 10,
             isUnderLegalHold = true,
             isLoading = false,
+            isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},
             onLegalHoldLearnMoreClick = {},

@@ -20,6 +20,7 @@ package com.wire.android.feature.cells.ui.publiclink
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.kalium.cells.domain.model.PublicLink

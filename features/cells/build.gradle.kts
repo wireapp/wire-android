@@ -40,6 +40,8 @@ dependencies {
     implementation(libs.coil.video)
     implementation(libs.coil.compose)
 
+    implementation(libs.ktx.dateTime)
+
     testImplementation(libs.junit5.core)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockk.core)

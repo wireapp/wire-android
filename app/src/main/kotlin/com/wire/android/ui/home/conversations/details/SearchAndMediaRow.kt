@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.home.conversations.media.ConversationFilesButton
 import com.wire.android.ui.home.conversations.media.ConversationMediaButton
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesButton
 import com.wire.android.ui.theme.WireTheme
@@ -32,7 +33,8 @@ import com.wire.android.ui.theme.WireTheme
 fun SearchAndMediaRow(
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isWireCellEnabled: Boolean = false,
 ) {
     Row(modifier = modifier.padding(horizontal = dimensions().spacing16x)) {
         SearchConversationMessagesButton(
@@ -40,10 +42,17 @@ fun SearchAndMediaRow(
             onClick = onSearchConversationMessagesClick
         )
         HorizontalSpace.x8()
-        ConversationMediaButton(
-            modifier = Modifier.weight(1F),
-            onClick = onConversationMediaClick
-        )
+        if (isWireCellEnabled) {
+            ConversationFilesButton(
+                modifier = Modifier.weight(1F),
+                onClick = onConversationMediaClick
+            )
+        } else {
+            ConversationMediaButton(
+                modifier = Modifier.weight(1F),
+                onClick = onConversationMediaClick
+            )
+        }
     }
 }
 

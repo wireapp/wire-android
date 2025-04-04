@@ -513,6 +513,7 @@ private fun TopBarCollapsing(
             if (state.shouldShowSearchButton()) {
                 VerticalSpace.x24()
                 SearchAndMediaRow(
+                    isWireCellEnabled = false,
                     onSearchConversationMessagesClick = onSearchConversationMessagesClick,
                     onConversationMediaClick = onConversationMediaClick
                 )

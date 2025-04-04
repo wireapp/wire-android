@@ -28,6 +28,7 @@
     <string name="share_link">Share link</string>
     <string name="copied_to_clipboard_message">Link copied to clipboard</string>
     <string name="file_subtitle">%1$s in %2$s</string>
+    <string name="file_subtitle_modified">%1$s by %2$s</string>
     <string name="public_link_message">Your file will be shared via a public link. Only those with the link can view it—ensure you trust your recipients.</string>
     <string name="enable_public_link">Enable public link</string>
     <string name="share_file_via_link">Share file via link</string>
@@ -40,10 +41,11 @@
     <string name="reload">Reload</string>
     <string name="error_delete_public_link">Failed to remove public link.</string>
     <string name="error_load_public_link">Failed to load public link.</string>
-    <string name="error_create_public_link">Faile to create public link.</string>
+    <string name="error_create_public_link">Failed to create public link.</string>
     <string name="cell_files_download_failure_message">Download failed.</string>
     <string name="download_file_message">This file is not downloaded yet. Do you want to download it now?</string>
     <string name="download">Download</string>
     <string name="downloading_file_message">This file is being downloaded...</string>
     <string name="error_share_link">Failed to share link.</string>
+    <string name="conversation_files_title">Files</string>
 </resources>

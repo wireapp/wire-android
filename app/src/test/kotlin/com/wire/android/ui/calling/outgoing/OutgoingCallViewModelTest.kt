@@ -19,7 +19,6 @@
 package com.wire.android.ui.calling.outgoing
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.media.CallRinger
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
@@ -45,7 +44,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(NavigationTestExtension::class)
 @ExtendWith(CoroutineTestExtension::class)
 class OutgoingCallViewModelTest {
 

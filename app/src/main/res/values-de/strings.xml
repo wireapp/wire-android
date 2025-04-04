@@ -211,6 +211,7 @@
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
     <string name="vault_screen_title">Tresor</string>
+    <string name="channels_screen_title">Channels</string>
     <string name="archive_screen_title">Archiv</string>
     <string name="archive_screen_empty_state_title">Noch nichts archiviert 👻</string>
     <string name="archive_screen_empty_state_description">Für eine übersichtliche Unterhaltungsliste verschieben Sie ungenutzte Unterhaltungen hierher. Sie können die Archivierung später jederzeit aufheben.</string>
@@ -279,6 +280,17 @@
     <string name="migration_messages_failure">Aufgrund der Inkompatibilität mit der älteren Version von Wire konnten nicht alle Nachrichten und Unterhaltungen migriert werden (Fehlercode: %s)</string>
     <string name="migration_cancel_title">Migration abbrechen</string>
     <string name="migration_cancel_message">Sind Sie sicher, dass Sie die App schließen und die laufende Migration abbrechen möchten?</string>
+    <!-- Enterprise Login -->
+    <string name="enterprise_login_welcome">Geben Sie Ihre E-Mail-Adresse ein, um zu beginnen.</string>
+    <string name="enterprise_login_password_title">Geben Sie Ihr Passwort ein, um sich anzumelden</string>
+    <string name="enterprise_login_credentials_title">Geben Sie Ihre Anmeldedaten ein</string>
+    <string name="enterprise_login_next">Weiter</string>
+    <string name="enterprise_login_user_identifier_label">E-MAIL-ADRESSE ODER SSO-CODE</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">E-Mail-Adresse oder SSO-Code eingeben</string>
+    <string name="enterprise_login_error_invalid_user_identifier">Bitte eine gültige E-Mail-Adresse oder den SSO-Code eingeben</string>
+    <string name="enterprise_login_create_account_label">Sie haben kein Benutzerkonto?</string>
+    <string name="enterprise_login_create_account_text_button">Konto erstellen</string>
+    <string name="enterprise_login_on_prem_welcome_title">Willkommen bei Wire Enterprise für %s!</string>
     <!-- Login -->
     <string name="login_title">Anmelden</string>
     <string name="login_forgot_password">Passwort vergessen?</string>
@@ -305,6 +317,10 @@
     <string name="login_error_invalid_sso_code_format">Geben Sie einen gültigen SSO-Code ein</string>
     <string name="login_error_request_2fa_with_handle_title">Anmeldung mit E-Mail-Adresse</string>
     <string name="login_error_request_2fa_with_handle_message">Sie können Ihren Benutzernamen nicht verwenden, da die Zwei-Faktor-Authentifizierung aktiviert ist. Bitte melden Sie sich stattdessen mit Ihrer E-Mail-Adresse an.</string>
+    <string name="login_error_unauthorized_title">Nicht berechtigt</string>
+    <string name="login_error_unauthorized_message">Benutzerkonto ist nicht mehr zur Anmeldung berechtigt.</string>
+    <string name="login_error_pending_activation_title">Ausstehende Aktivierung</string>
+    <string name="login_error_pending_activation_message">Dieses Benutzerkonto ist noch nicht aktiviert. Bitte bestätigen Sie Ihre Angaben.</string>
     <string name="deleted_user_error_title">Gelöschtes Benutzerkonto</string>
     <string name="deleted_user_error_message">Sie wurden abgemeldet, weil Ihr Konto
         gelöscht wurde.
@@ -431,6 +447,8 @@
     <string name="channel_access_label">Zugang</string>
     <string name="channel_private_label">Privat</string>
     <string name="channel_public_label">Öffentlich</string>
+    <string name="channel_access_description">Alle Team-Mitglieder können öffentlichen Channels beitreten. Aber nur Channel-Admins oder -Mitglieder können Personen zu einem privaten Channel hinzufügen.\nEin privater Channel kann nicht in einen öffentlichen umgewandelt werden.</string>
+    <string name="channel_access_short_description">Alle Team-Mitglieder können öffentlichen Channels beitreten. Aber nur Channel-Admins oder -Mitglieder können Personen zu einem privaten Channel hinzufügen.</string>
     <string name="channel_add_permission_description">Wählen Sie, wer Teilnehmer zu einem privaten Channel hinzufügen kann</string>
     <string name="channel_add_permission_admin_label">Admins</string>
     <string name="channel_add_permission_admin_members_label">Admins und Mitglieder</string>
@@ -518,6 +536,7 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Lesebestätigungen</string>
     <string name="conversation_options_read_receipt_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Nachrichtendetails</string>
     <string name="message_details_reactions_tab">REAKTIONEN (%s)</string>
@@ -609,10 +628,12 @@
     <string name="label_delete_group">Gruppe löschen</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Unterhaltungen filtern</string>
+    <string name="label_filter_all">Alle Unterhaltungen</string>
     <string name="label_filter_favorites">Favoriten</string>
     <string name="label_filter_folders">Ordner</string>
     <string name="label_filter_group">Gruppen</string>
     <string name="label_filter_one_on_one">1:1 Unterhaltungen</string>
+    <string name="label_filter_channels">Channels</string>
     <string name="label_folders">Ordner</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Alles</string>
@@ -809,6 +830,16 @@
     <string name="label_new_channel">Neuer Channel</string>
     <string name="label_create_new_group">Neue Gruppe</string>
     <string name="label_create_new_channel">Neuer Channel</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d Teilnehmer</item>
+        <item quantity="other">%1$d Teilnehmer</item>
+    </plurals>
+    <!-- Search Channels -->
+    <string name="label_search_channels">Channels suchen</string>
+    <string name="label_public_channels">Öffentliche Channels</string>
+    <string name="label_search_public_channels">Öffentliche Channels suchen</string>
+    <string name="label_browse_public_channels">Öffentliche Channels durchsuchen</string>
+    <string name="label_learn_more_about_channels">Mehr über Channels erfahren</string>
     <string name="label_new_conversation">Neue Unterhaltung</string>
     <string name="label_search_people">Personen suchen</string>
     <string name="label_search_people_instruction">Nach Personen anhand ihres Profilnamens oder @Benutzernamens suchen</string>
@@ -1144,6 +1175,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="group_empty_list_description">Bislang sind Sie an keiner Gruppenunterhaltung beteiligt.\nBeginnen Sie eine neue Unterhaltung!</string>
     <string name="one_on_one_empty_list_description">Sie haben noch keine Kontakte.\nSuchen Sie nach Personen auf %1$s und treten Sie in Kontakt.</string>
     <string name="favorites_empty_list_how_to_label">So kennzeichnen Sie Unterhaltungen als Favoriten</string>
+    <string name="channels_empty_list_learn_more">Mehr über Channels erfahren</string>
     <string name="folders_empty_list_description">Fügen Sie Ihre Unterhaltungen Ordnern hinzu, um organisiert zu bleiben.</string>
     <string name="folders_empty_list_how_to_add">Hinzufügen einer Unterhaltung zu einem Ordner</string>
     <string name="conversation_empty_list_title">Willkommen 👋</string>
@@ -1207,6 +1239,12 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="create_personal_account_not_supported_dialog_description">Sie können kein privates Benutzerkonto auf einem lokalen Backend mit Proxy-Unterstützung erstellen.</string>
     <string name="create_team_not_supported_dialog_description">Sie können kein neues Team auf einem lokalen Backend mit Proxy-Unterstützung in der App erstellen.\nBitte verwenden Sie stattdessen das Team-Management (%1$s) auf diesem Backend.</string>
     <string name="to_team_management_action">Team-Management öffnen</string>
+    <!-- Claimed Domain dialog -->
+    <string name="claimed_domain_email_already_in_use_dialog_title">E-Mail-Adresse wird von einem lokalen Backend beansprucht</string>
+    <string name="claimed_domain_email_already_in_use_dialog_description">Die Domäne dieser E-Mail gehört zu einem lokalen Backend. Bitte ändern Sie Ihre E-Mail-Adresse in den Einstellungen oder löschen Sie Ihr Benutzerkonto. Wenn Sie Teil eines Teams sind, wenden Sie sich bitte an Ihren Team-Admin.</string>
+    <string name="claimed_domain_change_email_label">E-Mail-Adresse ändern</string>
+    <string name="claimed_domain_delete_personal_account">Privates Benutzerkonto löschen</string>
+    <string name="bullet_finger_point">👉</string>
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Aktualisierung erforderlich</string>
     <string name="update_app_dialog_body">Sie verpassen neue Funktionen. Laden Sie die neueste Version von Wire herunter, um die App weiterhin mit diesem Benutzerkonto zu verwenden.</string>
@@ -1505,6 +1543,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="ping_confirm_sending_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anpingen möchten?</string>
     <string name="ping_confirm_sending_action_dialog">Ping</string>
     <!-- Call Feedback Dialog -->
+    <string name="call_feedback_dialog_title">Rückmeldung zur Anrufqualität</string>
     <string name="call_feedback_dialog_message">Wie beurteilen Sie die Gesamtqualität des Anrufs?</string>
     <string name="call_feedback_dialog_skip">Überspringen</string>
     <string name="call_feedback_dialog_do_not_ask">Nicht erneut fragen</string>
@@ -1563,6 +1602,8 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="reaction_sender_self">Sie</string>
     <string name="emoji_picker_select_reaction">Reaktion auswählen</string>
     <!-- Move to Folder -->
+    <string name="move_to_folder_success">„%1$s“ wurde nach ‚%2$s‘ verschoben</string>
+    <string name="move_to_folder_failed">“%1$s” konnte nicht verschoben werden</string>
     <string name="remove_from_folder_success">“%1$s” wurde aus “%2$s” entfernt</string>
     <string name="remove_from_folder_failed">“%1$s” konnte nicht entfernt werden</string>
     <string name="new_folder_folder_name">ORDNERNAME</string>
@@ -1572,9 +1613,11 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="new_folder_error_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
     <string name="new_folder_failure">Ordner “%1$s” konnte nicht hinzugefügt werden</string>
     <string name="press_enter_to_send_title">Enter zum Senden drücken</string>
+    <string name="press_enter_to_send_text">Wenn diese Option aktiviert ist, können Sie Nachrichten mit der Eingabetaste auf Ihrer Tastatur senden.</string>
     <string name="customization_options_header_title">Optionen</string>
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels sind für Team-Mitglieder verfügbar.</string>
     <string name="channel_not_available_dialog_description">Erstellen Sie ein Team und arbeiten Sie kostenlos zusammen!</string>
     <string name="channel_not_available_dialog_create_team_button">Wire Team erstellen</string>
+    <string name="cells_screen_search_hint">Dateien suchen</string>
 </resources>

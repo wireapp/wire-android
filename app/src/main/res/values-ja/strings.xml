@@ -230,6 +230,7 @@
     <string name="migration_messages_failure">申し訳ありませんが、古いバージョンのWireとの互換性が無いため、一部のメッセージと会話は移行できませんでした(エラーコード: %s)</string>
     <string name="migration_cancel_title">移行をキャンセル</string>
     <string name="migration_cancel_message">アプリを閉じて進行中の移行をキャンセルしてもよろしいですか？</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">ログイン</string>
     <string name="login_forgot_password">パスワードをお忘れですか？</string>
@@ -314,6 +315,7 @@
     <!-- Conversations -->
     <!-- Import/Export External Media -->
     <!--Read receipts -->
+    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
@@ -334,6 +336,7 @@
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
+    <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
@@ -359,6 +362,7 @@
     <!--max account reached dialog-->
     <!--create and restore backup-->
     <!--    report bug-->
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->

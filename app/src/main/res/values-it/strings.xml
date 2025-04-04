@@ -233,6 +233,7 @@ URL backend:
     <string name="migration_messages_failure">Purtroppo, non tutti i messaggi e le conversazioni potrebbero essere stati migrati a causa di incompatibilit&#224; con la vecchia versione di Wire (codice di errore: %s)</string>
     <string name="migration_cancel_title">Annulla la migrazione</string>
     <string name="migration_cancel_message">Sei sicuro di voler chiudere l\'applicazione e annullare la migrazione in corso?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Accedi</string>
     <string name="login_forgot_password">Hai dimenticato la password?</string>
@@ -440,6 +441,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Notifiche di lettura</string>
     <string name="conversation_options_read_receipt_description">Con questa opzione ATTIVA, le persone possono vedere quando i loro messaggi in questa conversazione vengono letti.</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Dettagli messaggio</string>
     <string name="message_details_reactions_tab">REAZIONI (%s)</string>
@@ -690,6 +692,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_conversation_files_empty">Nessuno ha ancora condiviso dei file in questa conversazione 🙀</string>
     <!-- Search Contact-->
     <string name="label_new_group">Nuovo Gruppo</string>
+    <!-- Search Channels -->
     <string name="label_new_conversation">Nuova Conversazione</string>
     <string name="label_search_people">Cerca persone</string>
     <string name="label_search_people_instruction">Cerca persone per il loro nome del profilo o @nomeutente</string>
@@ -1042,6 +1045,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="create_personal_account_not_supported_dialog_description">Non puoi creare un account personale su un backend in loco con supporto proxy.</string>
     <string name="create_team_not_supported_dialog_description">Non puoi creare un nuovo team su un backend in loco con supporto proxy nell\'app. Utilizza invece la gestione del team (%1$s) su questo backend.</string>
     <string name="to_team_management_action">Apri la gestione del team</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Aggiornamento richiesto</string>
     <string name="update_app_dialog_body">Ti stai perdendo nuove funzionalit&#224;. Aggiorna l\'ultima versione di Wire per continuare ad utilizzare l\'app con questo account.</string>

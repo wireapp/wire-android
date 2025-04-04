@@ -23,6 +23,7 @@ import androidx.work.WorkManager
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
@@ -781,6 +782,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     private lateinit var workManager: WorkManager
 
+    @MockK
+    lateinit var globalDataStore: GlobalDataStore
+
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
             dispatcher = TestDispatcherProvider(),
@@ -803,6 +807,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             getDefaultProtocol = getDefaultProtocolUseCase,
             workManager = workManager,
             enableCell = setWireCellUseCase,
+            globalDataStore = globalDataStore,
         )
     }
 
@@ -830,6 +835,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
         every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
+        every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
     }
 
     suspend fun withGetSelfUserReturns(user: SelfUser) = apply {

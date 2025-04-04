@@ -123,11 +123,12 @@ class NewConversationViewModelTest {
                 viewModel.newGroupNameTextState.text.toString(),
                 viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                 ConversationOptions(
-                    Conversation.defaultGroupAccess,
-                    Conversation.defaultGroupAccessRoles,
-                    false,
-                    ConversationOptions.Protocol.PROTEUS,
-                    null
+                    access = Conversation.defaultGroupAccess,
+                    accessRole = Conversation.defaultGroupAccessRoles,
+                    readReceiptsEnabled = false,
+                    wireCellEnabled = false,
+                    protocol = ConversationOptions.Protocol.PROTEUS,
+                    creatorClientId = null
                 )
             )
         }
@@ -152,11 +153,16 @@ class NewConversationViewModelTest {
                     viewModel.newGroupNameTextState.text.toString(),
                     viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                     ConversationOptions(
-                        setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
-                        setOf(Conversation.AccessRole.TEAM_MEMBER, Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-                        true,
-                        ConversationOptions.Protocol.PROTEUS,
-                        null
+                        access = setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
+                        accessRole = setOf(
+                            Conversation.AccessRole.TEAM_MEMBER,
+                            Conversation.AccessRole.NON_TEAM_MEMBER,
+                            Conversation.AccessRole.GUEST
+                        ),
+                        readReceiptsEnabled = true,
+                        wireCellEnabled = false,
+                        protocol = ConversationOptions.Protocol.PROTEUS,
+                        creatorClientId = null
                     )
                 )
             }

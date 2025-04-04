@@ -19,9 +19,7 @@
 package com.wire.android.ui.calling
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.ui.calling.OngoingCallViewModelTest.Arrangement
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -50,7 +48,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(NavigationTestExtension::class)
 @ExtendWith(CoroutineTestExtension::class)
 class OngoingCallViewModelTest {
 

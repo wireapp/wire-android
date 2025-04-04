@@ -47,7 +47,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.model.ItemActionType
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.TabItem
@@ -64,6 +63,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.UIText
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 
 @Suppress("ComplexMethod")
@@ -85,7 +85,7 @@ fun SearchUsersAndServicesScreen(
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
-    onCreateNewChannel: () -> Unit = {},
+    onCreateNewChannel: () -> Unit = {}
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()

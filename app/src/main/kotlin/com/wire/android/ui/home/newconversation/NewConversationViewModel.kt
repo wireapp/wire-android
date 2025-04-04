@@ -64,7 +64,7 @@ class NewConversationViewModel @Inject constructor(
     private val getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
 
-    val newGroupNameTextState: TextFieldState = TextFieldState()
+    var newGroupNameTextState: TextFieldState = TextFieldState()
     var newGroupState: GroupMetadataState by mutableStateOf(
         GroupMetadataState().let {
             val defaultProtocol = ConversationOptions
@@ -76,9 +76,12 @@ class NewConversationViewModel @Inject constructor(
 
     init {
         setConversationCreationParam()
-        observeGroupNameChanges()
+//        viewModelScope.launch {
+//            observeGroupNameChanges()
+//        }
         observeChannelCreationPermission()
     }
+
     var groupOptionsState: GroupOptionState by mutableStateOf(
         GroupOptionState().let {
             val isMLS = newGroupState.groupProtocol == ConversationOptions.Protocol.MLS
@@ -88,6 +91,8 @@ class NewConversationViewModel @Inject constructor(
             )
         }
     )
+    var isChannelCreationPossible: Boolean by mutableStateOf(true)
+
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState())
 
     fun resetState() {
@@ -96,9 +101,10 @@ class NewConversationViewModel @Inject constructor(
             val defaultProtocol = ConversationOptions
                 .Protocol
                 .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
-            it.copy(groupProtocol = defaultProtocol)
+            it.copy(
+                groupProtocol = defaultProtocol
+            )
         }
-        setConversationCreationParam()
         groupOptionsState = GroupOptionState().let {
             val isMLS = newGroupState.groupProtocol == ConversationOptions.Protocol.MLS
             it.copy(
@@ -107,6 +113,7 @@ class NewConversationViewModel @Inject constructor(
             )
         }
         createGroupState = CreateGroupState()
+        setConversationCreationParam()
     }
 
     fun setChannelAccess(channelAccessType: ChannelAccessType) {
@@ -133,23 +140,20 @@ class NewConversationViewModel @Inject constructor(
         }
     }
 
-    private fun observeGroupNameChanges() {
-        viewModelScope.launch {
-            newGroupNameTextState.textAsFlow()
-                .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
-                .collectLatest {
-                    newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
-                }
-        }
+    suspend fun observeGroupNameChanges() {
+        newGroupNameTextState.textAsFlow()
+            .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
+            .collectLatest {
+                newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
+            }
     }
 
     private fun observeChannelCreationPermission() {
         viewModelScope.launch {
             isUserAllowedToCreateChannels()
                 .collectLatest {
-                val isChannelCreationPossible = it is ChannelCreationPermission.Allowed
-                newGroupState = newGroupState.copy(isChannelCreationPossible = isChannelCreationPossible)
-            }
+                    isChannelCreationPossible = it is ChannelCreationPermission.Allowed
+                }
         }
     }
 

@@ -88,7 +88,7 @@ class DateAndTimeParsers private constructor() {
         private val cellFileDateTimeFormat =
             DateTimeFormatter.ofPattern("MMM dd, hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val readReceiptDateTimeFormat =
-            DateTimeFormatter.ofPattern("MMM dd yyyy, hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
+            DateTimeFormatter.ofPattern("MMM dd yyyy,  hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val mediumOnlyDateTimeFormat =
             DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val messageTimeFormatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, Locale.getDefault()).apply {

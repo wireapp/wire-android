@@ -257,7 +257,7 @@ fun GroupConversationDetailsScreen(
                     ChannelAccessOnUpdateScreenDestination(
                         viewModel.conversationId.toString(),
                         viewModel.groupOptionsState.value.channelAccessType!!,
-                        viewModel.groupOptionsState.value.channelAddPermissionType!!
+                        viewModel.groupOptionsState.value.channelAddUserPermissionType!!
                     )
                 )
             )
@@ -316,7 +316,7 @@ fun GroupConversationDetailsScreen(
             NavResult.Canceled -> {}
             is NavResult.Value -> {
                 viewModel.updateChannelAccess(result.value.accessType)
-                viewModel.updateChannelAddPermission(result.value.permissionType)
+                viewModel.updateChannelAddUserPermission(result.value.permissionType)
             }
         }
     }

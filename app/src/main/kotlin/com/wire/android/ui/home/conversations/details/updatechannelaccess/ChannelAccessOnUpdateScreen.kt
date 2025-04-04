@@ -67,7 +67,7 @@ fun ChannelAccessOnUpdateScreen(
                 accessType,
                 permissionType,
                 onAccessChange = ::updateChannelAccess,
-                onPermissionChange = ::updateChannelAddPermission
+                onPermissionChange = ::updateChannelAddUserPermission
             )
         }
     }

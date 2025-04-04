@@ -24,7 +24,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.channels.ChannelsScope
 import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.conversation.channel.IsSelfEligibleToAddParticipantsToChannelUseCase
-import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
+import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddUserPermissionUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,8 +44,8 @@ class ChannelsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideUpdateChannelAddPermission(channelsScope: ChannelsScope): UpdateChannelAddPermissionUseCase =
-        channelsScope.updateChannelAddPermission
+    fun provideUpdateChannelAddUserPermission(channelsScope: ChannelsScope): UpdateChannelAddUserPermissionUseCase =
+        channelsScope.updateChannelAddUserPermission
 
     @ViewModelScoped
     @Provides

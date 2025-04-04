@@ -30,7 +30,7 @@ import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddUserPermissionType
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -50,7 +50,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -95,8 +94,8 @@ class NewConversationViewModel @Inject constructor(
         newGroupState = newGroupState.copy(channelAccessType = channelAccessType)
     }
 
-    fun setChannelPermission(channelAddPermissionType: ChannelAddPermissionType) {
-        newGroupState = newGroupState.copy(channelAddPermissionType = channelAddPermissionType)
+    fun setChannelPermission(channelAddUserPermissionType: ChannelAddUserPermissionType) {
+        newGroupState = newGroupState.copy(channelAddUserPermissionType = channelAddUserPermissionType)
     }
 
     fun setIsChannel(isChannel: Boolean) {

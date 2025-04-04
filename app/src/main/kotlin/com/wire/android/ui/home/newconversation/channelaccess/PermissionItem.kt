@@ -36,24 +36,24 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun PermissionItem(
-    channelAddPermissionType: ChannelAddPermissionType,
-    selectedPermission: ChannelAddPermissionType,
+    channelAddUserPermissionType: ChannelAddUserPermissionType,
+    selectedPermission: ChannelAddUserPermissionType,
     modifier: Modifier = Modifier,
-    onItemClicked: (ChannelAddPermissionType) -> Unit
+    onItemClicked: (ChannelAddUserPermissionType) -> Unit
 ) {
-    val isSelected = channelAddPermissionType == selectedPermission
+    val isSelected = channelAddUserPermissionType == selectedPermission
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = dimensions().spacing1x)
-            .selectableBackground(isSelected, onClick = { onItemClicked(channelAddPermissionType) })
+            .selectableBackground(isSelected, onClick = { onItemClicked(channelAddUserPermissionType) })
             .background(color = MaterialTheme.wireColorScheme.surface),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(selected = isSelected, onClick = { onItemClicked(channelAddPermissionType) })
+        RadioButton(selected = isSelected, onClick = { onItemClicked(channelAddUserPermissionType) })
         Text(
-            text = stringResource(channelAddPermissionType.label),
+            text = stringResource(channelAddUserPermissionType.label),
             style = MaterialTheme.wireTypography.body01,
             color = MaterialTheme.wireColorScheme.onBackground,
             modifier = Modifier.padding(vertical = dimensions().spacing16x)
@@ -65,8 +65,8 @@ fun PermissionItem(
 @PreviewMultipleThemes
 fun PreviewPermissionItem() {
     PermissionItem(
-        channelAddPermissionType = ChannelAddPermissionType.ADMINS,
-        selectedPermission = ChannelAddPermissionType.ADMINS,
+        channelAddUserPermissionType = ChannelAddUserPermissionType.ADMINS,
+        selectedPermission = ChannelAddUserPermissionType.ADMINS,
         onItemClicked = {}
     )
 }

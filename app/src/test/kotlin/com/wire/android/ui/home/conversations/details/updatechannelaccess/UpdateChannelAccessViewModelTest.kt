@@ -21,10 +21,10 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.destinations.ChannelAccessOnUpdateScreenDestination
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddUserPermissionType
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
-import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
+import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddUserPermissionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -59,27 +59,27 @@ class UpdateChannelAccessViewModelTest {
     @Test
     fun `given channel permission changed successfully, when updateChannelPermission is called, then update the state`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withUpdateChannelAddPermissionUseCaseReturning(
-                UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult.Success
+            .withUpdateChannelAddUserPermissionUseCaseReturning(
+                UpdateChannelAddUserPermissionUseCase.UpdateChannelAddUserPermissionUseCaseResult.Success
             ).arrange()
 
-        viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
+        viewModel.updateChannelAddUserPermission(ChannelAddUserPermissionType.EVERYONE)
         advanceUntilIdle()
 
-        assertEquals(ChannelAddPermissionType.EVERYONE, viewModel.permissionType)
+        assertEquals(ChannelAddUserPermissionType.EVERYONE, viewModel.permissionType)
     }
 
     @Test
     fun `given channel permission failed to change, when updateChannelPermission is called, then do not update the state`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withUpdateChannelAddPermissionUseCaseReturning(
-                UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult.Failure
+            .withUpdateChannelAddUserPermissionUseCaseReturning(
+                UpdateChannelAddUserPermissionUseCase.UpdateChannelAddUserPermissionUseCaseResult.Failure
             ).arrange()
 
-        viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
+        viewModel.updateChannelAddUserPermission(ChannelAddUserPermissionType.EVERYONE)
         advanceUntilIdle()
 
-        assertEquals(ChannelAddPermissionType.ADMINS, viewModel.permissionType)
+        assertEquals(ChannelAddUserPermissionType.ADMINS, viewModel.permissionType)
     }
 
     @Test
@@ -98,11 +98,11 @@ class UpdateChannelAccessViewModelTest {
         private lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
-        private lateinit var updateChannelAddPermission: UpdateChannelAddPermissionUseCase
+        private lateinit var updateChannelAddUserPermission: UpdateChannelAddUserPermissionUseCase
 
         private val viewModel by lazy {
             UpdateChannelAccessViewModel(
-                updateChannelAddPermission = updateChannelAddPermission,
+                updateChannelAddUserPermission = updateChannelAddUserPermission,
                 savedStateHandle = savedStateHandle,
                 qualifiedIdMapper = QualifiedIdMapperImpl(TestUser.SELF_USER_ID)
             )
@@ -121,11 +121,11 @@ class UpdateChannelAccessViewModelTest {
             every { savedStateHandle.navArgs<UpdateChannelAccessArgs>() } returns UpdateChannelAccessArgs(conversationId)
         }
 
-        fun withUpdateChannelAddPermissionUseCaseReturning(
-            result: UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult
+        fun withUpdateChannelAddUserPermissionUseCaseReturning(
+            result: UpdateChannelAddUserPermissionUseCase.UpdateChannelAddUserPermissionUseCaseResult
         ) = apply {
-                coEvery { updateChannelAddPermission(any(), any()) } returns result
-            }
+            coEvery { updateChannelAddUserPermission(any(), any()) } returns result
+        }
 
         fun arrange() = this to viewModel
     }

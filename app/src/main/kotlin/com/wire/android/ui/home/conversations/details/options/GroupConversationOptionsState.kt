@@ -19,7 +19,7 @@
 package com.wire.android.ui.home.conversations.details.options
 
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddUserPermissionType
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -58,7 +58,7 @@ data class GroupConversationOptionsState(
     val loadingReadReceiptOption: Boolean = false,
     val isChannel: Boolean = false,
     val channelAccessType: ChannelAccessType? = ChannelAccessType.PRIVATE,
-    val channelAddPermissionType: ChannelAddPermissionType? = ChannelAddPermissionType.ADMINS,
+    val channelAddUserPermissionType: ChannelAddUserPermissionType? = ChannelAddUserPermissionType.ADMINS,
     val error: Error = Error.None,
     val mlsEnabled: Boolean = false,
     val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled

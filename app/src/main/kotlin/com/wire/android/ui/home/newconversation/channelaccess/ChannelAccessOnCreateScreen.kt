@@ -62,7 +62,7 @@ fun ChannelAccessOnCreateScreen(
         ChannelAccessScreenContent(
             internalPadding = internalPadding,
             newConversationViewModel.newGroupState.channelAccessType,
-            newConversationViewModel.newGroupState.channelAddPermissionType,
+            newConversationViewModel.newGroupState.channelAddUserPermissionType,
             onAccessChange = newConversationViewModel::setChannelAccess,
             onPermissionChange = newConversationViewModel::setChannelPermission
         )
@@ -73,10 +73,10 @@ fun ChannelAccessOnCreateScreen(
 fun ChannelAccessScreenContent(
     internalPadding: PaddingValues,
     selectedAccess: ChannelAccessType,
-    selectedPermission: ChannelAddPermissionType,
+    selectedPermission: ChannelAddUserPermissionType,
     modifier: Modifier = Modifier,
     onAccessChange: (ChannelAccessType) -> Unit = {},
-    onPermissionChange: (ChannelAddPermissionType) -> Unit = {}
+    onPermissionChange: (ChannelAddUserPermissionType) -> Unit = {}
 ) {
     LazyColumn(
         modifier = modifier,
@@ -128,9 +128,9 @@ private fun AccessSection(
 
 @Composable
 private fun PermissionSection(
-    selectedPermission: ChannelAddPermissionType,
+    selectedPermission: ChannelAddUserPermissionType,
     modifier: Modifier = Modifier,
-    onPermissionChange: (ChannelAddPermissionType) -> Unit
+    onPermissionChange: (ChannelAddUserPermissionType) -> Unit
 ) {
     Column(modifier = modifier) {
         Text(
@@ -147,17 +147,17 @@ private fun PermissionSection(
             color = MaterialTheme.wireColorScheme.secondaryText,
         )
         PermissionItem(
-            channelAddPermissionType = ChannelAddPermissionType.ADMINS,
+            channelAddUserPermissionType = ChannelAddUserPermissionType.ADMINS,
             selectedPermission = selectedPermission,
             onItemClicked = onPermissionChange
         )
         PermissionItem(
-            channelAddPermissionType = ChannelAddPermissionType.EVERYONE,
+            channelAddUserPermissionType = ChannelAddUserPermissionType.EVERYONE,
             selectedPermission = selectedPermission,
             onItemClicked = onPermissionChange
         )
         Text(
-            text = stringResource(id = R.string.channel_add_permission_description),
+            text = stringResource(id = R.string.channel_add_user_permission_description),
             style = MaterialTheme.wireTypography.body01,
             color = MaterialTheme.wireColorScheme.secondaryText,
             modifier = Modifier.padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x)
@@ -172,7 +172,7 @@ fun PreviewChannelAccessScreen() {
         ChannelAccessScreenContent(
             internalPadding = PaddingValues(),
             selectedAccess = ChannelAccessType.PRIVATE,
-            selectedPermission = ChannelAddPermissionType.ADMINS
+            selectedPermission = ChannelAddUserPermissionType.ADMINS
         )
     }
 }

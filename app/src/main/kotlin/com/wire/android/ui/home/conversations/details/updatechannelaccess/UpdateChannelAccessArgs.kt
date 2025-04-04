@@ -19,12 +19,12 @@ package com.wire.android.ui.home.conversations.details.updatechannelaccess
 
 import android.os.Parcelable
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddUserPermissionType
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class UpdateChannelAccessArgs(
     val conversationId: String,
     val accessType: ChannelAccessType = ChannelAccessType.PRIVATE,
-    val permissionType: ChannelAddPermissionType = ChannelAddPermissionType.ADMINS
+    val permissionType: ChannelAddUserPermissionType = ChannelAddUserPermissionType.ADMINS
 ) : Parcelable

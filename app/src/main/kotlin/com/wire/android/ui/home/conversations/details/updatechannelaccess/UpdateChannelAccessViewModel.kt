@@ -24,13 +24,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddUserPermissionType
 import com.wire.android.ui.home.newconversation.channelaccess.toDomainEnum
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
-import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
-import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult
+import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddUserPermissionUseCase
+import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddUserPermissionUseCase.UpdateChannelAddUserPermissionUseCaseResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,7 +38,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UpdateChannelAccessViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    val updateChannelAddPermission: UpdateChannelAddPermissionUseCase,
+    val updateChannelAddUserPermission: UpdateChannelAddUserPermissionUseCase,
     private val qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
 
@@ -47,23 +47,23 @@ class UpdateChannelAccessViewModel @Inject constructor(
     var accessType: ChannelAccessType by mutableStateOf(channelAccessNavArgs.accessType)
         private set
 
-    var permissionType: ChannelAddPermissionType by mutableStateOf(channelAccessNavArgs.permissionType)
+    var permissionType: ChannelAddUserPermissionType by mutableStateOf(channelAccessNavArgs.permissionType)
         private set
 
     val conversationId: String = channelAccessNavArgs.conversationId
 
-    fun updateChannelAddPermission(newPermission: ChannelAddPermissionType) {
+    fun updateChannelAddUserPermission(newPermission: ChannelAddUserPermissionType) {
         viewModelScope.launch {
-            val result = updateChannelAddPermission(
+            val result = updateChannelAddUserPermission(
                 channelAccessNavArgs.conversationId.toQualifiedID(qualifiedIdMapper),
                 newPermission.toDomainEnum()
             )
             when (result) {
-                is UpdateChannelAddPermissionUseCaseResult.Success -> {
+                is UpdateChannelAddUserPermissionUseCaseResult.Success -> {
                     permissionType = newPermission
                 }
 
-                is UpdateChannelAddPermissionUseCaseResult.Failure -> {
+                is UpdateChannelAddUserPermissionUseCaseResult.Failure -> {
                     // TODO handle failure, show dialog or snackbar
                 }
             }

@@ -66,7 +66,7 @@ class UpdateChannelAccessViewModelTest {
         viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
         advanceUntilIdle()
 
-        assertEquals(ChannelAddPermissionType.EVERYONE, viewModel.getPermissionType())
+        assertEquals(ChannelAddPermissionType.EVERYONE, viewModel.permissionType)
     }
 
     @Test
@@ -79,7 +79,7 @@ class UpdateChannelAccessViewModelTest {
         viewModel.updateChannelAddPermission(ChannelAddPermissionType.EVERYONE)
         advanceUntilIdle()
 
-        assertEquals(ChannelAddPermissionType.ADMINS, viewModel.getPermissionType())
+        assertEquals(ChannelAddPermissionType.ADMINS, viewModel.permissionType)
     }
 
     @Test
@@ -89,7 +89,7 @@ class UpdateChannelAccessViewModelTest {
 
         viewModel.updateChannelAccess(ChannelAccessType.PRIVATE)
 
-        assertEquals(ChannelAccessType.PRIVATE, viewModel.getAccessType())
+        assertEquals(ChannelAccessType.PRIVATE, viewModel.accessType)
     }
 
     private class Arrangement {

@@ -51,6 +51,7 @@ data class GroupConversationOptionsState(
     val isUpdatingServicesAllowed: Boolean = false,
     val isUpdatingSelfDeletingAllowed: Boolean = false,
     val isUpdatingReadReceiptAllowed: Boolean = false,
+    val shouldShowAddParticipantsButtonForChannel: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
     val changeServiceOptionConfirmationRequired: Boolean = false,
     val loadingServicesOption: Boolean = false,
@@ -60,7 +61,10 @@ data class GroupConversationOptionsState(
     val channelAddPermissionType: ChannelAddPermissionType? = ChannelAddPermissionType.ADMINS,
     val error: Error = Error.None,
     val mlsEnabled: Boolean = false,
-    val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled
+    val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled,
+    val loadingWireCellState: Boolean = false,
+    val isWireCellFeatureEnabled: Boolean = false,
+    val isWireCellEnabled: Boolean = false,
 ) {
 
     sealed interface Error {

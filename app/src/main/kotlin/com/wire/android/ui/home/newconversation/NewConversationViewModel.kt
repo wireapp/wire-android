@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -39,6 +40,8 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
+import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
@@ -48,6 +51,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -56,7 +61,9 @@ import javax.inject.Inject
 class NewConversationViewModel @Inject constructor(
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val createChannel: CreateChannelUseCase,
+    private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,
     private val getSelfUser: GetSelfUserUseCase,
+    private val globalDataStore: GlobalDataStore,
     getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
 
@@ -75,7 +82,7 @@ class NewConversationViewModel @Inject constructor(
             val isMLS = newGroupState.groupProtocol == ConversationOptions.Protocol.MLS
             it.copy(
                 isAllowServicesEnabled = !isMLS,
-                isAllowServicesPossible = !isMLS
+                isAllowServicesPossible = !isMLS,
             )
         }
     )
@@ -84,6 +91,18 @@ class NewConversationViewModel @Inject constructor(
     init {
         setConversationCreationParam()
         observeGroupNameChanges()
+        observeChannelCreationPermission()
+        getWireCellFeatureState()
+    }
+
+    private fun getWireCellFeatureState() = viewModelScope.launch {
+        val isWireCellsFeatureEnabled = globalDataStore.wireCellsEnabled().firstOrNull() ?: false
+
+        if (isWireCellsFeatureEnabled) {
+            groupOptionsState = groupOptionsState.copy(
+                isWireCellsEnabled = true
+            )
+        }
     }
 
     fun setChannelAccess(channelAccessType: ChannelAccessType) {
@@ -117,6 +136,16 @@ class NewConversationViewModel @Inject constructor(
                 .collectLatest {
                     newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
                 }
+        }
+    }
+
+    private fun observeChannelCreationPermission() {
+        viewModelScope.launch {
+            isUserAllowedToCreateChannels()
+                .collectLatest {
+                val isChannelCreationPossible = it is ChannelCreationPermission.Allowed
+                newGroupState = newGroupState.copy(isChannelCreationPossible = isChannelCreationPossible)
+            }
         }
     }
 
@@ -231,7 +260,8 @@ class NewConversationViewModel @Inject constructor(
                 options = ConversationOptions().copy(
                     protocol = ConversationOptions.Protocol.PROTEUS,
                     accessRole = Conversation.defaultGroupAccessRoles,
-                    access = Conversation.defaultGroupAccess
+                    access = Conversation.defaultGroupAccess,
+                    wireCellEnabled = groupOptionsState.isWireCellsEnabled ?: false,
                 )
             )
             handleNewGroupCreationResult(result)?.let(onCreated)
@@ -249,12 +279,13 @@ class NewConversationViewModel @Inject constructor(
                 options = ConversationOptions().copy(
                     protocol = newGroupState.groupProtocol,
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
+                    wireCellEnabled = groupOptionsState.isWireCellsEnabled ?: false,
                     accessRole = Conversation.accessRolesFor(
                         guestAllowed = groupOptionsState.isAllowGuestEnabled,
                         servicesAllowed = groupOptionsState.isAllowServicesEnabled,
                         nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
                     ),
-                    access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled)
+                    access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),
                 )
             )
             handleNewGroupCreationResult(result)?.let(onCreated)
@@ -295,5 +326,9 @@ class NewConversationViewModel @Inject constructor(
 
     fun onGroupNameErrorAnimated() {
         newGroupState = GroupNameValidator.onGroupNameErrorAnimated(newGroupState)
+    }
+
+    fun onEnableWireCellChanged(enabled: Boolean) {
+        groupOptionsState = groupOptionsState.copy(isWireCellsEnabled = enabled)
     }
 }

@@ -23,6 +23,7 @@ import androidx.work.WorkManager
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
@@ -37,6 +38,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
+import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -58,6 +60,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.channel.IsSelfEligibleToAddParticipantsToChannelUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -709,7 +712,8 @@ class GroupConversationDetailsViewModelTest {
             ),
             hasOngoingCall = false,
             isSelfUserMember = true,
-            selfRole = Conversation.Member.Role.Member
+            selfRole = Conversation.Member.Role.Member,
+            wireCell = null,
         )
     }
 }
@@ -758,6 +762,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
 
+    @MockK
+    lateinit var setWireCellUseCase: SetWireCellForConversationUseCase
+
     private val conversationDetailsFlow = MutableSharedFlow<ConversationDetails>(replay = Int.MAX_VALUE)
 
     private val observeParticipantsForConversationFlow =
@@ -770,7 +777,13 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
 
     @MockK
+    lateinit var isSelfEligibleToAddParticipantsToChannel: IsSelfEligibleToAddParticipantsToChannelUseCase
+
+    @MockK
     private lateinit var workManager: WorkManager
+
+    @MockK
+    lateinit var globalDataStore: GlobalDataStore
 
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
@@ -788,10 +801,13 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase,
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
+            isSelfEligibleToAddParticipantsToChannel = isSelfEligibleToAddParticipantsToChannel,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             updateConversationArchivedStatus = updateConversationArchivedStatus,
             getDefaultProtocol = getDefaultProtocolUseCase,
-            workManager = workManager
+            workManager = workManager,
+            enableCell = setWireCellUseCase,
+            globalDataStore = globalDataStore,
         )
     }
 
@@ -819,6 +835,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
         every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
+        every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
     }
 
     suspend fun withGetSelfUserReturns(user: SelfUser) = apply {

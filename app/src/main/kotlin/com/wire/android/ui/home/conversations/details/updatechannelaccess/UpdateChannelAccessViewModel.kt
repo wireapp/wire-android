@@ -17,8 +17,9 @@
  */
 package com.wire.android.ui.home.conversations.details.updatechannelaccess
 
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -43,14 +44,13 @@ class UpdateChannelAccessViewModel @Inject constructor(
 
     private val channelAccessNavArgs: UpdateChannelAccessArgs = savedStateHandle.navArgs()
 
-    private val accessType: MutableState<ChannelAccessType> =
-        mutableStateOf(channelAccessNavArgs.accessType)
-    private val permissionType: MutableState<ChannelAddPermissionType> =
-        mutableStateOf(channelAccessNavArgs.permissionType)
+    var accessType: ChannelAccessType by mutableStateOf(channelAccessNavArgs.accessType)
+        private set
 
-    fun getConversationId(): String = channelAccessNavArgs.conversationId
-    fun getAccessType(): ChannelAccessType = accessType.value
-    fun getPermissionType(): ChannelAddPermissionType = permissionType.value
+    var permissionType: ChannelAddPermissionType by mutableStateOf(channelAccessNavArgs.permissionType)
+        private set
+
+    val conversationId: String = channelAccessNavArgs.conversationId
 
     fun updateChannelAddPermission(newPermission: ChannelAddPermissionType) {
         viewModelScope.launch {
@@ -60,7 +60,7 @@ class UpdateChannelAccessViewModel @Inject constructor(
             )
             when (result) {
                 is UpdateChannelAddPermissionUseCaseResult.Success -> {
-                    permissionType.value = newPermission
+                    permissionType = newPermission
                 }
 
                 is UpdateChannelAddPermissionUseCaseResult.Failure -> {
@@ -71,7 +71,7 @@ class UpdateChannelAccessViewModel @Inject constructor(
     }
 
     fun updateChannelAccess(newAccessType: ChannelAccessType) {
-        accessType.value = newAccessType
+        accessType = newAccessType
         // TODO call use case to update the channel access
     }
 }

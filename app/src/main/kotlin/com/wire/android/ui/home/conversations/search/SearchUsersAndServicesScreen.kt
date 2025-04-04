@@ -55,8 +55,8 @@ import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -78,7 +78,7 @@ fun SearchUsersAndServicesScreen(
     screenType: SearchPeopleScreenType,
     modifier: Modifier = Modifier,
     isSelfTeamMember: Boolean = false,
-    isChannelsAllowed: Boolean = true,
+    isUserAllowedToCreateChannels: Boolean = true,
     isGroupSubmitVisible: Boolean = true,
     isServicesAllowed: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
@@ -201,7 +201,7 @@ fun SearchUsersAndServicesScreen(
                     SearchPeopleScreenType.NEW_CONVERSATION -> {
                         CreateRegularGroupOrChannelButtons(
                             isSelfTeamMember = isSelfTeamMember,
-                            shouldShowChannelButton = isChannelsAllowed,
+                            shouldShowChannelButton = isUserAllowedToCreateChannels,
                             onCreateNewRegularGroup = onCreateNewGroup,
                             onCreateNewChannel = onCreateNewChannel
                         )

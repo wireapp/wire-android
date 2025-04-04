@@ -56,6 +56,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.spec.Route
+import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.route
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -261,7 +262,7 @@ class WireActivity : AppCompatActivity() {
                     val currentBackStackEntryState = navigator.navController.currentBackStackEntryAsState()
                     val backgroundType by remember {
                         derivedStateOf {
-                            currentBackStackEntryState.value?.appDestination()?.style.let {
+                            currentBackStackEntryState.value?.destination()?.style.let {
                                 (it as? BackgroundStyle)?.backgroundType() ?: BackgroundType.Default
                             }
                         }
@@ -800,7 +801,7 @@ class WireActivity : AppCompatActivity() {
                 onSSOLogin = {
                     navigate(
                         NavigationCommand(
-                            when (navigator.navController.currentBackStackEntry?.appDestination()?.route?.getBaseRoute()) {
+                            when (navigator.navController.currentBackStackEntry?.destination()?.route?.getBaseRoute()) {
                                 // if SSO login started from new login screen then go back to the new login flow
                                 NewLoginScreenDestination.route.getBaseRoute() -> NewLoginScreenDestination(ssoLoginResult = it)
                                 else -> LoginScreenDestination(ssoLoginResult = it)

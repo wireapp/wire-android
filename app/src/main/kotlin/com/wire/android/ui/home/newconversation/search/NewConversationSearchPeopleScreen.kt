@@ -50,6 +50,7 @@ fun NewConversationSearchPeopleScreen(
     SearchUsersAndServicesScreen(
         searchTitle = stringResource(id = R.string.label_new_conversation),
         isSelfTeamMember = isSelfTeamMember,
+        isUserAllowedToCreateChannels = newConversationViewModel.newGroupState.isChannelCreationPossible,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }

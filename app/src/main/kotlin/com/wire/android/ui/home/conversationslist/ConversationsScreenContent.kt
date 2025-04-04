@@ -206,7 +206,7 @@ fun ConversationsScreenContent(
             is ConversationListState.Paginated -> {
                 val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
                 val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
-                searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0)
+                searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
                 when {
                     // when conversation list is not yet fetched, show loading indicator
                     showLoading -> loadingListContent(lazyListState)
@@ -240,7 +240,7 @@ fun ConversationsScreenContent(
 
             is ConversationListState.NotPaginated -> {
                 val hasConversations = state.conversations.isNotEmpty() && state.conversations.any { it.value.isNotEmpty() }
-                searchBarState.searchVisibleChanged(isSearchVisible = hasConversations)
+                searchBarState.searchVisibleChanged(isSearchVisible = hasConversations || searchBarState.isSearchActive)
                 when {
                     // when conversation list is not yet fetched, show loading indicator
                     state.isLoading -> loadingListContent(lazyListState)

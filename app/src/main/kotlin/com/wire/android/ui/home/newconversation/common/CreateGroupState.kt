@@ -21,8 +21,8 @@ data class CreateGroupState(
     val error: Error? = null
 ) {
     sealed interface Error {
-        object Unknown : Error
-        object LackingConnection : Error
+        data object Unknown : Error
+        data object LackingConnection : Error
         data class ConflictedBackends(val domains: List<String>) : Error
 
         val isConflictedBackends get() = this is ConflictedBackends

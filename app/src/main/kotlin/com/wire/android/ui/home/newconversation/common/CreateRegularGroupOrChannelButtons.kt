@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -59,6 +60,7 @@ fun CreateRegularGroupOrChannelButtons(
             modifier = modifier
                 .padding(dimensions().spacing16x)
         ) {
+            appLogger.d("cccc: shouldShowChannelButton: $shouldShowChannelButton")
             if (shouldShowChannelButton) {
                 WirePrimaryButton(
                     text = stringResource(R.string.label_create_new_channel),

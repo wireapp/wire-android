@@ -34,6 +34,7 @@ object GroupNameValidator {
                     error = GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError
                 )
             }
+
             cleanText.count() > GROUP_NAME_MAX_COUNT -> {
                 currentGroupState.copy(
                     animatedGroupNameError = true,
@@ -41,6 +42,7 @@ object GroupNameValidator {
                     error = GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError
                 )
             }
+
             cleanText == currentGroupState.originalGroupName -> {
                 currentGroupState.copy(
                     animatedGroupNameError = false,
@@ -48,6 +50,7 @@ object GroupNameValidator {
                     error = GroupMetadataState.NewGroupError.None
                 )
             }
+
             else -> {
                 currentGroupState.copy(
                     animatedGroupNameError = false,

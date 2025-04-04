@@ -55,7 +55,10 @@ fun NewGroupConversationSearchPeopleScreen(
         onContactChecked = newConversationViewModel::updateSelectedContacts,
         onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
-        onClose = navigator::navigateBack,
+        onClose = {
+            newConversationViewModel.resetState()
+            navigator.navigateBack()
+        },
         onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_GROUP_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,

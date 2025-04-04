@@ -33,6 +33,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +63,20 @@ import kotlinx.collections.immutable.toPersistentList
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
+/**
+ * state of the search screen
+ * Loading - loading state
+ * EmptyQuery - empty search query, show all users
+ * NoResults - no results found
+ * ShowResults - search results are found
+ */
+private sealed interface SearchUiState {
+    object Loading : SearchUiState
+    object EmptyQuery : SearchUiState
+    object NoResults : SearchUiState
+    object ShowResults : SearchUiState
+}
+
 @Composable
 fun SearchAllPeopleScreen(
     searchQuery: String,
@@ -80,15 +96,31 @@ fun SearchAllPeopleScreen(
     onPublicResultsExpansionChanged: (Boolean) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState()
 ) {
-    val emptyResults = contactsSearchResult.isEmpty() && publicSearchResult.isEmpty()
-    when {
-        isLoading -> CenteredCircularProgressBarIndicator()
 
-        searchQuery.isBlank() && emptyResults -> EmptySearchQueryScreen()
+    val noSearchResults: Boolean by remember(publicSearchResult, contactsSearchResult, contactsSelectedSearchResult) {
+        derivedStateOf {
+            publicSearchResult.isEmpty() &&
+                    contactsSearchResult.isEmpty() &&
+                    contactsSelectedSearchResult.isEmpty()
+        }
+    }
 
-        searchQuery.isNotBlank() && emptyResults -> SearchFailureBox(R.string.label_no_results_found)
+    val uiState by remember(searchQuery, isLoading, noSearchResults) {
+        derivedStateOf {
+            when {
+                isLoading -> SearchUiState.Loading
+                searchQuery.isBlank() && noSearchResults -> SearchUiState.EmptyQuery
+                searchQuery.isNotBlank() && noSearchResults -> SearchUiState.NoResults
+                else -> SearchUiState.ShowResults
+            }
+        }
+    }
 
-        else -> SearchResult(
+    when (uiState) {
+        SearchUiState.Loading -> CenteredCircularProgressBarIndicator()
+        SearchUiState.EmptyQuery -> EmptySearchQueryScreen()
+        SearchUiState.NoResults -> SearchFailureBox(R.string.label_no_results_found)
+        SearchUiState.ShowResults -> SearchResult(
             searchQuery = searchQuery,
             publicSearchResult = publicSearchResult,
             contactsSearchResult = contactsSearchResult,

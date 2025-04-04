@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.newconversation
 
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.kalium.common.error.CoreFailure
@@ -59,6 +60,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.Success(CONVERSATION)
         coEvery { observeChannelsCreationPermissionUseCase() } returns flowOf(ChannelCreationPermission.Forbidden)
         every { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
+        every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
     }
 
     @MockK
@@ -81,6 +83,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var getDefaultProtocol: GetDefaultProtocolUseCase
+
+    @MockK
+    lateinit var globalDataStore: GlobalDataStore
 
     private var createGroupState: CreateGroupState = CreateGroupState()
 
@@ -211,7 +216,8 @@ internal class NewConversationViewModelArrangement {
         createChannel = createChannel,
         isUserAllowedToCreateChannels = observeChannelsCreationPermissionUseCase,
         getSelfUser = getSelf,
-        getDefaultProtocol = getDefaultProtocol
+        getDefaultProtocol = getDefaultProtocol,
+        globalDataStore = globalDataStore,
     ).also {
         it.createGroupState = createGroupState
     }

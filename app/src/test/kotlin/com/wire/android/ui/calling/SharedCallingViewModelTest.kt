@@ -133,6 +133,8 @@ class SharedCallingViewModelTest {
         UICallParticipantMapper(userTypeMapper)
     }
 
+    private val dispatcherProvider = TestDispatcherProvider()
+
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
 
     val reactionsFlow = MutableSharedFlow<InCallReactionMessage>()
@@ -167,13 +169,13 @@ class SharedCallingViewModelTest {
             observeInCallReactionsUseCase = observeInCallReactionsUseCase,
             sendInCallReactionUseCase = sendInCallReactionUseCase,
             getCurrentClientId = getCurrentClientId,
-            dispatchers = TestDispatcherProvider()
+            dispatchers = dispatcherProvider
         )
     }
 
     @Test
     fun `given isMuted value is null, when toggling microphone, then do not update microphone state`() =
-        runTest {
+        runTest(dispatcherProvider.main()) {
             sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = null)
             coEvery { muteCall(conversationId) } returns Unit
 
@@ -183,7 +185,7 @@ class SharedCallingViewModelTest {
         }
 
     @Test
-    fun `given an un-muted call, when toggling microphone, then mute the call`() = runTest {
+    fun `given an un-muted call, when toggling microphone, then mute the call`() = runTest(dispatcherProvider.main()) {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = false)
         coEvery { muteCall(conversationId) } returns Unit
 
@@ -195,7 +197,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given a muted call, when toggling microphone, then un-mute the call`() = runTest {
+    fun `given a muted call, when toggling microphone, then un-mute the call`() = runTest(dispatcherProvider.main()) {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = true)
         coEvery { unMuteCall(any()) } returns Unit
 
@@ -208,7 +210,7 @@ class SharedCallingViewModelTest {
 
     @Test
     fun `given user on a preview screen, when muting microphone, then mute the call with false param`() =
-        runTest {
+        runTest(dispatcherProvider.main()) {
             sharedCallingViewModel.callState =
                 sharedCallingViewModel.callState.copy(isMuted = false)
             coEvery { muteCall(conversationId, false) } returns Unit
@@ -222,7 +224,7 @@ class SharedCallingViewModelTest {
 
     @Test
     fun `given user on a preview screen, when un-muting microphone, then un-mute the call with false param`() =
-        runTest {
+        runTest(dispatcherProvider.main()) {
             sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = true)
             coEvery { unMuteCall(conversationId, false) } returns Unit
 
@@ -234,7 +236,7 @@ class SharedCallingViewModelTest {
         }
 
     @Test
-    fun `given front facing camera, when flipping it, then switch to back camera`() = runTest {
+    fun `given front facing camera, when flipping it, then switch to back camera`() = runTest(dispatcherProvider.main()) {
         sharedCallingViewModel.callState =
             sharedCallingViewModel.callState.copy(isOnFrontCamera = true)
         coEvery { flipToBackCamera(conversationId) } returns Unit
@@ -247,7 +249,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given back facing camera, when flipping it, then switch to front camera`() = runTest {
+    fun `given back facing camera, when flipping it, then switch to front camera`() = runTest(dispatcherProvider.main()) {
         sharedCallingViewModel.callState =
             sharedCallingViewModel.callState.copy(isOnFrontCamera = false)
         coEvery { flipToFrontCamera(conversationId) } returns Unit
@@ -260,7 +262,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given camera is turned on, when toggling video, then turn off video`() = runTest {
+    fun `given camera is turned on, when toggling video, then turn off video`() = runTest(dispatcherProvider.main()) {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = true)
         coEvery { updateVideoState(any(), any()) } returns Unit
 
@@ -272,7 +274,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given camera is turned off, when toggling video, then turn on video`() = runTest {
+    fun `given camera is turned off, when toggling video, then turn on video`() = runTest(dispatcherProvider.main()) {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = false)
         coEvery { updateVideoState(any(), any()) } returns Unit
 
@@ -284,7 +286,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given an active call, when the user ends call, then invoke endCall useCase`() = runTest {
+    fun `given an active call, when the user ends call, then invoke endCall useCase`() = runTest(dispatcherProvider.main()) {
         coEvery { endCall(any()) } returns Unit
         coEvery { muteCall(any(), false) } returns Unit
         every { callRinger.stop() } returns Unit
@@ -299,7 +301,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given an active call, when the user ends call, then reset call config`() = runTest {
+    fun `given an active call, when the user ends call, then reset call config`() = runTest(dispatcherProvider.main()) {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(
             isCameraOn = true,
             isSpeakerOn = true
@@ -325,7 +327,7 @@ class SharedCallingViewModelTest {
 
     @Test
     fun `given a call, when setVideoPreview is called, then set the video preview`() =
-        runTest {
+        runTest(dispatcherProvider.main()) {
             coEvery { setVideoPreview(any(), any()) } returns Unit
 
             sharedCallingViewModel.setVideoPreview(view)
@@ -335,7 +337,7 @@ class SharedCallingViewModelTest {
         }
 
     @Test
-    fun `given a call, when clearVideoPreview is called, then clear view`() = runTest {
+    fun `given a call, when clearVideoPreview is called, then clear view`() = runTest(dispatcherProvider.main()) {
         coEvery { setVideoPreview(any(), any()) } returns Unit
 
         sharedCallingViewModel.clearVideoPreview()
@@ -345,7 +347,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun givenAnOngoingCall_WhenInCallReactionIsReceived_ThenNewEmojiIsEmitted() = runTest {
+    fun givenAnOngoingCall_WhenInCallReactionIsReceived_ThenNewEmojiIsEmitted() = runTest(dispatcherProvider.main()) {
 
         sharedCallingViewModel.inCallReactions.test {
 
@@ -364,7 +366,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun givenAnOngoingCall_WhenInCallReactionIsReceived_ThenNewRecentReactionEmitted() = runTest {
+    fun givenAnOngoingCall_WhenInCallReactionIsReceived_ThenNewRecentReactionEmitted() = runTest(dispatcherProvider.main()) {
 
         // when
         reactionsFlow.emit(InCallReactionMessage(conversationId, TestUser.USER_ID, setOf("👍")))
@@ -376,7 +378,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun givenAnOngoingCall_WhenNewInCallReactionIsReceived_ThenRecentReactionUpdated() = runTest {
+    fun givenAnOngoingCall_WhenNewInCallReactionIsReceived_ThenRecentReactionUpdated() = runTest(dispatcherProvider.main()) {
 
         // when
         reactionsFlow.emit(InCallReactionMessage(conversationId, TestUser.USER_ID, setOf("👍", "🎉")))
@@ -388,7 +390,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun givenAnOngoingCall_WhenInCallReactionIsSent_ThenReactionMessageIsSent() = runTest {
+    fun givenAnOngoingCall_WhenInCallReactionIsSent_ThenReactionMessageIsSent() = runTest(dispatcherProvider.main()) {
 
         // given
         coEvery { sendInCallReactionUseCase(conversationId, any()) } returns Either.Right(Unit)
@@ -403,7 +405,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun givenAnOngoingCall_WhenInCallReactionIsSent_ThenNewEmojiIsEmitted() = runTest {
+    fun givenAnOngoingCall_WhenInCallReactionIsSent_ThenNewEmojiIsEmitted() = runTest(dispatcherProvider.main()) {
 
         // given
         coEvery { sendInCallReactionUseCase(conversationId, any()) } returns Either.Right(Unit)
@@ -421,7 +423,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun givenAnOngoingCall_WhenInCallReactionSentFails_ThenNoEmojiIsEmitted() = runTest {
+    fun givenAnOngoingCall_WhenInCallReactionSentFails_ThenNoEmojiIsEmitted() = runTest(dispatcherProvider.main()) {
         // given
         coEvery { sendInCallReactionUseCase(conversationId, any()) } returns
                 Either.Left(NetworkFailure.NoNetworkConnection(IllegalStateException()))

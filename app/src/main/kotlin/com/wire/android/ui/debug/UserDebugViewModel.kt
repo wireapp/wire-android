@@ -27,8 +27,8 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
-import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.common.logger.CoreLogger
+import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
@@ -43,7 +43,8 @@ data class UserDebugState(
     val clientId: String = String.EMPTY,
     val commitish: String = String.EMPTY,
     val debugId: String = String.EMPTY,
-    val logPath: String
+    val logPath: String,
+    val isWireCellFeatureEnabled: Boolean = false,
 )
 
 @Suppress("LongParameterList")
@@ -66,6 +67,13 @@ class UserDebugViewModel
         observeLoggingState()
         observeCurrentClientId()
         observeDBLoggingState()
+        observeWireCellsState()
+    }
+
+    private fun observeWireCellsState() = viewModelScope.launch {
+        globalDataStore.wireCellsEnabled().collect {
+            state = state.copy(isWireCellFeatureEnabled = it)
+        }
     }
 
     fun setDatabaseLoggerEnabledState(isEnabled: Boolean) {
@@ -96,6 +104,12 @@ class UserDebugViewModel
                 logFileWriter.stop()
                 CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
             }
+        }
+    }
+
+    fun enableWireCellsFeature(enabled: Boolean) {
+        viewModelScope.launch {
+            globalDataStore.setWireCellsEnabled(enabled)
         }
     }
 

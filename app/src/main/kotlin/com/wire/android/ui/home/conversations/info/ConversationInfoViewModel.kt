@@ -25,6 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.SavedStateViewModel
@@ -41,6 +42,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -50,6 +52,7 @@ class ConversationInfoViewModel @Inject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    private val globalDataStore: GlobalDataStore,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     @CurrentAccount private val selfUserId: UserId,
 ) : SavedStateViewModel(savedStateHandle) {
@@ -80,7 +83,7 @@ class ConversationInfoViewModel @Inject constructor(
             .collect { it.handleConversationDetailsResult(onNotFound) }
     }
 
-    private fun ObserveConversationDetailsUseCase.Result.handleConversationDetailsResult(onNotFound: () -> Unit) {
+    private suspend fun ObserveConversationDetailsUseCase.Result.handleConversationDetailsResult(onNotFound: () -> Unit) {
         when (this) {
             is ObserveConversationDetailsUseCase.Result.Failure -> {
                 when (val failure = this.storageFailure) {
@@ -97,7 +100,7 @@ class ConversationInfoViewModel @Inject constructor(
         }
     }
 
-    private fun handleConversationDetails(conversationDetails: ConversationDetails) {
+    private suspend fun handleConversationDetails(conversationDetails: ConversationDetails) {
         val (isConversationUnavailable, _) = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser
                 .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
@@ -116,9 +119,12 @@ class ConversationInfoViewModel @Inject constructor(
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
-            accentId = getAccentId(conversationDetails)
+            accentId = getAccentId(conversationDetails),
+            isWireCellEnabled = isWireCellFeatureEnabled() && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
         )
     }
+
+    private suspend fun isWireCellFeatureEnabled() = globalDataStore.wireCellsEnabled().firstOrNull() ?: false
 
     private fun getAccentId(conversationDetails: ConversationDetails): Int {
         return if (conversationDetails is ConversationDetails.OneOne) {

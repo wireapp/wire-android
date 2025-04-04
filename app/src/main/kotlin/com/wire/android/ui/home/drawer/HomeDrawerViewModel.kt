@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,17 +35,26 @@ import javax.inject.Inject
 class HomeDrawerViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeArchivedUnreadConversationsCountUseCase: ObserveArchivedUnreadConversationsCountUseCase,
+    private val globalDataStore: GlobalDataStore,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var drawerState by mutableStateOf(
         HomeDrawerState(
-            unreadArchiveConversationsCount = 0
+            unreadArchiveConversationsCount = 0,
+            showFilesOption = false,
         )
     )
         private set
 
     init {
         observeUnreadArchiveConversationsCount()
+        observeWireCellsFeatureState()
+    }
+
+    private fun observeWireCellsFeatureState() = viewModelScope.launch {
+        globalDataStore.wireCellsEnabled().collect {
+            drawerState = drawerState.copy(showFilesOption = it)
+        }
     }
 
     private fun observeUnreadArchiveConversationsCount() {

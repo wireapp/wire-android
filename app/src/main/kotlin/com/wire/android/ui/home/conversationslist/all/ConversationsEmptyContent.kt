@@ -35,10 +35,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -47,16 +49,15 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.debug.FeatureVisibilityFlags.ChannelsEnabled
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @Composable
 fun ConversationsEmptyContent(
+    navigator: Navigator,
     modifier: Modifier = Modifier,
     filter: ConversationFilter = ConversationFilter.All,
-    domain: String = "wire.com",
-    navigator: Navigator
+    domain: String = "wire.com"
 ) {
     Column(
         modifier = modifier
@@ -120,17 +121,16 @@ private fun EmptyContentFooter(currentFilter: ConversationFilter, navigator: Nav
                     CustomTabsHelper.launchUrl(context, supportUrl)
                 }
             )
-            if (ChannelsEnabled) { // remove this feature flag later after mvp 1
-                VerticalSpace.x8()
-                WirePrimaryButton(
-                    modifier = Modifier
-                        .height(dimensions().buttonSmallMinSize.height)
-                        .wrapContentWidth(),
-                    fillMaxWidth = false,
-                    text = stringResource(R.string.label_browse_public_channels),
-                    onClick = { navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination)) }
-                )
-            }
+            VerticalSpace.x8()
+            WirePrimaryButton(
+                modifier = Modifier
+                    .height(dimensions().buttonSmallMinSize.height)
+                    .wrapContentWidth(),
+                fillMaxWidth = false,
+                text = stringResource(R.string.label_browse_public_channels),
+                state = if(BuildConfig.PUBLIC_CHANNELS_ENABLED) WireButtonState.Default else WireButtonState.Disabled,
+                onClick = { navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination)) }
+            )
         }
 
         else -> {

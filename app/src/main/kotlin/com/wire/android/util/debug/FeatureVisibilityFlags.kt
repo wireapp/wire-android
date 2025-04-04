@@ -58,7 +58,7 @@ object FeatureVisibilityFlags {
     const val SearchConversationMessages = true
     const val DrawingIcon = true
     const val QRCodeEnabled = true
-    val ChannelsEnabled = BuildConfig.PRIVATE_BUILD
+//    val ChannelsEnabled = BuildConfig.PRIVATE_BUILD
 }
 
 val LocalFeatureVisibilityFlags = staticCompositionLocalOf { FeatureVisibilityFlags }

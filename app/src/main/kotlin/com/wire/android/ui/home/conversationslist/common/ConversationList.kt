@@ -46,6 +46,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
@@ -62,7 +63,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.debug.FeatureVisibilityFlags.ChannelsEnabled
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -125,7 +125,7 @@ fun ConversationList(
                     }
             ) {
                 val item = lazyPagingConversations[index]
-                if (item is ConversationFolder.Predefined.BrowseChannels && ChannelsEnabled) {
+                if (BuildConfig.PUBLIC_CHANNELS_ENABLED && item is ConversationFolder.Predefined.BrowseChannels) { // add a flag to public channels based on compile time flag
                     BrowsePublicChannelsItem(onBrowsePublicChannels)
                 }
                 when (item) {

@@ -188,6 +188,7 @@ URL &#347;rodowiska:
     <string name="migration_messages_failure">Niestety, nie wszystkie wiadomo&#347;ci i konwersacje mog&#322;y zosta&#263; przeniesione ze wzgl&#281;du na niekompatybilno&#347;&#263; ze starsz&#261; wersj&#261; Wire (kod b&#322;&#281;du: %s)</string>
     <string name="migration_cancel_title">Anuluj migracj&#281;</string>
     <string name="migration_cancel_message">Czy na pewno chcesz zamkn&#261;&#263; aplikacj&#281; i anulowa&#263; proces migracji?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Zaloguj si&#281;</string>
     <string name="login_forgot_password">Zapomnia&#322;e&#347; has&#322;a?</string>
@@ -366,6 +367,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Potwierdzenia odczytania</string>
     <string name="conversation_options_read_receipt_description">Gdy ta opcja jest w&#322;&#261;czona, inne osoby mog&#261; zobaczy&#263; kiedy ich wiadomo&#347;ci w tej rozmowie zosta&#322;y przeczytane.</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Szczeg&#243;&#322;y Wiadomo&#347;ci</string>
     <string name="message_details_reactions_tab">REAKCJE (%s)</string>
@@ -576,6 +578,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <!-- Conversation Media -->
     <!-- Search Contact-->
     <string name="label_new_group">Nowa grupa</string>
+    <!-- Search Channels -->
     <string name="label_new_conversation">Nowa rozmowa</string>
     <string name="label_search_people">Szukaj ludzi</string>
     <string name="label_search_people_instruction">Wyszukaj ludzi po ich nazwie profilowej lub @nazwie u&#380;ytkownika</string>
@@ -829,6 +832,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="create_team_not_supported_dialog_description">Nie mo&#380;esz utworzy&#263; nowego zespo&#322;u na &#347;rodowisku wewn&#281;trznym z obs&#322;ug&#261; proxy w aplikacji.
 Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodowisku.</string>
     <string name="to_team_management_action">Otw&#243;rz zarz&#261;dzanie zespo&#322;ami</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Wymagana aktualizacja</string>
     <string name="update_app_dialog_body">Omijaj&#261; Ci&#281; nowe funkcje. Zaktualizuj do najnowszej wersji Wire, aby nadal korzysta&#263; z aplikacji dla tego konta.</string>

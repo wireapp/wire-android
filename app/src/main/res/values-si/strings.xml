@@ -231,6 +231,7 @@
     <string name="migration_title_almost_done">සියල්ල අහවරයි!</string>
     <string name="migration_title_updated">වයර් පිහිටුවමින්</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">පිවිසෙන්න</string>
     <string name="login_forgot_password">මුරපදය අමතකද?</string>
@@ -437,6 +438,7 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">කියවූ බවට ලදුපත්</string>
     <string name="conversation_options_read_receipt_description">මෙය සක්‍රිය නම්, පුද්ගලයින්ට මෙම සංවාදය තුළ ඔවුන්ගේ පණිවිඩ කියවූ විට දැකගත හැකිය.</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">පණිවිඩයේ විස්තර</string>
     <string name="message_details_reactions_tab">ප්‍රතික්‍රියා (%s)</string>
@@ -692,8 +694,7 @@
     <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
     <!-- Search Contact-->
     <string name="label_new_group">නව සමූහයක්</string>
-    <string name="label_create_new_group">නව සමූහයක් සාදන්න</string>
-
+    <!-- Search Channels -->
     <string name="label_new_conversation">නව සංවාදය</string>
     <string name="label_search_people">පුද්ගලයින් සොයන්න</string>
     <string name="label_search_people_instruction">සරල නමින් හෝ @නමින් පුද්ගලයින් සොයාගන්න</string>
@@ -1052,6 +1053,7 @@
     <string name="create_personal_account_not_supported_dialog_description">ඔබට ප්‍රතියුක්ත සහාය සහිත පරිශ්‍රයක සේවාදායකයක පෞද්ගලික ගිණුමක් සෑදීමට නොහැකිය.</string>
     <string name="create_team_not_supported_dialog_description">යෙදුම තුළ ප්‍රතියුක්ත සහාය සහිත පරිශ්‍රයක සේවාදායකයක ඔබට නව කණ්ඩායමක් සෑදීමට නොහැකිය.\nමෙම සේවාදායකය වෙනුවට කණ්ඩායම් කළමනාකරණය (%1$s) භාවිතා කරන්න.</string>
     <string name="to_team_management_action">කණ්ඩායම කළමනාකරණය අරින්න</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">යාවත්කාල කළ යුතුය</string>
     <string name="update_app_dialog_body">ඔබට නව විශේෂාංග මග හැරී ඇත. මෙම ගිණුම සමඟ යෙදුම දිගටම භාවිතා කිරීමට නවතම වයර් අනුවාදයට යාවත්කාල කරන්න.</string>

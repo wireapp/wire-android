@@ -223,6 +223,7 @@
     <string name="migration_messages_failure">Nažalost, poruke i razgovori nisu mogli biti migrirani zbog nekompatibilnosti sa starijom verzijom Wire-a (error code: %s)</string>
     <string name="migration_cancel_title">Otkaži migraciju</string>
     <string name="migration_cancel_message">Jeste li sigurni da želite zatvoriti aplikaciju i otkazati migraciju koja je u tijeku?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Prijava</string>
     <string name="login_forgot_password">Zaboravili ste lozinku?</string>
@@ -400,6 +401,7 @@
     <!-- Import/Export External Media -->
     <string name="import_media_send_button_title">Pošalji</string>
     <!--Read receipts -->
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Detalji o poruci</string>
     <!-- Messages Date and Time -->
@@ -466,6 +468,7 @@
     <!-- Conversation Media -->
     <!-- Search Contact-->
     <string name="label_new_group">Nova Grupa</string>
+    <!-- Search Channels -->
     <string name="label_new_conversation">Novi razgovor</string>
     <string name="label_learn_more_searching_user">Saznaj više</string>
     <string name="label_general_error">Nešto je pošlo po zlu</string>
@@ -563,6 +566,7 @@
     <!--    report bug-->
     <string name="backup_dialog_restore_incompatible_version_error_message">Ova sigurnosna kopija je izrađena od novije ili starije verzije Wirea i kao takva nemože se obnovit ovdje.</string>
     <string name="group_label">grupa</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="cancel_login_button_label">Odustani</string>
     <string name="cancel_login_dialog_description">Ako sada odustanete, bit ćete odjavljeni.</string>

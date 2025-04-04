@@ -318,6 +318,7 @@
     <string name="migration_messages_failure">Sajnos nem minden üzenetet és beszélgetést sikerült átköltöztetni a Wire régi verziójával meglévő inkompatibilitás miatt (hibakód: %s)</string>
     <string name="migration_cancel_title">Költöztetés leállítása</string>
     <string name="migration_cancel_message">Biztos benne, hogy be szeretné zárni az alkalmazást és leállítani a folyamatban lévő költöztetést?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Bejelentkezés</string>
     <string name="login_forgot_password">Elfelejtette a jelszavát?</string>
@@ -543,6 +544,7 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Olvasási visszaigazolások</string>
     <string name="conversation_options_read_receipt_description">Amikor ez be van kapcsolva, az emberek láthatják, mikor olvasták el a beszélgetés üzeneteit.</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Üzenet részletei</string>
     <string name="message_details_reactions_tab">REAKCIÓK (%s)</string>
@@ -842,6 +844,7 @@
     <string name="label_new_group">Új csoport</string>
     <string name="label_create_new_group">Új csoport</string>
     <string name="label_create_new_channel">Új csatorna</string>
+    <!-- Search Channels -->
     <string name="label_new_conversation">Új beszélgetés</string>
     <string name="label_search_people">Személyek keresése</string>
     <string name="label_public_wire">Nyilvános Wire</string>
@@ -1250,6 +1253,7 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="create_personal_account_not_supported_dialog_description">Nem hozhat létre személyes fiókot proxyt támogató helyi kiszolgálón.</string>
     <string name="create_team_not_supported_dialog_description">Az alkalmazásban nem hozhat létre új csapatot proxyt támogató helyi kiszolgálón.\nHasználja a csapatmenedzsmentet (%1$s) e kiszolgáló helyett.</string>
     <string name="to_team_management_action">Csapatmenedzsment megnyitása</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Frissítés szükséges</string>
     <string name="update_app_dialog_body">Lemarad az új képességekről. Frissítsen a Wire legújabb verziójára, hogy tovább használja az alkalmazást ezzel a fiókkal.</string>

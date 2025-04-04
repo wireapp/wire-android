@@ -180,6 +180,7 @@
     <string name="migration_messages_failure">Tyvärr så kunde inte alla meddelanden och konversationer migreras till följd av inkompatibilitet med den äldre Wire-versionen (fel-kod: %s)</string>
     <string name="migration_cancel_title">Avbryt migreringen</string>
     <string name="migration_cancel_message">Är du säker på att du vill stänga ner applikationen och avbryta den pågående migreringen?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Logga in</string>
     <string name="login_forgot_password">Glömt lösenord?</string>
@@ -305,6 +306,7 @@
     <string name="export_media_subject_title">Delar media från Wire</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Läskvitton</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Meddelandedetaljer</string>
     <string name="message_details_reactions_tab">REAKTIONER (%s)</string>
@@ -433,7 +435,7 @@
     <!-- Search Contact-->
     <string name="label_contacts">Kontakter</string>
     <string name="label_new_group">Ny grupp</string>
-    <string name="label_create_new_group">Skapa ny grupp</string>
+    <!-- Search Channels -->
     <string name="label_new_conversation">Ny konversation</string>
     <string name="label_learn_more_searching_user">Läs mer</string>
     <string name="label_no_results_found">Inga resultat kunde hittas. Försök igen.</string>
@@ -557,6 +559,7 @@
     <string name="conversation_label">konversation</string>
     <string name="dialog_clear_content_title">Rensa innehåll?</string>
     <string name="dialog_clear_content_option">Rensa innehåll</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Uppdatera</string>
     <string name="cancel_login_button_label">Avbryt</string>

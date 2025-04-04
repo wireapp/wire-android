@@ -17,215 +17,17 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="app_version">Uygulama sürümü</string>
-    <string name="build_variant_name">Yapı varyantı</string>
-    <string name="label_new">Yeni</string>
-    <string name="label_login">Giriş yap</string>
-    <string name="label_ok">TAMAM</string>
-    <string name="label_open">Aç</string>
-    <string name="label_cancel">İptal</string>
-    <string name="label_confirm">Onayla</string>
-    <string name="label_continue">Devam et</string>
-    <string name="label_apply">Uygula</string>
-    <string name="label_save">Kaydet</string>
-    <string name="label_get_started">Başla</string>
-    <string name="label_remove">Kaldır</string>
-    <string name="label_proceed">Devam et</string>
-    <string name="label_leave">Ayrıl</string>
-    <string name="label_add_device">Cihaz Ekle</string>
-    <string name="label_learn_more">Daha fazla bilgi</string>
-    <string name="label_removing">Kaldırılıyor…</string>
-    <string name="label_logging_in">Oturum açılıyor…</string>
-    <string name="label_membership_guest">Misafir</string>
-    <string name="label_membership_external">Harici</string>
-    <string name="label_membership_service">Hizmet</string>
-    <string name="label_user_deleted">Silinmiş</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
-    <string name="label_message_edit_sent_failure">Bağlantı sorunları nedeniyle düzenlenen mesaj gönderilemedi.</string>
-    <string name="label_message_sent_remotely_failure">%s arka ucuna ulaşılamadığından mesaj gönderilemedi.</string>
-    <string name="label_message_edit_sent_remotely_failure">%s\'in arka ucuna ulaşılamadığı için düzenlenen mesaj gönderilemedi.</string>
-    <string name="label_message_receive_failure">İndirme Hatası</string>
-    <string name="label_message_decryption_failure_message">Mesajın şifresi çözülemedi.</string>
-    <string name="label_message_decryption_failure_message_with_error_code">Mesajın şifresi çözülemedi (Hata %s).</string>
-    <string name="label_message_decryption_failure_informative_message">Yeni şifreleme anahtarları oluşturmak için oturumu sıfırlamayı deneyin.</string>
-    <string name="label_system_message_self_user_knock">%s senden bahsetti</string>
-    <string name="label_system_message_other_user_knock">%s pingledi</string>
-    <string name="label_message_partial_delivery_participants_count">%1$d katılımcı mesajınızı alamadı.</string>
-    <string name="label_message_partial_delivery_participants_wont_deliver">%s mesajınızı alamayacak.</string>
-    <string name="label_message_partial_delivery_participants_one_deliver_later">%s mesajınızı daha sonra alacak.</string>
-    <string name="label_message_partial_delivery_participants_many_deliver_later">%s mesajınızı daha sonra alacak.</string>
-    <plurals name="label_message_partial_delivery_x_participants_from_backend">
-        <item quantity="one">%2$s\'dan 1 katılımcı</item>
-        <item quantity="other">%2$s grubundan %1$d katılımcı</item>
-    </plurals>
-    <string name="label_reset_session">Oturumu Sıfırla</string>
-    <string name="label_reset_session_success">Oturum başarıyla sıfırlandı</string>
-    <string name="label_federated_membership">Federe</string>
-    <string name="label_update">Güncelleme</string>
-    <string name="label_close">Kapat</string>
-    <string name="label_download">İndir</string>
-    <string name="label_open_asset_externally">Aç</string>
-    <string name="label_show">Göster</string>
-    <string name="label_show_all">Hepsini Göster</string>
-    <string name="label_show_less">Daha Az Göster</string>
-    <string name="label_show_details">Detayları Göster</string>
-    <string name="label_hide_details">Detayları Gizle</string>
-    <string name="label_message_status_edited_with_date">%s\'de düzenlenmiş</string>
-    <string name="label_on">AÇIK</string>
-    <string name="label_off">KAPALI</string>
-    <string name="label_value_copied">%s kopyalandı</string>
-    <string name="label_disable">Kapalı</string>
-    <string name="folder_label_access">Erişim</string>
-    <string name="folder_label_protocol_details">Protokol ayrıntıları</string>
-    <string name="folder_label_messaging">Mesajlaşma</string>
-    <string name="label_user_blocked">Engellenmiş</string>
-    <string name="label_and">ve</string>
-    <string name="label_retry">Yeniden Dene</string>
-    <string name="label_draft">Taslaklar</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_reveal_password">Şifreyi göster</string>
-    <string name="content_description_hide_password">Parolayı gizle</string>
-    <string name="content_description_search_back">Geri arama simgesi</string>
-    <string name="content_description_clear_content">İçeriği temizle</string>
-    <string name="content_description_user_avatar">Profil resmi</string>
-    <string name="content_description_muted_conversation">Sessize alınmış sohbet</string>
-    <string name="content_description_check">Onay işareti</string>
-    <string name="content_description_download_icon">İndirme simgesi</string>
-    <string name="content_description_open_asset_icon">Simgeyi aç</string>
-    <string name="content_description_add_to_favourite">Favorilere Ekle</string>
-    <string name="content_description_move_to_folder">Klasöre taşı</string>
-    <string name="content_description_move_to_archive">Arşive taşı</string>
-    <string name="content_description_unarchive">Arşivden Çıkar</string>
-    <string name="content_description_block_the_user">Engelle</string>
-    <string name="content_description_unblock_the_user">Engeli kaldır</string>
-    <string name="content_description_leave_the_group">Gruptan ayrıl</string>
-    <string name="content_description_delete_the_group">Grubu sil</string>
-    <string name="content_description_conversation_phone_icon">Sesli aramayı başlat</string>
-    <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Arama simgesi</string>
-    <string name="content_description_conversation_search_input">Arama girişi</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Zengin metin modunu etkinleştir düğmesi</string>
-    <string name="content_description_conversation_enable_drawing_mode">Çizim modunu etkinleştir düğmesi</string>
-    <string name="content_description_conversation_rich_text_header">Zengin metin biçimlendirme Başlığı</string>
-    <string name="content_description_conversation_rich_text_bold">Zengin metin biçimlendirmesi Kalın</string>
-    <string name="content_description_conversation_rich_text_italic">Zengin metin biçimlendirmesi İtalik</string>
-    <string name="content_description_conversation_send_emoticon">İfade gönder düğmesi</string>
-    <string name="content_description_conversation_send_gif">GIF gönder düğmesi</string>
-    <string name="content_description_conversation_mention_someone">Birinden bahset</string>
-    <string name="content_description_back_button">Geri tuşu</string>
-    <string name="content_description_send_button">Gönder</string>
-    <string name="content_description_timed_message_button">Kendini yok eden iletiler, düğme</string>
-    <string name="content_description_close_button">Kapat düğmesi</string>
-    <string name="content_description_menu_button">Ana navigasyon</string>
-    <string name="content_description_drop_down_icon">Aşağı ok</string>
-    <string name="content_description_remove_devices_screen_device_item_icon">Cihaz öğesi</string>
-    <string name="content_description_remove_devices_screen_remove_icon">Cihazı kaldır</string>
-    <string name="content_description_avatar_preview">Profil resminin önizlemesi</string>
-    <string name="content_description_choose_from_gallery">Galeriden seç</string>
-    <string name="content_description_take_a_picture">Fotoğraf çek</string>
-    <string name="content_description_right_arrow">Sağ ok</string>
-    <string name="content_description_left_arrow">Geri dön</string>
-    <string name="content_description_mention_icon">Bahsetme simgesi</string>
-    <string name="content_description_attachment_item">Konuşmaya yeni öğe ekleme</string>
-    <string name="content_description_open_message_details">Mesaj Ayrıntılarını Aç</string>
-    <string name="content_description_copy_the_message">Mesajı kopyala</string>
-    <string name="content_description_share_the_file">Seçilen dosyayı diğer uygulamalarla paylaş</string>
-    <string name="content_description_delete_the_message">Mesajı sil</string>
-    <string name="content_description_edit_the_message">Mesajı düzenle</string>
-    <string name="content_description_more_options">Daha fazla seçenekler</string>
-    <string name="content_description_add_contact">Kişi ekleme</string>
-    <string name="content_description_image_message">Resimli mesaj</string>
-    <string name="content_description_file_message">Dosya mesajı</string>
-    <string name="content_description_ping_everyone">Seslenme</string>
-    <string name="content_description_self_deleting_message_timer">Kendi kendini silen mesajlar için zamanlayıcı ayarlama</string>
-    <string name="content_description_calling_hang_up_call">Aramayı kapat</string>
-    <string name="content_description_calling_accept_call">Aramayı kabul et</string>
-    <string name="content_description_calling_flip_camera_on">Ön kameraya geç</string>
-    <string name="content_description_calling_flip_camera_off">Arka kameraya geç</string>
-    <string name="content_description_calling_participant_muted">Katılımcı sessiz</string>
-    <string name="content_description_calling_mute_call">Aramayı sessize al</string>
-    <string name="content_description_calling_unmute_call">Aramayı sessizden çıkar</string>
-    <string name="content_description_calling_turn_camera_on">Kamerayı aç</string>
-    <string name="content_description_calling_turn_camera_off">Kamerayı kapat</string>
-    <string name="content_description_calling_turn_speaker_on">Hoparlörü aç</string>
-    <string name="content_description_calling_turn_speaker_off">Hoparlörü kapat</string>
-    <string name="content_description_show_more_options">Daha fazla seçenek göster</string>
-    <string name="content_description_reply_to_messge">Mesajı yanıtla</string>
-    <string name="content_description_reply_cancel">Yanıtlamayı iptal et</string>
-    <string name="content_description_ping_message">Seslenme mesajı</string>
-    <string name="content_description_copy">Kopyala</string>
-    <string name="content_description_edit">Düzenle</string>
-    <string name="content_description_calling_call_muted">Çağrıyı sessize al</string>
-    <string name="content_description_calling_call_unmuted">Çağrının sesi açıldı</string>
-    <string name="content_description_calling_call_paused_camera">Kamerayı dondur</string>
-    <string name="content_description_more_emojis">Daha fazla emoji</string>
-    <string name="content_description_self_deletion_selector_button">Kendi kendine silme moduna geç, düğmesi</string>
-    <string name="content_description_message_sending_status">Mesaj gönderme durumu</string>
-    <string name="content_description_message_sent_status">Mesaj gönderme durumu</string>
-    <string name="content_description_message_error_status">Mesaj hata durumu</string>
-    <string name="content_description_message_delivered_status">Mesaj teslim durumu</string>
-    <string name="content_description_message_read_status">Mesaj okunma durumu</string>
-    <string name="content_description_record_audio_button_start">Ses Kaydet</string>
-    <string name="content_description_record_audio_button_stop">Ses kaydını durdur</string>
-    <string name="content_description_record_audio_button_send">Sesli mesaj gönder</string>
-    <string name="content_description_mls_certificate_valid">Tüm katılımcıların tüm cihazları geçerli bir MLS sertifikasına sahiptir</string>
-    <string name="content_description_proteus_certificate_valid">Tüm katılımcıların tamamı doğrulanmıştır (Proteus)</string>
-    <string name="content_description_location_icon">Konum öğesi</string>
-    <string name="content_description_conversation_details_options_tab_header">Seçenekler</string>
-    <string name="content_description_user_profile_edit_role_btn">Rolü düzenle</string>
-    <string name="content_description_user_profile_copy_email_btn">Email\'i kopyala</string>
-    <string name="content_description_user_profile_open_device_btn">cihaz detaylarını aç</string>
-    <string name="content_description_select_label">seç</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
-    <string name="vault_screen_title">Kasa</string>
-    <string name="archive_screen_title">Arşiv</string>
-    <string name="archive_screen_empty_state_title">Henüz arşivlenmiş bir şey yok 👻</string>
-    <string name="archive_screen_empty_state_description">Konuşma listenizi düzenli tutmak için kullanılmayan konuşmaları buraya taşıyın. Bunları daha sonra istediğiniz zaman arşivden çıkarabilirsiniz.</string>
-    <string name="user_profile_screen_title">Kullanıcı Profili</string>
-    <string name="settings_screen_title">Ayarlar</string>
-    <string name="app_settings_screen_title">Uygulama Ayarları</string>
-    <string name="give_feedback_screen_title">Geri Bildirim Ver</string>
-    <string name="report_bug_screen_title">Hata Bildir</string>
-    <string name="about_app_screen_title">Bu uygulama hakkında</string>
-    <string name="settings_terms_of_use_label">Yasal</string>
-    <string name="settings_wire_website_label">Wire Web Sitesi</string>
-    <string name="label_copyright">Telif Hakkı</string>
-    <string name="support_screen_title">Destek</string>
-    <string name="backup_and_restore_screen_title">Konuşmaları Yedekle &amp; Geri yükle</string>
-    <string name="search_bar_conversations_hint">Konuşmalarda ara</string>
-    <string name="search_no_results">Eşleşme bulunamadı</string>
     <!--Whats New -->
-    <string name="whats_new_screen_title">Neler yeni</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Wire\'ın yeni Android uygulamasına hoşgeldin!</string>
-    <string name="whats_new_release_notes_group_title">Sürüm notları</string>
-    <string name="whats_new_android_release_notes_label">Android Sürüm Notları</string>
     <!-- Settings -->
-    <string name="settings_backups_group_title">Yedekler</string>
-    <string name="settings_other_group_title">Diğer</string>
-    <string name="settings_backup_info">Konuşma geçmişinizi korumak için bir yedek oluşturun. Cihazınızı kaybederseniz veya yenisine geçerseniz geçmişi geri yüklemek için bunu kullanabilirsiniz.
-
-Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
-    <string name="settings_backup_last_backup_title">Son Yedek</string>
-    <string name="settings_backup_last_backup_date">Bu cihazdaki en son yedekleme şu tarihte oluşturuldu:%1$s %2$s.</string>
-    <string name="settings_backup_last_backup_date_no_time">Henüz bu cihazdan yedekleme oluşturmadınız.</string>
-    <string name="settings_backup_create">Yedek oluştur</string>
-    <string name="settings_backup_restore">Yedekten Geri Yükle</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Arkadaşlarınızla ve ailenizle sohbet etmek ister misiniz?</string>
-    <string name="welcome_footer_link">Ücretsiz olarak özel bir hesap oluşturun</string>
-    <string name="welcome_button_create_personal_account">Kişisel Hesap Oluşturun</string>
-    <string name="welcome_screen_carousel_item_message_1">En güvenli işbirliği platformu Wire\'a hoş geldiniz!</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire bağımsız olarak denetlenir ve ISO, CCPA, GDPR, SOX ile uyumludur</string>
-    <string name="welcome_button_create_team">Bir ekip oluşturun</string>
-    <string name="welcome_migration_dialog_continue">Wire\'ı kullanmaya başlayın</string>
     <!-- API Versioning Dialogs -->
-    <string name="api_versioning_server_version_not_supported_title">Sunucu versiyonu desteklenmiyor</string>
-    <string name="api_versioning_server_version_not_supported_message">Wire sunucunuzun güncellenmesi gerekiyor. Lütfen sistem yöneticinizi bilgilendirin.</string>
     <!-- Migration -->
-    <string name="migration_message">Uygulamayı sizin için ayarlarken lütfen bekleyin</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
@@ -234,26 +36,13 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Replies/Quotes to other messages -->
     <!-- Create Account -->
     <!-- Conversations -->
-    <string name="conversation_label_conversations">KONUŞMALAR</string>
-    <string name="group_name_title">Grup adı</string>
-    <string name="conversation_details_title">Konuşma Detayları</string>
-    <string name="conversation_details_options_tab">SEÇENEKLER</string>
-    <string name="conversation_details_participants_tab">KATILIMCILAR</string>
-    <string name="conversation_details_participants_count">katılımcılar %s</string>
-    <string name="conversation_details_group_participants_title">\n**Lütfen yinede önemli bilgi paylaşırken dikkatli olun.**</string>
-    <string name="conversation_options_self_deleting_messages_description">Bu açık olduğunda, bu gruptaki tüm mesajlar belirli bir süre sonra kaybolacaktır.</string>
-    <string name="conversation_options_guests_label">Misafirler</string>
-    <string name="conversation_options_services_label">Servisler</string>
-    <string name="conversation_options_services_description">Bu görüşmeyi hizmetlere açmak için bu seçeneği AÇIK konumuna getirin.</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Okundu bilgisi</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
     <!-- User Profile -->
-    <string name="user_profile_details_tab">Detaylar</string>
-    <string name="user_profile_devices_tab">Cihazlar</string>
     <!-- Remove Conversation Member Dialog -->
     <!-- Logout Wipe Data Dialog -->
     <!-- User Profile status dialog-->
@@ -263,31 +52,21 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--Profile image-->
     <!--Conversation-->
     <!-- System messages -->
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
-    <string name="label_system_message_conversation_started_sensitive_information">Wire\'daki iletişim her zaman uçtan uca şifrelenir. Bu görüşmede gönderdiğiniz ve aldığınız her şeye yalnızca siz ve diğer grup katılımcıları erişebilir.</string>
     <!-- Last messages -->
-    <string name="last_message_other_user_joined_conversation">sohbete katıldı.</string>
     <!-- Unread Events -->
     <!--Typing Indicator-->
     <!-- Search Messages -->
-    <string name="label_search_button">Arama</string>
     <!-- Conversation Media -->
-    <string name="label_conversation_media">Medya</string>
     <!-- Search Contact-->
+    <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
     <!-- Animation label -->
-    <string name="label_open_conversation">Sohbeti aç</string>
     <!-- Notifications -->
-    <string name="label_type_a_message">Bir mesaj yazın</string>
     <!-- Calling-->
     <!-- Connectivity Status Bar -->
     <!-- Connections -->
-    <string name="connection_label_cancel_request">İsteği iptal et</string>
-    <string name="connection_label_member_not_belongs_to_team">Bu kullanıcı sizin ekibinize ait değil. Eğer sizin bağlanma isteğinizi kabul ederse, bir kişi olarak kullanılabilir</string>
-    <string name="connection_request_sent">Bağlantı isteği gönderildi</string>
-    <string name="connection_label_send_unverified_warning">Bağlanmadan önce %s\'nin kimliği hakkında bilgi edinin.</string>
     <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <!--sso dialog-->
@@ -297,7 +76,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--Settings -->
     <!--Settings, Appearance -->
     <!--Settings, My Account -->
-    <string name="settings_myaccount_domain">Alan Adı</string>
     <!--Settings, My Account > Display name -->
     <!--Privacy Settings -->
     <!--Privacy Settings, App lock -->
@@ -306,16 +84,15 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--max account reached dialog-->
     <!--create and restore backup-->
     <!--    report bug-->
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <!-- join conversation dialog -->
     <!-- edit self-deleting messages -->
-    <string name="self_deleting_messages_title">Kendini yok eden iletiler</string>
     <!-- visit link -->
     <!-- invalid link -->
     <!-- guest room link -->
-    <string name="revoke_guest__room_link_dialog_text">Yeni kişiler bu bağlantı ile katılamayacaklardır. Mevcut kişilerin erişimi devam edecektir.</string>
     <!-- New Device dialog -->
     <!-- Asset limits error messages -->
     <!-- Expiring messages -->
@@ -332,7 +109,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
-    <string name="debug_settings_screen_title">Hata Ayıklama Günlüğü Ayarları</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
     <!--    channel not available dialog-->

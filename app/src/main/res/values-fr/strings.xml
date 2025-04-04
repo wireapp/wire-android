@@ -234,6 +234,7 @@
     <string name="migration_messages_failure">Malheureusement, tous les messages et conversations n\'ont pas pu être migrés en raison d\'une incompatibilité avec l\'ancienne version de Wire (code d\'erreur : %s)</string>
     <string name="migration_cancel_title">Annuler la migration</string>
     <string name="migration_cancel_message">Êtes-vous sûr de vouloir fermer l\'application et annuler la migration en cours ?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Se connecter</string>
     <string name="login_forgot_password">Mot de passe oublié ?</string>
@@ -438,6 +439,7 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Accusés de lecture</string>
     <string name="conversation_options_read_receipt_description">Quand cette option est activée, les participants peuvent voir quand leurs messages ont été lus dans cette conversation.</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Détails du Message</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>
@@ -538,6 +540,7 @@
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
+    <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
@@ -563,6 +566,7 @@
     <!--max account reached dialog-->
     <!--create and restore backup-->
     <!--    report bug-->
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->

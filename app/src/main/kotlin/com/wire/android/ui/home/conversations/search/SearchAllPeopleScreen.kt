@@ -63,11 +63,18 @@ import kotlinx.collections.immutable.toPersistentList
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
-private sealed class SearchUiState {
-    object Loading : SearchUiState()
-    object EmptyQuery : SearchUiState()
-    object NoResults : SearchUiState()
-    object ShowResults : SearchUiState()
+/**
+ * state of the search screen
+ * Loading - loading state
+ * EmptyQuery - empty search query, show all users
+ * NoResults - no results found
+ * ShowResults - search results are found
+ */
+private sealed interface SearchUiState {
+    object Loading : SearchUiState
+    object EmptyQuery : SearchUiState
+    object NoResults : SearchUiState
+    object ShowResults : SearchUiState
 }
 
 @Composable
@@ -90,7 +97,7 @@ fun SearchAllPeopleScreen(
     lazyListState: LazyListState = rememberLazyListState()
 ) {
 
-    val emptyResults: Boolean by remember(publicSearchResult, contactsSearchResult, contactsSelectedSearchResult) {
+    val noSearchResults: Boolean by remember(publicSearchResult, contactsSearchResult, contactsSelectedSearchResult) {
         derivedStateOf {
             publicSearchResult.isEmpty() &&
                     contactsSearchResult.isEmpty() &&
@@ -98,12 +105,12 @@ fun SearchAllPeopleScreen(
         }
     }
 
-    val uiState by remember(searchQuery, isLoading, emptyResults) {
+    val uiState by remember(searchQuery, isLoading, noSearchResults) {
         derivedStateOf {
             when {
                 isLoading -> SearchUiState.Loading
-                searchQuery.isBlank() && emptyResults -> SearchUiState.EmptyQuery
-                searchQuery.isNotBlank() && emptyResults -> SearchUiState.NoResults
+                searchQuery.isBlank() && noSearchResults -> SearchUiState.EmptyQuery
+                searchQuery.isNotBlank() && noSearchResults -> SearchUiState.NoResults
                 else -> SearchUiState.ShowResults
             }
         }

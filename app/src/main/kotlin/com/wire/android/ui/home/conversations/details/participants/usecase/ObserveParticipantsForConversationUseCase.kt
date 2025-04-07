@@ -85,6 +85,7 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                     allParticipantsCount = allParticipants.size,
                     isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser },
                     isSelfExternalMember = selfUser?.user?.userType == UserType.EXTERNAL,
+                    isSelfGuest = selfUser?.user?.userType == UserType.GUEST,
                 ) to mlsVerificationMap
             }
             .drop(1) // ignore the initial value from scan

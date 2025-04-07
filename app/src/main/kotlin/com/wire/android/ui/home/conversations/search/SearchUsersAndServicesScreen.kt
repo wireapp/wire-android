@@ -124,7 +124,7 @@ fun SearchUsersAndServicesScreen(
                                 NavigationIconType.Close(R.string.content_description_new_conversation_close_btn)
 
                             SearchPeopleScreenType.NEW_GROUP_CONVERSATION ->
-                                NavigationIconType.Back(R.string.content_description_new_group_conversation_back_btn)
+                                NavigationIconType.Back(R.string.content_description_new_conversation_back_btn)
                         },
                         onNavigationPressed = onClose
                     )

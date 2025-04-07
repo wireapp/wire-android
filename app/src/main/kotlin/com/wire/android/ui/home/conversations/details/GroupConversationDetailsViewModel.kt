@@ -290,7 +290,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         ConversationDeletionLocallyStatus.SUCCEEDED -> onSuccess()
 
                         ConversationDeletionLocallyStatus.FAILED ->
-                            onFailure(UIText.StringResource(R.string.delete_group_conversation_error))
+                            onFailure(UIText.StringResource(R.string.delete_conversation_conversation_error))
 
                         ConversationDeletionLocallyStatus.RUNNING,
                         ConversationDeletionLocallyStatus.IDLE -> {
@@ -471,9 +471,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
         )
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
-            onMessage(UIText.StringResource(R.string.group_content_delete_failure))
+            onMessage(UIText.StringResource(R.string.conversation_content_delete_failure))
         } else {
-            onMessage(UIText.StringResource(R.string.group_content_deleted))
+            onMessage(UIText.StringResource(R.string.conversation_content_deleted))
         }
     }
 

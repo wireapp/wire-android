@@ -653,7 +653,7 @@ fun ContentFooter(
 }
 
 enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
-    GROUP(R.string.user_profile_group_tab),
+    GROUP(R.string.user_profile_conversation_tab),
     DETAILS(R.string.user_profile_details_tab),
     DEVICES(R.string.user_profile_devices_tab);
 

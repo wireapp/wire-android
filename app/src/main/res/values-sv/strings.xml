@@ -85,12 +85,9 @@
     <string name="content_description_move_to_archive">Flytta till arkiv</string>
     <string name="content_description_block_the_user">Blockera</string>
     <string name="content_description_unblock_the_user">Avblockera</string>
-    <string name="content_description_leave_the_group">Lämna gruppen</string>
-    <string name="content_description_delete_the_group">Ta bort gruppen</string>
     <string name="content_description_conversation_phone_icon">Starta ljudsamtal</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Nämn någon</string>
-    <string name="content_description_new_conversation">Sök efter personer eller skapa ny grupp</string>
     <string name="content_description_back_button">Bakåt-knapp</string>
     <string name="content_description_send_button">Skicka</string>
     <string name="content_description_timed_message_button">Självraderande meddelanden, knapp</string>
@@ -274,10 +271,10 @@
     <string name="new_group_title">Ny grupp</string>
     <string name="new_group_description">Upp till 500 personer kan ansluta till en grupp-konversation.</string>
     <string name="group_name_title">Gruppnamn</string>
-    <string name="group_name_placeholder">Ange ett namn</string>
+    <string name="conversation_name_placeholder">Ange ett namn</string>
     <string name="group_name_description">Ge den här gruppen ett meningsfullt namn.</string>
     <string name="protocol">Protokoll</string>
-    <string name="group_can_not_be_created_edit_participiant_list">Redigera deltagarlista</string>
+    <string name="conversation_can_not_be_created_edit_participant_list">Redigera deltagarlista</string>
     <string name="asset_message_tap_to_download_text">Tryck för att hämta</string>
     <string name="asset_message_upload_in_progress_text">Laddar upp…</string>
     <string name="asset_message_download_in_progress_text">Hämtar…</string>
@@ -288,16 +285,11 @@
     <string name="conversation_details_options_tab">ALTERNATIV</string>
     <string name="conversation_details_participants_tab">DELTAGARE</string>
     <string name="conversation_details_options_group_name">GRUPPNAMN</string>
-    <string name="conversation_details_group_members">GRUPPMEDLEMMAR (%d)</string>
     <string name="conversation_details_participants_count">%s deltagare</string>
     <string name="conversation_details_show_all_participants">Visa alla deltagare (%d)</string>
-    <string name="conversation_details_group_participants_title">Gruppdeltagare</string>
-    <string name="conversation_details_group_participants_add">Lägg till deltagare</string>
     <string name="conversation_participant_you_label">(Du)</string>
     <string name="conversation_options_guests_label">Gäster</string>
     <string name="conversation_options_services_label">Tjänster</string>
-    <string name="leave_group_conversation_menu_item">Lämna grupp…</string>
-    <string name="delete_group_conversation_menu_item">Radera grupp…</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Dela med Wire</string>
     <string name="import_media_searchbar_title">Sök efter konversation</string>
@@ -335,11 +327,8 @@
     <string name="user_profile_status_none">Ingen</string>
     <string name="user_profile_details_tab">Detaljer</string>
     <string name="user_profile_devices_tab">Enheter</string>
-    <string name="user_profile_group_tab">Grupp</string>
-    <string name="user_profile_group_role">ROLL</string>
-    <string name="user_profile_role_in_group">Roll i \"%s\"</string>
+    <string name="user_profile_role_in_conversation">Roll i \"%s\"</string>
     <string name="user_profile_unblock_user">Avblockera användare</string>
-    <string name="user_profile_group_remove_button">Ta bort från gruppen</string>
     <string name="user_profile_logging_out_progress">Loggar ut...</string>
     <string name="user_profile_qr_code">Öppna QR-kod</string>
     <string name="user_profile_qr_code_title">Dela profil</string>
@@ -347,9 +336,8 @@
     <string name="user_profile_qr_code_share_image_link">Dela QR-kod</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Ta bort från gruppen?</string>
-    <string name="dialog_remove_conversation_member_error">Det uppstod ett fel när deltagaren skulle tas bort från gruppen</string>
-    <string name="group_role_admin">Administratör</string>
-    <string name="group_role_member">Medlem</string>
+    <string name="conversation_role_admin">Administratör</string>
+    <string name="conversation_role_member">Medlem</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Rensa data?</string>
     <string name="dialog_logout_wipe_data_checkbox">Ta bort all din personliga information och konversationer i den här enheten</string>
@@ -362,8 +350,6 @@
     <string name="label_move_to_archive">Flytta till Arkiv</string>
     <string name="label_clear_content">Rensa innehåll…</string>
     <string name="label_block">Blockera</string>
-    <string name="label_leave_group">Lämna grupp</string>
-    <string name="label_delete_group">Radera grupp</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Filtrera konversationer</string>
     <string name="label_filter_all">Alla konversationer</string>
@@ -444,7 +430,7 @@
     <string name="error_server_miscommunication_message">Försök igen</string>
     <string name="error_no_network_title">Väntar på nätverk</string>
     <string name="error_no_network_message">Kontrollera din internetanslutning och försök igen</string>
-    <string name="left_conversation_group_success">Du har lämnat konversationen.</string>
+    <string name="left_conversation_success">Du har lämnat konversationen.</string>
     <!-- Archiving -->
     <!-- Favorite -->
     <!-- Animation label -->
@@ -459,7 +445,7 @@
     <string name="notification_receiver_name">Du</string>
     <string name="label_type_a_message">Skriv ett meddelande</string>
     <string name="notification_incoming_call_content">Ringer…</string>
-    <string name="notification_group_call_content">%s ringer...</string>
+    <string name="notification_group_channel_call_content">%s ringer...</string>
     <!-- Calling-->
     <string name="calling_button_label_microphone">Mikrofon</string>
     <string name="calling_button_label_camera">Kamera</string>
@@ -486,7 +472,6 @@
     <string name="change">Ändra</string>
     <string name="allow_guests">Tillåt gäster</string>
     <string name="service_details_label">Tjänst</string>
-    <string name="service_details_add_service_label">Lägg till i grupp</string>
     <string name="read_receipts">Läskvitton</string>
     <!--block user dialog -->
     <string name="block_user_dialog_body">%1$s kommer inte att kunna kontakta dig eller lägga till dig i gruppkonversationer. De kommer inte att meddelas om detta.</string>

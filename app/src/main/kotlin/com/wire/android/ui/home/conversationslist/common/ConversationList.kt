@@ -125,7 +125,9 @@ fun ConversationList(
                     }
             ) {
                 val item = lazyPagingConversations[index]
-                if (BuildConfig.PUBLIC_CHANNELS_ENABLED && item is ConversationFolder.Predefined.BrowseChannels) { // add a flag to public channels based on compile time flag
+                if (BuildConfig.PUBLIC_CHANNELS_ENABLED &&
+                    item is ConversationFolder.Predefined.BrowseChannels
+                ) { // add a flag to public channels based on compile time flag
                     BrowsePublicChannelsItem(onBrowsePublicChannels)
                 }
                 when (item) {

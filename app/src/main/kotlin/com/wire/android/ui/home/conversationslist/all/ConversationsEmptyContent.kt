@@ -128,7 +128,11 @@ private fun EmptyContentFooter(currentFilter: ConversationFilter, navigator: Nav
                     .wrapContentWidth(),
                 fillMaxWidth = false,
                 text = stringResource(R.string.label_browse_public_channels),
-                state = if(BuildConfig.PUBLIC_CHANNELS_ENABLED) WireButtonState.Default else WireButtonState.Disabled,
+                state = if (BuildConfig.PUBLIC_CHANNELS_ENABLED) {
+                    WireButtonState.Default
+                } else {
+                    WireButtonState.Disabled
+                },
                 onClick = { navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination)) }
             )
         }

@@ -120,7 +120,7 @@ fun EnabledMessageComposer(
     onClearMentionSearchResult: () -> Unit,
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
-    onAttachmentDeleteClick: (AttachmentDraftUi) -> Unit,
+    onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     modifier: Modifier = Modifier,
@@ -386,7 +386,7 @@ fun EnabledMessageComposer(
                         MessageAttachments(
                             attachments = attachments,
                             onClick = onAttachmentClick,
-                            onClickDelete = onAttachmentDeleteClick,
+                            onMenuClick = onAttachmentMenuClick,
                         )
                     }
                 }

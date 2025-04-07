@@ -631,8 +631,8 @@ fun ConversationScreen(
             )
         },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
-        onAttachmentClick = messageAttachmentsViewModel::showAttachment,
-        onAttachmentDeleteClick = messageAttachmentsViewModel::deleteAttachment,
+        onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
+        onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
     DeleteMessageDialog(
@@ -676,6 +676,17 @@ fun ConversationScreen(
         dialogState = sendMessageViewModel.sureAboutMessagingDialogState,
         sendAnyway = sendMessageViewModel::acceptSureAboutSendingMessage,
         hideDialog = sendMessageViewModel::dismissSureAboutSendingMessage
+    )
+
+    FailedAttachmentDialog(
+        state = messageAttachmentsViewModel.failedAttachmentDialogState,
+        onRetryUpload = {
+            messageAttachmentsViewModel.retryUpload()
+        },
+        onRemoveAttachment = {
+            messageAttachmentsViewModel.remove()
+        },
+        onDismiss = messageAttachmentsViewModel::onFailedAttachmentDialogDismissed,
     )
 
     (sendMessageViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
@@ -878,7 +889,7 @@ private fun ConversationScreen(
     onLinkClick: (String) -> Unit,
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
-    onAttachmentDeleteClick: (AttachmentDraftUi) -> Unit,
+    onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
 ) {
     val context = LocalContext.current
@@ -968,7 +979,7 @@ private fun ConversationScreen(
                         currentTimeInMillisFlow = currentTimeInMillisFlow,
                         openDrawingCanvas = openDrawingCanvas,
                         onAttachmentClick = onAttachmentClick,
-                        onAttachmentDeleteClick = onAttachmentDeleteClick,
+                        onAttachmentMenuClick = onAttachmentMenuClick,
                     )
                 }
             }
@@ -1046,7 +1057,7 @@ private fun ConversationScreenContent(
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
-    onAttachmentDeleteClick: (AttachmentDraftUi) -> Unit,
+    onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
@@ -1099,7 +1110,7 @@ private fun ConversationScreenContent(
         onImagesPicked = onImagesPicked,
         openDrawingCanvas = openDrawingCanvas,
         onAttachmentClick = onAttachmentClick,
-        onAttachmentDeleteClick = onAttachmentDeleteClick,
+        onAttachmentMenuClick = onAttachmentMenuClick,
     )
 }
 
@@ -1546,6 +1557,6 @@ fun PreviewConversationScreen() = WireTheme {
         openDrawingCanvas = {},
         onImagesPicked = {},
         onAttachmentClick = {},
-        onAttachmentDeleteClick = {},
+        onAttachmentMenuClick = {},
     )
 }

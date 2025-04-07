@@ -34,7 +34,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun MessageAttachments(
     attachments: List<AttachmentDraftUi>,
     onClick: (AttachmentDraftUi) -> Unit,
-    onClickDelete: (AttachmentDraftUi) -> Unit,
+    onMenuClick: (AttachmentDraftUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyRow(
@@ -51,7 +51,7 @@ fun MessageAttachments(
                 modifier = Modifier.animateItem(),
                 attachment = attachment,
                 onClick = { onClick(attachment) },
-                onClickDelete = { onClickDelete(attachment) },
+                onMenuButtonClick = { onMenuClick(attachment) },
             )
         }
     }
@@ -76,6 +76,6 @@ private fun PreviewMessageAttachments() {
             ),
         ),
         onClick = {},
-        onClickDelete = {},
+        onMenuClick = {},
     )
 }

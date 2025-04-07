@@ -93,7 +93,7 @@ fun MessageComposer(
     tempWritableImageUri: Uri?,
     onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
-    onAttachmentDeleteClick: (AttachmentDraftUi) -> Unit,
+    onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -160,7 +160,7 @@ fun MessageComposer(
                     tempWritableVideoUri = tempWritableVideoUri,
                     tempWritableImageUri = tempWritableImageUri,
                     onAttachmentClick = onAttachmentClick,
-                    onAttachmentDeleteClick = onAttachmentDeleteClick,
+                    onAttachmentMenuClick = onAttachmentMenuClick,
                 )
             }
         }
@@ -307,7 +307,7 @@ private fun BaseComposerPreview(
         openDrawingCanvas = {},
         onImagesPicked = {},
         onAttachmentClick = {},
-        onAttachmentDeleteClick = {}
+        onAttachmentMenuClick = {}
     )
 }
 

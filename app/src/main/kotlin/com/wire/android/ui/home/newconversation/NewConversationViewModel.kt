@@ -32,6 +32,7 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.toDomainEnum
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -52,7 +53,6 @@ import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -143,9 +143,9 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             isUserAllowedToCreateChannels()
                 .collectLatest {
-                val isChannelCreationPossible = it is ChannelCreationPermission.Allowed
-                newGroupState = newGroupState.copy(isChannelCreationPossible = isChannelCreationPossible)
-            }
+                    val isChannelCreationPossible = it is ChannelCreationPermission.Allowed
+                    newGroupState = newGroupState.copy(isChannelCreationPossible = isChannelCreationPossible)
+                }
         }
     }
 
@@ -244,7 +244,8 @@ class NewConversationViewModel @Inject constructor(
                         servicesAllowed = groupOptionsState.isAllowServicesEnabled,
                         nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
                     ),
-                    access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled)
+                    access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),
+                    channelAddPermission = newGroupState.channelAddPermissionType.toDomainEnum()
                 )
             )
             handleNewGroupCreationResult(result)?.let(onCreated)

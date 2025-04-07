@@ -27,10 +27,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,7 +56,7 @@ internal fun AssetGridPreview(
             .aspectRatio(1f)
             .clickable { onClick() }
             .background(
-                color = colorsScheme().outline,
+                color = colorsScheme().surfaceVariant,
                 shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
             )
             .border(
@@ -100,12 +97,7 @@ internal fun AssetGridPreview(
                 )
             }
         } else {
-            Icon(
-                modifier = Modifier.size(dimensions().spacing32x).align(Alignment.Center),
-                imageVector = Icons.Default.Block,
-                contentDescription = null,
-                tint = colorsScheme().secondaryText
-            )
+            AssetNotAvailableGridPreview()
         }
     }
 }

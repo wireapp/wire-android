@@ -206,10 +206,10 @@ private fun widthFraction(width: Int?, height: Int?) =
 
 @Suppress("MagicNumber")
 private fun aspectRatio(width: Int?, height: Int?) =
-    if (width != null && height != null) {
-        width.toFloat() / height.toFloat()
-    } else {
-        16f / 9f
+    when {
+        width == null || height == null -> 16f / 9f
+        width == 0 || height == 0 -> 16f / 9f
+        else -> width.toFloat() / height.toFloat()
     }
 
 @PreviewMultipleThemes

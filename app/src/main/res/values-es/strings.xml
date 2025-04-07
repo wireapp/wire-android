@@ -738,7 +738,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="allow_services">Permitir servicios</string>
     <string name="service_details_label">Servicio</string>
     <string name="service_details_add_service_label">Añadir al grupo</string>
-    <string name="service_details_remove_service_label">Eliminar del grupo</string>
     <string name="service_remove_success">Servicio eliminado del grupo</string>
     <string name="service_remove_error">No se pudo eliminar el servicio del grupo</string>
     <string name="service_add_success">Servicio añadido al grupo</string>

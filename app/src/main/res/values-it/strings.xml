@@ -847,7 +847,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="allow_services">Consenti servizi</string>
     <string name="service_details_label">Servizio</string>
     <string name="service_details_add_service_label">Aggiungi Al Gruppo</string>
-    <string name="service_details_remove_service_label">Rimuovi Dal Gruppo</string>
     <string name="service_remove_success">Servizio rimosso dal gruppo</string>
     <string name="service_remove_error">Impossibile rimuovere il servizio dal gruppo</string>
     <string name="service_add_success">Servizio aggiunto al gruppo</string>

@@ -780,7 +780,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="allow_services">Permitir serviços</string>
     <string name="service_details_label">Serviço</string>
     <string name="service_details_add_service_label">Adicionar ao grupo</string>
-    <string name="service_details_remove_service_label">Remover do grupo</string>
     <string name="service_remove_success">Serviço removido do grupo</string>
     <string name="service_remove_error">Não é possível remover o serviço do grupo</string>
     <string name="service_add_success">Serviço adicionado ao grupo</string>

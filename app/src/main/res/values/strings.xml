@@ -672,7 +672,7 @@
     <string name="user_profile_role_in_group">Role in ”%s”</string>
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
     <string name="user_profile_unblock_user">Unblock User</string>
-    <string name="user_profile_group_remove_button">Remove from group</string>
+    <string name="user_profile_conversation_remove_button">Remove from conversation</string>
     <string name="user_profile_logging_out_progress">Logging out...</string>
     <string name="user_profile_qr_code">Open QR Code</string>
     <string name="user_profile_qr_code_title">Share Profile</string>
@@ -683,7 +683,7 @@
     <string name="user_profile_create_team_card_button">Create a Team</string>
     <string name="user_profile_create_team_description_card">Explore extra features for free with the same level of security.</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Remove from group?</string>
+    <string name="dialog_remove_conversation_member_title">Remove from conversation?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
     <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the group</string>
     <string name="group_role_admin">Admin</string>
@@ -1132,7 +1132,7 @@
     <string name="allow_services_channel_description">Open this conversation to people outside your team or services. You can always change it later.</string>
     <string name="service_details_label">Service</string>
     <string name="service_details_add_service_label">Add To Group</string>
-    <string name="service_details_remove_service_label">Remove From Group</string>
+    <string name="service_details_remove_service_label">Remove From Conversation</string>
     <string name="service_remove_success">Service removed from group</string>
     <string name="service_remove_error">Unable to remove service from group</string>
     <string name="service_add_success">Service added to group</string>

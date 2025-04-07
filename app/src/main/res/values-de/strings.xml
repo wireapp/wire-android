@@ -994,7 +994,7 @@
     <string name="allow_services_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="service_details_label">Dienst</string>
     <string name="service_details_add_service_label">Zur Gruppe hinzufügen</string>
-    <string name="service_details_remove_service_label">Aus Gruppe entfernen</string>
+    <string name="service_details_remove_service_label">Aus Unterhaltung entfernen</string>
     <string name="service_remove_success">Dienst aus Gruppe entfernt</string>
     <string name="service_remove_error">Dienst kann nicht aus Gruppe entfernt werden</string>
     <string name="service_add_success">Dienst zur Gruppe hinzugefügt</string>

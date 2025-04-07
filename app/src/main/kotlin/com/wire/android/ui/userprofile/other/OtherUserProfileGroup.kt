@@ -116,7 +116,7 @@ private fun UserGroupDetailsInformation(
             Spacer(modifier = Modifier.height(dimensions().spacing16x))
             if (isSelfAdmin) {
                 WireButton(
-                    text = stringResource(id = R.string.user_profile_group_remove_button),
+                    text = stringResource(id = R.string.user_profile_conversation_remove_button),
                     minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
                     minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                     fillMaxWidth = false,

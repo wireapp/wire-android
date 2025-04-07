@@ -857,7 +857,6 @@
     <string name="allow_services">සේවාවලට ඉඩදෙන්න</string>
     <string name="service_details_label">සේවාව</string>
     <string name="service_details_add_service_label">සමූහයට දමන්න</string>
-    <string name="service_details_remove_service_label">සමූහයෙන් ඉවත් කරන්න</string>
     <string name="service_remove_success">සේවාව සමූහයෙන් ඉවත් කෙරිණි</string>
     <string name="service_remove_error">සමූහයෙන් සේවාව ඉවත් කිරීමට නොහැකිය</string>
     <string name="service_add_success">සේවාව සමූහයට එක් කෙරිණි</string>

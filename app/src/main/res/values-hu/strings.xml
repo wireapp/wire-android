@@ -1030,7 +1030,6 @@
     <string name="allow_services">Szolgáltatások engedélyezése</string>
     <string name="service_details_label">Szolgáltatás</string>
     <string name="service_details_add_service_label">Hozzáadás a csoporthoz</string>
-    <string name="service_details_remove_service_label">Eltávolítás a csoportból</string>
     <string name="service_remove_success">A szolgáltatás eltávolítva a csoportból</string>
     <string name="service_remove_error">A szolgáltatást nem sikerült eltávolítani a csoportból</string>
     <string name="service_add_success">Szolgáltatás hozzáadva a csoporthoz</string>

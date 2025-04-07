@@ -417,7 +417,6 @@
     <string name="user_profile_group_tab">Grupa</string>
     <string name="user_profile_group_member">Član grupe ”%s”</string>
     <string name="user_profile_unblock_user">Odblokiraj korisnika</string>
-    <string name="user_profile_group_remove_button">Ukloni iz grupe</string>
     <string name="user_profile_logging_out_progress">Odjava...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Ukloni iz grupe?</string>

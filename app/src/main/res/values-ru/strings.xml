@@ -612,7 +612,6 @@
     <string name="user_profile_role_in_group">Роль в ”%s”</string>
     <string name="user_profile_role_change_error">При попытке изменить роль возникла ошибка. Проверьте, пожалуйста, подключение к интернету и повторите попытку</string>
     <string name="user_profile_unblock_user">Разблокировать пользователя</string>
-    <string name="user_profile_group_remove_button">Удалить из группы</string>
     <string name="user_profile_logging_out_progress">Выход...</string>
     <string name="user_profile_qr_code">Открыть QR-код</string>
     <string name="user_profile_qr_code_title">Поделиться профилем</string>

@@ -587,7 +587,6 @@
     <string name="user_profile_role_in_group">Szerep ”%s” csoportban</string>
     <string name="user_profile_role_change_error">Hiba lépett fel szerepcsere közben. Ellenőrizze internetkapcsolatát, és próbálja újra</string>
     <string name="user_profile_unblock_user">Felhasználótiltás feloldása</string>
-    <string name="user_profile_group_remove_button">Eltávolítás a csoportból</string>
     <string name="user_profile_logging_out_progress">Kijelentkezés...</string>
     <string name="user_profile_qr_code">QR-kód megnyitása</string>
     <string name="user_profile_qr_code_title">Profil megosztása</string>

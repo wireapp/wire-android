@@ -562,7 +562,7 @@
     <string name="user_profile_role_in_group">Benutzerrolle in ”%s”</string>
     <string name="user_profile_role_change_error">Beim Ändern der Rolle ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut</string>
     <string name="user_profile_unblock_user">Benutzer freigeben</string>
-    <string name="user_profile_group_remove_button">Aus Gruppe entfernen</string>
+    <string name="user_profile_conversation_remove_button">Aus Uterhaltung entfernen</string>
     <string name="user_profile_logging_out_progress">Abmelden...</string>
     <string name="user_profile_qr_code">QR-Code öffnen</string>
     <string name="user_profile_qr_code_title">Profil teilen</string>

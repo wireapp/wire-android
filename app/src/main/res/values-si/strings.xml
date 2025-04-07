@@ -478,7 +478,6 @@
     <string name="user_profile_role_in_group">”%s” හි භූමිකාව</string>
     <string name="user_profile_role_change_error">භූමිකාව වෙනස් කිරීමට තැත් කිරීමේ දී දෝෂයක් සිදු විය. ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කර නැවත උත්සාහ කරන්න</string>
     <string name="user_profile_unblock_user">අනවහිර කරන්න</string>
-    <string name="user_profile_group_remove_button">සමූහයෙන් ඉවත් කරන්න</string>
     <string name="user_profile_logging_out_progress">නික්මෙමින්...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">සමූහයෙන් ඉවත් කරන්නද?</string>

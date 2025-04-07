@@ -462,21 +462,6 @@ private fun GroupConversationDetailsContent(
                         }
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> {
-                            val isSelfAdmin = groupParticipantsState.data.isSelfAnAdmin
-                            val isSelfGuest = groupParticipantsState.data.isSelfGuest
-                            val isSelfExternalMember = groupParticipantsState.data.isSelfExternalMember
-
-//                            val shouldShowAddParticipantsButton = when {
-//                                isChannel() -> {
-//                                    val isEveryoneAllowed = channelAddPermission() == ChannelAddPermissionType.EVERYONE
-//                                    isEveryoneAllowed && !isSelfGuest || isSelfAdmin && !isSelfGuest
-//                                }
-//
-//                                else -> {
-//                                    isSelfAdmin && !isSelfExternalMember
-//                                }
-//                            } && !isAbandonedOneOnOneConversation
-
                             val shouldShowAddParticipantsButton = showAllowUserToAddParticipants() && !isAbandonedOneOnOneConversation
                             if (shouldShowAddParticipantsButton) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {

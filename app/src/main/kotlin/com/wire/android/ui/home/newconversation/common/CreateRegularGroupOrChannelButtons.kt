@@ -43,8 +43,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun CreateRegularGroupOrChannelButtons(
-    isSelfTeamMember: Boolean,
-    shouldShowChannelButton: Boolean,
+    shouldShowChannelPromotion: Boolean,
+    isUserAllowedToCreateChannels: Boolean,
     onCreateNewRegularGroup: () -> Unit,
     onCreateNewChannel: () -> Unit,
     modifier: Modifier = Modifier,
@@ -59,7 +59,7 @@ fun CreateRegularGroupOrChannelButtons(
             modifier = modifier
                 .padding(dimensions().spacing16x)
         ) {
-            if (shouldShowChannelButton) {
+            if (isUserAllowedToCreateChannels || shouldShowChannelPromotion) {
                 WirePrimaryButton(
                     text = stringResource(R.string.label_create_new_channel),
                     onClick = onCreateNewChannel,
@@ -73,7 +73,7 @@ fun CreateRegularGroupOrChannelButtons(
                         )
                     },
                     trailingIcon = {
-                        if (!isSelfTeamMember) {
+                        if (shouldShowChannelPromotion) {
                             Image(
                                 painter = painterResource(id = R.drawable.ic_upgrade),
                                 contentDescription = null,
@@ -106,11 +106,24 @@ fun CreateRegularGroupOrChannelButtons(
 
 @PreviewMultipleThemes
 @Composable
+fun PreviewCreateRegularGroupOrChannelButtonsWithPromotion() {
+    WireTheme {
+        CreateRegularGroupOrChannelButtons(
+            shouldShowChannelPromotion = true,
+            isUserAllowedToCreateChannels = true,
+            onCreateNewRegularGroup = { },
+            onCreateNewChannel = { }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
 fun PreviewCreateRegularGroupOrChannelButtons() {
     WireTheme {
         CreateRegularGroupOrChannelButtons(
-            isSelfTeamMember = false,
-            shouldShowChannelButton = true,
+            shouldShowChannelPromotion = false,
+            isUserAllowedToCreateChannels = true,
             onCreateNewRegularGroup = { },
             onCreateNewChannel = { }
         )

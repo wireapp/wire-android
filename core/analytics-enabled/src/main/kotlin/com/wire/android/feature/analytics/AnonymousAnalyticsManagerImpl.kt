@@ -96,6 +96,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     }
 
     override fun onStart(activity: Activity) {
+        if (isCoroutineContextNotInitialized()) return
         coroutineScope.launch {
             mutex.withLock {
                 startedActivities.add(activity)
@@ -109,6 +110,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     }
 
     override fun onStop(activity: Activity) {
+        if (isCoroutineContextNotInitialized()) return
         coroutineScope.launch {
             mutex.withLock {
                 startedActivities.remove(activity)
@@ -122,6 +124,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     }
 
     override fun sendEvent(event: AnalyticsEvent) {
+        if (isCoroutineContextNotInitialized()) return
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock
@@ -169,6 +172,17 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         }
     }
 
+    /**
+     * Check if the coroutine context is initialized as a safety measure, since we are late initializing this object.
+     */
+    private fun isCoroutineContextNotInitialized(): Boolean {
+        if (!::coroutineScope.isInitialized) {
+            Log.w(TAG, "AnonymousAnalyticsManager is not initialized, skipping operation.")
+            return true
+        }
+        return false
+    }
+
     override fun isAnalyticsInitialized(): Boolean =
         anonymousAnalyticsRecorder?.isAnalyticsInitialized() ?: run {
             Log.w(TAG, "Calling isAnalyticsInitialized with a null recorder.")
@@ -180,6 +194,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             Log.d(TAG, "View tracking is disabled for this build.")
             return
         }
+        if (isCoroutineContextNotInitialized()) return
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock
@@ -193,6 +208,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             Log.d(TAG, "View tracking is disabled for this build.")
             return
         }
+        if (isCoroutineContextNotInitialized()) return
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock

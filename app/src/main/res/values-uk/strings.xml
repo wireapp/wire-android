@@ -79,8 +79,6 @@
     <string name="content_description_unarchive">Розархівувати</string>
     <string name="content_description_block_the_user">Заблокувати</string>
     <string name="content_description_unblock_the_user">Розблокувати</string>
-    <string name="content_description_leave_the_group">Покинути групу</string>
-    <string name="content_description_delete_the_group">Видалити групу</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Згадати когось</string>
     <string name="content_description_send_button">Надіслати</string>

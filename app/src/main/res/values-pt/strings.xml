@@ -93,8 +93,6 @@
     <string name="content_description_unarchive">Desarquivar</string>
     <string name="content_description_block_the_user">Bloquear</string>
     <string name="content_description_unblock_the_user">Desbloquear</string>
-    <string name="content_description_leave_the_group">Sair do grupo</string>
-    <string name="content_description_delete_the_group">Excluir o grupo</string>
     <string name="content_description_conversation_phone_icon">Iniciar chamada de áudio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_enable_rich_text_mode">Habilitar modo de texto avançado</string>
@@ -365,14 +363,13 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="new_group_title">Novo Grupo</string>
     <string name="new_group_description">Até 500 pessoas podem participar de uma conversa.</string>
     <string name="group_name_title">Nome do Grupo</string>
-    <string name="group_name_placeholder">Digite um nome</string>
+    <string name="conversation_name_placeholder">Digite um nome</string>
     <string name="group_name_description">Dê um nome ao grupo.</string>
     <string name="protocol">Protocolo</string>
     <string name="mls">MLS</string>
     <string name="last_key_material_update_label">Última atualização de material criptográfico</string>
     <string name="group_state_label">Estado do Grupo</string>
-    <string name="group_can_not_be_created_edit_participiant_list">Editar lista de participantes</string>
-    <string name="group_can_not_be_created_discard_group_creation">Descartar criação de grupo</string>
+    <string name="conversation_can_not_be_created_edit_participant_list">Editar lista de participantes</string>
     <string name="asset_message_tap_to_download_text">Toque para baixar</string>
     <string name="asset_message_upload_in_progress_text">Fazendo upload…</string>
     <string name="asset_message_download_in_progress_text">Baixando…</string>
@@ -391,18 +388,13 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="conversation_details_options_tab">OPÇÕES</string>
     <string name="conversation_details_participants_tab">PARTICIPANTES</string>
     <string name="conversation_details_options_group_name">NOME DO GRUPO</string>
-    <string name="conversation_details_group_admins">ADMINISTRADORES DO GRUPO (%d)</string>
-    <string name="conversation_details_group_members">MEMBROS DO GRUPO (%d)</string>
     <string name="conversation_details_participants_info">Este grupo tem %s participantes.
 Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="conversation_details_show_all_participants">Mostrar todos os participantes (%d)</string>
-    <string name="conversation_details_group_participants_title">Participantes do Grupo</string>
-    <string name="conversation_details_group_participants_add">Adicionar participantes</string>
     <string name="conversation_participant_you_label">(Você)</string>
     <string name="conversation_details_is_classified">NÍVEL DE SEGURANÇA: VS-NfD</string>
     <string name="conversation_details_is_not_classified">DETALHES DA CONVERSA: NÍVEL DE SEGURANÇA: NÃO CONFIDENCIAL</string>
     <string name="conversation_options_self_deleting_messages_label">Mensagens auto-destrutivas</string>
-    <string name="conversation_options_self_deleting_messages_description">Quando isso estiver ativado, tosas as mensagens neste grupo desaparecerão depois de um certo tempo.</string>
     <string name="conversation_options_guests_label">Convidados</string>
     <string name="conversation_details_guest_description">Quando isso está LIGADO, pessoas de fora do seu time podem se juntar a essa conversa</string>
     <string name="conversation_options_guest_description">Ative essa opção para abrir essa conversa para pessoas fora do seu time, mesmo que elas não tenham o Wire.</string>
@@ -414,12 +406,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="disable_guest_dialog_text">Os convidados atuais serão removidos da conversa. Novos convidados não serão permitidos.</string>
     <string name="disable_services_dialog_title">Desativar acesso de serviços?</string>
     <string name="disable_services_dialog_text">Os serviços atuais serão removidos da conversa. Novos serviços não serão permitidos.</string>
-    <string name="leave_group_conversation_menu_item">Sair do Grupo…</string>
-    <string name="leave_group_conversation_dialog_title">Sair de \"%s\"?</string>
-    <string name="leave_group_conversation_dialog_description">Você não poderá mais enviar ou ler mensagens nesse grupo em nenhum dispositivo.</string>
-    <string name="delete_group_conversation_menu_item">Deletar Grupo…</string>
-    <string name="delete_group_conversation_dialog_title">Remover \"%s\"?</string>
-    <string name="delete_group_conversation_dialog_description">O grupo será removido da sua lista de conversas em todos os dispositivos. Você não poderá mais acessar o grupo e seu conteúdo.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Compartilhar com o Wire</string>
     <string name="import_media_searchbar_title">Buscar conversa</string>
@@ -455,19 +441,15 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="user_profile_status_none">Nenhum</string>
     <string name="user_profile_details_tab">Detalhes</string>
     <string name="user_profile_devices_tab">Dispositivos</string>
-    <string name="user_profile_group_tab">Grupo</string>
-    <string name="user_profile_group_member">Membro do grupo \"%s\"</string>
-    <string name="user_profile_group_role">FUNÇÃO</string>
-    <string name="user_profile_role_in_group">Função em \"%s\"</string>
+    <string name="user_profile_role_in_conversation">Função em \"%s\"</string>
     <string name="user_profile_role_change_error">Houve um erro ao tentar alterar a função. Por favor, verifique sua conexão com a internet e tente novamente</string>
     <string name="user_profile_unblock_user">Desbloquear usuário</string>
     <string name="user_profile_logging_out_progress">Saindo...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remover do grupo?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) não poderá enviar nem receber mensagens nesta conversa.</string>
-    <string name="dialog_remove_conversation_member_error">Houve um erro ao remover o participante do grupo</string>
-    <string name="group_role_admin">Administrador</string>
-    <string name="group_role_member">Membro</string>
+    <string name="conversation_role_admin">Administrador</string>
+    <string name="conversation_role_member">Membro</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Limpar Dados?</string>
     <string name="dialog_logout_wipe_data_checkbox">Excluir todas as suas informações pessoais e conversas deste dispositivo</string>
@@ -489,8 +471,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="label_clear_content">Limpar Conteúdo…</string>
     <string name="label_block">Bloquear</string>
     <string name="label_unblock">Desbloquear</string>
-    <string name="label_leave_group">Sair do Grupo</string>
-    <string name="label_delete_group">Excluir Grupo</string>
     <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Tudo</string>
@@ -622,7 +602,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
         <item quantity="other">%1$d mensagens</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Enviou uma mensagem"</string>
-    <string name="ephemeral_group_event_message">"Alguém enviou uma mensagem"</string>
+    <string name="ephemeral_group_channel_event_message">"Alguém enviou uma mensagem"</string>
     <!--Typing Indicator-->
     <!-- Search Messages -->
     <string name="label_search_button">Procurar</string>
@@ -668,12 +648,12 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="conversation_on_file_downloaded">O arquivo %s foi salvo com sucesso na pasta Downloads.</string>
     <string name="error_blocking_user">O usuário não pôde ser bloqueado.</string>
     <string name="blocking_user_success">%s bloqueado.</string>
-    <string name="conversation_group_removed_success">\"%s\" removido.</string>
-    <string name="leave_group_conversation_error">Ocorreu um erro ao sair da conversa.</string>
-    <string name="joined_conversation_group_success">Você entrou na conversa.</string>
-    <string name="left_conversation_group_success">Você saiu da conversa.</string>
+    <string name="conversation_removed_success">\"%s\" removido.</string>
+    <string name="leave_conversation_error">Ocorreu um erro ao sair da conversa.</string>
+    <string name="joined_conversation_success">Você entrou na conversa.</string>
+    <string name="left_conversation_success">Você saiu da conversa.</string>
     <string name="error_unblocking_user">O usuário não pôde ser desbloqueado.</string>
-    <string name="delete_group_conversation_error">Ocorreu um erro ao excluir a conversa.</string>
+    <string name="delete_conversation_conversation_error">Ocorreu um erro ao excluir a conversa.</string>
     <string name="error_limit_number_assets_imported_exceeded">Você só pode enviar até 20 arquivos de uma vez.</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Conversa arquivada</string>
@@ -692,13 +672,12 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="notification_reply">Resposta: %1$s</string>
     <string name="notification_not_supported_issue">Recurso não suportado</string>
     <string name="notification_connection_request">Deseja conectar-se</string>
-    <string name="notification_conversation_deleted">O grupo foi deletado</string>
     <string name="notification_action_reply">Responder</string>
     <string name="notification_receiver_name">Você</string>
     <string name="label_type_a_message">Digite uma mensagem</string>
     <string name="notification_incoming_call_content">Chamando…</string>
     <string name="notification_ongoing_call_content">Chamada em andamento…</string>
-    <string name="notification_group_call_content">%s está chamando…</string>
+    <string name="notification_group_channel_call_content">%s está chamando…</string>
     <string name="notification_call_default_caller_name">Alguém</string>
     <string name="notification_call_default_group_name">Chamada em Grupo Recebida</string>
     <!-- Calling-->
@@ -760,7 +739,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="sso_error_dialog_title">Não foi possível fazer login com SSO</string>
     <string name="sso_error_dialog_message">Por favor tente novamente. Se isso não resolver, contate um administrador e forneça este código:\n%d\"</string>
     <string name="asset_download_dialog_default_title">Baixar arquivo</string>
-    <string name="empty_group_label">Conversa sem nome</string>
+    <string name="empty_conversation_label">Conversa sem nome</string>
     <string name="label_show_more">Mostrar Mais</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">O recebimento de imagens está desabilitado</string>
@@ -778,16 +757,10 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="allow_guest_switch_description">Abrir esta conversa para pessoas fora do seu time. Você pode sempre alterar isso depois.</string>
     <string name="allow_services">Permitir serviços</string>
     <string name="service_details_label">Serviço</string>
-    <string name="service_details_add_service_label">Adicionar ao grupo</string>
-    <string name="service_remove_success">Serviço removido do grupo</string>
-    <string name="service_remove_error">Não é possível remover o serviço do grupo</string>
-    <string name="service_add_success">Serviço adicionado ao grupo</string>
-    <string name="service_add_error">Não é possível adicionar o serviço ao grupo</string>
     <string name="service_no_information_available_title">Nenhuma informação disponível</string>
     <string name="service_no_information_available_subtitle">Tente novamente ou entre em contato com o administrador da sua equipe</string>
     <string name="read_receipts">Confirmações de leitura</string>
     <string name="disable_guests_dialog_title">Desabilitar Convidados?</string>
-    <string name="disable_guests_dialog_description">Os convidados selecionados anteriormente não farão parte do grupo se não for permitido o acessso.</string>
     <string name="disable_guests_dialog_button">Desabilitar Convidados</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Bloquear usuário?</string>
@@ -905,9 +878,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="backup_dialog_restore_wrong_user_error_message">Não é possível restaurar o histórico de outra conta.</string>
     <string name="backup_dialog_restore_general_error_title">Algo deu errado</string>
     <string name="backup_dialog_restore_general_error_message">Não foi possível restaurar seu histórico. Por favor, tente novamente ou entre em contato com o suporte ao cliente do Wire.</string>
-    <string name="group_content_deleted">Conteúdo do grupo foi excluído</string>
     <string name="conversation_content_deleted">Conteúdo da conversa foi excluído</string>
-    <string name="group_content_delete_failure">Não foi possível excluir o conteúdo do grupo</string>
     <string name="conversation_content_delete_failure">Não foi possível excluir o conteúdo da conversa</string>
     <string name="group_label">grupo</string>
     <string name="conversation_label">conversa</string>
@@ -946,13 +917,10 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
 %1$s</string>
     <string name="join_conversation_dialog_button">Entrar</string>
     <string name="join_conversation_via_deeplink_error_title">Não foi possível entrar na conversa</string>
-    <string name="join_conversation_via_deeplink_error_link_expired">O link para esta conversa expirou ou a conversa foi definida como privada.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">O número máximo de participantes nesta conversa foi atingido.</string>
-    <string name="join_conversation_via_deeplink_error_general">Devido a um erro, você não pôde ser adicionado à conversa em grupo.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Mensagens autodestrutivas</string>
     <string name="self_deleting_messages_option">Forçar exclusão de mensagens</string>
-    <string name="self_deleting_messages_option_description">Quando isto estiver ativado, todas as mensagens neste grupo desaparecerão após um certo tempo. Isto se aplica a todos os participantes do grupo.</string>
     <string name="self_deleting_messages_folder_timer">Temporizador</string>
     <!-- visit link -->
     <string name="label_visit_link_title">Visitar Link</string>
@@ -974,8 +942,6 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="title_device_key_fingerprint">IDENTIFICAÇÃO DO DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NÃO DISPONÍVEL</string>
     <string name="guest_room_link_copied">Link copiado para a área de transferência</string>
-    <string name="guest_room_link_enabled">A geração de links de convidado agora está habilitada para todos os administradores de grupo</string>
-    <string name="guest_room_link_disabled">A geração de links de convidado agora está desabilitada para todos os administradores de grupo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Sua conta foi usada em</string>
     <string name="new_device_dialog_current_user_btn">Gerenciar dispositivos</string>

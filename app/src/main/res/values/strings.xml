@@ -109,8 +109,8 @@
     <string name="content_description_unarchive">Unarchive</string>
     <string name="content_description_block_the_user">Block</string>
     <string name="content_description_unblock_the_user">Unblock</string>
-    <string name="content_description_leave_the_group">Leave the group</string>
-    <string name="content_description_delete_the_group">Delete the group</string>
+    <string name="content_description_leave_the_conversation">Leave the conversation</string>
+    <string name="content_description_delete_the_conversation">Delete the conversation</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Search icon</string>
@@ -125,7 +125,7 @@
     <string name="content_description_conversation_mention_someone">Mention someone</string>
     <string name="content_description_conversation_back_btn">Go back to conversation list</string>
     <string name="content_description_conversation_open_details_label">open conversation details</string>
-    <string name="content_description_new_conversation">Search for people or create a new group</string>
+    <string name="content_description_new_conversation">Search for people or create a new conversation</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
@@ -233,7 +233,7 @@
     <string name="content_description_close_dropdown">close dropdown</string>
     <string name="content_description_open_notification_settings_label">open notification settings</string>
     <string name="content_description_new_conversation_close_btn">Close new conversation view</string>
-    <string name="content_description_new_group_conversation_back_btn">Go back to new conversation view</string>
+    <string name="content_description_new_conversation_back_btn">Go back to new conversation view</string>
     <string name="content_description_new_conversation_name_back_btn">Go back to new conversation view</string>
     <string name="content_description_new_group_name_field">Type group name</string>
     <string name="content_description_new_channel_name_field">Type channel name</string>
@@ -544,7 +544,7 @@
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name_title">Group Name</string>
     <string name="channel_name_title">Channel Name</string>
-    <string name="group_name_placeholder">Enter a name</string>
+    <string name="conversation_name_placeholder">Enter a name</string>
     <string name="group_name_description">Give this group a meaningful name.</string>
     <string name="channel_name_description">Give this channel a meaningful name.</string>
     <string name="protocol">Protocol</string>
@@ -556,10 +556,10 @@
     <string name="empty_channel_name_error">Please enter a channel name</string>
     <string name="regular_group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
     <string name="channel_name_exceeded_limit_error">Channel name should not exceed 64 characters</string>
-    <string name="group_can_not_be_created_title">Group can\'t be created</string>
-    <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can\'t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
-    <string name="group_can_not_be_created_edit_participiant_list">Edit Participants List</string>
-    <string name="group_can_not_be_created_discard_group_creation">Discard Group Creation</string>
+    <string name="conversation_can_not_be_created_title">Conversation can\'t be created</string>
+    <string name="conversation_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can\'t join the same conversation.\n\nTo create the conversation, remove affected participants.</string>
+    <string name="conversation_can_not_be_created_edit_participant_list">Edit Participants List</string>
+    <string name="conversation_can_not_be_created_discard_creation">Discard Conversation Creation</string>
     <string name="asset_message_tap_to_download_text">Tap to download</string>
     <string name="asset_message_upload_in_progress_text">Uploading…</string>
     <string name="asset_message_download_in_progress_text">Downloading…</string>
@@ -578,23 +578,23 @@
     <string name="label_add_participants">Add Participants</string>
     <string name="username_unavailable_label">Name not available</string>
     <string name="temporary_user_label">%s left</string>
-    <string name="group_unavailable_label">Group name not available</string>
+    <string name="conversation_unavailable_label">Conversation name not available</string>
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
     <string name="conversation_details_options_group_name">GROUP NAME</string>
-    <string name="conversation_details_group_admins">GROUP ADMINS (%d)</string>
-    <string name="conversation_details_group_members">GROUP MEMBERS (%d)</string>
-    <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
+    <string name="conversation_details_conversation_admins">CONVERSATION ADMINS (%d)</string>
+    <string name="conversation_details_conversation_members">CONVERSATION MEMBERS (%d)</string>
+    <string name="conversation_details_participants_info">This conversation has %s participants.\nUp to 500 people can join a conversation.</string>
     <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
-    <string name="conversation_details_group_participants_title">Group Participants</string>
-    <string name="conversation_details_group_participants_add">Add participants</string>
+    <string name="conversation_details_participants_title">Conversation Participants</string>
+    <string name="conversation_details_conversation_participants_add">Add participants</string>
     <string name="conversation_participant_you_label">(You)</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
-    <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this group will disappear after a certain time.</string>
+    <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this conversation will disappear after a certain time.</string>
     <string name="conversation_options_guests_label">Guests</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
@@ -606,16 +606,16 @@
     <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
     <string name="disable_services_dialog_title">Disable services access?</string>
     <string name="disable_services_dialog_text">Current services will be removed from the conversation. New services will not be allowed.</string>
-    <string name="leave_group_conversation_menu_item">Leave Group…</string>
-    <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
-    <string name="leave_group_conversation_dialog_description">You will then no longer be able to send or read messages in this group on any device.</string>
-    <string name="leave_group_conversation_dialog_delete_fully_check">Delete the group and its content for me on all my devices</string>
-    <string name="delete_group_conversation_menu_item">Delete Group…</string>
-    <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
-    <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
-    <string name="delete_group_locally_conversation_dialog_title">Delete “%s” group for me?</string>
-    <string name="delete_group_locally_conversation_dialog_description">You won’t be able to access the group and its content. There is no option to restore it.</string>
-    <string name="delete_group_locally_delete_for_me_label">Delete for Me</string>
+    <string name="leave_conversation_menu_item">Leave Conversation…</string>
+    <string name="leave_conversation_dialog_title">Leave “%s”?</string>
+    <string name="leave_conversation_dialog_description">You will then no longer be able to send or read messages in this conversation on any device.</string>
+    <string name="leave_conversation_dialog_delete_fully_check">Delete the conversation and its content for me on all my devices</string>
+    <string name="delete_conversation_conversation_menu_item">Delete Conversation…</string>
+    <string name="delete_conversation_conversation_dialog_title">Remove “%s”?</string>
+    <string name="delete_conversation_conversation_dialog_description">The conversation will be removed from your conversations list on all devices. You will no longer be able to access the conversation and its content.</string>
+    <string name="delete_conversation_locally_conversation_dialog_title">Delete “%s” conversation for me?</string>
+    <string name="delete_conversation_locally_conversation_dialog_description">You won’t be able to access the conversation and its content. There is no option to restore it.</string>
+    <string name="delete_conversation_locally_delete_for_me_label">Delete for Me</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
@@ -666,10 +666,10 @@
     <string name="user_profile_account_management">Manage Team</string>
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Devices</string>
-    <string name="user_profile_group_tab">Group</string>
-    <string name="user_profile_group_member">Member of the group ”%s”</string>
-    <string name="user_profile_group_role">ROLE</string>
-    <string name="user_profile_role_in_group">Role in ”%s”</string>
+    <string name="user_profile_conversation_tab">Conversation</string>
+    <string name="user_profile_conversation_member">Member of the conversation ”%s”</string>
+    <string name="user_profile_conversation_role">ROLE</string>
+    <string name="user_profile_role_in_conversation">Role in ”%s”</string>
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
     <string name="user_profile_unblock_user">Unblock User</string>
     <string name="user_profile_conversation_remove_button">Remove from conversation</string>
@@ -685,9 +685,9 @@
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from conversation?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
-    <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the group</string>
-    <string name="group_role_admin">Admin</string>
-    <string name="group_role_member">Member</string>
+    <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the conversatrion</string>
+    <string name="conversation_role_admin">Admin</string>
+    <string name="conversation_role_member">Member</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Clear Data?</string>
     <string name="dialog_logout_wipe_data_checkbox">Delete all your personal information and conversations on this device</string>
@@ -715,9 +715,9 @@
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
     <string name="label_unblock">Unblock</string>
-    <string name="label_leave_group">Leave Group</string>
-    <string name="label_delete_group_locally">Delete Group For Me</string>
-    <string name="label_delete_group">Delete Group</string>
+    <string name="label_leave_conversation">Leave Conversation</string>
+    <string name="label_delete_conversation_locally">Delete Conversation For Me</string>
+    <string name="label_delete_conversation">Delete Conversation</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Filter Conversations</string>
     <string name="label_filter_all">All Conversations</string>
@@ -815,14 +815,14 @@
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
     <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
     <string name="label_system_message_conversation_started_with_members">With %1$s</string>
-    <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the conversation.</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the conversation.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the conversation.</string>
     <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
-    <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other group participants.\n**Please still be careful with who you share sensitive information.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other conversation participants.\n**Please still be careful with who you share sensitive information.**</string>
     <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
     <!-- Last messages -->
@@ -904,7 +904,7 @@
         <item quantity="other">%1$d messages</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
-    <string name="ephemeral_group_event_message">"Someone sent a message"</string>
+    <string name="ephemeral_group_channel_event_message">"Someone sent a message"</string>
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s is typing</item>
@@ -975,13 +975,13 @@
     <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
     <string name="error_blocking_user">User could not be blocked</string>
     <string name="blocking_user_success">%s blocked</string>
-    <string name="conversation_group_removed_success">“%s” removed</string>
-    <string name="conversation_group_removed_locally_success">“%s” deleted for me</string>
-    <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
-    <string name="joined_conversation_group_success">You joined the conversation.</string>
-    <string name="left_conversation_group_success">You left the conversation.</string>
+    <string name="conversation_removed_success">“%s” removed</string>
+    <string name="conversation_removed_locally_success">“%s” deleted for me</string>
+    <string name="leave_conversation_error">There was an error while leaving conversation</string>
+    <string name="joined_conversation_success">You joined the conversation.</string>
+    <string name="left_conversation_success">You left the conversation.</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
-    <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
+    <string name="delete_conversation_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Conversation was archived</string>
@@ -1014,7 +1014,7 @@
     <string name="notification_reply">Reply: %1$s</string>
     <string name="notification_not_supported_issue">Feature not supported</string>
     <string name="notification_connection_request">Wants to connect</string>
-    <string name="notification_conversation_deleted">Deleted the group</string>
+    <string name="notification_conversation_deleted">Deleted the conversation</string>
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>
@@ -1022,7 +1022,7 @@
     <string name="notification_action_decline_call">Decline</string>
     <string name="notification_incoming_call_content">Calling…</string>
     <string name="notification_ongoing_call_content">Ongoing call…</string>
-    <string name="notification_group_call_content">%s calling...</string>
+    <string name="notification_group_channel_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Incoming group call</string>
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
@@ -1111,7 +1111,7 @@
         admin and provide this code:\n%d"
     </string>
     <string name="asset_download_dialog_default_title">Download file</string>
-    <string name="empty_group_label">Unnamed conversation</string>
+    <string name="empty_conversation_label">Unnamed conversation</string>
     <string name="label_show_more">Show More</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Receiving images is prohibited</string>
@@ -1131,19 +1131,19 @@
     <string name="allow_services_regular_group_description">Open this conversation to services. You can always change it later.</string>
     <string name="allow_services_channel_description">Open this conversation to people outside your team or services. You can always change it later.</string>
     <string name="service_details_label">Service</string>
-    <string name="service_details_add_service_label">Add To Group</string>
+    <string name="service_details_add_service_label">Add To Conversation</string>
     <string name="service_details_remove_service_label">Remove From Conversation</string>
-    <string name="service_remove_success">Service removed from group</string>
-    <string name="service_remove_error">Unable to remove service from group</string>
-    <string name="service_add_success">Service added to group</string>
-    <string name="service_add_error">Unable to add service to group</string>
+    <string name="service_remove_success">Service removed from conversation</string>
+    <string name="service_remove_error">Unable to remove service from conversation</string>
+    <string name="service_add_success">Service added to conversation</string>
+    <string name="service_add_error">Unable to add service to conversation</string>
     <string name="service_no_information_available_title">No information available</string>
     <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Read receipts</string>
     <string name="read_receipts_regular_group_description">When this is on, people can see when their messages in this conversation are read.</string>
     <string name="read_receipts_channel_description">When this is on, people can see when their messages in this channel are read.</string>
     <string name="disable_guests_dialog_title">Not Allow Guests?</string>
-    <string name="disable_guests_dialog_description">Guests you selected in the previous step won\'t be part of the group if you do not allow guest access.</string>
+    <string name="disable_guests_dialog_description">Guests you selected in the previous step won\'t be part of the conversation if you do not allow guest access.</string>
     <string name="disable_guests_dialog_button">Not Allow Guests</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Block user?</string>
@@ -1340,9 +1340,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="backup_dialog_restore_wrong_user_error_message">You cannot restore history from a different account.</string>
     <string name="backup_dialog_restore_general_error_title">Something Went Wrong</string>
     <string name="backup_dialog_restore_general_error_message">Your history could not be restored. Please try again or contact the Wire customer support.</string>
-    <string name="group_content_deleted">Group content was deleted</string>
     <string name="conversation_content_deleted">Conversation content was deleted</string>
-    <string name="group_content_delete_failure">Group content could not be deleted</string>
     <string name="conversation_content_delete_failure">Conversation content could not be deleted</string>
     <string name="group_label">group</string>
     <string name="conversation_label">conversation</string>
@@ -1389,13 +1387,13 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Join</string>
     <string name="join_conversation_via_deeplink_error_title">Unable to join conversation</string>
-    <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
+    <string name="join_conversation_via_deeplink_error_link_expired">The link to this conversation expired or the conversation was set to private.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
-    <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
+    <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the conversation.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Self-deleting Messages</string>
     <string name="self_deleting_messages_option">Enforce message deletion</string>
-    <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
+    <string name="self_deleting_messages_option_description">When this is on, all messages in this conversation will disappear after a certain time. This applies to all participants.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
     <!-- visit link -->
     <string name="label_visit_link_title">Visit Link</string>
@@ -1422,8 +1420,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
     <string name="label_client_key_fingerprint_not_available">NOT AVAILABLE</string>
     <string name="guest_room_link_copied">Link copied to clipboard</string>
-    <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>
-    <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
+    <string name="guest_room_link_enabled">Generating guest links is now enabled for all conversation admins</string>
+    <string name="guest_room_link_disabled">Generating guest links is now disabled for all conversation admins</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Your account was used on</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>

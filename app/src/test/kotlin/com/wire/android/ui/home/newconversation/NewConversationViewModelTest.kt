@@ -20,12 +20,16 @@
 
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -37,6 +41,7 @@ import io.mockk.coVerify
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.fail
@@ -206,6 +211,30 @@ class NewConversationViewModelTest {
         val result = viewModel.newGroupState.isGroupCreatingAllowed
         // then
         assertEquals(true, result)
+    }
+
+    @Test
+    fun `given group name, when creating group, then do not show NameEmptyError until name is entered and cleared`() = runTest {
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .arrange()
+
+        launch {
+            viewModel.observeGroupNameChanges()
+        }.also {
+            viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
+            advanceUntilIdle()
+            assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
+
+            viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd("name")
+            advanceUntilIdle()
+            assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
+
+            viewModel.newGroupNameTextState.clearText()
+            advanceUntilIdle()
+            assertEquals(GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError, viewModel.newGroupState.error)
+            it.cancel()
+        }
     }
 
     @Test

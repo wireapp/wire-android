@@ -52,6 +52,7 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -153,6 +154,7 @@ class NewConversationViewModel @Inject constructor(
 
     suspend fun observeGroupNameChanges() {
         newGroupNameTextState.textAsFlow()
+            .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
             .collectLatest {
                 newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
             }

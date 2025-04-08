@@ -57,6 +57,7 @@ data class GroupConversationOptionsState(
     val loadingServicesOption: Boolean = false,
     val loadingReadReceiptOption: Boolean = false,
     val isChannel: Boolean = false,
+    val isSelfTeamAdmin: Boolean = false,
     val channelAccessType: ChannelAccessType? = ChannelAccessType.PRIVATE,
     val channelAddPermissionType: ChannelAddPermissionType? = ChannelAddPermissionType.ADMINS,
     val error: Error = Error.None,

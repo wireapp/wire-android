@@ -43,6 +43,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -75,6 +76,7 @@ import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -121,7 +123,7 @@ fun NewLoginPasswordScreen(
         passwordTextState = loginEmailViewModel.passwordTextState,
         onLoginButtonClick = loginEmailViewModel::login,
         onCreateAccount = {
-            navigator.navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
+            navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
         },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = loginEmailViewModel::cancelLogin,
@@ -228,7 +230,10 @@ internal fun LoginPasswordContent(
                             .padding(bottom = dimensions().spacing24x)
                     )
                 }
-                if (!serverConfig.isOnPremises && !serverConfig.isProxyEnabled() && isCloudAccountCreationPossible) {
+                if (BuildConfig.ALLOW_ACCOUNT_CREATION &&
+                    !serverConfig.isProxyEnabled() &&
+                    isCloudAccountCreationPossible
+                ) {
                     CreateAccountContent(
                         onCreateAccountClicked = onCreateAccount,
                         modifier = Modifier.fillMaxWidth(),

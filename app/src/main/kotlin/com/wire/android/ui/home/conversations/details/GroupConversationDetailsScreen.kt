@@ -193,9 +193,7 @@ fun GroupConversationDetailsScreen(
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
         },
-        shouldShowAddParticipantsButtonForChannel = {
-            viewModel.groupOptionsState.value.shouldShowAddParticipantsButtonForChannel
-        },
+        showAllowUserToAddParticipants = { viewModel.shouldShowAddParticipantButton() },
         onAddParticipantsPressed = {
             navigator.navigate(
                 NavigationCommand(
@@ -333,7 +331,6 @@ private fun GroupConversationDetailsContent(
     bottomSheetEventsHandler: GroupConversationDetailsBottomSheetEventsHandler,
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
-    shouldShowAddParticipantsButtonForChannel: () -> (Boolean),
     onAddParticipantsPressed: () -> Unit,
     onEditGuestAccess: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
@@ -342,6 +339,7 @@ private fun GroupConversationDetailsContent(
     onLeaveGroup: (LeaveGroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
+    showAllowUserToAddParticipants: () -> (Boolean),
     isLoading: Boolean,
     isAbandonedOneOnOneConversation: Boolean,
     isWireCellEnabled: Boolean,
@@ -469,14 +467,11 @@ private fun GroupConversationDetailsContent(
                         }
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> {
-                            val shouldShowAddParticipantsButton =
-                                (groupParticipantsState.addParticipantsEnabled && !isAbandonedOneOnOneConversation) ||
-                                        shouldShowAddParticipantsButtonForChannel()
-
+                            val shouldShowAddParticipantsButton = showAllowUserToAddParticipants() && !isAbandonedOneOnOneConversation
                             if (shouldShowAddParticipantsButton) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                                     WirePrimaryButton(
-                                        text = stringResource(R.string.conversation_details_group_participants_add),
+                                        text = stringResource(R.string.conversation_details_conversation_participants_add),
                                         onClick = onAddParticipantsPressed,
                                     )
                                 }
@@ -694,7 +689,7 @@ fun PreviewGroupConversationDetails() {
                 folder = null,
                 isDeletingConversationLocallyRunning = false
             ),
-            shouldShowAddParticipantsButtonForChannel = { false },
+            showAllowUserToAddParticipants = { true },
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},
             onProfilePressed = {},

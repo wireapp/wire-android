@@ -97,14 +97,11 @@
     <string name="content_description_unarchive">Reaktivieren</string>
     <string name="content_description_block_the_user">Blockieren</string>
     <string name="content_description_unblock_the_user">Freigeben</string>
-    <string name="content_description_leave_the_group">Gruppe verlassen</string>
-    <string name="content_description_delete_the_group">Gruppe löschen</string>
     <string name="content_description_conversation_phone_icon">Audioanruf starten</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
     <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>
     <string name="content_description_conversation_open_details_label">Unterhaltungsdetails öffnen</string>
-    <string name="content_description_new_conversation">Nach Personen suchen oder eine neue Gruppe erstellen</string>
     <string name="content_description_send_button">Senden</string>
     <string name="content_description_timed_message_button">Selbstlöschende Nachrichten, Taste</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
@@ -181,7 +178,7 @@
     <string name="content_description_close_dropdown">Dropdown schließen</string>
     <string name="content_description_open_notification_settings_label">Benachrichtigungseinstellungen öffnen</string>
     <string name="content_description_new_conversation_close_btn">Ansicht neue Unterhaltung schließen</string>
-    <string name="content_description_new_group_conversation_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
+    <string name="content_description_new_conversation_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
     <string name="content_description_new_conversation_name_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
     <string name="content_description_new_group_name_field">Gruppen-Name eingeben</string>
     <string name="content_description_new_channel_name_field">Gruppen-Name eingeben</string>
@@ -439,7 +436,7 @@
     <string name="new_group_description">Bis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
     <string name="group_name_title">Gruppenname</string>
     <string name="channel_name_title">Channel-Name</string>
-    <string name="group_name_placeholder">Namen eingeben</string>
+    <string name="conversation_name_placeholder">Namen eingeben</string>
     <string name="group_name_description">Geben Sie dieser Gruppe einen aussagekräftigen Namen.</string>
     <string name="channel_name_description">Geben Sie diesem Channel einen aussagekräftigen Namen.</string>
     <string name="protocol">Protokoll</string>
@@ -451,10 +448,7 @@
     <string name="empty_channel_name_error">Bitte geben Sie einen Channel-Namen ein</string>
     <string name="regular_group_name_exceeded_limit_error">Gruppenname darf 64 Zeichen nicht überschreiten</string>
     <string name="channel_name_exceeded_limit_error">Channel-Name darf 64 Zeichen nicht überschreiten</string>
-    <string name="group_can_not_be_created_title">Gruppe kann nicht erstellt werden</string>
-    <string name="group_can_not_be_created_federation_conflict_description">Personen der Backends %1$s und %2$s können nicht derselben Gruppenunterhaltung beitreten.\n\nUm die Gruppe zu erstellen, entfernen Sie die betroffenen Teilnehmer.</string>
-    <string name="group_can_not_be_created_edit_participiant_list">Teilnehmerliste bearbeiten</string>
-    <string name="group_can_not_be_created_discard_group_creation">Gruppenerstellung verwerfen</string>
+    <string name="conversation_can_not_be_created_edit_participant_list">Teilnehmerliste bearbeiten</string>
     <string name="asset_message_tap_to_download_text">Zum Herunterladen tippen</string>
     <string name="asset_message_upload_in_progress_text">Hochladen…</string>
     <string name="asset_message_download_in_progress_text">Herunterladen…</string>
@@ -473,23 +467,16 @@
     <string name="label_add_participants">Teilnehmer hinzufügen</string>
     <string name="username_unavailable_label">Name nicht verfügbar</string>
     <string name="temporary_user_label">%s hat die Unterhaltung verlassen</string>
-    <string name="group_unavailable_label">Gruppenname nicht verfügbar</string>
     <string name="conversation_details_title">Unterhaltungsdetails</string>
     <string name="conversation_details_options_tab">OPTIONEN</string>
     <string name="conversation_details_participants_tab">TEILNEHMER</string>
     <string name="conversation_details_options_group_name">GRUPPENNAME</string>
-    <string name="conversation_details_group_admins">GRUPPEN-ADMINS (%d)</string>
-    <string name="conversation_details_group_members">GRUPPEN-MITGLIEDER (%d)</string>
-    <string name="conversation_details_participants_info">Diese Gruppe hat %s Teilnehmer.\nBis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
     <string name="conversation_details_participants_count">%s Teilnehmer</string>
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
-    <string name="conversation_details_group_participants_title">Teilnehmer</string>
-    <string name="conversation_details_group_participants_add">Teilnehmer hinzufügen</string>
     <string name="conversation_participant_you_label">(Sie)</string>
     <string name="conversation_details_is_classified">SICHERHEITSNIVEAU: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>
     <string name="conversation_options_self_deleting_messages_label">Selbstlöschende Nachrichten</string>
-    <string name="conversation_options_self_deleting_messages_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Gruppe nach einer bestimmten Zeit.</string>
     <string name="conversation_options_guests_label">Gäste</string>
     <string name="conversation_details_guest_description">Wenn diese Option aktiviert ist, können Personen außerhalb des Teams an dieser Unterhaltung teilnehmen</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
@@ -501,15 +488,6 @@
     <string name="disable_guest_dialog_text">Aktuelle Gäste werden aus der Unterhaltung entfernt. Neue Gäste können nicht hinzugefügt werden.</string>
     <string name="disable_services_dialog_title">Zugang zu Diensten deaktivieren?</string>
     <string name="disable_services_dialog_text">Aktuelle Dienste werden aus der Unterhaltung entfernt. Neue Dienste können nicht hinzugefügt werden.</string>
-    <string name="leave_group_conversation_menu_item">Gruppe verlassen…</string>
-    <string name="leave_group_conversation_dialog_title">\"%s\" verlassen?</string>
-    <string name="leave_group_conversation_dialog_description">Sie können dann auf keinem Gerät mehr Nachrichten in dieser Gruppe senden oder lesen.</string>
-    <string name="delete_group_conversation_menu_item">Gruppe löschen…</string>
-    <string name="delete_group_conversation_dialog_title">\"%s\" entfernen?</string>
-    <string name="delete_group_conversation_dialog_description">Die Gruppe wird auf allen Geräten aus der Liste Ihrer Unterhaltungen entfernt. Sie können dann nicht mehr auf die Gruppe und ihren Inhalt zugreifen.</string>
-    <string name="delete_group_locally_conversation_dialog_title">Gruppe \"%s\" für mich löschen?</string>
-    <string name="delete_group_locally_conversation_dialog_description">Sie können dann nicht mehr auf die Gruppe und ihren Inhalt zugreifen. Es gibt keine Möglichkeit, sie wiederherzustellen.</string>
-    <string name="delete_group_locally_delete_for_me_label">Für mich löschen</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Mit Wire teilen</string>
     <string name="import_media_searchbar_title">Nach Unterhaltung suchen</string>
@@ -556,13 +534,9 @@
     <string name="user_profile_account_management">Team verwalten</string>
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Geräte</string>
-    <string name="user_profile_group_tab">Gruppe</string>
-    <string name="user_profile_group_member">Mitglied der Gruppe ”%s”</string>
-    <string name="user_profile_group_role">ROLLE</string>
-    <string name="user_profile_role_in_group">Benutzerrolle in ”%s”</string>
+    <string name="user_profile_role_in_conversation">Benutzerrolle in ”%s”</string>
     <string name="user_profile_role_change_error">Beim Ändern der Rolle ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut</string>
     <string name="user_profile_unblock_user">Benutzer freigeben</string>
-    <string name="user_profile_group_remove_button">Aus Gruppe entfernen</string>
     <string name="user_profile_logging_out_progress">Abmelden...</string>
     <string name="user_profile_qr_code">QR-Code öffnen</string>
     <string name="user_profile_qr_code_title">Profil teilen</string>
@@ -575,9 +549,8 @@
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Aus Gruppe entfernen?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) wird in dieser Unterhaltung keine Nachrichten senden oder empfangen können.</string>
-    <string name="dialog_remove_conversation_member_error">Beim Entfernen des Teilnehmers aus der Gruppe ist ein Fehler aufgetreten</string>
-    <string name="group_role_admin">Admin</string>
-    <string name="group_role_member">Mitglied</string>
+    <string name="conversation_role_admin">Admin</string>
+    <string name="conversation_role_member">Mitglied</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Daten löschen?</string>
     <string name="dialog_logout_wipe_data_checkbox">Ihre persönlichen Daten und Unterhaltungen vollständig von diesem Gerät entfernen</string>
@@ -604,9 +577,6 @@
     <string name="label_clear_content">Verlauf löschen…</string>
     <string name="label_block">Blockieren</string>
     <string name="label_unblock">Freigeben</string>
-    <string name="label_leave_group">Gruppe verlassen</string>
-    <string name="label_delete_group_locally">Gruppe für mich löschen</string>
-    <string name="label_delete_group">Gruppe löschen</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Unterhaltungen filtern</string>
     <string name="label_filter_favorites">Favoriten</string>
@@ -696,14 +666,10 @@
     <string name="label_system_message_conversation_started_by_self">**Sie** haben die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_by_other">%1$s hat die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_with_members">Mit %1$s</string>
-    <string name="label_system_message_conversation_failed_add_members_summary">%1$s **Teilnehmer** konnten der Gruppe nicht hinzugefügt werden.</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s konnten der Gruppe nicht hinzugefügt werden.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s konnte der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_degraded_mls">Diese Unterhaltung ist nicht mehr überprüft, da mindestens ein Teilnehmer ein neues Gerät verwendet oder ein ungültiges Zertifikat hat.</string>
     <string name="label_system_message_conversation_degraded_proteus">Diese Unterhaltung ist nicht mehr überprüft, da mindestens ein Teilnehmer ein neues Gerät verwendet oder ein ungültiges Zertifikat hat.</string>
     <string name="label_system_message_conversation_verified_mls">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
     <string name="label_system_message_conversation_verified_proteus">Alle Fingerabdrücke sind überprüft (Proteus)</string>
-    <string name="label_system_message_conversation_started_sensitive_information">Kommunikation in Wire ist immer Ende-zu-Ende verschlüsselt. Alles, was Sie in dieser Unterhaltung senden und empfangen, ist nur für Sie und andere Gruppenteilnehmer zugänglich.\n**Bitte seien Sie dennoch vorsichtig, mit wem Sie vertrauliche Informationen teilen.**</string>
     <string name="label_conversations_details_verified_proteus">Überprüft (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Überprüft (Ende-zu-Ende-Identität)</string>
     <!-- Last messages -->
@@ -785,7 +751,7 @@
         <item quantity="other">%1$d Nachrichten</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Hat eine Nachricht gesendet"</string>
-    <string name="ephemeral_group_event_message">"Jemand hat eine Nachricht gesendet"</string>
+    <string name="ephemeral_group_channel_event_message">"Jemand hat eine Nachricht gesendet"</string>
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s schreibt</item>
@@ -843,13 +809,13 @@
     <string name="conversation_on_file_downloaded">Die Datei %s wurde im Download-Ordner gespeichert</string>
     <string name="error_blocking_user">Benutzer konnte nicht blockiert werden</string>
     <string name="blocking_user_success">%s blockiert</string>
-    <string name="conversation_group_removed_success">“%s” entfernt</string>
-    <string name="conversation_group_removed_locally_success">“%s” für mich gelöscht</string>
-    <string name="leave_group_conversation_error">Beim Verlassen der Unterhaltung ist ein Fehler aufgetreten</string>
-    <string name="joined_conversation_group_success">Sie sind der Unterhaltung beigetreten.</string>
-    <string name="left_conversation_group_success">Sie haben die Unterhaltung verlassen.</string>
+    <string name="conversation_removed_success">“%s” entfernt</string>
+    <string name="conversation_removed_locally_success">“%s” für mich gelöscht</string>
+    <string name="leave_conversation_error">Beim Verlassen der Unterhaltung ist ein Fehler aufgetreten</string>
+    <string name="joined_conversation_success">Sie sind der Unterhaltung beigetreten.</string>
+    <string name="left_conversation_success">Sie haben die Unterhaltung verlassen.</string>
     <string name="error_unblocking_user">Benutzer konnte nicht freigegeben werden</string>
-    <string name="delete_group_conversation_error">Beim Löschen der Unterhaltung ist ein Fehler aufgetreten</string>
+    <string name="delete_conversation_conversation_error">Beim Löschen der Unterhaltung ist ein Fehler aufgetreten</string>
     <string name="error_limit_number_assets_imported_exceeded">Sie können nur bis zu 20 Dateien gleichzeitig senden</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Unterhaltung wurde archiviert</string>
@@ -879,13 +845,12 @@
     <string name="notification_reply">Antwort: %1$s</string>
     <string name="notification_not_supported_issue">Funktion nicht unterstützt</string>
     <string name="notification_connection_request">Möchte Sie als Kontakt hinzufügen</string>
-    <string name="notification_conversation_deleted">Hat die Gruppe gelöscht</string>
     <string name="notification_action_reply">Antworten</string>
     <string name="notification_receiver_name">Sie</string>
     <string name="label_type_a_message">Eine Nachricht schreiben</string>
     <string name="notification_incoming_call_content">Ruft an…</string>
     <string name="notification_ongoing_call_content">Aktiver Anruf…</string>
-    <string name="notification_group_call_content">%s ruft an...</string>
+    <string name="notification_group_channel_call_content">%s ruft an...</string>
     <string name="notification_call_default_caller_name">Jemand</string>
     <string name="notification_call_default_group_name">Eingehender Gruppenanruf</string>
     <string name="notification_audio_message_body">Audionachricht</string>
@@ -973,7 +938,7 @@
         Admin und geben diesen Code an: \n%d
     </string>
     <string name="asset_download_dialog_default_title">Datei herunterladen</string>
-    <string name="empty_group_label">Unterhaltung ohne Namen</string>
+    <string name="empty_conversation_label">Unterhaltung ohne Namen</string>
     <string name="label_show_more">Mehr anzeigen</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Empfang von Bildern ist verboten</string>
@@ -993,19 +958,12 @@
     <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="allow_services_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="service_details_label">Dienst</string>
-    <string name="service_details_add_service_label">Zur Gruppe hinzufügen</string>
-    <string name="service_details_remove_service_label">Aus Gruppe entfernen</string>
-    <string name="service_remove_success">Dienst aus Gruppe entfernt</string>
-    <string name="service_remove_error">Dienst kann nicht aus Gruppe entfernt werden</string>
-    <string name="service_add_success">Dienst zur Gruppe hinzugefügt</string>
-    <string name="service_add_error">Dienst kann nicht zur Gruppe hinzugefügt werden</string>
     <string name="service_no_information_available_title">Keine Informationen verfügbar</string>
     <string name="service_no_information_available_subtitle">Versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin</string>
     <string name="read_receipts">Lesebestätigungen</string>
     <string name="read_receipts_regular_group_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
     <string name="read_receipts_channel_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten in diesem Channel gelesen werden.</string>
     <string name="disable_guests_dialog_title">Gäste nicht zulassen?</string>
-    <string name="disable_guests_dialog_description">Gäste, die Sie im vorherigen Schritt ausgewählt haben, sind nicht Teil der Gruppe, wenn Sie den Gastzugang nicht erlauben.</string>
     <string name="disable_guests_dialog_button">Keine Gäste zulassen</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Benutzer blockieren?</string>
@@ -1189,9 +1147,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="backup_dialog_restore_wrong_user_error_message">Der Gesprächsverlauf eines anderen Kontos kann nicht wiederhergestellt werden.</string>
     <string name="backup_dialog_restore_general_error_title">Es ist ein Fehler aufgetreten</string>
     <string name="backup_dialog_restore_general_error_message">Ihr Gesprächsverlauf konnte nicht wiederhergestellt werden. Bitte versuchen Sie es erneut oder kontaktieren Sie Wire Support.</string>
-    <string name="group_content_deleted">Gesprächsverlauf gelöscht</string>
     <string name="conversation_content_deleted">Gesprächsverlauf gelöscht</string>
-    <string name="group_content_delete_failure">Gesprächsverlauf konnte nicht gelöscht werden</string>
     <string name="conversation_content_delete_failure">Gesprächsverlauf konnte nicht gelöscht werden</string>
     <string name="group_label">Gruppe</string>
     <string name="conversation_label">Unterhaltung</string>
@@ -1232,13 +1188,10 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="join_conversation_dialog_message">Sie wurden zu dieser Unterhaltung eingeladen.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Beitreten</string>
     <string name="join_conversation_via_deeplink_error_title">Sie konnten der Unterhaltung nicht beitreten</string>
-    <string name="join_conversation_via_deeplink_error_link_expired">Der Link zu dieser Gruppenunterhaltung ist abgelaufen oder nicht mehr gültig.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Die maximale Teilnehmeranzahl in dieser Unterhaltung wurde erreicht.</string>
-    <string name="join_conversation_via_deeplink_error_general">Aufgrund eines Fehlers konnten Sie nicht zur Gruppenunterhaltung hinzugefügt werden.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Selbstlöschende Nachrichten</string>
     <string name="self_deleting_messages_option">Löschen von Nachrichten erzwingen</string>
-    <string name="self_deleting_messages_option_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Gruppe nach einer bestimmten Zeit. Dies gilt für alle Teilnehmer der Gruppe.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
     <!-- visit link -->
     <string name="label_visit_link_title">Link öffnen</string>
@@ -1265,8 +1218,6 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="title_device_key_fingerprint">SCHLÜSSEL-FINGERABDRUCK</string>
     <string name="label_client_key_fingerprint_not_available">NICHT VERFÜGBAR</string>
     <string name="guest_room_link_copied">Link in Zwischenablage kopiert</string>
-    <string name="guest_room_link_enabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins aktiviert</string>
-    <string name="guest_room_link_disabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins deaktiviert</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Ihr Benutzerkonto wurde verwendet</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nVon: %2$s \n</string>

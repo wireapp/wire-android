@@ -73,8 +73,6 @@
     <string name="content_description_move_to_archive">Przenie&#347; do archiwum</string>
     <string name="content_description_block_the_user">Zablokuj u&#380;ytkownika</string>
     <string name="content_description_unblock_the_user">Odblokuj u&#380;ytkownika</string>
-    <string name="content_description_leave_the_group">Opu&#347;&#263; grup&#281;</string>
-    <string name="content_description_delete_the_group">Usu&#324; grup&#281;</string>
     <string name="content_description_conversation_phone_icon">Rozmowa g&#322;osowa</string>
     <string name="content_description_conversation_enable_rich_text_mode">W&#322;&#261;cz tryb bogatego tekstu</string>
     <string name="content_description_conversation_send_emoticon">Wy&#347;lij emotikon&#281;</string>
@@ -310,7 +308,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="new_group_title">Nowa grupa</string>
     <string name="new_group_description">Do grupy mo&#380;e do&#322;&#261;czy&#263; do 500 os&#243;b.</string>
     <string name="group_name_title">Nazwa grupy</string>
-    <string name="group_name_placeholder">Wprowad&#378; nazw&#281;</string>
+    <string name="conversation_name_placeholder">Wprowad&#378; nazw&#281;</string>
     <string name="group_name_description">Przypisz tej grupie znacz&#261;c&#261; nazw&#281;.</string>
     <string name="protocol">Protok&#243;&#322;</string>
     <string name="cipher_suite">Pakiet Szyfr&#243;w</string>
@@ -332,13 +330,9 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="conversation_details_options_tab">OPCJE</string>
     <string name="conversation_details_participants_tab">UCZESTNICY</string>
     <string name="conversation_details_options_group_name">NAZWA GRUPY</string>
-    <string name="conversation_details_group_admins">ADMINISTRATORZY GRUPY (%d)</string>
-    <string name="conversation_details_group_members">UCZESTNICY GRUPY (%d)</string>
     <string name="conversation_details_participants_info">Ta grupa ma %s uczestnik&#243;w.
 Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="conversation_details_show_all_participants">Poka&#380; wszystkich uczestnik&#243;w (%d)</string>
-    <string name="conversation_details_group_participants_title">Uczestnicy grupy</string>
-    <string name="conversation_details_group_participants_add">Dodaj uczestnik&#243;w</string>
     <string name="conversation_participant_you_label">(Ty)</string>
     <string name="conversation_details_is_classified">POZIOM BEZPIECZE&#323;STWA: VS-NfD</string>
     <string name="conversation_details_is_not_classified">POZIOM BEZPIECZE&#323;STWA: Nieutajnione</string>
@@ -353,12 +347,6 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="disable_guest_dialog_text">Obecni go&#347;cie zostan&#261; usuni&#281;ci z konwersacji. Nowi go&#347;cie nie zostan&#261; dopuszczeni.</string>
     <string name="disable_services_dialog_title">Wy&#322;&#261;czy&#263; dost&#281;p us&#322;ug?</string>
     <string name="disable_services_dialog_text">Obecne us&#322;ugi zostan&#261; usuni&#281;te z konwersacji. Nowe us&#322;ugi nie zostan&#261; dopuszczone.</string>
-    <string name="leave_group_conversation_menu_item">Opu&#347;&#263; grup&#281;...</string>
-    <string name="leave_group_conversation_dialog_title">Opu&#347;ci&#263; &#8222;%s&#8221;?</string>
-    <string name="leave_group_conversation_dialog_description">Nie b&#281;dzie mo&#380;na ju&#380; wysy&#322;a&#263; ani odczytywa&#263; wiadomo&#347;ci w tej grupie na &#380;adnym urz&#261;dzeniu.</string>
-    <string name="delete_group_conversation_menu_item">Usu&#324; grup&#281;...</string>
-    <string name="delete_group_conversation_dialog_title">Usun&#261;&#263; &#8222;%s&#8221;?</string>
-    <string name="delete_group_conversation_dialog_description">Grupa zostanie usuni&#281;ta z Twojej listy konwersacji na wszystkich urz&#261;dzeniach. Nie b&#281;dzie mo&#380;na ju&#380; uzyska&#263; dost&#281;pu do grupy i jej zawarto&#347;ci.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Udost&#281;pnij w Wire</string>
     <string name="import_media_searchbar_title">Wyszukaj konwersacj&#281;</string>
@@ -393,19 +381,14 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="user_profile_status_none">Brak</string>
     <string name="user_profile_details_tab">Szczeg&#243;&#322;y</string>
     <string name="user_profile_devices_tab">Urz&#261;dzenia</string>
-    <string name="user_profile_group_tab">Grupa</string>
-    <string name="user_profile_group_member">Cz&#322;onek grupy \"%s\"</string>
-    <string name="user_profile_group_role">Rola</string>
-    <string name="user_profile_role_in_group">Rola w \"%s\"</string>
+    <string name="user_profile_role_in_conversation">Rola w \"%s\"</string>
     <string name="user_profile_role_change_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas zmiany roli. Sprawd&#378; swoje po&#322;&#261;czenie internetowe i spr&#243;buj ponownie.</string>
     <string name="user_profile_unblock_user">Odblokuj u&#380;ytkownika</string>
-    <string name="user_profile_group_remove_button">Usu&#324; z grupy</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Usun&#261;&#263; z grupy?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) nie b&#281;dzie m&#243;g&#322; wysy&#322;a&#263; ani odbiera&#263; wiadomo&#347;ci w tej rozmowie.</string>
-    <string name="dialog_remove_conversation_member_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas usuwania uczestnika z grupy</string>
-    <string name="group_role_admin">Administrator</string>
-    <string name="group_role_member">Cz&#322;onek</string>
+    <string name="conversation_role_admin">Administrator</string>
+    <string name="conversation_role_member">Cz&#322;onek</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Wyczy&#347;ci&#263; dane?</string>
     <string name="dialog_logout_wipe_data_checkbox">Usu&#324; wszystkie twoje informacje osobiste i rozmowy na tym urz&#261;dzeniu</string>
@@ -426,8 +409,6 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_clear_content">Wyczy&#347;&#263; tre&#347;&#263;...</string>
     <string name="label_block">Zablokuj</string>
     <string name="label_unblock">Odblokuj</string>
-    <string name="label_leave_group">Opu&#347;&#263; grup&#281;</string>
-    <string name="label_delete_group">Usu&#324; grup&#281;</string>
     <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Wszystko</string>
@@ -608,12 +589,12 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="conversation_on_file_downloaded">Plik %s zosta&#322; pomy&#347;lnie zapisany w folderze Pobrane.</string>
     <string name="error_blocking_user">Nie mo&#380;na zablokowa&#263; u&#380;ytkownika.</string>
     <string name="blocking_user_success">%s zosta&#322; zablokowany.</string>
-    <string name="conversation_group_removed_success">\"%s\" zosta&#322; usuni&#281;ty.</string>
-    <string name="leave_group_conversation_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas opuszczania rozmowy.</string>
-    <string name="joined_conversation_group_success">Do&#322;&#261;czy&#322;e&#347; do rozmowy.</string>
-    <string name="left_conversation_group_success">Opu&#347;ci&#322;e&#347; rozmow&#281;.</string>
+    <string name="conversation_removed_success">\"%s\" zosta&#322; usuni&#281;ty.</string>
+    <string name="leave_conversation_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas opuszczania rozmowy.</string>
+    <string name="joined_conversation_success">Do&#322;&#261;czy&#322;e&#347; do rozmowy.</string>
+    <string name="left_conversation_success">Opu&#347;ci&#322;e&#347; rozmow&#281;.</string>
     <string name="error_unblocking_user">Nie mo&#380;na odblokowa&#263; u&#380;ytkownika.</string>
-    <string name="delete_group_conversation_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas usuwania rozmowy.</string>
+    <string name="delete_conversation_conversation_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas usuwania rozmowy.</string>
     <string name="error_limit_number_assets_imported_exceeded">Mo&#380;esz przes&#322;a&#263; jednocze&#347;nie maksymalnie 20 plik&#243;w</string>
     <!-- Archiving -->
     <!-- Favorite -->
@@ -630,13 +611,12 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="notification_reply">Odpowied&#378;: %1$s</string>
     <string name="notification_not_supported_issue">Funkcjonalno&#347;&#263; niedost&#281;pna</string>
     <string name="notification_connection_request">Chce si&#281; po&#322;&#261;czy&#263;</string>
-    <string name="notification_conversation_deleted">Usuni&#281;to grup&#281;</string>
     <string name="notification_action_reply">Odpowiedz</string>
     <string name="notification_receiver_name">Ty</string>
     <string name="label_type_a_message">Napisz wiadomo&#347;&#263;</string>
     <string name="notification_incoming_call_content">Dzwoni...</string>
     <string name="notification_ongoing_call_content">Trwa po&#322;&#261;czenie...</string>
-    <string name="notification_group_call_content">%s dzwoni...</string>
+    <string name="notification_group_channel_call_content">%s dzwoni...</string>
     <string name="notification_call_default_caller_name">Kto&#347;</string>
     <string name="notification_call_default_group_name">Po&#322;&#261;czenie grupowe przychodz&#261;ce</string>
     <!-- Calling-->
@@ -695,7 +675,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="sso_error_dialog_message">Spr&#243;buj ponownie. Je&#347;li to nie pomo&#380;e, skontaktuj si&#281; z administratorem i podaj ten kod:
 %d</string>
     <string name="asset_download_dialog_default_title">Pobierz plik</string>
-    <string name="empty_group_label">Konwersacja bez nazwy</string>
+    <string name="empty_conversation_label">Konwersacja bez nazwy</string>
     <string name="label_show_more">Poka&#380; wi&#281;cej</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Otrzymywanie obraz&#243;w jest zabronione</string>
@@ -714,7 +694,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="allow_services">Zezw&#243;l na serwisy</string>
     <string name="read_receipts">Potwierdzenia odczytu</string>
     <string name="disable_guests_dialog_title">Nie zezwalaj na go&#347;ci?</string>
-    <string name="disable_guests_dialog_description">Go&#347;cie, kt&#243;rych wybra&#322;e&#347; w poprzednim kroku, nie b&#281;d&#261; cz&#281;&#347;ci&#261; tej grupy, je&#347;li nie zezwolisz na dost&#281;p dla go&#347;ci.</string>
     <string name="disable_guests_dialog_button">Nie zezwalaj na go&#347;ci</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Zablokowa&#263; u&#380;ytkownika?</string>
@@ -811,9 +790,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="backup_dialog_restore_wrong_user_error_message">Nie mo&#380;na przywr&#243;ci&#263; historii z innego konta.</string>
     <string name="backup_dialog_restore_general_error_title">Wyst&#261;pi&#322; problem</string>
     <string name="backup_dialog_restore_general_error_message">Nie uda&#322;o si&#281; przywr&#243;ci&#263; historii. Spr&#243;buj ponownie lub skontaktuj si&#281; z pomoc&#261; techniczn&#261; Wire.</string>
-    <string name="group_content_deleted">Zawarto&#347;&#263; grupy zosta&#322;a usuni&#281;ta</string>
     <string name="conversation_content_deleted">Zawarto&#347;&#263; rozmowy zosta&#322;a usuni&#281;ta</string>
-    <string name="group_content_delete_failure">Nie uda&#322;o si&#281; usun&#261;&#263; zawarto&#347;ci grupy</string>
     <string name="conversation_content_delete_failure">Nie uda&#322;o si&#281; usun&#261;&#263; zawarto&#347;ci rozmowy</string>
     <string name="group_label">Grupa</string>
     <string name="conversation_label">Konwersacja</string>
@@ -846,9 +823,7 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="join_conversation_dialog_message">Zosta&#322;e&#347; zaproszony do rozmowy.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Do&#322;&#261;cz</string>
     <string name="join_conversation_via_deeplink_error_title">Nie mo&#380;na do&#322;&#261;czy&#263; do rozmowy</string>
-    <string name="join_conversation_via_deeplink_error_link_expired">Link do tej grupowej rozmowy wygas&#322; lub rozmowa zosta&#322;a ustawiona na prywatn&#261;.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Osi&#261;gni&#281;to maksymaln&#261; liczb&#281; uczestnik&#243;w tej rozmowy.</string>
-    <string name="join_conversation_via_deeplink_error_general">Z powodu b&#322;&#281;du nie mo&#380;esz zosta&#263; dodany do grupowej rozmowy.</string>
     <!-- edit self-deleting messages -->
     <!-- visit link -->
     <!-- invalid link -->
@@ -864,8 +839,6 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="revoke_guest__room_link_dialog_title">Wycofa&#263; link dla go&#347;ci?</string>
     <string name="title_device_key_fingerprint">ODCISK KLUCZA URZ&#260;DZENIA</string>
     <string name="label_client_key_fingerprint_not_available">NIEDOST&#280;PNY</string>
-    <string name="guest_room_link_enabled">Generowanie link&#243;w dla go&#347;ci jest teraz w&#322;&#261;czone dla wszystkich administrator&#243;w grupy</string>
-    <string name="guest_room_link_disabled">Generowanie link&#243;w dla go&#347;ci jest teraz wy&#322;&#261;czone dla wszystkich administrator&#243;w grupy</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Twoje konto zosta&#322;o u&#380;yte na</string>
     <string name="new_device_dialog_current_user_btn">Zarz&#261;dzaj urz&#261;dzeniami</string>

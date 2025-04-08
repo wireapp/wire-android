@@ -120,11 +120,11 @@ fun GroupConversationSettings(
                     GroupConversationOptionsItem(
                         title = stringResource(R.string.channel_access_label),
                         subtitle = stringResource(id = R.string.channel_access_short_description),
-                        arrowType = ArrowType.TITLE_ALIGNED,
+                        arrowType = if (state.isUpdatingChannelAccessAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
                         arrowLabel = stringResource(state.channelAccessType!!.label),
                         arrowLabelColor = colorsScheme().onBackground,
                         onClick = onChannelAccessItemClicked,
-                        isClickable = true,
+                        isClickable = state.isUpdatingChannelAccessAllowed,
                     )
                 }
             }
@@ -384,6 +384,7 @@ fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
             areAccessOptionsAvailable = true,
             isUpdatingNameAllowed = true,
             isUpdatingGuestAllowed = true,
+            isUpdatingChannelAccessAllowed = true,
             isUpdatingServicesAllowed = true,
             isUpdatingSelfDeletingAllowed = true,
             isUpdatingReadReceiptAllowed = true,

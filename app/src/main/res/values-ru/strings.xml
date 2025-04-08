@@ -102,8 +102,6 @@
     <string name="content_description_unarchive">Разархивировать</string>
     <string name="content_description_block_the_user">Заблокировать</string>
     <string name="content_description_unblock_the_user">Разблокировать</string>
-    <string name="content_description_leave_the_group">Покинуть группу</string>
-    <string name="content_description_delete_the_group">Удалить группу</string>
     <string name="content_description_conversation_phone_icon">Начать звонок</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Значок поиска</string>
@@ -118,7 +116,6 @@
     <string name="content_description_conversation_mention_someone">Упомянуть кого-нибудь</string>
     <string name="content_description_conversation_back_btn">Вернуться к списку бесед</string>
     <string name="content_description_conversation_open_details_label">открыть информацию о беседе</string>
-    <string name="content_description_new_conversation">Поиск друзей или создание новой группы</string>
     <string name="content_description_back_button">Кнопка назад</string>
     <string name="content_description_send_button">Отправить</string>
     <string name="content_description_timed_message_button">Самоудаляющиеся сообщения, кнопка</string>
@@ -226,7 +223,7 @@
     <string name="content_description_close_dropdown">закрыть раскрывающийся список</string>
     <string name="content_description_open_notification_settings_label">открыть настройки уведомлений</string>
     <string name="content_description_new_conversation_close_btn">Закрыть просмотр новой беседы</string>
-    <string name="content_description_new_group_conversation_back_btn">Вернуться к просмотру новой беседы</string>
+    <string name="content_description_new_conversation_back_btn">Вернуться к просмотру новой беседы</string>
     <string name="content_description_new_conversation_name_back_btn">Вернуться к просмотру новой беседы</string>
     <string name="content_description_new_group_name_field">Введите имя группы</string>
     <string name="content_description_new_channel_name_field">Введите название канала</string>
@@ -487,7 +484,7 @@
     <string name="new_group_description">К групповой беседе могут присоединиться до 500 участников.</string>
     <string name="group_name_title">Название группы</string>
     <string name="channel_name_title">Название канала</string>
-    <string name="group_name_placeholder">Введите название</string>
+    <string name="conversation_name_placeholder">Введите название</string>
     <string name="group_name_description">Дайте этой группе осмысленное название.</string>
     <string name="channel_name_description">Дайте этому каналу осмысленное название.</string>
     <string name="protocol">Протокол</string>
@@ -499,10 +496,7 @@
     <string name="empty_channel_name_error">Пожалуйста, введите название канала</string>
     <string name="regular_group_name_exceeded_limit_error">Название группы не должно превышать 64 символа</string>
     <string name="channel_name_exceeded_limit_error">Название канала не должно превышать 64 символа</string>
-    <string name="group_can_not_be_created_title">Невозможно создать группу</string>
-    <string name="group_can_not_be_created_federation_conflict_description">Пользователи бэкэндов %1$s и %2$s не могут присоединиться к одной групповой беседе.\n\nДля создания группы удалите затронутых участников.</string>
-    <string name="group_can_not_be_created_edit_participiant_list">Изменить список участников</string>
-    <string name="group_can_not_be_created_discard_group_creation">Отменить создание группы</string>
+    <string name="conversation_can_not_be_created_edit_participant_list">Изменить список участников</string>
     <string name="asset_message_tap_to_download_text">Нажмите для загрузки</string>
     <string name="asset_message_upload_in_progress_text">Отправка…</string>
     <string name="asset_message_download_in_progress_text">Загрузка…</string>
@@ -521,23 +515,16 @@
     <string name="label_add_participants">Добавить участников</string>
     <string name="username_unavailable_label">Имя недоступно</string>
     <string name="temporary_user_label">%s покинул(-а)</string>
-    <string name="group_unavailable_label">Название группы недоступно</string>
     <string name="conversation_details_title">Информация о беседе</string>
     <string name="conversation_details_options_tab">ПАРАМЕТРЫ</string>
     <string name="conversation_details_participants_tab">УЧАСТНИКИ</string>
     <string name="conversation_details_options_group_name">НАЗВАНИЕ ГРУППЫ</string>
-    <string name="conversation_details_group_admins">АДМИНИСТРАТОРЫ ГРУППЫ (%d)</string>
-    <string name="conversation_details_group_members">УЧАСТНИКИ ГРУППЫ (%d)</string>
-    <string name="conversation_details_participants_info">В этой группе %s участника(-ов).\nК групповой беседе могут присоединиться до 500 человек.</string>
     <string name="conversation_details_participants_count">%s участников</string>
     <string name="conversation_details_show_all_participants">Показать всех участников (%d)</string>
-    <string name="conversation_details_group_participants_title">Участники группы</string>
-    <string name="conversation_details_group_participants_add">Добавить участников</string>
     <string name="conversation_participant_you_label">(Вы)</string>
     <string name="conversation_details_is_classified">УРОВЕНЬ БЕЗОПАСНОСТИ: VS-NfD</string>
     <string name="conversation_details_is_not_classified">УРОВЕНЬ БЕЗОПАСНОСТИ: НЕКЛАССИФИЦИРОВАН</string>
     <string name="conversation_options_self_deleting_messages_label">Самоудаляющиеся сообщения</string>
-    <string name="conversation_options_self_deleting_messages_description">Если этот параметр включен, все сообщения в этой группе будут исчезать через определенное время.</string>
     <string name="conversation_options_guests_label">Гости</string>
     <string name="conversation_details_guest_description">Когда эта опция включена, к беседе могут присоединиться пользователи, не входящие в вашу команду</string>
     <string name="conversation_options_guest_description">Включите эту опцию, чтобы открыть эту беседу для пользователей не из вашей команды, даже если у них нет Wire.</string>
@@ -549,16 +536,6 @@
     <string name="disable_guest_dialog_text">Текущие гости будут удалены из беседы. Новые гости допущены не будут.</string>
     <string name="disable_services_dialog_title">Отключить доступ сервисов?</string>
     <string name="disable_services_dialog_text">Текущие сервисы будут удалены из беседы. Новые сервисы допущены не будут.</string>
-    <string name="leave_group_conversation_menu_item">Покинуть группу…</string>
-    <string name="leave_group_conversation_dialog_title">Покинуть “%s”?</string>
-    <string name="leave_group_conversation_dialog_description">Вы больше не сможете отправлять и читать сообщения в этой группе ни на одном устройстве.</string>
-    <string name="leave_group_conversation_dialog_delete_fully_check">Удалить группу и ее контент у меня на всех моих устройствах</string>
-    <string name="delete_group_conversation_menu_item">Удалить группу…</string>
-    <string name="delete_group_conversation_dialog_title">Удалить “%s”?</string>
-    <string name="delete_group_conversation_dialog_description">Группа будет удалена из списка бесед на всех устройствах. Вы больше не сможете получить доступ к группе и ее контенту.</string>
-    <string name="delete_group_locally_conversation_dialog_title">Удалить себя из группы \"%s\"?</string>
-    <string name="delete_group_locally_conversation_dialog_description">Вы не сможете получить доступ к группе и ее содержимому. Восстановить ее невозможно.</string>
-    <string name="delete_group_locally_delete_for_me_label">Удалить себя</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Поделиться с Wire</string>
     <string name="import_media_searchbar_title">Поиск по беседе</string>
@@ -607,13 +584,9 @@
     <string name="user_profile_account_management">Управлять командой</string>
     <string name="user_profile_details_tab">Подробности</string>
     <string name="user_profile_devices_tab">Устройства</string>
-    <string name="user_profile_group_tab">Группа</string>
-    <string name="user_profile_group_member">Участник группы \"%s\"</string>
-    <string name="user_profile_group_role">РОЛЬ</string>
-    <string name="user_profile_role_in_group">Роль в ”%s”</string>
+    <string name="user_profile_role_in_conversation">Роль в ”%s”</string>
     <string name="user_profile_role_change_error">При попытке изменить роль возникла ошибка. Проверьте, пожалуйста, подключение к интернету и повторите попытку</string>
     <string name="user_profile_unblock_user">Разблокировать пользователя</string>
-    <string name="user_profile_group_remove_button">Удалить из группы</string>
     <string name="user_profile_logging_out_progress">Выход...</string>
     <string name="user_profile_qr_code">Открыть QR-код</string>
     <string name="user_profile_qr_code_title">Поделиться профилем</string>
@@ -626,9 +599,8 @@
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Удалить из группы?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) не сможет отправлять или получать сообщения в этой беседе.</string>
-    <string name="dialog_remove_conversation_member_error">При удалении участника из группы произошла ошибка</string>
-    <string name="group_role_admin">Администратор</string>
-    <string name="group_role_member">Участник</string>
+    <string name="conversation_role_admin">Администратор</string>
+    <string name="conversation_role_member">Участник</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Удалить данные?</string>
     <string name="dialog_logout_wipe_data_checkbox">Удалить всю личную информацию и беседы на этом устройстве</string>
@@ -656,9 +628,6 @@
     <string name="label_clear_content">Очистить контент…</string>
     <string name="label_block">Заблокировать</string>
     <string name="label_unblock">Разблокировать</string>
-    <string name="label_leave_group">Покинуть группу</string>
-    <string name="label_delete_group_locally">Удалить себя из группы</string>
-    <string name="label_delete_group">Удалить группу</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Отфильтровать беседы</string>
     <string name="label_filter_all">Все беседы</string>
@@ -759,14 +728,10 @@
     <string name="label_system_message_conversation_started_by_self">**Вы** начали беседу</string>
     <string name="label_system_message_conversation_started_by_other">%1$s начал(-а) беседу</string>
     <string name="label_system_message_conversation_started_with_members">С %1$s</string>
-    <string name="label_system_message_conversation_failed_add_members_summary">Не удалось добавить в группу %1$s **участников**.</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">Не удалось добавить %1$s в группу.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">Не удалось добавить %1$s в группу.</string>
     <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
-    <string name="label_system_message_conversation_started_sensitive_information">Общение в Wire всегда ведется с использованием сквозного шифрования. Все, что вы отправляете и получаете в этой беседе, доступно только вам и другим участникам группы.\n**Пожалуйста, будьте осторожны с теми, кому вы сообщаете конфиденциальную информацию.**</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
     <!-- Last messages -->
@@ -872,7 +837,7 @@
         <item quantity="other">%1$d сообщения</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Отправил(-а) сообщение"</string>
-    <string name="ephemeral_group_event_message">"Кто-то прислал сообщение"</string>
+    <string name="ephemeral_group_channel_event_message">"Кто-то прислал сообщение"</string>
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s печатает</item>
@@ -934,13 +899,13 @@
     <string name="conversation_on_file_downloaded">Файл %s был успешно сохранен в папку Загрузки</string>
     <string name="error_blocking_user">Пользователь не может быть заблокирован</string>
     <string name="blocking_user_success">%s заблокирован</string>
-    <string name="conversation_group_removed_success">“%s” удален</string>
-    <string name="conversation_group_removed_locally_success">Удалили себя из \"%s\"</string>
-    <string name="leave_group_conversation_error">При выходе из беседы произошла ошибка</string>
-    <string name="joined_conversation_group_success">Вы присоединились к беседе.</string>
-    <string name="left_conversation_group_success">Вы покинули беседу.</string>
+    <string name="conversation_removed_success">“%s” удален</string>
+    <string name="conversation_removed_locally_success">Удалили себя из \"%s\"</string>
+    <string name="leave_conversation_error">При выходе из беседы произошла ошибка</string>
+    <string name="joined_conversation_success">Вы присоединились к беседе.</string>
+    <string name="left_conversation_success">Вы покинули беседу.</string>
     <string name="error_unblocking_user">Пользователь не может быть разблокирован</string>
-    <string name="delete_group_conversation_error">При удалении беседы произошла ошибка</string>
+    <string name="delete_conversation_conversation_error">При удалении беседы произошла ошибка</string>
     <string name="error_limit_number_assets_imported_exceeded">Одновременно можно отправить не более 20 файлов</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Беседа архивирована</string>
@@ -970,7 +935,6 @@
     <string name="notification_reply">Ответ: %1$s</string>
     <string name="notification_not_supported_issue">Функция не поддерживается</string>
     <string name="notification_connection_request">Хочет подключиться</string>
-    <string name="notification_conversation_deleted">Удалил группу</string>
     <string name="notification_action_reply">Ответить</string>
     <string name="notification_receiver_name">Вы</string>
     <string name="label_type_a_message">Введите сообщение</string>
@@ -978,7 +942,7 @@
     <string name="notification_action_decline_call">Отклонить</string>
     <string name="notification_incoming_call_content">Вызов…</string>
     <string name="notification_ongoing_call_content">Исходящий вызов…</string>
-    <string name="notification_group_call_content">%s вызывает...</string>
+    <string name="notification_group_channel_call_content">%s вызывает...</string>
     <string name="notification_call_default_caller_name">Кто-то</string>
     <string name="notification_call_default_group_name">Входящий групповой вызов</string>
     <string name="notification_outgoing_call_tap_to_return">Нажмите, чтобы вернуться к вызову - Вызов...</string>
@@ -1067,7 +1031,7 @@
         администратором и сообщите этот код:\n%d\"
     </string>
     <string name="asset_download_dialog_default_title">Загрузить файл</string>
-    <string name="empty_group_label">Безымянная беседа</string>
+    <string name="empty_conversation_label">Безымянная беседа</string>
     <string name="label_show_more">Развернуть</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Получение изображений запрещено</string>
@@ -1087,19 +1051,12 @@
     <string name="allow_services_regular_group_description">Открыть эту беседу для сервисов. Вы всегда сможете изменить это позже.</string>
     <string name="allow_services_channel_description">Откройте эту беседу для людей, не из вашей команды или сервисов. Вы всегда сможете изменить это позже.</string>
     <string name="service_details_label">Сервис</string>
-    <string name="service_details_add_service_label">Добавить в группу</string>
-    <string name="service_details_remove_service_label">Удалить из группы</string>
-    <string name="service_remove_success">Сервис удален из группы</string>
-    <string name="service_remove_error">Не удалось удалить сервис из группы</string>
-    <string name="service_add_success">Сервис добавлен в группу</string>
-    <string name="service_add_error">Не удалось добавить сервис в группу</string>
     <string name="service_no_information_available_title">Информация недоступна</string>
     <string name="service_no_information_available_subtitle">Попробуйте еще раз или свяжитесь с администратором группы</string>
     <string name="read_receipts">Отчеты о прочтении</string>
     <string name="read_receipts_regular_group_description">При включении ваши собеседники смогут видеть когда было прочитано их сообщение.</string>
     <string name="read_receipts_channel_description">При включении ваши собеседники смогут видеть когда было прочитано их сообщение в этом канале.</string>
     <string name="disable_guests_dialog_title">Не разрешать гостей?</string>
-    <string name="disable_guests_dialog_description">Гости, выбранные на предыдущем этапе, не смогут войти в группу, если не разрешить гостевой доступ.</string>
     <string name="disable_guests_dialog_button">Не разрешать гостей</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Заблокировать пользователя?</string>
@@ -1295,9 +1252,7 @@
     <string name="backup_dialog_restore_wrong_user_error_message">Вы не можете восстановить историю из другой учетной записи.</string>
     <string name="backup_dialog_restore_general_error_title">Что-то пошло не так</string>
     <string name="backup_dialog_restore_general_error_message">Ваша история не может быть восстановлена. Пожалуйста, попробуйте еще раз или обратитесь в службу поддержки Wire.</string>
-    <string name="group_content_deleted">Контент группы был удален</string>
     <string name="conversation_content_deleted">Контент беседы был удален</string>
-    <string name="group_content_delete_failure">Не удалось удалить контент группы</string>
     <string name="conversation_content_delete_failure">Не удалось удалить контент беседы</string>
     <string name="group_label">группы</string>
     <string name="conversation_label">беседа</string>
@@ -1338,13 +1293,10 @@
     <string name="join_conversation_dialog_message">Вас пригласили в беседу.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Присоединиться</string>
     <string name="join_conversation_via_deeplink_error_title">Невозможно присоединиться к беседе</string>
-    <string name="join_conversation_via_deeplink_error_link_expired">Срок действия ссылки на эту групповую беседу истек или беседа стала приватной.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Достигнуто максимальное количество участников в этой беседе.</string>
-    <string name="join_conversation_via_deeplink_error_general">Из-за ошибки вы не можете быть добавлены в групповую беседу.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Самоудаляющиеся сообщения</string>
     <string name="self_deleting_messages_option">Принудительное удаление сообщений</string>
-    <string name="self_deleting_messages_option_description">При включении этой опции все сообщения в данной группе будут исчезать через определенное время. Это относится ко всем участникам группы.</string>
     <string name="self_deleting_messages_folder_timer">Таймер</string>
     <!-- visit link -->
     <string name="label_visit_link_title">Перейти по ссылке</string>
@@ -1371,8 +1323,6 @@
     <string name="title_device_key_fingerprint">ОТПЕЧАТОК КЛЮЧА УСТРОЙСТВА</string>
     <string name="label_client_key_fingerprint_not_available">НЕДОСТУПНО</string>
     <string name="guest_room_link_copied">Ссылка скопирована в буфер обмена</string>
-    <string name="guest_room_link_enabled">Генерация гостевых ссылок теперь включена для всех администраторов групп</string>
-    <string name="guest_room_link_disabled">Генерация гостевых ссылок теперь отключена для всех администраторов групп</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Ваш аккаунт использовался на</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nОт: %2$s \n</string>

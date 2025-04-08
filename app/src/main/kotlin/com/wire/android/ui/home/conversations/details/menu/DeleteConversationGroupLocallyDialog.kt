@@ -36,8 +36,8 @@ internal fun DeleteConversationGroupLocallyDialog(
 ) {
     VisibilityState(dialogState) {
         WireDialog(
-            title = stringResource(id = R.string.delete_group_locally_conversation_dialog_title, it.conversationName),
-            text = stringResource(id = R.string.delete_group_locally_conversation_dialog_description),
+            title = stringResource(id = R.string.delete_conversation_locally_conversation_dialog_title, it.conversationName),
+            text = stringResource(id = R.string.delete_conversation_locally_conversation_dialog_description),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -47,7 +47,7 @@ internal fun DeleteConversationGroupLocallyDialog(
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = { onDeleteGroupLocally(it) },
-                text = stringResource(id = R.string.delete_group_locally_delete_for_me_label),
+                text = stringResource(id = R.string.delete_conversation_locally_delete_for_me_label),
                 type = WireDialogButtonType.Primary,
                 state = if (isLoading) {
                     WireButtonState.Disabled

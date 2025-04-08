@@ -91,8 +91,6 @@
     <string name="content_description_move_to_archive">Mover a archivo</string>
     <string name="content_description_block_the_user">Bloquear</string>
     <string name="content_description_unblock_the_user">Desbloquear</string>
-    <string name="content_description_leave_the_group">Abandonar el grupo</string>
-    <string name="content_description_delete_the_group">Eliminar el grupo</string>
     <string name="content_description_conversation_phone_icon">Iniciar una llamada</string>
     <string name="content_description_welcome_wire_logo">Logo de Wire</string>
     <string name="content_description_conversation_enable_rich_text_mode">Bot&#243;n de modo de texto enriquecido</string>
@@ -333,7 +331,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="new_group_title">Nuevo Grupo</string>
     <string name="new_group_description">Hasta 500 personas pueden unirse a una conversaci&#243;n grupal.</string>
     <string name="group_name_title">Nombre del grupo</string>
-    <string name="group_name_placeholder">Introduce un nombre</string>
+    <string name="conversation_name_placeholder">Introduce un nombre</string>
     <string name="group_name_description">Asigna un nombre significativo a este grupo.</string>
     <string name="protocol">Protocolo</string>
     <string name="cipher_suite">Suite de Cifrado</string>
@@ -355,18 +353,13 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversation_details_options_tab">OPCIONES</string>
     <string name="conversation_details_participants_tab">PARTICIPANTES</string>
     <string name="conversation_details_options_group_name">NOMBRE DEL GRUPO</string>
-    <string name="conversation_details_group_admins">ADMIINS DEL GRUPO (%d)</string>
-    <string name="conversation_details_group_members">MIEMBROS DEL GRUPO (%d)</string>
     <string name="conversation_details_participants_info">Este grupo tiene %s participantes.
 Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="conversation_details_show_all_participants">Mostrar todos los participantes (%d)</string>
-    <string name="conversation_details_group_participants_title">Participantes del grupo</string>
-    <string name="conversation_details_group_participants_add">A&#241;adir participantes</string>
     <string name="conversation_participant_you_label">(Tú)</string>
     <string name="conversation_details_is_classified">NIVEL DE SEGURIDAD: VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEL DE SEGURIDAD: NO CLASIFICADO</string>
     <string name="conversation_options_self_deleting_messages_label">Mensajes con auto-borrado</string>
-    <string name="conversation_options_self_deleting_messages_description">Cuando esté activado, todos los mensajes de este grupo desaparecerán después de un cierto tiempo.</string>
     <string name="conversation_options_guests_label">Invitados</string>
     <string name="conversation_details_guest_description">Cuando est&#225; activo, personas fuera de su equipo pueden unirse a esta conversaci&#243;n.</string>
     <string name="conversation_options_guest_description">Active esta opci&#243;n para abrir esta conversaci&#243;n a personas fuera de su equipo, incluso si no tienen Wire.</string>
@@ -378,12 +371,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="disable_guest_dialog_text">Los invitados actuales ser&#225;n eliminados de la conversaci&#243;n. No se permitir&#225;n nuevos invitados.</string>
     <string name="disable_services_dialog_title">&#191;Desea desactivar el acceso a servicios?</string>
     <string name="disable_services_dialog_text">Los servicios actuales ser&#225;n eliminados de la conversaci&#243;n. No se permitir&#225;n nuevos servicios.</string>
-    <string name="leave_group_conversation_menu_item">Abandonar grupo...</string>
-    <string name="leave_group_conversation_dialog_title">&#191;Abandonar \"%s\"?</string>
-    <string name="leave_group_conversation_dialog_description">Ya no podr&#225; enviar ni leer mensajes en este grupo en ning&#250;n dispositivo.</string>
-    <string name="delete_group_conversation_menu_item">Eliminar grupo...</string>
-    <string name="delete_group_conversation_dialog_title">Eliminar \"%s\"?</string>
-    <string name="delete_group_conversation_dialog_description">El grupo ser&#225; eliminado de su lista de conversaciones en todos los dispositivos. Ya no podr&#225; acceder al grupo y su contenido.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Compartir con Wire</string>
     <string name="import_media_searchbar_title">Buscar conversaci&#243;n</string>
@@ -419,20 +406,15 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="user_profile_status_none">Ninguno</string>
     <string name="user_profile_details_tab">Detalles</string>
     <string name="user_profile_devices_tab">Dispositivos</string>
-    <string name="user_profile_group_tab">Grupo</string>
-    <string name="user_profile_group_member">Miembro del grupo &#8221;%s&#8221;</string>
-    <string name="user_profile_group_role">ROL</string>
-    <string name="user_profile_role_in_group">Rol en &#8221;%s&#8221;</string>
+    <string name="user_profile_role_in_conversation">Rol en &#8221;%s&#8221;</string>
     <string name="user_profile_role_change_error">Ocurri&#243; un error al intentar cambiar el rol. Por favor, verifica tu conexi&#243;n a internet e intenta de nuevo.</string>
     <string name="user_profile_unblock_user">Desbloquear usuario</string>
-    <string name="user_profile_group_remove_button">Eliminar del grupo</string>
     <string name="user_profile_logging_out_progress">Cerrando sesión...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">&#191;Eliminar del grupo?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) no podr&#225; enviar ni recibir mensajes en esta conversaci&#243;n.</string>
-    <string name="dialog_remove_conversation_member_error">Ocurri&#243; un error al eliminar al participante del grupo.</string>
-    <string name="group_role_admin">Administrador</string>
-    <string name="group_role_member">Miembro</string>
+    <string name="conversation_role_admin">Administrador</string>
+    <string name="conversation_role_member">Miembro</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">&#191;Borrar datos?</string>
     <string name="dialog_logout_wipe_data_checkbox">Eliminar toda tu informaci&#243;n personal y conversaciones en este dispositivo.</string>
@@ -453,8 +435,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_clear_content">Borrar contenido...</string>
     <string name="label_block">Bloquear</string>
     <string name="label_unblock">Desbloquear</string>
-    <string name="label_leave_group">Dejar conversaci&#243;n en grupo</string>
-    <string name="label_delete_group">Eliminar grupo</string>
     <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Todo</string>
@@ -521,8 +501,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_conversation_history_lost">No has usado este dispositivo por un tiempo. Es posible que algunos mensajes no aparezcan aqu&#237;.</string>
     <string name="label_system_message_receipt_mode_on">encendido</string>
     <string name="label_system_message_receipt_mode_off">apagado</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s no pudieron ser añadidos a la conversación.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s no pudo ser añadido a la conversación.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Has añadido a 1 persona a la conversación</item>
@@ -590,7 +568,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
         <item quantity="other">%1$d mensajes</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Envió un mensaje"</string>
-    <string name="ephemeral_group_event_message">"Alguien envió un mensaje"</string>
+    <string name="ephemeral_group_channel_event_message">"Alguien envió un mensaje"</string>
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s está escribiendo</item>
@@ -631,12 +609,12 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="conversation_on_file_downloaded">El archivo %s se guard&#243; correctamente en la carpeta de descargas.</string>
     <string name="error_blocking_user">No se pudo bloquear al usuario.</string>
     <string name="blocking_user_success">%s bloqueado.</string>
-    <string name="conversation_group_removed_success">\"%s\" eliminado.</string>
-    <string name="leave_group_conversation_error">Ocurri&#243; un error al salir de la conversaci&#243;n.</string>
-    <string name="joined_conversation_group_success">Te uniste a la conversaci&#243;n.</string>
-    <string name="left_conversation_group_success">Saliste de la conversaci&#243;n.</string>
+    <string name="conversation_removed_success">\"%s\" eliminado.</string>
+    <string name="leave_conversation_error">Ocurri&#243; un error al salir de la conversaci&#243;n.</string>
+    <string name="joined_conversation_success">Te uniste a la conversaci&#243;n.</string>
+    <string name="left_conversation_success">Saliste de la conversaci&#243;n.</string>
     <string name="error_unblocking_user">No se pudo desbloquear al usuario.</string>
-    <string name="delete_group_conversation_error">Ocurri&#243; un error al eliminar la conversaci&#243;n.</string>
+    <string name="delete_conversation_conversation_error">Ocurri&#243; un error al eliminar la conversaci&#243;n.</string>
     <string name="error_limit_number_assets_imported_exceeded">Solo puedes enviar hasta 20 archivos a la vez.</string>
     <!-- Archiving -->
     <!-- Favorite -->
@@ -654,13 +632,12 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="notification_reply">Responder: %1$s</string>
     <string name="notification_not_supported_issue">Funci&#243;n no compatible.</string>
     <string name="notification_connection_request">Quiere conectarse.</string>
-    <string name="notification_conversation_deleted">Elimin&#243; el grupo.</string>
     <string name="notification_action_reply">Responder</string>
     <string name="notification_receiver_name">T&#250;</string>
     <string name="label_type_a_message">Escribe un mensaje</string>
     <string name="notification_incoming_call_content">Llamando...</string>
     <string name="notification_ongoing_call_content">Llamada en curso...</string>
-    <string name="notification_group_call_content">%s llama...</string>
+    <string name="notification_group_channel_call_content">%s llama...</string>
     <string name="notification_call_default_caller_name">Alguien</string>
     <string name="notification_call_default_group_name">Llamada en grupo entrante</string>
     <!-- Calling-->
@@ -720,7 +697,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="sso_error_dialog_message">Por favor, int&#233;ntelo de nuevo. Si esto no ayuda, p&#243;ngase en contacto con su administrador y proporcione este c&#243;digo:
 %d</string>
     <string name="asset_download_dialog_default_title">Descargar archivo</string>
-    <string name="empty_group_label">Conversaci&#243;n sin nombre</string>
+    <string name="empty_conversation_label">Conversaci&#243;n sin nombre</string>
     <string name="label_show_more">Mostrar m&#225;s</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">No se permiten recibir im&#225;genes</string>
@@ -738,17 +715,10 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
     <string name="allow_services">Permitir servicios</string>
     <string name="service_details_label">Servicio</string>
-    <string name="service_details_add_service_label">Añadir al grupo</string>
-    <string name="service_details_remove_service_label">Eliminar del grupo</string>
-    <string name="service_remove_success">Servicio eliminado del grupo</string>
-    <string name="service_remove_error">No se pudo eliminar el servicio del grupo</string>
-    <string name="service_add_success">Servicio añadido al grupo</string>
-    <string name="service_add_error">No se pudo añadir el servicio al grupo</string>
     <string name="service_no_information_available_title">Ninguna información disponible</string>
     <string name="service_no_information_available_subtitle">Inténtalo de nuevo o contacta con el administrador de tu equipo</string>
     <string name="read_receipts">Recibos de lectura</string>
     <string name="disable_guests_dialog_title">&#191;No permitir invitados?</string>
-    <string name="disable_guests_dialog_description">Los invitados que seleccion&#243; en el paso anterior no formar&#225;n parte del grupo si no permite el acceso de invitados.</string>
     <string name="disable_guests_dialog_button">No permitir invitados</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">&#191;Bloquear usuario?</string>
@@ -847,9 +817,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="backup_dialog_restore_wrong_user_error_message">No puedes restaurar un historial desde una cuenta diferente.</string>
     <string name="backup_dialog_restore_general_error_title">Algo sali&#243; mal</string>
     <string name="backup_dialog_restore_general_error_message">No se pudo restaurar tu historial. Por favor, int&#233;ntalo de nuevo o contacta al soporte de Wire.</string>
-    <string name="group_content_deleted">El contenido del grupo fue eliminado</string>
     <string name="conversation_content_deleted">El contenido de la conversaci&#243;n fue eliminado</string>
-    <string name="group_content_delete_failure">No se pudo eliminar el contenido del grupo</string>
     <string name="conversation_content_delete_failure">No se pudo eliminar el contenido de la conversaci&#243;n</string>
     <string name="group_label">grupo</string>
     <string name="conversation_label">conversaci&#243;n</string>
@@ -886,13 +854,10 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
 %1$s</string>
     <string name="join_conversation_dialog_button">Unirse</string>
     <string name="join_conversation_via_deeplink_error_title">No se pudo unirse a la conversaci&#243;n</string>
-    <string name="join_conversation_via_deeplink_error_link_expired">El enlace a esta conversaci&#243;n grupal ha expirado o la conversaci&#243;n se ha configurado como privada.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Se ha alcanzado el n&#250;mero m&#225;ximo de participantes en esta conversaci&#243;n.</string>
-    <string name="join_conversation_via_deeplink_error_general">Debido a un error, no se pudo agregar a la conversaci&#243;n grupal.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Mensajes con auto-borrado</string>
     <string name="self_deleting_messages_option">Forzar auto-borrado de mensajes</string>
-    <string name="self_deleting_messages_option_description">Cuando esté activado, todos los mensajes de este grupo desaparecerán después de un cierto tiempo. Esto se aplica a todos los participantes del grupo.</string>
     <string name="self_deleting_messages_folder_timer">Contador</string>
     <!-- visit link -->
     <!-- invalid link -->
@@ -911,8 +876,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="title_device_key_fingerprint">HU&#201;LLA DIGITAL DE LA LLAVE DEL DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NO DISPONIBLE</string>
     <string name="guest_room_link_copied">Enlace copiado al portapapeles</string>
-    <string name="guest_room_link_enabled">La generación de enlaces de invitado ahora está activada para todos los administradores del grupo</string>
-    <string name="guest_room_link_disabled">La generación de enlaces de invitado ahora está desactivada para todos los administradores del grupo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Su cuenta se utiliz&#243; en</string>
     <string name="new_device_dialog_current_user_btn">Administrar dispositivos</string>

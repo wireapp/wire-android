@@ -20,16 +20,12 @@
 
 package com.wire.android.ui.home.newconversation
 
-import androidx.compose.foundation.text.input.clearText
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -213,24 +209,6 @@ class NewConversationViewModelTest {
     }
 
     @Test
-    fun `given group name, when creating group, then do not show NameEmptyError until name is entered and cleared`() = runTest {
-        val (_, viewModel) = NewConversationViewModelArrangement()
-            .withGetSelfUser(isTeamMember = true)
-            .arrange()
-        viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
-        advanceUntilIdle()
-        assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
-
-        viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd("name")
-        advanceUntilIdle()
-        assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
-
-        viewModel.newGroupNameTextState.clearText()
-        advanceUntilIdle()
-        assertEquals(GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError, viewModel.newGroupState.error)
-    }
-
-    @Test
     fun `given conversation is created, when guest are selected and guests are disabled, then set the correct state`() = runTest {
 
         val usersSelected = persistentSetOf(
@@ -340,7 +318,7 @@ class NewConversationViewModelTest {
             .withChannelCreationPermissionReturning(flowOf(ChannelCreationPermission.Allowed(false)))
             .arrange()
 
-        assertTrue(viewModel.newGroupState.isChannelCreationPossible)
+        assertTrue(viewModel.isChannelCreationPossible)
     }
 
     @Test
@@ -351,6 +329,6 @@ class NewConversationViewModelTest {
             .withChannelCreationPermissionReturning(flowOf(ChannelCreationPermission.Forbidden))
             .arrange()
 
-        assertFalse(viewModel.newGroupState.isChannelCreationPossible)
+        assertFalse(viewModel.isChannelCreationPossible)
     }
 }

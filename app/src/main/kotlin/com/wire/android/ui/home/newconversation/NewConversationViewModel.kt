@@ -93,7 +93,6 @@ class NewConversationViewModel @Inject constructor(
 
     init {
         setConversationCreationParam()
-        observeGroupNameChanges()
         observeChannelCreationPermission()
         getWireCellFeatureState()
     }

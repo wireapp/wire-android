@@ -204,6 +204,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isServicesAllowed = groupDetails.conversation.isServicesAllowed() && !isMLSTeam && !isMLSConversation,
                         isUpdatingNameAllowed = isSelfAnAdmin && !isSelfExternalMember,
                         isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
+                        isUpdatingChannelAccessAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
                         isUpdatingServicesAllowed = isSelfAnAdmin && !isMLSTeam && !isMLSConversation,
                         isUpdatingReadReceiptAllowed = isSelfAnAdmin && groupDetails.conversation.isTeamGroup(),
                         isUpdatingSelfDeletingAllowed = isSelfAnAdmin,

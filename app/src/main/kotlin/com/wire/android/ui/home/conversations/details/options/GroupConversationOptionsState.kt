@@ -51,6 +51,7 @@ data class GroupConversationOptionsState(
     val isUpdatingServicesAllowed: Boolean = false,
     val isUpdatingSelfDeletingAllowed: Boolean = false,
     val isUpdatingReadReceiptAllowed: Boolean = false,
+    val isUpdatingChannelAccessAllowed: Boolean = false,
     val shouldShowAddParticipantsButtonForChannel: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
     val changeServiceOptionConfirmationRequired: Boolean = false,

@@ -137,7 +137,7 @@
     <string name="content_description_self_profile_avatar">Din profilbild</string>
     <string name="content_description_self_profile_profile_name">Profilnamn, %s</string>
     <string name="content_description_self_profile_username">Användarnamn, %s</string>
-    <string name="content_description_login_email_field">ange din e-postadress eller användarnamn</string>
+    <string name="content_description_login_user_identifier_field">ange din e-postadress eller användarnamn</string>
     <string name="content_description_login_password_field">ange ditt lösenord</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
@@ -184,6 +184,7 @@
     <string name="login_title">Logga in</string>
     <string name="login_forgot_password">Glömt lösenord?</string>
     <string name="login_user_identifier_placeholder">jane@example.com eller jane.doe</string>
+    <string name="login_email_placeholder">jane@example.com</string>
     <string name="login_user_identifier_label">E-POSTADRESS ELLER ANVÄNDARNAMN</string>
     <string name="login_proxy_identifier_label">EPOST-ADRESS ELLER ANVÄNDARNAMN FÖR PROXY</string>
     <string name="login_error_invalid_credentials_title">Ogiltig information</string>

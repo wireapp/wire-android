@@ -246,7 +246,7 @@
     <string name="content_description_change_picture_back_btn">Вернуться к обзору вашего профиля</string>
     <string name="content_description_welcome_screen_close_btn">Закрыть просмотр создания новой команды и авторизации</string>
     <string name="content_description_login_back_btn">Вернуться к просмотру создания новой команды и авторизации</string>
-    <string name="content_description_login_email_field">введите свой email или псевдоним</string>
+    <string name="content_description_login_user_identifier_field">введите свой email или псевдоним</string>
     <string name="content_description_login_password_field">введите свой пароль</string>
     <string name="content_description_login_sso_code_field">введите свой код SSO или Wire email</string>
     <string name="content_description_whats_new_welcome_item">Добро пожаловать в новое приложение Wire для Android, ссылка на страницу поддержки</string>
@@ -329,6 +329,7 @@
     <string name="login_title">Войти</string>
     <string name="login_forgot_password">Забыли пароль?</string>
     <string name="login_user_identifier_placeholder">maria@example.com или maria.ivanova</string>
+    <string name="login_email_placeholder">maria@example.com</string>
     <string name="login_user_identifier_label">EMAIL ИЛИ ПСЕВДОНИМ</string>
     <string name="login_proxy_identifier_label">PROXY EMAIL ИЛИ ПСЕВДОНИМ</string>
     <string name="login_error_invalid_credentials_title">Неверная информация</string>

@@ -231,6 +231,7 @@ URL do Backend:
     <string name="login_title">Entrar</string>
     <string name="login_forgot_password">Esqueceu a senha?</string>
     <string name="login_user_identifier_placeholder">jane@exemplo.com ou jane.doe</string>
+    <string name="login_email_placeholder">jane@exemplo.com</string>
     <string name="login_user_identifier_label">E-MAIL OU USUÁRIO</string>
     <string name="login_proxy_identifier_label">E-MAIL OU USUÁRIO DE PROXY</string>
     <string name="login_error_invalid_credentials_title">Informações inválidas</string>

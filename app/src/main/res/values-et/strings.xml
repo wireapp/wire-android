@@ -137,6 +137,7 @@
     <string name="login_title">Logi sisse</string>
     <string name="login_forgot_password">Unustasid parooli?</string>
     <string name="login_user_identifier_placeholder">jaan@näide.ee või jaan.tamm</string>
+    <string name="login_email_placeholder">jaan@näide.ee</string>
     <string name="login_user_identifier_label">E-POST VÕI KASUTAJANIMI</string>
     <string name="login_proxy_identifier_label">PROKSI E-POST VÕI KASUTAJANIMI</string>
     <string name="login_error_invalid_credentials_title">Vale info</string>

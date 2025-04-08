@@ -238,6 +238,7 @@
     <string name="login_title">Se connecter</string>
     <string name="login_forgot_password">Mot de passe oublié ?</string>
     <string name="login_user_identifier_placeholder">jeanne@exemple.com ou jeanne.doe</string>
+    <string name="login_email_placeholder">jeanne@exemple.com</string>
     <string name="login_user_identifier_label">EMAIL OU NOM D\'UTILISATEUR</string>
     <string name="login_proxy_identifier_label">PROXY EMAIL OU NOM D\'UTILISATEUR</string>
     <string name="login_error_invalid_credentials_title">Information invalide</string>

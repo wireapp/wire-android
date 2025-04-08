@@ -77,8 +77,8 @@ fun SearchUsersAndServicesScreen(
     onClose: () -> Unit,
     screenType: SearchPeopleScreenType,
     modifier: Modifier = Modifier,
-    isSelfTeamMember: Boolean = false,
-    isUserAllowedToCreateChannels: Boolean = true,
+    shouldShowChannelPromotion: Boolean,
+    isUserAllowedToCreateChannels: Boolean,
     isGroupSubmitVisible: Boolean = true,
     isServicesAllowed: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
@@ -200,8 +200,8 @@ fun SearchUsersAndServicesScreen(
                 when (screenType) {
                     SearchPeopleScreenType.NEW_CONVERSATION -> {
                         CreateRegularGroupOrChannelButtons(
-                            isSelfTeamMember = isSelfTeamMember,
-                            shouldShowChannelButton = isUserAllowedToCreateChannels,
+                            shouldShowChannelPromotion = shouldShowChannelPromotion,
+                            isUserAllowedToCreateChannels = isUserAllowedToCreateChannels,
                             onCreateNewRegularGroup = onCreateNewGroup,
                             onCreateNewChannel = onCreateNewChannel
                         )

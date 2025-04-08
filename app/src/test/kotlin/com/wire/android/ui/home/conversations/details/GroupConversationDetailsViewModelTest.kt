@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
+ @file:Suppress("LargeClass")
 package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
@@ -707,7 +707,6 @@ class GroupConversationDetailsViewModelTest {
         assertEquals(false, result)
     }
 
-
     @Test
     fun `Given regular group and isSelfAdmin is true, when isSelfExternalMember is false, then should show button`() {
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
@@ -757,7 +756,6 @@ class GroupConversationDetailsViewModelTest {
         // Then
         assertEquals(false, result)
     }
-
 
     @Test
     fun `Given a channel, when isSelfAdmin is false and isSelfGuest is false, then should not show button`() {

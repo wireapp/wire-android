@@ -466,7 +466,7 @@ private fun GroupConversationDetailsContent(
                             if (shouldShowAddParticipantsButton) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                                     WirePrimaryButton(
-                                        text = stringResource(R.string.conversation_details_group_participants_add),
+                                        text = stringResource(R.string.conversation_details_conversation_participants_add),
                                         onClick = onAddParticipantsPressed,
                                     )
                                 }

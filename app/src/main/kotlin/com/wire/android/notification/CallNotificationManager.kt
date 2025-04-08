@@ -300,7 +300,7 @@ class CallNotificationBuilder @Inject constructor(
             is Conversation.Type.Group -> {
                 val name = data.callerName ?: context.getString(R.string.notification_call_default_caller_name)
                 (data.callerTeamName?.let { "$name @$it" } ?: name)
-                    .let { context.getString(R.string.notification_group_call_content, it) }
+                    .let { context.getString(R.string.notification_group_channel_call_content, it) }
             }
 
             else -> context.getString(R.string.notification_incoming_call_content)

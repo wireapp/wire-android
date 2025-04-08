@@ -95,8 +95,6 @@
     <string name="content_description_unarchive">アーカイブを解除</string>
     <string name="content_description_block_the_user">ブロック</string>
     <string name="content_description_unblock_the_user">ブロック解除</string>
-    <string name="content_description_leave_the_group">グループから退出</string>
-    <string name="content_description_delete_the_group">グループを削除</string>
     <string name="content_description_conversation_phone_icon">音声通話を開始</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">検索アイコン</string>

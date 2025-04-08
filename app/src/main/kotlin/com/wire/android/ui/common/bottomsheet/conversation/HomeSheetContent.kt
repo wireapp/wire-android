@@ -287,7 +287,7 @@ internal fun ConversationMainSheetContent(
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.error,
-                        title = stringResource(R.string.label_leave_group),
+                        title = stringResource(R.string.label_leave_conversation),
                         onItemClick = {
                             leaveGroup(
                                 LeaveGroupDialogState(
@@ -308,7 +308,7 @@ internal fun ConversationMainSheetContent(
                                 contentDescription = null
                             )
                         },
-                        title = stringResource(R.string.label_delete_group_locally),
+                        title = stringResource(R.string.label_delete_conversation_locally),
                         itemProvidedColor = MaterialTheme.colorScheme.error,
                         onItemClick = {
                             deleteGroupLocally(
@@ -330,7 +330,7 @@ internal fun ConversationMainSheetContent(
                                 contentDescription = null,
                             )
                         },
-                        title = stringResource(R.string.label_delete_group),
+                        title = stringResource(R.string.label_delete_conversation),
                         itemProvidedColor = MaterialTheme.colorScheme.error,
                         onItemClick = {
                             deleteGroup(

@@ -76,9 +76,6 @@ class NewConversationViewModel @Inject constructor(
 
     init {
         setConversationCreationParam()
-//        viewModelScope.launch {
-//            observeGroupNameChanges()
-//        }
         observeChannelCreationPermission()
     }
 

@@ -63,7 +63,6 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.UIText
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 
 @Suppress("ComplexMethod")

@@ -17,8 +17,11 @@
  */
 package com.wire.android.ui.home.newconversation.groupsearch
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
+import com.google.android.material.motion.MaterialBackHandler
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -38,6 +41,14 @@ fun NewGroupConversationSearchPeopleScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel,
 ) {
+    val onBackClicked = remember(Unit) {
+        {
+            newConversationViewModel.resetState()
+            navigator.navigateBack()
+        }
+    }
+
+    BackHandler(true, onBackClicked)
     val isSelfTeamMember = newConversationViewModel.newGroupState.isSelfTeamMember ?: false
 
     val screenTitle = if (newConversationViewModel.newGroupState.isChannel) {
@@ -55,10 +66,7 @@ fun NewGroupConversationSearchPeopleScreen(
         onContactChecked = newConversationViewModel::updateSelectedContacts,
         onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
-        onClose = {
-            newConversationViewModel.resetState()
-            navigator.navigateBack()
-        },
+        onClose = onBackClicked,
         onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_GROUP_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,

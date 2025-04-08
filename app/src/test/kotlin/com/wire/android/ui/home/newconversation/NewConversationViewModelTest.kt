@@ -217,6 +217,8 @@ class NewConversationViewModelTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
             .arrange()
+
+        viewModel.observeGroupNameChanges()
         viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
         advanceUntilIdle()
         assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
@@ -340,7 +342,7 @@ class NewConversationViewModelTest {
             .withChannelCreationPermissionReturning(flowOf(ChannelCreationPermission.Allowed(false)))
             .arrange()
 
-        assertTrue(viewModel.newGroupState.isChannelCreationPossible)
+        assertTrue(viewModel.isChannelCreationPossible)
     }
 
     @Test
@@ -351,6 +353,6 @@ class NewConversationViewModelTest {
             .withChannelCreationPermissionReturning(flowOf(ChannelCreationPermission.Forbidden))
             .arrange()
 
-        assertFalse(viewModel.newGroupState.isChannelCreationPossible)
+        assertFalse(viewModel.isChannelCreationPossible)
     }
 }

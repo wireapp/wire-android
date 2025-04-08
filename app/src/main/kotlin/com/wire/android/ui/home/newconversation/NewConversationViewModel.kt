@@ -155,7 +155,6 @@ class NewConversationViewModel @Inject constructor(
 
     suspend fun observeGroupNameChanges() {
         newGroupNameTextState.textAsFlow()
-//            .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
             .collectLatest {
                 newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
             }

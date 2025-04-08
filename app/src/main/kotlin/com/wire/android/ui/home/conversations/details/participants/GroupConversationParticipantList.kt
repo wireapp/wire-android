@@ -34,12 +34,12 @@ fun LazyListScope.participantsFoldersWithElements(
     onRowItemClicked: (UIParticipant) -> Unit
 ) {
     folderWithElements(
-        header = context.getString(R.string.conversation_details_group_admins, state.data.allAdminsCount),
+        header = context.getString(R.string.conversation_details_conversation_admins, state.data.allAdminsCount),
         items = state.data.admins,
         onRowItemClicked = onRowItemClicked
     )
     folderWithElements(
-        header = context.getString(R.string.conversation_details_group_members, state.data.allParticipantsCount),
+        header = context.getString(R.string.conversation_details_conversation_members, state.data.allParticipantsCount),
         items = state.data.participants,
         onRowItemClicked = onRowItemClicked
     )

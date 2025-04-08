@@ -61,7 +61,8 @@ fun NewGroupConversationSearchPeopleScreen(
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
-        isSelfTeamMember = isSelfTeamMember,
+        shouldShowChannelPromotion = !isSelfTeamMember,
+        isUserAllowedToCreateChannels = false,
         onContactChecked = newConversationViewModel::updateSelectedContacts,
         onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,

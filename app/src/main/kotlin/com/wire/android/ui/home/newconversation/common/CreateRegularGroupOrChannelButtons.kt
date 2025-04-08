@@ -31,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -44,8 +43,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun CreateRegularGroupOrChannelButtons(
-    isSelfTeamMember: Boolean,
-    shouldShowChannelButton: Boolean,
+    shouldShowChannelPromotion: Boolean,
+    isUserAllowedToCreateChannels: Boolean,
     onCreateNewRegularGroup: () -> Unit,
     onCreateNewChannel: () -> Unit,
     modifier: Modifier = Modifier,
@@ -60,8 +59,7 @@ fun CreateRegularGroupOrChannelButtons(
             modifier = modifier
                 .padding(dimensions().spacing16x)
         ) {
-            appLogger.d("cccc: shouldShowChannelButton: $shouldShowChannelButton")
-            if (shouldShowChannelButton) {
+            if (isUserAllowedToCreateChannels || shouldShowChannelPromotion) {
                 WirePrimaryButton(
                     text = stringResource(R.string.label_create_new_channel),
                     onClick = onCreateNewChannel,
@@ -75,7 +73,7 @@ fun CreateRegularGroupOrChannelButtons(
                         )
                     },
                     trailingIcon = {
-                        if (!isSelfTeamMember) {
+                        if (shouldShowChannelPromotion) {
                             Image(
                                 painter = painterResource(id = R.drawable.ic_upgrade),
                                 contentDescription = null,
@@ -108,11 +106,24 @@ fun CreateRegularGroupOrChannelButtons(
 
 @PreviewMultipleThemes
 @Composable
+fun PreviewCreateRegularGroupOrChannelButtonsWithPromotion() {
+    WireTheme {
+        CreateRegularGroupOrChannelButtons(
+            shouldShowChannelPromotion = true,
+            isUserAllowedToCreateChannels = true,
+            onCreateNewRegularGroup = { },
+            onCreateNewChannel = { }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
 fun PreviewCreateRegularGroupOrChannelButtons() {
     WireTheme {
         CreateRegularGroupOrChannelButtons(
-            isSelfTeamMember = false,
-            shouldShowChannelButton = true,
+            shouldShowChannelPromotion = false,
+            isUserAllowedToCreateChannels = true,
             onCreateNewRegularGroup = { },
             onCreateNewChannel = { }
         )

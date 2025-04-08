@@ -25,6 +25,7 @@ data class ConversationParticipantsData(
     val allParticipantsCount: Int = 0,
     val isSelfAnAdmin: Boolean = false,
     val isSelfExternalMember: Boolean = false,
+    val isSelfGuest: Boolean = false,
 ) {
     val allCount: Int = allAdminsCount + allParticipantsCount
     val allParticipants: List<UIParticipant> = participants + admins

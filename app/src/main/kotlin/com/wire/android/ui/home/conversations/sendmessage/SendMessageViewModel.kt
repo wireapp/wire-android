@@ -46,6 +46,9 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
@@ -63,11 +66,9 @@ import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
+import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.onFailure
-import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -84,6 +85,7 @@ class SendMessageViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
+    private val sendMultipartMessage: SendMultipartMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
     private val retryFailedMessage: RetryFailedMessageUseCase,
     private val dispatchers: DispatcherProvider,
@@ -152,7 +154,7 @@ class SendMessageViewModel @Inject constructor(
         trySendMessages(listOf(messageBundle))
     }
 
-    fun trySendMessages(messageBundleList: List<MessageBundle>) {
+    internal fun trySendMessages(messageBundleList: List<MessageBundle>) {
         if (messageBundleList.size > MAX_LIMIT_MESSAGE_SEND) {
             onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached)
         } else {
@@ -230,6 +232,21 @@ class SendMessageViewModel @Inject constructor(
                 sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
                 with(messageBundle) {
                     sendTextMessage(
+                        conversationId = conversationId,
+                        text = message,
+                        mentions = mentions.map { it.intoMessageMention() },
+                        quotedMessageId = quotedMessageId
+                    )
+                        .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                        .handleNonAssetContributionEvent(messageBundle)
+                }
+            }
+
+            is ComposableMessageBundle.SendMultipartMessageBundle -> {
+                removeMessageDraft(messageBundle.conversationId)
+                sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
+                with(messageBundle) {
+                    sendMultipartMessage(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
@@ -368,7 +385,8 @@ class SendMessageViewModel @Inject constructor(
                 is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location
                 is Ping -> AnalyticsEvent.Contributed.Ping
                 is ComposableMessageBundle.EditMessageBundle,
-                is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text
+                is ComposableMessageBundle.SendTextMessageBundle,
+                is ComposableMessageBundle.SendMultipartMessageBundle -> AnalyticsEvent.Contributed.Text
             }
             analyticsManager.sendEvent(event)
         }

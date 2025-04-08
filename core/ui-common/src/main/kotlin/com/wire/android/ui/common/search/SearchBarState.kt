@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.common.topappbar.search
+package com.wire.android.ui.common.search
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -39,10 +39,14 @@ fun rememberSearchbarState(
 
 class SearchBarState(
     isSearchActive: Boolean = false,
+    isSearchVisible: Boolean = true,
     val searchQueryTextState: TextFieldState
 ) {
 
     var isSearchActive by mutableStateOf(isSearchActive)
+        private set
+
+    var isSearchVisible by mutableStateOf(isSearchVisible)
         private set
 
     fun closeSearch() {
@@ -55,6 +59,10 @@ class SearchBarState(
 
     fun searchActiveChanged(isSearchActive: Boolean) {
         this.isSearchActive = isSearchActive
+    }
+
+    fun searchVisibleChanged(isSearchVisible: Boolean) {
+        this.isSearchVisible = isSearchVisible
     }
 
     companion object {

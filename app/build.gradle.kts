@@ -139,10 +139,12 @@ aboutLibraries {
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
+    implementation("com.wire.kalium:kalium-cells")
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 
     // features
+    implementation(project(":features:cells"))
     implementation(project(":features:sketch"))
     implementation(project(":core:ui-common"))
     implementation(project(":core:navigation"))
@@ -172,6 +174,7 @@ dependencies {
     // Image loading
     implementation(libs.coil.core)
     implementation(libs.coil.gif)
+    implementation(libs.coil.video)
     implementation(libs.coil.compose)
 
     // RSS feed loading

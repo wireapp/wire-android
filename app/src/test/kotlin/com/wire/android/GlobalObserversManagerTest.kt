@@ -35,6 +35,7 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.LogoutCallbackManager
 import com.wire.kalium.logic.feature.call.CallsScope
+import com.wire.kalium.logic.feature.call.usecase.EndCallOnConversationChangeUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
@@ -188,6 +189,9 @@ class GlobalObserversManagerTest {
         lateinit var callsScope: CallsScope
 
         @MockK
+        lateinit var endCallOnConversationChangeUseCase: EndCallOnConversationChangeUseCase
+
+        @MockK
         lateinit var userSessionScope: UserSessionScope
 
         @MockK
@@ -213,6 +217,8 @@ class GlobalObserversManagerTest {
             every { notificationChannelsManager.createUserNotificationChannels(any()) } returns Unit
             every { coreLogic.getGlobalScope().logoutCallbackManager } returns logoutCallbackManager
             every { coreLogic.getSessionScope(any()) } returns userSessionScope
+            every { callsScope.endCallOnConversationChange } returns endCallOnConversationChangeUseCase
+            coEvery { endCallOnConversationChangeUseCase.invoke() } returns Unit
             every { userSessionScope.calls } returns callsScope
             every { userSessionScope.messages } returns messageScope
             coEvery { messageScope.deleteEphemeralMessageEndDate() } returns Unit

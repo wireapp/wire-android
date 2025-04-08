@@ -25,23 +25,11 @@ import com.wire.android.util.ui.UIText
 sealed class HomeSnackBarMessage(override val uiText: UIText) : SnackBarMessage {
 
     data class ClearConversationContentSuccess(val isGroup: Boolean) : HomeSnackBarMessage(
-        UIText.StringResource(
-            if (isGroup) {
-                R.string.group_content_deleted
-            } else {
-                R.string.conversation_content_deleted
-            }
-        )
+        UIText.StringResource(R.string.conversation_content_deleted)
     )
 
     data class ClearConversationContentFailure(val isGroup: Boolean) : HomeSnackBarMessage(
-        UIText.StringResource(
-            if (isGroup) {
-                R.string.group_content_delete_failure
-            } else {
-                R.string.conversation_content_delete_failure
-            }
-        )
+        UIText.StringResource(R.string.conversation_content_delete_failure)
     )
 
     class SuccessConnectionIgnoreRequest(val userName: String) :
@@ -55,20 +43,20 @@ sealed class HomeSnackBarMessage(override val uiText: UIText) : SnackBarMessage 
     data object UnblockingUserOperationError : HomeSnackBarMessage(UIText.StringResource(R.string.error_unblocking_user))
     data class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackBarMessage(
         UIText.StringResource(
-            R.string.conversation_group_removed_success,
+            R.string.conversation_removed_success,
             groupName
         )
     )
     data class DeleteConversationGroupLocallySuccess(val groupName: String) : HomeSnackBarMessage(
         UIText.StringResource(
-            R.string.conversation_group_removed_locally_success,
+            R.string.conversation_removed_locally_success,
             groupName
         )
     )
 
-    data object DeleteConversationGroupError : HomeSnackBarMessage(UIText.StringResource(R.string.delete_group_conversation_error))
-    data object LeftConversationSuccess : HomeSnackBarMessage(UIText.StringResource(R.string.left_conversation_group_success))
-    data object LeaveConversationError : HomeSnackBarMessage(UIText.StringResource(R.string.leave_group_conversation_error))
+    data object DeleteConversationGroupError : HomeSnackBarMessage(UIText.StringResource(R.string.delete_conversation_conversation_error))
+    data object LeftConversationSuccess : HomeSnackBarMessage(UIText.StringResource(R.string.left_conversation_success))
+    data object LeaveConversationError : HomeSnackBarMessage(UIText.StringResource(R.string.leave_conversation_error))
     data class UpdateArchivingStatusSuccess(val isArchiving: Boolean) : HomeSnackBarMessage(
         UIText.StringResource(
             if (isArchiving) {

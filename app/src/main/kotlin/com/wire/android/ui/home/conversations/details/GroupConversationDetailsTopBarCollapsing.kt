@@ -92,8 +92,11 @@ fun GroupConversationDetailsTopBarCollapsing(
             ) {
                 Text(
                     text = title.ifBlank {
-                        if (isLoading) ""
-                        else UIText.StringResource(R.string.group_unavailable_label).asString()
+                        if (isLoading) {
+                            ""
+                        } else {
+                            UIText.StringResource(R.string.conversation_unavailable_label).asString()
+                        }
                     },
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,

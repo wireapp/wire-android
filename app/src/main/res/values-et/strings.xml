@@ -73,8 +73,6 @@
     <string name="content_description_move_to_archive">Teisalda arhiivi</string>
     <string name="content_description_block_the_user">Blokeeri</string>
     <string name="content_description_unblock_the_user">Tühista blokeering</string>
-    <string name="content_description_leave_the_group">Lahku grupist</string>
-    <string name="content_description_delete_the_group">Kustuta grupp</string>
     <string name="content_description_conversation_phone_icon">Alusta häälkõnet</string>
     <string name="content_description_send_button">Saada</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Seadme üksus</string>
@@ -280,7 +278,7 @@
     <!-- Search Contact-->
     <!-- Snackbar messages -->
     <string name="blocking_user_success">%s blokeeritud</string>
-    <string name="conversation_group_removed_success">“%s” eemaldatud</string>
+    <string name="conversation_removed_success">“%s” eemaldatud</string>
     <!-- Archiving -->
     <!-- Favorite -->
     <!-- Animation label -->
@@ -296,13 +294,12 @@
     <string name="notification_reply">Vastus: %1$s</string>
     <string name="notification_not_supported_issue">Funktsioon pole toetatud</string>
     <string name="notification_connection_request">Soovib ühenduda</string>
-    <string name="notification_conversation_deleted">Kustutas grupi</string>
     <string name="notification_action_reply">Vasta</string>
     <string name="notification_receiver_name">Sina</string>
     <string name="label_type_a_message">Sisesta sõnum</string>
     <string name="notification_incoming_call_content">Helistab…</string>
     <string name="notification_ongoing_call_content">Käimasolev kõne…</string>
-    <string name="notification_group_call_content">%s helistab...</string>
+    <string name="notification_group_channel_call_content">%s helistab...</string>
     <string name="notification_call_default_caller_name">Keegi</string>
     <string name="notification_call_default_group_name">Sissetulev grupikõne</string>
     <!-- Calling-->

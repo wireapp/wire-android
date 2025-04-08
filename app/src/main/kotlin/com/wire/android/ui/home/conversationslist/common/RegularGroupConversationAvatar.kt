@@ -33,14 +33,46 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.groupConversationColor
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.groupConversationColor
+import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun GroupConversationAvatar(
+    avatarData: ConversationAvatar.Group,
+    modifier: Modifier = Modifier,
+    size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
+    cornerRadius: Dp = MaterialTheme.wireDimensions.groupAvatarCornerRadius,
+    padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
+    borderWidth: Dp = dimensions().avatarBorderWidth,
+    borderColor: Color = colorsScheme().outline
+) = when (avatarData) {
+    is ConversationAvatar.Group.Channel -> ChannelConversationAvatar(
+        avatarData.conversationId,
+        avatarData.isPrivate,
+        modifier,
+        size,
+        cornerRadius,
+        padding,
+        borderWidth
+    )
+
+    is ConversationAvatar.Group.Regular -> RegularGroupConversationAvatar(
+        avatarData.conversationId,
+        modifier,
+        size,
+        cornerRadius,
+        padding,
+        borderWidth,
+        borderColor
+    )
+}
+
+@Composable
+fun RegularGroupConversationAvatar(
     conversationId: ConversationId,
     modifier: Modifier = Modifier,
     size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
@@ -73,7 +105,7 @@ fun GroupConversationAvatar(
 @Composable
 fun PreviewGroupConversationAvatar() {
     WireTheme {
-        GroupConversationAvatar(
+        RegularGroupConversationAvatar(
             conversationId = ConversationId("conversationId", "domain")
         )
     }

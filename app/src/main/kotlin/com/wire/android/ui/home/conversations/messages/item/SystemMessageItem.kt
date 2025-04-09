@@ -184,9 +184,7 @@ private fun SystemMessage.buildContent() = when (this) {
         pluralStringResource(
             id = R.plurals.label_system_message_team_member_left,
             count = memberNames.size,
-            formatArgs = arrayOf(
-                author.asString().markdownBold(), memberNames.limitList(expanded).toListMarkdownString()
-            )
+            formatArgs = arrayOf(author.asString().markdownBold(), memberNames.limitList(expanded).toListMarkdownString())
         ).toMarkdownAnnotatedString()
     }
 
@@ -337,10 +335,14 @@ private fun SystemMessage.buildContent() = when (this) {
     }
 
     is SystemMessage.ConversationVerified -> buildContent(
-        iconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
-        else R.drawable.ic_certificate_valid_proteus,
-        iconTintColor = if (protocol == Conversation.Protocol.MLS) MaterialTheme.wireColorScheme.positive
-        else null,
+        iconResId = when (protocol) {
+            Conversation.Protocol.MLS -> R.drawable.ic_certificate_valid_mls
+            else -> R.drawable.ic_certificate_valid_proteus
+        },
+        iconTintColor = when (protocol) {
+            Conversation.Protocol.MLS -> MaterialTheme.wireColorScheme.positive
+            else -> null
+        },
     ) {
         stringResource(
             id = when (protocol) {
@@ -511,9 +513,9 @@ private fun SystemMessage.buildContent() = when (this) {
             normalColor = MaterialTheme.wireColorScheme.onSurface,
             boldColor = MaterialTheme.wireColorScheme.onPositiveVariant
         )
-        val header = stringResource(id = R.string.label_system_message_conversation_started_sensitive_information_header)
-        val message = stringResource(id = R.string.label_system_message_conversation_started_sensitive_information_message)
-        val footer = stringResource(id = R.string.label_system_message_conversation_started_sensitive_information_footer)
+        val header = stringResource(R.string.label_system_message_conversation_started_sensitive_information_header)
+        val message = stringResource(R.string.label_system_message_conversation_started_sensitive_information_message)
+        val footer = stringResource(R.string.label_system_message_conversation_started_sensitive_information_footer)
         buildAnnotatedString {
             append(header.toMarkdownAnnotatedString(markdownTextStyle))
             appendVerticalSpace()

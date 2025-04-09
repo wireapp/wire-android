@@ -19,7 +19,6 @@
 package com.wire.android.ui.home.conversations.model
 
 import android.content.res.Resources
-import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.R
@@ -33,7 +32,6 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
-import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -593,8 +591,5 @@ data class MessageButton(
     val text: String,
     val isSelected: Boolean,
 )
-
-private fun @receiver:StringRes Int.toLocalizedStringResource() = LocalizedStringResource.String(this)
-private fun @receiver:PluralsRes Int.toLocalizedPluralResource(quantity: Int) = LocalizedStringResource.Plural(this, quantity)
 
 const val DEFAULT_LOCATION_ZOOM = 20

@@ -522,7 +522,6 @@
     <string name="wire_dropdown_placeholder">Izaberi stavku</string>
     <string name="change">Promijeni</string>
     <string name="allow_guests">Dopustite goste</string>
-    <string name="service_details_add_service_label">Dodaj u grupu</string>
     <!--block user dialog -->
     <string name="block_user_dialog_confirm_button">Blokiraj</string>
     <!--Settings -->

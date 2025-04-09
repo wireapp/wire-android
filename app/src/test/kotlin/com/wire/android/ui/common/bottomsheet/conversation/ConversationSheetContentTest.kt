@@ -18,7 +18,7 @@
 package com.wire.android.ui.common.bottomsheet.conversation
 
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelTest.Companion.testGroup
+import com.wire.android.ui.home.conversations.details.GroupDetailsViewModelTest.Companion.testGroup
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.TeamId

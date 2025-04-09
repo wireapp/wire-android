@@ -166,10 +166,11 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     title = groupDetails.conversation.name.orEmpty(),
                     conversationId = conversationId,
                     mutingConversationState = groupDetails.conversation.mutedStatus,
-                    conversationTypeDetail = if (isChannel) {
+                    conversationTypeDetail = if (groupDetails is ConversationDetails.Group.Channel) {
                         ConversationTypeDetail.Group.Channel(
                             conversationId = conversationId,
-                            isFromTheSameTeam = groupDetails.conversation.teamId == getSelfUser()?.teamId
+                            isFromTheSameTeam = groupDetails.conversation.teamId == getSelfUser()?.teamId,
+                            isPrivate = groupDetails.access == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE
                         )
                     } else {
                         ConversationTypeDetail.Group.Regular(

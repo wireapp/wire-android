@@ -256,56 +256,88 @@ fun ConversationList(
     }
 }
 
+@Suppress("MagicNumber")
 fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = false, searchQuery: String = "") = buildList {
     repeat(count) { index ->
         val currentIndex = startIndex + index
-        when (index % 2) {
-            0 -> add(
-                ConversationItem.GroupConversation(
-                    groupName = "Conversation $currentIndex",
-                    conversationId = QualifiedID(currentIndex.toString(), "domain"),
-                    mutedStatus = MutedConversationStatus.AllAllowed,
-                    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
-                    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
-                    selfMemberRole = null,
-                    teamId = null,
-                    hasOnGoingCall = false,
-                    isArchived = false,
-                    isFromTheSameTeam = false,
-                    isChannel = false,
-                    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                    searchQuery = searchQuery,
-                    isFavorite = false,
-                    folder = null,
-                    playingAudio = null
-                )
-            )
-
-            1 -> add(
-                ConversationItem.PrivateConversation(
-                    userAvatarData = UserAvatarData(),
-                    conversationId = QualifiedID(currentIndex.toString(), "domain"),
-                    mutedStatus = MutedConversationStatus.AllAllowed,
-                    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
-                    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
-                    conversationInfo = ConversationInfo("User $currentIndex"),
-                    blockingState = BlockingState.BLOCKED,
-                    teamId = null,
-                    userId = UserId("userId_$currentIndex", "domain"),
-                    isArchived = false,
-                    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                    searchQuery = searchQuery,
-                    isFavorite = false,
-                    isUserDeleted = false,
-                    folder = null,
-                    playingAudio = null
-                )
-            )
+        when (index % 3) {
+            0 -> add(fakeRegularGroup(currentIndex, unread, searchQuery))
+            1 -> add(fakePrivateConversation(currentIndex, unread, searchQuery))
+            2 -> add(fakeChannel(currentIndex, unread, searchQuery))
         }
     }
 }.toImmutableList()
+
+private fun fakeRegularGroup(
+    currentIndex: Int,
+    unread: Boolean,
+    searchQuery: String
+) = ConversationItem.Group.Regular(
+    groupName = "Conversation $currentIndex",
+    conversationId = QualifiedID(currentIndex.toString(), "domain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
+    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
+    selfMemberRole = null,
+    teamId = null,
+    hasOnGoingCall = false,
+    isArchived = false,
+    isFromTheSameTeam = false,
+    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    searchQuery = searchQuery,
+    isFavorite = false,
+    folder = null,
+    playingAudio = null
+)
+
+private fun fakePrivateConversation(
+    currentIndex: Int,
+    unread: Boolean,
+    searchQuery: String
+) = ConversationItem.PrivateConversation(
+    userAvatarData = UserAvatarData(),
+    conversationId = QualifiedID(currentIndex.toString(), "domain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
+    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
+    conversationInfo = ConversationInfo("User $currentIndex"),
+    blockingState = BlockingState.BLOCKED,
+    teamId = null,
+    userId = UserId("userId_$currentIndex", "domain"),
+    isArchived = false,
+    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    searchQuery = searchQuery,
+    isFavorite = false,
+    isUserDeleted = false,
+    folder = null,
+    playingAudio = null
+)
+
+private fun fakeChannel(
+    currentIndex: Int,
+    unread: Boolean,
+    searchQuery: String
+) = ConversationItem.Group.Channel(
+    groupName = "Conversation $currentIndex",
+    conversationId = QualifiedID(currentIndex.toString(), "domain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
+    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
+    selfMemberRole = null,
+    teamId = null,
+    hasOnGoingCall = false,
+    isArchived = false,
+    isFromTheSameTeam = false,
+    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    searchQuery = searchQuery,
+    isFavorite = false,
+    folder = null,
+    playingAudio = null,
+    isPrivate = currentIndex % 2 == 0
+)
 
 fun previewConversationFoldersFlow(
     searchQuery: String = "",

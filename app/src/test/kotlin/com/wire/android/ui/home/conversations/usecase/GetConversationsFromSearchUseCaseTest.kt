@@ -144,7 +144,7 @@ class GetConversationsFromSearchUseCaseTest {
             }
             // Then
             val conversation = result.first()
-            assertInstanceOf<ConversationItem.GroupConversation>(conversation)
+            assertInstanceOf<ConversationItem.Group>(conversation)
             assertEquals(true, conversation.isFromTheSameTeam)
         }
 
@@ -163,7 +163,7 @@ class GetConversationsFromSearchUseCaseTest {
             }
             // Then
             val conversation = result.first()
-            assertInstanceOf<ConversationItem.GroupConversation>(conversation)
+            assertInstanceOf<ConversationItem.Group>(conversation)
             assertEquals(false, conversation.isFromTheSameTeam)
         }
 

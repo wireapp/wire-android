@@ -117,6 +117,7 @@ sealed interface ConversationTypeDetail {
         data class Channel(
             override val conversationId: ConversationId,
             override val isFromTheSameTeam: Boolean,
+            val isPrivate: Boolean
         ) : Group
     }
 

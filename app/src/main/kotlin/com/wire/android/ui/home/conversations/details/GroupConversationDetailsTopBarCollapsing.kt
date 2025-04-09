@@ -36,7 +36,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
+import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.theme.WireTheme
@@ -49,11 +49,10 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun GroupConversationDetailsTopBarCollapsing(
     title: String,
-    conversationId: ConversationId,
     totalParticipants: Int,
     isLoading: Boolean,
     isUnderLegalHold: Boolean,
-    isChannel: Boolean,
+    conversationAvatar: ConversationAvatar.Group,
     isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
@@ -68,21 +67,12 @@ fun GroupConversationDetailsTopBarCollapsing(
             .wrapContentHeight()
     ) {
         Box(contentAlignment = Alignment.Center) {
-            if (isChannel) {
-                ChannelConversationAvatar(
-                    conversationId = conversationId,
-                    size = dimensions().groupAvatarConversationDetailsTopBarSize,
-                    cornerRadius = dimensions().groupAvatarConversationDetailsCornerRadius,
-                    padding = dimensions().avatarConversationTopBarClickablePadding,
-                )
-            } else {
-                GroupConversationAvatar(
-                    conversationId = conversationId,
-                    size = dimensions().groupAvatarConversationDetailsTopBarSize,
-                    cornerRadius = dimensions().groupAvatarConversationDetailsCornerRadius,
-                    padding = dimensions().avatarConversationTopBarClickablePadding,
-                )
-            }
+            GroupConversationAvatar(
+                avatarData = conversationAvatar,
+                size = dimensions().groupAvatarConversationDetailsTopBarSize,
+                cornerRadius = dimensions().groupAvatarConversationDetailsCornerRadius,
+                padding = dimensions().avatarConversationTopBarClickablePadding,
+            )
         }
         ConstraintLayout(
             Modifier
@@ -154,11 +144,10 @@ fun PreviewGroupConversationDetailsTopBarCollapsing() {
     WireTheme {
         GroupConversationDetailsTopBarCollapsing(
             title = "Conversation Title",
-            conversationId = ConversationId("conversationId", "domain"),
             totalParticipants = 10,
             isUnderLegalHold = true,
             isLoading = false,
-            isChannel = false,
+            conversationAvatar = ConversationAvatar.Group.Regular(ConversationId("ConversationId", "domain")),
             isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},
@@ -173,11 +162,28 @@ fun PreviewChannelConversationDetailsTopBarCollapsing() {
     WireTheme {
         GroupConversationDetailsTopBarCollapsing(
             title = "Conversation Title",
-            conversationId = ConversationId("ConversationId", "domain"),
             totalParticipants = 10,
             isUnderLegalHold = true,
             isLoading = false,
-            isChannel = true,
+            conversationAvatar = ConversationAvatar.Group.Channel(ConversationId("ConversationId", "domain"), false),
+            isWireCellEnabled = false,
+            onSearchConversationMessagesClick = {},
+            onConversationMediaClick = {},
+            onLegalHoldLearnMoreClick = {},
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewPrivateChannelConversationDetailsTopBarCollapsing() {
+    WireTheme {
+        GroupConversationDetailsTopBarCollapsing(
+            title = "Conversation Title",
+            totalParticipants = 10,
+            isUnderLegalHold = true,
+            isLoading = false,
+            conversationAvatar = ConversationAvatar.Group.Channel(ConversationId("ConversationId", "domain"), true),
             isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},

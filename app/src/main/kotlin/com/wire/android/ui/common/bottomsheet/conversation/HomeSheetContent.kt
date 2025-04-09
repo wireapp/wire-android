@@ -43,7 +43,7 @@ import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
-import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
@@ -339,10 +339,10 @@ private fun ConversationLeadingIcon(
 ) {
     when (val typeDetail = conversationSheetContent.conversationTypeDetail) {
         is ConversationTypeDetail.Group.Channel ->
-            ChannelConversationAvatar(typeDetail.conversationId)
+            ChannelConversationAvatar(typeDetail.conversationId, isPrivateChannel = typeDetail.isPrivate)
 
         is ConversationTypeDetail.Group.Regular ->
-            GroupConversationAvatar(typeDetail.conversationId)
+            RegularGroupConversationAvatar(typeDetail.conversationId)
 
         is ConversationTypeDetail.Connection -> {
             /** NO-OP for Connections **/

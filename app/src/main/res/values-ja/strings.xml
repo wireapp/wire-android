@@ -232,6 +232,7 @@
     <string name="login_title">ログイン</string>
     <string name="login_forgot_password">パスワードをお忘れですか？</string>
     <string name="login_user_identifier_placeholder">jane@example.com または jane.doe</string>
+    <string name="login_email_placeholder">jane@example.com</string>
     <string name="login_user_identifier_label">メールアドレスまたはユーザー名</string>
     <string name="login_proxy_identifier_label">プロキシメールまたはユーザー名</string>
     <string name="login_error_invalid_credentials_title">無効な情報</string>

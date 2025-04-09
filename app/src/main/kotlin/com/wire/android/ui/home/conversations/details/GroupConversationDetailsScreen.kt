@@ -121,6 +121,7 @@ import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackA
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
+import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
@@ -424,12 +425,17 @@ private fun GroupConversationDetailsContent(
         },
         topBarCollapsing = {
             conversationSheetState.conversationSheetContent?.let {
+                val conversationTypeDetail = it.conversationTypeDetail
+                val avatarData = if (conversationTypeDetail is ConversationTypeDetail.Group.Channel) {
+                    ConversationAvatar.Group.Channel(it.conversationId, conversationTypeDetail.isPrivate)
+                } else {
+                    ConversationAvatar.Group.Regular(it.conversationId)
+                }
                 GroupConversationDetailsTopBarCollapsing(
                     title = it.title,
-                    conversationId = it.conversationId,
                     totalParticipants = groupParticipantsState.data.allCount,
                     isLoading = isLoading,
-                    isChannel = it.conversationTypeDetail is ConversationTypeDetail.Group.Channel,
+                    conversationAvatar = avatarData,
                     onSearchConversationMessagesClick = onSearchConversationMessagesClick,
                     onConversationMediaClick = onConversationMediaClick,
                     isUnderLegalHold = it.isUnderLegalHold,

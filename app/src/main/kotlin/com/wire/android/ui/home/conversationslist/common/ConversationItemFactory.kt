@@ -50,6 +50,7 @@ import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.shimmerPlaceholder
+import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -166,7 +167,7 @@ private fun GeneralConversationItem(
     onStopCurrentAudio: () -> Unit = {}
 ) {
     when (conversation) {
-        is ConversationItem.GroupConversation -> {
+        is ConversationItem.Group -> {
             with(conversation) {
                 RowItemTemplate(
                     modifier = modifier,
@@ -177,11 +178,12 @@ private fun GeneralConversationItem(
                                     selectOnRadioGroup()
                                 })
                             }
-                            if (isChannel) {
-                                ChannelConversationAvatar(conversationId)
+                            val avatar = if (conversation is ConversationItem.Group.Channel) {
+                                ConversationAvatar.Group.Channel(conversationId, conversation.isPrivate)
                             } else {
-                                GroupConversationAvatar(conversationId)
+                                ConversationAvatar.Group.Regular(conversationId)
                             }
+                            GroupConversationAvatar(avatar)
                         }
                     },
                     title = {
@@ -387,7 +389,7 @@ fun PreviewLoadingConversationItem() = WireTheme {
 @Composable
 fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
     ConversationItemFactory(
-        conversation = ConversationItem.GroupConversation(
+        conversation = ConversationItem.Group.Regular(
             "groupName looooooooooooooooooooooooooooooooooooong",
             conversationId = QualifiedID("value", "domain"),
             mutedStatus = MutedConversationStatus.AllAllowed,
@@ -399,7 +401,6 @@ fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
             teamId = null,
             isArchived = false,
             isFromTheSameTeam = false,
-            isChannel = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
@@ -417,8 +418,8 @@ fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
 @Composable
 fun PreviewChannelGroupConversationItemWithUnreadCount() = WireTheme {
     ConversationItemFactory(
-        conversation = ConversationItem.GroupConversation(
-            "groupName looooooooooooooooooooooooooooooooooooong",
+        conversation = ConversationItem.Group.Channel(
+            "Some Channel",
             conversationId = QualifiedID("value", "domain"),
             mutedStatus = MutedConversationStatus.AllAllowed,
             lastMessageContent = UILastMessageContent.TextMessage(
@@ -429,12 +430,42 @@ fun PreviewChannelGroupConversationItemWithUnreadCount() = WireTheme {
             teamId = null,
             isArchived = false,
             isFromTheSameTeam = false,
-            isChannel = true,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
             folder = null,
-            playingAudio = null
+            playingAudio = null,
+            isPrivate = false
+        ),
+        modifier = Modifier,
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {},
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewPrivateChannelGroupConversationItemWithUnreadCount() = WireTheme {
+    ConversationItemFactory(
+        conversation = ConversationItem.Group.Channel(
+            "Channel looooooooooooooooooooooooooooooooooooong",
+            conversationId = QualifiedID("anotherValue", "domain"),
+            mutedStatus = MutedConversationStatus.AllAllowed,
+            lastMessageContent = UILastMessageContent.TextMessage(
+                MessageBody(UIText.DynamicString("Very looooooooooong messageeeeeeeeeeeeeee"))
+            ),
+            badgeEventType = BadgeEventType.UnreadMessage(100),
+            selfMemberRole = null,
+            teamId = null,
+            isArchived = false,
+            isFromTheSameTeam = false,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isFavorite = false,
+            folder = null,
+            playingAudio = null,
+            isPrivate = true
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -447,7 +478,7 @@ fun PreviewChannelGroupConversationItemWithUnreadCount() = WireTheme {
 @Composable
 fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
     ConversationItemFactory(
-        conversation = ConversationItem.GroupConversation(
+        conversation = ConversationItem.Group.Regular(
             "groupName looooooooooooooooooooooooooooooooooooong",
             conversationId = QualifiedID("value", "domain"),
             mutedStatus = MutedConversationStatus.AllAllowed,
@@ -459,7 +490,6 @@ fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
             teamId = null,
             isArchived = false,
             isFromTheSameTeam = false,
-            isChannel = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
@@ -477,7 +507,7 @@ fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
 @Composable
 fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
     ConversationItemFactory(
-        conversation = ConversationItem.GroupConversation(
+        conversation = ConversationItem.Group.Regular(
             "groupName looooooooooooooooooooooooooooooooooooong",
             conversationId = QualifiedID("value", "domain"),
             mutedStatus = MutedConversationStatus.AllAllowed,
@@ -491,7 +521,6 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
             teamId = null,
             isArchived = false,
             isFromTheSameTeam = false,
-            isChannel = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
@@ -509,7 +538,7 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
 @Composable
 fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireTheme {
     ConversationItemFactory(
-        conversation = ConversationItem.GroupConversation(
+        conversation = ConversationItem.Group.Regular(
             "groupName looooooooooooooooooooooooooooooooooooong",
             conversationId = QualifiedID("value", "domain"),
             mutedStatus = MutedConversationStatus.OnlyMentionsAndRepliesAllowed,
@@ -521,7 +550,6 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireThem
             teamId = null,
             isArchived = false,
             isFromTheSameTeam = false,
-            isChannel = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
@@ -539,7 +567,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireThem
 @Composable
 fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
     ConversationItemFactory(
-        conversation = ConversationItem.GroupConversation(
+        conversation = ConversationItem.Group.Regular(
             "groupName looooooooooooooooooooooooooooooooooooong",
             conversationId = QualifiedID("value", "domain"),
             mutedStatus = MutedConversationStatus.OnlyMentionsAndRepliesAllowed,
@@ -552,7 +580,6 @@ fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
             hasOnGoingCall = true,
             isArchived = false,
             isFromTheSameTeam = false,
-            isChannel = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
@@ -656,7 +683,7 @@ fun PreviewPrivateConversationItemWithBlockedBadge() = WireTheme {
 @Composable
 fun PreviewPrivateConversationItemWithPlayingAudio() = WireTheme {
     ConversationItemFactory(
-        conversation = ConversationItem.GroupConversation(
+        conversation = ConversationItem.Group.Regular(
             "groupName looooooooooooooooooooooooooooooooooooong",
             conversationId = QualifiedID("value", "domain"),
             mutedStatus = MutedConversationStatus.OnlyMentionsAndRepliesAllowed,
@@ -668,7 +695,6 @@ fun PreviewPrivateConversationItemWithPlayingAudio() = WireTheme {
             teamId = null,
             isArchived = false,
             isFromTheSameTeam = false,
-            isChannel = false,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,

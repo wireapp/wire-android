@@ -190,6 +190,7 @@ URL &#347;rodowiska:
     <string name="login_title">Zaloguj si&#281;</string>
     <string name="login_forgot_password">Zapomnia&#322;e&#347; has&#322;a?</string>
     <string name="login_user_identifier_placeholder">adam@email.com lub adam.nowak</string>
+    <string name="login_email_placeholder">adam@email.com</string>
     <string name="login_user_identifier_label">ADRES EMAIL LUB NAZWA U&#379;YTKOWNIKA</string>
     <string name="login_proxy_identifier_label">PROXY ADRES EMAIL LUB NAZWA U&#379;YTKOWNIKA</string>
     <string name="login_error_invalid_credentials_title">Niepoprawne dane logowania</string>

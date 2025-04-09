@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui
+package com.wire.android.feature.cells.ui.dialog
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -38,6 +38,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.FileIconPreview
+import com.wire.android.feature.cells.ui.MenuOptions
 import com.wire.android.feature.cells.ui.model.CellFileUi
 import com.wire.android.feature.cells.ui.model.FileAction
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes

@@ -66,6 +66,3 @@ fun AttachmentFileType.icon(): Int =
         AttachmentFileType.CODE -> R.drawable.ic_file_type_code
         AttachmentFileType.OTHER -> R.drawable.ic_file_type_other
     }
-
-fun AttachmentFileType.previewSupported(): Boolean =
-    this in listOf(AttachmentFileType.IMAGE, AttachmentFileType.VIDEO, AttachmentFileType.PDF)

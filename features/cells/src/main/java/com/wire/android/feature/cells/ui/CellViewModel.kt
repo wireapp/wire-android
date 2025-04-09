@@ -36,12 +36,14 @@ import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -77,7 +79,9 @@ class CellViewModel @Inject constructor(
         capacity = Channel.BUFFERED,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    internal val actions = _actions.receiveAsFlow()
+    internal val actions = _actions
+        .receiveAsFlow()
+        .flowOn(Dispatchers.Main.immediate)
 
     // Download progress value for each file being downloaded.
     private val uploadProgress = mutableStateMapOf<String, Float>()

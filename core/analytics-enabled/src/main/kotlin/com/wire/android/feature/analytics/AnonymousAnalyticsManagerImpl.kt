@@ -29,6 +29,8 @@ import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -41,10 +43,15 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     private var anonymousAnalyticsRecorder: AnonymousAnalyticsRecorder? = null
     private val startedActivities = mutableSetOf<Activity>()
     private val mutex = Mutex()
-    private lateinit var coroutineScope: CoroutineScope
+
+    private val coroutineScope by lazy { CoroutineScope(SupervisorJob() + getDispatcher()) }
 
     // TODO: Sync with product, when we want to enable view tracking, var for testing purposes
     internal var VIEW_TRACKING_ENABLED: Boolean = false
+
+    internal fun getDispatcher(): CoroutineDispatcher {
+        return Dispatchers.IO
+    }
 
     override fun <T> init(
         context: Context,
@@ -52,10 +59,8 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         analyticsResultFlow: Flow<AnalyticsResult<T>>,
         anonymousAnalyticsRecorder: AnonymousAnalyticsRecorder,
         migrationHandler: AnalyticsMigrationHandler<T>,
-        propagationHandler: AnalyticsPropagationHandler<T>,
-        dispatcher: CoroutineDispatcher
+        propagationHandler: AnalyticsPropagationHandler<T>
     ) {
-        this.coroutineScope = CoroutineScope(dispatcher)
         this.anonymousAnalyticsRecorder = anonymousAnalyticsRecorder
         globalAnalyticsManager = this
 
@@ -96,7 +101,6 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     }
 
     override fun onStart(activity: Activity) {
-        if (isCoroutineContextNotInitialized()) return
         coroutineScope.launch {
             mutex.withLock {
                 startedActivities.add(activity)
@@ -110,7 +114,6 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     }
 
     override fun onStop(activity: Activity) {
-        if (isCoroutineContextNotInitialized()) return
         coroutineScope.launch {
             mutex.withLock {
                 startedActivities.remove(activity)
@@ -124,7 +127,6 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     }
 
     override fun sendEvent(event: AnalyticsEvent) {
-        if (isCoroutineContextNotInitialized()) return
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock
@@ -172,17 +174,6 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         }
     }
 
-    /**
-     * Check if the coroutine context is initialized as a safety measure, since we are late initializing this object.
-     */
-    private fun isCoroutineContextNotInitialized(): Boolean {
-        if (!::coroutineScope.isInitialized) {
-            Log.w(TAG, "AnonymousAnalyticsManager is not initialized, skipping operation.")
-            return true
-        }
-        return false
-    }
-
     override fun isAnalyticsInitialized(): Boolean =
         anonymousAnalyticsRecorder?.isAnalyticsInitialized() ?: run {
             Log.w(TAG, "Calling isAnalyticsInitialized with a null recorder.")
@@ -194,7 +185,6 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             Log.d(TAG, "View tracking is disabled for this build.")
             return
         }
-        if (isCoroutineContextNotInitialized()) return
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock
@@ -208,7 +198,6 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             Log.d(TAG, "View tracking is disabled for this build.")
             return
         }
-        if (isCoroutineContextNotInitialized()) return
         coroutineScope.launch {
             mutex.withLock {
                 if (!isAnonymousUsageDataEnabled) return@withLock

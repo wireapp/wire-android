@@ -36,7 +36,6 @@ open class AnonymousAnalyticsManagerStub : AnonymousAnalyticsManager {
         anonymousAnalyticsRecorder: AnonymousAnalyticsRecorder,
         migrationHandler: AnalyticsMigrationHandler<T>,
         propagationHandler: AnalyticsPropagationHandler<T>,
-        dispatcher: CoroutineDispatcher
     ) = Unit
 
     override fun sendEvent(event: AnalyticsEvent) = Unit

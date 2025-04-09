@@ -228,7 +228,7 @@ private fun LoginEmailContent(
 }
 
 @Composable
-fun UserIdentifierInput(
+private fun UserIdentifierInput(
     userIdentifierState: TextFieldState,
     error: String?,
     isEnabled: Boolean,
@@ -244,7 +244,7 @@ fun UserIdentifierInput(
             error != null -> WireTextFieldState.Error(error)
             else -> WireTextFieldState.Default
         },
-        semanticDescription = stringResource(R.string.content_description_login_email_field),
+        semanticDescription = stringResource(R.string.content_description_login_user_identifier_field),
         keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = modifier.testTag("emailField"),
         testTag = "userIdentifierInput"
@@ -252,7 +252,7 @@ fun UserIdentifierInput(
 }
 
 @Composable
-fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
+private fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,

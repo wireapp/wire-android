@@ -51,7 +51,7 @@ fun NewConversationSearchPeopleScreen(
     SearchUsersAndServicesScreen(
         searchTitle = stringResource(id = R.string.label_new_conversation),
         shouldShowChannelPromotion = shouldShowChannelPromotion,
-        isUserAllowedToCreateChannels = newConversationViewModel.newGroupState.isChannelCreationPossible,
+        isUserAllowedToCreateChannels = newConversationViewModel.isChannelCreationPossible,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
@@ -62,7 +62,7 @@ fun NewConversationSearchPeopleScreen(
             navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
         },
         onCreateNewChannel = {
-            if (shouldShowChannelPromotion) {
+            if (!shouldShowChannelPromotion) {
                 newConversationViewModel.setIsChannel(true)
                 navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
             } else {

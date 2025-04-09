@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,6 +65,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -119,6 +121,7 @@ import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackA
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
+import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
@@ -158,6 +161,8 @@ fun GroupConversationDetailsScreen(
     val snackbarHostState = LocalSnackbarHostState.current
     val showSnackbarMessage: (UIText) -> Unit = remember { { scope.launch { snackbarHostState.showSnackbar(it.asString(resources)) } } }
 
+    val groupOptions by viewModel.groupOptionsState.collectAsState()
+
     val onSearchConversationMessagesClick: () -> Unit = {
         navigator.navigate(
             NavigationCommand(
@@ -169,13 +174,11 @@ fun GroupConversationDetailsScreen(
     }
 
     val onConversationMediaClick: () -> Unit = {
-        navigator.navigate(
-            NavigationCommand(
-                ConversationMediaScreenDestination(
-                    conversationId = viewModel.conversationId
-                )
-            )
-        )
+        if (groupOptions.isWireCellEnabled) {
+            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(viewModel.conversationId.toString())))
+        } else {
+            navigator.navigate(NavigationCommand(ConversationMediaScreenDestination(viewModel.conversationId)))
+        }
     }
 
     GroupConversationDetailsContent(
@@ -267,6 +270,7 @@ fun GroupConversationDetailsScreen(
             navigator.navigate(NavigationCommand(EditConversationNameScreenDestination(viewModel.conversationId)))
         },
         isLoading = viewModel.requestInProgress,
+        isWireCellEnabled = groupOptions.isWireCellEnabled,
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
         onConversationMediaClick = onConversationMediaClick,
         isAbandonedOneOnOneConversation = viewModel.conversationSheetContent?.isAbandonedOneOnOneConversation(
@@ -339,6 +343,7 @@ private fun GroupConversationDetailsContent(
     showAllowUserToAddParticipants: () -> (Boolean),
     isLoading: Boolean,
     isAbandonedOneOnOneConversation: Boolean,
+    isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
@@ -420,14 +425,21 @@ private fun GroupConversationDetailsContent(
         },
         topBarCollapsing = {
             conversationSheetState.conversationSheetContent?.let {
+                val conversationTypeDetail = it.conversationTypeDetail
+                val avatarData = if (conversationTypeDetail is ConversationTypeDetail.Group.Channel) {
+                    ConversationAvatar.Group.Channel(it.conversationId, conversationTypeDetail.isPrivate)
+                } else {
+                    ConversationAvatar.Group.Regular(it.conversationId)
+                }
                 GroupConversationDetailsTopBarCollapsing(
                     title = it.title,
-                    conversationId = it.conversationId,
                     totalParticipants = groupParticipantsState.data.allCount,
                     isLoading = isLoading,
+                    conversationAvatar = avatarData,
                     onSearchConversationMessagesClick = onSearchConversationMessagesClick,
                     onConversationMediaClick = onConversationMediaClick,
                     isUnderLegalHold = it.isUnderLegalHold,
+                    isWireCellEnabled = isWireCellEnabled,
                     onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
                     modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
                 )
@@ -666,7 +678,7 @@ fun PreviewGroupConversationDetails() {
                 title = "title",
                 conversationId = ConversationId("value", "domain"),
                 mutingConversationState = MutedConversationStatus.AllAllowed,
-                conversationTypeDetail = ConversationTypeDetail.Group(ConversationId("value", "domain"), false),
+                conversationTypeDetail = ConversationTypeDetail.Group.Regular(ConversationId("value", "domain"), false),
                 selfRole = null,
                 isTeamConversation = true,
                 isArchived = false,
@@ -700,6 +712,7 @@ fun PreviewGroupConversationDetails() {
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},
             isAbandonedOneOnOneConversation = false,
+            isWireCellEnabled = false,
             initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS
         )
     }

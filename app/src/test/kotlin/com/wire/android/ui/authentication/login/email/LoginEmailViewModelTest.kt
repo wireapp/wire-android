@@ -730,6 +730,43 @@ class LoginEmailViewModelTest {
         }
     }
 
+    @Test
+    fun `given username entered and username is not allowed, when logging in, then return invalid input value`() =
+        runTest {
+            val (arrangement, loginViewModel) = Arrangement()
+                .withCurrentSessionReturning(CurrentSessionResult.Failure.SessionNotFound)
+                .withValidateEmailReturning(false)
+                .arrange()
+            loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+            loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd("some.username")
+
+            loginViewModel.login(usernameAllowed = false)
+            advanceUntilIdle()
+
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.TextFieldError.InvalidValue>()
+        }
+
+    @Test
+    fun `given email entered and username is not allowed, when logging in, then proceed with login`() =
+        runTest {
+            val (arrangement, loginViewModel) = Arrangement()
+                .withCurrentSessionReturning(CurrentSessionResult.Failure.SessionNotFound)
+                .withValidateEmailReturning(true)
+                .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+                .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+                .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+                .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+                .withInitialSyncCompletedReturning(true)
+                .arrange()
+            loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+            loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd("some.email@example.org")
+
+            loginViewModel.login(usernameAllowed = false)
+            advanceUntilIdle()
+
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+        }
+
     inner class Arrangement {
 
         @MockK

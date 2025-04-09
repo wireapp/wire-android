@@ -76,15 +76,15 @@ fun SearchUsersAndServicesScreen(
     onServiceClicked: (Contact) -> Unit,
     onClose: () -> Unit,
     screenType: SearchPeopleScreenType,
-    modifier: Modifier = Modifier,
     shouldShowChannelPromotion: Boolean,
     isUserAllowedToCreateChannels: Boolean,
+    modifier: Modifier = Modifier,
     isGroupSubmitVisible: Boolean = true,
     isServicesAllowed: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
-    onCreateNewChannel: () -> Unit = {},
+    onCreateNewChannel: () -> Unit = {}
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()

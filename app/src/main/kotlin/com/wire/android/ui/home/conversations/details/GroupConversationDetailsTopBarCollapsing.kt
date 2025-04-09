@@ -36,6 +36,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.theme.WireTheme
@@ -48,10 +49,11 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun GroupConversationDetailsTopBarCollapsing(
     title: String,
-    conversationId: ConversationId,
     totalParticipants: Int,
     isLoading: Boolean,
     isUnderLegalHold: Boolean,
+    conversationAvatar: ConversationAvatar.Group,
+    isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
     onLegalHoldLearnMoreClick: () -> Unit,
@@ -66,7 +68,7 @@ fun GroupConversationDetailsTopBarCollapsing(
     ) {
         Box(contentAlignment = Alignment.Center) {
             GroupConversationAvatar(
-                conversationId = conversationId,
+                avatarData = conversationAvatar,
                 size = dimensions().groupAvatarConversationDetailsTopBarSize,
                 cornerRadius = dimensions().groupAvatarConversationDetailsCornerRadius,
                 padding = dimensions().avatarConversationTopBarClickablePadding,
@@ -129,6 +131,7 @@ fun GroupConversationDetailsTopBarCollapsing(
 
         VerticalSpace.x24()
         SearchAndMediaRow(
+            isWireCellEnabled = isWireCellEnabled,
             onSearchConversationMessagesClick = onSearchConversationMessagesClick,
             onConversationMediaClick = onConversationMediaClick
         )
@@ -141,10 +144,47 @@ fun PreviewGroupConversationDetailsTopBarCollapsing() {
     WireTheme {
         GroupConversationDetailsTopBarCollapsing(
             title = "Conversation Title",
-            conversationId = ConversationId("conversationId", "domain"),
             totalParticipants = 10,
             isUnderLegalHold = true,
             isLoading = false,
+            conversationAvatar = ConversationAvatar.Group.Regular(ConversationId("ConversationId", "domain")),
+            isWireCellEnabled = false,
+            onSearchConversationMessagesClick = {},
+            onConversationMediaClick = {},
+            onLegalHoldLearnMoreClick = {},
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewChannelConversationDetailsTopBarCollapsing() {
+    WireTheme {
+        GroupConversationDetailsTopBarCollapsing(
+            title = "Conversation Title",
+            totalParticipants = 10,
+            isUnderLegalHold = true,
+            isLoading = false,
+            conversationAvatar = ConversationAvatar.Group.Channel(ConversationId("ConversationId", "domain"), false),
+            isWireCellEnabled = false,
+            onSearchConversationMessagesClick = {},
+            onConversationMediaClick = {},
+            onLegalHoldLearnMoreClick = {},
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewPrivateChannelConversationDetailsTopBarCollapsing() {
+    WireTheme {
+        GroupConversationDetailsTopBarCollapsing(
+            title = "Conversation Title",
+            totalParticipants = 10,
+            isUnderLegalHold = true,
+            isLoading = false,
+            conversationAvatar = ConversationAvatar.Group.Channel(ConversationId("ConversationId", "domain"), true),
+            isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},
             onLegalHoldLearnMoreClick = {},

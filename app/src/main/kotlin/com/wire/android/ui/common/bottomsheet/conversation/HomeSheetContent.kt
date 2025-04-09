@@ -42,7 +42,8 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
-import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
@@ -75,22 +76,7 @@ internal fun ConversationMainSheetContent(
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
             title = conversationSheetContent.title,
-            leadingIcon = {
-                if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
-                    GroupConversationAvatar(conversationSheetContent.conversationTypeDetail.conversationId)
-                } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
-                    val connectionState: ConnectionState? = conversationSheetContent.conversationTypeDetail.blockingState.let {
-                        if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null
-                    }
-                    UserProfileAvatar(
-                        avatarData = UserAvatarData(
-                            asset = conversationSheetContent.conversationTypeDetail.avatarAsset,
-                            connectionState = connectionState,
-                            nameBasedAvatar = NameBasedAvatar(conversationSheetContent.title, accentColor = -1)
-                        )
-                    )
-                }
-            },
+            leadingIcon = { ConversationLeadingIcon(conversationSheetContent) },
             customVerticalPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
@@ -345,6 +331,36 @@ internal fun ConversationMainSheetContent(
             }
         }
     )
+}
+
+@Composable
+private fun ConversationLeadingIcon(
+    conversationSheetContent: ConversationSheetContent,
+) {
+    when (val typeDetail = conversationSheetContent.conversationTypeDetail) {
+        is ConversationTypeDetail.Group.Channel ->
+            ChannelConversationAvatar(typeDetail.conversationId, isPrivateChannel = typeDetail.isPrivate)
+
+        is ConversationTypeDetail.Group.Regular ->
+            RegularGroupConversationAvatar(typeDetail.conversationId)
+
+        is ConversationTypeDetail.Connection -> {
+            /** NO-OP for Connections **/
+        }
+
+        is ConversationTypeDetail.Private -> {
+            val connectionState: ConnectionState? = typeDetail.blockingState.let {
+                if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null
+            }
+            UserProfileAvatar(
+                avatarData = UserAvatarData(
+                    asset = typeDetail.avatarAsset,
+                    connectionState = connectionState,
+                    nameBasedAvatar = NameBasedAvatar(conversationSheetContent.title, accentColor = -1)
+                )
+            )
+        }
+    }
 }
 
 @Composable

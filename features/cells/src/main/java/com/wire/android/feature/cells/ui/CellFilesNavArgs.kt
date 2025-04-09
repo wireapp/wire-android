@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,16 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.newconversation.common
+package com.wire.android.feature.cells.ui
 
-data class CreateGroupState(
-    val error: Error? = null
-) {
-    sealed interface Error {
-        data object Unknown : Error
-        data object LackingConnection : Error
-        data class ConflictedBackends(val domains: List<String>) : Error
-
-        val isConflictedBackends get() = this is ConflictedBackends
-    }
-}
+data class CellFilesNavArgs(val conversationId: String? = null)

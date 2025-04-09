@@ -88,7 +88,7 @@ import org.junit.jupiter.params.provider.EnumSource
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
-class GroupConversationDetailsViewModelTest {
+class GroupDetailsViewModelTest {
     @Test
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
         // Given
@@ -156,7 +156,7 @@ class GroupConversationDetailsViewModelTest {
         val dialogState = DialogState(
             conversationId = conversationDetails.conversation.id,
             conversationName = conversationDetails.conversation.name.orEmpty(),
-            conversationTypeDetail = ConversationTypeDetail.Group(
+            conversationTypeDetail = ConversationTypeDetail.Group.Regular(
                 conversationId = conversationDetails.conversation.id,
                 isFromTheSameTeam = false
             ),
@@ -205,7 +205,7 @@ class GroupConversationDetailsViewModelTest {
         val dialogState = DialogState(
             conversationId = conversationDetails.conversation.id,
             conversationName = conversationDetails.conversation.name.orEmpty(),
-            conversationTypeDetail = ConversationTypeDetail.Group(
+            conversationTypeDetail = ConversationTypeDetail.Group.Regular(
                 conversationId = conversationDetails.conversation.id,
                 isFromTheSameTeam = false
             ),
@@ -392,7 +392,9 @@ class GroupConversationDetailsViewModelTest {
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
-                accessRoles = Conversation.defaultGroupAccessRoles.toMutableSet().apply { remove(Conversation.AccessRole.NON_TEAM_MEMBER) },
+                accessRoles = Conversation.defaultGroupAccessRoles.toMutableSet().apply {
+                    remove(Conversation.AccessRole.NON_TEAM_MEMBER)
+                },
                 access = Conversation.defaultGroupAccess
             )
         }
@@ -449,7 +451,7 @@ class GroupConversationDetailsViewModelTest {
             title = details.conversation.name.orEmpty(),
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
-            conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, false),
+            conversationTypeDetail = ConversationTypeDetail.Group.Regular(details.conversation.id, false),
             selfRole = Conversation.Member.Role.Member,
             isTeamConversation = details.conversation.isTeamGroup(),
             isArchived = false,
@@ -962,11 +964,12 @@ internal class GroupConversationDetailsViewModelArrangement {
     val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
     init {
-
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
 
-        every { savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>() } returns GroupConversationAllParticipantsNavArgs(
+        every {
+            savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>()
+        } returns GroupConversationAllParticipantsNavArgs(
             conversationId = conversationId
         )
         every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(

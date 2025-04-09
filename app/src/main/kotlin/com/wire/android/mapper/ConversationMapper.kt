@@ -49,8 +49,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
     selfUserTeamId: TeamId?,
     playingAudioMessage: PlayingAudioMessage
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
-    is Group -> {
-        ConversationItem.GroupConversation(
+    is Group.Regular -> {
+        ConversationItem.Group.Regular(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
@@ -62,7 +62,6 @@ fun ConversationDetailsWithEvents.toConversationItem(
             ),
             hasOnGoingCall = conversationDetails.hasOngoingCall && conversationDetails.isSelfUserMember,
             isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
-            isChannel = conversationDetails is Group.Channel,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,
             selfMemberRole = conversationDetails.selfRole,
@@ -74,6 +73,34 @@ fun ConversationDetailsWithEvents.toConversationItem(
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder,
             playingAudio = getPlayingAudioInConversation(playingAudioMessage, conversationDetails)
+        )
+    }
+
+    is Group.Channel -> {
+        ConversationItem.Group.Channel(
+            groupName = conversationDetails.conversation.name.orEmpty(),
+            conversationId = conversationDetails.conversation.id,
+            mutedStatus = conversationDetails.conversation.mutedStatus,
+            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
+            badgeEventType = parseConversationEventType(
+                mutedStatus = conversationDetails.conversation.mutedStatus,
+                unreadEventCount = unreadEventCount
+            ),
+            hasOnGoingCall = conversationDetails.hasOngoingCall && conversationDetails.isSelfUserMember,
+            isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
+            isSelfUserMember = conversationDetails.isSelfUserMember,
+            teamId = conversationDetails.conversation.teamId,
+            selfMemberRole = conversationDetails.selfRole,
+            isArchived = conversationDetails.conversation.archived,
+            mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
+            proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
+            hasNewActivitiesToShow = hasNewActivitiesToShow,
+            searchQuery = searchQuery,
+            isFavorite = conversationDetails.isFavorite,
+            folder = conversationDetails.folder,
+            playingAudio = getPlayingAudioInConversation(playingAudioMessage, conversationDetails),
+            isPrivate = conversationDetails.access == Group.Channel.ChannelAccess.PRIVATE
         )
     }
 

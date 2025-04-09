@@ -20,6 +20,7 @@ package com.wire.android.ui.home.newconversation.groupname
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -48,6 +49,9 @@ fun NewGroupNameScreen(
     fun navigateToGroup(conversationId: ConversationId): Unit =
         navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
 
+    LaunchedEffect(Unit) {
+        newConversationViewModel.observeGroupNameChanges()
+    }
     GroupNameScreen(
         newGroupState = newConversationViewModel.newGroupState,
         newGroupNameTextState = newConversationViewModel.newGroupNameTextState,

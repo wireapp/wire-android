@@ -686,8 +686,10 @@
     <string name="label_system_message_removed_by_self">%1$s eltávolította %2$s személyt a beszélgetésből</string>
     <string name="label_system_message_added_by_other">%1$s hozzáadta %2$s személyt a beszélgetéshez</string>
     <string name="label_system_message_removed_by_other">%1$s eltávolította %2$s személyt a beszélgetésből</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s el lett távolítva a beszélgetésből</string>
-    <string name="label_system_message_federation_many_member_removed">%1$s el lett távolítva a beszélgetésből</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">%1$s el lett távolítva a beszélgetésből</item>
+        <item quantity="other">%1$s el lett távolítva a beszélgetésből</item>
+    </plurals>
     <string name="label_system_message_federation_removed">**Az Ön kiszolgálója** már nincs szövetségben ezzel: %1$s.</string>
     <string name="label_system_message_federation_conection_removed">A(z) %1$s és a(z) %2$s kiszolgálók már nincsenek szövetségben.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s kilépett a beszélgetésből</string>
@@ -730,14 +732,17 @@
     <string name="label_system_message_conversation_started_by_self">**Ön** indította a beszélgetést</string>
     <string name="label_system_message_conversation_started_by_other">%1$s indította a beszélgetést</string>
     <string name="label_system_message_conversation_started_with_members">%1$s résztvevővel</string>
-    <string name="label_system_message_conversation_failed_add_members_summary">%1$s **résztvevőket** nem sikerült hozzáadni a csoporthoz.</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s nem sikerült hozzáadni a csoporthoz.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s nem sikerült hozzáadni a csoporthoz.</string>
+    <plurals name="label_system_message_conversation_failed_add_members_header">
+        <item quantity="one">**%1$s résztvevőt** nem sikerült hozzáadni a beszélgetéshez.</item>
+        <item quantity="other">**%1$s résztvevőket** nem sikerült hozzáadni a beszélgetéshez.</item>
+    </plurals>
     <string name="label_system_message_conversation_degraded_mls">Ez a beszélgetés nem ellenőrzött többé, mivel legalább egy résztvevő új eszközt kezdett használni, vagy érvénytelen tanúsítvánnyal rendelkezik.</string>
     <string name="label_system_message_conversation_degraded_proteus">Ez a beszélgetés nem ellenőrzött többé, mivel legalább egy résztvevő új eszközt kezdett használni, vagy érvénytelen tanúsítvánnyal rendelkezik.</string>
     <string name="label_system_message_conversation_verified_mls">Minden eszköz ellenőrzött (végpontok közötti azonosítás)</string>
     <string name="label_system_message_conversation_verified_proteus">Minden ujjlenyomat ellenőrizve (Proteus)</string>
-    <string name="label_system_message_conversation_started_sensitive_information">A Wire-ben a kommunikáció mindig titkos a végpontok között. Minden, amit küld és fogad ebben a beszélgetésben, csak az Ön és a csoport résztvevői számára hozzáférhető.\n**Továbbra is legyen körültekintő, kivel oszt meg érzékeny információkat.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header">**A Wire-ben a kommunikáció mindig titkos a végpontok között.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message">Minden, amit küld és fogad ebben a beszélgetésben, csak az Ön és a beszélgetés résztvevői számára hozzáférhető.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_footer">Továbbra is legyen körültekintő, kivel oszt meg érzékeny információkat.</string>
     <string name="label_conversations_details_verified_proteus">Ellenőrzött (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Ellenőrzött (végpontok közötti azonosítás)</string>
     <!-- Last messages -->

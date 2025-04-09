@@ -577,7 +577,7 @@
     <!-- Messages Date and Time -->
     <string name="message_datetime_now">Только что</string>
     <plurals name="message_datetime_minutes_ago">
-        <item quantity="one">1 минуту назад</item>
+        <item quantity="one">%1$d минуту назад</item>
         <item quantity="few">%1$d минуты назад</item>
         <item quantity="many">%1$d минут назад</item>
         <item quantity="other">%1$d минуты назад</item>
@@ -711,8 +711,12 @@
     <string name="label_system_message_removed_by_self">%1$s удалил(-а) %2$s из беседы</string>
     <string name="label_system_message_added_by_other">%1$s добавил(-а) в беседу %2$s</string>
     <string name="label_system_message_removed_by_other">%1$s удалил(-а) %2$s из беседы</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s был удален из беседы</string>
-    <string name="label_system_message_federation_many_member_removed">%1$s были удалены из беседы</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">%1$s был удален из беседы</item>
+        <item quantity="few">%1$s были удалены из беседы</item>
+        <item quantity="many">%1$s были удалены из беседы</item>
+        <item quantity="other">%1$s были удалены из беседы</item>
+    </plurals>
     <string name="label_system_message_federation_removed">**Ваш бэкэнд** прекратил взаимодействие с %1$s.</string>
     <string name="label_system_message_federation_conection_removed">Бэкэнды %1$s и %2$s прекратили взаимодействие.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s покинул(-а) беседу</string>
@@ -758,57 +762,62 @@
     <string name="label_system_message_conversation_started_by_self">**Вы** начали беседу</string>
     <string name="label_system_message_conversation_started_by_other">%1$s начал(-а) беседу</string>
     <string name="label_system_message_conversation_started_with_members">С %1$s</string>
-    <string name="label_system_message_conversation_failed_add_members_summary">Не удалось добавить в группу %1$s **участников**.</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">Не удалось добавить %1$s в группу.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">Не удалось добавить %1$s в группу.</string>
+    <plurals name="label_system_message_conversation_failed_add_members_header">
+        <item quantity="one">Не удалось добавить в беседу **%1$s участника**.</item>
+        <item quantity="few">Не удалось добавить в беседу **%1$s участников**.</item>
+        <item quantity="many">Не удалось добавить в беседу **%1$s участников**.</item>
+        <item quantity="other">Не удалось добавить в беседу **%1$s участников**.</item>
+    </plurals>
     <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
-    <string name="label_system_message_conversation_started_sensitive_information">Общение в Wire всегда ведется с использованием сквозного шифрования. Все, что вы отправляете и получаете в этой беседе, доступно только вам и другим участникам группы.\n**Пожалуйста, будьте осторожны с теми, кому вы сообщаете конфиденциальную информацию.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header">**Общение в Wire всегда ведется с использованием сквозного шифрования.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message">Все, что вы отправляете и получаете в этом беседе, доступно только вам и другим участникам беседы.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_footer">Пожалуйста, будьте осторожны с теми, кому вы сообщаете конфиденциальную информацию.</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
-        <item quantity="one">Вы добавили 1 пользователя в беседу</item>
+        <item quantity="one">Вы добавили %1$d пользователя в беседу</item>
         <item quantity="few">Вы добавили %1$d пользователей в беседу</item>
         <item quantity="many">Вы добавили %1$d пользователей в беседу</item>
         <item quantity="other">Вы добавили %1$d пользователей в беседу</item>
     </plurals>
     <string name="last_message_other_added_only_self_user">Вы были добавлены в беседу</string>
     <plurals name="last_message_other_added_self_user">
-        <item quantity="one">Вы и еще 1 пользователь были добавлены к беседе</item>
+        <item quantity="one">Вы и еще %1$d пользователь были добавлены к беседе</item>
         <item quantity="few">Вы и еще %1$d пользователя были добавлены к беседе</item>
         <item quantity="many">Вы и еще %1$d пользователей были добавлены к беседе</item>
         <item quantity="other">Вы и еще %1$d пользователя были добавлены к беседе</item>
     </plurals>
     <plurals name="last_message_other_added_other_users">
-        <item quantity="one">В беседу был добавлен 1 пользователь</item>
+        <item quantity="one">В беседу был добавлен %1$d пользователь</item>
         <item quantity="few">В беседу были добавлены %1$d пользователя</item>
         <item quantity="many">В беседу были добавлены %1$d пользователей</item>
         <item quantity="other">В беседу были добавлены %1$d пользователя</item>
     </plurals>
     <plurals name="last_message_self_removed_users">
-        <item quantity="one">Вы удалили из беседы 1 пользователя</item>
+        <item quantity="one">Вы удалили из беседы %1$d пользователя</item>
         <item quantity="few">Вы удалили из беседы %1$d пользователей</item>
         <item quantity="many">Вы удалили из беседы %1$d пользователей</item>
         <item quantity="other">Вы удалили из беседы %1$d пользователя</item>
     </plurals>
     <plurals name="last_message_team_member_removed">
-        <item quantity="one">1 пользователь был удален из команды</item>
+        <item quantity="one">%1$d пользователь был удален из команды</item>
         <item quantity="few">%1$d пользователя были удалены из команды</item>
         <item quantity="many">%1$d пользователей были удалены из команды</item>
         <item quantity="other">%1$d пользователя были удалены из команды</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">Вы были удалены из беседы</string>
     <plurals name="last_message_other_removed_self_user_and_others">
-        <item quantity="one">Вы и еще 1 пользователь были удалены из беседы</item>
+        <item quantity="one">Вы и еще %1$d пользователь были удалены из беседы</item>
         <item quantity="few">Вы и еще %1$d пользователя были удалены из беседы</item>
         <item quantity="many">Вы и еще %1$d пользователей были удалены из беседы</item>
         <item quantity="other">Вы и еще %1$d пользователя были удалены из беседы</item>
     </plurals>
     <plurals name="last_message_other_removed_other_users">
-        <item quantity="one">1 пользователь был удален из беседы</item>
+        <item quantity="one">%1$d пользователь был удален из беседы</item>
         <item quantity="few">%1$d пользователя были удалены из беседы</item>
         <item quantity="many">%1$d пользователей были удалены из беседы</item>
         <item quantity="other">%1$d пользователя были удалены из беседы</item>
@@ -1190,13 +1199,13 @@
     <string name="unblock_user_dialog_confirm_button">Разблокировать</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
-        <item quantity="one">активен один аккаунт</item>
+        <item quantity="one">активен %1$d аккаунт</item>
         <item quantity="few">активно %1$d аккаунта</item>
         <item quantity="many">активно %1$d аккаунтов</item>
         <item quantity="other">активно %1$d аккаунта</item>
     </plurals>
     <plurals name="max_account_reached_dialog_message">
-        <item quantity="one">Одновременно можно авторизоваться только в одном аккаунте. Выйдите, чтобы добавить другой.</item>
+        <item quantity="one">Одновременно можно авторизоваться только в %1$d аккаунте. Выйдите, чтобы добавить другой.</item>
         <item quantity="few">Одновременно можно авторизоваться только в %1$d аккаунтах. Выйдите, чтобы добавить другой.</item>
         <item quantity="many">Одновременно можно авторизоваться только в %1$d аккаунтах. Выйдите, чтобы добавить другой.</item>
         <item quantity="other">Одновременно можно авторизоваться только в %1$d аккаунтах. Выйдите, чтобы добавить другой.</item>
@@ -1421,61 +1430,61 @@
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">После того как %1$s просмотрит ваше сообщение и таймер на его стороне истечет, эта заметка исчезнет.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">После подключения к сети эта заметка исчезает.</string>
     <plurals name="weeks_left">
-        <item quantity="one">Осталась 1 неделя</item>
+        <item quantity="one">Осталась %1$d неделя</item>
         <item quantity="few">Осталось %1$d недели</item>
         <item quantity="many">Осталось %1$d недель</item>
         <item quantity="other">Осталось %1$d недели</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="one">Остался 1 день</item>
+        <item quantity="one">Остался %1$d день</item>
         <item quantity="few">Осталось %1$d дня</item>
         <item quantity="many">Осталось %1$d дней</item>
         <item quantity="other">Осталось %1$d дня</item>
     </plurals>
     <plurals name="hours_left">
-        <item quantity="one">Остался 1 час</item>
+        <item quantity="one">Остался %1$d час</item>
         <item quantity="few">Осталось %1$d часа</item>
         <item quantity="many">Осталось %1$d часов</item>
         <item quantity="other">Осталось %1$d часа</item>
     </plurals>
     <plurals name="minutes_left">
-        <item quantity="one">Осталась 1 минута</item>
+        <item quantity="one">Осталась %1$d минута</item>
         <item quantity="few">Осталось %1$d минуты</item>
         <item quantity="many">Осталась %1$d минут</item>
         <item quantity="other">Осталась %1$d минуты</item>
     </plurals>
     <plurals name="seconds_left">
-        <item quantity="one">Осталась 1 секунда</item>
+        <item quantity="one">Осталась %1$d секунда</item>
         <item quantity="few">Осталось %1$d секунды</item>
         <item quantity="many">Осталось %1$d секунд</item>
         <item quantity="other">Осталось %1$d секунды</item>
     </plurals>
     <plurals name="weeks_long_label">
-        <item quantity="one">1 неделя</item>
+        <item quantity="one">%1$d неделя</item>
         <item quantity="few">%1$d недели</item>
         <item quantity="many">%1$d недель</item>
         <item quantity="other">%1$d недели</item>
     </plurals>
     <plurals name="days_long_label">
-        <item quantity="one">1 день</item>
+        <item quantity="one">%1$d день</item>
         <item quantity="few">%1$d дня</item>
         <item quantity="many">%1$d дней</item>
         <item quantity="other">%1$d дня</item>
     </plurals>
     <plurals name="hours_long_label">
-        <item quantity="one">1 час</item>
+        <item quantity="one">%1$d час</item>
         <item quantity="few">%1$d часа</item>
         <item quantity="many">%1$d часов</item>
         <item quantity="other">%1$d часа</item>
     </plurals>
     <plurals name="minutes_long_label">
-        <item quantity="one">1 минуту</item>
+        <item quantity="one">%1$d минуту</item>
         <item quantity="few">%1$d минуты</item>
         <item quantity="many">%1$d минут</item>
         <item quantity="other">%1$d минуты</item>
     </plurals>
     <plurals name="seconds_long_label">
-        <item quantity="one">1 секунда</item>
+        <item quantity="one">%1$d секунда</item>
         <item quantity="few">%1$d секунды</item>
         <item quantity="many">%1$d секунд</item>
         <item quantity="other">%1$d секунды</item>

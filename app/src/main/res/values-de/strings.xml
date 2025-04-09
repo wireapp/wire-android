@@ -657,8 +657,10 @@
     <string name="label_system_message_removed_by_self">%1$s haben %2$s aus der Unterhaltung entfernt</string>
     <string name="label_system_message_added_by_other">%1$s hat %2$s zu der Unterhaltung hinzugefügt</string>
     <string name="label_system_message_removed_by_other">%1$s hat %2$s aus der Unterhaltung entfernt</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s wurde aus der Unterhaltung entfernt</string>
-    <string name="label_system_message_federation_many_member_removed">%1$s wurden aus der Unterhaltung entfernt</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">%1$s wurde aus der Unterhaltung entfernt</item>
+        <item quantity="other">%1$s wurden aus der Unterhaltung entfernt</item>
+    </plurals>
     <string name="label_system_message_federation_removed">**Ihr Backend** ist nicht mehr mit %1$s verbunden.</string>
     <string name="label_system_message_federation_conection_removed">Backends %1$s und %2$s sind nicht mehr verbunden.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s haben die Unterhaltung verlassen</string>
@@ -696,14 +698,17 @@
     <string name="label_system_message_conversation_started_by_self">**Sie** haben die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_by_other">%1$s hat die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_with_members">Mit %1$s</string>
-    <string name="label_system_message_conversation_failed_add_members_summary">%1$s **Teilnehmer** konnten der Gruppe nicht hinzugefügt werden.</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s konnten der Gruppe nicht hinzugefügt werden.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s konnte der Gruppe nicht hinzugefügt werden.</string>
+    <plurals name="label_system_message_conversation_failed_add_members_header">
+        <item quantity="one">**%1$s Teilnehmer** konnte der Unterhaltung nicht hinzugefügt werden.</item>
+        <item quantity="other">**%1$s Teilnehmer** konnten der Unterhaltung nicht hinzugefügt werden.</item>
+    </plurals>
     <string name="label_system_message_conversation_degraded_mls">Diese Unterhaltung ist nicht mehr überprüft, da mindestens ein Teilnehmer ein neues Gerät verwendet oder ein ungültiges Zertifikat hat.</string>
     <string name="label_system_message_conversation_degraded_proteus">Diese Unterhaltung ist nicht mehr überprüft, da mindestens ein Teilnehmer ein neues Gerät verwendet oder ein ungültiges Zertifikat hat.</string>
     <string name="label_system_message_conversation_verified_mls">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
     <string name="label_system_message_conversation_verified_proteus">Alle Fingerabdrücke sind überprüft (Proteus)</string>
-    <string name="label_system_message_conversation_started_sensitive_information">Kommunikation in Wire ist immer Ende-zu-Ende verschlüsselt. Alles, was Sie in dieser Unterhaltung senden und empfangen, ist nur für Sie und andere Gruppenteilnehmer zugänglich.\n**Bitte seien Sie dennoch vorsichtig, mit wem Sie vertrauliche Informationen teilen.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header">**Kommunikation in Wire ist immer Ende-zu-Ende verschlüsselt.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message">Alles, was Sie in dieser Unterhaltung senden und empfangen, ist nur für Sie und andere Unterhaltungsteilnehmer zugänglich.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_footer">Bitte seien Sie dennoch vorsichtig, mit wem Sie vertrauliche Informationen teilen.</string>
     <string name="label_conversations_details_verified_proteus">Überprüft (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Überprüft (Ende-zu-Ende-Identität)</string>
     <!-- Last messages -->

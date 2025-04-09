@@ -493,8 +493,10 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_removed_by_self">%1$s elimin&#243; a %2$s de la conversaci&#243;n</string>
     <string name="label_system_message_added_by_other">%1$s agreg&#243; a %2$s a la conversaci&#243;n</string>
     <string name="label_system_message_removed_by_other">%1$s elimin&#243; a %2$s de la conversaci&#243;n</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s fue eliminado de la conversación</string>
-    <string name="label_system_message_federation_many_member_removed">Se eliminaron %1$s personas de la conversación</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">>%1$s fue eliminado de la conversación</item>
+        <item quantity="other">Se eliminaron %1$s personas de la conversación</item>
+    </plurals>
     <string name="label_system_message_left_the_conversation_by_self">%1$s dej&#243; la conversaci&#243;n</string>
     <string name="label_system_message_left_the_conversation_by_other">%1$s dej&#243; la conversaci&#243;n</string>
     <string name="label_system_message_other_called">%1$s llam&#243;</string>
@@ -520,8 +522,10 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_conversation_history_lost">No has usado este dispositivo por un tiempo. Es posible que algunos mensajes no aparezcan aqu&#237;.</string>
     <string name="label_system_message_receipt_mode_on">encendido</string>
     <string name="label_system_message_receipt_mode_off">apagado</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s no pudieron ser añadidos a la conversación.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s no pudo ser añadido a la conversación.</string>
+    <plurals name="label_system_message_conversation_failed_add_members_header">
+        <item quantity="one">**%1$s participante** no pudo ser añadido a la conversación.</item>
+        <item quantity="other">**%1$s participantes** no pudieron ser añadidos a la conversación.</item>
+    </plurals>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Has añadido a 1 persona a la conversación</item>

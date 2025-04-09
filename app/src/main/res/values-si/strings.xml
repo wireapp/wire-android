@@ -550,8 +550,10 @@
     <string name="label_system_message_removed_by_self">%1$s සංවාදයෙන් %2$s ඉවත් කළා</string>
     <string name="label_system_message_added_by_other">%1$s සංවාදයට %2$s එක් කර ඇත</string>
     <string name="label_system_message_removed_by_other">%1$s සංවාදයෙන් %2$s ඉවත් කළා</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s සංවාදයෙන් ඉවත් කර ඇත</string>
-    <string name="label_system_message_federation_many_member_removed">%1$s සංවාදයෙන් ඉවත් කර ඇත</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">%1$s සංවාදයෙන් ඉවත් කර ඇත</item>
+        <item quantity="other">%1$s සංවාදයෙන් ඉවත් කර ඇත</item>
+    </plurals>
     <string name="label_system_message_federation_removed">%1$s සමඟ තවදුරටත් **ඔබගේ සේවාදායකය** ඒකාබද්ධ නොවේ.</string>
     <string name="label_system_message_federation_conection_removed">%1$s සහ %2$s සේවාදායක තවදුරටත් එකාබද්ධ නොවේ.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s සංවාදය හැරගියා</string>
@@ -588,14 +590,17 @@
     <string name="label_system_message_conversation_started_by_self">**ඔබ** සංවාදය ආරම්භ කළා</string>
     <string name="label_system_message_conversation_started_by_other">%1$s සංවාදය ආරම්භ කළා</string>
     <string name="label_system_message_conversation_started_with_members">%1$s සමග</string>
-    <string name="label_system_message_conversation_failed_add_members_summary">**සහභාගීන්** %1$s ක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s දෙනෙක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s දෙනෙක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
+    <plurals name="label_system_message_conversation_failed_add_members_header">
+        <item quantity="one">**සහභාගීන් %1$s** ක් සංවාදයට එක් කිරීමට නොහැකි විය.</item>
+        <item quantity="other">**සහභාගීන් %1$s** ක් සංවාදයට එක් කිරීමට නොහැකි විය.</item>
+    </plurals>
     <string name="label_system_message_conversation_degraded_mls">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරන නිසා හෝ වලංගු නොවන සහතිකයක් තිබෙන බැවින් සංවාදය තවදුරටත් සත්‍යාපිත නොවේ.</string>
     <string name="label_system_message_conversation_degraded_proteus">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරන නිසා හෝ වලංගු නොවන සහතිකයක් තිබෙන බැවින් සංවාදය තවදුරටත් සත්‍යාපිත නොවේ.</string>
     <string name="label_system_message_conversation_verified_mls">සියලු උපාංග සත්‍යාපිතයි (අන්ත අනන්‍යතාව)</string>
     <string name="label_system_message_conversation_verified_proteus">සියලු ඇඟිලි සටහන් සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
-    <string name="label_system_message_conversation_started_sensitive_information">වයර් සන්නිවේදනය සෑම විටම අන්ත සංකේතිතයි. මෙම සංවාදයේ ඔබ යවන සහ ලැබෙන සෑම දෙයක්ම ඔබට සහ වෙනත් සමූහ සහභාගීන්ට පමණක් ප්‍රවේශ වීමට හැකිය.\n**ඔබ සංවේදී තොරතුරු බෙදාගන්නේ කවුරුන් සමඟ දැයි තවදුරටත් සැලකිලිමත් වන්න.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header">**වයර් සන්නිවේදනය සෑම විටම අන්ත සංකේතිතයි.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message">මෙම සංවාදයේ ඔබ යවන සහ ලැබෙන සෑම දෙයක්ම ඔබට සහ වෙනත් සංවාද සහභාගීන්ට පමණක් ප්‍රවේශ වීමට හැකිය.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_footer">ඔබ සංවේදී තොරතුරු බෙදාගන්නේ කවුරුන් සමඟ දැයි තවදුරටත් සැලකිලිමත් වන්න.</string>
     <string name="label_conversations_details_verified_proteus">සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
     <string name="label_conversations_details_verified_mls">සත්‍යාපිතයි (අන්ත අනන්‍යතාව)</string>
     <!-- Last messages -->

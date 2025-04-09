@@ -264,7 +264,9 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--Conversation-->
     <!-- System messages -->
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
-    <string name="label_system_message_conversation_started_sensitive_information">Wire\'daki iletişim her zaman uçtan uca şifrelenir. Bu görüşmede gönderdiğiniz ve aldığınız her şeye yalnızca siz ve diğer grup katılımcıları erişebilir.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header">**Wire\'daki iletişim her zaman uçtan uca şifrelenir.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message">Bu görüşmede gönderdiğiniz ve aldığınız her şeye yalnızca siz ve diğer görüşme katılımcıları erişebilir.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_footer">Lütfen hassas bilgilerinizi kimlerle paylaştığınıza dikkat edin.</string>
     <!-- Last messages -->
     <string name="last_message_other_user_joined_conversation">sohbete katıldı.</string>
     <!-- Unread Events -->

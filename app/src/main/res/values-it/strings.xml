@@ -545,8 +545,10 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_removed_by_self">%1$s ha rimosso %2$s dalla conversazione</string>
     <string name="label_system_message_added_by_other">%1$s ha aggiunto %2$s alla conversazione</string>
     <string name="label_system_message_removed_by_other">%1$s ha rimosso %2$s dalla conversazione</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s è stato rimosso dalla conversazione</string>
-    <string name="label_system_message_federation_many_member_removed">%1$s sono stati rimossi dalla conversazione</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">%1$s è stato rimosso dalla conversazione</item>
+        <item quantity="other">%1$s sono stati rimossi dalla conversazione</item>
+    </plurals>
     <string name="label_system_message_federation_removed">**Il tuo backend** ha smesso di federarsi con %1$s.</string>
     <string name="label_system_message_federation_conection_removed">I backend %1$s e %2$s hanno smesso di federarsi.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s ha lasciato la conversazione</string>
@@ -586,14 +588,17 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_conversation_started_by_self">**Hai** avviato la conversazione</string>
     <string name="label_system_message_conversation_started_by_other">%1$s ha avviato la conversazione</string>
     <string name="label_system_message_conversation_started_with_members">Con %1$s</string>
-    <string name="label_system_message_conversation_failed_add_members_summary">Impossibile aggiungere %1$s **partecipanti** al gruppo.</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">Impossibile aggiungere %1$s al gruppo.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">Impossibile aggiungere %1$s al gruppo.</string>
+    <plurals name="label_system_message_conversation_failed_add_members_header">
+        <item quantity="one">Impossibile aggiungere **%1$s partecipante** alla conversazione</item>
+        <item quantity="other">Impossibile aggiungere **%1$s partecipanti** alla conversazione.</item>
+    </plurals>
     <string name="label_system_message_conversation_degraded_mls">Questa conversazione non è più verificata, poiché almeno un partecipante ha iniziato a utilizzare un nuovo dispositivo, o dispone di un certificato non valido.</string>
     <string name="label_system_message_conversation_degraded_proteus">Questa conversazione non è più verificata, poiché almeno un partecipante ha iniziato a utilizzare un nuovo dispositivo, o dispone di un certificato non valido.</string>
     <string name="label_system_message_conversation_verified_mls">Tutti i dispositivi sono verificati (identità end-to-end)</string>
     <string name="label_system_message_conversation_verified_proteus">Tutte le impronte digitali sono verificate (Proteus)</string>
-    <string name="label_system_message_conversation_started_sensitive_information">La comunicazione su Wire è sempre crittografata end-to-end. Tutto ciò che invii e ricevi in questa conversazione è accessibile soltanto a te e agli altri partecipanti del gruppo.\n**Ti preghiamo di prestare comunque attenzione a con chi condividi le informazioni sensibili.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header">**La comunicazione su Wire è sempre crittografata end-to-end.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message">Tutto ciò che invii e ricevi in questa conversazione è accessibile soltanto a te e agli altri partecipanti alla conversazione.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_footer">Ti preghiamo di prestare comunque attenzione a con chi condividi le informazioni sensibili.</string>
     <string name="label_conversations_details_verified_proteus">Verificata (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verificata (Identità end-to-end)</string>
     <!-- Last messages -->

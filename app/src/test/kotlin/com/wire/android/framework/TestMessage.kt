@@ -74,19 +74,24 @@ object TestMessage {
         assetDomain = "some-asset-domain.com",
         encryptionAlgorithm = MessageEncryptionAlgorithm.AES_GCM
     )
+    val DUMMY_ASSET_LOCAL_DATA = AssetContent.LocalData(
+        assetDataPath = "local_asset_path"
+    )
     val ASSET_IMAGE_CONTENT = AssetContent(
         0L,
         "name",
         "image/jpg",
         AssetContent.AssetMetadata.Image(100, 100),
-        DUMMY_ASSET_REMOTE_DATA
+        DUMMY_ASSET_REMOTE_DATA,
+        DUMMY_ASSET_LOCAL_DATA,
     )
     val GENERIC_ASSET_CONTENT = AssetContent(
         0L,
         "name",
         "application/zip",
         null,
-        DUMMY_ASSET_REMOTE_DATA
+        DUMMY_ASSET_REMOTE_DATA,
+        DUMMY_ASSET_LOCAL_DATA,
     )
     val ASSET_MESSAGE = Message.Regular(
         id = "messageID",

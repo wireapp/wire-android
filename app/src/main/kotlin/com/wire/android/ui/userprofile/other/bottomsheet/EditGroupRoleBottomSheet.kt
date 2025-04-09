@@ -39,7 +39,7 @@ fun EditGroupRoleBottomSheet(
     closeChangeRoleBottomSheet: () -> Unit
 ) {
     WireMenuModalSheetContent(
-        header = MenuModalSheetHeader.Visible(title = stringResource(R.string.user_profile_role_in_group, groupState.groupName)),
+        header = MenuModalSheetHeader.Visible(title = stringResource(R.string.user_profile_role_in_conversation, groupState.groupName)),
         menuItems = listOf(
             { EditGroupRoleItem(Member.Role.Admin, groupState.role, changeMemberRole, closeChangeRoleBottomSheet) },
             { EditGroupRoleItem(Member.Role.Member, groupState.role, changeMemberRole, closeChangeRoleBottomSheet) }

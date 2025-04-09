@@ -56,6 +56,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
         private val APP_LOCK_SOURCE = intPreferencesKey("app_lock_source")
         private val ENTER_TO_SENT = booleanPreferencesKey("enter_to_sent")
+        private val WIRE_CELLS = booleanPreferencesKey("wire_cells")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -237,5 +238,10 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     fun enterToSendFlow(): Flow<Boolean> = getBooleanPreference(ENTER_TO_SENT, false)
     suspend fun setEnterToSend(enabled: Boolean) {
         context.dataStore.edit { it[ENTER_TO_SENT] = enabled }
+    }
+
+    fun wireCellsEnabled() = getBooleanPreference(WIRE_CELLS, false)
+    suspend fun setWireCellsEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[WIRE_CELLS] = enabled }
     }
 }

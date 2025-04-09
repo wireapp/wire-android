@@ -41,6 +41,7 @@ import io.mockk.coVerify
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.fail
@@ -123,11 +124,12 @@ class NewConversationViewModelTest {
                 viewModel.newGroupNameTextState.text.toString(),
                 viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                 ConversationOptions(
-                    Conversation.defaultGroupAccess,
-                    Conversation.defaultGroupAccessRoles,
-                    false,
-                    ConversationOptions.Protocol.PROTEUS,
-                    null
+                    access = Conversation.defaultGroupAccess,
+                    accessRole = Conversation.defaultGroupAccessRoles,
+                    readReceiptsEnabled = false,
+                    wireCellEnabled = false,
+                    protocol = ConversationOptions.Protocol.PROTEUS,
+                    creatorClientId = null
                 )
             )
         }
@@ -152,11 +154,16 @@ class NewConversationViewModelTest {
                     viewModel.newGroupNameTextState.text.toString(),
                     viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                     ConversationOptions(
-                        setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
-                        setOf(Conversation.AccessRole.TEAM_MEMBER, Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-                        true,
-                        ConversationOptions.Protocol.PROTEUS,
-                        null
+                        access = setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
+                        accessRole = setOf(
+                            Conversation.AccessRole.TEAM_MEMBER,
+                            Conversation.AccessRole.NON_TEAM_MEMBER,
+                            Conversation.AccessRole.GUEST
+                        ),
+                        readReceiptsEnabled = true,
+                        wireCellEnabled = false,
+                        protocol = ConversationOptions.Protocol.PROTEUS,
+                        creatorClientId = null
                     )
                 )
             }
@@ -211,17 +218,23 @@ class NewConversationViewModelTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
             .arrange()
-        viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
-        advanceUntilIdle()
-        assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
 
-        viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd("name")
-        advanceUntilIdle()
-        assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
+        launch {
+            viewModel.observeGroupNameChanges()
+        }.also {
+            viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
+            advanceUntilIdle()
+            assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
 
-        viewModel.newGroupNameTextState.clearText()
-        advanceUntilIdle()
-        assertEquals(GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError, viewModel.newGroupState.error)
+            viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd("name")
+            advanceUntilIdle()
+            assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
+
+            viewModel.newGroupNameTextState.clearText()
+            advanceUntilIdle()
+            assertEquals(GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError, viewModel.newGroupState.error)
+            it.cancel()
+        }
     }
 
     @Test
@@ -334,7 +347,7 @@ class NewConversationViewModelTest {
             .withChannelCreationPermissionReturning(flowOf(ChannelCreationPermission.Allowed(false)))
             .arrange()
 
-        assertTrue(viewModel.newGroupState.isChannelCreationPossible)
+        assertTrue(viewModel.isChannelCreationPossible)
     }
 
     @Test
@@ -345,6 +358,6 @@ class NewConversationViewModelTest {
             .withChannelCreationPermissionReturning(flowOf(ChannelCreationPermission.Forbidden))
             .arrange()
 
-        assertFalse(viewModel.newGroupState.isChannelCreationPossible)
+        assertFalse(viewModel.isChannelCreationPossible)
     }
 }

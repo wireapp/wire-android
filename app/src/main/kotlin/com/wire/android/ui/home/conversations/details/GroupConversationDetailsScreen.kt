@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,6 +65,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -158,6 +160,8 @@ fun GroupConversationDetailsScreen(
     val snackbarHostState = LocalSnackbarHostState.current
     val showSnackbarMessage: (UIText) -> Unit = remember { { scope.launch { snackbarHostState.showSnackbar(it.asString(resources)) } } }
 
+    val groupOptions by viewModel.groupOptionsState.collectAsState()
+
     val onSearchConversationMessagesClick: () -> Unit = {
         navigator.navigate(
             NavigationCommand(
@@ -169,13 +173,11 @@ fun GroupConversationDetailsScreen(
     }
 
     val onConversationMediaClick: () -> Unit = {
-        navigator.navigate(
-            NavigationCommand(
-                ConversationMediaScreenDestination(
-                    conversationId = viewModel.conversationId
-                )
-            )
-        )
+        if (groupOptions.isWireCellEnabled) {
+            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(viewModel.conversationId.toString())))
+        } else {
+            navigator.navigate(NavigationCommand(ConversationMediaScreenDestination(viewModel.conversationId)))
+        }
     }
 
     GroupConversationDetailsContent(
@@ -191,9 +193,7 @@ fun GroupConversationDetailsScreen(
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
         },
-        shouldShowAddParticipantsButtonForChannel = {
-            viewModel.groupOptionsState.value.shouldShowAddParticipantsButtonForChannel
-        },
+        showAllowUserToAddParticipants = { viewModel.shouldShowAddParticipantButton() },
         onAddParticipantsPressed = {
             navigator.navigate(
                 NavigationCommand(
@@ -269,6 +269,7 @@ fun GroupConversationDetailsScreen(
             navigator.navigate(NavigationCommand(EditConversationNameScreenDestination(viewModel.conversationId)))
         },
         isLoading = viewModel.requestInProgress,
+        isWireCellEnabled = groupOptions.isWireCellEnabled,
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
         onConversationMediaClick = onConversationMediaClick,
         isAbandonedOneOnOneConversation = viewModel.conversationSheetContent?.isAbandonedOneOnOneConversation(
@@ -330,7 +331,6 @@ private fun GroupConversationDetailsContent(
     bottomSheetEventsHandler: GroupConversationDetailsBottomSheetEventsHandler,
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
-    shouldShowAddParticipantsButtonForChannel: () -> (Boolean),
     onAddParticipantsPressed: () -> Unit,
     onEditGuestAccess: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
@@ -339,8 +339,10 @@ private fun GroupConversationDetailsContent(
     onLeaveGroup: (LeaveGroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
+    showAllowUserToAddParticipants: () -> (Boolean),
     isLoading: Boolean,
     isAbandonedOneOnOneConversation: Boolean,
+    isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
@@ -427,9 +429,11 @@ private fun GroupConversationDetailsContent(
                     conversationId = it.conversationId,
                     totalParticipants = groupParticipantsState.data.allCount,
                     isLoading = isLoading,
+                    isChannel = it.conversationTypeDetail is ConversationTypeDetail.Group.Channel,
                     onSearchConversationMessagesClick = onSearchConversationMessagesClick,
                     onConversationMediaClick = onConversationMediaClick,
                     isUnderLegalHold = it.isUnderLegalHold,
+                    isWireCellEnabled = isWireCellEnabled,
                     onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
                     modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
                 )
@@ -464,14 +468,11 @@ private fun GroupConversationDetailsContent(
                         }
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> {
-                            val shouldShowAddParticipantsButton =
-                                (groupParticipantsState.addParticipantsEnabled && !isAbandonedOneOnOneConversation) ||
-                                        shouldShowAddParticipantsButtonForChannel()
-
+                            val shouldShowAddParticipantsButton = showAllowUserToAddParticipants() && !isAbandonedOneOnOneConversation
                             if (shouldShowAddParticipantsButton) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                                     WirePrimaryButton(
-                                        text = stringResource(R.string.conversation_details_group_participants_add),
+                                        text = stringResource(R.string.conversation_details_conversation_participants_add),
                                         onClick = onAddParticipantsPressed,
                                     )
                                 }
@@ -671,7 +672,7 @@ fun PreviewGroupConversationDetails() {
                 title = "title",
                 conversationId = ConversationId("value", "domain"),
                 mutingConversationState = MutedConversationStatus.AllAllowed,
-                conversationTypeDetail = ConversationTypeDetail.Group(ConversationId("value", "domain"), false),
+                conversationTypeDetail = ConversationTypeDetail.Group.Regular(ConversationId("value", "domain"), false),
                 selfRole = null,
                 isTeamConversation = true,
                 isArchived = false,
@@ -689,7 +690,7 @@ fun PreviewGroupConversationDetails() {
                 folder = null,
                 isDeletingConversationLocallyRunning = false
             ),
-            shouldShowAddParticipantsButtonForChannel = { false },
+            showAllowUserToAddParticipants = { true },
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},
             onProfilePressed = {},
@@ -705,6 +706,7 @@ fun PreviewGroupConversationDetails() {
             onSearchConversationMessagesClick = {},
             onConversationMediaClick = {},
             isAbandonedOneOnOneConversation = false,
+            isWireCellEnabled = false,
             initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS
         )
     }

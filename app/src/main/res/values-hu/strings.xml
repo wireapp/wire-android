@@ -100,8 +100,6 @@
     <string name="content_description_unarchive">Archiválás visszavonása</string>
     <string name="content_description_block_the_user">Tiltás</string>
     <string name="content_description_unblock_the_user">Tiltás feloldása</string>
-    <string name="content_description_leave_the_group">Kilépés a csoportból</string>
-    <string name="content_description_delete_the_group">Csoport törlése</string>
     <string name="content_description_conversation_phone_icon">Hívás indítása</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Keresés ikon</string>
@@ -116,7 +114,6 @@
     <string name="content_description_conversation_mention_someone">Valaki megemlítése</string>
     <string name="content_description_conversation_back_btn">Vissza a beszélgetések listájához</string>
     <string name="content_description_conversation_open_details_label">beszélgetés részleteinek megnyitása</string>
-    <string name="content_description_new_conversation">Személyek keresése vagy új csoport létrehozása</string>
     <string name="content_description_back_button">Vissza gomb</string>
     <string name="content_description_send_button">Küldés</string>
     <string name="content_description_timed_message_button">Önmegsemmisítő üzenetek gomb</string>
@@ -223,7 +220,7 @@
     <string name="content_description_close_dropdown">lenyíló elem összecsukása</string>
     <string name="content_description_open_notification_settings_label">értesítési beállítások megnyitása</string>
     <string name="content_description_new_conversation_close_btn">Az új beszélgetés lap bezárása</string>
-    <string name="content_description_new_group_conversation_back_btn">Vissza az új beszélgetés lapra</string>
+    <string name="content_description_new_conversation_back_btn">Vissza az új beszélgetés lapra</string>
     <string name="content_description_new_conversation_name_back_btn">Vissza az új beszélgetés lapra</string>
     <string name="content_description_new_conversation_options_heading">Beszélgetés beállításai</string>
     <string name="content_description_pending_connection_badge">kapcsolatkérelem jóváhagyása függőben</string>
@@ -468,17 +465,14 @@
     <string name="new_group_title">Új csoport</string>
     <string name="new_group_description">Akár 500 személy csatlakozhat egy csoportos beszélgetéshez.</string>
     <string name="group_name_title">Csoportnév</string>
-    <string name="group_name_placeholder">Adjon meg egy nevet</string>
+    <string name="conversation_name_placeholder">Adjon meg egy nevet</string>
     <string name="group_name_description">Adjon a csoportnak egy kifejező nevet.</string>
     <string name="protocol">Protokoll</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Titkosítási csomag</string>
     <string name="last_key_material_update_label">Legutóbbi kulcskészlet-frissítés</string>
     <string name="group_state_label">Csoport állapota</string>
-    <string name="group_can_not_be_created_title">A csoportot nem lehet létrehozni</string>
-    <string name="group_can_not_be_created_federation_conflict_description">Felhasználók a(z) %1$s és a(z) %2$s kiszolgálóról nem csatlakoztathatók egyazon csoportos beszélgetésbe.\n\nA csoport létrehozásához távolítsa el az érintett résztvevőket.</string>
-    <string name="group_can_not_be_created_edit_participiant_list">Résztvevők listájának szerkesztése</string>
-    <string name="group_can_not_be_created_discard_group_creation">Csoport létrehozásának elvetése</string>
+    <string name="conversation_can_not_be_created_edit_participant_list">Résztvevők listájának szerkesztése</string>
     <string name="asset_message_tap_to_download_text">Érintse meg a letöltéshez</string>
     <string name="asset_message_upload_in_progress_text">Feltöltés…</string>
     <string name="asset_message_download_in_progress_text">Letöltés…</string>
@@ -497,23 +491,16 @@
     <string name="label_add_participants">Résztvevők hozzáadása</string>
     <string name="username_unavailable_label">A név nem elérhető</string>
     <string name="temporary_user_label">%s kilépett</string>
-    <string name="group_unavailable_label">A csoportnév nem elérhető</string>
     <string name="conversation_details_title">Beszélgetés részletei</string>
     <string name="conversation_details_options_tab">LEHETŐSÉGEK</string>
     <string name="conversation_details_participants_tab">RÉSZTVEVŐK</string>
     <string name="conversation_details_options_group_name">CSOPORT NEVE</string>
-    <string name="conversation_details_group_admins">CSOPORTADMINISZTRÁTOROK (%d)</string>
-    <string name="conversation_details_group_members">CSOPORTTAGOK (%d)</string>
-    <string name="conversation_details_participants_info">A csoportnak %s résztvevője van.\nAkár 500 fő is csatlakozhat egy csoportos beszélgetéshez.</string>
     <string name="conversation_details_participants_count">%s résztvevő</string>
     <string name="conversation_details_show_all_participants">Mutassa az összes résztvevőt (%d)</string>
-    <string name="conversation_details_group_participants_title">Csoport résztvevői</string>
-    <string name="conversation_details_group_participants_add">Résztvevők hozzáadása</string>
     <string name="conversation_participant_you_label">(Ön)</string>
     <string name="conversation_details_is_classified">BIZTONSÁGI SZINT: VS-NfD</string>
     <string name="conversation_details_is_not_classified">BIZTONSÁGI SZINT: NYÍLT</string>
     <string name="conversation_options_self_deleting_messages_label">Önmegsemmisítő üzenetek</string>
-    <string name="conversation_options_self_deleting_messages_description">Ha ez aktív, ebben a csoportban minden üzenet el fog tűnni bizonyos idő elteltével.</string>
     <string name="conversation_options_guests_label">Vendégek</string>
     <string name="conversation_details_guest_description">Ha ez aktív, csapatodon kívüli emberek is csatlakozhatnak ehhez a beszélgetéshez</string>
     <string name="conversation_options_guest_description">Aktiválja ezt az opciót, hogy csapatán kívüli személyek is csatlakozhassanak a beszélgetéshez, még ha nincs is Wire-ük.</string>
@@ -525,16 +512,6 @@
     <string name="disable_guest_dialog_text">A jelenlegi vendégek el lesznek távolítva a beszélgetésből. Új vendégek sem csatlakozhatnak.</string>
     <string name="disable_services_dialog_title">Kikapcsolja a szolgáltatások hozzáférését?</string>
     <string name="disable_services_dialog_text">A jelenlegi szolgáltatások el lesznek távolítva a beszélgetésből. Új szolgáltatások sem lesznek engedélyezve.</string>
-    <string name="leave_group_conversation_menu_item">Kilépés a csoportból…</string>
-    <string name="leave_group_conversation_dialog_title">Kilép “%s” beszélgetésből?</string>
-    <string name="leave_group_conversation_dialog_description">A továbbiakban nem tud üzeneteket küldeni vagy fogadni ebben a csoportban egyik eszközön sem.</string>
-    <string name="leave_group_conversation_dialog_delete_fully_check">A csoport és annak tartalma törlése nálam és az összes eszközömön</string>
-    <string name="delete_group_conversation_menu_item">Csoport törlése…</string>
-    <string name="delete_group_conversation_dialog_title">Eltávolítja “%s” beszélgetést?</string>
-    <string name="delete_group_conversation_dialog_description">Ez a csoport eltávolításra kerül a beszélgetések közül minden eszközön. Többé nem lesz hozzáférése a csoporthoz és annak tartalmához.</string>
-    <string name="delete_group_locally_conversation_dialog_title">Legyen \"%s\" csoport törölve nálam?</string>
-    <string name="delete_group_locally_conversation_dialog_description">Nem fog tudni hozzáférni a csoporthoz és annak tartalmához. Nincs lehetőség a visszaállításra.</string>
-    <string name="delete_group_locally_delete_for_me_label">Törlés nálam</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Megosztás Wire-rel</string>
     <string name="import_media_searchbar_title">Beszélgetés keresése</string>
@@ -581,13 +558,9 @@
     <string name="user_profile_account_management">Csapat kezelése</string>
     <string name="user_profile_details_tab">Részletek</string>
     <string name="user_profile_devices_tab">Eszközök</string>
-    <string name="user_profile_group_tab">Csoport</string>
-    <string name="user_profile_group_member">A(z) ”%s” csoport tagja</string>
-    <string name="user_profile_group_role">SZEREP</string>
-    <string name="user_profile_role_in_group">Szerep ”%s” csoportban</string>
+    <string name="user_profile_role_in_conversation">Szerep ”%s” csoportban</string>
     <string name="user_profile_role_change_error">Hiba lépett fel szerepcsere közben. Ellenőrizze internetkapcsolatát, és próbálja újra</string>
     <string name="user_profile_unblock_user">Felhasználótiltás feloldása</string>
-    <string name="user_profile_group_remove_button">Eltávolítás a csoportból</string>
     <string name="user_profile_logging_out_progress">Kijelentkezés...</string>
     <string name="user_profile_qr_code">QR-kód megnyitása</string>
     <string name="user_profile_qr_code_title">Profil megosztása</string>
@@ -600,9 +573,8 @@
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Eltávolítja a csoportból?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) ezután nem fog tudni üzenetet küldeni és fogadni ebben a beszélgetésben.</string>
-    <string name="dialog_remove_conversation_member_error">Hiba történt a résztvevő csoportból történő eltávolítása során</string>
-    <string name="group_role_admin">Admin</string>
-    <string name="group_role_member">Tag</string>
+    <string name="conversation_role_admin">Admin</string>
+    <string name="conversation_role_member">Tag</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Adatok törlése?</string>
     <string name="dialog_logout_wipe_data_checkbox">Törölje az összes személyes adatát és beszélgetését erről az eszközről</string>
@@ -630,9 +602,6 @@
     <string name="label_clear_content">Tartalom törlése…</string>
     <string name="label_block">Tiltás</string>
     <string name="label_unblock">Tiltás feloldása</string>
-    <string name="label_leave_group">Kilépés a csoportból</string>
-    <string name="label_delete_group_locally">Csoport törlése nálam</string>
-    <string name="label_delete_group">Csoport törlése</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Beszélgetések szűrése</string>
     <string name="label_filter_all">Az összes beszélgetés</string>
@@ -732,17 +701,10 @@
     <string name="label_system_message_conversation_started_by_self">**Ön** indította a beszélgetést</string>
     <string name="label_system_message_conversation_started_by_other">%1$s indította a beszélgetést</string>
     <string name="label_system_message_conversation_started_with_members">%1$s résztvevővel</string>
-    <plurals name="label_system_message_conversation_failed_add_members_header">
-        <item quantity="one">**%1$s résztvevőt** nem sikerült hozzáadni a beszélgetéshez.</item>
-        <item quantity="other">**%1$s résztvevőket** nem sikerült hozzáadni a beszélgetéshez.</item>
-    </plurals>
     <string name="label_system_message_conversation_degraded_mls">Ez a beszélgetés nem ellenőrzött többé, mivel legalább egy résztvevő új eszközt kezdett használni, vagy érvénytelen tanúsítvánnyal rendelkezik.</string>
     <string name="label_system_message_conversation_degraded_proteus">Ez a beszélgetés nem ellenőrzött többé, mivel legalább egy résztvevő új eszközt kezdett használni, vagy érvénytelen tanúsítvánnyal rendelkezik.</string>
     <string name="label_system_message_conversation_verified_mls">Minden eszköz ellenőrzött (végpontok közötti azonosítás)</string>
     <string name="label_system_message_conversation_verified_proteus">Minden ujjlenyomat ellenőrizve (Proteus)</string>
-    <string name="label_system_message_conversation_started_sensitive_information_header">**A Wire-ben a kommunikáció mindig titkos a végpontok között.**</string>
-    <string name="label_system_message_conversation_started_sensitive_information_message">Minden, amit küld és fogad ebben a beszélgetésben, csak az Ön és a beszélgetés résztvevői számára hozzáférhető.</string>
-    <string name="label_system_message_conversation_started_sensitive_information_footer">Továbbra is legyen körültekintő, kivel oszt meg érzékeny információkat.</string>
     <string name="label_conversations_details_verified_proteus">Ellenőrzött (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Ellenőrzött (végpontok közötti azonosítás)</string>
     <!-- Last messages -->
@@ -824,7 +786,7 @@
         <item quantity="other">%1$d üzenet</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Üzenetet küldött"</string>
-    <string name="ephemeral_group_event_message">"Valaki egy üzenetet küldött"</string>
+    <string name="ephemeral_group_channel_event_message">"Valaki egy üzenetet küldött"</string>
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s gépel</item>
@@ -883,13 +845,13 @@
     <string name="conversation_on_file_downloaded">A(z) %s fájl mentése a Letöltések mappába sikerült</string>
     <string name="error_blocking_user">A felhasználót nem sikerült letiltani</string>
     <string name="blocking_user_success">%s letiltva</string>
-    <string name="conversation_group_removed_success">“%s” eltávolítva</string>
-    <string name="conversation_group_removed_locally_success">\"%s\" törölve nálam</string>
-    <string name="leave_group_conversation_error">Hiba történt a beszélgetésből kilépés során</string>
-    <string name="joined_conversation_group_success">Ön csatlakozott a beszélgetéshez.</string>
-    <string name="left_conversation_group_success">Ön kilépett a beszélgetésből.</string>
+    <string name="conversation_removed_success">“%s” eltávolítva</string>
+    <string name="conversation_removed_locally_success">\"%s\" törölve nálam</string>
+    <string name="leave_conversation_error">Hiba történt a beszélgetésből kilépés során</string>
+    <string name="joined_conversation_success">Ön csatlakozott a beszélgetéshez.</string>
+    <string name="left_conversation_success">Ön kilépett a beszélgetésből.</string>
     <string name="error_unblocking_user">A felhasználó tiltását nem sikerült feloldani</string>
-    <string name="delete_group_conversation_error">Hiba történt a beszélgetés törlése során</string>
+    <string name="delete_conversation_conversation_error">Hiba történt a beszélgetés törlése során</string>
     <string name="error_limit_number_assets_imported_exceeded">Egyszerre legfeljebb 20 fájlt küldhet</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">A beszélgetés archiválva lett</string>
@@ -919,7 +881,6 @@
     <string name="notification_reply">Válasz: %1$s</string>
     <string name="notification_not_supported_issue">Nem támogatott funkció</string>
     <string name="notification_connection_request">Szeretne csatlakozni</string>
-    <string name="notification_conversation_deleted">Törölte a csoportot</string>
     <string name="notification_action_reply">Válasz</string>
     <string name="notification_receiver_name">Ön</string>
     <string name="label_type_a_message">Írjon üzenetet</string>
@@ -927,7 +888,7 @@
     <string name="notification_action_decline_call">Elutasítás</string>
     <string name="notification_incoming_call_content">Hívás…</string>
     <string name="notification_ongoing_call_content">Folyamatban lévő hívás…</string>
-    <string name="notification_group_call_content">%s hívja...</string>
+    <string name="notification_group_channel_call_content">%s hívja...</string>
     <string name="notification_call_default_caller_name">Valaki</string>
     <string name="notification_call_default_group_name">Bejövő csoportos hívás</string>
     <string name="notification_outgoing_call_tap_to_return">Koppintásra visszatér a híváshoz - Hívás...</string>
@@ -1016,7 +977,7 @@
         rendszergazdával, és adja át ezt a kódot:\n%d\"
     </string>
     <string name="asset_download_dialog_default_title">Fájl letöltése</string>
-    <string name="empty_group_label">Név nélküli beszélgetés</string>
+    <string name="empty_conversation_label">Név nélküli beszélgetés</string>
     <string name="label_show_more">Mutasson többet</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Képek fogadása tilos</string>
@@ -1034,17 +995,10 @@
     <string name="allow_guest_switch_description">Megnyitja a beszélgetést a csapatán kívüli személyek számára is. Ezt később bármikor megváltoztathatja.</string>
     <string name="allow_services">Szolgáltatások engedélyezése</string>
     <string name="service_details_label">Szolgáltatás</string>
-    <string name="service_details_add_service_label">Hozzáadás a csoporthoz</string>
-    <string name="service_details_remove_service_label">Eltávolítás a csoportból</string>
-    <string name="service_remove_success">A szolgáltatás eltávolítva a csoportból</string>
-    <string name="service_remove_error">A szolgáltatást nem sikerült eltávolítani a csoportból</string>
-    <string name="service_add_success">Szolgáltatás hozzáadva a csoporthoz</string>
-    <string name="service_add_error">A szolgáltatást nem sikerült hozzáadni a csoporthoz</string>
     <string name="service_no_information_available_title">Nincs elérhető információ</string>
     <string name="service_no_information_available_subtitle">Próbálja újra, vagy forduljon a csapatadminisztrátorhoz</string>
     <string name="read_receipts">Olvasási visszaigazolások</string>
     <string name="disable_guests_dialog_title">Vendégek ne legyenek engedélyezve?</string>
-    <string name="disable_guests_dialog_description">Az előző lépésben kijelölt vendégek nem lesznek részesei a csoportnak, ha nem engedélyezi a vendég hozzáférést.</string>
     <string name="disable_guests_dialog_button">Vendégek nem engedélyezettek</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Letiltja a felhasználót?</string>
@@ -1237,9 +1191,7 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="backup_dialog_restore_wrong_user_error_message">Nem állíthatja vissza egy másik fiók előzményeit.</string>
     <string name="backup_dialog_restore_general_error_title">Valami hiba történt</string>
     <string name="backup_dialog_restore_general_error_message">Az előzményeit nem sikerült visszaállítani. Próbálja újra, vagy forduljon a Wire ügyfélszolgálatához.</string>
-    <string name="group_content_deleted">A csoport tartalma törölve</string>
     <string name="conversation_content_deleted">A beszélgetés tartalma törölve</string>
-    <string name="group_content_delete_failure">A csoport tartalmát nem sikerült törölni</string>
     <string name="conversation_content_delete_failure">A beszélgetés tartalmát nem sikerült törölni</string>
     <string name="group_label">csoport</string>
     <string name="conversation_label">beszélgetés</string>
@@ -1280,13 +1232,10 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="join_conversation_dialog_message">Meghívták egy beszélgetésbe.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Csatlakozás</string>
     <string name="join_conversation_via_deeplink_error_title">Nem tud beszélgetéshez csatlakozni</string>
-    <string name="join_conversation_via_deeplink_error_link_expired">A csoportos beszélgetésre mutató link lejárt, vagy a beszélgetés privátra lett állítva.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">A beszélgetésben résztvevők száma elérte a maximumot.</string>
-    <string name="join_conversation_via_deeplink_error_general">Egy hiba miatt nem tudott csatlakozni a csoportos beszélgetéshez.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Önmegsemmisítő üzenetek</string>
     <string name="self_deleting_messages_option">Üzenet törlésének kényszerítése</string>
-    <string name="self_deleting_messages_option_description">Ha ez aktív, ebben a csoportban minden üzenet el fog tűnni bizonyos idő után. Ez minden résztvevőre érvényes.</string>
     <string name="self_deleting_messages_folder_timer">Időzítő</string>
     <!-- visit link -->
     <string name="label_visit_link_title">Hivatkozás megnyitása</string>
@@ -1313,8 +1262,6 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="title_device_key_fingerprint">ESZKÖZ KULCS UJJLENYOMAT</string>
     <string name="label_client_key_fingerprint_not_available">NEM ELÉRHETŐ</string>
     <string name="guest_room_link_copied">A hivatkozás a vágólapra másolva</string>
-    <string name="guest_room_link_enabled">Hivatkozások létrehozása mostantól engedélyezett minden csoportadminisztrátornak</string>
-    <string name="guest_room_link_disabled">Hivatkozások létrehozása mostantól tiltott minden csoportadminisztrátornak</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Fiókja legutóbbi használata:</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nErről: %2$s \n</string>

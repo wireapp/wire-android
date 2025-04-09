@@ -48,6 +48,7 @@ import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -86,6 +87,9 @@ internal class SendMessageViewModelArrangement {
 
     @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
+
+    @MockK
+    lateinit var sendMultipartMessage: SendMultipartMessageUseCase
 
     @MockK
     lateinit var sendEditTextMessage: SendEditTextMessageUseCase
@@ -163,7 +167,8 @@ internal class SendMessageViewModelArrangement {
             sendLocation = sendLocation,
             removeMessageDraft = removeMessageDraftUseCase,
             savedStateHandle = savedStateHandle,
-            analyticsManager = analyticsManager
+            analyticsManager = analyticsManager,
+            sendMultipartMessage = sendMultipartMessage,
         )
     }
 

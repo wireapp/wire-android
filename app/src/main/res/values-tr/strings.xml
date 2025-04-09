@@ -98,8 +98,6 @@
     <string name="content_description_unarchive">Arşivden Çıkar</string>
     <string name="content_description_block_the_user">Engelle</string>
     <string name="content_description_unblock_the_user">Engeli kaldır</string>
-    <string name="content_description_leave_the_group">Gruptan ayrıl</string>
-    <string name="content_description_delete_the_group">Grubu sil</string>
     <string name="content_description_conversation_phone_icon">Sesli aramayı başlat</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Arama simgesi</string>
@@ -240,8 +238,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="conversation_details_options_tab">SEÇENEKLER</string>
     <string name="conversation_details_participants_tab">KATILIMCILAR</string>
     <string name="conversation_details_participants_count">katılımcılar %s</string>
-    <string name="conversation_details_group_participants_title">\n**Lütfen yinede önemli bilgi paylaşırken dikkatli olun.**</string>
-    <string name="conversation_options_self_deleting_messages_description">Bu açık olduğunda, bu gruptaki tüm mesajlar belirli bir süre sonra kaybolacaktır.</string>
     <string name="conversation_options_guests_label">Misafirler</string>
     <string name="conversation_options_services_label">Servisler</string>
     <string name="conversation_options_services_description">Bu görüşmeyi hizmetlere açmak için bu seçeneği AÇIK konumuna getirin.</string>
@@ -264,9 +260,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--Conversation-->
     <!-- System messages -->
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
-    <string name="label_system_message_conversation_started_sensitive_information_header">**Wire\'daki iletişim her zaman uçtan uca şifrelenir.**</string>
-    <string name="label_system_message_conversation_started_sensitive_information_message">Bu görüşmede gönderdiğiniz ve aldığınız her şeye yalnızca siz ve diğer görüşme katılımcıları erişebilir.</string>
-    <string name="label_system_message_conversation_started_sensitive_information_footer">Lütfen hassas bilgilerinizi kimlerle paylaştığınıza dikkat edin.</string>
     <!-- Last messages -->
     <string name="last_message_other_user_joined_conversation">sohbete katıldı.</string>
     <!-- Unread Events -->

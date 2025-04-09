@@ -38,6 +38,7 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -298,6 +299,15 @@ sealed interface UIMessageContent {
     }
 
     @Serializable
+    data class Multipart(
+        val messageBody: MessageBody?,
+        val attachments: PersistentList<MessageAttachment>,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular, PartialDeliverable, Copyable {
+        override fun textToCopy(resources: Resources): String? = messageBody?.message?.asString(resources)
+    }
+
+    @Serializable
     data class Composite(
         val messageBody: MessageBody?,
         val buttonList: PersistentList<MessageButton>
@@ -323,6 +333,7 @@ sealed interface UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val assetSizeInBytes: Long,
+        val assetDataPath: String?,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable
 
@@ -335,6 +346,19 @@ sealed interface UIMessageContent {
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable
 
+    @Serializable
+    data class VideoMessage(
+        val assetName: String,
+        val assetExtension: String,
+        val assetId: AssetId,
+        val assetSizeInBytes: Long,
+        val assetDataPath: String?,
+        val width: Int?,
+        val height: Int?,
+        val duration: Long?,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular, PartialDeliverable
+
     @Stable
     @Serializable
     data class AudioAssetMessage(
@@ -342,7 +366,8 @@ sealed interface UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val audioMessageDurationInMs: Long,
-        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery,
+        val sizeInBytes: Long,
     ) : Regular, PartialDeliverable
 
     @Stable
@@ -593,3 +618,5 @@ data class MessageButton(
 )
 
 const val DEFAULT_LOCATION_ZOOM = 20
+
+fun UIMessageContent.isEditable() = this is UIMessageContent.TextMessage || this is UIMessageContent.Multipart

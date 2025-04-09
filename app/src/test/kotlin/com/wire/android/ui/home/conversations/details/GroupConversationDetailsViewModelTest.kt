@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
+ @file:Suppress("LargeClass")
 package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
@@ -23,6 +23,7 @@ import androidx.work.WorkManager
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
@@ -37,6 +38,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
+import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -58,7 +60,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
-import com.wire.kalium.logic.feature.conversation.channel.IsSelfEligibleToAddParticipantsToChannelUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -155,7 +156,7 @@ class GroupConversationDetailsViewModelTest {
         val dialogState = DialogState(
             conversationId = conversationDetails.conversation.id,
             conversationName = conversationDetails.conversation.name.orEmpty(),
-            conversationTypeDetail = ConversationTypeDetail.Group(
+            conversationTypeDetail = ConversationTypeDetail.Group.Regular(
                 conversationId = conversationDetails.conversation.id,
                 isFromTheSameTeam = false
             ),
@@ -204,7 +205,7 @@ class GroupConversationDetailsViewModelTest {
         val dialogState = DialogState(
             conversationId = conversationDetails.conversation.id,
             conversationName = conversationDetails.conversation.name.orEmpty(),
-            conversationTypeDetail = ConversationTypeDetail.Group(
+            conversationTypeDetail = ConversationTypeDetail.Group.Regular(
                 conversationId = conversationDetails.conversation.id,
                 isFromTheSameTeam = false
             ),
@@ -448,7 +449,7 @@ class GroupConversationDetailsViewModelTest {
             title = details.conversation.name.orEmpty(),
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
-            conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, false),
+            conversationTypeDetail = ConversationTypeDetail.Group.Regular(details.conversation.id, false),
             selfRole = Conversation.Member.Role.Member,
             isTeamConversation = details.conversation.isTeamGroup(),
             isArchived = false,
@@ -654,6 +655,159 @@ class GroupConversationDetailsViewModelTest {
         assertEquals(ChannelAddPermissionType.EVERYONE, viewModel.groupOptionsState.value.channelAddPermissionType)
     }
 
+    @Test
+    fun `Given isChannel is true and EVERYONE permission, when isSelfGuest is false, then should show addParticipants button`() {
+        // Given
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .arrange()
+        viewModel.groupParticipantsState = viewModel.groupParticipantsState.copy(
+            data = viewModel.groupParticipantsState.data.copy(
+                isSelfAnAdmin = false,
+                isSelfGuest = false,
+                isSelfExternalMember = false
+            )
+        )
+        viewModel.updateState(
+            viewModel.groupOptionsState.value.copy(
+                isChannel = true,
+                channelAddPermissionType = ChannelAddPermissionType.EVERYONE
+            )
+        )
+
+        // When
+        val result = viewModel.shouldShowAddParticipantButton()
+
+        // Then
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun `Given isChannel is true and EVERYONE permission, when isSelfGuest is true, then should not show addParticipants button`() {
+        // Given
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .arrange()
+        viewModel.groupParticipantsState = viewModel.groupParticipantsState.copy(
+            data = viewModel.groupParticipantsState.data.copy(
+                isSelfAnAdmin = false,
+                isSelfGuest = true,
+                isSelfExternalMember = false
+            )
+        )
+        viewModel.updateState(
+            viewModel.groupOptionsState.value.copy(
+                isChannel = true,
+                channelAddPermissionType = ChannelAddPermissionType.EVERYONE
+            )
+        )
+
+        // When
+        val result = viewModel.shouldShowAddParticipantButton()
+
+        // Then
+        assertEquals(false, result)
+    }
+
+    @Test
+    fun `Given regular group and isSelfAdmin is true, when isSelfExternalMember is false, then should show button`() {
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .arrange()
+        viewModel.groupParticipantsState = viewModel.groupParticipantsState.copy(
+            data = viewModel.groupParticipantsState.data.copy(
+                isSelfAnAdmin = true,
+                isSelfGuest = false,
+                isSelfExternalMember = false
+            )
+        )
+        viewModel.updateState(
+            viewModel.groupOptionsState.value.copy(
+                isChannel = false,
+                channelAddPermissionType = ChannelAddPermissionType.EVERYONE
+            )
+        )
+
+        // When
+        val result = viewModel.shouldShowAddParticipantButton()
+
+        // Then
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun `Given regular group and isSelfAdmin is false, when isSelfExternalMember is true, then should not show button`() {
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .arrange()
+        viewModel.groupParticipantsState = viewModel.groupParticipantsState.copy(
+            data = viewModel.groupParticipantsState.data.copy(
+                isSelfAnAdmin = true,
+                isSelfGuest = false,
+                isSelfExternalMember = true
+            )
+        )
+        viewModel.updateState(
+            viewModel.groupOptionsState.value.copy(
+                isChannel = false,
+                channelAddPermissionType = ChannelAddPermissionType.EVERYONE
+            )
+        )
+
+        // When
+        val result = viewModel.shouldShowAddParticipantButton()
+
+        // Then
+        assertEquals(false, result)
+    }
+
+    @Test
+    fun `Given a channel, when isSelfAdmin is false and isSelfGuest is false, then should not show button`() {
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .arrange()
+        viewModel.groupParticipantsState = viewModel.groupParticipantsState.copy(
+            data = viewModel.groupParticipantsState.data.copy(
+                isSelfAnAdmin = false,
+                isSelfGuest = false,
+                isSelfExternalMember = false
+            )
+        )
+        viewModel.updateState(
+            viewModel.groupOptionsState.value.copy(
+                isChannel = true,
+                channelAddPermissionType = ChannelAddPermissionType.ADMINS
+            )
+        )
+
+        // When
+        val result = viewModel.shouldShowAddParticipantButton()
+
+        // Then
+        assertEquals(false, result)
+    }
+
+    @Test
+    fun `Given isChannel is true and isSelfTeamAdmin is true, then should show button`() {
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .arrange()
+        viewModel.groupParticipantsState = viewModel.groupParticipantsState.copy(
+            data = viewModel.groupParticipantsState.data.copy(
+                isSelfAnAdmin = false,
+                isSelfGuest = false,
+                isSelfExternalMember = true
+            )
+        )
+        viewModel.updateState(
+            viewModel.groupOptionsState.value.copy(
+                isSelfTeamAdmin = true,
+                isChannel = true,
+                channelAddPermissionType = ChannelAddPermissionType.ADMINS
+            )
+        )
+
+        // When
+        val result = viewModel.shouldShowAddParticipantButton()
+
+        // Then
+        assertEquals(true, result)
+    }
+
     @ParameterizedTest
     @EnumSource(IsServiceAllowedTestParams::class)
     fun `isServicesAllowed test`(params: IsServiceAllowedTestParams) = runTest {
@@ -670,7 +824,7 @@ class GroupConversationDetailsViewModelTest {
                         }
                     }
                 )
-        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withDefaultProtocol(if (params.isMLSTeam) SupportedProtocol.MLS else SupportedProtocol.PROTEUS)
             .withConversationDetailUpdate(TestConversationDetails.GROUP.copy(conversation = conversation))
             .arrange()
@@ -710,7 +864,8 @@ class GroupConversationDetailsViewModelTest {
             ),
             hasOngoingCall = false,
             isSelfUserMember = true,
-            selfRole = Conversation.Member.Role.Member
+            selfRole = Conversation.Member.Role.Member,
+            wireCell = null,
         )
     }
 }
@@ -759,6 +914,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
 
+    @MockK
+    lateinit var setWireCellUseCase: SetWireCellForConversationUseCase
+
     private val conversationDetailsFlow = MutableSharedFlow<ConversationDetails>(replay = Int.MAX_VALUE)
 
     private val observeParticipantsForConversationFlow =
@@ -771,10 +929,10 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
 
     @MockK
-    lateinit var isSelfEligibleToAddParticipantsToChannel: IsSelfEligibleToAddParticipantsToChannelUseCase
+    private lateinit var workManager: WorkManager
 
     @MockK
-    private lateinit var workManager: WorkManager
+    lateinit var globalDataStore: GlobalDataStore
 
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
@@ -792,11 +950,12 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase,
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
-            isSelfEligibleToAddParticipantsToChannel = isSelfEligibleToAddParticipantsToChannel,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             updateConversationArchivedStatus = updateConversationArchivedStatus,
             getDefaultProtocol = getDefaultProtocolUseCase,
-            workManager = workManager
+            workManager = workManager,
+            enableCell = setWireCellUseCase,
+            globalDataStore = globalDataStore,
         )
     }
 
@@ -824,6 +983,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
         every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
+        every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
     }
 
     suspend fun withGetSelfUserReturns(user: SelfUser) = apply {

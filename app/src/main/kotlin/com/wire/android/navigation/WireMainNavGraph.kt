@@ -19,15 +19,18 @@ package com.wire.android.navigation
 
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.NavGraphSpec
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
+import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.ui.NavGraphs
 
 object WireMainNavGraph : NavGraphSpec {
     override val route = "wire.main"
     override val startRoute = NavGraphs.root.startRoute
-    val destinations: List<DestinationSpec<*>> = NavGraphs.root.destinations.plus(
-        DrawingCanvasScreenDestination
-    )
+    val destinations: List<DestinationSpec<*>> = NavGraphs.root.destinations
+        .plus(DrawingCanvasScreenDestination)
+        .plus(PublicLinkScreenDestination)
+        .plus(ConversationFilesScreenDestination)
     override val destinationsByRoute = destinations.associateBy { it.route }
     override val nestedNavGraphs = NavGraphs.root.nestedNavGraphs
 }

@@ -197,10 +197,7 @@ fun RecordAudioButtonSend(
         topContent = {
             outputFile?.let {
                 RecordedAudioMessage(
-                    audioMediaPlayingState = audioState.audioMediaPlayingState,
-                    totalTimeInMs = audioState.totalTimeInMs,
-                    currentPositionInMs = audioState.currentPositionInMs,
-                    waveMask = audioState.wavesMask,
+                    audioState = audioState,
                     onPlayButtonClick = onPlayAudio,
                     onSliderPositionChange = { position ->
                         onSliderPositionChange(position.toInt())

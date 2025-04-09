@@ -213,8 +213,13 @@ private fun CellFileUi.subtitle() =
             stringResource(R.string.file_subtitle, userName, conversationName)
         }
 
+        userName != null && modifiedTime != null -> {
+            stringResource(R.string.file_subtitle_modified, modifiedTime, userName)
+        }
+
         userName != null -> userName
         conversationName != null -> conversationName
+        modifiedTime != null -> modifiedTime
         else -> null
     }
 

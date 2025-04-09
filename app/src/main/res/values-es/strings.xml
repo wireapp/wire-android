@@ -210,6 +210,7 @@ URL del backend:
     <string name="login_title">Iniciar sesi&#243;n</string>
     <string name="login_forgot_password">&#191;Olvidaste tu contrase&#241;a?</string>
     <string name="login_user_identifier_placeholder">jane@example.com o jane.doe</string>
+    <string name="login_email_placeholder">jane@example.com</string>
     <string name="login_user_identifier_label">CORREO ELECTR&#211;NICO O NOMBRE DE USUARIO</string>
     <string name="login_proxy_identifier_label">CORREO ELECTR&#211;NICO O NOMBRE DE USUARIO DE PROXY</string>
     <string name="login_error_invalid_credentials_title">Informaci&#243;n no v&#225;lida</string>

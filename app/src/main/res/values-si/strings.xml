@@ -233,6 +233,7 @@
     <string name="login_title">පිවිසෙන්න</string>
     <string name="login_forgot_password">මුරපදය අමතකද?</string>
     <string name="login_user_identifier_placeholder">කසුන්@නිදසුන.ලංකා හෝ තිසර.කසුන්</string>
+    <string name="login_email_placeholder">කසුන්@නිදසුන.ලංකා</string>
     <string name="login_user_identifier_label">වි-තැපෑල හෝ පරි.නාමය</string>
     <string name="login_proxy_identifier_label">ප්‍රතියු. වි-තැපෑල හෝ පරි.නාමය</string>
     <string name="login_error_invalid_credentials_title">සාවද්‍ය තොරතුරකි</string>

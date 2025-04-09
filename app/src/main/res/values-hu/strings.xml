@@ -236,7 +236,7 @@
     <string name="content_description_change_picture_back_btn">Vissza a saját profil áttekintéséhez</string>
     <string name="content_description_welcome_screen_close_btn">Az új csapat létrehozása és bejelentkezés lap bezárása</string>
     <string name="content_description_login_back_btn">Vissza az új csapat létrehozása és bejelentkezés lapra</string>
-    <string name="content_description_login_email_field">adja meg e-mail-címét vagy felhasználónevét</string>
+    <string name="content_description_login_user_identifier_field">adja meg e-mail-címét vagy felhasználónevét</string>
     <string name="content_description_login_password_field">adja meg jelszavát</string>
     <string name="content_description_login_sso_code_field">adja meg SSO-kódját vagy Wire-e-mailjét</string>
     <string name="content_description_whats_new_welcome_item">Üdvözöljük a Wire új androidos appjában, link a támogatási oldalhoz</string>
@@ -319,6 +319,7 @@
     <string name="login_title">Bejelentkezés</string>
     <string name="login_forgot_password">Elfelejtette a jelszavát?</string>
     <string name="login_user_identifier_placeholder">jane@example.com vagy jane.doe</string>
+    <string name="login_email_placeholder">jane@example.com</string>
     <string name="login_user_identifier_label">E-MAIL VAGY FELHASZNÁLÓNÉV</string>
     <string name="login_proxy_identifier_label">PROXY E-MAIL VAGY FELHASZNÁLÓNÉV</string>
     <string name="login_error_invalid_credentials_title">Érvénytelen információ</string>

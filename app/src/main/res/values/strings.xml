@@ -253,7 +253,8 @@
     <string name="content_description_change_picture_back_btn">Go back to your profile overview</string>
     <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
     <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
-    <string name="content_description_login_email_field">enter your email or username</string>
+    <string name="content_description_login_user_identifier_field">enter your email or username</string>
+    <string name="content_description_login_email_field">enter your email</string>
     <string name="content_description_enterprise_login_email_field">enter your email or sso code</string>
     <string name="content_description_login_password_field">enter your password</string>
     <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
@@ -382,15 +383,16 @@
     <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
+    <string name="login_email_placeholder">jane@example.com</string>
+    <string name="login_email_label">EMAIL</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_proxy_identifier_label">PROXY EMAIL OR USERNAME</string>
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
         Please verify your details and try again.
     </string>
-    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please
-        verify and try again.
-    </string>
+    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
+    <string name="login_error_invalid_email">This email is invalid. Please verify and try again.</string>
     <string name="login_error_user_already_logged_in_title">Account in use</string>
     <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>

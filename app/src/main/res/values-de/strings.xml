@@ -198,7 +198,7 @@
     <string name="content_description_change_picture_back_btn">Zurück zu Ihrer Profilübersicht</string>
     <string name="content_description_welcome_screen_close_btn">Ansicht zur Team-Erstellung und Anmeldung schließen</string>
     <string name="content_description_login_back_btn">Zurück zur Ansicht zur Team-Erstellung und Anmeldung</string>
-    <string name="content_description_login_email_field">Geben Sie Ihre E-Mail-Adresse oder Ihren Benutzernamen ein</string>
+    <string name="content_description_login_user_identifier_field">Geben Sie Ihre E-Mail-Adresse oder Ihren Benutzernamen ein</string>
     <string name="content_description_login_password_field">Geben Sie Ihr Passwort ein</string>
     <string name="content_description_login_sso_code_field">Geben Sie Ihren SSO-Code oder Wire E-Mail-Adresse ein</string>
     <string name="content_description_whats_new_welcome_item">Willkommen bei der Android-App, Link zur Support-Seite</string>
@@ -280,6 +280,7 @@
     <string name="login_title">Anmelden</string>
     <string name="login_forgot_password">Passwort vergessen?</string>
     <string name="login_user_identifier_placeholder">max@example.com oder max.müller</string>
+    <string name="login_email_placeholder">max@example.com</string>
     <string name="login_user_identifier_label">E-MAIL ODER BENUTZERNAME</string>
     <string name="login_proxy_identifier_label">PROXY E-MAIL-ADRESSE ODER BENUTZERNAME</string>
     <string name="login_error_invalid_credentials_title">Ungültige Information</string>

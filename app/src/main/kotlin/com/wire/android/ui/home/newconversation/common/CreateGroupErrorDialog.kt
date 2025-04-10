@@ -47,9 +47,9 @@ fun CreateGroupErrorDialog(
         ) to null
 
         is CreateGroupState.Error.ConflictedBackends -> DialogErrorStrings(
-            title = stringResource(id = R.string.group_can_not_be_created_title),
+            title = stringResource(id = R.string.conversation_can_not_be_created_title),
             message = stringResource(
-                    id = R.string.group_can_not_be_created_federation_conflict_description,
+                    id = R.string.conversation_can_not_be_created_federation_conflict_description,
                     error.domains.dropLast(1).joinToString(", "),
                     error.domains.last()
                 ),
@@ -69,7 +69,7 @@ fun CreateGroupErrorDialog(
             onClick = if (error.isConflictedBackends) onAccept else onDismiss,
             text = stringResource(
                 id = if (error.isConflictedBackends) {
-                    R.string.group_can_not_be_created_edit_participiant_list
+                    R.string.conversation_can_not_be_created_edit_participant_list
                 } else {
                     R.string.label_ok
                 }
@@ -79,7 +79,7 @@ fun CreateGroupErrorDialog(
         optionButton2Properties = if (error.isConflictedBackends) {
             WireDialogButtonProperties(
                 onClick = onCancel,
-                text = stringResource(R.string.group_can_not_be_created_discard_group_creation),
+                text = stringResource(R.string.conversation_can_not_be_created_discard_creation),
                 type = WireDialogButtonType.Secondary,
             )
         } else {

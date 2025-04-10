@@ -104,16 +104,31 @@ sealed class ConversationOptionNavigation {
     object MutingNotificationOption : ConversationOptionNavigation()
 }
 
-sealed class ConversationTypeDetail {
-    data class Group(val conversationId: ConversationId, val isFromTheSameTeam: Boolean) : ConversationTypeDetail()
+sealed interface ConversationTypeDetail {
+    sealed interface Group : ConversationTypeDetail {
+        val conversationId: ConversationId
+        val isFromTheSameTeam: Boolean
+
+        data class Regular(
+            override val conversationId: ConversationId,
+            override val isFromTheSameTeam: Boolean,
+        ) : Group
+
+        data class Channel(
+            override val conversationId: ConversationId,
+            override val isFromTheSameTeam: Boolean,
+            val isPrivate: Boolean
+        ) : Group
+    }
+
     data class Private(
         val avatarAsset: UserAvatarAsset?,
         val userId: UserId,
         val blockingState: BlockingState,
         val isUserDeleted: Boolean
-    ) : ConversationTypeDetail()
+    ) : ConversationTypeDetail
 
-    data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
+    data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail
 
     val labelResource: Int
         get() = if (this is Group) R.string.group_label else R.string.conversation_label

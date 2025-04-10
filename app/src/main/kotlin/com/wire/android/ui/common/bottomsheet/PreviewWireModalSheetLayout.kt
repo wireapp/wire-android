@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.edit.ReactionOption
-import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
 import com.wire.kalium.logic.data.id.ConversationId
 
 @MultipleThemePreviews
@@ -40,7 +40,7 @@ fun PreviewMenuModalSheetContentWithHeader() {
         header = MenuModalSheetHeader.Visible(
             "Title",
             {
-                GroupConversationAvatar(
+                RegularGroupConversationAvatar(
                     conversationId = ConversationId("value", "domain")
                 )
             },

@@ -84,7 +84,7 @@ private fun GroupConversationAllParticipantsContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = lazyListState.rememberTopBarElevationState().value,
-                title = stringResource(R.string.conversation_details_group_participants_title),
+                title = stringResource(R.string.conversation_details_participants_title),
                 navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = onBackPressed
             ) {

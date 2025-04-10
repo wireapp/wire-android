@@ -681,8 +681,12 @@
     <string name="label_system_message_removed_by_self">%1$s удалил(-а) %2$s из беседы</string>
     <string name="label_system_message_added_by_other">%1$s добавил(-а) в беседу %2$s</string>
     <string name="label_system_message_removed_by_other">%1$s удалил(-а) %2$s из беседы</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s был удален из беседы</string>
-    <string name="label_system_message_federation_many_member_removed">%1$s были удалены из беседы</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">%1$s был удален из беседы</item>
+        <item quantity="few">%1$s были удалены из беседы</item>
+        <item quantity="many">%1$s были удалены из беседы</item>
+        <item quantity="other">%1$s были удалены из беседы</item>
+    </plurals>
     <string name="label_system_message_federation_removed">**Ваш бэкэнд** прекратил взаимодействие с %1$s.</string>
     <string name="label_system_message_federation_conection_removed">Бэкэнды %1$s и %2$s прекратили взаимодействие.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s покинул(-а) беседу</string>

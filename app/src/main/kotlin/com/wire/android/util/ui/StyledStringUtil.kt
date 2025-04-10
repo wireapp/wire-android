@@ -61,15 +61,7 @@ fun Resources.stringWithStyledArgs(
 }
 
 @Suppress("LongParameterList", "SpreadOperator")
-fun markdownText(
-    markdownInput: String,
-    normalStyle: TextStyle,
-    boldStyle: TextStyle,
-    normalColor: Color,
-    boldColor: Color,
-    errorColor: Color,
-    isErrorString: Boolean,
-): AnnotatedString {
+fun markdownText(markdownInput: String, style: MarkdownTextStyle): AnnotatedString {
     // The text gets split into pieces based on **
     val splitText = markdownInput.split(BOLD_SEPARATOR).filter { it.isNotEmpty() }
 
@@ -78,13 +70,13 @@ fun markdownText(
         splitText.forEach { piece ->
             when {
                 markdownInput.contains(BOLD_SEPARATOR + piece.trim() + BOLD_SEPARATOR) -> { // If the piece was between ** characters
-                    pushStyle(style = toSpanStyle(boldStyle, useErrorColorIfApplies(isErrorString, errorColor, boldColor)))
+                    pushStyle(style = toSpanStyle(style.boldStyle, style.boldColor))
                     append(piece)
                     pop()
                 }
 
                 else -> {
-                    pushStyle(style = toSpanStyle(normalStyle, useErrorColorIfApplies(isErrorString, errorColor, normalColor)))
+                    pushStyle(style = toSpanStyle(style.normalStyle, style.normalColor))
                     append(piece)
                     pop()
                 }
@@ -93,8 +85,7 @@ fun markdownText(
     }
 }
 
-private fun useErrorColorIfApplies(isErrorString: Boolean, errorColor: Color, regularColor: Color) =
-    if (isErrorString) errorColor else regularColor
+data class MarkdownTextStyle(val normalStyle: TextStyle, val boldStyle: TextStyle, val normalColor: Color, val boldColor: Color)
 
 // To be used outside of Composables, e.g. in notifications.
 @Suppress("LongParameterList", "SpreadOperator")

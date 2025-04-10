@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -588,6 +589,7 @@ val DefaultMarkdownTextStyle
         boldColor = MaterialTheme.wireColorScheme.onBackground
     )
 
+@Stable
 data class SystemMessageContent(
     val expandable: Boolean,
     @get:StringRes val learnMoreLinkResId: Int?,

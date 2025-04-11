@@ -538,6 +538,7 @@
     <string name="user_profile_role_in_conversation">Benutzerrolle in ”%s”</string>
     <string name="user_profile_role_change_error">Beim Ändern der Rolle ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut</string>
     <string name="user_profile_unblock_user">Benutzer freigeben</string>
+    <string name="user_profile_conversation_remove_button">Aus Uterhaltung entfernen</string>
     <string name="user_profile_logging_out_progress">Abmelden...</string>
     <string name="user_profile_qr_code">QR-Code öffnen</string>
     <string name="user_profile_qr_code_title">Profil teilen</string>
@@ -628,8 +629,10 @@
     <string name="label_system_message_removed_by_self">%1$s haben %2$s aus der Unterhaltung entfernt</string>
     <string name="label_system_message_added_by_other">%1$s hat %2$s zu der Unterhaltung hinzugefügt</string>
     <string name="label_system_message_removed_by_other">%1$s hat %2$s aus der Unterhaltung entfernt</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s wurde aus der Unterhaltung entfernt</string>
-    <string name="label_system_message_federation_many_member_removed">%1$s wurden aus der Unterhaltung entfernt</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">%1$s wurde aus der Unterhaltung entfernt</item>
+        <item quantity="other">%1$s wurden aus der Unterhaltung entfernt</item>
+    </plurals>
     <string name="label_system_message_federation_removed">**Ihr Backend** ist nicht mehr mit %1$s verbunden.</string>
     <string name="label_system_message_federation_conection_removed">Backends %1$s und %2$s sind nicht mehr verbunden.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s haben die Unterhaltung verlassen</string>

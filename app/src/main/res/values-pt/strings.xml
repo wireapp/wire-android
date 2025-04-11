@@ -513,7 +513,10 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="label_system_message_removed_by_self">%1$s removeu %2$s da conversa</string>
     <string name="label_system_message_added_by_other">%1$s adicionou %2$s à conversa</string>
     <string name="label_system_message_removed_by_other">%1$s removeu %2$s da conversa</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s foi removido da conversa</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">>%1$s foi removido da conversa</item>
+        <item quantity="other">%1$s foram removidos da conversa</item>
+    </plurals>
     <string name="label_system_message_left_the_conversation_by_self">%1$s deixou a conversa</string>
     <string name="label_system_message_left_the_conversation_by_other">%1$s deixou a conversa</string>
     <string name="label_system_message_other_called">%1$s ligou</string>

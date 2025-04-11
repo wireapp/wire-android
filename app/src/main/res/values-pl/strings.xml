@@ -463,6 +463,9 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_system_message_conversation_history_lost">Nie korzysta&#322;e&#347;(a&#347;) z tego urz&#261;dzenia przez jaki&#347; czas. Niekt&#243;re wiadomo&#347;ci mog&#261; nie by&#263; widoczne.</string>
     <string name="label_system_message_receipt_mode_on">w&#322;&#261;czone</string>
     <string name="label_system_message_receipt_mode_off">wy&#322;&#261;czone</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header">**Komunikacja w Wire jest zawsze szyfrowana end-to-end.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message">Wszystko, co wysy&#322;asz i odbierasz w tej konwersacji, jest dost&#281;pne tylko dla Ciebie i pozosta&#322;ych uczestnik&#243;w konwersacji.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_footer">Mimo to zachowaj ostro&#380;no&#347;&#263;, komu udost&#281;pniasz wra&#380;liwe informacje.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Doda&#322;e&#347;(a&#347;) 1 osob&#281; do rozmowy</item>

@@ -528,8 +528,10 @@
     <string name="label_system_message_removed_by_self">%1$s සංවාදයෙන් %2$s ඉවත් කළා</string>
     <string name="label_system_message_added_by_other">%1$s සංවාදයට %2$s එක් කර ඇත</string>
     <string name="label_system_message_removed_by_other">%1$s සංවාදයෙන් %2$s ඉවත් කළා</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s සංවාදයෙන් ඉවත් කර ඇත</string>
-    <string name="label_system_message_federation_many_member_removed">%1$s සංවාදයෙන් ඉවත් කර ඇත</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">%1$s සංවාදයෙන් ඉවත් කර ඇත</item>
+        <item quantity="other">%1$s සංවාදයෙන් ඉවත් කර ඇත</item>
+    </plurals>
     <string name="label_system_message_federation_removed">%1$s සමඟ තවදුරටත් **ඔබගේ සේවාදායකය** ඒකාබද්ධ නොවේ.</string>
     <string name="label_system_message_federation_conection_removed">%1$s සහ %2$s සේවාදායක තවදුරටත් එකාබද්ධ නොවේ.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s සංවාදය හැරගියා</string>

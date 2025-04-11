@@ -55,6 +55,30 @@ fun PreviewSystemMessageAdded7Users() {
 
 @PreviewMultipleThemes
 @Composable
+fun PreviewSystemMessageAdded7UsersExpanded() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = UIMessageContent.SystemMessage.MemberAdded(
+                    "Barbara Cotolina".toUIText(),
+                    listOf(
+                        "Albert Lewis".toUIText(),
+                        "Bert Strunk".toUIText(),
+                        "Claudia Schiffer".toUIText(),
+                        "Dorothee Friedrich".toUIText(),
+                        "Erich Weinert".toUIText(),
+                        "Frieda Kahlo".toUIText(),
+                        "Gudrun Gut".toUIText()
+                    )
+                )
+            ),
+            initiallyExpanded = true,
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
 fun PreviewSystemMessageAdded4Users() {
     WireTheme {
         SystemMessageItem(
@@ -192,6 +216,22 @@ fun PreviewSystemMessageFailedToAddLegalHoldSingle() {
                     UIMessageContent.SystemMessage.MemberFailedToAdd.Type.LegalHold
                 )
             )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFailedToAddLegalHoldSingleExpanded() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = UIMessageContent.SystemMessage.MemberFailedToAdd(
+                    listOf(UIText.DynamicString("Barbara Cotolina")),
+                    UIMessageContent.SystemMessage.MemberFailedToAdd.Type.LegalHold
+                )
+            ),
+            initiallyExpanded = true,
         )
     }
 }
@@ -414,6 +454,18 @@ fun PreviewSystemMessageConversationDegradedMLS() {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
                 messageContent = UIMessageContent.SystemMessage.ConversationDegraded(Conversation.Protocol.MLS)
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageConversationMessageCreatedUnverifiedWarning() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = UIMessageContent.SystemMessage.ConversationMessageCreatedUnverifiedWarning
             )
         )
     }

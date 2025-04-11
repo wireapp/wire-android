@@ -117,7 +117,8 @@ sealed interface ConversationTypeDetail {
         data class Channel(
             override val conversationId: ConversationId,
             override val isFromTheSameTeam: Boolean,
-            val isPrivate: Boolean
+            val isPrivate: Boolean,
+            val isSelfUserTeamAdmin: Boolean
         ) : Group
     }
 
@@ -159,11 +160,20 @@ data class ConversationSheetContent(
             && !conversationTypeDetail.isUserDeleted)
             || conversationTypeDetail is ConversationTypeDetail.Group)
 
-    fun canDeleteGroup(): Boolean {
-       return conversationTypeDetail is ConversationTypeDetail.Group &&
+    /**
+     * TODO(refactor): All of this logic to figure out permissions should live in Kalium/Logic module, instead of in the presentation layer
+     */
+    fun canDeleteGroup(): Boolean = canDeleteChannel || canDeleteRegularGroup
+
+    private val canDeleteRegularGroup: Boolean
+        get() = conversationTypeDetail is ConversationTypeDetail.Group.Regular &&
                 selfRole == Conversation.Member.Role.Admin &&
                 conversationTypeDetail.isFromTheSameTeam && isTeamConversation
-    }
+
+    private val canDeleteChannel: Boolean
+        get() = conversationTypeDetail is ConversationTypeDetail.Group.Channel &&
+                conversationTypeDetail.isFromTheSameTeam && isTeamConversation &&
+                (selfRole == Conversation.Member.Role.Admin || conversationTypeDetail.isSelfUserTeamAdmin)
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
 

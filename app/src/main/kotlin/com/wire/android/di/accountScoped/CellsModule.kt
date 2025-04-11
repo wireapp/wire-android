@@ -31,6 +31,7 @@ import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
 import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftsUseCase
+import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
@@ -109,4 +110,8 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideDeletePublicUrlUseCase(cellsScope: CellsScope): DeletePublicLinkUseCase = cellsScope.deletePublicLinkUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRetryAttachmentUploadUseCase(cellsScope: CellsScope): RetryAttachmentUploadUseCase = cellsScope.retryAttachmentUpload
 }

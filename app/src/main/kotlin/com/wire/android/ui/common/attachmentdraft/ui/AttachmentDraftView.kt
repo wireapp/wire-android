@@ -30,7 +30,7 @@ import com.wire.kalium.logic.util.fileExtension
 fun AttachmentDraftView(
     attachment: AttachmentDraftUi,
     onClick: () -> Unit,
-    onClickDelete: () -> Unit,
+    onMenuButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -39,7 +39,8 @@ fun AttachmentDraftView(
 
     AttachmentScaffold(
         onClick = onClick,
-        onClickDelete = onClickDelete,
+        onMenuButtonClick = onMenuButtonClick,
+        showMenuButton = attachment.uploadError,
         modifier = modifier,
     ) {
         when (fileType) {

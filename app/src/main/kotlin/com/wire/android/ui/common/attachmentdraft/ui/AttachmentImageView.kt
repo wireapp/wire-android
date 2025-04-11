@@ -68,7 +68,7 @@ private fun PreviewAttachmentDraftImageView() {
                 localFilePath = "",
             ),
             onClick = {},
-            onClickDelete = {}
+            onMenuButtonClick = {}
         )
     }
 }
@@ -86,7 +86,7 @@ private fun PreviewAttachmentDraftImageViewProgress() {
                 uploadProgress = 0.75f
             ),
             onClick = {},
-            onClickDelete = {}
+            onMenuButtonClick = {}
         )
     }
 }

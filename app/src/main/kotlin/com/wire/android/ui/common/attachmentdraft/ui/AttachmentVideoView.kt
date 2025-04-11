@@ -18,10 +18,17 @@
 package com.wire.android.ui.common.attachmentdraft.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,13 +36,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import coil.request.ImageRequest
 import com.wire.android.R
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -72,13 +79,34 @@ fun AttachmentVideoView(
                 trackColor = Color.Transparent,
             )
         }
-        Image(
-            modifier = Modifier
-                .size(32.dp)
-                .align(Alignment.Center),
-            painter = painterResource(R.drawable.ic_play_circle_filled),
-            contentDescription = null,
-        )
+        if (attachment.uploadError) {
+            Icon(
+                modifier = Modifier
+                    .size(dimensions().spacing32x)
+                    .align(Alignment.Center)
+                    .background(
+                        color = colorsScheme().surface,
+                        shape = CircleShape,
+                    )
+                    .border(
+                        width = dimensions().spacing1x,
+                        color = colorsScheme().outline,
+                        shape = CircleShape,
+                    )
+                    .padding(dimensions().spacing6x),
+                imageVector = Icons.Outlined.WarningAmber,
+                tint = colorsScheme().error,
+                contentDescription = null,
+            )
+        } else {
+            Image(
+                modifier = Modifier
+                    .size(dimensions().spacing32x)
+                    .align(Alignment.Center),
+                painter = painterResource(R.drawable.ic_play_circle_filled),
+                contentDescription = null,
+            )
+        }
     }
 }
 
@@ -94,7 +122,7 @@ private fun PreviewAttachmentDraftVideoView() {
                 localFilePath = "",
             ),
             onClick = {},
-            onClickDelete = {}
+            onMenuButtonClick = {}
         )
     }
 }
@@ -112,7 +140,26 @@ private fun PreviewAttachmentDraftVideoViewProgress() {
                 uploadProgress = 0.75f
             ),
             onClick = {},
-            onClickDelete = {}
+            onMenuButtonClick = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewAttachmentDraftVideoViewError() {
+    WireTheme {
+        AttachmentDraftView(
+            attachment = AttachmentDraftUi(
+                uuid = "123",
+                fileName = "Test Image.mp4",
+                fileSize = 23462346,
+                localFilePath = "",
+                uploadProgress = 0.75f,
+                uploadError = true,
+            ),
+            onClick = {},
+            onMenuButtonClick = {}
         )
     }
 }

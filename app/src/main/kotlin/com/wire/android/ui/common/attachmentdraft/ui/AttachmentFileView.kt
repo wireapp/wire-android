@@ -48,7 +48,8 @@ fun AttachmentFileView(
             FileHeaderView(
                 modifier = Modifier.padding(dimensions().spacing10x),
                 extension = attachment.fileName.fileExtension() ?: "",
-                size = attachment.fileSize
+                size = attachment.fileSize,
+                isError = attachment.uploadError,
             )
             Spacer(
                 modifier = Modifier
@@ -90,7 +91,7 @@ private fun PreviewAttachmentDraftFileView() {
                 localFilePath = "",
             ),
             onClick = {},
-            onClickDelete = {}
+            onMenuButtonClick = {}
         )
     }
 }
@@ -109,7 +110,27 @@ private fun PreviewAttachmentDraftViewWithProgress() {
                 localFilePath = "",
             ),
             onClick = {},
-            onClickDelete = {}
+            onMenuButtonClick = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewAttachmentDraftViewWithError() {
+    WireTheme {
+        AttachmentDraftView(
+            attachment = AttachmentDraftUi(
+                uuid = "123",
+                versionId = "123",
+                fileName = "CDR_20220120 Accessibility Report Reviewed Final Plus.doc",
+                fileSize = 23462346,
+                uploadProgress = 0.75f,
+                localFilePath = "",
+                uploadError = true,
+            ),
+            onClick = {},
+            onMenuButtonClick = {}
         )
     }
 }

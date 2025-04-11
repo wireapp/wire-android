@@ -19,18 +19,39 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
+import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.model.CellFileUi
+import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.typography
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 internal fun CellFilesScreen(
-    files: List<CellFileUi>,
+    files: LazyPagingItems<CellFileUi>,
     onFileClick: (CellFileUi) -> Unit,
     onFileMenuClick: (CellFileUi) -> Unit,
 //    onRefresh: () -> Unit
@@ -43,22 +64,122 @@ internal fun CellFilesScreen(
 //    ) {
         LazyColumn(
             modifier = Modifier
-                .background(color = colorsScheme().surface)
                 .fillMaxWidth(),
         ) {
             items(
-                items = files,
-                key = { it.uuid },
-            ) { file ->
-                CellListItem(
-                    modifier = Modifier
-                        .animateItem()
-                        .clickable { onFileClick(file) },
-                    file = file,
-                    onMenuClick = { onFileMenuClick(file) }
-                )
-                WireDivider(modifier = Modifier.fillMaxWidth())
+                count = files.itemCount,
+                key = files.itemKey { it.uuid },
+                contentType = files.itemContentType { it }
+            ) { index ->
+
+                files[index]?.let { file ->
+                    CellListItem(
+                        modifier = Modifier
+                            .animateItem()
+                            .background(color = colorsScheme().surface)
+                            .clickable { onFileClick(file) },
+                        file = file,
+                        onMenuClick = { onFileMenuClick(file) }
+                    )
+                    WireDivider(modifier = Modifier.fillMaxWidth())
+                }
+            }
+
+            when (files.loadState.append) {
+                is LoadState.Error -> item(contentType = "error") {
+                    ErrorFooter(
+                        onRetry = { files.retry() }
+                    )
+                }
+                is LoadState.Loading -> item(contentType = "progress") {
+                    ProgressFooter()
+                }
+                is LoadState.NotLoading -> {}
             }
         }
 //    }
+}
+
+@Composable
+private fun ProgressFooter() {
+    Box(
+        modifier = Modifier
+            .height(dimensions().spacing56x)
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            modifier = Modifier
+                .height(dimensions().spacing24x)
+                .background(
+                    color = colorsScheme().surface,
+                    shape = RoundedCornerShape(dimensions().corner10x)
+                )
+                .padding(
+                    horizontal = dimensions().spacing16x,
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(
+                space = dimensions().spacing6x,
+                alignment = Alignment.CenterHorizontally,
+            ),
+        ) {
+            WireCircularProgressIndicator(
+                progressColor = colorsScheme().secondaryText,
+                size = dimensions().spacing14x,
+            )
+            Text(
+                text = stringResource(R.string.loading_files),
+                style = typography().subline01
+            )
+        }
+    }
+}
+
+@Composable
+private fun ErrorFooter(onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = colorsScheme().errorVariant)
+            .padding(dimensions().spacing12x),
+        verticalArrangement = Arrangement.spacedBy(
+            space = dimensions().spacing8x,
+            alignment = Alignment.CenterVertically,
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Text(
+            text = stringResource(R.string.file_list_load_error),
+            style = typography().label03,
+            color = colorsScheme().error,
+            textAlign = TextAlign.Center,
+        )
+
+        WireSecondaryButton(
+            modifier = Modifier.height(dimensions().spacing32x),
+            text = stringResource(R.string.retry),
+            onClick = onRetry,
+            fillMaxWidth = false,
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewProgressFooter() {
+    WireTheme {
+        ProgressFooter()
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewErrorFooter() {
+    WireTheme {
+        ErrorFooter(
+            onRetry = {}
+        )
+    }
 }

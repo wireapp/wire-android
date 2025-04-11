@@ -41,6 +41,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.FileActionsBottomSheet
@@ -56,12 +58,13 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
-    viewState: CellViewState,
+    pagingListItems: LazyPagingItems<CellFileUi>,
     sendIntent: (CellViewIntent) -> Unit,
     downloadFileState: StateFlow<CellFileUi?>,
     fileMenuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (String, String, String?) -> Unit,
     isAllFiles: Boolean,
+    isSearchResult: Boolean = false,
 ) {
 
     val context = LocalContext.current
@@ -72,17 +75,17 @@ internal fun CellScreenContent(
 
     val downloadFile by downloadFileState.collectAsState()
 
-    when (viewState) {
-        is CellViewState.Loading -> LoadingScreen()
-        is CellViewState.Empty -> EmptyScreen(
-            isSearchResult = viewState.isSearchResult,
+    when {
+        pagingListItems.isLoading() -> LoadingScreen()
+        pagingListItems.isError() -> ErrorScreen { pagingListItems.retry() }
+        pagingListItems.itemCount == 0 -> EmptyScreen(
+            isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
-            onRetry = { sendIntent(CellViewIntent.LoadFiles()) }
+            onRetry = { pagingListItems.retry() }
         )
-        is CellViewState.Error -> ErrorScreen { sendIntent(CellViewIntent.LoadFiles()) }
-        is CellViewState.Files ->
+        else ->
             CellFilesScreen(
-                files = viewState.files,
+                files = pagingListItems,
                 onFileClick = { sendIntent(CellViewIntent.OnFileClick(it)) },
                 onFileMenuClick = { sendIntent(CellViewIntent.OnFileMenuClick(it)) },
 //                onRefresh = {
@@ -123,9 +126,6 @@ internal fun CellScreenContent(
     }
 
     LaunchedEffect(Unit) {
-
-        sendIntent(CellViewIntent.LoadFiles(clearList = true))
-
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             actionsFlow.collect { action ->
                 when (action) {
@@ -136,6 +136,7 @@ internal fun CellScreenContent(
                         action.file.fileName ?: action.file.uuid,
                         action.file.publicLinkId
                     )
+                    is RefreshData -> pagingListItems.refresh()
                 }
             }
         }
@@ -172,15 +173,22 @@ private fun ErrorScreen(onRetry: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
-
+        Spacer(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        )
         Text(
             text = stringResource(R.string.file_list_load_error),
             textAlign = TextAlign.Center,
             color = colorsScheme().error,
         )
 
-        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+        Spacer(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        )
 
         WirePrimaryButton(
             text = stringResource(R.string.retry),
@@ -202,7 +210,11 @@ private fun EmptyScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+        Spacer(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        )
 
         Text(
             text = if (isSearchResult) {
@@ -217,7 +229,11 @@ private fun EmptyScreen(
             textAlign = TextAlign.Center,
         )
 
-        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+        Spacer(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        )
 
         if (!isSearchResult) {
             WirePrimaryButton(
@@ -227,3 +243,9 @@ private fun EmptyScreen(
         }
     }
 }
+
+internal fun LazyPagingItems<*>.isError(): Boolean =
+    loadState.refresh is LoadState.Error && itemSnapshotList.isEmpty()
+
+internal fun LazyPagingItems<*>.isLoading(): Boolean =
+    loadState.refresh is LoadState.Loading && itemSnapshotList.isEmpty()

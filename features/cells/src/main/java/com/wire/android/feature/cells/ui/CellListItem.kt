@@ -120,7 +120,7 @@ internal fun CellListItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomStart),
-                progress = { file.downloadProgress },
+                progress = { it },
                 color = colorsScheme().primary,
                 trackColor = Color.Transparent,
             )
@@ -231,12 +231,12 @@ private fun PreviewCellListItem() {
             file = CellFileUi(
                 uuid = "",
                 fileName = "file name",
+                downloadProgress = 0.75f,
                 assetType = AttachmentFileType.IMAGE,
                 assetSize = 123214,
                 localPath = null,
                 mimeType = "image/jpg",
                 publicLinkId = "",
-                downloadProgress = 0.75f,
                 userName = "Test User",
                 conversationName = "Test Conversation"
             ),

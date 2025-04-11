@@ -20,11 +20,10 @@ package com.wire.android.feature.cells.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
@@ -50,8 +49,7 @@ fun ConversationFilesScreen(
     modifier: Modifier = Modifier,
     viewModel: CellViewModel = hiltViewModel()
 ) {
-
-    val state by viewModel.state.collectAsState()
+    val pagingListItems = viewModel.filesFlow.collectAsLazyPagingItems()
 
     WireScaffold(
         modifier = modifier,
@@ -67,9 +65,9 @@ fun ConversationFilesScreen(
         Box(modifier = Modifier.padding(innerPadding)) {
             CellScreenContent(
                 actionsFlow = viewModel.actions,
-                viewState = state,
+                pagingListItems = pagingListItems,
                 sendIntent = { viewModel.sendIntent(it) },
-                downloadFileState = viewModel.downloadFile,
+                downloadFileState = viewModel.downloadFileSheet,
                 fileMenuState = viewModel.menu,
                 isAllFiles = false,
                 showPublicLinkScreen = { assetId, fileName, linkId ->

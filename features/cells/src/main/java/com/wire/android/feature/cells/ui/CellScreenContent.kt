@@ -18,9 +18,10 @@
 package com.wire.android.feature.cells.ui
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -45,7 +46,7 @@ import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.FileActionsBottomSheet
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.model.CellFileUi
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -60,6 +61,7 @@ internal fun CellScreenContent(
     downloadFileState: StateFlow<CellFileUi?>,
     fileMenuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (String, String, String?) -> Unit,
+    isAllFiles: Boolean,
 ) {
 
     val context = LocalContext.current
@@ -74,6 +76,7 @@ internal fun CellScreenContent(
         is CellViewState.Loading -> LoadingScreen()
         is CellViewState.Empty -> EmptyScreen(
             isSearchResult = viewState.isSearchResult,
+            isAllFiles = isAllFiles,
             onRetry = { sendIntent(CellViewIntent.LoadFiles()) }
         )
         is CellViewState.Error -> ErrorScreen { sendIntent(CellViewIntent.LoadFiles()) }
@@ -165,19 +168,21 @@ private fun ErrorScreen(onRetry: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(dimensions().spacing24x),
+            .padding(dimensions().spacing16x),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(
-            space = dimensions().spacing16x,
-            alignment = Alignment.CenterVertically
-        )
     ) {
+
+        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+
         Text(
             text = stringResource(R.string.file_list_load_error),
             textAlign = TextAlign.Center,
+            color = colorsScheme().error,
         )
 
-        WireSecondaryButton(
+        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+
+        WirePrimaryButton(
             text = stringResource(R.string.retry),
             onClick = { onRetry() }
         )
@@ -187,29 +192,35 @@ private fun ErrorScreen(onRetry: () -> Unit) {
 @Composable
 private fun EmptyScreen(
     isSearchResult: Boolean = false,
+    isAllFiles: Boolean = true,
     onRetry: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(dimensions().spacing24x),
+            .padding(dimensions().spacing16x),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(
-            space = dimensions().spacing16x,
-            alignment = Alignment.CenterVertically
-        ),
     ) {
+
+        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+
         Text(
             text = if (isSearchResult) {
                 stringResource(R.string.file_list_search_empty_message)
             } else {
-                stringResource(R.string.file_list_empty_message)
+                if (isAllFiles) {
+                    stringResource(R.string.file_list_empty_message)
+                } else {
+                    stringResource(R.string.conversation_file_list_empty_message)
+                }
             },
             textAlign = TextAlign.Center,
         )
 
+        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+
         if (!isSearchResult) {
-            WireSecondaryButton(
+            WirePrimaryButton(
                 text = stringResource(R.string.reload),
                 onClick = onRetry
             )

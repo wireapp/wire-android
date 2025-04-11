@@ -71,6 +71,7 @@ fun ConversationFilesScreen(
                 sendIntent = { viewModel.sendIntent(it) },
                 downloadFileState = viewModel.downloadFile,
                 fileMenuState = viewModel.menu,
+                isAllFiles = false,
                 showPublicLinkScreen = { assetId, fileName, linkId ->
                     navigator.navigate(
                         NavigationCommand(
@@ -81,7 +82,7 @@ fun ConversationFilesScreen(
                             )
                         )
                     )
-                }
+                },
             )
         }
     }

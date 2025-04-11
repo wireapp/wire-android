@@ -47,7 +47,7 @@ fun AssetPreview(
         modifier = modifier
             .clickable { onClick() }
             .background(
-                color = colorsScheme().outline,
+                color = colorsScheme().surfaceVariant,
                 shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
             )
             .border(
@@ -61,11 +61,10 @@ fun AssetPreview(
             when (item.assetType) {
                 AttachmentFileType.IMAGE -> ImageAssetPreview(item)
                 AttachmentFileType.VIDEO -> VideoAssetPreview(item)
-                AttachmentFileType.PDF -> PdfAssetPreview(item)
                 else -> FileAssetPreview(item)
             }
         } else {
-            FileAssetPreview(item)
+            AssetNotAvailablePreview()
         }
     }
 }

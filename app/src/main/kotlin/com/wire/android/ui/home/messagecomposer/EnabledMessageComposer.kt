@@ -224,9 +224,13 @@ fun EnabledMessageComposer(
                         var cursorCoordinateY by remember { mutableStateOf(0F) }
                         val canSendMessage by remember {
                             derivedStateOf {
-                                messageCompositionInputStateHolder.inputType is InputType.Composing &&
-                                        (messageCompositionInputStateHolder.inputType as InputType.Composing).isSendButtonEnabled &&
+                                with(messageCompositionInputStateHolder) {
+                                    if (attachments.isEmpty()) {
+                                        inputType is InputType.Composing && (inputType as InputType.Composing).isSendButtonEnabled
+                                    } else {
                                         attachments.allUploaded()
+                                    }
+                                }
                             }
                         }
                         val keyboardOptions by remember {
@@ -355,7 +359,15 @@ fun EnabledMessageComposer(
                         }
                     }
 
-                    if (isImeVisible) {
+                    AnimatedVisibility(attachments.isNotEmpty()) {
+                        MessageAttachments(
+                            attachments = attachments,
+                            onClick = onAttachmentClick,
+                            onMenuClick = onAttachmentMenuClick,
+                        )
+                    }
+
+                    AnimatedVisibility(isImeVisible) {
                         AdditionalOptionsMenu(
                             conversationId = conversationId,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
@@ -379,14 +391,6 @@ fun EnabledMessageComposer(
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                             onDrawingModeClicked = openDrawingCanvas,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled
-                        )
-                    }
-
-                    AnimatedVisibility(attachments.isNotEmpty()) {
-                        MessageAttachments(
-                            attachments = attachments,
-                            onClick = onAttachmentClick,
-                            onMenuClick = onAttachmentMenuClick,
                         )
                     }
                 }

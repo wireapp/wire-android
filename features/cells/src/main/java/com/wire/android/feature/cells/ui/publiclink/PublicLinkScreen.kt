@@ -101,22 +101,24 @@ fun PublicLinkScreen(
             )
 
             AnimatedVisibility(
-                visible = state.enabled && state.url != null,
+                visible = state.enabled,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                state.url?.let { url ->
-                    PublicLinkSection(
-                        url = url,
-                        onShareLink = {
+                PublicLinkSection(
+                    url = state.url,
+                    onShareLink = {
+                        state.url?.let { url ->
                             viewModel.shareLink(url)
-                        },
-                        onCopyLink = {
+                        }
+                    },
+                    onCopyLink = {
+                        state.url?.let { url ->
                             clipboardManager.setText(AnnotatedString(url))
                             showLinkCopiedToast(context)
                         }
-                    )
-                }
+                    }
+                )
             }
         }
     }
@@ -180,7 +182,7 @@ private fun EnableLinkSection(
 
 @Composable
 private fun PublicLinkSection(
-    url: String,
+    url: String?,
     onShareLink: () -> Unit,
     onCopyLink: () -> Unit,
 ) {
@@ -197,10 +199,10 @@ private fun PublicLinkSection(
                 .background(colorsScheme().surface)
                 .padding(dimensions().spacing16x)
         ) {
-
             Text(
-                text = url,
-                style = typography().body01
+                text = url ?: stringResource(R.string.creating_link),
+                style = typography().body01,
+                minLines = 2,
             )
 
             Spacer(modifier = Modifier.height(dimensions().spacing24x))

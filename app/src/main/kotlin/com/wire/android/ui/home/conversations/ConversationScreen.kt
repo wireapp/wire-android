@@ -509,6 +509,22 @@ fun ConversationScreen(
                 )
             }
         },
+        onAttachmentPicked = {
+            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
+                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+            } else {
+                val bundle = ComposableMessageBundle.UriPickedBundle(conversationInfoViewModel.conversationId, it)
+                sendMessageViewModel.trySendMessage(bundle)
+            }
+        },
+        onAudioRecorded = {
+            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
+                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+            } else {
+                val bundle = ComposableMessageBundle.AudioMessageBundle(conversationInfoViewModel.conversationId, it)
+                sendMessageViewModel.trySendMessage(bundle)
+            }
+        },
         onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
         onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
         onImageFullScreenMode = { message, isSelfMessage ->
@@ -861,6 +877,8 @@ private fun ConversationScreen(
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
@@ -957,6 +975,8 @@ private fun ConversationScreen(
                         onSendMessage = onSendMessage,
                         onPingOptionClicked = onPingOptionClicked,
                         onImagesPicked = onImagesPicked,
+                        onAttachmentPicked = onAttachmentPicked,
+                        onAudioRecorded = onAudioRecorded,
                         onAssetItemClicked = onAssetItemClicked,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
@@ -1035,6 +1055,8 @@ private fun ConversationScreenContent(
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
@@ -1111,6 +1133,8 @@ private fun ConversationScreenContent(
         openDrawingCanvas = openDrawingCanvas,
         onAttachmentClick = onAttachmentClick,
         onAttachmentMenuClick = onAttachmentMenuClick,
+        onAttachmentPicked = onAttachmentPicked,
+        onAudioRecorded = onAudioRecorded,
     )
 }
 
@@ -1558,5 +1582,7 @@ fun PreviewConversationScreen() = WireTheme {
         onImagesPicked = {},
         onAttachmentClick = {},
         onAttachmentMenuClick = {},
+        onAttachmentPicked = {},
+        onAudioRecorded = {},
     )
 }

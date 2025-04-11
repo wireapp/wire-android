@@ -21,17 +21,22 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
 import com.wire.android.feature.cells.domain.model.previewSupported
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.message.AssetContent
+import com.wire.kalium.logic.data.message.CellAssetContent
+import com.wire.kalium.logic.data.message.MessageAttachment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
@@ -47,7 +52,21 @@ class MultipartAttachmentsViewModel @Inject constructor(
 
     private val refreshed = mutableListOf<String>()
 
-    val uploadProgress = mutableStateMapOf<String, Float>()
+    private val uploadProgress = mutableStateMapOf<String, Float>()
+
+    fun mapAttachments(
+        attachments: List<MessageAttachment>
+    ): Pair<List<MultipartAttachmentUi>, List<MultipartAttachmentUi>> {
+
+        val (media, files) = attachments.partition {
+            it.isMediaAttachment()
+        }
+
+        val mediaAttachments = media.map { it.toUiModel() }
+        val fileAttachments = files.map { it.toUiModel() }
+
+        return mediaAttachments to fileAttachments
+    }
 
     fun onClick(attachment: MultipartAttachmentUi) {
         when {
@@ -110,7 +129,28 @@ class MultipartAttachmentsViewModel @Inject constructor(
             }
         }
     }
+
+    private fun MessageAttachment.toUiModel() =
+        toUiModel(uploadProgress[assetId()])
 }
+
+private fun MessageAttachment.assetId() =
+    when (this) {
+        is AssetContent -> remoteData.assetId
+        is CellAssetContent -> id
+    }
+
+private fun MessageAttachment.mimeType() =
+    when (this) {
+        is AssetContent -> mimeType
+        is CellAssetContent -> mimeType
+    }
+
+private fun MessageAttachment.isMediaAttachment() =
+    when (AttachmentFileType.fromMimeType(mimeType())) {
+        IMAGE, VIDEO -> true
+        else -> false
+    }
 
 private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null

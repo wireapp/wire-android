@@ -37,7 +37,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus
 @Composable
 internal fun BoxScope.TransferStatusIcon(
     item: MultipartAttachmentUi,
-    size: Dp = dimensions().spacing40x,
+    size: Dp = dimensions().spacing32x,
     onLoaded: @Composable () -> Unit = {}
 ) {
 

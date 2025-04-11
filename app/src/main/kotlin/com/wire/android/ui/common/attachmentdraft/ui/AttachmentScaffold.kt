@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,8 +45,9 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun AttachmentScaffold(
     onClick: () -> Unit,
-    onClickDelete: () -> Unit,
+    onMenuButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showMenuButton: Boolean = false,
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(modifier = modifier) {
@@ -72,7 +74,7 @@ fun AttachmentScaffold(
                 .size(24.dp)
                 .align(Alignment.TopEnd)
                 .clip(CircleShape)
-                .clickable { onClickDelete() }
+                .clickable { onMenuButtonClick() }
                 .background(
                     color = colorsScheme().surface,
                     shape = CircleShape
@@ -83,7 +85,7 @@ fun AttachmentScaffold(
                     shape = CircleShape
                 )
                 .padding(dimensions().spacing4x),
-            imageVector = Icons.Default.Close,
+            imageVector = if (showMenuButton) Icons.Default.MoreHoriz else Icons.Default.Close,
             contentDescription = null,
             tint = colorsScheme().onSurface,
         )
@@ -96,7 +98,23 @@ private fun PreviewAttachmentScaffold() {
     WireTheme {
         AttachmentScaffold(
             onClick = {},
-            onClickDelete = {},
+            onMenuButtonClick = {},
+        ) {
+            Column {
+                // Attachment content
+            }
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewAttachmentMenuScaffold() {
+    WireTheme {
+        AttachmentScaffold(
+            onClick = {},
+            onMenuButtonClick = {},
+            showMenuButton = true,
         ) {
             Column {
                 // Attachment content

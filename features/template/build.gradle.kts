@@ -1,6 +1,5 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
-    id(libs.plugins.wire.kover.get().pluginId)
 }
 
 dependencies {

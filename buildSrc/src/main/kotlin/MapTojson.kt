@@ -16,13 +16,29 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-fun Map<String, String?>.toJsonString (): String {
+fun Map<String, String?>.toJsonString(): String {
     if (this.isEmpty()) return "{}"
 
     return StringBuilder().apply {
         append("{")
         this@toJsonString.forEach { (key, value) ->
             append("\"$key\":\"$value\",")
+        }
+        deleteCharAt(length - 1)
+        append("}")
+
+    }.toString()
+}
+
+fun Map<Int, List<String>>.toJsonStringList(): String {
+    if (this.isEmpty()) return "{}"
+
+    return StringBuilder().apply {
+        append("{")
+        this@toJsonStringList.forEach { (key, value) ->
+            append("\"$key\":[")
+            append(value.joinToString(",") { "\"$it\"" })
+            append("],")
         }
         deleteCharAt(length - 1)
         append("}")

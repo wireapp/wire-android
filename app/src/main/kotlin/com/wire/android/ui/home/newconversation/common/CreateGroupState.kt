@@ -22,6 +22,7 @@ data class CreateGroupState(
 ) {
     sealed interface Error {
         data object Unknown : Error
+        data object Forbidden : Error
         data object LackingConnection : Error
         data class ConflictedBackends(val domains: List<String>) : Error
 

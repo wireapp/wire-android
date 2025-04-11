@@ -57,6 +57,10 @@ fun CreateGroupErrorDialog(
             linkText = stringResource(id = R.string.label_learn_more),
             linkUrl = stringResource(id = R.string.url_message_details_offline_backends_learn_more)
         )
+        is CreateGroupState.Error.Forbidden -> DialogErrorStrings(
+            title = stringResource(R.string.conversation_can_not_be_created_title),
+            message = stringResource(R.string.create_channel_error_forbidden_message),
+        ) to null
     }
 
     WireDialog(

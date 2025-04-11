@@ -66,7 +66,7 @@ class NewConversationViewModel @Inject constructor(
     private val getSelfUser: GetSelfUserUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val globalDataStore: GlobalDataStore,
-    ) : ViewModel() {
+) : ViewModel() {
 
     var newGroupNameTextState: TextFieldState = TextFieldState()
     var newGroupState: GroupMetadataState by mutableStateOf(
@@ -320,8 +320,16 @@ class NewConversationViewModel @Inject constructor(
                 result.conversation.id
             }
 
+            ConversationCreationResult.Forbidden -> {
+                appLogger.d("Can't create conversation due to Insufficient permissions")
+                groupOptionsState = groupOptionsState.copy(isLoading = false)
+                newGroupState = newGroupState.copy(isLoading = false)
+                createGroupState = createGroupState.copy(error = CreateGroupState.Error.Forbidden)
+                null
+            }
+
             ConversationCreationResult.SyncFailure -> {
-                appLogger.d("Can't create group due to SyncFailure")
+                appLogger.d("Can't create conversation due to SyncFailure")
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = createGroupState.copy(error = CreateGroupState.Error.LackingConnection)
@@ -329,7 +337,7 @@ class NewConversationViewModel @Inject constructor(
             }
 
             is ConversationCreationResult.UnknownFailure -> {
-                appLogger.w("Error while creating a group ${result.cause}")
+                appLogger.w("Error while creating a conversation ${result.cause}")
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = createGroupState.copy(error = CreateGroupState.Error.Unknown)

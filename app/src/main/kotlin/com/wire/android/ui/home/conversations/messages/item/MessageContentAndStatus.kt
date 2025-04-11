@@ -241,6 +241,7 @@ private fun MessageContent(
                     audioMessageDurationInMs = messageContent.audioMessageDurationInMs,
                     extension = messageContent.assetExtension,
                     size = messageContent.sizeInBytes,
+                    assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }

@@ -45,7 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
-class GroupConversationParticipantsViewModelTest {
+class GroupParticipantsViewModelTest {
 
     private fun testSize(givenParticipantsSize: Int, expectedParticipantsSize: Int) = runTest {
         // Given

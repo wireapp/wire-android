@@ -65,5 +65,7 @@ fun AddMembersSearchScreen(
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
         selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
         isServicesAllowed = navArgs.isServicesAllowed,
+        isUserAllowedToCreateChannels = false,
+        shouldShowChannelPromotion = false,
     )
 }

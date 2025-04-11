@@ -164,7 +164,10 @@ class ConversationInfoViewModel @Inject constructor(
                 )
 
             is ConversationDetails.Group.Regular -> ConversationAvatar.Group.Regular(conversationDetails.conversation.id)
-            is ConversationDetails.Group.Channel -> ConversationAvatar.Group.Channel(conversationDetails.conversation.id)
+            is ConversationDetails.Group.Channel -> {
+                val isPrivate = conversationDetails.access == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE
+                ConversationAvatar.Group.Channel(conversationDetails.conversation.id, isPrivate)
+            }
             else -> ConversationAvatar.None
         }
 

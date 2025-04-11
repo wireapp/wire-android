@@ -122,7 +122,9 @@ private fun buildInlineText(
     val inlineText = linkText?.let {
         text.plus(
             buildAnnotatedString {
-                append(" ")
+                if (text.isNotEmpty() && !text.endsWith(" ") && !text.endsWith("\n")) {
+                    append(" ")
+                }
                 appendInlineContent(linkId, "[link]")
             }
         )

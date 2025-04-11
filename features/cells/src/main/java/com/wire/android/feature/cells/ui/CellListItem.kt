@@ -55,7 +55,6 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.model.CellFileUi
 import com.wire.android.feature.cells.domain.model.icon
-import com.wire.android.feature.cells.domain.model.previewSupported
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -136,7 +135,7 @@ internal fun FileIconPreview(file: CellFileUi) {
             .size(dimensions().spacing56x),
         contentAlignment = Alignment.Center
     ) {
-        if (file.previewUrl != null && file.assetType.previewSupported()) {
+        if (file.previewUrl != null) {
 
             val builder = ImageRequest.Builder(LocalContext.current)
                 .diskCacheKey(file.contentHash)

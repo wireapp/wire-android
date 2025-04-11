@@ -115,7 +115,7 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        viewModel.sendIntent(CellViewIntent.OnFileClick(testFiles[0].toUiModel(null)))
+        viewModel.sendIntent(CellViewIntent.OnFileClick(testFiles[0].toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
@@ -131,7 +131,7 @@ class CellViewModelTest {
             contentUrl = "https://example.com/file"
         )
 
-        viewModel.sendIntent(CellViewIntent.OnFileClick(testFile.toUiModel(null)))
+        viewModel.sendIntent(CellViewIntent.OnFileClick(testFile.toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
     }
@@ -145,7 +145,7 @@ class CellViewModelTest {
         val testFile = testFiles[0].copy(
             localPath = null,
             contentUrl = null
-        ).toUiModel(null)
+        ).toUiModel()
 
         viewModel.downloadFileSheet.test {
             viewModel.sendIntent(CellViewIntent.OnFileClick(testFile))
@@ -163,7 +163,7 @@ class CellViewModelTest {
             .withDownloadSuccess()
             .arrange()
 
-        viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel(null)))
+        viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel()))
 
         coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
     }
@@ -177,7 +177,7 @@ class CellViewModelTest {
 
         viewModel.actions.test {
 
-            viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel(null)))
+            viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel()))
 
             with(expectMostRecentItem()) {
                 assertTrue(this is ShowError)
@@ -189,13 +189,13 @@ class CellViewModelTest {
 
     @Test
     fun `given view model when file menu clicked and local file available then file menu is opened`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
 
         viewModel.menu.test {
 
-            val testFile = testFiles[0].toUiModel(null)
+            val testFile = testFiles[0].toUiModel()
 
             viewModel.sendIntent(CellViewIntent.OnFileMenuClick(testFile))
 
@@ -215,7 +215,7 @@ class CellViewModelTest {
         viewModel.menu.test {
 
             val testFile = testFiles[0]
-                .toUiModel(null)
+                .toUiModel()
                 .copy(localPath = null)
 
             viewModel.sendIntent(CellViewIntent.OnFileMenuClick(testFile))
@@ -235,7 +235,7 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0]
-            .toUiModel(null)
+            .toUiModel()
             .copy(localPath = null)
 
         viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.SAVE))
@@ -252,7 +252,7 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0]
-            .toUiModel(null)
+            .toUiModel()
 
         viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.SHARE))
 
@@ -268,7 +268,7 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0]
-            .toUiModel(null)
+            .toUiModel()
 
         viewModel.actions.test {
             viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.PUBLIC_LINK))
@@ -287,7 +287,7 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0]
-            .toUiModel(null)
+            .toUiModel()
 
         viewModel.actions.test {
             viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.DELETE))
@@ -307,7 +307,7 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0]
-            .toUiModel(null)
+            .toUiModel()
 
         viewModel.sendIntent(CellViewIntent.OnFileDeleteConfirmed(testFile))
 
@@ -323,7 +323,7 @@ class CellViewModelTest {
             .withDeleteSuccess()
             .arrange()
 
-        val testFile = testFiles[0].toUiModel(null)
+        val testFile = testFiles[0].toUiModel()
 
         viewModel.sendIntent(CellViewIntent.OnFileDeleteConfirmed(testFile))
 

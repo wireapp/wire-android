@@ -35,6 +35,7 @@ import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
@@ -88,7 +89,7 @@ class CellViewModel @Inject constructor(
         .flowOn(Dispatchers.Main.immediate)
 
     // Download progress value for each file being downloaded.
-    private val downloadProgressFlow = MutableStateFlow<Map<String, Float>>(emptyMap())
+    private val downloadDataFlow = MutableStateFlow<Map<String, DownloadData>>(emptyMap())
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
 
@@ -102,14 +103,17 @@ class CellViewModel @Inject constructor(
             combine(
                 getCellFilesPaged(navArgs.conversationId, query).cachedIn(viewModelScope),
                 removedItemsFlow,
-                downloadProgressFlow
-            ) { pagingData, removedItems, progress ->
+                downloadDataFlow,
+            ) { pagingData, removedItems, downloadData ->
                 pagingData
                     .filter {
                         it.uuid !in removedItems
                     }
                     .map {
-                        it.toUiModel(progress[it.uuid])
+                        it.toUiModel().copy(
+                            downloadProgress = downloadData[it.uuid]?.progress,
+                            localPath = downloadData[it.uuid]?.localPath?.toString()
+                        )
                     }
             }
         }
@@ -163,6 +167,12 @@ class CellViewModel @Inject constructor(
             file.assetSize?.let {
                 updateDownloadProgress(progress, it, file, path)
             }
+        }.onSuccess {
+            updateDownloadData(file.uuid) {
+                DownloadData(
+                    localPath = path
+                )
+            }
         }.onFailure {
             _downloadFileSheet.update { null }
             sendAction(ShowError(CellError.DOWNLOAD_FAILED))
@@ -174,16 +184,16 @@ class CellViewModel @Inject constructor(
         val value = progress.toFloat() / it
 
         if (value < 1) {
-            downloadProgressFlow.update { map ->
-                val progressMap = map.toMutableMap()
-                progressMap[file.uuid] = value
-                progressMap.toImmutableMap()
+            updateDownloadData(file.uuid) {
+                DownloadData(
+                    progress = value
+                )
             }
         } else {
-            downloadProgressFlow.update {
-                it.filterKeys { key ->
-                    key != file.uuid
-                }
+            updateDownloadData(file.uuid) {
+                DownloadData(
+                    localPath = path
+                )
             }
 
             if (_downloadFileSheet.value?.uuid == file.uuid) {
@@ -279,6 +289,14 @@ class CellViewModel @Inject constructor(
     private fun sendAction(action: CellViewAction) {
         viewModelScope.launch { _actions.send(action) }
     }
+
+    private fun updateDownloadData(uuid: String, block: () -> DownloadData) {
+        downloadDataFlow.update { map ->
+            val progressMap = map.toMutableMap()
+            progressMap[uuid] = block()
+            progressMap.toImmutableMap()
+        }
+    }
 }
 
 internal sealed interface CellViewIntent {
@@ -305,4 +323,9 @@ internal enum class CellError(val message: Int) {
 internal data class MenuOptions(
     val file: CellFileUi,
     val actions: List<FileAction>
+)
+
+private data class DownloadData(
+    val progress: Float? = null,
+    val localPath: Path? = null,
 )

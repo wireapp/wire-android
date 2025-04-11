@@ -141,7 +141,11 @@ class GroupConversationDetailsViewModel @Inject constructor(
         .distinctUntilChanged()
         .flowOn(dispatcher.io())
 
-    @Suppress("LongMethod")
+    /**
+     * TODO(refactor): move business logic to Kalium/Logic or similar
+     *                 this shouldn't be defined in the ViewModel
+     */
+    @Suppress("LongMethod", "CyclomaticComplexMethod")
     private fun observeConversationDetails() {
         viewModelScope.launch {
             val groupDetailsFlow = groupDetailsFlow()
@@ -155,12 +159,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 groupDetailsFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
             ) { groupDetails, selfDeletionTimer ->
-                val isSelfInOwnerTeam = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
+                val isSelfInTeamThatOwnsConversation = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
                 val isSelfExternalMember = selfUser?.userType == UserType.EXTERNAL
-                val isSelfAnAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
-                val isSelfTeamAdmin = selfUser?.userType in arrayOf(UserType.ADMIN, UserType.OWNER)
-                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
                 val isChannel = groupDetails is ConversationDetails.Group.Channel
+                val isSelfTeamAdmin = selfUser?.userType in arrayOf(UserType.ADMIN, UserType.OWNER)
+                val canPerformChannelAdminTasks = isChannel && isSelfInTeamThatOwnsConversation && isSelfTeamAdmin
+                val isRegularGroupAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
+                val canSelfPerformAdminTasks = (isRegularGroupAdmin) || (canPerformChannelAdminTasks)
+                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
 
                 conversationSheetContent = ConversationSheetContent(
                     title = groupDetails.conversation.name.orEmpty(),
@@ -170,7 +176,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         ConversationTypeDetail.Group.Channel(
                             conversationId = conversationId,
                             isFromTheSameTeam = groupDetails.conversation.teamId == getSelfUser()?.teamId,
-                            isPrivate = groupDetails.access == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE
+                            isPrivate = groupDetails.access == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE,
+                            isSelfUserTeamAdmin = isSelfTeamAdmin,
                         )
                     } else {
                         ConversationTypeDetail.Group.Regular(
@@ -199,12 +206,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         areAccessOptionsAvailable = groupDetails.conversation.isTeamGroup(),
                         isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed(),
                         isServicesAllowed = groupDetails.conversation.isServicesAllowed() && !isMLSTeam && !isMLSConversation,
-                        isUpdatingNameAllowed = isSelfAnAdmin && !isSelfExternalMember,
-                        isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
-                        isUpdatingChannelAccessAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
-                        isUpdatingServicesAllowed = isSelfAnAdmin && !isMLSTeam && !isMLSConversation,
-                        isUpdatingReadReceiptAllowed = isSelfAnAdmin && groupDetails.conversation.isTeamGroup(),
-                        isUpdatingSelfDeletingAllowed = isSelfAnAdmin,
+                        isUpdatingNameAllowed = canSelfPerformAdminTasks && !isSelfExternalMember,
+                        isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
+                        isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
+                        isUpdatingServicesAllowed = canSelfPerformAdminTasks && !isMLSTeam && !isMLSConversation,
+                        isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
+                        isUpdatingSelfDeletingAllowed = canSelfPerformAdminTasks,
                         mlsEnabled = isMLSEnabled(),
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
                         selfDeletionTimer = selfDeletionTimer,

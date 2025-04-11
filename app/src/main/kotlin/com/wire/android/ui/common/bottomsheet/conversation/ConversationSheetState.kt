@@ -74,6 +74,7 @@ fun rememberConversationSheetState(
                             conversationId = conversationId,
                             isFromTheSameTeam = isFromTheSameTeam,
                             isPrivate = conversationItem.isPrivate,
+                            isSelfUserTeamAdmin = false // TODO: Get actual value
                         )
                     } else {
                         ConversationTypeDetail.Group.Regular(

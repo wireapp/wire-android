@@ -24,7 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider

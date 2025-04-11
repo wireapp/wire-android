@@ -50,4 +50,5 @@
     <string name="error_share_link">Failed to share link.</string>
     <string name="conversation_files_title">Files</string>
     <string name="creating_link">Creating public link...</string>
+    <string name="loading_files">Loading files...</string>
 </resources>

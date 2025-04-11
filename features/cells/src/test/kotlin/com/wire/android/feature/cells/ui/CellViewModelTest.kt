@@ -18,6 +18,10 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
+import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.model.FileAction
@@ -26,7 +30,7 @@ import com.wire.android.feature.cells.util.FileHelper
 import com.wire.kalium.cells.domain.model.CellFile
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
+import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
@@ -37,7 +41,9 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -79,9 +85,11 @@ class CellViewModelTest {
         val localFilePath = "localPath".toPath()
     }
 
+    private val dispatcher = UnconfinedTestDispatcher()
+
     @BeforeEach
     fun beforeEach() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
+        Dispatchers.setMain(dispatcher)
     }
 
     @AfterEach
@@ -90,40 +98,15 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when load intent received cell files are loaded`() = runTest {
+    fun `given view model when files flow subscibed cell files are loaded`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
 
-        viewModel.state.test {
+        val items = viewModel.filesFlow.asSnapshot()
+        assertEquals(items.size, 2)
 
-            viewModel.sendIntent(CellViewIntent.LoadFiles())
-
-            with(expectMostRecentItem()) {
-                assertTrue(this is CellViewState.Files)
-                assertEquals((this as CellViewState.Files).files.size, 2)
-            }
-        }
-
-        coVerify(exactly = 1) { arrangement.getCellFilesUseCase(any(), any()) }
-    }
-
-    @Test
-    fun `given view model when load intent received and loading fails error is emitted`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadFailure()
-            .arrange()
-
-        viewModel.state.test {
-
-            viewModel.sendIntent(CellViewIntent.LoadFiles())
-
-            with(expectMostRecentItem()) {
-                assertTrue(this is CellViewState.Error)
-            }
-        }
-
-        coVerify(exactly = 1) { arrangement.getCellFilesUseCase(any(), any()) }
+        coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any()) }
     }
 
     @Test
@@ -132,7 +115,7 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        viewModel.sendIntent(CellViewIntent.OnFileClick(testFiles[0].toUiModel(null)))
+        viewModel.sendIntent(CellViewIntent.OnFileClick(testFiles[0].toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
@@ -148,7 +131,7 @@ class CellViewModelTest {
             contentUrl = "https://example.com/file"
         )
 
-        viewModel.sendIntent(CellViewIntent.OnFileClick(testFile.toUiModel(null)))
+        viewModel.sendIntent(CellViewIntent.OnFileClick(testFile.toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
     }
@@ -162,9 +145,9 @@ class CellViewModelTest {
         val testFile = testFiles[0].copy(
             localPath = null,
             contentUrl = null
-        ).toUiModel(null)
+        ).toUiModel()
 
-        viewModel.downloadFile.test {
+        viewModel.downloadFileSheet.test {
             viewModel.sendIntent(CellViewIntent.OnFileClick(testFile))
 
             with(expectMostRecentItem()) {
@@ -180,7 +163,7 @@ class CellViewModelTest {
             .withDownloadSuccess()
             .arrange()
 
-        viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel(null)))
+        viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel()))
 
         coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
     }
@@ -194,7 +177,7 @@ class CellViewModelTest {
 
         viewModel.actions.test {
 
-            viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel(null)))
+            viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel()))
 
             with(expectMostRecentItem()) {
                 assertTrue(this is ShowError)
@@ -206,13 +189,13 @@ class CellViewModelTest {
 
     @Test
     fun `given view model when file menu clicked and local file available then file menu is opened`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
 
         viewModel.menu.test {
 
-            val testFile = testFiles[0].toUiModel(null)
+            val testFile = testFiles[0].toUiModel()
 
             viewModel.sendIntent(CellViewIntent.OnFileMenuClick(testFile))
 
@@ -232,7 +215,7 @@ class CellViewModelTest {
         viewModel.menu.test {
 
             val testFile = testFiles[0]
-                .toUiModel(null)
+                .toUiModel()
                 .copy(localPath = null)
 
             viewModel.sendIntent(CellViewIntent.OnFileMenuClick(testFile))
@@ -252,7 +235,7 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0]
-            .toUiModel(null)
+            .toUiModel()
             .copy(localPath = null)
 
         viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.SAVE))
@@ -269,7 +252,7 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0]
-            .toUiModel(null)
+            .toUiModel()
 
         viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.SHARE))
 
@@ -285,7 +268,7 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0]
-            .toUiModel(null)
+            .toUiModel()
 
         viewModel.actions.test {
             viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.PUBLIC_LINK))
@@ -304,7 +287,7 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0]
-            .toUiModel(null)
+            .toUiModel()
 
         viewModel.actions.test {
             viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.DELETE))
@@ -324,19 +307,12 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0]
-            .toUiModel(null)
+            .toUiModel()
 
-        viewModel.state.test {
+        viewModel.sendIntent(CellViewIntent.OnFileDeleteConfirmed(testFile))
 
-            viewModel.sendIntent(CellViewIntent.LoadFiles())
-
-            skipItems(1)
-
-            viewModel.sendIntent(CellViewIntent.OnFileDeleteConfirmed(testFile))
-
-            with(expectMostRecentItem() as CellViewState.Files) {
-                assertFalse(files.contains(testFile))
-            }
+        with(viewModel.filesFlow.asSnapshot()) {
+            assertFalse(contains(testFile))
         }
     }
 
@@ -347,9 +323,7 @@ class CellViewModelTest {
             .withDeleteSuccess()
             .arrange()
 
-        val testFile = testFiles[0].toUiModel(null)
-
-        viewModel.sendIntent(CellViewIntent.LoadFiles())
+        val testFile = testFiles[0].toUiModel()
 
         viewModel.sendIntent(CellViewIntent.OnFileDeleteConfirmed(testFile))
 
@@ -359,18 +333,25 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when search query is updated then new load request is sent with updated search text`() = runTest {
+    fun `given view model when search query is updated then new load request is sent with updated search text`() =
+        runTest(dispatcher) {
 
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
+            val (arrangement, viewModel) = Arrangement()
+                .withLoadSuccess()
+                .arrange()
 
-        viewModel.onSearchQueryUpdated("test")
+            viewModel.filesFlow.test {
+                viewModel.onSearchQueryUpdated("test")
 
-        coVerify(exactly = 1) {
-            arrangement.getCellFilesUseCase(null, "test")
+                advanceTimeBy(1000)
+
+                coVerify(exactly = 1) {
+                    arrangement.getCellFilesPagedUseCase(null, "test")
+                }
+
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     private class Arrangement(conversationId: String? = null) {
 
@@ -378,7 +359,7 @@ class CellViewModelTest {
         lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
-        lateinit var getCellFilesUseCase: GetCellFilesUseCase
+        lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
 
         @MockK
         lateinit var deleteCellAssetUseCase: DeleteCellAssetUseCase
@@ -406,12 +387,16 @@ class CellViewModelTest {
         }
 
         fun withLoadSuccess() = apply {
-            coEvery { getCellFilesUseCase(any(), any()) } returns testFiles.right()
-        }
-
-        fun withLoadFailure() = apply {
-            coEvery { getCellFilesUseCase(any(), any()) } returns
-                    CoreFailure.Unknown(IllegalStateException("Test")).left()
+            coEvery { getCellFilesPagedUseCase(any(), any()) } returns flowOf(
+                PagingData.from(
+                    data = testFiles,
+                    sourceLoadStates = LoadStates(
+                        prepend = LoadState.NotLoading(true),
+                        append = LoadState.NotLoading(true),
+                        refresh = LoadState.NotLoading(true),
+                    ),
+                )
+            )
         }
 
         fun withDownloadSuccess() = apply {
@@ -430,7 +415,7 @@ class CellViewModelTest {
         fun arrange(): Pair<Arrangement, CellViewModel> {
             return this to CellViewModel(
                 savedStateHandle = savedStateHandle,
-                getCellFiles = getCellFilesUseCase,
+                getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,

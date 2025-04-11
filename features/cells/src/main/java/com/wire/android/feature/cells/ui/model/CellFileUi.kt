@@ -43,7 +43,7 @@ internal data class CellFileUi(
     val modifiedTime: String? = null,
 )
 
-internal fun CellFile.toUiModel(downloadProgress: Float?) = CellFileUi(
+internal fun CellFile.toUiModel() = CellFileUi(
     uuid = uuid,
     fileName = fileName,
     mimeType = mimeType,
@@ -54,7 +54,6 @@ internal fun CellFile.toUiModel(downloadProgress: Float?) = CellFileUi(
     contentHash = contentHash,
     contentUrl = contentUrl,
     previewUrl = previewUrl,
-    downloadProgress = downloadProgress,
     userName = userName,
     conversationName = conversationName,
     publicLinkId = publicLinkId,

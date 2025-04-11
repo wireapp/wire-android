@@ -18,6 +18,6 @@
  *
  */
 
-package com.wire.android.ui.home.conversations.search
+package com.wire.android.ui.common
 
 const val DEFAULT_SEARCH_QUERY_DEBOUNCE = 500L

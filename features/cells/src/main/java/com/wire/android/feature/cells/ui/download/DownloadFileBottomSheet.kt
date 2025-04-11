@@ -167,12 +167,12 @@ private fun DownloadFileBottomSheetPreview() {
             file = CellFileUi(
                 fileName = "file.txt",
                 conversationName = "Conversation",
-                downloadProgress = null,
                 uuid = "234324",
                 mimeType = "video/mp4",
                 assetType = AttachmentFileType.VIDEO,
                 assetSize = 23432532532,
-                localPath = null
+                localPath = null,
+                downloadProgress = null,
             ),
             onCancel = {},
             onDownload = {}
@@ -188,12 +188,12 @@ private fun DownloadFileBottomSheetDownloadingPreview() {
             file = CellFileUi(
                 fileName = "file.txt",
                 conversationName = "Conversation",
-                downloadProgress = 0.75f,
                 uuid = "234324",
                 mimeType = "video/mp4",
                 assetType = AttachmentFileType.VIDEO,
                 assetSize = 23432532532,
-                localPath = null
+                localPath = null,
+                downloadProgress = 0.75f,
             ),
             onCancel = {},
             onDownload = {}

@@ -18,7 +18,7 @@
 package com.wire.android.ui.home.cell
 
 import androidx.compose.runtime.Composable
-import com.wire.android.feature.cells.ui.WireCellScreen
+import com.wire.android.feature.cells.ui.AllFilesScreen
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.home.HomeStateHolder
@@ -29,7 +29,7 @@ import com.wire.android.ui.home.HomeStateHolder
 fun GlobalCellsScreen(
     homeStateHolder: HomeStateHolder,
 ) {
-    WireCellScreen(
+    AllFilesScreen(
         navigator = homeStateHolder.navigator,
         searchBarState = homeStateHolder.searchBarState,
     )

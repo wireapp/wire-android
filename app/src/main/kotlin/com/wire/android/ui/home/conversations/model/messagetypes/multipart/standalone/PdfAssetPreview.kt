@@ -145,10 +145,10 @@ internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
 
 @Suppress("MagicNumber")
 private fun aspectRatio(width: Int?, height: Int?) =
-    if (width != null && height != null) {
-        width.toFloat() / height.toFloat()
-    } else {
-        10f / 14f
+    when {
+        width == null || height == null -> 10f / 14f
+        width == 0 || height == 0 -> 10f / 14f
+        else -> width.toFloat() / height.toFloat()
     }
 
 @PreviewMultipleThemes

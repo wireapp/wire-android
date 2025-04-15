@@ -21,6 +21,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
+import com.wire.kalium.logic.feature.mls.MLSPublicKeysSyncWorker
 import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -40,6 +41,7 @@ class AppSyncViewModelTest {
         val (arrangement, viewModel) = Arrangement().arrange {
             withObserveCertificateRevocationForSelfClient()
             withFeatureFlagsSyncWorker()
+            withMLSPublicKeysSyncWorker()
             withSyncCertificateRevocationListUseCase()
             withUpdateApiVersions()
         }
@@ -50,6 +52,7 @@ class AppSyncViewModelTest {
         coVerify { arrangement.observeCertificateRevocationForSelfClient.invoke() }
         coVerify { arrangement.syncCertificateRevocationListUseCase.invoke() }
         coVerify { arrangement.featureFlagsSyncWorker.execute() }
+        coVerify { arrangement.mlsPublicKeysSyncWorker.executeImmediately() }
         coVerify { arrangement.updateApiVersions() }
     }
 
@@ -58,6 +61,7 @@ class AppSyncViewModelTest {
         val (arrangement, viewModel) = Arrangement().arrange {
             withObserveCertificateRevocationForSelfClient(1000)
             withFeatureFlagsSyncWorker(1000)
+            withMLSPublicKeysSyncWorker(1000)
             withSyncCertificateRevocationListUseCase(1000)
             withUpdateApiVersions(1000)
         }
@@ -70,6 +74,7 @@ class AppSyncViewModelTest {
         coVerify(exactly = 1) { arrangement.observeCertificateRevocationForSelfClient.invoke() }
         coVerify(exactly = 1) { arrangement.syncCertificateRevocationListUseCase.invoke() }
         coVerify(exactly = 1) { arrangement.featureFlagsSyncWorker.execute() }
+        coVerify(exactly = 1) { arrangement.mlsPublicKeysSyncWorker.executeImmediately() }
         coVerify(exactly = 1) { arrangement.updateApiVersions() }
     }
 
@@ -85,6 +90,9 @@ class AppSyncViewModelTest {
         lateinit var featureFlagsSyncWorker: FeatureFlagsSyncWorker
 
         @MockK
+        lateinit var mlsPublicKeysSyncWorker: MLSPublicKeysSyncWorker
+
+        @MockK
         lateinit var updateApiVersions: UpdateApiVersionsUseCase
 
         init {
@@ -95,6 +103,7 @@ class AppSyncViewModelTest {
             syncCertificateRevocationListUseCase,
             observeCertificateRevocationForSelfClient,
             featureFlagsSyncWorker,
+            mlsPublicKeysSyncWorker,
             updateApiVersions
         )
 
@@ -113,6 +122,12 @@ class AppSyncViewModelTest {
 
         fun withFeatureFlagsSyncWorker(delayMs: Long = 0) {
             coEvery { featureFlagsSyncWorker.execute() } coAnswers {
+                delay(delayMs)
+            }
+        }
+
+        fun withMLSPublicKeysSyncWorker(delayMs: Long = 0) {
+            coEvery { mlsPublicKeysSyncWorker.executeImmediately() } coAnswers {
                 delay(delayMs)
             }
         }

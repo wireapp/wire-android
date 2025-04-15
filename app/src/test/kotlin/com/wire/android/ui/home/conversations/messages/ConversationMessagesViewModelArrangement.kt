@@ -22,6 +22,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -114,6 +115,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var deleteMessage: DeleteMessageUseCase
 
+    @MockK
+    lateinit var globalDataStore: GlobalDataStore
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -132,6 +136,7 @@ class ConversationMessagesViewModelArrangement {
             clearUsersTypingEvents,
             getSearchedConversationMessagePosition,
             deleteMessage,
+            globalDataStore,
         )
     }
 

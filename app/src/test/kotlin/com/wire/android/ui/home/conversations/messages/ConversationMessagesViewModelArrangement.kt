@@ -53,6 +53,11 @@ import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.TeamId
+import com.wire.kalium.util.time.UNIX_FIRST_DATE
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -62,6 +67,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.Instant
 import okio.Path
 
 class ConversationMessagesViewModelArrangement {
@@ -237,5 +243,43 @@ class ConversationMessagesViewModelArrangement {
         return this
     }
 
+    fun withWireCellEnabled() = apply {
+        coEvery { globalDataStore.wireCellsEnabled() } returns flowOf(true)
+        coEvery { observeConversationDetails(any()) } returns flowOf(
+            ObserveConversationDetailsUseCase.Result.Success(
+                ConversationDetails.Group.Regular(
+                    conversation = conversationStub,
+                    isSelfUserMember = true,
+                    selfRole = Conversation.Member.Role.Member,
+                    wireCell = "test_cell"
+                )
+            )
+        )
+    }
+
     fun arrange() = this to viewModel
 }
+
+private val conversationStub = Conversation(
+    id = ConversationId("some-dummy-value", "some.dummy.domain"),
+    type = Conversation.Type.Group.Regular,
+    name = "Test",
+    access = listOf(Conversation.Access.PRIVATE),
+    accessRole = listOf(Conversation.AccessRole.TEAM_MEMBER),
+    protocol = Conversation.ProtocolInfo.Proteus,
+    teamId = TeamId("someTeam"),
+    lastReadDate = Instant.UNIX_FIRST_DATE,
+    creatorId = "someCreatorId",
+    receiptMode = Conversation.ReceiptMode.DISABLED,
+    messageTimer = null,
+    userMessageTimer = null,
+    archived = false,
+    archivedDateTime = null,
+    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    legalHoldStatus = Conversation.LegalHoldStatus.DISABLED,
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    removedBy = null,
+    lastNotificationDate = null,
+    lastModifiedDate = null,
+)

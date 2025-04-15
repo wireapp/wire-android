@@ -23,6 +23,7 @@ import com.wire.android.appLogger
 import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
+import com.wire.kalium.logic.feature.mls.MLSPublicKeysSyncWorker
 import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -39,7 +40,8 @@ class AppSyncViewModel @Inject constructor(
     private val syncCertificateRevocationListUseCase: SyncCertificateRevocationListUseCase,
     private val observeCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase,
     private val featureFlagsSyncWorker: FeatureFlagsSyncWorker,
-    private val updateApiVersions: UpdateApiVersionsUseCase
+    private val mlsPublicKeysSyncWorker: MLSPublicKeysSyncWorker,
+    private val updateApiVersions: UpdateApiVersionsUseCase,
 ) : ViewModel() {
 
     private val minIntervalBetweenPulls: Duration = MIN_INTERVAL_BETWEEN_PULLS
@@ -75,6 +77,7 @@ class AppSyncViewModel @Inject constructor(
             listOf(
                 viewModelScope.launch { syncCertificateRevocationListUseCase() },
                 viewModelScope.launch { featureFlagsSyncWorker.execute() },
+                viewModelScope.launch { mlsPublicKeysSyncWorker.executeImmediately() },
                 viewModelScope.launch { observeCertificateRevocationForSelfClient.invoke() },
                 viewModelScope.launch { updateApiVersions() },
             ).joinAll()

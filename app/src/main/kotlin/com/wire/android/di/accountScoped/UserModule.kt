@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
+import com.wire.kalium.logic.feature.mls.MLSPublicKeysSyncWorker
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
@@ -256,4 +257,9 @@ class UserModule {
     @Provides
     fun provideObserveCertificateRevocationForSelfClientUseCase(userScope: UserScope): ObserveCertificateRevocationForSelfClientUseCase =
         userScope.observeCertificateRevocationForSelfClient
+
+    @ViewModelScoped
+    @Provides
+    fun provideMLSPublicKeysSyncWorker(userScope: UserScope): MLSPublicKeysSyncWorker =
+        userScope.mlsPublicKeysSyncWorker
 }

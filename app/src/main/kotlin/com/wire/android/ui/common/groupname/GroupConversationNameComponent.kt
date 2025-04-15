@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.common.groupname
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
@@ -138,7 +137,7 @@ fun GroupNameScreen(
                             }
                             WireTextField(
                                 textState = newGroupNameTextState,
-                                placeholderText = stringResource(R.string.group_name_placeholder),
+                                placeholderText = stringResource(R.string.conversation_name_placeholder),
                                 labelText = stringResource(labelText).uppercase(),
                                 state = computeGroupMetadataState(newGroupState.isChannel, error),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),

@@ -31,19 +31,19 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class AnonymousAnalyticsManagerTest {
-    private val dispatcher = StandardTestDispatcher()
 
     @Test
-    fun givenAnonymousAnalyticsManager_whenInitializing_thenAnalyticsImplementationIsConfiguredCorrectly() = runTest(dispatcher) {
+    fun givenAnonymousAnalyticsManager_whenInitializing_thenAnalyticsImplementationIsConfiguredCorrectly() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -58,8 +58,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
         advanceUntilIdle()
 
@@ -73,7 +72,7 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
-    fun givenIsEnabledFlowIsTrue_whenSendingAnEvent_thenEventIsSent() = runTest(dispatcher) {
+    fun givenIsEnabledFlowIsTrue_whenSendingAnEvent_thenEventIsSent() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -93,8 +92,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
         advanceUntilIdle()
 
@@ -108,7 +106,7 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
-    fun givenIsEnabledFlowIsTrue_whenSettingToFalseAndSendingEvent_thenNoEventsAreSent() = runTest(dispatcher) {
+    fun givenIsEnabledFlowIsTrue_whenSettingToFalseAndSendingEvent_thenNoEventsAreSent() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -128,8 +126,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
 
         manager.sendEvent(event)
@@ -146,7 +143,7 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
-    fun givenIsEnabledFlowIsFalse_whenCallingOnStart_thenRecorderOnStartIsNotCalled() = runTest(dispatcher) {
+    fun givenIsEnabledFlowIsFalse_whenCallingOnStart_thenRecorderOnStartIsNotCalled() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -161,8 +158,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
 
         manager.onStart(activity = mockk<Activity>())
@@ -174,7 +170,7 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
-    fun givenIsEnabledFlowIsFalse_whenCallingOnStop_thenRecorderOnStopIsNotCalled() = runTest(dispatcher) {
+    fun givenIsEnabledFlowIsFalse_whenCallingOnStop_thenRecorderOnStopIsNotCalled() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -189,8 +185,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
 
         manager.onStop(activity = mockk<Activity>())
@@ -203,7 +198,7 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
-    fun givenIsEnabledFlowIsFalseAndOneActivityStarted_whenTogglingEnabledToTrue_thenCallStartAfterToggled() = runTest(dispatcher) {
+    fun givenIsEnabledFlowIsFalseAndOneActivityStarted_whenTogglingEnabledToTrue_thenCallStartAfterToggled() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -217,8 +212,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
 
         manager.onStart(activity)
@@ -238,7 +232,7 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
-    fun givenManagerInitialized_whenTogglingEnabledToFalse_thenHaltIsCalled() = runTest(dispatcher) {
+    fun givenManagerInitialized_whenTogglingEnabledToFalse_thenHaltIsCalled() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -250,8 +244,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
 
         // when
@@ -265,7 +258,7 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
-    fun givenManagerInitialized_whenRecordingView_thenScreenIsRecorded() = runTest(dispatcher) {
+    fun givenManagerInitialized_whenRecordingView_thenScreenIsRecorded() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -281,8 +274,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
         advanceUntilIdle()
 
@@ -296,7 +288,7 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
-    fun givenManagerInitialized_whenRecordingViewAndFlagDisabled_thenScreenIsNOTRecorded() = runTest(dispatcher) {
+    fun givenManagerInitialized_whenRecordingViewAndFlagDisabled_thenScreenIsNOTRecorded() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -312,8 +304,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
         advanceUntilIdle()
 
@@ -327,7 +318,7 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
-    fun givenManagerInitialized_whenStoppingView_thenScreenIsStoppedToRecord() = runTest(dispatcher) {
+    fun givenManagerInitialized_whenStoppingView_thenScreenIsStoppedToRecord() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -343,8 +334,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
         advanceUntilIdle()
 
@@ -358,7 +348,7 @@ class AnonymousAnalyticsManagerTest {
     }
 
     @Test
-    fun givenManagerInitialized_whenApplicationCreated_thenApplicationOnCreateIsRecorded() = runTest(dispatcher) {
+    fun givenManagerInitialized_whenApplicationCreated_thenApplicationOnCreateIsRecorded() = runTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
@@ -373,8 +363,7 @@ class AnonymousAnalyticsManagerTest {
             analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
             migrationHandler = arrangement.migrationHandler,
-            propagationHandler = arrangement.propagationHandler,
-            dispatcher = dispatcher
+            propagationHandler = arrangement.propagationHandler
         )
         advanceUntilIdle()
 
@@ -413,6 +402,7 @@ class AnonymousAnalyticsManagerTest {
             every { anonymousAnalyticsRecorder.applicationOnCreate() } returns Unit
             coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithMerge(any(), any(), any()) } returns Unit
             coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithoutMerge(any(), any(), any(), any()) } returns Unit
+            withAnonymousAnalyticsDispatcher()
         }
 
         private val manager by lazy {
@@ -423,6 +413,11 @@ class AnonymousAnalyticsManagerTest {
 
         fun withAnonymousAnalyticsRecorderConfigure() = apply {
             every { anonymousAnalyticsRecorder.configure(any(), any()) } returns Unit
+        }
+
+        fun withAnonymousAnalyticsDispatcher() = apply {
+            mockkObject(AnonymousAnalyticsManagerImpl)
+            every { AnonymousAnalyticsManagerImpl.getDispatcher() } returns UnconfinedTestDispatcher()
         }
 
         suspend fun withAnalyticsResult(result: AnalyticsResult<DummyManager>) = apply {

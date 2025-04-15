@@ -65,6 +65,6 @@ sealed interface ConversationAvatar {
         val conversationId: QualifiedID
 
         data class Regular(override val conversationId: QualifiedID) : Group
-        data class Channel(override val conversationId: QualifiedID) : Group
+        data class Channel(override val conversationId: QualifiedID, val isPrivate: Boolean) : Group
     }
 }

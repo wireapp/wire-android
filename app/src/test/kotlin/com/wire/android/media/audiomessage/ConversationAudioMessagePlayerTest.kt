@@ -23,7 +23,6 @@ import android.media.PlaybackParams
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.services.ServicesManager
 import com.wire.kalium.common.error.NetworkFailure
@@ -45,17 +44,23 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import okio.Path
+import okio.Path.Companion.toOkioPath
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
 
 private val dispatcher = UnconfinedTestDispatcher()
 
 @Suppress("LongMethod")
 class ConversationAudioMessagePlayerTest {
 
+    @TempDir
+    lateinit var tempDir: File
+
     @Test
     fun givenTheSuccessfulAssetFetch_whenPlayingAudioForFirstTime_thenEmitStatesAsExpected() = runTest(dispatcher) {
-        val (arrangement, conversationAudioMessagePlayer) = Arrangement()
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withSuccessfulAssetFetch()
             .withCurrentSession()
@@ -119,7 +124,7 @@ class ConversationAudioMessagePlayerTest {
 
     @Test
     fun givenTheSuccessfulAssetFetch_whenPlayingTheSameMessageIdTwiceSequentially_thenEmitStatesAsExpected() = runTest(dispatcher) {
-        val (arrangement, conversationAudioMessagePlayer) = Arrangement()
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
             .withSuccessfulAssetFetch()
             .withCurrentSession()
             .withAudioMediaPlayerReturningTotalTime(1000)
@@ -196,7 +201,7 @@ class ConversationAudioMessagePlayerTest {
     @Test
     fun givenTheSuccessfulAssetFetch_whenPlayingDifferentAudioAfterFirstOneIsPlayed_thenEmitStatesAsExpected() =
         runTest(dispatcher) {
-            val (arrangement, conversationAudioMessagePlayer) = Arrangement()
+            val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
                 .withSuccessfulAssetFetch()
                 .withCurrentSession()
                 .withAudioMediaPlayerReturningTotalTime(1000)
@@ -299,7 +304,7 @@ class ConversationAudioMessagePlayerTest {
     @Test
     fun givenTheSuccessfulAssetFetch_whenPlayingDifferentAudioAfterFirstOneIsPlayedAndSecondResumed_thenEmitStatesAsExpected() =
         runTest(dispatcher) {
-            val (arrangement, conversationAudioMessagePlayer) = Arrangement()
+            val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
                 .withSuccessfulAssetFetch()
                 .withCurrentSession()
                 .withAudioMediaPlayerReturningTotalTime(1000)
@@ -456,7 +461,7 @@ class ConversationAudioMessagePlayerTest {
     @Test
     fun givenTheSuccessfulAssetFetch_whenPlayingDifferentAudioAfterFirstOneIsPlayedAndSecondStoppedAndResume_thenEmitStatesAsExpected() =
         runTest(dispatcher) {
-            val (arrangement, conversationAudioMessagePlayer) = Arrangement()
+            val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
                 .withSuccessfulAssetFetch()
                 .withCurrentSession()
                 .withAudioMediaPlayerReturningTotalTime(1000)
@@ -546,7 +551,7 @@ class ConversationAudioMessagePlayerTest {
     @Test
     fun givenTheSuccessfulAssetFetch_whenAudioSpeedChanged_thenMediaPlayerParamsWereUpdated() = runTest(dispatcher) {
         val params = PlaybackParams()
-        val (arrangement, conversationAudioMessagePlayer) = Arrangement()
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
             .withSuccessfulAssetFetch()
             .withCurrentSession()
             .withAudioMediaPlayerReturningParams(params)
@@ -561,7 +566,7 @@ class ConversationAudioMessagePlayerTest {
 
     @Test
     fun givenPlayingAudioMessage_whenStopAudioCalled_thenServiceStoppedAndAudioFocusAbandoned() = runTest(dispatcher) {
-        val (arrangement, conversationAudioMessagePlayer) = Arrangement()
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withSuccessfulAssetFetch()
             .withCurrentSession()
@@ -590,10 +595,10 @@ class ConversationAudioMessagePlayerTest {
     }
 
     @Test
-    fun givenSuccessfulAudioMessageFetch_whenAlreadyCached_thenReuseTheSameAssetResult() = runTest(dispatcher) {
-        val (arrangement, conversationAudioMessagePlayer) = Arrangement()
+    fun givenCachedSuccessfulAudioMessageFetchWithExistingFile_whenPlayingAgain_thenReuseTheSameAssetResult() = runTest(dispatcher) {
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
             .withAudioMediaPlayerReturningTotalTime(1000)
-            .withSuccessfulAssetFetch()
+            .withSuccessfulAssetFetch(fileExists = true)
             .withCurrentSession()
             .arrange()
 
@@ -612,8 +617,32 @@ class ConversationAudioMessagePlayerTest {
     }
 
     @Test
-    fun givenFailedAudioMessageFetch_whenAlreadyCached_thenGetAssetAgain() = runTest(dispatcher) {
-        val (arrangement, conversationAudioMessagePlayer) = Arrangement()
+    fun givenCachedSuccessfulAudioMessageFetchWithNonExistingFile_whenPlayingAgain_thenGetAssetAgain() = runTest(dispatcher) {
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
+            .withAudioMediaPlayerReturningTotalTime(1000)
+            .withSuccessfulAssetFetch()
+            .withCurrentSession()
+            .arrange()
+
+        val audioMessageId = "some-dummy-message-id"
+        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
+        arrangement.withSuccessfulAssetFetch(fileExists = true) // first time the file exists
+        conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the first time
+        conversationAudioMessagePlayer.forceToStopCurrentAudioMessage() // mock the completion of the audio media player
+        arrangement.withSuccessfulAssetFetch(fileExists = false) // second time the file does not exist anymore
+        conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the second time
+
+        with(arrangement) {
+            coVerify(exactly = 2) { // two times because the file did not exist so it's fetched again with proper file path
+                getAssetMessage(conversationId, audioMessageId)
+            }
+        }
+    }
+
+    @Test
+    fun givenCachedFailedAudioMessageFetch_whenPlayingAgain_thenGetAssetAgain() = runTest(dispatcher) {
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withFailedAssetFetch()
             .withCurrentSession()
@@ -641,7 +670,7 @@ class ConversationAudioMessagePlayerTest {
     }
 }
 
-class Arrangement {
+class Arrangement(private val tempDir: File) {
 
     @MockK
     lateinit var context: Context
@@ -701,12 +730,18 @@ class Arrangement {
         )
     }
 
-    fun withSuccessfulAssetFetch() = apply {
+    fun withSuccessfulAssetFetch(fileExists: Boolean = true) = apply {
+        val assetFile = File(tempDir, "some-dummy-asset-name")
+        if (fileExists) {
+            assetFile.createNewFile()
+        } else {
+            assetFile.delete()
+        }
         coEvery {
             getAssetMessage.invoke(any<ConversationId>(), any<String>())
         } returns CompletableDeferred(
             MessageAssetResult.Success(
-                decodedAssetPath = FakeKaliumFileSystem().selfUserAvatarPath(),
+                decodedAssetPath = assetFile.toOkioPath(),
                 assetSize = 0,
                 assetName = "some-dummy-asset-name"
             )

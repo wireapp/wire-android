@@ -211,21 +211,25 @@ class RecordAudioMessagePlayer @Inject constructor(
     }
 
     private suspend fun resumeAudio() {
-        audioMediaPlayer.start()
-        audioMessageStateUpdate.emit(
-            RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
-                audioMediaPlayingState = AudioMediaPlayingState.Playing
+        if (currentAudioFile != null) {
+            audioMediaPlayer.start()
+            audioMessageStateUpdate.emit(
+                RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
+                    audioMediaPlayingState = AudioMediaPlayingState.Playing
+                )
             )
-        )
+        }
     }
 
     private suspend fun pause() {
-        audioMediaPlayer.pause()
-        audioMessageStateUpdate.emit(
-            RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
-                AudioMediaPlayingState.Paused
+        if (currentAudioFile != null) {
+            audioMediaPlayer.pause()
+            audioMessageStateUpdate.emit(
+                RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
+                    AudioMediaPlayingState.Paused
+                )
             )
-        )
+        }
     }
 
     suspend fun stop() {
@@ -239,6 +243,7 @@ class RecordAudioMessagePlayer @Inject constructor(
     }
 
     fun close() {
+        audioFocusHelper.abandon()
         audioMediaPlayer.release()
     }
 

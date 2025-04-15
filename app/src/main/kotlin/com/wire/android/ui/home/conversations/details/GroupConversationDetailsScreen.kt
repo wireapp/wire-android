@@ -121,6 +121,7 @@ import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackA
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
+import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
@@ -193,9 +194,7 @@ fun GroupConversationDetailsScreen(
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
         },
-        shouldShowAddParticipantsButtonForChannel = {
-            viewModel.groupOptionsState.value.shouldShowAddParticipantsButtonForChannel
-        },
+        showAllowUserToAddParticipants = { viewModel.shouldShowAddParticipantButton() },
         onAddParticipantsPressed = {
             navigator.navigate(
                 NavigationCommand(
@@ -333,7 +332,6 @@ private fun GroupConversationDetailsContent(
     bottomSheetEventsHandler: GroupConversationDetailsBottomSheetEventsHandler,
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
-    shouldShowAddParticipantsButtonForChannel: () -> (Boolean),
     onAddParticipantsPressed: () -> Unit,
     onEditGuestAccess: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
@@ -342,6 +340,7 @@ private fun GroupConversationDetailsContent(
     onLeaveGroup: (LeaveGroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
+    showAllowUserToAddParticipants: () -> (Boolean),
     isLoading: Boolean,
     isAbandonedOneOnOneConversation: Boolean,
     isWireCellEnabled: Boolean,
@@ -426,11 +425,17 @@ private fun GroupConversationDetailsContent(
         },
         topBarCollapsing = {
             conversationSheetState.conversationSheetContent?.let {
+                val conversationTypeDetail = it.conversationTypeDetail
+                val avatarData = if (conversationTypeDetail is ConversationTypeDetail.Group.Channel) {
+                    ConversationAvatar.Group.Channel(it.conversationId, conversationTypeDetail.isPrivate)
+                } else {
+                    ConversationAvatar.Group.Regular(it.conversationId)
+                }
                 GroupConversationDetailsTopBarCollapsing(
                     title = it.title,
-                    conversationId = it.conversationId,
                     totalParticipants = groupParticipantsState.data.allCount,
                     isLoading = isLoading,
+                    conversationAvatar = avatarData,
                     onSearchConversationMessagesClick = onSearchConversationMessagesClick,
                     onConversationMediaClick = onConversationMediaClick,
                     isUnderLegalHold = it.isUnderLegalHold,
@@ -469,14 +474,11 @@ private fun GroupConversationDetailsContent(
                         }
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> {
-                            val shouldShowAddParticipantsButton =
-                                (groupParticipantsState.addParticipantsEnabled && !isAbandonedOneOnOneConversation) ||
-                                        shouldShowAddParticipantsButtonForChannel()
-
+                            val shouldShowAddParticipantsButton = showAllowUserToAddParticipants() && !isAbandonedOneOnOneConversation
                             if (shouldShowAddParticipantsButton) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                                     WirePrimaryButton(
-                                        text = stringResource(R.string.conversation_details_group_participants_add),
+                                        text = stringResource(R.string.conversation_details_conversation_participants_add),
                                         onClick = onAddParticipantsPressed,
                                     )
                                 }
@@ -676,7 +678,7 @@ fun PreviewGroupConversationDetails() {
                 title = "title",
                 conversationId = ConversationId("value", "domain"),
                 mutingConversationState = MutedConversationStatus.AllAllowed,
-                conversationTypeDetail = ConversationTypeDetail.Group(ConversationId("value", "domain"), false),
+                conversationTypeDetail = ConversationTypeDetail.Group.Regular(ConversationId("value", "domain"), false),
                 selfRole = null,
                 isTeamConversation = true,
                 isArchived = false,
@@ -694,7 +696,7 @@ fun PreviewGroupConversationDetails() {
                 folder = null,
                 isDeletingConversationLocallyRunning = false
             ),
-            shouldShowAddParticipantsButtonForChannel = { false },
+            showAllowUserToAddParticipants = { true },
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},
             onProfilePressed = {},

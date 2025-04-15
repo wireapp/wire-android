@@ -24,62 +24,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 
 @Composable
-fun SystemMessageItemLeading(messageContent: SystemMessage, modifier: Modifier = Modifier) {
+fun SystemMessageItemLeading(messageContent: SystemMessageContent, modifier: Modifier = Modifier) {
     messageContent.iconResId?.let { iconResId ->
         Image(
             painter = painterResource(id = iconResId),
             contentDescription = null,
-            colorFilter = getColorFilter(messageContent),
-            modifier = modifier.size(
-                if (messageContent.isSmallIcon) {
-                    dimensions().systemMessageIconSize
-                } else {
-                    dimensions().systemMessageIconLargeSize
-                }
-            ),
-            contentScale = ContentScale.Crop
+            colorFilter = messageContent.iconTintColor?.let { ColorFilter.tint(it) },
+            modifier = modifier.size(messageContent.iconSize),
+            contentScale = ContentScale.Inside
         )
-    }
-}
-
-@Suppress("ComplexMethod")
-@Composable
-private fun getColorFilter(message: SystemMessage): ColorFilter? {
-    return when (message) {
-        is SystemMessage.MissedCall.OtherCalled -> null
-        is SystemMessage.MissedCall.YouCalled -> null
-        is SystemMessage.ConversationDegraded -> null
-        is SystemMessage.ConversationVerified -> null
-        is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
-        is SystemMessage.LegalHold,
-        is SystemMessage.MemberFailedToAdd -> ColorFilter.tint(colorsScheme().error)
-
-        is SystemMessage.MemberAdded,
-        is SystemMessage.MemberJoined,
-        is SystemMessage.MemberLeft,
-        is SystemMessage.MemberRemoved,
-        is SystemMessage.CryptoSessionReset,
-        is SystemMessage.RenamedConversation,
-        is SystemMessage.TeamMemberRemoved_Legacy,
-        is SystemMessage.ConversationReceiptModeChanged,
-        is SystemMessage.HistoryLost,
-        is SystemMessage.HistoryLostProtocolChanged,
-        is SystemMessage.NewConversationReceiptMode,
-        is SystemMessage.ConversationProtocolChanged,
-        is SystemMessage.ConversationProtocolChangedWithCallOngoing,
-        is SystemMessage.ConversationMessageTimerActivated,
-        is SystemMessage.ConversationMessageCreated,
-        is SystemMessage.ConversationStartedWithMembers,
-        is SystemMessage.ConversationMessageTimerDeactivated,
-        is SystemMessage.FederationMemberRemoved,
-        is SystemMessage.FederationStopped,
-        is SystemMessage.ConversationMessageCreatedUnverifiedWarning,
-        is SystemMessage.TeamMemberRemoved,
-        is SystemMessage.MLSWrongEpochWarning -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }

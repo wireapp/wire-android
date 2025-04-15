@@ -60,7 +60,7 @@ import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
-import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -206,7 +206,7 @@ private fun Avatar(
 ) {
     when (conversationAvatar) {
         is ConversationAvatar.Group.Regular ->
-            GroupConversationAvatar(
+            RegularGroupConversationAvatar(
                 conversationId = conversationAvatar.conversationId,
                 size = dimensions().avatarConversationTopBarSize,
                 cornerRadius = dimensions().groupAvatarConversationTopBarCornerRadius,
@@ -219,6 +219,7 @@ private fun Avatar(
                 size = dimensions().avatarConversationTopBarSize,
                 cornerRadius = dimensions().groupAvatarConversationTopBarCornerRadius,
                 padding = dimensions().avatarConversationTopBarClickablePadding,
+                isPrivateChannel = conversationAvatar.isPrivate,
             )
 
         is ConversationAvatar.OneOne -> UserProfileAvatar(
@@ -380,7 +381,7 @@ fun PreviewConversationScreenTopAppBarShortTitleChannel() = WireTheme {
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
             conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
-            conversationAvatar = ConversationAvatar.Group.Channel(conversationId)
+            conversationAvatar = ConversationAvatar.Group.Channel(conversationId, true)
         ),
         onBackButtonClick = {},
         onDropDownClick = {},

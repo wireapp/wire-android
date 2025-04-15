@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -33,6 +34,9 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+/**
+ * TODO: Move to Kalium's logic or similar
+ */
 class ObserveConversationRoleForUserUseCase @Inject constructor(
     private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -46,11 +50,17 @@ class ObserveConversationRoleForUserUseCase @Inject constructor(
                 .map { it.conversationDetails },
             observeConversationMembers(conversationId)
         ) { selfUser: SelfUser, conversationDetails: ConversationDetails, memberDetailsList: List<MemberDetails> ->
+            val regularSelfRole = memberDetailsList.firstOrNull { it.user.id == selfUser.id }?.role
+            val isSelfTeamAdmin = selfUser.userType in setOf(UserType.ADMIN, UserType.OWNER)
+            val isConversationInSameTeamAsSelfUser = selfUser.teamId == conversationDetails.conversation.teamId
+            val isChannel = conversationDetails is ConversationDetails.Group.Channel
+            val isSelfChannelAdmin = isChannel && isSelfTeamAdmin && isConversationInSameTeamAsSelfUser
+            val selfRole = if (isSelfChannelAdmin) { Conversation.Member.Role.Admin } else { regularSelfRole }
             ConversationRoleData(
-                conversationDetails.conversation.name.orEmpty(),
-                memberDetailsList.firstOrNull { it.user.id == userId }?.role,
-                memberDetailsList.firstOrNull { it.user.id == selfUser.id }?.role,
-                conversationId,
+                conversationName = conversationDetails.conversation.name.orEmpty(),
+                userRole = memberDetailsList.firstOrNull { it.user.id == userId }?.role,
+                selfRole = selfRole,
+                conversationId = conversationId,
             )
         }
 }

@@ -25,7 +25,6 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
-import com.wire.android.feature.cells.domain.model.previewSupported
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
@@ -81,7 +80,7 @@ class MultipartAttachmentsViewModel @Inject constructor(
         if (refreshed.contains(attachment.uuid).not()) {
             refreshed.add(attachment.uuid)
             if (attachment.source == AssetSource.CELL) {
-                viewModelScope.launch { refreshAsset(attachment.uuid, attachment.assetType.previewSupported()) }
+                viewModelScope.launch { refreshAsset(attachment.uuid) }
             }
         }
     }

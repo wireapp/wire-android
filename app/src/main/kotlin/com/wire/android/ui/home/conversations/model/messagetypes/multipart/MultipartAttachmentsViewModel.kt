@@ -81,7 +81,7 @@ class MultipartAttachmentsViewModel @Inject constructor(
         if (refreshed.contains(attachment.uuid).not()) {
             refreshed.add(attachment.uuid)
             if (attachment.source == AssetSource.CELL) {
-                viewModelScope.launch { refreshAsset(attachment.uuid, attachment.assetType.previewSupported()) }
+                viewModelScope.launch { refreshAsset(attachment.uuid) }
             }
         }
     }

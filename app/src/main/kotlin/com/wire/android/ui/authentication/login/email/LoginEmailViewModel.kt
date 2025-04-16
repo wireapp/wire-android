@@ -92,7 +92,7 @@ class LoginEmailViewModel @Inject constructor(
 
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState by mutableStateOf(VerificationCodeState())
-    var autoLoginWhenFullCodeEntered: Boolean = false
+    var autoLoginWhenFullCodeEntered: Boolean = true
 
     @VisibleForTesting
     internal val loginJobData = MutableStateFlow<LoginJobData?>(null)

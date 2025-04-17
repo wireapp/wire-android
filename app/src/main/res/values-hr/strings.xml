@@ -221,19 +221,16 @@
     <string name="migration_messages_failure">Nažalost, poruke i razgovori nisu mogli biti migrirani zbog nekompatibilnosti sa starijom verzijom Wire-a (error code: %s)</string>
     <string name="migration_cancel_title">Otkaži migraciju</string>
     <string name="migration_cancel_message">Jeste li sigurni da želite zatvoriti aplikaciju i otkazati migraciju koja je u tijeku?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Prijava</string>
     <string name="login_forgot_password">Zaboravili ste lozinku?</string>
     <string name="login_user_identifier_placeholder">marta@primjer.hr ili marta.horvat</string>
-    <string name="login_email_placeholder">marta@primjer.hr</string>
     <string name="login_user_identifier_label">EMAIL ILI KORISNIČKO IME</string>
     <string name="login_proxy_identifier_label">PROXY EMAIL ILI KORISNIČKO IME</string>
     <string name="login_error_invalid_credentials_title">Nevažeća informacija</string>
     <string name="login_error_invalid_credentials_message">Ovi detalji računa nisu ispravni.
         Molimo provjerite svoje podatke i pokušajte ponovo.
-    </string>
-    <string name="login_error_invalid_user_identifier">Ova adresa e-pošte ili korisničko ime nije važeća. Molimo
-         potvrdite i pokušajte ponovo.
     </string>
     <string name="login_error_user_already_logged_in_title">Račun je već u upotrebi</string>
     <string name="login_error_user_already_logged_in_message">S ovim podacima računa na ovom uređaju, već ste prijavljeni.</string>
@@ -360,12 +357,10 @@
     <string name="new_group_title">Nova Grupa</string>
     <string name="new_group_description">Grupnom razgovoru može se pridružiti do 500 ljudi.</string>
     <string name="group_name_title">Naziv grupe</string>
-    <string name="conversation_name_placeholder">Unesite naziv</string>
     <string name="group_name_description">Dajte ovoj grupi smislen naziv.</string>
     <string name="protocol">Protokol</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
-    <string name="conversation_can_not_be_created_edit_participant_list">Uredite Popis Sudionika</string>
     <string name="asset_message_tap_to_download_text">Dodirni za preuzimanje</string>
     <string name="asset_message_upload_in_progress_text">Učitavanje…</string>
     <string name="asset_message_download_in_progress_text">Preuzimanje…</string>
@@ -390,6 +385,7 @@
     <!-- Import/Export External Media -->
     <string name="import_media_send_button_title">Pošalji</string>
     <!--Read receipts -->
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Detalji o poruci</string>
     <!-- Messages Date and Time -->
@@ -407,9 +403,6 @@
     <string name="user_profile_unblock_user">Odblokiraj korisnika</string>
     <string name="user_profile_logging_out_progress">Odjava...</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Ukloni iz grupe?</string>
-    <string name="conversation_role_admin">Admin</string>
-    <string name="conversation_role_member">Član</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Obriši podatke?</string>
     <string name="dialog_logout_wipe_data_checkbox">Izbriši sve osobne informacije i razgovore na ovom uređaju</string>
@@ -451,6 +444,7 @@
     <!-- Conversation Media -->
     <!-- Search Contact-->
     <string name="label_new_group">Nova Grupa</string>
+    <!-- Search Channels -->
     <string name="label_new_conversation">Novi razgovor</string>
     <string name="label_learn_more_searching_user">Saznaj više</string>
     <string name="label_general_error">Nešto je pošlo po zlu</string>
@@ -463,8 +457,6 @@
     <string name="error_server_miscommunication_message">Molimo pokušajte ponovno</string>
     <string name="error_socket_title">Nevažeća informacija</string>
     <string name="error_conversation_deleting_message">Poruka se ne može izbrisati</string>
-    <string name="left_conversation_success">Napustili ste razgovor.</string>
-    <string name="delete_conversation_conversation_error">Došlo je do pogreške prilikom brisanja razgovora</string>
     <string name="error_limit_number_assets_imported_exceeded">Možete poslati najviše 20 datoteka odjednom</string>
     <!-- Archiving -->
     <string name="dialog_archive_conversation_option">Arhiviraj</string>
@@ -482,7 +474,6 @@
     <string name="notification_receiver_name">Vi</string>
     <string name="label_type_a_message">Napiši poruku</string>
     <string name="notification_ongoing_call_content">Poziv u tijeku…</string>
-    <string name="notification_group_channel_call_content">%s zove...</string>
     <string name="notification_call_default_caller_name">Netko</string>
     <!-- Calling-->
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -516,7 +507,6 @@
     <string name="media_gallery_on_image_downloaded">Spremi u Download mapu</string>
     <!--sso dialog-->
     <string name="asset_download_dialog_default_title">Preuzmite datoteku</string>
-    <string name="empty_conversation_label">Neimenovani razgovor</string>
     <string name="label_show_more">Prikaži više</string>
     <!--prohibited asset messages -->
     <!--wire dropdown-->
@@ -546,6 +536,7 @@
     <!--    report bug-->
     <string name="backup_dialog_restore_incompatible_version_error_message">Ova sigurnosna kopija je izrađena od novije ili starije verzije Wirea i kao takva nemože se obnovit ovdje.</string>
     <string name="group_label">grupa</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="cancel_login_button_label">Odustani</string>
     <string name="cancel_login_dialog_description">Ako sada odustanete, bit ćete odjavljeni.</string>

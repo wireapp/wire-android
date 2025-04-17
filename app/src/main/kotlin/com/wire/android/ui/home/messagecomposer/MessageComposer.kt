@@ -51,13 +51,13 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import com.wire.android.R
 import com.wire.android.ui.common.TextWithLearnMore
-import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
+import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.MessageComposerViewState
-import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.update
@@ -91,7 +91,9 @@ fun MessageComposer(
     openDrawingCanvas: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
-    onImagesPicked: (List<Uri>) -> Unit,
+    onImagesPicked: (List<Uri>, Boolean) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
 ) {
@@ -150,8 +152,8 @@ fun MessageComposer(
                     },
                     onPingOptionClicked = onPingOptionClicked,
                     onImagesPicked = onImagesPicked,
-                    onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.UriPickedBundle(conversationId, it)) },
-                    onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
+                    onAttachmentPicked = onAttachmentPicked,
+                    onAudioRecorded = onAudioRecorded,
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onLocationClicked = onLocationClicked,
                     onClearMentionSearchResult = onClearMentionSearchResult,
@@ -305,7 +307,9 @@ private fun BaseComposerPreview(
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
         openDrawingCanvas = {},
-        onImagesPicked = {},
+        onImagesPicked = { _, _ -> },
+        onAttachmentPicked = {},
+        onAudioRecorded = {},
         onAttachmentClick = {},
         onAttachmentMenuClick = {}
     )

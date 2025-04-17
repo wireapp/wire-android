@@ -17,12 +17,12 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -53,7 +53,7 @@ internal fun BoxScope.FileAssetPreview(item: MultipartAttachmentUi) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = colorsScheme().surface)
+            .height(dimensions().spacing80x)
             .padding(dimensions().spacing8x),
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
@@ -65,13 +65,17 @@ internal fun BoxScope.FileAssetPreview(item: MultipartAttachmentUi) {
             labelColor = if (item.transferStatus.isFailed()) colorsScheme().error else null
         )
         item.fileName?.let {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = it,
-                style = MaterialTheme.wireTypography.body02,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Box(modifier = Modifier.weight(1f)) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomStart),
+                    text = it,
+                    style = MaterialTheme.wireTypography.body02,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
     item.progress?.let {

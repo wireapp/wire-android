@@ -112,7 +112,7 @@ fun EnabledMessageComposer(
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onLocationClicked: () -> Unit,
     onSendButtonClicked: () -> Unit,
-    onImagesPicked: (List<Uri>) -> Unit,
+    onImagesPicked: (List<Uri>, Boolean) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
@@ -224,9 +224,13 @@ fun EnabledMessageComposer(
                         var cursorCoordinateY by remember { mutableStateOf(0F) }
                         val canSendMessage by remember {
                             derivedStateOf {
-                                messageCompositionInputStateHolder.inputType is InputType.Composing &&
-                                        (messageCompositionInputStateHolder.inputType as InputType.Composing).isSendButtonEnabled &&
+                                with(messageCompositionInputStateHolder) {
+                                    if (attachments.isEmpty()) {
+                                        inputType is InputType.Composing && (inputType as InputType.Composing).isSendButtonEnabled
+                                    } else {
                                         attachments.allUploaded()
+                                    }
+                                }
                             }
                         }
                         val keyboardOptions by remember {
@@ -311,7 +315,7 @@ fun EnabledMessageComposer(
                                                         }
                                                 }
                                                 .also {
-                                                    onImagesPicked(imageUriList)
+                                                    onImagesPicked(imageUriList, true)
                                                 }
                                         } else {
                                             transferableContent
@@ -355,7 +359,15 @@ fun EnabledMessageComposer(
                         }
                     }
 
-                    if (isImeVisible) {
+                    AnimatedVisibility(attachments.isNotEmpty()) {
+                        MessageAttachments(
+                            attachments = attachments,
+                            onClick = onAttachmentClick,
+                            onMenuClick = onAttachmentMenuClick,
+                        )
+                    }
+
+                    AnimatedVisibility(isImeVisible) {
                         AdditionalOptionsMenu(
                             conversationId = conversationId,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
@@ -379,14 +391,6 @@ fun EnabledMessageComposer(
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                             onDrawingModeClicked = openDrawingCanvas,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled
-                        )
-                    }
-
-                    AnimatedVisibility(attachments.isNotEmpty()) {
-                        MessageAttachments(
-                            attachments = attachments,
-                            onClick = onAttachmentClick,
-                            onMenuClick = onAttachmentMenuClick,
                         )
                     }
                 }
@@ -454,7 +458,7 @@ fun EnabledMessageComposer(
                             onRecordAudioMessageClicked = ::toAudioRecording,
                             onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
                             onLocationPickerClicked = onLocationClicked,
-                            onImagesPicked = onImagesPicked,
+                            onImagesPicked = { onImagesPicked(it, false) },
                             onAttachmentPicked = onAttachmentPicked,
                             onAudioRecorded = onAudioRecorded,
                             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,

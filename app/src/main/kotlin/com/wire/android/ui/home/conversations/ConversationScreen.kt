@@ -493,8 +493,8 @@ fun ConversationScreen(
                 sendMessageViewModel.trySendMessage(Ping(conversationMessagesViewModel.conversationId))
             }
         },
-        onImagesPicked = {
-            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
+        onImagesPicked = { it, fromKeyboard ->
+            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled && !fromKeyboard) {
                 messageAttachmentsViewModel.onFilesSelected(it)
                 messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
@@ -507,6 +507,22 @@ fun ConversationScreen(
                         )
                     )
                 )
+            }
+        },
+        onAttachmentPicked = {
+            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
+                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+            } else {
+                val bundle = ComposableMessageBundle.UriPickedBundle(conversationInfoViewModel.conversationId, it)
+                sendMessageViewModel.trySendMessage(bundle)
+            }
+        },
+        onAudioRecorded = {
+            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
+                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+            } else {
+                val bundle = ComposableMessageBundle.AudioMessageBundle(conversationInfoViewModel.conversationId, it)
+                sendMessageViewModel.trySendMessage(bundle)
             }
         },
         onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
@@ -860,7 +876,9 @@ private fun ConversationScreen(
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
-    onImagesPicked: (List<Uri>) -> Unit,
+    onImagesPicked: (List<Uri>, Boolean) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
@@ -957,6 +975,8 @@ private fun ConversationScreen(
                         onSendMessage = onSendMessage,
                         onPingOptionClicked = onPingOptionClicked,
                         onImagesPicked = onImagesPicked,
+                        onAttachmentPicked = onAttachmentPicked,
+                        onAudioRecorded = onAudioRecorded,
                         onAssetItemClicked = onAssetItemClicked,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
@@ -1034,7 +1054,9 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
-    onImagesPicked: (List<Uri>) -> Unit,
+    onImagesPicked: (List<Uri>, Boolean) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
@@ -1111,6 +1133,8 @@ private fun ConversationScreenContent(
         openDrawingCanvas = openDrawingCanvas,
         onAttachmentClick = onAttachmentClick,
         onAttachmentMenuClick = onAttachmentMenuClick,
+        onAttachmentPicked = onAttachmentPicked,
+        onAudioRecorded = onAudioRecorded,
     )
 }
 
@@ -1555,8 +1579,10 @@ fun PreviewConversationScreen() = WireTheme {
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },
         openDrawingCanvas = {},
-        onImagesPicked = {},
+        onImagesPicked = { _, _ -> },
         onAttachmentClick = {},
         onAttachmentMenuClick = {},
+        onAttachmentPicked = {},
+        onAudioRecorded = {},
     )
 }

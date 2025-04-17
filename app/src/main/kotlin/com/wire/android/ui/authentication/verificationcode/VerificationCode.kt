@@ -28,11 +28,13 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -42,6 +44,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
+import kotlinx.coroutines.job
 
 @Composable
 fun VerificationCode(
@@ -54,6 +57,7 @@ fun VerificationCode(
     showLoadingProgress: Boolean = true,
 ) {
     val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxWidth(),
@@ -90,6 +94,13 @@ fun VerificationCode(
                     progressColor = MaterialTheme.wireColorScheme.primary,
                     size = MaterialTheme.wireDimensions.spacing24x,
                 )
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            coroutineContext.job.invokeOnCompletion {
+                focusRequester.requestFocus()
+                keyboardController?.show()
             }
         }
     }

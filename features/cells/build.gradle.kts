@@ -45,6 +45,7 @@ dependencies {
     testImplementation(libs.junit5.core)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockk.core)
+    testImplementation(libs.turbine)
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)

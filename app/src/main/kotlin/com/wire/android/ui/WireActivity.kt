@@ -23,7 +23,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -49,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -59,7 +59,6 @@ import com.ramcosta.composedestinations.spec.Route
 import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.route
 import com.wire.android.BuildConfig
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
@@ -76,7 +75,6 @@ import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.ui.authentication.login.LoginPasswordPath
-import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
@@ -88,16 +86,13 @@ import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
@@ -290,6 +285,7 @@ class WireActivity : AppCompatActivity() {
                         SetUpNavigation(navigator)
                         HandleScreenshotCensoring()
                         HandleDialogs(navigator)
+                        HandleViewActions(viewModel.actions, navigator, loginTypeSelector)
                     }
                 }
             }
@@ -713,104 +709,7 @@ class WireActivity : AppCompatActivity() {
             }
             return
         } else {
-            viewModel.handleDeepLink(
-                intent = intent,
-                onOpenConversation = {
-                    if (it.switchedAccount) {
-                        navigate(
-                            NavigationCommand(
-                                HomeScreenDestination,
-                                BackStackMode.CLEAR_WHOLE
-                            )
-                        )
-                    }
-                    navigate(
-                        NavigationCommand(
-                            ConversationScreenDestination(it.conversationId),
-                            BackStackMode.UPDATE_EXISTED
-                        )
-                    )
-                },
-                onIsSharingIntent = {
-                    navigate(
-                        NavigationCommand(
-                            ImportMediaScreenDestination,
-                            BackStackMode.UPDATE_EXISTED
-                        )
-                    )
-                },
-                onCannotLoginDuringACall = {
-                    runOnUiThread {
-                        Toast.makeText(
-                            this,
-                            resources.getString(R.string.cant_switch_account_in_call),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
-                onAuthorizationNeeded = {
-                    if (navigator.isEmptyWelcomeStartDestination()) {
-                        // log in needed so if "welcome empty start" screen then switch "start" screen to login by navigating to it
-                        navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
-                    }
-                    runOnUiThread {
-                        Toast.makeText(
-                            this,
-                            resources.getString(R.string.deeplink_authorization_needed),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
-                onUnknown = {
-                    if (navigator.isEmptyWelcomeStartDestination()) {
-                        // log in needed so if "welcome empty start" screen then switch "start" screen to login by navigating to it
-                        navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
-                    }
-                },
-                onMigrationLogin = {
-                    navigate(
-                        NavigationCommand(
-                            when (loginTypeSelector.canUseNewLogin()) {
-                                true -> NewLoginScreenDestination(userHandle = PreFilledUserIdentifierType.PreFilled(it.userHandle))
-                                false -> LoginScreenDestination(userHandle = PreFilledUserIdentifierType.PreFilled(it.userHandle))
-                            },
-                            // if "welcome empty start" screen then switch "start" screen to proper one
-                            when (navigator.shouldReplaceWelcomeLoginStartDestination()) {
-                                true -> BackStackMode.CLEAR_WHOLE
-                                false -> BackStackMode.UPDATE_EXISTED
-                            },
-                        )
-                    )
-                },
-                onOpenOtherUserProfile = {
-                    if (it.switchedAccount) {
-                        navigate(
-                            NavigationCommand(
-                                HomeScreenDestination,
-                                BackStackMode.CLEAR_WHOLE
-                            )
-                        )
-                    }
-                    navigate(
-                        NavigationCommand(
-                            OtherUserProfileScreenDestination(it.userId),
-                            BackStackMode.UPDATE_EXISTED
-                        )
-                    )
-                },
-                onSSOLogin = {
-                    navigate(
-                        NavigationCommand(
-                            when (navigator.navController.currentBackStackEntry?.destination()?.route?.getBaseRoute()) {
-                                // if SSO login started from new login screen then go back to the new login flow
-                                NewLoginScreenDestination.route.getBaseRoute() -> NewLoginScreenDestination(ssoLoginResult = it)
-                                else -> LoginScreenDestination(ssoLoginResult = it)
-                            },
-                            BackStackMode.UPDATE_EXISTED,
-                        )
-                    )
-                }
-            )
+            viewModel.handleDeepLink(intent)
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }
     }
@@ -824,24 +723,24 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-    private fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {
-        val firstDestinationBaseRoute = navController.startDestination()?.route()?.route?.getBaseRoute()
-        val welcomeScreens = listOf(WelcomeScreenDestination, NewWelcomeEmptyStartScreenDestination)
-        val loginScreens = listOf(LoginScreenDestination, NewLoginScreenDestination)
-        val welcomeAndLoginBaseRoutes = (welcomeScreens + loginScreens).map { it.route.getBaseRoute() }
-        return welcomeAndLoginBaseRoutes.contains(firstDestinationBaseRoute)
-    }
-
-    private fun Navigator.isEmptyWelcomeStartDestination(): Boolean {
-        val firstDestinationBaseRoute = navController.startDestination()?.route()?.route?.getBaseRoute()
-        return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.route.getBaseRoute()
-    }
-
     companion object {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
         private const val ORIGINAL_SAVED_INTENT_FLAG = "original_saved_intent"
         private const val TAG = "WireActivity"
     }
+}
+
+internal fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {
+    val firstDestinationBaseRoute = navController.startDestination()?.route()?.route?.getBaseRoute()
+    val welcomeScreens = listOf(WelcomeScreenDestination, NewWelcomeEmptyStartScreenDestination)
+    val loginScreens = listOf(LoginScreenDestination, NewLoginScreenDestination)
+    val welcomeAndLoginBaseRoutes = (welcomeScreens + loginScreens).map { it.route.getBaseRoute() }
+    return welcomeAndLoginBaseRoutes.contains(firstDestinationBaseRoute)
+}
+
+internal fun Navigator.isEmptyWelcomeStartDestination(): Boolean {
+    val firstDestinationBaseRoute = navController.startDestination()?.route()?.route?.getBaseRoute()
+    return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.route.getBaseRoute()
 }
 
 val LocalActivity = staticCompositionLocalOf<Activity> {

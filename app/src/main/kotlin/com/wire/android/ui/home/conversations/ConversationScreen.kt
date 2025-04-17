@@ -493,8 +493,8 @@ fun ConversationScreen(
                 sendMessageViewModel.trySendMessage(Ping(conversationMessagesViewModel.conversationId))
             }
         },
-        onImagesPicked = {
-            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
+        onImagesPicked = { it, fromKeyboard ->
+            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled && !fromKeyboard) {
                 messageAttachmentsViewModel.onFilesSelected(it)
                 messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
@@ -876,7 +876,7 @@ private fun ConversationScreen(
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
-    onImagesPicked: (List<Uri>) -> Unit,
+    onImagesPicked: (List<Uri>, Boolean) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
@@ -1054,7 +1054,7 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
-    onImagesPicked: (List<Uri>) -> Unit,
+    onImagesPicked: (List<Uri>, Boolean) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onAssetItemClicked: (String) -> Unit,
@@ -1579,7 +1579,7 @@ fun PreviewConversationScreen() = WireTheme {
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },
         openDrawingCanvas = {},
-        onImagesPicked = {},
+        onImagesPicked = { _, _ -> },
         onAttachmentClick = {},
         onAttachmentMenuClick = {},
         onAttachmentPicked = {},

@@ -112,7 +112,7 @@ fun EnabledMessageComposer(
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onLocationClicked: () -> Unit,
     onSendButtonClicked: () -> Unit,
-    onImagesPicked: (List<Uri>) -> Unit,
+    onImagesPicked: (List<Uri>, Boolean) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
@@ -315,7 +315,7 @@ fun EnabledMessageComposer(
                                                         }
                                                 }
                                                 .also {
-                                                    onImagesPicked(imageUriList)
+                                                    onImagesPicked(imageUriList, true)
                                                 }
                                         } else {
                                             transferableContent
@@ -458,7 +458,7 @@ fun EnabledMessageComposer(
                             onRecordAudioMessageClicked = ::toAudioRecording,
                             onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
                             onLocationPickerClicked = onLocationClicked,
-                            onImagesPicked = onImagesPicked,
+                            onImagesPicked = { onImagesPicked(it, false) },
                             onAttachmentPicked = onAttachmentPicked,
                             onAudioRecorded = onAudioRecorded,
                             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,

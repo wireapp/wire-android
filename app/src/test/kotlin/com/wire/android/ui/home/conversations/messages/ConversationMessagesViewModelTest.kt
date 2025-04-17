@@ -47,6 +47,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -68,6 +69,46 @@ class ConversationMessagesViewModelTest {
 
         coVerify(exactly = 1) { arrangement.getMessageById(arrangement.conversationId, message.id) }
     }
+
+    @Test
+    fun `given an message ID and Wire Cell is Enabled, when downloading or fetching into internal storage, then download dialog is shown`() =
+        runTest {
+            val message = TestMessage.ASSET_MESSAGE
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetMessageAssetUseCaseReturning("path".toPath(), 42L)
+                .withGetMessageByIdReturning(message)
+                .withWireCellEnabled()
+                .arrange()
+
+            viewModel.openOrFetchAsset(message.id)
+
+            val state = viewModel.conversationViewState
+
+            advanceUntilIdle()
+
+            assertTrue(state.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
+        }
+
+    @Test
+    fun `given an message ID and Wire Cell is Disabled, when downloading or fetching into internal storage, then download dialog is shown`() =
+        runTest {
+            val message = TestMessage.ASSET_MESSAGE
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetMessageAssetUseCaseReturning("path".toPath(), 42L)
+                .withGetMessageByIdReturning(message)
+//                .withWireCellEnabled()
+                .arrange()
+
+            viewModel.openOrFetchAsset(message.id)
+
+            val state = viewModel.conversationViewState
+
+            advanceUntilIdle()
+
+            assertTrue(state.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
+        }
 
     @Test
     fun `given an asset message, when opening it, then the file manager open function gets invoked and closes the dialog`() = runTest {
@@ -345,7 +386,7 @@ class ConversationMessagesViewModelTest {
             totalTimeInMs = AudioState.TotalTimeInMs.Known(10000),
             currentPositionInMs = 300
         )
-        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+        val (_, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withPlayingAudioMessageFlow(flowOf(PlayingAudioMessage.None))
             .withObservableAudioMessagesState(flowOf(mapOf(MessageIdWrapper(message.conversationId, message.id) to audioState)))

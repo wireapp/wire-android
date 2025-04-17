@@ -68,4 +68,4 @@ fun AttachmentFileType.icon(): Int =
     }
 
 fun AttachmentFileType.previewSupported(): Boolean =
-    this in listOf(AttachmentFileType.IMAGE, AttachmentFileType.VIDEO, AttachmentFileType.PDF)
+    this in listOf(AttachmentFileType.IMAGE, AttachmentFileType.VIDEO)

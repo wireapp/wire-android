@@ -106,6 +106,7 @@
     <string name="welcome_button_create_team">Створити команду</string>
     <!-- API Versioning Dialogs -->
     <!-- Migration -->
+    <!-- Enterprise Login -->
     <!-- Login -->
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
@@ -123,6 +124,7 @@
     <string name="disable_guest_dialog_title">Вимкнути гостьовий доступ?</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->
+    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
@@ -150,6 +152,7 @@
     <!-- Conversation Media -->
     <string name="label_conversation_media">Медіа</string>
     <!-- Search Contact-->
+    <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
@@ -190,6 +193,7 @@
     <string name="label_code_commit_id">Здійснити хеш</string>
     <!--create and restore backup-->
     <!--    report bug-->
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Оновити</string>
     <!-- Analytics Usage dialog -->

@@ -231,16 +231,15 @@ URL backend:
     <string name="migration_messages_failure">Purtroppo, non tutti i messaggi e le conversazioni potrebbero essere stati migrati a causa di incompatibilit&#224; con la vecchia versione di Wire (codice di errore: %s)</string>
     <string name="migration_cancel_title">Annulla la migrazione</string>
     <string name="migration_cancel_message">Sei sicuro di voler chiudere l\'applicazione e annullare la migrazione in corso?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Accedi</string>
     <string name="login_forgot_password">Hai dimenticato la password?</string>
     <string name="login_user_identifier_placeholder">jane@example.com o jane.doe</string>
-    <string name="login_email_placeholder">jane@example.com</string>
     <string name="login_user_identifier_label">EMAIL O USERNAME</string>
     <string name="login_proxy_identifier_label">EMAIL O USERNAME PROXY</string>
     <string name="login_error_invalid_credentials_title">Informazioni non valide</string>
     <string name="login_error_invalid_credentials_message">Queste credenziali di accesso non sono corrette. Verifica le credenziali e riprova.</string>
-    <string name="login_error_invalid_user_identifier">Questa email o username non &#232; valida. Verifica e riprova.</string>
     <string name="login_error_user_already_logged_in_title">Account in uso</string>
     <string name="login_error_user_already_logged_in_message">Hai gi&#224; effettuato l\'accesso con queste credenziali su questo dispositivo.</string>
     <string name="login_sso_error_invalid_cookie_title">Cookie non valido!</string>
@@ -372,14 +371,12 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="new_group_title">Nuovo Gruppo</string>
     <string name="new_group_description">Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="group_name_title">Nome del Gruppo</string>
-    <string name="conversation_name_placeholder">Inserisci un nome</string>
     <string name="group_name_description">Dai a questo gruppo un nome significativo.</string>
     <string name="protocol">Protocollo</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Suite di Crittografia</string>
     <string name="last_key_material_update_label">Ultimo Aggiornamento del Materiale Chiave</string>
     <string name="group_state_label">Stato del gruppo</string>
-    <string name="conversation_can_not_be_created_edit_participant_list">Modifica l\'elenco dei partecipanti</string>
     <string name="asset_message_tap_to_download_text">Tocca per scaricare</string>
     <string name="asset_message_upload_in_progress_text">Caricamento in corso...</string>
     <string name="asset_message_download_in_progress_text">Download in corso...</string>
@@ -399,8 +396,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="conversation_details_options_tab">OPZIONI</string>
     <string name="conversation_details_participants_tab">PARTICIPANTI</string>
     <string name="conversation_details_options_group_name">NOME DEL GRUPPO</string>
-    <string name="conversation_details_participants_info">Questo gruppo ha %s partecipanti.
-Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="conversation_details_participants_count">%s partecipanti</string>
     <string name="conversation_details_show_all_participants">Mostra tutti i partecipanti (%d)</string>
     <string name="conversation_participant_you_label">(Tu)</string>
@@ -426,6 +421,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Notifiche di lettura</string>
     <string name="conversation_options_read_receipt_description">Con questa opzione ATTIVA, le persone possono vedere quando i loro messaggi in questa conversazione vengono letti.</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Dettagli messaggio</string>
     <string name="message_details_reactions_tab">REAZIONI (%s)</string>
@@ -453,15 +449,11 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="user_profile_status_none">Nessuno</string>
     <string name="user_profile_details_tab">Dettagli</string>
     <string name="user_profile_devices_tab">Dispositivi</string>
-    <string name="user_profile_role_in_conversation">Role in &#8221;%s&#8221;</string>
     <string name="user_profile_role_change_error">Si è verificato un errore provando a modificare il ruolo. Sei pregato di controllare la tua connessione a Internet e di riprovare</string>
     <string name="user_profile_unblock_user">Sblocca Utente</string>
     <string name="user_profile_logging_out_progress">Disconnessione...</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Rimuovere dal gruppo?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) non potrà inviare o ricevere i messaggi in questa conversazione.</string>
-    <string name="conversation_role_admin">Amministratore</string>
-    <string name="conversation_role_member">Membro</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Cancellare i dati?</string>
     <string name="dialog_logout_wipe_data_checkbox">Eliminare tutte le tue informazioni personali e conversazioni su questo dispositivo</string>
@@ -524,10 +516,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_removed_by_self">%1$s ha rimosso %2$s dalla conversazione</string>
     <string name="label_system_message_added_by_other">%1$s ha aggiunto %2$s alla conversazione</string>
     <string name="label_system_message_removed_by_other">%1$s ha rimosso %2$s dalla conversazione</string>
-    <plurals name="label_system_message_federation_member_removed">
-        <item quantity="one">%1$s è stato rimosso dalla conversazione</item>
-        <item quantity="other">%1$s sono stati rimossi dalla conversazione</item>
-    </plurals>
     <string name="label_system_message_federation_removed">**Il tuo backend** ha smesso di federarsi con %1$s.</string>
     <string name="label_system_message_federation_conection_removed">I backend %1$s e %2$s hanno smesso di federarsi.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s ha lasciato la conversazione</string>
@@ -648,7 +636,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="other">%1$d messaggi</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Ha inviato un messaggio"</string>
-    <string name="ephemeral_group_channel_event_message">"Qualcuno ha inviato un messaggio"</string>
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s sta scrivendo</item>
@@ -667,6 +654,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_conversation_files_empty">Nessuno ha ancora condiviso dei file in questa conversazione 🙀</string>
     <!-- Search Contact-->
     <string name="label_new_group">Nuovo Gruppo</string>
+    <!-- Search Channels -->
     <string name="label_new_conversation">Nuova Conversazione</string>
     <string name="label_search_people">Cerca persone</string>
     <string name="label_search_people_instruction">Cerca persone per il loro nome del profilo o @nomeutente</string>
@@ -701,12 +689,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="conversation_on_file_downloaded">Il file %s &#232; stato salvato con successo nella cartella Download</string>
     <string name="error_blocking_user">Impossibile bloccare l\'utente.</string>
     <string name="blocking_user_success">%s bloccato.</string>
-    <string name="conversation_removed_success">\"%s\" rimosso.</string>
-    <string name="leave_conversation_error">Si &#232; verificato un errore durante la rimozione dalla conversazione.</string>
-    <string name="joined_conversation_success">Ora fai parte della conversazione.</string>
-    <string name="left_conversation_success">Hai abbandonato la conversazione.</string>
     <string name="error_unblocking_user">Impossibile sbloccare l\'utente.</string>
-    <string name="delete_conversation_conversation_error">Si &#232; verificato un errore durante la cancellazione della conversazione.</string>
     <string name="error_limit_number_assets_imported_exceeded">&#200; possibile inviare fino a 20 file alla volta.</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Conversazione archiviata</string>
@@ -736,7 +719,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_type_a_message">Scrivi un messaggio</string>
     <string name="notification_incoming_call_content">Chiamata in arrivo...</string>
     <string name="notification_ongoing_call_content">Chiamata in corso...</string>
-    <string name="notification_group_channel_call_content">%s sta chiamando...</string>
     <string name="notification_call_default_caller_name">Qualcuno</string>
     <string name="notification_call_default_group_name">Chiamata di gruppo in entrata</string>
     <!-- Calling-->
@@ -804,7 +786,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="sso_error_dialog_title">Impossibile effettuare l\'accesso con SSO</string>
     <string name="sso_error_dialog_message">Riprova. Se il problema persiste, contatta l\'amministratore e fornisci questo codice:\n%d</string>
     <string name="asset_download_dialog_default_title">Scarica file</string>
-    <string name="empty_conversation_label">Conversazione senza nome</string>
     <string name="label_show_more">Mostra altro</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Ricevere immagini è vietato</string>
@@ -1009,6 +990,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="create_personal_account_not_supported_dialog_description">Non puoi creare un account personale su un backend in loco con supporto proxy.</string>
     <string name="create_team_not_supported_dialog_description">Non puoi creare un nuovo team su un backend in loco con supporto proxy nell\'app. Utilizza invece la gestione del team (%1$s) su questo backend.</string>
     <string name="to_team_management_action">Apri la gestione del team</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Aggiornamento richiesto</string>
     <string name="update_app_dialog_body">Ti stai perdendo nuove funzionalit&#224;. Aggiorna l\'ultima versione di Wire per continuare ad utilizzare l\'app con questo account.</string>

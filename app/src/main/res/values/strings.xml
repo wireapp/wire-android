@@ -560,6 +560,7 @@
     <string name="regular_group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
     <string name="channel_name_exceeded_limit_error">Channel name should not exceed 64 characters</string>
     <string name="conversation_can_not_be_created_title">Conversation can\'t be created</string>
+    <string name="create_channel_error_forbidden_message">Feature is not available, please check with your team admin</string>
     <string name="conversation_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can\'t join the same conversation.\n\nTo create the conversation, remove affected participants.</string>
     <string name="conversation_can_not_be_created_edit_participant_list">Edit Participants List</string>
     <string name="conversation_can_not_be_created_discard_creation">Discard Conversation Creation</string>

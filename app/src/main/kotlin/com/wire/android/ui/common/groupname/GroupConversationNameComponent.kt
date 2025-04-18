@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.common.groupname
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,18 +27,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,7 +53,9 @@ import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.groupname.GroupNameMode.CREATION
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -127,13 +137,47 @@ fun GroupNameScreen(
                             }
                             WireTextField(
                                 textState = newGroupNameTextState,
-                                placeholderText = stringResource(R.string.group_name_placeholder),
+                                placeholderText = stringResource(R.string.conversation_name_placeholder),
                                 labelText = stringResource(labelText).uppercase(),
                                 state = computeGroupMetadataState(newGroupState.isChannel, error),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                                 onKeyboardAction = { keyboardController?.hide() },
                                 semanticDescription = stringResource(id = semanticDescriptionTextField),
-                                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
+                                trailingIcon = {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(dimensions().spacing64x)
+                                            .height(dimensions().spacing40x),
+                                        contentAlignment = Alignment.CenterEnd
+                                    ) {
+                                        androidx.compose.animation.AnimatedVisibility(
+                                            visible = newGroupNameTextState.text.isNotBlank(),
+                                            enter = fadeIn(),
+                                            exit = fadeOut()
+                                        ) {
+                                            if (isLoading) {
+                                                WireCircularProgressIndicator(
+                                                    modifier = Modifier.padding(
+                                                        top = dimensions().spacing12x,
+                                                        bottom = dimensions().spacing12x,
+                                                        end = dimensions().spacing32x
+                                                    ),
+                                                    progressColor = MaterialTheme.wireColorScheme.onSurface
+                                                )
+                                            }
+                                            IconButton(
+                                                modifier = Modifier.padding(start = dimensions().spacing12x),
+                                                onClick = newGroupNameTextState::clearText,
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.ic_clear_search),
+                                                    contentDescription = stringResource(R.string.content_description_clear_content)
+                                                )
+                                            }
+                                        }
+                                    }
+                                },
                             )
                         }
                     }

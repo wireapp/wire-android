@@ -37,7 +37,8 @@ data class ConversationInfoViewState(
     val mlsVerificationStatus: Conversation.VerificationStatus? = null,
     val proteusVerificationStatus: Conversation.VerificationStatus? = null,
     val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.UNKNOWN,
-    val accentId: Int = -1
+    val accentId: Int = -1,
+    val isWireCellEnabled: Boolean = false,
 )
 
 sealed class ConversationDetailsData(open val conversationProtocol: Conversation.ProtocolInfo?) {
@@ -57,8 +58,13 @@ sealed class ConversationDetailsData(open val conversationProtocol: Conversation
     ) : ConversationDetailsData(conversationProtocol)
 }
 
-sealed class ConversationAvatar {
-    data object None : ConversationAvatar()
-    data class OneOne(val avatarAsset: ImageAsset.UserAvatarAsset?, val status: UserAvailabilityStatus) : ConversationAvatar()
-    data class Group(val conversationId: QualifiedID) : ConversationAvatar()
+sealed interface ConversationAvatar {
+    data object None : ConversationAvatar
+    data class OneOne(val avatarAsset: ImageAsset.UserAvatarAsset?, val status: UserAvailabilityStatus) : ConversationAvatar
+    sealed interface Group : ConversationAvatar {
+        val conversationId: QualifiedID
+
+        data class Regular(override val conversationId: QualifiedID) : Group
+        data class Channel(override val conversationId: QualifiedID, val isPrivate: Boolean) : Group
+    }
 }

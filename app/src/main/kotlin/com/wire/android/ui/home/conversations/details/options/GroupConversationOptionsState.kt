@@ -19,7 +19,7 @@
 package com.wire.android.ui.home.conversations.details.options
 
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
-import com.wire.android.ui.home.newconversation.channelaccess.ChannelPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -51,16 +51,22 @@ data class GroupConversationOptionsState(
     val isUpdatingServicesAllowed: Boolean = false,
     val isUpdatingSelfDeletingAllowed: Boolean = false,
     val isUpdatingReadReceiptAllowed: Boolean = false,
+    val isUpdatingChannelAccessAllowed: Boolean = false,
+    val shouldShowAddParticipantsButtonForChannel: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
     val changeServiceOptionConfirmationRequired: Boolean = false,
     val loadingServicesOption: Boolean = false,
     val loadingReadReceiptOption: Boolean = false,
     val isChannel: Boolean = false,
-    val channelAccessType: ChannelAccessType = ChannelAccessType.PRIVATE,
-    val channelPermissionType: ChannelPermissionType = ChannelPermissionType.ADMINS,
+    val isSelfTeamAdmin: Boolean = false,
+    val channelAccessType: ChannelAccessType? = ChannelAccessType.PRIVATE,
+    val channelAddPermissionType: ChannelAddPermissionType? = ChannelAddPermissionType.ADMINS,
     val error: Error = Error.None,
     val mlsEnabled: Boolean = false,
-    val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled
+    val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled,
+    val loadingWireCellState: Boolean = false,
+    val isWireCellFeatureEnabled: Boolean = false,
+    val isWireCellEnabled: Boolean = false,
 ) {
 
     sealed interface Error {

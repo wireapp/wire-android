@@ -43,6 +43,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -80,6 +81,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun RegisterDeviceScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     viewModel: RegisterDeviceViewModel = hiltViewModel(),
     clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
 ) {
@@ -116,7 +118,9 @@ fun RegisterDeviceScreen(
                         onErrorDismiss = viewModel::onErrorDismiss,
                         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
                         onCancelLoginClicked = {
-                            clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate))
+                            clearSessionViewModel.onCancelLoginClicked(
+                                NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
+                            )
                         },
                         onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
                     )

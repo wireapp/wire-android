@@ -18,18 +18,23 @@
 
 package com.wire.android.ui.authentication.verificationcode
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -39,6 +44,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
+import kotlinx.coroutines.job
 
 @Composable
 fun VerificationCode(
@@ -47,9 +53,11 @@ fun VerificationCode(
     isLoading: Boolean,
     isCurrentCodeInvalid: Boolean,
     onResendCode: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showLoadingProgress: Boolean = true,
 ) {
     val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxWidth(),
@@ -67,18 +75,34 @@ fun VerificationCode(
             modifier = Modifier.focusRequester(focusRequester)
         )
 
-        AnimatedVisibility(visible = isLoading) {
-            WireCircularProgressIndicator(
-                progressColor = MaterialTheme.wireColorScheme.primary,
-                size = MaterialTheme.wireDimensions.spacing24x,
-                modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing16x)
-            )
+        Crossfade(
+            targetState = isLoading to showLoadingProgress,
+            modifier = Modifier
+                .padding(top = MaterialTheme.wireDimensions.spacing24x)
+                .animateContentSize(),
+        ) { (isLoading, showLoadingProgress) ->
+            when {
+                !isLoading -> ResendCodeText(
+                    onResendCodePressed = onResendCode,
+                    clickEnabled = true,
+                    modifier = Modifier
+                        .defaultMinSize(minHeight = MaterialTheme.wireDimensions.spacing24x)
+                        .wrapContentHeight(align = Alignment.CenterVertically),
+                )
+
+                isLoading && showLoadingProgress -> WireCircularProgressIndicator(
+                    progressColor = MaterialTheme.wireColorScheme.primary,
+                    size = MaterialTheme.wireDimensions.spacing24x,
+                )
+            }
         }
 
-        ResendCodeText(
-            onResendCodePressed = onResendCode,
-            clickEnabled = !isLoading
-        )
+        LaunchedEffect(Unit) {
+            coroutineContext.job.invokeOnCompletion {
+                focusRequester.requestFocus()
+                keyboardController?.show()
+            }
+        }
     }
 }
 

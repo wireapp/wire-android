@@ -26,7 +26,11 @@ class DeleteMessageDialogHelper(
     val scope: CoroutineScope,
     val conversationId: QualifiedID,
     private val updateDeleteDialogState: ((DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) -> Unit,
-    private val deleteMessage: suspend (messageId: String, deleteForEveryone: Boolean, onDeleted: () -> Unit) -> Unit
+    private val deleteMessage: suspend (
+        messageId: String,
+        deleteForEveryone: Boolean,
+        onDeleted: () -> Unit
+    ) -> Unit
 ) {
 
     private fun updateStateIfDialogVisible(newValue: (DeleteMessageDialogActiveState.Visible) -> DeleteMessageDialogActiveState) =
@@ -44,7 +48,7 @@ class DeleteMessageDialogHelper(
                 forEveryone = DeleteMessageDialogActiveState.Hidden,
                 forYourself = DeleteMessageDialogActiveState.Visible(
                     messageId = messageId,
-                    conversationId = conversationId
+                    conversationId = conversationId,
                 )
             )
         }
@@ -63,7 +67,11 @@ class DeleteMessageDialogHelper(
         updateStateIfDialogVisible { it.copy(error = DeleteMessageError.None) }
     }
 
-    fun onDeleteMessage(messageId: String, deleteForEveryone: Boolean, onDeleted: () -> Unit = {}) {
+    fun onDeleteMessage(
+        messageId: String,
+        deleteForEveryone: Boolean,
+        onDeleted: () -> Unit = {}
+    ) {
         scope.launch {
             // update dialogs state to loading
             if (deleteForEveryone) {

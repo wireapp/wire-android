@@ -40,10 +40,13 @@ import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -61,6 +64,12 @@ class RemoveDeviceViewModel @Inject constructor(
         RemoveDeviceState(deviceList = listOf(), removeDeviceDialogState = RemoveDeviceDialogState.Hidden, isLoadingClientsList = true)
     )
         private set
+
+    private val _actions = Channel<RemoveDeviceViewAction>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    internal val actions = _actions.receiveAsFlow()
 
     init {
         loadClientsList()
@@ -110,7 +119,7 @@ class RemoveDeviceViewModel @Inject constructor(
         loadClientsList()
     }
 
-    fun onItemClicked(device: Device, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
+    fun onItemClicked(device: Device) {
         viewModelScope.launch {
             val isPasswordRequired: Boolean = when (val passwordRequiredResult = isPasswordRequired()) {
                 is IsPasswordRequiredUseCase.Result.Failure -> {
@@ -126,12 +135,12 @@ class RemoveDeviceViewModel @Inject constructor(
                     showDeleteClientDialog(device)
                 }
                 // no password needed so we can delete the device and register a client
-                false -> deleteClient(null, device, onCompleted)
+                false -> deleteClient(null, device)
             }
         }
     }
 
-    private suspend fun registerClient(password: String?, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
+    private suspend fun registerClient(password: String?) {
         registerClientUseCase(
             RegisterClientUseCase.RegisterClientParam(
                 password, null,
@@ -146,16 +155,15 @@ class RemoveDeviceViewModel @Inject constructor(
                 is RegisterClientResult.Failure.Generic -> state = state.copy(error = RemoveDeviceError.GenericError(result.genericFailure))
                 is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
                 is RegisterClientResult.Failure.TooManyClients -> loadClientsList()
-                is RegisterClientResult.Success -> onCompleted(userDataStore.initialSyncCompleted.first(), false)
-                is RegisterClientResult.E2EICertificateRequired -> onCompleted(userDataStore.initialSyncCompleted.first(), true)
+                is RegisterClientResult.Success -> sendAction(OnComplete(userDataStore.initialSyncCompleted.first(), false))
+                is RegisterClientResult.E2EICertificateRequired -> sendAction(OnComplete(userDataStore.initialSyncCompleted.first(), true))
             }
         }
     }
 
     private suspend fun deleteClient(
         password: String?,
-        device: Device,
-        onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit
+        device: Device
     ) {
         when (val deleteResult = deleteClientUseCase(DeleteClientParam(password, device.clientId))) {
             is DeleteClientResult.Failure.Generic -> {
@@ -168,16 +176,16 @@ class RemoveDeviceViewModel @Inject constructor(
                 // this delay is only a work around because the backend is not updating the list of clients immediately
                 // TODO(revert me): remove the delay once the server side bug is fixed
                 delay(REGISTER_CLIENT_AFTER_DELETE_DELAY)
-                registerClient(password, onCompleted)
+                registerClient(password)
             }
         }
     }
 
-    fun onRemoveConfirmed(onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
+    fun onRemoveConfirmed() {
         (state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
             updateStateIfDialogVisible { state.copy(removeDeviceDialogState = it.copy(loading = true, removeEnabled = false)) }
             viewModelScope.launch {
-                deleteClient(passwordTextState.text.toString(), dialogStateVisible.device, onCompleted)
+                deleteClient(passwordTextState.text.toString(), dialogStateVisible.device)
                 updateStateIfDialogVisible { state.copy(removeDeviceDialogState = it.copy(loading = false)) }
             }
         }
@@ -199,7 +207,14 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
+    private fun sendAction(action: RemoveDeviceViewAction) {
+        viewModelScope.launch { _actions.send(action) }
+    }
+
     private companion object {
         const val REGISTER_CLIENT_AFTER_DELETE_DELAY = 2000L
     }
 }
+
+internal sealed interface RemoveDeviceViewAction
+internal data class OnComplete(val initialSyncCompleted: Boolean, val isE2EIRequired: Boolean) : RemoveDeviceViewAction

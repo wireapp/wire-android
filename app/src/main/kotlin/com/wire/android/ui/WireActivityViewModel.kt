@@ -19,6 +19,7 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,9 +27,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.wire.android.BuildConfig
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
@@ -49,6 +50,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
@@ -74,13 +76,15 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -91,7 +95,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
@@ -108,8 +114,7 @@ class WireActivityViewModel @Inject constructor(
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
     private val deepLinkProcessor: Lazy<DeepLinkProcessor>,
-    private val authServerConfigProvider: Lazy<AuthServerConfigProvider>,
-    private val getSessions: Lazy<GetSessionsUseCase>,
+    private val observeSessions: Lazy<ObserveSessionsUseCase>,
     private val accountSwitch: Lazy<AccountSwitchUseCase>,
     private val migrationManager: Lazy<MigrationManager>,
     private val servicesManager: Lazy<ServicesManager>,
@@ -143,6 +148,14 @@ class WireActivityViewModel @Inject constructor(
         .distinctUntilChanged()
         .flowOn(dispatchers.io())
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+
+    private lateinit var validSessions: StateFlow<List<AccountInfo>>
+
+    private val _actions = Channel<WireActivityViewAction>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    internal val actions = _actions.receiveAsFlow()
 
     init {
         observeSyncState()
@@ -240,7 +253,18 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    private suspend fun validSessionsFlow() = observeSessions.get().invoke()
+        .map { (it as? GetAllSessionsResult.Success)?.sessions ?: emptyList() }
+
+    @VisibleForTesting
+    internal suspend fun initValidSessionsFlowIfNeeded() {
+        if (::validSessions.isInitialized.not()) { // initialise valid sessions flow if not already initialised
+                validSessions = validSessionsFlow().stateIn(viewModelScope, SharingStarted.Eagerly, validSessionsFlow().first())
+        }
+    }
+
     suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
+        initValidSessionsFlowIfNeeded()
         when {
             shouldMigrate() -> InitialAppState.NOT_MIGRATED
             shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
@@ -271,10 +295,6 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private fun isSharingIntent(intent: Intent?): Boolean {
-        return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
-    }
-
     fun handleSynchronizeExternalData(
         data: InputStream
     ) {
@@ -300,41 +320,36 @@ class WireActivityViewModel @Inject constructor(
     }
 
     @Suppress("ComplexMethod")
-    fun handleDeepLink(
-        intent: Intent?,
-        onIsSharingIntent: () -> Unit,
-        onOpenConversation: (DeepLinkResult.OpenConversation) -> Unit,
-        onSSOLogin: (DeepLinkResult.SSOLogin) -> Unit,
-        onMigrationLogin: (DeepLinkResult.MigrationLogin) -> Unit,
-        onOpenOtherUserProfile: (DeepLinkResult.OpenOtherUserProfile) -> Unit,
-        onAuthorizationNeeded: () -> Unit,
-        onCannotLoginDuringACall: () -> Unit
-    ) {
+    fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch(dispatchers.io()) {
             if (shouldMigrate()) {
                 // means User is Logged in, but didn't finish the migration yet.
                 // so we need to finish migration first.
                 return@launch
             }
-            val isSharingIntent = isSharingIntent(intent)
-            when (val result = deepLinkProcessor.get().invoke(intent?.data, isSharingIntent)) {
-                DeepLinkResult.AuthorizationNeeded -> onAuthorizationNeeded()
-                is DeepLinkResult.SSOLogin -> onSSOLogin(result)
-                is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url)
-                is DeepLinkResult.Failure.OngoingCall -> onCannotLoginDuringACall()
-                is DeepLinkResult.Failure.Unknown -> appLogger.e("unknown deeplink failure")
+            when (val result = deepLinkProcessor.get().invoke(intent?.data, intent?.action)) {
+                DeepLinkResult.AuthorizationNeeded -> sendAction(OnAuthorizationNeeded)
+                is DeepLinkResult.SSOLogin -> sendAction(OnSSOLogin(result))
+                is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url, result.loginType)
+                is DeepLinkResult.SwitchAccountFailure.OngoingCall -> sendAction(ShowToast(R.string.cant_switch_account_in_call))
+                is DeepLinkResult.SwitchAccountFailure.Unknown -> appLogger.e("unknown deeplink failure")
                 is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
                     result.code,
                     result.key,
                     result.domain
-                ) { conversationId -> onOpenConversation(DeepLinkResult.OpenConversation(conversationId, result.switchedAccount)) }
+                ) { conversationId ->
+                    sendAction(OpenConversation(DeepLinkResult.OpenConversation(conversationId, result.switchedAccount)))
+                }
 
-                is DeepLinkResult.MigrationLogin -> onMigrationLogin(result)
-                is DeepLinkResult.OpenConversation -> onOpenConversation(result)
-                is DeepLinkResult.OpenOtherUserProfile -> onOpenOtherUserProfile(result)
+                is DeepLinkResult.MigrationLogin -> sendAction(OnMigrationLogin(result))
+                is DeepLinkResult.OpenConversation -> sendAction(OpenConversation(result))
+                is DeepLinkResult.OpenOtherUserProfile -> sendAction(OnOpenUserProfile(result))
 
-                DeepLinkResult.SharingIntent -> onIsSharingIntent()
-                DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
+                DeepLinkResult.SharingIntent -> sendAction(OnShowImportMediaScreen)
+                DeepLinkResult.Unknown -> {
+                    sendAction(OnUnknownDeepLink)
+                    appLogger.e("unknown deeplink result $result")
+                }
             }
         }
     }
@@ -343,18 +358,12 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(customBackendDialog = null)
     }
 
-    fun customBackendDialogProceedButtonClicked(onProceed: () -> Unit) {
+    fun customBackendDialogProceedButtonClicked(onProceed: (ServerConfig.Links) -> Unit) {
         val backendDialogState = globalAppState.customBackendDialog
         if (backendDialogState is CustomServerDetailsDialogState) {
-            viewModelScope.launch {
-                authServerConfigProvider.get()
-                    .updateAuthServer(backendDialogState.serverLinks)
-                dismissCustomBackendDialog()
-                if (checkNumberOfSessions() >= BuildConfig.MAX_ACCOUNTS) {
-                    globalAppState = globalAppState.copy(maxAccountDialog = true)
-                } else {
-                    onProceed()
-                }
+            dismissCustomBackendDialog()
+            if (checkNumberOfSessions()) {
+                onProceed(backendDialogState.serverLinks)
             }
         }
     }
@@ -407,17 +416,17 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun checkNumberOfSessions(): Int {
-        getSessions.get().invoke().let {
-            return when (it) {
-                is GetAllSessionsResult.Success -> {
-                    it.sessions.filterIsInstance<AccountInfo.Valid>().size
-                }
-
-                is GetAllSessionsResult.Failure.Generic -> 0
-                GetAllSessionsResult.Failure.NoSessionFound -> 0
-            }
+    /*
+     * This function is used to check if the number of accounts is less than the maximum allowed accounts.
+     * If the number of accounts is greater than or equal to the maximum allowed accounts, then the max account dialog is shown.
+     * @return true if the number of accounts is less than the maximum allowed accounts, false otherwise.
+     */
+    fun checkNumberOfSessions(): Boolean {
+        val reachedMax = validSessions.value.size >= BuildConfig.MAX_ACCOUNTS
+        if (reachedMax) {
+            globalAppState = globalAppState.copy(maxAccountDialog = true)
         }
+        return !reachedMax
     }
 
     private suspend fun loadServerConfig(url: String): ServerConfig.Links? =
@@ -429,11 +438,11 @@ class WireActivityViewModel @Inject constructor(
             }
         }
 
-    fun onCustomServerConfig(customServerUrl: String) {
+    fun onCustomServerConfig(customServerUrl: String, loginType: LoginType) {
         viewModelScope.launch(dispatchers.io()) {
             val customBackendDialogData = loadServerConfig(customServerUrl)
-                ?.let { serverLinks -> CustomServerDetailsDialogState(serverLinks = serverLinks) }
-                ?: CustomServerNoNetworkDialogState(customServerUrl)
+                ?.let { serverLinks -> CustomServerDetailsDialogState(serverLinks = serverLinks, loginType = loginType) }
+                ?: CustomServerNoNetworkDialogState(customServerUrl = customServerUrl, loginType = loginType)
 
             globalAppState = globalAppState.copy(
                 customBackendDialog = customBackendDialogData
@@ -534,6 +543,10 @@ class WireActivityViewModel @Inject constructor(
         is CurrentScreen.AuthRelated,
         is CurrentScreen.SomeOther -> true
     }
+
+    private fun sendAction(action: WireActivityViewAction) = viewModelScope.launch {
+        _actions.send(action)
+    }
 }
 
 sealed class CurrentSessionErrorState {
@@ -602,3 +615,13 @@ data class GlobalAppState(
 enum class InitialAppState {
     NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
 }
+
+internal sealed interface WireActivityViewAction
+internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
+internal data object OnShowImportMediaScreen : WireActivityViewAction
+internal data object OnAuthorizationNeeded : WireActivityViewAction
+internal data object OnUnknownDeepLink : WireActivityViewAction
+internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction
+internal data class OnOpenUserProfile(val result: DeepLinkResult.OpenOtherUserProfile) : WireActivityViewAction
+internal data class OnSSOLogin(val result: DeepLinkResult.SSOLogin) : WireActivityViewAction
+internal data class ShowToast(val messageResId: Int) : WireActivityViewAction

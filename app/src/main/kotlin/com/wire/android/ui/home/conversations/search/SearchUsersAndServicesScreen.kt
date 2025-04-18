@@ -55,8 +55,8 @@ import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -76,15 +76,15 @@ fun SearchUsersAndServicesScreen(
     onServiceClicked: (Contact) -> Unit,
     onClose: () -> Unit,
     screenType: SearchPeopleScreenType,
+    shouldShowChannelPromotion: Boolean,
+    isUserAllowedToCreateChannels: Boolean,
     modifier: Modifier = Modifier,
-    isSelfTeamMember: Boolean = false,
-    isChannelsAllowed: Boolean = true,
     isGroupSubmitVisible: Boolean = true,
     isServicesAllowed: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
-    onCreateNewChannel: () -> Unit = {},
+    onCreateNewChannel: () -> Unit = {}
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -124,7 +124,7 @@ fun SearchUsersAndServicesScreen(
                                 NavigationIconType.Close(R.string.content_description_new_conversation_close_btn)
 
                             SearchPeopleScreenType.NEW_GROUP_CONVERSATION ->
-                                NavigationIconType.Back(R.string.content_description_new_group_conversation_back_btn)
+                                NavigationIconType.Back(R.string.content_description_new_conversation_back_btn)
                         },
                         onNavigationPressed = onClose
                     )
@@ -200,8 +200,8 @@ fun SearchUsersAndServicesScreen(
                 when (screenType) {
                     SearchPeopleScreenType.NEW_CONVERSATION -> {
                         CreateRegularGroupOrChannelButtons(
-                            isSelfTeamMember = isSelfTeamMember,
-                            shouldShowChannelButton = isChannelsAllowed,
+                            shouldShowChannelPromotion = shouldShowChannelPromotion,
+                            isUserAllowedToCreateChannels = isUserAllowedToCreateChannels,
                             onCreateNewRegularGroup = onCreateNewGroup,
                             onCreateNewChannel = onCreateNewChannel
                         )

@@ -42,8 +42,8 @@ internal fun LeaveConversationGroupDialog(
 ) {
     VisibilityState(dialogState) { state ->
         WireDialog(
-            title = stringResource(id = R.string.leave_group_conversation_dialog_title, state.conversationName),
-            text = stringResource(id = R.string.leave_group_conversation_dialog_description),
+            title = stringResource(id = R.string.leave_conversation_dialog_title, state.conversationName),
+            text = stringResource(id = R.string.leave_conversation_dialog_description),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -64,7 +64,7 @@ internal fun LeaveConversationGroupDialog(
             )
         ) {
             WireLabelledCheckbox(
-                label = stringResource(R.string.leave_group_conversation_dialog_delete_fully_check),
+                label = stringResource(R.string.leave_conversation_dialog_delete_fully_check),
                 checked = state.shouldDelete,
                 onCheckClicked = remember { { dialogState.show(state.copy(shouldDelete = it)) } },
                 horizontalArrangement = Arrangement.Center,

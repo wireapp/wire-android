@@ -100,6 +100,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.ConfirmSendingPingDialog
@@ -131,6 +132,7 @@ import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
+import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
@@ -236,7 +238,8 @@ fun ConversationScreen(
     messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
     sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
     conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
-    messageDraftViewModel: MessageDraftViewModel = hiltViewModel()
+    messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
+    messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
@@ -465,6 +468,7 @@ fun ConversationScreen(
         conversationCallViewState = conversationListCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
+        attachments = messageAttachmentsViewModel.attachments,
         onOpenProfile = {
             with(conversationInfoViewModel) {
                 val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(it)
@@ -480,7 +484,7 @@ fun ConversationScreen(
                 NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
             )
         },
-        onSendMessage = sendMessageViewModel::trySendMessage,
+        onSendMessage = { sendMessageViewModel.trySendMessage(it) },
         onPingOptionClicked = {
             if (conversationListCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
                 showDialog.value = ConversationScreenDialogType.PING_CONFIRMATION
@@ -489,19 +493,40 @@ fun ConversationScreen(
                 sendMessageViewModel.trySendMessage(Ping(conversationMessagesViewModel.conversationId))
             }
         },
-        onImagesPicked = {
-            navigator.navigate(
-                NavigationCommand(
-                    ImagesPreviewScreenDestination(
-                        conversationId = conversationInfoViewModel.conversationInfoViewState.conversationId,
-                        conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
-                        assetUriList = ArrayList(it)
+        onImagesPicked = { it, fromKeyboard ->
+            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled && !fromKeyboard) {
+                messageAttachmentsViewModel.onFilesSelected(it)
+                messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
+            } else {
+                navigator.navigate(
+                    NavigationCommand(
+                        ImagesPreviewScreenDestination(
+                            conversationId = conversationInfoViewModel.conversationInfoViewState.conversationId,
+                            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
+                            assetUriList = ArrayList(it)
+                        )
                     )
                 )
-            )
+            }
+        },
+        onAttachmentPicked = {
+            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
+                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+            } else {
+                val bundle = ComposableMessageBundle.UriPickedBundle(conversationInfoViewModel.conversationId, it)
+                sendMessageViewModel.trySendMessage(bundle)
+            }
+        },
+        onAudioRecorded = {
+            if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
+                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+            } else {
+                val bundle = ComposableMessageBundle.AudioMessageBundle(conversationInfoViewModel.conversationId, it)
+                sendMessageViewModel.trySendMessage(bundle)
+            }
         },
         onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
-        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
         onImageFullScreenMode = { message, isSelfMessage ->
             with(conversationMessagesViewModel) {
                 navigator.navigate(
@@ -569,7 +594,7 @@ fun ConversationScreen(
         composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         shareAsset = conversationMessagesViewModel::shareAsset,
-        onDownloadAssetClick = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
         onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
@@ -621,7 +646,9 @@ fun ConversationScreen(
                 )
             )
         },
-        currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow
+        currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
+        onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
+        onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
     DeleteMessageDialog(
@@ -665,6 +692,17 @@ fun ConversationScreen(
         dialogState = sendMessageViewModel.sureAboutMessagingDialogState,
         sendAnyway = sendMessageViewModel::acceptSureAboutSendingMessage,
         hideDialog = sendMessageViewModel::dismissSureAboutSendingMessage
+    )
+
+    FailedAttachmentDialog(
+        state = messageAttachmentsViewModel.failedAttachmentDialogState,
+        onRetryUpload = {
+            messageAttachmentsViewModel.retryUpload()
+        },
+        onRemoveAttachment = {
+            messageAttachmentsViewModel.remove()
+        },
+        onDismiss = messageAttachmentsViewModel::onFailedAttachmentDialogDismissed,
     )
 
     (sendMessageViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
@@ -832,12 +870,15 @@ private fun ConversationScreen(
     conversationCallViewState: ConversationCallViewState,
     conversationInfoViewState: ConversationInfoViewState,
     conversationMessagesViewState: ConversationMessagesViewState,
+    attachments: List<AttachmentDraftUi>,
     bottomSheetVisible: Boolean,
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
-    onImagesPicked: (List<Uri>) -> Unit,
+    onImagesPicked: (List<Uri>, Boolean) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
@@ -865,6 +906,8 @@ private fun ConversationScreen(
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
     openDrawingCanvas: () -> Unit,
+    onAttachmentClick: (AttachmentDraftUi) -> Unit,
+    onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
 ) {
     val context = LocalContext.current
@@ -927,10 +970,13 @@ private fun ConversationScreen(
                         conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                         selectedMessageId = conversationMessagesViewState.searchedMessageId,
                         messageComposerStateHolder = messageComposerStateHolder,
+                        attachments = attachments,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
                         onPingOptionClicked = onPingOptionClicked,
                         onImagesPicked = onImagesPicked,
+                        onAttachmentPicked = onAttachmentPicked,
+                        onAudioRecorded = onAudioRecorded,
                         onAssetItemClicked = onAssetItemClicked,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
@@ -951,7 +997,9 @@ private fun ConversationScreen(
                         onLinkClick = onLinkClick,
                         onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
                         currentTimeInMillisFlow = currentTimeInMillisFlow,
-                        openDrawingCanvas = openDrawingCanvas
+                        openDrawingCanvas = openDrawingCanvas,
+                        onAttachmentClick = onAttachmentClick,
+                        onAttachmentMenuClick = onAttachmentMenuClick,
                     )
                 }
             }
@@ -1002,10 +1050,13 @@ private fun ConversationScreenContent(
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
+    attachments: List<AttachmentDraftUi>,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
-    onImagesPicked: (List<Uri>) -> Unit,
+    onImagesPicked: (List<Uri>, Boolean) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
@@ -1027,6 +1078,8 @@ private fun ConversationScreenContent(
     onLinkClick: (String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
     openDrawingCanvas: () -> Unit,
+    onAttachmentClick: (AttachmentDraftUi) -> Unit,
+    onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
@@ -1039,6 +1092,7 @@ private fun ConversationScreenContent(
         conversationId = conversationId,
         bottomSheetVisible = bottomSheetVisible,
         messageComposerStateHolder = messageComposerStateHolder,
+        attachments = attachments,
         messageListContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,
@@ -1077,6 +1131,10 @@ private fun ConversationScreenContent(
         tempWritableImageUri = tempWritableImageUri,
         onImagesPicked = onImagesPicked,
         openDrawingCanvas = openDrawingCanvas,
+        onAttachmentClick = onAttachmentClick,
+        onAttachmentMenuClick = onAttachmentMenuClick,
+        onAttachmentPicked = onAttachmentPicked,
+        onAudioRecorded = onAudioRecorded,
     )
 }
 
@@ -1489,6 +1547,7 @@ fun PreviewConversationScreen() = WireTheme {
             conversationName = UIText.DynamicString("Some test conversation")
         ),
         conversationMessagesViewState = ConversationMessagesViewState(),
+        attachments = emptyList(),
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { },
@@ -1520,6 +1579,10 @@ fun PreviewConversationScreen() = WireTheme {
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },
         openDrawingCanvas = {},
-        onImagesPicked = {},
+        onImagesPicked = { _, _ -> },
+        onAttachmentClick = {},
+        onAttachmentMenuClick = {},
+        onAttachmentPicked = {},
+        onAudioRecorded = {},
     )
 }

@@ -64,6 +64,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
@@ -81,9 +82,10 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.common.topappbar.search.SearchBarState
+import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
@@ -122,6 +124,7 @@ import okio.Path.Companion.toPath
 @Composable
 fun ImportMediaScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
 ) {
     when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
@@ -136,7 +139,8 @@ fun ImportMediaScreen(
                 fileSharingRestrictedState = fileSharingRestrictedState,
                 navigateBack = navigator.finish,
                 openWireAction = {
-                    navigator.navigate(NavigationCommand(WelcomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                    val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
+                    navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
                 }
             )
         }

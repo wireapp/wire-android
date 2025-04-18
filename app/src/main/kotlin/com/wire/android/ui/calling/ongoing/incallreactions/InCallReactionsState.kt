@@ -26,11 +26,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.wire.android.ui.calling.model.InCallReaction
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import okhttp3.internal.toImmutableList
 import kotlin.random.Random
 
 /**

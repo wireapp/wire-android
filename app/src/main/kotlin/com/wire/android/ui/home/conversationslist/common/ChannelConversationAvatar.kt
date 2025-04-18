@@ -46,8 +46,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun ChannelConversationAvatar(
     conversationId: ConversationId,
+    isPrivateChannel: Boolean,
     modifier: Modifier = Modifier,
-    isPrivateChannel: Boolean = false,
     size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
     cornerRadius: Dp = MaterialTheme.wireDimensions.groupAvatarCornerRadius,
     padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
@@ -98,10 +98,21 @@ private fun ChannelLock(modifier: Modifier = Modifier) {
 
 @MultipleThemePreviews
 @Composable
-fun PreviewChannelConversationAvatar() {
+fun PreviewChannelPrivateConversationAvatar() {
     WireTheme {
         ChannelConversationAvatar(
             isPrivateChannel = true,
+            conversationId = ConversationId("value", "domain")
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewChannelConversationAvatar() {
+    WireTheme {
+        ChannelConversationAvatar(
+            isPrivateChannel = false,
             conversationId = ConversationId("value", "domain")
         )
     }

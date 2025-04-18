@@ -67,7 +67,7 @@ fun OtherUserProfileGroup(
         item(key = "user_group_name") {
             UserGroupDetailsInformation(
                 title = context.resources.stringWithStyledArgs(
-                    R.string.user_profile_group_member,
+                    R.string.user_profile_conversation_member,
                     MaterialTheme.wireTypography.body01,
                     MaterialTheme.wireTypography.body02,
                     MaterialTheme.wireColorScheme.onBackground,
@@ -89,7 +89,7 @@ fun OtherUserProfileGroup(
         }
         item(key = "user_group_role") {
             UserRoleInformation(
-                label = stringResource(id = R.string.user_profile_group_role),
+                label = stringResource(id = R.string.user_profile_conversation_role),
                 value = AnnotatedString(state.groupState!!.role.name.asString()),
                 isSelfAdmin = state.groupState.isSelfAdmin,
                 openChangeRoleBottomSheet = openChangeRoleBottomSheet,
@@ -116,7 +116,7 @@ private fun UserGroupDetailsInformation(
             Spacer(modifier = Modifier.height(dimensions().spacing16x))
             if (isSelfAdmin) {
                 WireButton(
-                    text = stringResource(id = R.string.user_profile_group_remove_button),
+                    text = stringResource(id = R.string.user_profile_conversation_remove_button),
                     minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
                     minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                     fillMaxWidth = false,
@@ -174,8 +174,8 @@ fun EditButton(onEditClicked: () -> Unit, modifier: Modifier = Modifier) {
 
 val Member.Role.name
     get() = when (this) {
-        Member.Role.Admin -> UIText.StringResource(R.string.group_role_admin)
-        Member.Role.Member -> UIText.StringResource(R.string.group_role_member)
+        Member.Role.Admin -> UIText.StringResource(R.string.conversation_role_admin)
+        Member.Role.Member -> UIText.StringResource(R.string.conversation_role_member)
         is Member.Role.Unknown -> UIText.DynamicString(name)
     }
 

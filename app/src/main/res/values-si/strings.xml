@@ -97,8 +97,6 @@
     <string name="content_description_unarchive">අසංරක්‍ෂණය</string>
     <string name="content_description_block_the_user">අවහිර කරන්න</string>
     <string name="content_description_unblock_the_user">අනවහිර</string>
-    <string name="content_description_leave_the_group">සමූහය හැරයන්න</string>
-    <string name="content_description_delete_the_group">සමූහය මකන්න</string>
     <string name="content_description_conversation_phone_icon">ශ්‍රව්‍ය ඇමතුමක් අරඹන්න</string>
     <string name="content_description_welcome_wire_logo">වයර්</string>
     <string name="content_description_conversation_search_icon">සොයන්න නිරූපකය</string>
@@ -235,6 +233,7 @@
     <string name="login_title">පිවිසෙන්න</string>
     <string name="login_forgot_password">මුරපදය අමතකද?</string>
     <string name="login_user_identifier_placeholder">කසුන්@නිදසුන.ලංකා හෝ තිසර.කසුන්</string>
+    <string name="login_email_placeholder">කසුන්@නිදසුන.ලංකා</string>
     <string name="login_user_identifier_label">වි-තැපෑල හෝ පරි.නාමය</string>
     <string name="login_proxy_identifier_label">ප්‍රතියු. වි-තැපෑල හෝ පරි.නාමය</string>
     <string name="login_error_invalid_credentials_title">සාවද්‍ය තොරතුරකි</string>
@@ -372,14 +371,13 @@
     <string name="new_group_title">නව සමූහය</string>
     <string name="new_group_description">සමූහ සංවාදයකට {{count}} දෙනෙකුට එක්විය හැකිය.</string>
     <string name="group_name_title">සමූහයේ නම</string>
-    <string name="group_name_placeholder">නමක් යොදන්න</string>
+    <string name="conversation_name_placeholder">නමක් යොදන්න</string>
     <string name="group_name_description">මෙම කණ්ඩායමට අර්ථවත් නමක් දෙන්න.</string>
     <string name="protocol">කෙටුම්පත</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">කේතාංකන කට්ටලය</string>
     <string name="group_state_label">සමූහයේ තත්‍වය</string>
-    <string name="group_can_not_be_created_edit_participiant_list">සහභාගීන් සංස්කරණය</string>
-    <string name="group_can_not_be_created_discard_group_creation">සමූහය සෑදීම ඉවතලන්න</string>
+    <string name="conversation_can_not_be_created_edit_participant_list">සහභාගීන් සංස්කරණය</string>
     <string name="asset_message_tap_to_download_text">බාගැනීමට ඔබන්න</string>
     <string name="asset_message_upload_in_progress_text">උඩුගත වෙමින්…</string>
     <string name="asset_message_download_in_progress_text">බාගත වෙමින්…</string>
@@ -395,23 +393,16 @@
     <string name="member_name_you_label_lowercase">ඔබ</string>
     <string name="label_add_participants">සහභාගීන් යොදන්න</string>
     <string name="username_unavailable_label">නම නොතිබේ</string>
-    <string name="group_unavailable_label">සමූහයේ නම නොතිබේ</string>
     <string name="conversation_details_title">සංවාදයේ විස්තර</string>
     <string name="conversation_details_options_tab">විකල්ප</string>
     <string name="conversation_details_participants_tab">සහභාගීන්</string>
     <string name="conversation_details_options_group_name">සමූහයේ නම</string>
-    <string name="conversation_details_group_admins">සමූහයේ පරිපාලකයින් (%d)</string>
-    <string name="conversation_details_group_members">සමූහයේ සාමාජිකයින් (%d)</string>
-    <string name="conversation_details_participants_info">මෙම සමූහයේ සහභාගීන් %s දෙනෙක් සිටියි.\nසමූහ සංවාදයකට 500 දෙනෙකුට එක් වීමට හැකිය.</string>
     <string name="conversation_details_participants_count">සහභාගීන් %s</string>
     <string name="conversation_details_show_all_participants">සියළු සහභාගීන් පෙන්වන්න (%d)</string>
-    <string name="conversation_details_group_participants_title">සමූහයේ සහභාගීන්</string>
-    <string name="conversation_details_group_participants_add">සහභාගීන් යොදන්න</string>
     <string name="conversation_participant_you_label">(ඔබ)</string>
     <string name="conversation_details_is_classified">ආරක්‍ෂණ මට්ටම: VS-NfD</string>
     <string name="conversation_details_is_not_classified">ආරක්‍ෂණ මට්ටම: වර්ගීකෘත නොවේ</string>
     <string name="conversation_options_self_deleting_messages_label">ඉබේ මැකෙන පණිවිඩ</string>
-    <string name="conversation_options_self_deleting_messages_description">මෙය සක්‍රිය විට, මෙම සමූහයේ ඇති සියලුම පණිවිඩ නිශ්චිත කාලයකට පසු අතුරුදහන් වනු ඇත.</string>
     <string name="conversation_options_guests_label">අමුත්තන්</string>
     <string name="conversation_details_guest_description">මෙය සක්‍රිය නම්, මෙම සංවාදයට කණ්ඩායමෙන් පිටත අයට එක් වීමට හැකිය</string>
     <string name="conversation_options_guest_description">ඔබගේ කණ්ඩායමෙන් පිටත පුද්ගලයින්ට මෙම සංවාදය විවෘත කිරීමට මෙම විකල්පය සක්‍රිය කරන්න. වයර් නැති අයට ද උපකාරී වේ.</string>
@@ -423,12 +414,6 @@
     <string name="disable_guest_dialog_text">වත්මන් අමුත්තන් සංවාදයෙන් ඉවත් කරනු ලැබේ. නව අමුත්තන්ට ඉඩ නොදෙනු ඇත.</string>
     <string name="disable_services_dialog_title">සේවා ප්‍රවේශය අබල කරන්නද?</string>
     <string name="disable_services_dialog_text">වත්මන් සේවා සංවාදයෙන් ඉවත් කෙරේ. නව සේවා සඳහා ඉඩ නොදෙනු ඇත.</string>
-    <string name="leave_group_conversation_menu_item">සමූහය හැරයන්න…</string>
-    <string name="leave_group_conversation_dialog_title">“%s” හැරයනවාද?</string>
-    <string name="leave_group_conversation_dialog_description">ඔබට තවදුරටත් මෙම සමූහයට කිසිදු උපාංගයකින් පණිවිඩ යැවීමට හෝ කියවීමට නොහැකි වනු ඇත.</string>
-    <string name="delete_group_conversation_menu_item">සමූහය මකන්න…</string>
-    <string name="delete_group_conversation_dialog_title">“%s” ඉවත් කරන්නද?</string>
-    <string name="delete_group_conversation_dialog_description">සියලුම උපාංගවල ඔබගේ සංවාද ලැයිස්තුවෙන් සමූහය ඉවත් කරනු ලැබේ. ඔබට තවදුරටත් සමූහයට සහ එහි අන්තර්ගතයට ප්‍රවේශ වීමට නොහැකි වනු ඇත.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">වයර් සමඟ බෙදාගන්න</string>
     <string name="import_media_searchbar_title">සංවාදයක් සොයන්න</string>
@@ -472,20 +457,15 @@
     <string name="user_profile_status_none">කිසිවක් නැත</string>
     <string name="user_profile_details_tab">විස්තර</string>
     <string name="user_profile_devices_tab">උපාංග</string>
-    <string name="user_profile_group_tab">සමූහය</string>
-    <string name="user_profile_group_member">”%s” සමූහයේ සාමාජිකයෙකි</string>
-    <string name="user_profile_group_role">භූමිකාව</string>
-    <string name="user_profile_role_in_group">”%s” හි භූමිකාව</string>
+    <string name="user_profile_role_in_conversation">”%s” හි භූමිකාව</string>
     <string name="user_profile_role_change_error">භූමිකාව වෙනස් කිරීමට තැත් කිරීමේ දී දෝෂයක් සිදු විය. ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කර නැවත උත්සාහ කරන්න</string>
     <string name="user_profile_unblock_user">අනවහිර කරන්න</string>
-    <string name="user_profile_group_remove_button">සමූහයෙන් ඉවත් කරන්න</string>
     <string name="user_profile_logging_out_progress">නික්මෙමින්...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">සමූහයෙන් ඉවත් කරන්නද?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) හට මෙම සංවාදයට පණිවිඩ යැවීමට හෝ ලැබීමට නොහැකි වනු ඇත.</string>
-    <string name="dialog_remove_conversation_member_error">සහභාගියා සමූහයෙන් ඉවත් කිරීමේ දී දෝෂයක් සිදු විය</string>
-    <string name="group_role_admin">පරිපාලක</string>
-    <string name="group_role_member">සාමාජික</string>
+    <string name="conversation_role_admin">පරිපාලක</string>
+    <string name="conversation_role_member">සාමාජික</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">දත්ත මකන්නද?</string>
     <string name="dialog_logout_wipe_data_checkbox">මෙම උපාංගයේ ඔබගේ සියළුම පෞද්. තොරතුරු හා සංවාද මකන්න</string>
@@ -507,8 +487,6 @@
     <string name="label_clear_content">අන්තර්ගතය මකන්න…</string>
     <string name="label_block">අවහිර කරන්න</string>
     <string name="label_unblock">අනවහිර</string>
-    <string name="label_leave_group">සමූහය හැරයන්න</string>
-    <string name="label_delete_group">සමූහය මකන්න</string>
     <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">සියල්ල</string>
@@ -550,8 +528,10 @@
     <string name="label_system_message_removed_by_self">%1$s සංවාදයෙන් %2$s ඉවත් කළා</string>
     <string name="label_system_message_added_by_other">%1$s සංවාදයට %2$s එක් කර ඇත</string>
     <string name="label_system_message_removed_by_other">%1$s සංවාදයෙන් %2$s ඉවත් කළා</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s සංවාදයෙන් ඉවත් කර ඇත</string>
-    <string name="label_system_message_federation_many_member_removed">%1$s සංවාදයෙන් ඉවත් කර ඇත</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">%1$s සංවාදයෙන් ඉවත් කර ඇත</item>
+        <item quantity="other">%1$s සංවාදයෙන් ඉවත් කර ඇත</item>
+    </plurals>
     <string name="label_system_message_federation_removed">%1$s සමඟ තවදුරටත් **ඔබගේ සේවාදායකය** ඒකාබද්ධ නොවේ.</string>
     <string name="label_system_message_federation_conection_removed">%1$s සහ %2$s සේවාදායක තවදුරටත් එකාබද්ධ නොවේ.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s සංවාදය හැරගියා</string>
@@ -588,14 +568,10 @@
     <string name="label_system_message_conversation_started_by_self">**ඔබ** සංවාදය ආරම්භ කළා</string>
     <string name="label_system_message_conversation_started_by_other">%1$s සංවාදය ආරම්භ කළා</string>
     <string name="label_system_message_conversation_started_with_members">%1$s සමග</string>
-    <string name="label_system_message_conversation_failed_add_members_summary">**සහභාගීන්** %1$s ක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s දෙනෙක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s දෙනෙක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
     <string name="label_system_message_conversation_degraded_mls">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරන නිසා හෝ වලංගු නොවන සහතිකයක් තිබෙන බැවින් සංවාදය තවදුරටත් සත්‍යාපිත නොවේ.</string>
     <string name="label_system_message_conversation_degraded_proteus">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරන නිසා හෝ වලංගු නොවන සහතිකයක් තිබෙන බැවින් සංවාදය තවදුරටත් සත්‍යාපිත නොවේ.</string>
     <string name="label_system_message_conversation_verified_mls">සියලු උපාංග සත්‍යාපිතයි (අන්ත අනන්‍යතාව)</string>
     <string name="label_system_message_conversation_verified_proteus">සියලු ඇඟිලි සටහන් සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
-    <string name="label_system_message_conversation_started_sensitive_information">වයර් සන්නිවේදනය සෑම විටම අන්ත සංකේතිතයි. මෙම සංවාදයේ ඔබ යවන සහ ලැබෙන සෑම දෙයක්ම ඔබට සහ වෙනත් සමූහ සහභාගීන්ට පමණක් ප්‍රවේශ වීමට හැකිය.\n**ඔබ සංවේදී තොරතුරු බෙදාගන්නේ කවුරුන් සමඟ දැයි තවදුරටත් සැලකිලිමත් වන්න.**</string>
     <string name="label_conversations_details_verified_proteus">සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
     <string name="label_conversations_details_verified_mls">සත්‍යාපිතයි (අන්ත අනන්‍යතාව)</string>
     <!-- Last messages -->
@@ -673,7 +649,7 @@
         <item quantity="other">පණිවිඩ %1$d</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"පණිවිඩයක් එවා ඇත"</string>
-    <string name="ephemeral_group_event_message">"යමෙක් පණිවිඩයක් එවා ඇත"</string>
+    <string name="ephemeral_group_channel_event_message">"යමෙක් පණිවිඩයක් එවා ඇත"</string>
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s ලියමින්</item>
@@ -728,12 +704,12 @@
     <string name="conversation_on_file_downloaded">බාගැනීමේ බහාලුමට %s ගොනුව සාර්ථකව සුරැකිණි</string>
     <string name="error_blocking_user">පරිශ්‍රීලකයා අවහිර කිරීමට නොහැකි විය</string>
     <string name="blocking_user_success">%s අවහිර කෙරිණි</string>
-    <string name="conversation_group_removed_success">“%s” ඉවත් කෙරිණි</string>
-    <string name="leave_group_conversation_error">සංවාදය හැරයන විට දෝෂයක් සිදු විය</string>
-    <string name="joined_conversation_group_success">ඔබ සංවාදයට එක්වුණා.</string>
-    <string name="left_conversation_group_success">ඔබ සංවාදය හැරගියා.</string>
+    <string name="conversation_removed_success">“%s” ඉවත් කෙරිණි</string>
+    <string name="leave_conversation_error">සංවාදය හැරයන විට දෝෂයක් සිදු විය</string>
+    <string name="joined_conversation_success">ඔබ සංවාදයට එක්වුණා.</string>
+    <string name="left_conversation_success">ඔබ සංවාදය හැරගියා.</string>
     <string name="error_unblocking_user">පරිශ්‍රීලකයා අනවහිර කිරීමට නොහැකි විය</string>
-    <string name="delete_group_conversation_error">සංවාදය මකන විට දෝෂයක් සිදු විය</string>
+    <string name="delete_conversation_conversation_error">සංවාදය මකන විට දෝෂයක් සිදු විය</string>
     <string name="error_limit_number_assets_imported_exceeded">එකවර ගොනු 20 ක් පමණක් යැවීමට හැකිය</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">සංවාදය සංරක්‍ෂණය කර ඇත</string>
@@ -759,13 +735,12 @@
     <string name="notification_reply">පිළිතුර: %1$s</string>
     <string name="notification_not_supported_issue">විශේෂාංගයට සහාය නොදක්වයි</string>
     <string name="notification_connection_request">සබැඳීමට වුවමනාය</string>
-    <string name="notification_conversation_deleted">සමූහය මකාදමා ඇත</string>
     <string name="notification_action_reply">පිළිතුර</string>
     <string name="notification_receiver_name">ඔබ</string>
     <string name="label_type_a_message">පණිවිඩයක් ලියන්න</string>
     <string name="notification_incoming_call_content">අමතමින්…</string>
     <string name="notification_ongoing_call_content">පවතින ඇමතුම…</string>
-    <string name="notification_group_call_content">%s අමතමින්...</string>
+    <string name="notification_group_channel_call_content">%s අමතමින්...</string>
     <string name="notification_call_default_caller_name">යමෙක්</string>
     <string name="notification_call_default_group_name">ලැබෙන සමූහ ඇමතුම</string>
     <string name="notification_outgoing_call_tap_to_return">ඇමතුමට යාමට ඔබන්න - අමතමින්...</string>
@@ -838,7 +813,7 @@
         පරිපාලක අමතා මෙම කේතය දෙන්න:\n%d\"
     </string>
     <string name="asset_download_dialog_default_title">ගොනුව බාගන්න</string>
-    <string name="empty_group_label">නම් කොකළ සංවාදය</string>
+    <string name="empty_conversation_label">නම් කොකළ සංවාදය</string>
     <string name="label_show_more">තව පෙන්වන්න</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">රූප ලැබීම වළක්වා ඇත</string>
@@ -856,17 +831,10 @@
     <string name="allow_guest_switch_description">ඔබගේ කණ්ඩායමෙන් පිටත පුද්ගලයින්ට මෙම සංවාදය විවෘත කරන්න. මෙය පසුව වෙනස් කිරීමට හැකිය.</string>
     <string name="allow_services">සේවාවලට ඉඩදෙන්න</string>
     <string name="service_details_label">සේවාව</string>
-    <string name="service_details_add_service_label">සමූහයට දමන්න</string>
-    <string name="service_details_remove_service_label">සමූහයෙන් ඉවත් කරන්න</string>
-    <string name="service_remove_success">සේවාව සමූහයෙන් ඉවත් කෙරිණි</string>
-    <string name="service_remove_error">සමූහයෙන් සේවාව ඉවත් කිරීමට නොහැකිය</string>
-    <string name="service_add_success">සේවාව සමූහයට එක් කෙරිණි</string>
-    <string name="service_add_error">සමූහයට සේවාව එක් කිරීමට නොහැකිය</string>
     <string name="service_no_information_available_title">තොරතුරු නොතිබේ</string>
     <string name="service_no_information_available_subtitle">නැවත උත්සාහ කරන්න හෝ කණ්ඩායමේ පරිපාලකයා අමතන්න</string>
     <string name="read_receipts">කියවූ බවට ලදුපත්</string>
     <string name="disable_guests_dialog_title">අමුත්තන්ට ඉඩ නොදේ ද?</string>
-    <string name="disable_guests_dialog_description">ඔබ අමුත්තන්ට ප්‍රවේශය නොදෙන්නේ නම්, ඔබ කලින් පියවරේ දී තෝරාගත් අමුත්තන් සමූහයේ කොටසක් නොවනු ඇත.</string>
     <string name="disable_guests_dialog_button">අමුත්තන්ට ඉඩ නොදෙන්න</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">අවහිර කරන්න ද?</string>
@@ -1034,9 +1002,7 @@
     <string name="backup_dialog_restore_wrong_user_error_message">වෙනත් ගිණුමකින් ඉතිහාසය ප්‍රත්‍යර්පණයට සහාය නොදක්වයි.</string>
     <string name="backup_dialog_restore_general_error_title">යමක් වැරදී ඇත</string>
     <string name="backup_dialog_restore_general_error_message">ඔබගේ ඉතිහාසය ප්‍රත්‍යර්පණයට නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න හෝ වයර් පාරිභෝගික සේවාව අමතන්න.</string>
-    <string name="group_content_deleted">සමූහයේ අන්තර්ගතය මකාදමා ඇත</string>
     <string name="conversation_content_deleted">සංවාදයේ අන්තර්ගතය මකාදමා ඇත</string>
-    <string name="group_content_delete_failure">සමූහයේ අන්තර්ගතය මැකීමට නොහැකි විය</string>
     <string name="conversation_content_delete_failure">සංවාදයේ අන්තර්ගතය මැකීමට නොහැකි විය</string>
     <string name="group_label">සමුහය</string>
     <string name="conversation_label">සංවාදය</string>
@@ -1071,13 +1037,10 @@
     <string name="join_conversation_dialog_message">ඔබට සංවාදයකට ආරාධනා කර ඇත.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">එක්වන්න</string>
     <string name="join_conversation_via_deeplink_error_title">සංවාදයට එක්වීමට නොහැකිය</string>
-    <string name="join_conversation_via_deeplink_error_link_expired">මෙම සමූහ සංවාදයේ සබැඳිය කල් ඉකුත් වී හෝ සංවාදය පෞද්ගලික ලෙස සකසා ඇත.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">මෙම සංවාදයේ උපරිම සහභාගීන් ගණනට ළඟා වී ඇත.</string>
-    <string name="join_conversation_via_deeplink_error_general">දෝෂයක් හේතුවෙන් ඔබව සමූහ සංවාදයට එක් කිරීමට නොහැකි විය.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">ඉබේ මැකෙන පණිවිඩ</string>
     <string name="self_deleting_messages_option">බලෙන් පණිවිඩය මකන්න</string>
-    <string name="self_deleting_messages_option_description">මෙය සක්‍රිය විට, මෙම සමූහයේ ඇති සියලුම පණිවිඩ නිශ්චිත කාලයකට පසු අතුරුදහන් වනු ඇත. මෙය සමූහයේ සියලුම සහභාගීන්ටට අදාළ වේ.</string>
     <string name="self_deleting_messages_folder_timer">මුහුර්තකය</string>
     <!-- visit link -->
     <string name="label_visit_link_title">සබැඳිය බලන්න</string>
@@ -1100,8 +1063,6 @@
     <string name="title_device_key_fingerprint">උපාංගයේ යතුරේ ඇඟිලි සටහන</string>
     <string name="label_client_key_fingerprint_not_available">නොතිබේ</string>
     <string name="guest_room_link_copied">සබැඳිය පසුරු පුවරුවට පිටපත් විය</string>
-    <string name="guest_room_link_enabled">සමූහයේ සියළුම පරිපාලකයින් සඳහා ආගන්තුක සබැඳි උත්පාදනය සබලයි</string>
-    <string name="guest_room_link_disabled">සමූහයේ සියළුම පරිපාලකයින් සඳහා ආගන්තුක සබැඳි උත්පාදනය අබලයි</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">මෙදින ගිණුම භාවිතා කර ඇත:</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nවෙතින්: %2$s \n</string>

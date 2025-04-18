@@ -47,10 +47,7 @@ fun WireTheme(
         // we need to provide our default content color dependent on the current colorScheme, otherwise it's Color.Black
         LocalContentColor provides wireColorScheme.onBackground,
         *if (isPreview) {
-            arrayOf(
-                LocalSnackbarHostState provides remember { SnackbarHostState() },
-//                LocalNavigator provides rememberNavigator {} // todo, uncomment when we have navigation module, ignore since is prevonly
-            )
+            arrayOf(LocalSnackbarHostState provides remember { SnackbarHostState() })
         } else emptyArray(),
     ) {
         MaterialTheme(

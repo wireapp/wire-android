@@ -52,13 +52,16 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
-import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
@@ -202,12 +205,21 @@ private fun Avatar(
     conversationInfoViewState: ConversationInfoViewState
 ) {
     when (conversationAvatar) {
-        is ConversationAvatar.Group ->
-            GroupConversationAvatar(
+        is ConversationAvatar.Group.Regular ->
+            RegularGroupConversationAvatar(
                 conversationId = conversationAvatar.conversationId,
                 size = dimensions().avatarConversationTopBarSize,
                 cornerRadius = dimensions().groupAvatarConversationTopBarCornerRadius,
                 padding = dimensions().avatarConversationTopBarClickablePadding,
+            )
+
+        is ConversationAvatar.Group.Channel ->
+            ChannelConversationAvatar(
+                conversationId = conversationAvatar.conversationId,
+                size = dimensions().avatarConversationTopBarSize,
+                cornerRadius = dimensions().groupAvatarConversationTopBarCornerRadius,
+                padding = dimensions().avatarConversationTopBarClickablePadding,
+                isPrivateChannel = conversationAvatar.isPrivate,
             )
 
         is ConversationAvatar.OneOne -> UserProfileAvatar(
@@ -335,7 +347,7 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearchAndOngoingCall() {
     )
 }
 
-@Preview("Topbar with a short  conversation title")
+@Preview("Topbar with a short conversation title")
 @Composable
 fun PreviewConversationScreenTopAppBarShortTitle() {
     val conversationId = QualifiedID("", "")
@@ -344,7 +356,7 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
             conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
-            conversationAvatar = ConversationAvatar.Group(conversationId)
+            conversationAvatar = ConversationAvatar.Group.Regular(conversationId)
         ),
         onBackButtonClick = {},
         onDropDownClick = {},
@@ -359,7 +371,32 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
     )
 }
 
-@Preview("Topbar with a short  conversation title and join group call")
+@MultipleThemePreviews
+@Preview("Topbar with a short conversation title for a channel")
+@Composable
+fun PreviewConversationScreenTopAppBarShortTitleChannel() = WireTheme {
+    val conversationId = QualifiedID("", "")
+    ConversationScreenTopAppBarContent(
+        ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = UIText.DynamicString("Short title"),
+            conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
+            conversationAvatar = ConversationAvatar.Group.Channel(conversationId, true)
+        ),
+        onBackButtonClick = {},
+        onDropDownClick = {},
+        isDropDownEnabled = true,
+        onSearchButtonClick = {},
+        onPhoneButtonClick = {},
+        hasOngoingCall = false,
+        onJoinCallButtonClick = {},
+        onAudioPermissionPermanentlyDenied = {},
+        isInteractionEnabled = true,
+        isSearchEnabled = false
+    )
+}
+
+@Preview("Topbar with a short conversation title and join group call")
 @Composable
 fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
     val conversationId = QualifiedID("", "")
@@ -368,7 +405,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
             conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
-            conversationAvatar = ConversationAvatar.Group(conversationId)
+            conversationAvatar = ConversationAvatar.Group.Regular(conversationId)
         ),
         onBackButtonClick = {},
         onDropDownClick = {},
@@ -392,7 +429,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithVerified() {
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
             conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
-            conversationAvatar = ConversationAvatar.Group(conversationId),
+            conversationAvatar = ConversationAvatar.Group.Regular(conversationId),
             protocolInfo = Conversation.ProtocolInfo.Proteus,
             proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
             mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED
@@ -419,7 +456,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithLegalHold() {
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
             conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
-            conversationAvatar = ConversationAvatar.Group(conversationId),
+            conversationAvatar = ConversationAvatar.Group.Regular(conversationId),
             protocolInfo = Conversation.ProtocolInfo.Proteus,
             legalHoldStatus = Conversation.LegalHoldStatus.ENABLED,
         ),

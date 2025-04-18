@@ -19,6 +19,7 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -82,6 +83,8 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
+import com.wire.android.ui.common.attachmentdraft.model.allUploaded
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.MessageComposerDefault
@@ -104,17 +107,20 @@ fun EnabledMessageComposer(
     conversationId: ConversationId,
     bottomSheetVisible: Boolean,
     messageComposerStateHolder: MessageComposerStateHolder,
+    attachments: List<AttachmentDraftUi>,
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onLocationClicked: () -> Unit,
     onSendButtonClicked: () -> Unit,
-    onImagesPicked: (List<Uri>) -> Unit,
+    onImagesPicked: (List<Uri>, Boolean) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     openDrawingCanvas: () -> Unit,
+    onAttachmentClick: (AttachmentDraftUi) -> Unit,
+    onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     modifier: Modifier = Modifier,
@@ -218,8 +224,13 @@ fun EnabledMessageComposer(
                         var cursorCoordinateY by remember { mutableStateOf(0F) }
                         val canSendMessage by remember {
                             derivedStateOf {
-                                messageCompositionInputStateHolder.inputType is InputType.Composing &&
-                                        (messageCompositionInputStateHolder.inputType as InputType.Composing).isSendButtonEnabled
+                                with(messageCompositionInputStateHolder) {
+                                    if (attachments.isEmpty()) {
+                                        inputType is InputType.Composing && (inputType as InputType.Composing).isSendButtonEnabled
+                                    } else {
+                                        attachments.allUploaded()
+                                    }
+                                }
                             }
                         }
                         val keyboardOptions by remember {
@@ -304,7 +315,7 @@ fun EnabledMessageComposer(
                                                         }
                                                 }
                                                 .also {
-                                                    onImagesPicked(imageUriList)
+                                                    onImagesPicked(imageUriList, true)
                                                 }
                                         } else {
                                             transferableContent
@@ -348,7 +359,15 @@ fun EnabledMessageComposer(
                         }
                     }
 
-                    if (isImeVisible) {
+                    AnimatedVisibility(attachments.isNotEmpty()) {
+                        MessageAttachments(
+                            attachments = attachments,
+                            onClick = onAttachmentClick,
+                            onMenuClick = onAttachmentMenuClick,
+                        )
+                    }
+
+                    AnimatedVisibility(isImeVisible) {
                         AdditionalOptionsMenu(
                             conversationId = conversationId,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
@@ -439,7 +458,7 @@ fun EnabledMessageComposer(
                             onRecordAudioMessageClicked = ::toAudioRecording,
                             onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
                             onLocationPickerClicked = onLocationClicked,
-                            onImagesPicked = onImagesPicked,
+                            onImagesPicked = { onImagesPicked(it, false) },
                             onAttachmentPicked = onAttachmentPicked,
                             onAudioRecorded = onAudioRecorded,
                             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,

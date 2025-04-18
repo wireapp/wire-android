@@ -46,10 +46,12 @@ fun NewConversationSearchPeopleScreen(
     newConversationViewModel: NewConversationViewModel,
 ) {
     val isSelfTeamMember = newConversationViewModel.newGroupState.isSelfTeamMember ?: false
+    val shouldShowChannelPromotion = !isSelfTeamMember
     val showCreateTeamDialog = remember { mutableStateOf(false) }
     SearchUsersAndServicesScreen(
         searchTitle = stringResource(id = R.string.label_new_conversation),
-        isSelfTeamMember = isSelfTeamMember,
+        shouldShowChannelPromotion = shouldShowChannelPromotion,
+        isUserAllowedToCreateChannels = newConversationViewModel.isChannelCreationPossible,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
@@ -60,7 +62,7 @@ fun NewConversationSearchPeopleScreen(
             navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
         },
         onCreateNewChannel = {
-            if (isSelfTeamMember) {
+            if (!shouldShowChannelPromotion) {
                 newConversationViewModel.setIsChannel(true)
                 navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
             } else {

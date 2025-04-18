@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.newconversation
 
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.kalium.common.error.CoreFailure
@@ -33,6 +34,8 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
+import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
@@ -43,6 +46,8 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
 
 internal class NewConversationViewModelArrangement {
@@ -53,7 +58,9 @@ internal class NewConversationViewModelArrangement {
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.Success(CONVERSATION)
+        coEvery { observeChannelsCreationPermissionUseCase() } returns flowOf(ChannelCreationPermission.Forbidden)
         every { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
+        every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
     }
 
     @MockK
@@ -66,6 +73,9 @@ internal class NewConversationViewModelArrangement {
     lateinit var isMLSEnabledUseCase: IsMLSEnabledUseCase
 
     @MockK
+    lateinit var observeChannelsCreationPermissionUseCase: ObserveChannelsCreationPermissionUseCase
+
+    @MockK
     lateinit var getSelf: GetSelfUserUseCase
 
     @MockK(relaxed = true)
@@ -73,6 +83,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var getDefaultProtocol: GetDefaultProtocolUseCase
+
+    @MockK
+    lateinit var globalDataStore: GlobalDataStore
 
     private var createGroupState: CreateGroupState = CreateGroupState()
 
@@ -159,6 +172,10 @@ internal class NewConversationViewModelArrangement {
         )
     }
 
+    fun withChannelCreationPermissionReturning(flow: Flow<ChannelCreationPermission>) = apply {
+        coEvery { observeChannelsCreationPermissionUseCase() } returns flow
+    }
+
     fun withSyncFailureOnCreatingGroup() = apply {
         coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.SyncFailure
     }
@@ -197,8 +214,10 @@ internal class NewConversationViewModelArrangement {
     fun arrange() = this to NewConversationViewModel(
         createRegularGroup = createRegularGroup,
         createChannel = createChannel,
+        isUserAllowedToCreateChannels = observeChannelsCreationPermissionUseCase,
         getSelfUser = getSelf,
-        getDefaultProtocol = getDefaultProtocol
+        getDefaultProtocol = getDefaultProtocol,
+        globalDataStore = globalDataStore,
     ).also {
         it.createGroupState = createGroupState
     }

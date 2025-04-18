@@ -35,7 +35,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
-import com.wire.android.ui.common.WireSwitch
+import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography

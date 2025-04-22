@@ -44,8 +44,8 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.kalium.common.error.CoreFailure
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -57,9 +57,12 @@ import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -69,7 +72,6 @@ class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     val coreLogic: CoreLogic,
     savedStateHandle: SavedStateHandle,
-    val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     val clientScopeProviderFactory: ClientScopeProvider.Factory,
     val userDataStoreProvider: UserDataStoreProvider,
     private val loginExtension: LoginViewModelExtension,
@@ -90,7 +92,6 @@ class NewLoginViewModel(
         validateEmailOrSSOCode,
         coreLogic,
         savedStateHandle,
-        addAuthenticatedUser,
         clientScopeProviderFactory,
         userDataStoreProvider,
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
@@ -106,6 +107,13 @@ class NewLoginViewModel(
     var state by mutableStateOf(NewLoginScreenState())
         private set
     val userIdentifierTextState: TextFieldState = TextFieldState()
+
+    private val _actions = Channel<NewLoginAction>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    internal val actions = _actions.receiveAsFlow()
+
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
@@ -129,7 +137,7 @@ class NewLoginViewModel(
     /**
      * Starts the login flow, this will check against BE if email or sso code and relay to the corresponding flow afterwards.
      */
-    fun onLoginStarted(action: (NewLoginAction) -> Unit) {
+    fun onLoginStarted() {
         viewModelScope.launch(dispatchers.io()) {
             updateLoginFlowState(NewLoginFlowState.Loading)
             val sanitizedInput = userIdentifierTextState.text.trim().toString()
@@ -140,18 +148,18 @@ class NewLoginViewModel(
                 }
 
                 ValidateEmailOrSSOCodeUseCase.Result.ValidEmail -> {
-                    getEnterpriseLoginFlow(sanitizedInput, action)
+                    getEnterpriseLoginFlow(sanitizedInput)
                 }
 
                 ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode -> {
-                    initiateSSO(serverConfig, sanitizedInput, action)
+                    initiateSSO(serverConfig, sanitizedInput)
                 }
             }
         }
     }
 
     @VisibleForTesting
-    internal suspend fun getEnterpriseLoginFlow(email: String, action: (NewLoginAction) -> Unit) = withContext(dispatchers.io()) {
+    internal suspend fun getEnterpriseLoginFlow(email: String) = withContext(dispatchers.io()) {
         ssoExtension.withAuthenticationScope(
             serverConfig = serverConfig,
             onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
@@ -169,7 +177,7 @@ class NewLoginViewModel(
                     is EnterpriseLoginResult.Success -> {
                         when (val loginRedirectPath = loginFlowResult.loginRedirectPath) {
                             is LoginRedirectPath.SSO -> {
-                                initiateSSO(serverConfig, loginRedirectPath.ssoCode.ssoCodeWithPrefix(), action)
+                                initiateSSO(serverConfig, loginRedirectPath.ssoCode.ssoCodeWithPrefix())
                             }
 
                             is LoginRedirectPath.CustomBackend -> withContext(dispatchers.main()) {
@@ -216,7 +224,7 @@ class NewLoginViewModel(
         updateLoginFlowState(NewLoginFlowState.Default)
     }
 
-    fun onCustomServerDialogConfirm(customServerConfig: ServerConfig.Links, action: (NewLoginAction) -> Unit) {
+    fun onCustomServerDialogConfirm(customServerConfig: ServerConfig.Links) {
         viewModelScope.launch(dispatchers.io()) {
             ssoExtension.fetchDefaultSSOCode(
                 serverConfig = customServerConfig,
@@ -225,7 +233,7 @@ class NewLoginViewModel(
                 onSuccess = { defaultSSOCode ->
                     when {
                         defaultSSOCode != null -> {
-                            initiateSSO(customServerConfig, defaultSSOCode, action)
+                            initiateSSO(customServerConfig, defaultSSOCode)
                         }
 
                         else -> withContext(dispatchers.main()) {
@@ -239,7 +247,7 @@ class NewLoginViewModel(
     }
 
     @VisibleForTesting
-    internal suspend fun initiateSSO(serverConfig: ServerConfig.Links, ssoCode: String, action: (NewLoginAction) -> Unit) =
+    internal suspend fun initiateSSO(serverConfig: ServerConfig.Links, ssoCode: String) =
         withContext(dispatchers.io()) {
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
@@ -256,7 +264,7 @@ class NewLoginViewModel(
             )
         }
 
-    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin, config: SSOUrlConfig?, action: (NewLoginAction) -> Unit) {
+    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin, config: SSOUrlConfig?) {
         updateLoginFlowState(NewLoginFlowState.Loading)
         if (config != null) {
             serverConfig = config.serverConfig
@@ -332,6 +340,10 @@ class NewLoginViewModel(
                 nextEnabled = newState !is NewLoginFlowState.Loading && currentUserLoginInput.isNotEmpty()
             )
         }
+
+    private fun action(action: NewLoginAction) {
+        viewModelScope.launch { _actions.send(action) }
+    }
 }
 
 private fun AutoVersionAuthScopeUseCase.Result.Failure.toLoginError() = when (this) {

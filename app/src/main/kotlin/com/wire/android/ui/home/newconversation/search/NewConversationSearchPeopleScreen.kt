@@ -26,9 +26,9 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.destinations.TeamMigrationScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
@@ -82,7 +82,7 @@ fun NewConversationSearchPeopleScreen(
             },
             onCreateTeam = {
                 showCreateTeamDialog.value = false
-                navigator.navigate(NavigationCommand(TeamMigrationScreenDestination))
+                navigator.navigate(NavigationCommand(NavGraphs.personalToTeamMigration))
             }
         )
     }

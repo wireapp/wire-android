@@ -52,16 +52,7 @@ class TeamMigrationViewModel @Inject constructor(
         observeMigrationDotActive()
     }
 
-    fun showMigrationLeaveDialog() {
-        teamMigrationState = teamMigrationState.copy(shouldShowMigrationLeaveDialog = true)
-    }
-
-    fun hideMigrationLeaveDialog() {
-        teamMigrationState = teamMigrationState.copy(shouldShowMigrationLeaveDialog = false)
-    }
-
     fun setCurrentStep(step: Int) {
-        teamMigrationState = teamMigrationState.copy(currentStep = step)
         sendPersonalTeamCreationFlowStepEvent(step)
     }
 

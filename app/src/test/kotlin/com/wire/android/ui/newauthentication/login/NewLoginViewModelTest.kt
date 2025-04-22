@@ -190,7 +190,6 @@ class NewLoginViewModelTest {
             .withFetchDefaultSSOCodeSuccess(null)
             .arrange()
 
-
         viewModel.actions.test {
             viewModel.onCustomServerDialogConfirm(serverConfig)
             advanceUntilIdle()
@@ -297,7 +296,6 @@ class NewLoginViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionAddUserFailure(AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists)
             .arrange()
-
 
         viewModel.actions.test {
             viewModel.handleSSOResult(ssoDeepLinkResult, config)

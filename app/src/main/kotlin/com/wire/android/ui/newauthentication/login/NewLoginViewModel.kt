@@ -114,7 +114,6 @@ class NewLoginViewModel(
     )
     internal val actions = _actions.receiveAsFlow()
 
-
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {

@@ -85,7 +85,9 @@ private fun TeamMigrationTeamNameStepScreenContent(
             BottomLineButtons(
                 isContinueButtonEnabled = isContinueButtonEnabled,
                 onContinue = onContinueButtonClicked,
-                backButtonContentDescription = stringResource(R.string.personal_to_team_migration_back_button_team_name_content_description),
+                backButtonContentDescription = stringResource(
+                    R.string.personal_to_team_migration_back_button_team_name_content_description
+                ),
                 onBack = onBackButtonClicked
             )
         }

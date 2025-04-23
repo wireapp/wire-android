@@ -25,7 +25,8 @@ data class CreateAccountDetailsViewState(
     val type: CreateAccountFlowType,
     val continueEnabled: Boolean = false,
     val loading: Boolean = false,
-    val error: DetailsError = DetailsError.None
+    val error: DetailsError = DetailsError.None,
+    val success: Boolean = false,
 ) {
     sealed class DetailsError {
         data object None : DetailsError()

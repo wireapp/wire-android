@@ -17,6 +17,10 @@
   -->
 <resources>
     <string name="module_name" translatable="false">ui commons</string>
+    <string name="login_password_placeholder">Password</string>
+    <string name="login_password_label">Password</string>
+    <string name="content_description_reveal_password">Show password</string>
+    <string name="content_description_hide_password">Hide password</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
     <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
     <string name="content_description_back_button">Back button</string>

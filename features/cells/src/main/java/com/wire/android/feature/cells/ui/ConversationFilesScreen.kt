@@ -36,10 +36,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
+import com.wire.android.feature.cells.ui.dialog.FilesNewActionsBottomSheet
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -62,7 +66,17 @@ fun ConversationFilesScreen(
 ) {
 
     val state by viewModel.state.collectAsState()
+    val sheetState = rememberWireModalSheetState<Unit>()
 
+    FilesNewActionsBottomSheet(
+        sheetState = sheetState,
+        onDismiss = {
+            sheetState.hide()
+        },
+        onCreateFolder = {
+            navigator.navigate(NavigationCommand(CreateFolderScreenDestination()))
+        }
+    )
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -74,29 +88,31 @@ fun ConversationFilesScreen(
             )
         },
         floatingActionButton = {
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                FloatingActionButton(
-                    text = stringResource(R.string.cells_new_label),
-                    icon = {
-                        Image(
-                            painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_close),
-                            contentDescription = stringResource(R.string.cells_new_label_content_description),
-                            contentScale = ContentScale.FillBounds,
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                            modifier = Modifier
-                                .padding(
-                                    start = dimensions().spacing4x,
-                                    top = dimensions().spacing2x
-                                )
-                                .size(dimensions().fabIconSize)
-                        )
-                    },
-                    onClick = {}
-                )
+            if (state is CellViewState.Files) {
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    FloatingActionButton(
+                        text = stringResource(R.string.cells_new_label),
+                        icon = {
+                            Image(
+                                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
+                                contentDescription = stringResource(R.string.cells_new_label_content_description),
+                                contentScale = ContentScale.FillBounds,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                                modifier = Modifier
+                                    .padding(
+                                        start = dimensions().spacing4x,
+                                        top = dimensions().spacing2x
+                                    )
+                                    .size(dimensions().fabIconSize)
+                            )
+                        },
+                        onClick = { sheetState.show() }
+                    )
+                }
             }
         }
     ) { innerPadding ->

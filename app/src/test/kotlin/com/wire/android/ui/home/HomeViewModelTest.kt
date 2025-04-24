@@ -18,6 +18,7 @@
 package com.wire.android.ui.home
 
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
@@ -33,8 +34,6 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import io.mockk.impl.annotations.RelaxedMockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -102,11 +101,13 @@ class HomeViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withShouldTriggerMigrationForUserReturning(true)
             .arrange()
-        // when
-        viewModel.checkRequirements(arrangement.onRequirement)
-        advanceUntilIdle()
-        // then
-        verify { arrangement.onRequirement(HomeRequirement.Migration(TestUser.SELF_USER.id)) }
+        viewModel.actions.test {
+            // when
+            viewModel.checkRequirements()
+            advanceUntilIdle()
+            // then
+            assertEquals(HomeRequirement.Migration(TestUser.SELF_USER.id), expectMostRecentItem())
+        }
     }
 
     @Test
@@ -116,10 +117,12 @@ class HomeViewModelTest {
             .withShouldTriggerMigrationForUserReturning(false)
             .withNeedsToRegisterClientReturning(true)
             .arrange()
-        // when
-        viewModel.checkRequirements(arrangement.onRequirement)
-        // then
-        verify { arrangement.onRequirement(HomeRequirement.RegisterDevice) }
+        viewModel.actions.test {
+            // when
+            viewModel.checkRequirements()
+            // then
+            assertEquals(HomeRequirement.RegisterDevice, expectMostRecentItem())
+        }
     }
 
     @Test
@@ -130,10 +133,12 @@ class HomeViewModelTest {
             .withNeedsToRegisterClientReturning(false)
             .withInitialSyncCompletedReturning(flowOf(false))
             .arrange()
-        // when
-        viewModel.checkRequirements(arrangement.onRequirement)
-        // then
-        verify { arrangement.onRequirement(HomeRequirement.InitialSync) }
+        viewModel.actions.test {
+            // when
+            viewModel.checkRequirements()
+            // then
+            assertEquals(HomeRequirement.InitialSync, expectMostRecentItem())
+        }
     }
 
     @Test
@@ -145,10 +150,12 @@ class HomeViewModelTest {
             .withInitialSyncCompletedReturning(flowOf(true))
             .withSelfUser(flowOf(TestUser.SELF_USER.copy(handle = null)))
             .arrange()
-        // when
-        viewModel.checkRequirements(arrangement.onRequirement)
-        // then
-        verify { arrangement.onRequirement(HomeRequirement.CreateAccountUsername) }
+        viewModel.actions.test {
+            // when
+            viewModel.checkRequirements()
+            // then
+            assertEquals(HomeRequirement.CreateAccountUsername, expectMostRecentItem())
+        }
     }
 
     @Test
@@ -163,7 +170,7 @@ class HomeViewModelTest {
             .withWelcomeScreenPresentedReturning(false)
             .arrange()
         // when
-        viewModel.checkRequirements(arrangement.onRequirement)
+        viewModel.checkRequirements()
         // then
         assertEquals(true, viewModel.homeState.shouldDisplayWelcomeMessage)
     }
@@ -180,7 +187,7 @@ class HomeViewModelTest {
             .withWelcomeScreenPresentedReturning(true)
             .arrange()
         // when
-        viewModel.checkRequirements(arrangement.onRequirement)
+        viewModel.checkRequirements()
         // then
         assertEquals(false, viewModel.homeState.shouldDisplayWelcomeMessage)
     }
@@ -210,9 +217,6 @@ class HomeViewModelTest {
 
         @MockK
         lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
-
-        @RelaxedMockK
-        lateinit var onRequirement: (HomeRequirement) -> Unit
 
         private val viewModel by lazy {
             HomeViewModel(

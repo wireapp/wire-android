@@ -82,14 +82,14 @@ class CreateAccountUsernameViewModelTest {
         createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd("abc")
         createAccountUsernameViewModel.state.continueEnabled shouldBeEqualTo true
         createAccountUsernameViewModel.state.loading shouldBeEqualTo false
-        createAccountUsernameViewModel.onContinue(arrangement.onSuccess)
+        createAccountUsernameViewModel.onContinue()
         advanceUntilIdle()
         createAccountUsernameViewModel.state.continueEnabled shouldBeEqualTo true
         createAccountUsernameViewModel.state.loading shouldBeEqualTo false
     }
 
     @Test
-    fun `given button is clicked, when request returns Success, then navigate to initial sync screen`() = runTest {
+    fun `given button is clicked, when request returns Success, then success is passed`() = runTest {
         val username = "abc"
         val (arrangement, createAccountUsernameViewModel) = Arrangement()
             .withValidateHandleResult(ValidateUserHandleResult.Valid(username))
@@ -97,11 +97,11 @@ class CreateAccountUsernameViewModelTest {
             .arrange()
 
         createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd(username)
-        createAccountUsernameViewModel.onContinue(arrangement.onSuccess)
+        createAccountUsernameViewModel.onContinue()
         advanceUntilIdle()
         verify(exactly = 1) { arrangement.validateUserHandleUseCase.invoke(username) }
         coVerify(exactly = 1) { arrangement.setUserHandleUseCase.invoke(username) }
-        verify(exactly = 1) { arrangement.onSuccess() }
+        createAccountUsernameViewModel.state.success shouldBeEqualTo true
     }
 
     @Test
@@ -112,10 +112,11 @@ class CreateAccountUsernameViewModelTest {
             .withSetUserHandle(SetUserHandleResult.Failure.InvalidHandle)
             .arrange()
 
-        createAccountUsernameViewModel.onContinue(arrangement.onSuccess)
+        createAccountUsernameViewModel.onContinue()
         advanceUntilIdle()
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.TextFieldError.UsernameInvalidError::class
+        createAccountUsernameViewModel.state.success shouldBeEqualTo false
     }
 
     @Test
@@ -126,10 +127,11 @@ class CreateAccountUsernameViewModelTest {
             .withSetUserHandle(SetUserHandleResult.Failure.HandleExists)
             .arrange()
 
-        createAccountUsernameViewModel.onContinue(arrangement.onSuccess)
+        createAccountUsernameViewModel.onContinue()
         advanceUntilIdle()
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.TextFieldError.UsernameTakenError::class
+        createAccountUsernameViewModel.state.success shouldBeEqualTo false
     }
 
     @Test
@@ -141,12 +143,13 @@ class CreateAccountUsernameViewModelTest {
             .withSetUserHandle(SetUserHandleResult.Failure.Generic(networkFailure))
             .arrange()
 
-        createAccountUsernameViewModel.onContinue(arrangement.onSuccess)
+        createAccountUsernameViewModel.onContinue()
         advanceUntilIdle()
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.DialogError.GenericError::class
         val error = createAccountUsernameViewModel.state.error as HandleUpdateErrorState.DialogError.GenericError
         error.coreFailure shouldBe networkFailure
+        createAccountUsernameViewModel.state.success shouldBeEqualTo false
     }
 
     @Test
@@ -157,7 +160,7 @@ class CreateAccountUsernameViewModelTest {
             .withSetUserHandle(SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null)))
             .arrange()
 
-        createAccountUsernameViewModel.onContinue(arrangement.onSuccess)
+        createAccountUsernameViewModel.onContinue()
         advanceUntilIdle()
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.DialogError.GenericError::class
@@ -191,9 +194,6 @@ class CreateAccountUsernameViewModelTest {
 
         @MockK
         lateinit var setUserHandleUseCase: SetUserHandleUseCase
-
-        @MockK(relaxed = true)
-        lateinit var onSuccess: () -> Unit
 
         private val viewModel by lazy { CreateAccountUsernameViewModel(validateUserHandleUseCase, setUserHandleUseCase) }
 

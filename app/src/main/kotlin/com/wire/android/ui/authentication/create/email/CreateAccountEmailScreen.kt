@@ -108,14 +108,18 @@ fun CreateAccountEmailScreen(
             state = emailState,
             emailTextState = emailTextState,
             onBackPressed = navigator::navigateBack,
-            onContinuePressed = { onEmailContinue(::navigateToDetailsScreen) },
+            onContinuePressed = ::onEmailContinue,
             onLoginPressed = { navigator.navigate(NavigationCommand(LoginScreenDestination(), BackStackMode.CLEAR_TILL_START)) },
             onTermsDialogDismiss = ::onTermsDialogDismiss,
-            onTermsAccept = { onTermsAccept(::navigateToDetailsScreen) },
+            onTermsAccept = ::onTermsAccept,
             onErrorDismiss = ::onEmailErrorDismiss,
             tosUrl = tosUrl(),
             serverConfig = serverConfig
         )
+
+        LaunchedEffect(emailState.success) {
+            if (emailState.success) navigateToDetailsScreen()
+        }
     }
 }
 

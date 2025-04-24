@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.FileType
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.dimensions
 import com.wire.kalium.logic.util.fileExtension
@@ -35,7 +35,7 @@ fun AttachmentDraftView(
 ) {
 
     val extension = remember(attachment.fileName) { attachment.fileName.fileExtension() ?: "" }
-    val fileType = remember(extension) { AttachmentFileType.fromExtension(extension) }
+    val fileType = remember(extension) { FileType.fromExtension(extension) }
 
     AttachmentScaffold(
         onClick = onClick,
@@ -44,11 +44,11 @@ fun AttachmentDraftView(
         modifier = modifier,
     ) {
         when (fileType) {
-            AttachmentFileType.IMAGE -> AttachmentImageView(
+            FileType.IMAGE -> AttachmentImageView(
                 attachment = attachment,
             )
 
-            AttachmentFileType.VIDEO -> AttachmentVideoView(
+            FileType.VIDEO -> AttachmentVideoView(
                 attachment = attachment,
             )
 

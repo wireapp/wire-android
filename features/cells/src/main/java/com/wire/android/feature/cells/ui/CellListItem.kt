@@ -52,10 +52,10 @@ import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.ui.model.CellFileUi
+import com.wire.android.feature.cells.domain.model.FileType
 import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.feature.cells.domain.model.previewSupported
+import com.wire.android.feature.cells.ui.model.CellFileUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -232,7 +232,7 @@ private fun PreviewCellListItem() {
             file = CellFileUi(
                 uuid = "",
                 fileName = "file name",
-                assetType = AttachmentFileType.IMAGE,
+                assetType = FileType.IMAGE,
                 assetSize = 123214,
                 localPath = null,
                 mimeType = "image/jpg",

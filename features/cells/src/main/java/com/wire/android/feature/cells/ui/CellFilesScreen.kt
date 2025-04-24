@@ -24,7 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.FileType
 import com.wire.android.feature.cells.ui.model.CellFileUi
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.divider.WireDivider
@@ -76,7 +76,7 @@ fun PreviewCellFilesScreen() {
                     uuid = "uuid",
                     fileName = "Image name",
                     mimeType = "image/png",
-                    assetType = AttachmentFileType.IMAGE,
+                    assetType = FileType.IMAGE,
                     assetSize = 1234L,
                     localPath = "path/to/local/file",
                 ),
@@ -84,7 +84,7 @@ fun PreviewCellFilesScreen() {
                     uuid = "uuid2",
                     fileName = "PDF name",
                     mimeType = "application/pdf",
-                    assetType = AttachmentFileType.PDF,
+                    assetType = FileType.PDF,
                     assetSize = 99234L,
                     localPath = "path/to/local/file",
                 )

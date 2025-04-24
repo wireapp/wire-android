@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import com.wire.android.R
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.FileType
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.darkColorsScheme
@@ -192,7 +192,7 @@ private fun PreviewVideoAsset() {
         source = AssetSource.CELL,
         localPath = null,
         previewUrl = null,
-        assetType = AttachmentFileType.VIDEO,
+        assetType = FileType.VIDEO,
         metadata = AssetContent.AssetMetadata.Video(
             width = 3,
             height = 1,

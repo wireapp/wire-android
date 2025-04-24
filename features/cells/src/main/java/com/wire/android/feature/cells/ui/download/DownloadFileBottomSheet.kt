@@ -34,9 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.ui.model.CellFileUi
+import com.wire.android.feature.cells.domain.model.FileType
 import com.wire.android.feature.cells.ui.FileIconPreview
+import com.wire.android.feature.cells.ui.model.CellFileUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -170,7 +170,7 @@ private fun DownloadFileBottomSheetPreview() {
                 downloadProgress = null,
                 uuid = "234324",
                 mimeType = "video/mp4",
-                assetType = AttachmentFileType.VIDEO,
+                assetType = FileType.VIDEO,
                 assetSize = 23432532532,
                 localPath = null
             ),
@@ -191,7 +191,7 @@ private fun DownloadFileBottomSheetDownloadingPreview() {
                 downloadProgress = 0.75f,
                 uuid = "234324",
                 mimeType = "video/mp4",
-                assetType = AttachmentFileType.VIDEO,
+                assetType = FileType.VIDEO,
                 assetSize = 23432532532,
                 localPath = null
             ),

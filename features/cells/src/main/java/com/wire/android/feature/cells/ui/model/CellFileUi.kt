@@ -17,10 +17,10 @@
  */
 package com.wire.android.feature.cells.ui.model
 
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
-import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
-import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
+import com.wire.android.feature.cells.domain.model.FileType
+import com.wire.android.feature.cells.domain.model.FileType.IMAGE
+import com.wire.android.feature.cells.domain.model.FileType.PDF
+import com.wire.android.feature.cells.domain.model.FileType.VIDEO
 import com.wire.android.util.cellFileDateTime
 import com.wire.kalium.cells.domain.model.CellFile
 import kotlinx.datetime.Instant
@@ -29,7 +29,7 @@ internal data class CellFileUi(
     val uuid: String,
     val fileName: String?,
     val mimeType: String,
-    val assetType: AttachmentFileType,
+    val assetType: FileType,
     val assetSize: Long?,
     val localPath: String?,
     val remotePath: String? = null,
@@ -47,7 +47,7 @@ internal fun CellFile.toUiModel(downloadProgress: Float?) = CellFileUi(
     uuid = uuid,
     fileName = fileName,
     mimeType = mimeType,
-    assetType = AttachmentFileType.fromMimeType(mimeType),
+    assetType = FileType.fromMimeType(mimeType),
     assetSize = assetSize,
     localPath = localPath,
     remotePath = remotePath,

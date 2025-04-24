@@ -37,7 +37,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.FileType
 import com.wire.android.feature.cells.ui.FileIconPreview
 import com.wire.android.feature.cells.ui.MenuOptions
 import com.wire.android.feature.cells.ui.model.CellFileUi
@@ -158,7 +158,7 @@ private fun PreviewFileActionsBottomSheet() {
                     uuid = "",
                     fileName = "test file.pdf",
                     mimeType = "application/pdf",
-                    assetType = AttachmentFileType.PDF,
+                    assetType = FileType.PDF,
                     assetSize = 2342342,
                     localPath = "",
                 ),

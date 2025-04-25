@@ -30,9 +30,13 @@ import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.to
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -48,6 +52,8 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val updateMessageTimer: UpdateMessageTimerUseCase,
+    private val selfUser: ObserveSelfUserUseCase,
+    private val conversationDetails: ObserveConversationDetailsUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -64,9 +70,24 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
 
     private fun observeSelfDeletionTimerSettingsForConversation() {
         viewModelScope.launch {
+            // TODO(refactor): Move all this logic to a UseCase
+            val canPerformAdminActionsFlow = combine(
+                observeConversationMembers(conversationId).map { it.isSelfAnAdmin },
+                selfUser(),
+                conversationDetails(conversationId),
+                :: Triple
+            ).map { (isSelfAnAdmin, selfUser, conversationDetailsResult) ->
+                if (conversationDetailsResult !is ObserveConversationDetailsUseCase.Result.Success)
+                     return@map false
+                val conversationDetails = conversationDetailsResult.conversationDetails
+                val isChannel = conversationDetails is ConversationDetails.Group.Channel
+                val isTeamAdmin = selfUser.userType in setOf(UserType.ADMIN, UserType.OWNER)
+                val isSelfUserInConversationTeam = selfUser.teamId == conversationDetails.conversation.teamId
+                isSelfAnAdmin || (isChannel && isTeamAdmin && isSelfUserInConversationTeam)
+            }
             combine(
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
-                observeConversationMembers(conversationId).map { it.isSelfAnAdmin },
+                canPerformAdminActionsFlow,
                 ::Pair
             )
                 .distinctUntilChanged()

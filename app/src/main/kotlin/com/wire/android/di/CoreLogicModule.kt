@@ -207,17 +207,26 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideMLSMigrationManager(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): MLSMigrationManager =
+    fun provideMLSMigrationManager(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): MLSMigrationManager =
         coreLogic.getSessionScope(currentAccount).mlsMigrationManager
 
     @ViewModelScoped
     @Provides
-    fun provideMLSClientManager(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): MLSClientManager =
+    fun provideMLSClientManager(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): MLSClientManager =
         coreLogic.getSessionScope(currentAccount).mlsClientManager
 
     @ViewModelScoped
     @Provides
-    fun provideKeyingMaterialsManager(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): KeyingMaterialsManager =
+    fun provideKeyingMaterialsManager(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): KeyingMaterialsManager =
         coreLogic.getSessionScope(currentAccount).keyingMaterialsManager
 
     @ViewModelScoped

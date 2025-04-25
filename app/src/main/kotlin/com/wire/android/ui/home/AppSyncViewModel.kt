@@ -20,9 +20,12 @@ package com.wire.android.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.kalium.logic.feature.client.MLSClientManager
+import com.wire.kalium.logic.feature.conversation.keyingmaterials.KeyingMaterialsManager
 import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
+import com.wire.kalium.logic.feature.mlsmigration.MLSMigrationManager
 import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -39,8 +42,11 @@ class AppSyncViewModel @Inject constructor(
     private val syncCertificateRevocationListUseCase: SyncCertificateRevocationListUseCase,
     private val observeCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase,
     private val featureFlagsSyncWorker: FeatureFlagsSyncWorker,
-    private val updateApiVersions: UpdateApiVersionsUseCase
-) : ViewModel() {
+    private val updateApiVersions: UpdateApiVersionsUseCase,
+    private val mLSMigrationManager: MLSMigrationManager,
+    private val keyingMaterialsManager: KeyingMaterialsManager,
+    private val mLSClientManager: MLSClientManager,
+    ) : ViewModel() {
 
     private val minIntervalBetweenPulls: Duration = MIN_INTERVAL_BETWEEN_PULLS
 
@@ -77,6 +83,9 @@ class AppSyncViewModel @Inject constructor(
                 viewModelScope.launch { featureFlagsSyncWorker.execute() },
                 viewModelScope.launch { observeCertificateRevocationForSelfClient.invoke() },
                 viewModelScope.launch { updateApiVersions() },
+                viewModelScope.launch { mLSClientManager() },
+                viewModelScope.launch { mLSMigrationManager() },
+                viewModelScope.launch { keyingMaterialsManager() },
             ).joinAll()
         } catch (e: Exception) {
             appLogger.e("Error while syncing app config", e)

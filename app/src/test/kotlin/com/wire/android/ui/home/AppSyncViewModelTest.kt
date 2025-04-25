@@ -18,15 +18,17 @@
 package com.wire.android.ui.home
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.kalium.logic.feature.client.MLSClientManager
+import com.wire.kalium.logic.feature.conversation.keyingmaterials.KeyingMaterialsManager
 import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
+import com.wire.kalium.logic.feature.mlsmigration.MLSMigrationManager
 import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -42,6 +44,9 @@ class AppSyncViewModelTest {
             withFeatureFlagsSyncWorker()
             withSyncCertificateRevocationListUseCase()
             withUpdateApiVersions()
+            withMlsClientManager()
+            withMlsMigrationManager()
+            withKeyingMaterialsManager()
         }
 
         viewModel.startSyncingAppConfig()
@@ -51,6 +56,9 @@ class AppSyncViewModelTest {
         coVerify { arrangement.syncCertificateRevocationListUseCase.invoke() }
         coVerify { arrangement.featureFlagsSyncWorker.execute() }
         coVerify { arrangement.updateApiVersions() }
+        coVerify { arrangement.mlsClientManager() }
+        coVerify { arrangement.mlsMigrationManager() }
+        coVerify { arrangement.keyingMaterialsManager() }
     }
 
     @Test
@@ -60,6 +68,9 @@ class AppSyncViewModelTest {
             withFeatureFlagsSyncWorker(1000)
             withSyncCertificateRevocationListUseCase(1000)
             withUpdateApiVersions(1000)
+            withMlsClientManager(1000)
+            withMlsMigrationManager(1000)
+            withKeyingMaterialsManager(1000)
         }
 
         viewModel.startSyncingAppConfig()
@@ -71,6 +82,9 @@ class AppSyncViewModelTest {
         coVerify(exactly = 1) { arrangement.syncCertificateRevocationListUseCase.invoke() }
         coVerify(exactly = 1) { arrangement.featureFlagsSyncWorker.execute() }
         coVerify(exactly = 1) { arrangement.updateApiVersions() }
+        coVerify(exactly = 1) { arrangement.mlsClientManager() }
+        coVerify(exactly = 1) { arrangement.mlsMigrationManager() }
+        coVerify(exactly = 1) { arrangement.keyingMaterialsManager() }
     }
 
     private class Arrangement {
@@ -87,6 +101,15 @@ class AppSyncViewModelTest {
         @MockK
         lateinit var updateApiVersions: UpdateApiVersionsUseCase
 
+        @MockK
+        lateinit var mlsClientManager: MLSClientManager
+
+        @MockK
+        lateinit var mlsMigrationManager: MLSMigrationManager
+
+        @MockK
+        lateinit var keyingMaterialsManager: KeyingMaterialsManager
+
         init {
             MockKAnnotations.init(this)
         }
@@ -95,10 +118,12 @@ class AppSyncViewModelTest {
             syncCertificateRevocationListUseCase,
             observeCertificateRevocationForSelfClient,
             featureFlagsSyncWorker,
-            updateApiVersions
+            updateApiVersions,
+            mLSClientManager = mlsClientManager,
+            mLSMigrationManager = mlsMigrationManager,
+            keyingMaterialsManager = keyingMaterialsManager
         )
 
-        @OptIn(InternalCoroutinesApi::class)
         fun withObserveCertificateRevocationForSelfClient(delayMs: Long = 0) {
             coEvery { observeCertificateRevocationForSelfClient.invoke() } coAnswers {
                 delay(delayMs)
@@ -119,6 +144,24 @@ class AppSyncViewModelTest {
 
         fun withUpdateApiVersions(delayMs: Long = 0) {
             coEvery { updateApiVersions() } coAnswers {
+                delay(delayMs)
+            }
+        }
+
+        fun withMlsClientManager(delayMs: Long = 0) {
+            coEvery { mlsClientManager() } coAnswers {
+                delay(delayMs)
+            }
+        }
+
+        fun withMlsMigrationManager(delayMs: Long = 0) {
+            coEvery { mlsMigrationManager() } coAnswers {
+                delay(delayMs)
+            }
+        }
+
+        fun withKeyingMaterialsManager(delayMs: Long = 0) {
+            coEvery { keyingMaterialsManager() } coAnswers {
                 delay(delayMs)
             }
         }

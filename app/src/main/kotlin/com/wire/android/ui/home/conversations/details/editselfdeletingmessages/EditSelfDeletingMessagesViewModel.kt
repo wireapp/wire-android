@@ -75,10 +75,11 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
                 observeConversationMembers(conversationId).map { it.isSelfAnAdmin },
                 selfUser(),
                 conversationDetails(conversationId),
-                :: Triple
+                ::Triple
             ).map { (isSelfAnAdmin, selfUser, conversationDetailsResult) ->
-                if (conversationDetailsResult !is ObserveConversationDetailsUseCase.Result.Success)
-                     return@map false
+                if (conversationDetailsResult !is ObserveConversationDetailsUseCase.Result.Success) {
+                    return@map false
+                }
                 val conversationDetails = conversationDetailsResult.conversationDetails
                 val isChannel = conversationDetails is ConversationDetails.Group.Channel
                 val isTeamAdmin = selfUser.userType in setOf(UserType.ADMIN, UserType.OWNER)
@@ -122,14 +123,18 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
             val currentSelectedDuration = state.locallySelected
             state = when (updateMessageTimer(conversationId, currentSelectedDuration?.value?.inWholeMilliseconds)) {
                 is UpdateMessageTimerUseCase.Result.Failure -> {
-                    appLogger.e("Failed to update self deleting enforced duration for conversation=${conversationId.toLogString()} " +
-                            "with new duration=${currentSelectedDuration?.name}")
+                    appLogger.e(
+                        "Failed to update self deleting enforced duration for conversation=${conversationId.toLogString()} " +
+                                "with new duration=${currentSelectedDuration?.name}"
+                    )
                     state.copy(isLoading = true)
                 }
 
                 UpdateMessageTimerUseCase.Result.Success -> {
-                    appLogger.d("Success updating self deleting enforced duration for conversation=${conversationId.toLogString()} " +
-                            "with new duration=${currentSelectedDuration?.name}")
+                    appLogger.d(
+                        "Success updating self deleting enforced duration for conversation=${conversationId.toLogString()} " +
+                                "with new duration=${currentSelectedDuration?.name}"
+                    )
                     state.copy(
                         isLoading = false,
                         remotelySelected = currentSelectedDuration

@@ -20,11 +20,8 @@ package com.wire.android.ui.userprofile.teammigration.step3
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,11 +37,12 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.popUpTo
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -60,17 +58,18 @@ import com.wire.android.ui.userprofile.teammigration.TeamMigrationState
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.common.BulletList
+import com.wire.android.ui.userprofile.teammigration.common.TeamMigrationContainer
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
 
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
-    style = SlideNavigationAnimation::class
+    style = AuthSlideNavigationAnimation::class
 )
 @Composable
 fun TeamMigrationConfirmationStepScreen(
-    navigator: DestinationsNavigator,
+    navigator: Navigator,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
     val state = teamMigrationViewModel.teamMigrationState
@@ -82,27 +81,23 @@ fun TeamMigrationConfirmationStepScreen(
             teamMigrationViewModel.migrateFromPersonalToTeamAccount(
                 onSuccess = {
                     teamMigrationViewModel.setIsMigratingState(false)
-                    navigator.navigate(TeamMigrationDoneStepScreenDestination)
+                    navigator.navigate(
+                        NavigationCommand(
+                            TeamMigrationDoneStepScreenDestination,
+                            BackStackMode.REMOVE_CURRENT_NESTED_GRAPH
+                        )
+                    )
                 }
             )
         },
-        onBackPressed = {
-            navigator.popBackStack()
-        }
+        onBackButtonClicked = navigator::navigateBack,
     )
 
     HandleErrors(
         teamMigrationState = state,
         onFailureHandled = teamMigrationViewModel::failureHandled,
         goBackToFirstStep = {
-            navigator.navigate(
-                direction = TeamMigrationTeamPlanStepScreenDestination,
-                builder = {
-                    popUpTo(TeamMigrationTeamPlanStepScreenDestination) {
-                        inclusive = false
-                    }
-                }
-            )
+            navigator.navigate(NavigationCommand(TeamMigrationTeamPlanStepScreenDestination, BackStackMode.UPDATE_EXISTED))
         }
     )
 
@@ -181,7 +176,7 @@ private fun TeamMigrationConfirmationStepScreenContent(
     modifier: Modifier = Modifier,
     isMigrating: Boolean = false,
     onContinueButtonClicked: () -> Unit = { },
-    onBackPressed: () -> Unit = { }
+    onBackButtonClicked: () -> Unit = { }
 ) {
 
     val agreedToMigrationTerms = remember {
@@ -192,18 +187,30 @@ private fun TeamMigrationConfirmationStepScreenContent(
         mutableStateOf(false)
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    TeamMigrationContainer(
+        onClose = onBackButtonClicked,
+        closeIconContentDescription = stringResource(R.string.personal_to_team_migration_close_confirmation_content_description),
+        showConfirmationDialogWhenClosing = true,
+        bottomBar = {
+            val isContinueButtonEnabled = agreedToMigrationTerms.value && acceptedWireTermsOfUse.value
+            BottomLineButtons(
+                isMigrating = isMigrating,
+                isContinueButtonEnabled = isContinueButtonEnabled,
+                onContinue = onContinueButtonClicked,
+                backButtonContentDescription = stringResource(
+                    R.string.personal_to_team_migration_back_button_confirmation_content_description
+                ),
+                onBack = onBackButtonClicked,
+            )
+        }
     ) {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .padding(
                     start = dimensions().spacing16x,
                     end = dimensions().spacing16x
                 )
-                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 modifier = Modifier
@@ -253,14 +260,6 @@ private fun TeamMigrationConfirmationStepScreenContent(
                 WireTermsOfUseWithLink()
             }
         }
-        val isContinueButtonEnabled = agreedToMigrationTerms.value && acceptedWireTermsOfUse.value
-        BottomLineButtons(
-            isMigrating = isMigrating,
-            isContinueButtonEnabled = isContinueButtonEnabled,
-            onContinue = onContinueButtonClicked,
-            backButtonContentDescription = stringResource(R.string.personal_to_team_migration_back_button_confirmation_content_description),
-            onBack = onBackPressed
-        )
     }
 }
 

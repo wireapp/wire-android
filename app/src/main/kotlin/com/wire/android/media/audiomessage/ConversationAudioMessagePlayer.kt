@@ -431,18 +431,26 @@ class ConversationAudioMessagePlayer
             // keep deferred in the map to prevent multiple calls to the same asset at the same time, instead just reuse the existing one
             val deferredResult = getAssetMessageDeferredMap[key]
             // if no deferred exists or the existing one is already completed with failure, create a new one
-            if (deferredResult == null || deferredResult.isCompleted && deferredResult.getCompleted() is MessageAssetResult.Failure) {
-                coreLogic
-                    .getSessionScope(userId)
-                    .messages
-                    .getAssetMessage(conversationId, messageId)
-                    .also {
-                        getAssetMessageDeferredMap[key] = it
-                    }
+            if (deferredResult == null || (deferredResult.isCompleted && deferredResult.getCompleted() is MessageAssetResult.Failure)) {
+                coreLogic.getSessionScope(userId).messages.getAssetMessage(conversationId, messageId).also {
+                    getAssetMessageDeferredMap[key] = it
+                }
             } else {
                 deferredResult
             }
-        }.await()
+        }.await().let { result ->
+            // if deferred is completed successfully but the file does not exist, then remove and retry the call
+            // this is to handle the case when the file has been uploaded and the file name has changed from temporary to proper one
+            if (result is MessageAssetResult.Success && !result.decodedAssetPath.toFile().exists()) {
+                getAssetMessageMutex.withLock {
+                    coreLogic.getSessionScope(userId).messages.getAssetMessage(conversationId, messageId).also {
+                        getAssetMessageDeferredMap[key] = it
+                    }
+                }.await()
+            } else {
+                result
+            }
+        }
     }
 
     private suspend fun resume(conversationId: ConversationId, messageId: String) {

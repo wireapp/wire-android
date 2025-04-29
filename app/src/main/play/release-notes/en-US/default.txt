@@ -1,16 +1,4 @@
-New
-- Fresh design - completely rebuilt
-- Add Reactions to messages
-- Swipe left to reply
-- Scroll to end button
-- Navigate to original message from a reply
-- Accessible main navigation & updated conversation list with activity section
-- Improved conversation search
-- Easier 1:1 & group creation
-- Group chats have distinct colors
-- Call controls always accessible
-- Text field adjusts for longer messages
-
-Improved
-- Reliable notifications
-- Better visual contrast (WCAG 2.1 AA)
+FIXES
+- Fixed a crash when opening the app using deep links
+- Resolved missing 1:1 messages after migrating to MLS
+- Fixed an issue where team owners didn’t get admin rights when joining a channel

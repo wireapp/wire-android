@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,18 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.util.ui
+package com.wire.android.navigation
 
-import androidx.annotation.PluralsRes
-import androidx.annotation.StringRes
-import kotlinx.serialization.Serializable
-
-@Serializable
-sealed interface LocalizedStringResource {
-
-    @Serializable
-    data class String(@StringRes val id: Int) : LocalizedStringResource
-
-    @Serializable
-    data class Plural(@PluralsRes val id: Int, val quantity: Int) : LocalizedStringResource
+object PreviewNavigator : WireNavigator {
+    override fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean) { /* No-op */ }
+    override fun navigateBack(onlyIfResumed: Boolean) { /* No-op */ }
 }

@@ -72,7 +72,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
         state = state.copy(error = HandleUpdateErrorState.None)
     }
 
-    fun onContinue(onSuccess: () -> Unit) {
+    fun onContinue() {
         state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val usernameError = when (val result = setUserHandleUseCase(textState.text.toString().trim())) {
@@ -81,10 +81,12 @@ class CreateAccountUsernameViewModel @Inject constructor(
                 SetUserHandleResult.Failure.InvalidHandle -> HandleUpdateErrorState.TextFieldError.UsernameInvalidError
                 SetUserHandleResult.Success -> HandleUpdateErrorState.None
             }
-            state = state.copy(loading = false, continueEnabled = true, error = usernameError)
-            if (usernameError is HandleUpdateErrorState.None) {
-                onSuccess()
-            }
+            state = state.copy(
+                loading = false,
+                continueEnabled = true,
+                error = usernameError,
+                success = usernameError is HandleUpdateErrorState.None,
+            )
         }
     }
 }

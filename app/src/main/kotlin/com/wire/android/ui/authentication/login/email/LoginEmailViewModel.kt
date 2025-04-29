@@ -92,7 +92,7 @@ class LoginEmailViewModel @Inject constructor(
 
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState by mutableStateOf(VerificationCodeState())
-    var autoLoginWhenFullCodeEntered: Boolean = false
+    var autoLoginWhenFullCodeEntered: Boolean = true
 
     @VisibleForTesting
     internal val loginJobData = MutableStateFlow<LoginJobData?>(null)
@@ -144,7 +144,7 @@ class LoginEmailViewModel @Inject constructor(
         updateEmailFlowState(LoginState.Default)
     }
 
-    fun login() {
+    fun login(usernameAllowed: Boolean = true) {
         updateEmailFlowState(LoginState.Loading)
         viewModelScope.launch {
             val previousSessionUserId = coreLogic.getGlobalScope().session.currentSession().let {
@@ -157,7 +157,7 @@ class LoginEmailViewModel @Inject constructor(
             // first, cancel and revert any previous login if it's still running, just to be sure
             revertLogin()
             // then, start a new login job
-            startLoginJob().let {
+            startLoginJob(usernameAllowed).let {
                 loginJobData.value = LoginJobData(it, previousSessionUserId)
                 it.invokeOnCompletion {
                     loginJobData.value = null
@@ -167,8 +167,14 @@ class LoginEmailViewModel @Inject constructor(
     }
 
     @Suppress("LongMethod")
-    private fun startLoginJob(): Job {
+    private fun startLoginJob(usernameAllowed: Boolean): Job {
         return viewModelScope.launch {
+            // if username is not allowed, we need to check if the provided user identifier is an email
+            if (!usernameAllowed && !coreLogic.getGlobalScope().validateEmailUseCase(userIdentifierTextState.text.toString())) {
+                updateEmailFlowState(LoginState.Error.TextFieldError.InvalidValue)
+                return@launch
+            }
+
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
 
             val secondFactorVerificationCode = secondFactorVerificationCodeTextState.text.toString()

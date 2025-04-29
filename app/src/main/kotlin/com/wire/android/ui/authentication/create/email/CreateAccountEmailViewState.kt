@@ -29,7 +29,8 @@ data class CreateAccountEmailViewState(
     val loading: Boolean = false,
     val error: EmailError = EmailError.None,
     val showClientUpdateDialog: Boolean = false,
-    val showServerVersionNotSupportedDialog: Boolean = false
+    val showServerVersionNotSupportedDialog: Boolean = false,
+    val success: Boolean = false,
 ) {
     sealed class EmailError {
         data object None : EmailError()

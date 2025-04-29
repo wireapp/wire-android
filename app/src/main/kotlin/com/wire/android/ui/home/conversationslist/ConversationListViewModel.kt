@@ -540,7 +540,8 @@ private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUn
     when (isSelfUserUnderLegalHold) {
         true -> when (this) {
             is ConversationItem.ConnectionConversation -> this.copy(showLegalHoldIndicator = false)
-            is ConversationItem.GroupConversation -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.Group.Regular -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.Group.Channel -> this.copy(showLegalHoldIndicator = false)
             is ConversationItem.PrivateConversation -> this.copy(showLegalHoldIndicator = false)
         }
 
@@ -616,7 +617,7 @@ private fun List<ConversationItem>.unreadToReadConversationsItems(): Pair<List<C
                 }
 
             MutedConversationStatus.AllMuted -> false
-        } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
+        } || (it is ConversationItem.Group && it.hasOnGoingCall)
     }
 
     val remainingConversations = this - unreadConversations.toSet()
@@ -627,7 +628,7 @@ private fun searchConversation(conversationDetails: List<ConversationItem>, sear
     conversationDetails.filter { details ->
         when (details) {
             is ConversationItem.ConnectionConversation -> details.conversationInfo.name.contains(searchQuery, true)
-            is ConversationItem.GroupConversation -> details.groupName.contains(searchQuery, true)
+            is ConversationItem.Group -> details.groupName.contains(searchQuery, true)
             is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(searchQuery, true)
         }
     }

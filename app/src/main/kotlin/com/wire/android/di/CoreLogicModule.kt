@@ -33,12 +33,15 @@ import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdenti
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase
+import com.wire.kalium.logic.feature.client.MLSClientManager
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
+import com.wire.kalium.logic.feature.conversation.keyingmaterials.KeyingMaterialsManager
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
+import com.wire.kalium.logic.feature.mlsmigration.MLSMigrationManager
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
@@ -201,6 +204,30 @@ class UseCaseModule {
     @Provides
     fun provideValidateSSOCodeUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ValidateSSOCodeUseCase =
         coreLogic.getGlobalScope().validateSSOCodeUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideMLSMigrationManager(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): MLSMigrationManager =
+        coreLogic.getSessionScope(currentAccount).mlsMigrationManager
+
+    @ViewModelScoped
+    @Provides
+    fun provideMLSClientManager(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): MLSClientManager =
+        coreLogic.getSessionScope(currentAccount).mlsClientManager
+
+    @ViewModelScoped
+    @Provides
+    fun provideKeyingMaterialsManager(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): KeyingMaterialsManager =
+        coreLogic.getSessionScope(currentAccount).keyingMaterialsManager
 
     @ViewModelScoped
     @Provides

@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.newconversation
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,6 +33,7 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.ui.home.newconversation.channelaccess.toDomainEnum
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -52,7 +54,6 @@ import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -63,11 +64,11 @@ class NewConversationViewModel @Inject constructor(
     private val createChannel: CreateChannelUseCase,
     private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,
     private val getSelfUser: GetSelfUserUseCase,
+    private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val globalDataStore: GlobalDataStore,
-    getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
 
-    val newGroupNameTextState: TextFieldState = TextFieldState()
+    var newGroupNameTextState: TextFieldState = TextFieldState()
     var newGroupState: GroupMetadataState by mutableStateOf(
         GroupMetadataState().let {
             val defaultProtocol = ConversationOptions
@@ -86,13 +87,35 @@ class NewConversationViewModel @Inject constructor(
             )
         }
     )
+    var isChannelCreationPossible: Boolean by mutableStateOf(true)
+
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState())
 
     init {
         setConversationCreationParam()
-        observeGroupNameChanges()
         observeChannelCreationPermission()
         getWireCellFeatureState()
+    }
+
+    fun resetState() {
+        newGroupNameTextState.clearText()
+        newGroupState = GroupMetadataState().let {
+            val defaultProtocol = ConversationOptions
+                .Protocol
+                .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
+            it.copy(
+                groupProtocol = defaultProtocol
+            )
+        }
+        groupOptionsState = GroupOptionState().let {
+            val isMLS = newGroupState.groupProtocol == ConversationOptions.Protocol.MLS
+            it.copy(
+                isAllowServicesEnabled = !isMLS,
+                isAllowServicesPossible = !isMLS
+            )
+        }
+        createGroupState = CreateGroupState()
+        setConversationCreationParam()
     }
 
     private fun getWireCellFeatureState() = viewModelScope.launch {
@@ -129,23 +152,20 @@ class NewConversationViewModel @Inject constructor(
         }
     }
 
-    private fun observeGroupNameChanges() {
-        viewModelScope.launch {
-            newGroupNameTextState.textAsFlow()
-                .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
-                .collectLatest {
-                    newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
-                }
-        }
+    suspend fun observeGroupNameChanges() {
+        newGroupNameTextState.textAsFlow()
+            .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
+            .collectLatest {
+                newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
+            }
     }
 
     private fun observeChannelCreationPermission() {
         viewModelScope.launch {
             isUserAllowedToCreateChannels()
                 .collectLatest {
-                val isChannelCreationPossible = it is ChannelCreationPermission.Allowed
-                newGroupState = newGroupState.copy(isChannelCreationPossible = isChannelCreationPossible)
-            }
+                    isChannelCreationPossible = it is ChannelCreationPermission.Allowed
+                }
         }
     }
 
@@ -244,7 +264,8 @@ class NewConversationViewModel @Inject constructor(
                         servicesAllowed = groupOptionsState.isAllowServicesEnabled,
                         nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
                     ),
-                    access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled)
+                    access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),
+                    channelAddPermission = newGroupState.channelAddPermissionType.toDomainEnum()
                 )
             )
             handleNewGroupCreationResult(result)?.let(onCreated)
@@ -299,8 +320,16 @@ class NewConversationViewModel @Inject constructor(
                 result.conversation.id
             }
 
+            ConversationCreationResult.Forbidden -> {
+                appLogger.d("Can't create conversation due to Insufficient permissions")
+                groupOptionsState = groupOptionsState.copy(isLoading = false)
+                newGroupState = newGroupState.copy(isLoading = false)
+                createGroupState = createGroupState.copy(error = CreateGroupState.Error.Forbidden)
+                null
+            }
+
             ConversationCreationResult.SyncFailure -> {
-                appLogger.d("Can't create group due to SyncFailure")
+                appLogger.d("Can't create conversation due to SyncFailure")
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = createGroupState.copy(error = CreateGroupState.Error.LackingConnection)
@@ -308,7 +337,7 @@ class NewConversationViewModel @Inject constructor(
             }
 
             is ConversationCreationResult.UnknownFailure -> {
-                appLogger.w("Error while creating a group ${result.cause}")
+                appLogger.w("Error while creating a conversation ${result.cause}")
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = createGroupState.copy(error = CreateGroupState.Error.Unknown)

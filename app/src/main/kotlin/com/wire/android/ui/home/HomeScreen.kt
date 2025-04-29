@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
@@ -72,9 +73,9 @@ import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
-import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.button.FloatingActionButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -122,8 +123,18 @@ fun HomeScreen(
             creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
         )
 ) {
-    homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
     val context = LocalContext.current
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
+    homeViewModel.checkRequirements()
+
+    LaunchedEffect(Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            homeViewModel.actions.collect {
+                it.navigate(navigator::navigate)
+            }
+        }
+    }
 
     val homeScreenState = rememberHomeScreenState(navigator)
     val notificationsPermissionDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()

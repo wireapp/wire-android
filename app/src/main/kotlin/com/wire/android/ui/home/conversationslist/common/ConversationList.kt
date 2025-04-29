@@ -46,6 +46,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
@@ -62,7 +63,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.debug.FeatureVisibilityFlags.ChannelsEnabled
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -125,7 +125,9 @@ fun ConversationList(
                     }
             ) {
                 val item = lazyPagingConversations[index]
-                if (item is ConversationFolder.Predefined.BrowseChannels && ChannelsEnabled) {
+                if (BuildConfig.PUBLIC_CHANNELS_ENABLED &&
+                    item is ConversationFolder.Predefined.BrowseChannels
+                ) { // add a flag to public channels based on compile time flag
                     BrowsePublicChannelsItem(onBrowsePublicChannels)
                 }
                 when (item) {
@@ -254,56 +256,88 @@ fun ConversationList(
     }
 }
 
+@Suppress("MagicNumber")
 fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = false, searchQuery: String = "") = buildList {
     repeat(count) { index ->
         val currentIndex = startIndex + index
-        when (index % 2) {
-            0 -> add(
-                ConversationItem.GroupConversation(
-                    groupName = "Conversation $currentIndex",
-                    conversationId = QualifiedID(currentIndex.toString(), "domain"),
-                    mutedStatus = MutedConversationStatus.AllAllowed,
-                    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
-                    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
-                    selfMemberRole = null,
-                    teamId = null,
-                    hasOnGoingCall = false,
-                    isArchived = false,
-                    isFromTheSameTeam = false,
-                    isChannel = false,
-                    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                    searchQuery = searchQuery,
-                    isFavorite = false,
-                    folder = null,
-                    playingAudio = null
-                )
-            )
-
-            1 -> add(
-                ConversationItem.PrivateConversation(
-                    userAvatarData = UserAvatarData(),
-                    conversationId = QualifiedID(currentIndex.toString(), "domain"),
-                    mutedStatus = MutedConversationStatus.AllAllowed,
-                    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
-                    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
-                    conversationInfo = ConversationInfo("User $currentIndex"),
-                    blockingState = BlockingState.BLOCKED,
-                    teamId = null,
-                    userId = UserId("userId_$currentIndex", "domain"),
-                    isArchived = false,
-                    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                    searchQuery = searchQuery,
-                    isFavorite = false,
-                    isUserDeleted = false,
-                    folder = null,
-                    playingAudio = null
-                )
-            )
+        when (index % 3) {
+            0 -> add(fakeRegularGroup(currentIndex, unread, searchQuery))
+            1 -> add(fakePrivateConversation(currentIndex, unread, searchQuery))
+            2 -> add(fakeChannel(currentIndex, unread, searchQuery))
         }
     }
 }.toImmutableList()
+
+private fun fakeRegularGroup(
+    currentIndex: Int,
+    unread: Boolean,
+    searchQuery: String
+) = ConversationItem.Group.Regular(
+    groupName = "Conversation $currentIndex",
+    conversationId = QualifiedID(currentIndex.toString(), "domain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
+    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
+    selfMemberRole = null,
+    teamId = null,
+    hasOnGoingCall = false,
+    isArchived = false,
+    isFromTheSameTeam = false,
+    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    searchQuery = searchQuery,
+    isFavorite = false,
+    folder = null,
+    playingAudio = null
+)
+
+private fun fakePrivateConversation(
+    currentIndex: Int,
+    unread: Boolean,
+    searchQuery: String
+) = ConversationItem.PrivateConversation(
+    userAvatarData = UserAvatarData(),
+    conversationId = QualifiedID(currentIndex.toString(), "domain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
+    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
+    conversationInfo = ConversationInfo("User $currentIndex"),
+    blockingState = BlockingState.BLOCKED,
+    teamId = null,
+    userId = UserId("userId_$currentIndex", "domain"),
+    isArchived = false,
+    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    searchQuery = searchQuery,
+    isFavorite = false,
+    isUserDeleted = false,
+    folder = null,
+    playingAudio = null
+)
+
+private fun fakeChannel(
+    currentIndex: Int,
+    unread: Boolean,
+    searchQuery: String
+) = ConversationItem.Group.Channel(
+    groupName = "Conversation $currentIndex",
+    conversationId = QualifiedID(currentIndex.toString(), "domain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
+    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
+    selfMemberRole = null,
+    teamId = null,
+    hasOnGoingCall = false,
+    isArchived = false,
+    isFromTheSameTeam = false,
+    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    searchQuery = searchQuery,
+    isFavorite = false,
+    folder = null,
+    playingAudio = null,
+    isPrivate = currentIndex % 2 == 0
+)
 
 fun previewConversationFoldersFlow(
     searchQuery: String = "",

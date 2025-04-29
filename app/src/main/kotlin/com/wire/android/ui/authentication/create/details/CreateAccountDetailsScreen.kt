@@ -96,6 +96,10 @@ fun CreateAccountDetailsScreen(
             )
         )
 
+        LaunchedEffect(createAccountDetailsViewModel.detailsState.success) {
+            if (createAccountDetailsViewModel.detailsState.success) navigateToCodeScreen()
+        }
+
         DetailsContent(
             state = detailsState,
             firstNameTextState = firstNameTextState,
@@ -104,7 +108,7 @@ fun CreateAccountDetailsScreen(
             confirmPasswordTextState = confirmPasswordTextState,
             teamNameTextState = teamNameTextState,
             onBackPressed = navigator::navigateBack,
-            onContinuePressed = { onDetailsContinue(::navigateToCodeScreen) },
+            onContinuePressed = ::onDetailsContinue,
             onErrorDismiss = ::onDetailsErrorDismiss,
             serverConfig = serverConfig
         )

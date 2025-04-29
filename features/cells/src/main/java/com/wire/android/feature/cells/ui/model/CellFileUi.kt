@@ -17,37 +17,54 @@
  */
 package com.wire.android.feature.cells.ui.model
 
-import com.wire.android.feature.cells.domain.model.FileType
-import com.wire.android.feature.cells.domain.model.FileType.IMAGE
-import com.wire.android.feature.cells.domain.model.FileType.PDF
-import com.wire.android.feature.cells.domain.model.FileType.VIDEO
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
 import com.wire.android.util.cellFileDateTime
-import com.wire.kalium.cells.domain.model.CellFile
+import com.wire.kalium.cells.domain.model.Node
 import kotlinx.datetime.Instant
 
-internal data class CellFileUi(
-    val uuid: String,
-    val fileName: String?,
-    val mimeType: String,
-    val assetType: FileType,
-    val assetSize: Long?,
-    val localPath: String?,
-    val remotePath: String? = null,
-    val contentHash: String? = null,
-    val contentUrl: String? = null,
-    val previewUrl: String? = null,
-    val downloadProgress: Float? = null,
-    val userName: String? = null,
-    val conversationName: String? = null,
-    val publicLinkId: String? = null,
-    val modifiedTime: String? = null,
-)
+sealed class CellNodeUi {
+    abstract val name: String?
+    abstract val uuid: String
+    abstract val userName: String?
+    abstract val conversationName: String?
+    abstract val modifiedTime: String?
 
-internal fun CellFile.toUiModel(downloadProgress: Float?) = CellFileUi(
+    data class Folder(
+        override val name: String?,
+        override val uuid: String,
+        override val userName: String?,
+        override val conversationName: String?,
+        override val modifiedTime: String?,
+        val contents: List<CellNodeUi> // folder can has files and nested folders
+    ) : CellNodeUi()
+
+    data class File(
+        override val name: String?,
+        override val uuid: String,
+        override val userName: String?,
+        override val conversationName: String?,
+        override val modifiedTime: String?,
+        val mimeType: String,
+        val assetType: AttachmentFileType,
+        val assetSize: Long?,
+        val localPath: String?,
+        val remotePath: String? = null,
+        val contentHash: String? = null,
+        val contentUrl: String? = null,
+        val previewUrl: String? = null,
+        val downloadProgress: Float? = null,
+        val publicLinkId: String? = null,
+    ) : CellNodeUi()
+}
+
+internal fun Node.File.toUiModel(downloadProgress: Float?) = CellNodeUi.File(
     uuid = uuid,
-    fileName = fileName,
+    name = name,
     mimeType = mimeType,
-    assetType = FileType.fromMimeType(mimeType),
+    assetType = AttachmentFileType.fromMimeType(mimeType),
     assetSize = assetSize,
     localPath = localPath,
     remotePath = remotePath,
@@ -61,9 +78,9 @@ internal fun CellFile.toUiModel(downloadProgress: Float?) = CellFileUi(
     modifiedTime = formattedModifiedTime(),
 )
 
-private fun CellFile.formattedModifiedTime() = lastModified?.let {
+private fun Node.File.formattedModifiedTime() = lastModified?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }
 
-internal fun CellFileUi.localFileAvailable() = localPath != null
-internal fun CellFileUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)
+internal fun CellNodeUi.File.localFileAvailable() = localPath != null
+internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)

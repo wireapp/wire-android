@@ -44,8 +44,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.FileActionsBottomSheet
+import com.wire.android.feature.cells.ui.dialog.FolderActionsBottomSheet
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
-import com.wire.android.feature.cells.ui.model.CellFileUi
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -58,7 +59,7 @@ internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
     viewState: CellViewState,
     sendIntent: (CellViewIntent) -> Unit,
-    downloadFileState: StateFlow<CellFileUi?>,
+    downloadFileState: StateFlow<CellNodeUi.File?>,
     fileMenuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (String, String, String?) -> Unit,
     isAllFiles: Boolean,
@@ -67,7 +68,7 @@ internal fun CellScreenContent(
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
 
-    var deleteConfirmation by remember { mutableStateOf<CellFileUi?>(null) }
+    var deleteConfirmation by remember { mutableStateOf<CellNodeUi.File?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
     val downloadFile by downloadFileState.collectAsState()
@@ -79,12 +80,17 @@ internal fun CellScreenContent(
             isAllFiles = isAllFiles,
             onRetry = { sendIntent(CellViewIntent.LoadFiles()) }
         )
+
         is CellViewState.Error -> ErrorScreen { sendIntent(CellViewIntent.LoadFiles()) }
-        is CellViewState.Files ->
+        is CellViewState.Completed ->
             CellFilesScreen(
-                files = viewState.files,
-                onFileClick = { sendIntent(CellViewIntent.OnFileClick(it)) },
-                onFileMenuClick = { sendIntent(CellViewIntent.OnFileMenuClick(it)) },
+                cellNodes = viewState.nodes,
+                onItemClick = {
+                    sendIntent(CellViewIntent.OnItemClick(it))
+                },
+                onItemMenuClick = {
+                    sendIntent(CellViewIntent.OnItemMenuClick(it))
+                },
 //                onRefresh = {
 //                    viewModel.loadFiles(pullToRefresh = true)
 //                }
@@ -92,14 +98,29 @@ internal fun CellScreenContent(
     }
 
     menu?.let { menuOptions ->
-        FileActionsBottomSheet(
-            menuOptions = menuOptions,
-            onDismiss = { menu = null },
-            onAction = { action ->
-                menu = null
-                sendIntent(CellViewIntent.OnMenuActionSelected(menuOptions.file, action))
+        when (menuOptions) {
+            is MenuOptions.FileMenuOptions -> {
+                FileActionsBottomSheet(
+                    menuOptions = menuOptions,
+                    onDismiss = { menu = null },
+                    onAction = { action ->
+                        menu = null
+                        sendIntent(CellViewIntent.OnMenuFileActionSelected(menuOptions.cellNodeUi, action))
+                    }
+                )
             }
-        )
+
+            is MenuOptions.FolderMenuOptions -> {
+                FolderActionsBottomSheet(
+                    menuOptions = menuOptions,
+                    onDismiss = { menu = null },
+                    onAction = { action ->
+                        menu = null
+                        sendIntent(CellViewIntent.OnMenuFolderActionSelected(menuOptions.cellNodeUi, action))
+                    }
+                )
+            }
+        }
     }
 
     downloadFile?.let { file ->
@@ -133,7 +154,7 @@ internal fun CellScreenContent(
                     is ShowDeleteConfirmation -> deleteConfirmation = action.file
                     is ShowPublicLinkScreen -> showPublicLinkScreen(
                         action.file.uuid,
-                        action.file.fileName ?: action.file.uuid,
+                        action.file.name ?: action.file.uuid,
                         action.file.publicLinkId
                     )
                 }
@@ -172,7 +193,11 @@ private fun ErrorScreen(onRetry: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+        Spacer(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        )
 
         Text(
             text = stringResource(R.string.file_list_load_error),
@@ -180,7 +205,11 @@ private fun ErrorScreen(onRetry: () -> Unit) {
             color = colorsScheme().error,
         )
 
-        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+        Spacer(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        )
 
         WirePrimaryButton(
             text = stringResource(R.string.retry),
@@ -202,7 +231,11 @@ private fun EmptyScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+        Spacer(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        )
 
         Text(
             text = if (isSearchResult) {
@@ -217,7 +250,11 @@ private fun EmptyScreen(
             textAlign = TextAlign.Center,
         )
 
-        Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
+        Spacer(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        )
 
         if (!isSearchResult) {
             WirePrimaryButton(

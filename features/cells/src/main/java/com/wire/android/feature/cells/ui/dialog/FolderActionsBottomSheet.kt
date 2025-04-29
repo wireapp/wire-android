@@ -33,13 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.ui.FileIconPreview
 import com.wire.android.feature.cells.ui.MenuOptions
 import com.wire.android.feature.cells.ui.model.BottomSheetAction
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.model.FileAction
+import com.wire.android.feature.cells.ui.model.FolderAction
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -53,13 +50,12 @@ import com.wire.android.ui.theme.WireTheme
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun FileActionsBottomSheet(
-    menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction) -> Unit,
+internal fun FolderActionsBottomSheet(
+    menuOptions: MenuOptions.FolderMenuOptions,
+    onAction: (BottomSheetAction.Folder) -> Unit,
     onDismiss: () -> Unit,
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>()
 ) {
-
     val scope = rememberCoroutineScope()
 
     WireModalSheetLayout(
@@ -68,62 +64,34 @@ internal fun FileActionsBottomSheet(
         },
         sheetState = sheetState
     ) {
-        SheetContent(
-            menuOptions = menuOptions,
-            onAction = { action ->
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        onAction(action)
-                    }
-                }
-            }
-        )
-    }
-}
-
-@Composable
-private fun SheetContent(
-    menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = dimensions().spacing24x)
-    ) {
-
-        Row(
+        Column(
             modifier = Modifier
-                .height(dimensions().spacing64x)
-                .padding(horizontal = dimensions().spacing8x)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+                .fillMaxWidth()
+                .padding(bottom = dimensions().spacing24x)
         ) {
 
-            FileIconPreview(menuOptions.cellNodeUi)
-
-            Text(
-                text = menuOptions.cellNodeUi.name ?: "",
-                style = typography().title02,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        WireDivider(modifier = Modifier.fillMaxWidth())
-
-        menuOptions.actions.forEach { action ->
-            MenuItem(
-                modifier = Modifier.clickable { onAction(action) },
-                action = action
-            )
             WireDivider(modifier = Modifier.fillMaxWidth())
+
+            menuOptions.actions.forEach { action ->
+                MenuItem(
+                    modifier = Modifier.clickable {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                onAction(action)
+                            }
+                        }
+                    },
+                    action = action
+                )
+                WireDivider(modifier = Modifier.fillMaxWidth())
+            }
         }
     }
 }
 
 @Composable
 private fun MenuItem(
-    action: BottomSheetAction.File,
+    action: BottomSheetAction.Folder,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -151,32 +119,24 @@ private fun MenuItem(
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewFileActionsBottomSheet() {
+private fun PreviewFolderActionsBottomSheet() {
     WireTheme {
-        FileActionsBottomSheet(
+        FolderActionsBottomSheet(
             sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = Unit)),
-            menuOptions = MenuOptions.FileMenuOptions(
-                cellNodeUi = CellNodeUi.File(
-                    uuid = "",
-                    name = "test file.pdf",
-                    mimeType = "application/pdf",
-                    assetType = AttachmentFileType.PDF,
-                    assetSize = 2342342,
-                    localPath = "",
-                    userName = null,
-                    conversationName = null,
+            menuOptions = MenuOptions.FolderMenuOptions(
+                cellNodeUi = CellNodeUi.Folder(
+                    uuid = "243567990900989897",
+                    name = "some folder.pdf",
+                    userName = "User",
+                    conversationName = "Conversation",
                     modifiedTime = null,
-                    remotePath = null,
-                    contentHash = null,
-                    contentUrl = null,
-                    previewUrl = null,
-                    downloadProgress = null,
-                    publicLinkId = null,
+                    contents = listOf(),
                 ),
                 actions = listOf(
-                    BottomSheetAction.File(FileAction.SHARE),
-                    BottomSheetAction.File(FileAction.PUBLIC_LINK),
-                    BottomSheetAction.File(FileAction.DELETE),
+                    BottomSheetAction.Folder(FolderAction.MOVE),
+                    BottomSheetAction.Folder(FolderAction.SHARE),
+                    BottomSheetAction.Folder(FolderAction.DOWNLOAD),
+                    BottomSheetAction.Folder(FolderAction.DELETE),
                 )
             ),
             onAction = {},

@@ -88,7 +88,7 @@ fun ConversationFilesScreen(
             )
         },
         floatingActionButton = {
-            if (state is CellViewState.Files) {
+            if (state is CellViewState.Completed) {
                 AnimatedVisibility(
                     visible = true,
                     enter = fadeIn(),

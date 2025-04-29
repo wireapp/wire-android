@@ -34,9 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.domain.model.FileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.FileIconPreview
-import com.wire.android.feature.cells.ui.model.CellFileUi
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DownloadFileBottomSheet(
-    file: CellFileUi,
+    file: CellNodeUi.File,
     onDismiss: () -> Unit,
     onDownload: () -> Unit,
 ) {
@@ -79,7 +79,7 @@ internal fun DownloadFileBottomSheet(
 
 @Composable
 private fun ContentView(
-    file: CellFileUi,
+    file: CellNodeUi.File,
     onCancel: () -> Unit,
     onDownload: () -> Unit,
 ) {
@@ -99,7 +99,7 @@ private fun ContentView(
             FileIconPreview(file)
 
             Text(
-                text = file.fileName ?: "",
+                text = file.name ?: "",
                 style = typography().title02,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -164,15 +164,22 @@ private fun ContentView(
 private fun DownloadFileBottomSheetPreview() {
     WireTheme {
         ContentView(
-            file = CellFileUi(
-                fileName = "file.txt",
+            file = CellNodeUi.File(
+                name = "file.txt",
                 conversationName = "Conversation",
                 downloadProgress = null,
                 uuid = "234324",
                 mimeType = "video/mp4",
-                assetType = FileType.VIDEO,
+                assetType = AttachmentFileType.VIDEO,
                 assetSize = 23432532532,
-                localPath = null
+                localPath = null,
+                userName = null,
+                modifiedTime = null,
+                remotePath = null,
+                contentHash = null,
+                contentUrl = null,
+                previewUrl = null,
+                publicLinkId = null,
             ),
             onCancel = {},
             onDownload = {}
@@ -185,15 +192,22 @@ private fun DownloadFileBottomSheetPreview() {
 private fun DownloadFileBottomSheetDownloadingPreview() {
     WireTheme {
         ContentView(
-            file = CellFileUi(
-                fileName = "file.txt",
+            file = CellNodeUi.File(
+                name = "file.txt",
                 conversationName = "Conversation",
                 downloadProgress = 0.75f,
                 uuid = "234324",
                 mimeType = "video/mp4",
-                assetType = FileType.VIDEO,
+                assetType = AttachmentFileType.VIDEO,
                 assetSize = 23432532532,
-                localPath = null
+                localPath = null,
+                userName = null,
+                modifiedTime = null,
+                remotePath = null,
+                contentHash = null,
+                contentUrl = null,
+                previewUrl = null,
+                publicLinkId = null,
             ),
             onCancel = {},
             onDownload = {}

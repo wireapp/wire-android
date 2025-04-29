@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
-import com.wire.android.feature.cells.domain.model.FileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.clickable
@@ -112,7 +112,7 @@ internal fun MessageAsset(
                 )
 
                 assetDataPath?.let { localPath ->
-                    if (FileType.fromExtension(assetExtension) == FileType.PDF) {
+                    if (AttachmentFileType.fromExtension(assetExtension) == AttachmentFileType.PDF) {
                         Spacer(modifier = Modifier.height(dimensions().spacing12x))
                         PdfAssetPreview(localPath)
                     }

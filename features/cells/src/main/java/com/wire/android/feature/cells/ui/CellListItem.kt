@@ -52,10 +52,10 @@ import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.domain.model.FileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.feature.cells.domain.model.previewSupported
-import com.wire.android.feature.cells.ui.model.CellFileUi
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -65,7 +65,7 @@ import com.wire.android.ui.theme.WireTheme
 
 @Composable
 internal fun CellListItem(
-    file: CellFileUi,
+    cell: CellNodeUi,
     onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -76,7 +76,12 @@ internal fun CellListItem(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            FileIconPreview(file)
+
+            if (cell is CellNodeUi.File) {
+                FileIconPreview(cell)
+            } else {
+                FolderIconPreview()
+            }
 
             Column(
                 modifier = Modifier
@@ -86,13 +91,13 @@ internal fun CellListItem(
             ) {
 
                 Text(
-                    text = file.fileName ?: "",
+                    text = cell.name ?: "",
                     style = typography().title02,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                file.subtitle()?.let {
+                cell.subtitle()?.let {
                     Text(
                         text = it,
                         textAlign = TextAlign.Left,
@@ -116,32 +121,49 @@ internal fun CellListItem(
                 )
             }
         }
-        file.downloadProgress?.let {
-            WireLinearProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomStart),
-                progress = { file.downloadProgress },
-                color = colorsScheme().primary,
-                trackColor = Color.Transparent,
-            )
+        if (cell is CellNodeUi.File) {
+            cell.downloadProgress?.let {
+                WireLinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomStart),
+                    progress = { cell.downloadProgress },
+                    color = colorsScheme().primary,
+                    trackColor = Color.Transparent,
+                )
+            }
         }
     }
 }
 
 @Composable
-internal fun FileIconPreview(file: CellFileUi) {
+internal fun FolderIconPreview() {
     Box(
         modifier = Modifier
             .size(dimensions().spacing56x),
         contentAlignment = Alignment.Center
     ) {
-        if (file.previewUrl != null && file.assetType.previewSupported()) {
+        Image(
+            modifier = Modifier.size(dimensions().spacing32x),
+            painter = painterResource(R.drawable.ic_folder_item),
+            contentDescription = null,
+        )
+    }
+}
+
+@Composable
+internal fun FileIconPreview(cell: CellNodeUi.File) {
+    Box(
+        modifier = Modifier
+            .size(dimensions().spacing56x),
+        contentAlignment = Alignment.Center
+    ) {
+        if (cell.previewUrl != null && cell.assetType.previewSupported()) {
 
             val builder = ImageRequest.Builder(LocalContext.current)
-                .diskCacheKey(file.contentHash)
-                .memoryCacheKey(file.contentHash)
-                .data(file.previewUrl)
+                .diskCacheKey(cell.contentHash)
+                .memoryCacheKey(cell.contentHash)
+                .data(cell.previewUrl)
                 .crossfade(true)
 
             AsyncImage(
@@ -161,7 +183,7 @@ internal fun FileIconPreview(file: CellFileUi) {
                 model = builder.build(),
                 contentDescription = null,
             )
-            file.publicLinkId?.let {
+            cell.publicLinkId?.let {
                 PublicLinkIcon(
                     offsetX = dimensions().spacing16x,
                     offsetY = dimensions().spacing16x
@@ -170,10 +192,10 @@ internal fun FileIconPreview(file: CellFileUi) {
         } else {
             Image(
                 modifier = Modifier.size(dimensions().spacing32x),
-                painter = painterResource(file.assetType.icon()),
+                painter = painterResource(cell.assetType.icon()),
                 contentDescription = null,
             )
-            file.publicLinkId?.let {
+            cell.publicLinkId?.let {
                 PublicLinkIcon()
             }
         }
@@ -208,14 +230,14 @@ private fun PublicLinkIcon(
 }
 
 @Composable
-private fun CellFileUi.subtitle() =
+private fun CellNodeUi.subtitle() =
     when {
         userName != null && conversationName != null -> {
-            stringResource(R.string.file_subtitle, userName, conversationName)
+            stringResource(R.string.file_subtitle, userName!!, conversationName!!)
         }
 
         userName != null && modifiedTime != null -> {
-            stringResource(R.string.file_subtitle_modified, modifiedTime, userName)
+            stringResource(R.string.file_subtitle_modified, modifiedTime!!, userName!!)
         }
 
         userName != null -> userName
@@ -229,17 +251,22 @@ private fun CellFileUi.subtitle() =
 private fun PreviewCellListItem() {
     WireTheme {
         CellListItem(
-            file = CellFileUi(
+            cell = CellNodeUi.File(
                 uuid = "",
-                fileName = "file name",
-                assetType = FileType.IMAGE,
+                name = "file name",
+                assetType = AttachmentFileType.IMAGE,
                 assetSize = 123214,
                 localPath = null,
                 mimeType = "image/jpg",
                 publicLinkId = "",
                 downloadProgress = 0.75f,
                 userName = "Test User",
-                conversationName = "Test Conversation"
+                conversationName = "Test Conversation",
+                modifiedTime = null,
+                remotePath = null,
+                contentHash = null,
+                contentUrl = null,
+                previewUrl = null
             ),
             onMenuClick = {},
         )

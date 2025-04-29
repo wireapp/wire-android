@@ -34,7 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.wire.android.feature.cells.domain.model.FileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.AssetSource
@@ -69,15 +69,15 @@ internal fun AssetGridPreview(
 
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
             when (item.assetType) {
-                FileType.IMAGE -> {
+                AttachmentFileType.IMAGE -> {
                     ImageAssetGridPreview(item)
                 }
 
-                FileType.VIDEO -> {
+                AttachmentFileType.VIDEO -> {
                     VideoAssetGridPreview(item)
                 }
 
-                FileType.PDF -> {
+                AttachmentFileType.PDF -> {
                     PdfAssetGridPreview(item)
                 }
 
@@ -115,7 +115,7 @@ private fun PreviewAssetGrid() {
         source = AssetSource.CELL,
         localPath = "localPath",
         previewUrl = "previewUrl",
-        assetType = FileType.PDF,
+        assetType = AttachmentFileType.PDF,
         metadata = AssetContent.AssetMetadata.Image(
             width = 100,
             height = 100,
@@ -130,7 +130,7 @@ private fun PreviewAssetGrid() {
         ) {
             AssetGridPreview(
                 item = attachment.copy(
-                    assetType = FileType.CODE,
+                    assetType = AttachmentFileType.CODE,
                     fileName = "Test file.kt",
                     transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
                 ),

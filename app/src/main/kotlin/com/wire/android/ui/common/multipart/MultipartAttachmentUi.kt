@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.common.multipart
 
-import com.wire.android.feature.cells.domain.model.FileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
@@ -33,7 +33,7 @@ data class MultipartAttachmentUi(
     val contentUrl: String? = null,
     val previewUrl: String? = null,
     val mimeType: String,
-    val assetType: FileType,
+    val assetType: AttachmentFileType,
     val assetSize: Long?,
     val metadata: AssetMetadata? = null,
     val transferStatus: AssetTransferStatus,
@@ -57,7 +57,7 @@ fun CellAssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     contentUrl = this.contentUrl,
     previewUrl = this.previewUrl,
     mimeType = this.mimeType,
-    assetType = FileType.fromMimeType(mimeType),
+    assetType = AttachmentFileType.fromMimeType(mimeType),
     assetSize = this.assetSize,
     metadata = this.metadata,
     transferStatus = this.transferStatus,
@@ -72,7 +72,7 @@ fun AssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     localPath = this.localData?.assetDataPath,
     previewUrl = null,
     mimeType = this.mimeType,
-    assetType = FileType.fromMimeType(mimeType),
+    assetType = AttachmentFileType.fromMimeType(mimeType),
     assetSize = this.sizeInBytes,
     metadata = this.metadata,
     transferStatus = AssetTransferStatus.NOT_DOWNLOADED,

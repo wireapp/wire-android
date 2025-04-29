@@ -35,7 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import com.wire.android.feature.cells.domain.model.FileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -49,12 +49,12 @@ fun FileHeaderView(
     extension: String,
     size: Long?,
     modifier: Modifier = Modifier,
-    type: FileType? = null,
+    type: AttachmentFileType? = null,
     label: String? = null,
     labelColor: Color? = null,
     isError: Boolean = false,
 ) {
-    val fileType = type ?: remember(extension) { FileType.fromExtension(extension) }
+    val attachmentFileType = type ?: remember(extension) { AttachmentFileType.fromExtension(extension) }
     val sizeString = remember(size) { size?.let { DeviceUtil.formatSize(size) } ?: "" }
 
     Row(
@@ -72,7 +72,7 @@ fun FileHeaderView(
         } else {
             Image(
                 modifier = Modifier.size(dimensions().spacing16x),
-                painter = painterResource(id = fileType.icon()),
+                painter = painterResource(id = attachmentFileType.icon()),
                 contentDescription = null,
             )
         }

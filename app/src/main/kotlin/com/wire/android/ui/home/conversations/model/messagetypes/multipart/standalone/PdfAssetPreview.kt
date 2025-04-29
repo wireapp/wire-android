@@ -38,7 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.wire.android.feature.cells.domain.model.FileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -163,7 +163,7 @@ private fun PreviewPdfAsset() {
         source = AssetSource.CELL,
         localPath = null,
         previewUrl = null,
-        assetType = FileType.PDF,
+        assetType = AttachmentFileType.PDF,
         metadata = AssetContent.AssetMetadata.Image(
             width = 3,
             height = 1,

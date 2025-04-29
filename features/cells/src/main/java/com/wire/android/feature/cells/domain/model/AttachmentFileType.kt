@@ -19,24 +19,7 @@ package com.wire.android.feature.cells.domain.model
 
 import com.wire.android.feature.cells.R
 
-sealed class Attachment {
-    abstract val name: String
-
-    data class File(
-        override val name: String,
-        val extension: String
-    ) : Attachment() {
-        val type: FileType
-            get() = FileType.fromExtension(extension)
-    }
-
-    data class Folder(
-        override val name: String,
-        val contents: List<Attachment>
-    ) : Attachment()
-}
-
-enum class FileType(val extensions: List<String>) {
+enum class AttachmentFileType(val extensions: List<String>) {
     IMAGE(listOf("jpg", "jpeg", "png", "gif", "webp")),
     VIDEO(listOf("mp4", "mov", "m4v", "ogv", "webm")),
     AUDIO(listOf("mp3", "wav", "ogg", "m4a", "flac", "aac")),
@@ -54,28 +37,28 @@ enum class FileType(val extensions: List<String>) {
     OTHER(emptyList());
 
     companion object {
-        fun fromExtension(ext: String): FileType =
+        fun fromExtension(ext: String): AttachmentFileType =
             entries.firstOrNull { it.extensions.contains(ext.lowercase()) } ?: OTHER
 
-        fun fromMimeType(mimeType: String): FileType {
-            return FileType.fromExtension(mimeType.substringAfterLast("/"))
+        fun fromMimeType(mimeType: String): AttachmentFileType {
+            return AttachmentFileType.fromExtension(mimeType.substringAfterLast("/"))
         }
     }
 }
 
-fun FileType.icon(): Int =
+fun AttachmentFileType.icon(): Int =
     when (this) {
-        FileType.IMAGE -> R.drawable.ic_file_type_image
-        FileType.VIDEO -> R.drawable.ic_file_type_video
-        FileType.AUDIO -> R.drawable.ic_file_type_audio
-        FileType.PDF -> R.drawable.ic_file_type_pdf
-        FileType.DOC -> R.drawable.ic_file_type_doc
-        FileType.SPREADSHEET -> R.drawable.ic_file_type_spreadsheet
-        FileType.PRESENTATION -> R.drawable.ic_file_type_presentation
-        FileType.ARCHIVE -> R.drawable.ic_file_type_archive
-        FileType.CODE -> R.drawable.ic_file_type_code
-        FileType.OTHER -> R.drawable.ic_file_type_other
+        AttachmentFileType.IMAGE -> R.drawable.ic_file_type_image
+        AttachmentFileType.VIDEO -> R.drawable.ic_file_type_video
+        AttachmentFileType.AUDIO -> R.drawable.ic_file_type_audio
+        AttachmentFileType.PDF -> R.drawable.ic_file_type_pdf
+        AttachmentFileType.DOC -> R.drawable.ic_file_type_doc
+        AttachmentFileType.SPREADSHEET -> R.drawable.ic_file_type_spreadsheet
+        AttachmentFileType.PRESENTATION -> R.drawable.ic_file_type_presentation
+        AttachmentFileType.ARCHIVE -> R.drawable.ic_file_type_archive
+        AttachmentFileType.CODE -> R.drawable.ic_file_type_code
+        AttachmentFileType.OTHER -> R.drawable.ic_file_type_other
     }
 
-fun FileType.previewSupported(): Boolean =
-    this in listOf(FileType.IMAGE, FileType.VIDEO)
+fun AttachmentFileType.previewSupported(): Boolean =
+    this in listOf(AttachmentFileType.IMAGE, AttachmentFileType.VIDEO)

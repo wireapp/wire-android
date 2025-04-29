@@ -49,7 +49,7 @@ fun AllFilesScreen(
     }
 
     val isSearchVisible = when {
-        state is CellViewState.Files -> true
+        state is CellViewState.Completed -> true
         state.isEmptySearch() -> true
         else -> false
     }

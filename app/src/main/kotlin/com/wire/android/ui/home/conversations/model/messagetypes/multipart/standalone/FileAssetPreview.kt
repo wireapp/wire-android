@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import com.wire.android.feature.cells.domain.model.FileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -103,7 +103,7 @@ private fun PreviewFileAsset() {
         source = AssetSource.CELL,
         localPath = "localPath",
         previewUrl = "previewUrl",
-        assetType = FileType.PDF,
+        assetType = AttachmentFileType.PDF,
         metadata = AssetContent.AssetMetadata.Image(
             width = 100,
             height = 100,
@@ -119,7 +119,7 @@ private fun PreviewFileAsset() {
             Box {
                 FileAssetPreview(
                     item = attachment.copy(
-                        assetType = FileType.CODE,
+                        assetType = AttachmentFileType.CODE,
                         fileName = "Test file.kt",
                         transferStatus = AssetTransferStatus.NOT_DOWNLOADED
                     )
@@ -128,7 +128,7 @@ private fun PreviewFileAsset() {
             Box {
                 FileAssetPreview(
                     item = attachment.copy(
-                        assetType = FileType.ARCHIVE,
+                        assetType = AttachmentFileType.ARCHIVE,
                         fileName = "Test file.zip",
                         transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
                         progress = 0.75f
@@ -143,7 +143,7 @@ private fun PreviewFileAsset() {
             Box {
                 FileAssetPreview(
                     item = attachment.copy(
-                        assetType = FileType.OTHER,
+                        assetType = AttachmentFileType.OTHER,
                         fileName = "Test file.prof",
                         transferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
                         progress = 0.75f

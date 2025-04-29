@@ -24,8 +24,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.wire.android.feature.cells.domain.model.FileType
-import com.wire.android.feature.cells.ui.model.CellFileUi
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.preview.MultipleThemePreviews
@@ -33,9 +33,9 @@ import com.wire.android.ui.theme.WireTheme
 
 @Composable
 internal fun CellFilesScreen(
-    files: List<CellFileUi>,
-    onFileClick: (CellFileUi) -> Unit,
-    onFileMenuClick: (CellFileUi) -> Unit,
+    cellNodes: List<CellNodeUi>,
+    onItemClick: (CellNodeUi) -> Unit,
+    onItemMenuClick: (CellNodeUi) -> Unit,
 //    onRefresh: () -> Unit
 ) {
 
@@ -50,15 +50,17 @@ internal fun CellFilesScreen(
             .fillMaxWidth(),
     ) {
         items(
-            items = files,
+            items = cellNodes,
             key = { it.uuid },
-        ) { file ->
+        ) { cell ->
             CellListItem(
                 modifier = Modifier
                     .animateItem()
-                    .clickable { onFileClick(file) },
-                file = file,
-                onMenuClick = { onFileMenuClick(file) }
+                    .clickable { onItemClick(cell) },
+                cell = cell,
+                onMenuClick = {
+                    onItemMenuClick(cell)
+                }
             )
             WireDivider(modifier = Modifier.fillMaxWidth())
         }
@@ -71,26 +73,52 @@ internal fun CellFilesScreen(
 fun PreviewCellFilesScreen() {
     WireTheme {
         CellFilesScreen(
-            files = listOf(
-                CellFileUi(
+            cellNodes = listOf(
+                CellNodeUi.File(
                     uuid = "uuid",
-                    fileName = "Image name",
+                    name = "Image name",
                     mimeType = "image/png",
-                    assetType = FileType.IMAGE,
+                    assetType = AttachmentFileType.IMAGE,
                     assetSize = 1234L,
                     localPath = "path/to/local/file",
+                    userName = null,
+                    conversationName = null,
+                    modifiedTime = null,
+                    remotePath = null,
+                    contentHash = null,
+                    contentUrl = null,
+                    previewUrl = null,
+                    downloadProgress = null,
+                    publicLinkId = null,
                 ),
-                CellFileUi(
+                CellNodeUi.Folder(
                     uuid = "uuid2",
-                    fileName = "PDF name",
+                    name = "PDF name",
+                    userName = null,
+                    conversationName = null,
+                    modifiedTime = null,
+                    contents = listOf()
+                ),
+                CellNodeUi.File(
+                    uuid = "uuid2",
+                    name = "PDF name",
                     mimeType = "application/pdf",
-                    assetType = FileType.PDF,
+                    assetType = AttachmentFileType.PDF,
                     assetSize = 99234L,
                     localPath = "path/to/local/file",
+                    userName = null,
+                    conversationName = null,
+                    modifiedTime = null,
+                    remotePath = null,
+                    contentHash = null,
+                    contentUrl = null,
+                    previewUrl = null,
+                    downloadProgress = null,
+                    publicLinkId = null,
                 )
             ),
-            onFileClick = {},
-            onFileMenuClick = {}
+            onItemClick = {},
+            onItemMenuClick = {}
         )
     }
 }

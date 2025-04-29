@@ -38,10 +38,13 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserU
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -63,6 +66,12 @@ class HomeViewModel @Inject constructor(
         private set
 
     private val selfUserFlow = MutableSharedFlow<SelfUser?>(replay = 1)
+
+    private val _actions = Channel<HomeRequirement>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    internal val actions = _actions.receiveAsFlow()
 
     init {
         observeSelfUser()
@@ -114,21 +123,21 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun checkRequirements(onRequirement: (HomeRequirement) -> Unit) {
+    fun checkRequirements() {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
             when {
                 shouldTriggerMigrationForUser(selfUser.id) -> // check if the user needs to be migrated from scala app
-                    onRequirement(HomeRequirement.Migration(selfUser.id))
+                    _actions.send(HomeRequirement.Migration(selfUser.id))
 
                 needsToRegisterClient() -> // check if the client needs to be registered
-                    onRequirement(HomeRequirement.RegisterDevice)
+                    _actions.send(HomeRequirement.RegisterDevice)
 
                 !dataStore.initialSyncCompleted.first() -> // check if the initial sync needs to be completed
-                    onRequirement(HomeRequirement.InitialSync)
+                    _actions.send(HomeRequirement.InitialSync)
 
                 selfUser.handle.isNullOrEmpty() -> // check if the user handle needs to be set
-                    onRequirement(HomeRequirement.CreateAccountUsername)
+                    _actions.send(HomeRequirement.CreateAccountUsername)
 
                 // check if the "welcome to the new app" screen needs to be displayed
                 shouldDisplayWelcomeToARScreen() ->

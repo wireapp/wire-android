@@ -1,9 +1,4 @@
-New
-- Channels
-- Simplified login flow
-
-Improvement
-- Design for files and video previews
-
-Fixes
-- Resolved several issues
+FIXES
+- Fixed a crash when opening the app using deep links
+- Resolved missing 1:1 messages after migrating to MLS
+- Fixed an issue where team owners didn’t get admin rights when joining a channel

@@ -68,7 +68,7 @@ class CreateAccountEmailViewModel @Inject constructor(
         }
     }
 
-    fun onEmailContinue(onSuccess: () -> Unit) {
+    fun onEmailContinue() {
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val email = emailTextState.text.toString().trim().lowercase()
@@ -82,13 +82,13 @@ class CreateAccountEmailViewModel @Inject constructor(
                 termsDialogVisible = !emailState.termsAccepted && emailError is CreateAccountEmailViewState.EmailError.None,
                 error = emailError
             )
-            if (emailState.termsAccepted) onTermsAccept(onSuccess)
+            if (emailState.termsAccepted) onTermsAccept()
         }.invokeOnCompletion {
             emailState = emailState.copy(loading = false)
         }
     }
 
-    fun onTermsAccept(onSuccess: () -> Unit) {
+    fun onTermsAccept() {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
             val authScope = coreLogic.versionedAuthenticationScope(serverConfig)(null).let {
@@ -114,7 +114,7 @@ class CreateAccountEmailViewModel @Inject constructor(
             val email = emailTextState.text.toString().trim().lowercase()
             val emailError = authScope.registerScope.requestActivationCode(email).toEmailError()
             emailState = emailState.copy(loading = false, continueEnabled = true, error = emailError)
-            if (emailError is CreateAccountEmailViewState.EmailError.None) onSuccess()
+            if (emailError is CreateAccountEmailViewState.EmailError.None) emailState = emailState.copy(success = true)
         }
     }
 

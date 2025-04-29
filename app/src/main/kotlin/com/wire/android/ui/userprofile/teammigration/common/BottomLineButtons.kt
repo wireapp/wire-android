@@ -45,7 +45,9 @@ fun BottomLineButtons(
     isMigrating: Boolean = false,
     isBackButtonVisible: Boolean = true,
     backButtonContentDescription: String = stringResource(R.string.personal_to_team_migration_back_button_label),
+    backButtonText: String = stringResource(R.string.personal_to_team_migration_back_button_label),
     onBack: () -> Unit = { },
+    continueButtonText: String = stringResource(R.string.label_continue),
     onContinue: () -> Unit = { }
 ) {
     Column(
@@ -67,7 +69,7 @@ fun BottomLineButtons(
                 modifier = Modifier
                     .fillMaxWidth()
                     .semantics(true) { contentDescription = backButtonContentDescription },
-                text = stringResource(R.string.personal_to_team_migration_back_button_label),
+                text = backButtonText,
                 onClick = onBack,
                 state = if (isMigrating) {
                     WireButtonState.Disabled
@@ -81,7 +83,7 @@ fun BottomLineButtons(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = dimensions().spacing6x),
-            text = stringResource(R.string.label_continue),
+            text = continueButtonText,
             onClick = onContinue,
             loading = isMigrating,
             state = if (isContinueButtonEnabled && !isMigrating) {

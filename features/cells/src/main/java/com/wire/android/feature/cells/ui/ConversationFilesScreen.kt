@@ -38,7 +38,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
-import com.wire.android.feature.cells.ui.dialog.FilesNewActionsBottomSheet
+import com.wire.android.feature.cells.ui.dialog.CellsNewActionsBottomSheet
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -68,7 +68,7 @@ fun ConversationFilesScreen(
     val state by viewModel.state.collectAsState()
     val sheetState = rememberWireModalSheetState<Unit>()
 
-    FilesNewActionsBottomSheet(
+    CellsNewActionsBottomSheet(
         sheetState = sheetState,
         onDismiss = {
             sheetState.hide()

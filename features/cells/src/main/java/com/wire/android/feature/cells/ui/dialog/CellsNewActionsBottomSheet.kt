@@ -36,7 +36,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-internal fun FilesNewActionsBottomSheet(
+internal fun CellsNewActionsBottomSheet(
     sheetState: WireModalSheetState<Unit>,
     onDismiss: () -> Unit,
     onCreateFolder: () -> Unit,
@@ -86,7 +86,7 @@ private fun CreateFolderSheetItem(
 @Composable
 private fun PreviewFilesNewActionsBottomSheet() {
     WireTheme {
-        FilesNewActionsBottomSheet(
+        CellsNewActionsBottomSheet(
             sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = Unit)),
             onDismiss = {},
             onCreateFolder = {}

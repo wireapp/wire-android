@@ -289,6 +289,7 @@ class CellViewModel @Inject constructor(
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun onMenuFolderAction(folder: CellNodeUi.Folder, action: BottomSheetAction) {
         when ((action as BottomSheetAction.Folder).action) {
             FolderAction.SHARE -> TODO()

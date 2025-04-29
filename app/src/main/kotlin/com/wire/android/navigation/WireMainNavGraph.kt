@@ -22,8 +22,6 @@ import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
-import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.ui.NavGraphs
 

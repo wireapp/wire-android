@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,16 +39,15 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.model.CellFileUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 
 @Composable
@@ -57,54 +55,46 @@ internal fun CellFilesScreen(
     files: LazyPagingItems<CellFileUi>,
     onFileClick: (CellFileUi) -> Unit,
     onFileMenuClick: (CellFileUi) -> Unit,
-//    onRefresh: () -> Unit
 ) {
 
-//    TODO: Enable PullToRefresh support on HomeScreen level?
-//    PullToRefreshBox(
-//        isRefreshing = state.refreshing,
-//        onRefresh = { onRefresh() }
-//    ) {
     LazyColumn(
         modifier = Modifier
             .background(color = colorsScheme().surface)
             .fillMaxWidth(),
     ) {
         items(
-            items = files,
-            key = { it.uuid },
-        ) { file ->
-                count = files.itemCount,
-                key = files.itemKey { it.uuid },
-                contentType = files.itemContentType { it }
-            ) { index ->
+            count = files.itemCount,
+            key = files.itemKey { it.uuid },
+            contentType = files.itemContentType { it }
+        ) { index ->
 
-                files[index]?.let { file ->
-                    CellListItem(
-                        modifier = Modifier
-                            .animateItem()
-                            .background(color = colorsScheme().surface)
-                            .clickable { onFileClick(file) },
-                        file = file,
-                        onMenuClick = { onFileMenuClick(file) }
-                    )
-                    WireDivider(modifier = Modifier.fillMaxWidth())
-                }
-            }
-
-            when (files.loadState.append) {
-                is LoadState.Error -> item(contentType = "error") {
-                    ErrorFooter(
-                        onRetry = { files.retry() }
-                    )
-                }
-                is LoadState.Loading -> item(contentType = "progress") {
-                    ProgressFooter()
-                }
-                is LoadState.NotLoading -> {}
+            files[index]?.let { file ->
+                CellListItem(
+                    modifier = Modifier
+                        .animateItem()
+                        .background(color = colorsScheme().surface)
+                        .clickable { onFileClick(file) },
+                    file = file,
+                    onMenuClick = { onFileMenuClick(file) }
+                )
+                WireDivider(modifier = Modifier.fillMaxWidth())
             }
         }
-//    }
+
+        when (files.loadState.append) {
+            is LoadState.Error -> item(contentType = "error") {
+                ErrorFooter(
+                    onRetry = { files.retry() }
+                )
+            }
+
+            is LoadState.Loading -> item(contentType = "progress") {
+                ProgressFooter()
+            }
+
+            is LoadState.NotLoading -> {}
+        }
+    }
 }
 
 @MultipleThemePreviews
@@ -173,35 +163,6 @@ private fun ErrorFooter(onRetry: () -> Unit) {
         )
     }
 }
-
-    @MultipleThemePreviews
-    @Composable
-    fun PreviewCellFilesScreen() {
-        WireTheme {
-            CellFilesScreen(
-                files = listOf(
-                    CellFileUi(
-                        uuid = "uuid",
-                        fileName = "Image name",
-                        mimeType = "image/png",
-                        assetType = AttachmentFileType.IMAGE,
-                        assetSize = 1234L,
-                        localPath = "path/to/local/file",
-                    ),
-                    CellFileUi(
-                        uuid = "uuid2",
-                        fileName = "PDF name",
-                        mimeType = "application/pdf",
-                        assetType = AttachmentFileType.PDF,
-                        assetSize = 99234L,
-                        localPath = "path/to/local/file",
-                    )
-                ),
-                onFileClick = {},
-                onFileMenuClick = {}
-            )
-        }
-    }
 
 @PreviewMultipleThemes
 @Composable

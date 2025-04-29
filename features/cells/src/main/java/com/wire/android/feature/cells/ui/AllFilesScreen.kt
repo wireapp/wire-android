@@ -19,8 +19,6 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
@@ -79,5 +77,3 @@ fun AllFilesScreen(
         },
     )
 }
-
-private fun CellViewState.isEmptySearch() = this is CellViewState.Empty && isSearchResult

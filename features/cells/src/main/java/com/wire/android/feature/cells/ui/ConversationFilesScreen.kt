@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -66,9 +64,13 @@ fun ConversationFilesScreen(
     viewModel: CellViewModel = hiltViewModel()
 ) {
     val pagingListItems = viewModel.filesFlow.collectAsLazyPagingItems()
-
-    val state by viewModel.state.collectAsState()
     val sheetState = rememberWireModalSheetState<Unit>()
+
+    val isFabVisible = when {
+        pagingListItems.isLoading() -> false
+        pagingListItems.isError() -> false
+        else -> true
+    }
 
     FilesNewActionsBottomSheet(
         sheetState = sheetState,
@@ -90,7 +92,7 @@ fun ConversationFilesScreen(
             )
         },
         floatingActionButton = {
-            if (state is CellViewState.Files) {
+            if (isFabVisible) {
                 AnimatedVisibility(
                     visible = true,
                     enter = fadeIn(),
@@ -121,7 +123,6 @@ fun ConversationFilesScreen(
         Box(modifier = Modifier.padding(innerPadding)) {
             CellScreenContent(
                 actionsFlow = viewModel.actions,
-                viewState = state,
                 pagingListItems = pagingListItems,
                 sendIntent = { viewModel.sendIntent(it) },
                 downloadFileState = viewModel.downloadFileSheet,

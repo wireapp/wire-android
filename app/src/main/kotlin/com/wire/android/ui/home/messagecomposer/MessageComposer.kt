@@ -94,8 +94,6 @@ fun MessageComposer(
     onImagesPicked: (List<Uri>, Boolean) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
-    onAudioRecorded: (UriAsset) -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
 ) {
@@ -310,8 +308,6 @@ private fun BaseComposerPreview(
         tempWritableImageUri = null,
         openDrawingCanvas = {},
         onImagesPicked = { _, _ -> },
-        onAttachmentPicked = {},
-        onAudioRecorded = {},
         onAttachmentPicked = {},
         onAudioRecorded = {},
         onAttachmentClick = {},

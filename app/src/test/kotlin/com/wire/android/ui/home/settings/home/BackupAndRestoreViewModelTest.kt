@@ -35,8 +35,9 @@ import com.wire.android.util.FileManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.backup.BackupFileFormat
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
-import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
+import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.IncompatibleBackup
@@ -44,6 +45,7 @@ import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFai
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.InvalidUserId
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.Failure
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
+import com.wire.kalium.logic.feature.backup.RestoreMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import io.mockk.MockKAnnotations
@@ -151,7 +153,7 @@ class BackupAndRestoreViewModelTest {
     fun givenANonEmptyPassword_whenItIsInvalid_thenItUpdatePasswordValidationState() = runTest(dispatcher.default()) {
         // Given
         val password = "mayTh3ForceBeWIthYou"
-        val (arrangement, backupAndRestoreViewModel) = Arrangement()
+        val (_, backupAndRestoreViewModel) = Arrangement()
             .withInvalidPassword()
             .arrange()
 
@@ -167,7 +169,7 @@ class BackupAndRestoreViewModelTest {
     fun givenANonEmptyPassword_whenItIsValid_thenItUpdatePasswordValidationState() = runTest(dispatcher.default()) {
         // Given
         val password = "mayTh3ForceBeWIthYou_"
-        val (arrangement, backupAndRestoreViewModel) = Arrangement()
+        val (_, backupAndRestoreViewModel) = Arrangement()
             .withValidPassword()
             .arrange()
 
@@ -202,7 +204,7 @@ class BackupAndRestoreViewModelTest {
     @Test
     fun givenACreatedBackup_whenSharingIt_thenTheStateIsResetButKeepsTheLastBackupDate() = runTest {
         // Given
-        val storedBackup = BackupAndRestoreState.CreatedBackup("backupFilePath".toPath(), "backupName.zip", 100L, true)
+        val storedBackup = BackupAndRestoreState.CreatedBackup("backupFilePath".toPath(), "backupName.zip", true)
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withPreviouslyCreatedBackup(storedBackup)
             .withUpdateLastBackupData()
@@ -235,7 +237,7 @@ class BackupAndRestoreViewModelTest {
     @Test
     fun givenACreatedBackup_whenSavingIt_thenTheStateIsResetButKeepsTheLastBackupDate() = runTest(dispatcher.default()) {
         // Given
-        val storedBackup = BackupAndRestoreState.CreatedBackup("backupFilePath".toPath(), "backupName.zip", 100L, true)
+        val storedBackup = BackupAndRestoreState.CreatedBackup("backupFilePath".toPath(), "backupName.zip", true)
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withPreviouslyCreatedBackup(storedBackup)
             .withUpdateLastBackupData()
@@ -500,15 +502,18 @@ class BackupAndRestoreViewModelTest {
             withGetLastBackupDateSeconds()
             every { Uri.parse("some-backup") } returns mockUri
             coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
-            coEvery { createBackupFile(any()) } returns CreateBackupResult.Success("".toPath(), 0L, "")
-            coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success.Encrypted
+            coEvery { createBackupFile(any()) } returns CreateBackupResult.Success("".toPath(), "")
+            coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success(BackupFileFormat.ANDROID, true)
         }
 
         @MockK
         lateinit var importBackup: RestoreBackupUseCase
 
         @MockK
-        lateinit var createBackupFile: CreateBackupUseCase
+        lateinit var importMpBackup: RestoreMPBackupUseCase
+
+        @MockK
+        lateinit var createBackupFile: CreateMPBackupUseCase
 
         @MockK
         private lateinit var verifyBackup: VerifyBackupUseCase
@@ -526,7 +531,8 @@ class BackupAndRestoreViewModelTest {
 
         private val viewModel = BackupAndRestoreViewModel(
             importBackup = importBackup,
-            createBackupFile = createBackupFile,
+            importMpBackup = importMpBackup,
+            createMpBackupFile = createBackupFile,
             verifyBackup = verifyBackup,
             kaliumFileSystem = fakeKaliumFileSystem,
             dispatcher = dispatcher,
@@ -537,9 +543,8 @@ class BackupAndRestoreViewModelTest {
 
         fun withSuccessfulCreation(password: String) = apply {
             val backupFilePath = "some-file-path".toPath()
-            val backupSize = 1000L
             val backupName = "some-backup.zip"
-            coEvery { createBackupFile(eq(password)) } returns CreateBackupResult.Success(backupFilePath, backupSize, backupName)
+            coEvery { createBackupFile(eq(password)) } returns CreateBackupResult.Success(backupFilePath, backupName)
         }
 
         fun withFailedCreation(password: String) = apply {
@@ -571,7 +576,10 @@ class BackupAndRestoreViewModelTest {
             }
 
             coEvery { verifyBackup(any()) } returns
-                    if (isEncrypted) VerifyBackupResult.Success.Encrypted else VerifyBackupResult.Success.NotEncrypted
+                    VerifyBackupResult.Success(
+                        format = BackupFileFormat.ANDROID,
+                        isEncrypted = isEncrypted
+                    )
             coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
         }
 
@@ -596,7 +604,10 @@ class BackupAndRestoreViewModelTest {
                 }
             }
 
-            coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success.NotEncrypted
+            coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success(
+                format = BackupFileFormat.ANDROID,
+                isEncrypted = false
+            )
             coEvery { importBackup(any(), any()) } returns error
         }
 

@@ -34,7 +34,7 @@ import androidx.compose.ui.res.stringResource
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WireButtonState
@@ -112,16 +112,7 @@ fun CreateFolderScreen(
 @MultipleThemePreviews
 @Composable
 fun PreviewCreateFolderScreen() {
-    val dummyNavigator = object : WireNavigator {
-        override fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean) {
-            TODO("Not yet implemented")
-        }
-
-        override fun navigateBack(onlyIfResumed: Boolean) {
-            TODO("Not yet implemented")
-        }
-    }
     WireTheme {
-        CreateFolderScreen(navigator = dummyNavigator)
+        CreateFolderScreen(navigator = PreviewNavigator)
     }
 }

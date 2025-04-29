@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
@@ -18,6 +17,5 @@
   -->
 
 <resources>
-    <integer name="welcome_carousel_item_time_ms">3000</integer>
-    <integer name="splashscreen_animation_ms">1000</integer>
+    <integer name="code_length">6</integer>
 </resources>

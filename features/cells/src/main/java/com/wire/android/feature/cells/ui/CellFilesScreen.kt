@@ -24,9 +24,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.model.CellFileUi
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 internal fun CellFilesScreen(
@@ -41,24 +44,53 @@ internal fun CellFilesScreen(
 //        isRefreshing = state.refreshing,
 //        onRefresh = { onRefresh() }
 //    ) {
-        LazyColumn(
-            modifier = Modifier
-                .background(color = colorsScheme().surface)
-                .fillMaxWidth(),
-        ) {
-            items(
-                items = files,
-                key = { it.uuid },
-            ) { file ->
-                CellListItem(
-                    modifier = Modifier
-                        .animateItem()
-                        .clickable { onFileClick(file) },
-                    file = file,
-                    onMenuClick = { onFileMenuClick(file) }
-                )
-                WireDivider(modifier = Modifier.fillMaxWidth())
-            }
+    LazyColumn(
+        modifier = Modifier
+            .background(color = colorsScheme().surface)
+            .fillMaxWidth(),
+    ) {
+        items(
+            items = files,
+            key = { it.uuid },
+        ) { file ->
+            CellListItem(
+                modifier = Modifier
+                    .animateItem()
+                    .clickable { onFileClick(file) },
+                file = file,
+                onMenuClick = { onFileMenuClick(file) }
+            )
+            WireDivider(modifier = Modifier.fillMaxWidth())
         }
+    }
 //    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewCellFilesScreen() {
+    WireTheme {
+        CellFilesScreen(
+            files = listOf(
+                CellFileUi(
+                    uuid = "uuid",
+                    fileName = "Image name",
+                    mimeType = "image/png",
+                    assetType = AttachmentFileType.IMAGE,
+                    assetSize = 1234L,
+                    localPath = "path/to/local/file",
+                ),
+                CellFileUi(
+                    uuid = "uuid2",
+                    fileName = "PDF name",
+                    mimeType = "application/pdf",
+                    assetType = AttachmentFileType.PDF,
+                    assetSize = 99234L,
+                    localPath = "path/to/local/file",
+                )
+            ),
+            onFileClick = {},
+            onFileMenuClick = {}
+        )
+    }
 }

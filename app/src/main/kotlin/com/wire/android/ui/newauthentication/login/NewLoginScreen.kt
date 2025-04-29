@@ -47,6 +47,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -99,6 +102,7 @@ fun NewLoginScreen(
     ssoUrlConfigHolder: SSOUrlConfigHolder,
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
+    val lifecycle = LocalLifecycleOwner.current
     val context = LocalContext.current
     val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
     val handleNewLoginAction = { newLoginAction: NewLoginAction ->
@@ -148,7 +152,7 @@ fun NewLoginScreen(
 
     LaunchedEffect(navArgs.ssoLoginResult) {
         if (navArgs.ssoLoginResult != null) {
-            viewModel.handleSSOResult(navArgs.ssoLoginResult, ssoUrlConfigHolder.get(), handleNewLoginAction)
+            viewModel.handleSSOResult(navArgs.ssoLoginResult, ssoUrlConfigHolder.get())
         }
     }
     (viewModel.state.flowState as? NewLoginFlowState.CustomConfigDialog)?.let { customServerDialogState ->
@@ -156,7 +160,7 @@ fun NewLoginScreen(
             serverLinks = customServerDialogState.serverLinks,
             onDismiss = viewModel::onDismissDialog,
             onConfirm = {
-                viewModel.onCustomServerDialogConfirm(customServerDialogState.serverLinks, handleNewLoginAction)
+                viewModel.onCustomServerDialogConfirm(customServerDialogState.serverLinks)
             }
         )
     }
@@ -168,11 +172,17 @@ fun NewLoginScreen(
         userIdentifierState = viewModel.userIdentifierTextState,
         serverConfig = viewModel.serverConfig,
         onNextClicked = {
-            viewModel.onLoginStarted(handleNewLoginAction)
+            viewModel.onLoginStarted()
         },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = navigator::navigateBack,
     )
+
+    LaunchedEffect(Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.actions.collect(handleNewLoginAction)
+        }
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

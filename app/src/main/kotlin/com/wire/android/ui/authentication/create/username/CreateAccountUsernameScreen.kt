@@ -27,6 +27,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -59,13 +60,13 @@ fun CreateAccountUsernameScreen(
     UsernameContent(
         textState = viewModel.textState,
         state = viewModel.state,
-        onContinuePressed = {
-            viewModel.onContinue {
-                navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
-            }
-        },
+        onContinuePressed = viewModel::onContinue,
         onErrorDismiss = viewModel::onErrorDismiss,
     )
+
+    LaunchedEffect(viewModel.state.success) {
+        if (viewModel.state.success) navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
+    }
 }
 
 @Composable

@@ -26,6 +26,7 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
+import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
@@ -44,6 +45,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoom
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -287,6 +289,9 @@ class EditGuestAccessViewModelTest {
         @MockK
         lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
 
+        @MockK
+        lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
+
         val editGuestAccessViewModel: EditGuestAccessViewModel by lazy {
             EditGuestAccessViewModel(
                 savedStateHandle = savedStateHandle,
@@ -300,7 +305,8 @@ class EditGuestAccessViewModelTest {
                 canCreatePasswordProtectedLinks = canCreatePasswordProtectedLinks,
                 dispatcher = dispatcherProvider,
                 syncConversationCode = syncConversationCodeUseCase,
-                getDefaultProtocol = getDefaultProtocolUseCase
+                getDefaultProtocol = getDefaultProtocolUseCase,
+                selfUser = observeSelfUserUseCase
             )
         }
 
@@ -319,6 +325,7 @@ class EditGuestAccessViewModelTest {
             coEvery { observeGuestRoomLink(any()) } returns flowOf()
             coEvery { observeGuestRoomLinkFeatureFlag() } returns flowOf()
             coEvery { canCreatePasswordProtectedLinks() } returns true
+            coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER)
             every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
         }
 

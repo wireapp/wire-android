@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,9 @@ class MaxLengthDigitsFilter(private val maxLength: Int) : InputTransformation {
 }
 
 @Stable
-fun InputTransformation.maxLengthDigits(maxLength: Int): InputTransformation = this.then(MaxLengthDigitsFilter(maxLength))
+fun InputTransformation.maxLengthDigits(maxLength: Int): InputTransformation = this.then(
+    MaxLengthDigitsFilter(maxLength)
+)
 
 class MaxLengthFilterWithCallback(private val maxLength: Int, private val onIncorrectChangesFound: () -> Unit) : InputTransformation {
     init {

@@ -30,11 +30,13 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -45,13 +47,14 @@ class InitialSyncViewModelTest {
     @Test
     fun `given sync is live, when observing initial sync state, then navigate home`() = runTest {
         // given
-        val (viewModel, arrangement) = Arrangement()
+        val (viewModel, _) = Arrangement()
             .withSyncState(SyncState.Live)
             .arrange()
-        // when
-        viewModel.waitUntilSyncIsCompleted(arrangement.onCompleted)
+
+        advanceUntilIdle()
+
         // then
-        verify(exactly = 1) { arrangement.onCompleted() }
+        assertTrue(viewModel.isSyncCompleted)
     }
 
     @Test
@@ -61,17 +64,17 @@ class InitialSyncViewModelTest {
             .withSyncState(SyncState.Waiting)
             .arrange()
         // when
-        viewModel.waitUntilSyncIsCompleted(arrangement.onCompleted)
         arrangement.withSyncState(SyncState.GatheringPendingEvents)
         arrangement.withSyncState(SyncState.SlowSync)
+
+        advanceUntilIdle()
+
         // then
-        verify(exactly = 0) { arrangement.onCompleted() }
+        assertFalse(viewModel.isSyncCompleted)
     }
 
     private class Arrangement {
 
-        @MockK(relaxed = true)
-        lateinit var onCompleted: () -> Unit
         @MockK
         lateinit var observeSyncState: ObserveSyncStateUseCase
         @MockK

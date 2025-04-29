@@ -36,7 +36,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -45,29 +44,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class TeamMigrationViewModelTest {
 
     @Test
-    fun `given dialog state, when showMigrationLeaveDialog is called, then update shouldShowMigrationLeaveDialog to true`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .arrange()
-
-            viewModel.showMigrationLeaveDialog()
-
-            assertEquals(true, viewModel.teamMigrationState.shouldShowMigrationLeaveDialog)
-        }
-
-    @Test
-    fun `given dialog state, when hideMigrationLeaveDialog is called, then update shouldShowMigrationLeaveDialog to false`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .arrange()
-
-            viewModel.hideMigrationLeaveDialog()
-
-            assertEquals(false, viewModel.teamMigrationState.shouldShowMigrationLeaveDialog)
-        }
-
-    @Test
-    fun `given the step of migration flow, when setCurrentStep is called, then update currentStep and send the event`() =
+    fun `given the step of migration flow, when setCurrentStep is called, then send the event`() =
         runTest {
             val step = 2
             val (arrangement, viewModel) = Arrangement()
@@ -80,7 +57,6 @@ class TeamMigrationViewModelTest {
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamName
                 )
             }
-            assertEquals(step, viewModel.teamMigrationState.currentStep)
         }
 
     @Test

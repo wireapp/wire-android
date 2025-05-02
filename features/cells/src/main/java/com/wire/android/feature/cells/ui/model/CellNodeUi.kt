@@ -78,7 +78,20 @@ internal fun Node.File.toUiModel(downloadProgress: Float?) = CellNodeUi.File(
     modifiedTime = formattedModifiedTime(),
 )
 
+
+internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
+    uuid = uuid,
+    name = name,
+    userName = userName,
+    conversationName = conversationName,
+    modifiedTime = formattedModifiedTime(),
+    contents = listOf()
+)
+
 private fun Node.File.formattedModifiedTime() = lastModified?.let {
+    Instant.fromEpochMilliseconds(it).cellFileDateTime()
+}
+private fun Node.Folder.formattedModifiedTime() = lastModified?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }
 

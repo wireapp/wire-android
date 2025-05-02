@@ -31,6 +31,7 @@ import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
@@ -110,7 +111,12 @@ class CellViewModel @Inject constructor(
                             CellViewState.Empty(isSearchResult = searchQuery.isNotEmpty())
                         } else {
                             CellViewState.Completed(
-                                nodes = nodes.map { it.toUiModel(uploadProgress[it.uuid]) },
+                                nodes = nodes.map {
+                                    when(it) {
+                                        is Node.Folder -> it.toUiModel()
+                                        is Node.File -> it.toUiModel(uploadProgress[it.uuid])
+                                    }
+                                },
                                 refreshing = false,
                             )
                         }
@@ -150,6 +156,8 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
         }
     }
+
+    internal fun currentNodeUuid(): String? = navArgs.conversationId
 
     private fun onItemClick(cellNode: CellNodeUi) {
         if (cellNode is CellNodeUi.File) {

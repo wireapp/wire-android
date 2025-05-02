@@ -74,7 +74,7 @@ fun ConversationFilesScreen(
             sheetState.hide()
         },
         onCreateFolder = {
-            navigator.navigate(NavigationCommand(CreateFolderScreenDestination()))
+            navigator.navigate(NavigationCommand(CreateFolderScreenDestination(viewModel.currentNodeUuid())))
         }
     )
     WireScaffold(

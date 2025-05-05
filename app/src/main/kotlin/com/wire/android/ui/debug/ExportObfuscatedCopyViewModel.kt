@@ -83,7 +83,6 @@ class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @Inject
                     latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
                         result.backupFilePath,
                         result.backupFileName,
-                        result.backupFileSize,
                         false
                     )
                 }

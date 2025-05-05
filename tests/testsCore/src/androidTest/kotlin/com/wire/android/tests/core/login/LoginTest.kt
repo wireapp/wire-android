@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.tests.core.login.pages.LoginPage
 import com.wire.android.tests.support.UiAutomatorSetup
+import com.wire.android.tests.support.suite.RC
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,6 +31,7 @@ This test works on the following conditions:
 1) The dev/staging app is installed on the device/emulator.
 */
 @RunWith(AndroidJUnit4::class)
+@RC
 class LoginTest {
     private lateinit var device: UiDevice
 

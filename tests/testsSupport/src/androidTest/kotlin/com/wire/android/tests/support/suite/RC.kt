@@ -17,6 +17,9 @@
  */
 package com.wire.android.tests.support.suite
 
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.TYPE)
+/**
+ * Suite for running scoped tests for release candidate.
+ */
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RC

@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
 import com.wire.kalium.logic.feature.mlsmigration.MLSMigrationManager
 import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -46,7 +47,7 @@ class AppSyncViewModel @Inject constructor(
     private val mLSMigrationManager: MLSMigrationManager,
     private val keyingMaterialsManager: KeyingMaterialsManager,
     private val mLSClientManager: MLSClientManager,
-    ) : ViewModel() {
+) : ViewModel() {
 
     private val minIntervalBetweenPulls: Duration = MIN_INTERVAL_BETWEEN_PULLS
 
@@ -60,7 +61,7 @@ class AppSyncViewModel @Inject constructor(
         if (isPullTooRecent(now)) return
 
         lastPullInstant = now
-        syncDataJob = viewModelScope.launch {
+        syncDataJob = viewModelScope.launch(Dispatchers.IO) {
             runSyncTasks()
         }
     }
@@ -79,13 +80,13 @@ class AppSyncViewModel @Inject constructor(
     private suspend fun runSyncTasks() {
         try {
             listOf(
-                viewModelScope.launch { syncCertificateRevocationListUseCase() },
-                viewModelScope.launch { featureFlagsSyncWorker.execute() },
-                viewModelScope.launch { observeCertificateRevocationForSelfClient.invoke() },
-                viewModelScope.launch { updateApiVersions() },
-                viewModelScope.launch { mLSClientManager() },
-                viewModelScope.launch { mLSMigrationManager() },
-                viewModelScope.launch { keyingMaterialsManager() },
+                viewModelScope.launch(Dispatchers.IO) { syncCertificateRevocationListUseCase() },
+                viewModelScope.launch(Dispatchers.IO) { featureFlagsSyncWorker.execute() },
+                viewModelScope.launch(Dispatchers.IO) { observeCertificateRevocationForSelfClient.invoke() },
+                viewModelScope.launch(Dispatchers.IO) { updateApiVersions() },
+                viewModelScope.launch(Dispatchers.IO) { mLSClientManager() },
+                viewModelScope.launch(Dispatchers.IO) { mLSMigrationManager() },
+                viewModelScope.launch(Dispatchers.IO) { keyingMaterialsManager() },
             ).joinAll()
         } catch (e: Exception) {
             appLogger.e("Error while syncing app config", e)

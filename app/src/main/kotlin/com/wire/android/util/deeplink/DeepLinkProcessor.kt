@@ -145,22 +145,32 @@ class DeepLinkProcessor @Inject constructor(
         }
     }
 
+    /**
+     * Format of deeplink to parse: wire://user/domain/user-id
+     */
     private fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean, accountInfo: AccountInfo.Valid): DeepLinkResult {
-        // todo. handle with domain case, before lastPathSegment. format of deeplink wire://user/domain/user-id
-        return uri.lastPathSegment?.toDefaultQualifiedId(accountInfo.userId.domain)?.let {
-            DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
-        } ?: return DeepLinkResult.Unknown
+        val segments = uri.pathSegments
+        segments.takeLast(2).let { domainAndUserId ->
+            return if (domainAndUserId.size == 2) {
+                val userId = domainAndUserId[1]
+                val domain = domainAndUserId[0]
+                userId.toDefaultQualifiedId(domain).let {
+                    DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
+                }
+            } else {
+                uri.lastPathSegment?.toDefaultQualifiedId(accountInfo.userId.domain)?.let {
+                    DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
+                } ?: DeepLinkResult.Unknown
+            }
+        }
     }
 
     /**
-     * Converts the string to a [QualifiedID] with the current user domain or default, to preserve retro compatibility.
-     * When implementing Milestone 2 this should be replaced with a new qualifiedIdMapper, implementing wire://user/domain/user-id
-     *
-     * - new mapper should follow "domain/user-id" parsing.
+     * Converts the string to a [QualifiedID] with the current user domain or default.
+     * IMPORTANT! This also handles the special case where iOS is sending the ID in uppercase.
      */
     private fun String.toDefaultQualifiedId(currentUserDomain: String?): QualifiedID {
         val domain = currentUserDomain ?: "wire.com"
-        // TODO. This lowercase is important, since web/iOS is sending/handling this as uppercase!!
         return QualifiedID(this.lowercase(), domain)
     }
 

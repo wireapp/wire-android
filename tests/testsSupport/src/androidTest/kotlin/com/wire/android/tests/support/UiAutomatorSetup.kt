@@ -93,5 +93,4 @@ object UiAutomatorSetup {
         val resolveInfo = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
         return resolveInfo!!.activityInfo.packageName
     }
-
 }

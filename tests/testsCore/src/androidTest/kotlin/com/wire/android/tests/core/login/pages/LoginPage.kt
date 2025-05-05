@@ -45,5 +45,4 @@ data class LoginPage(private val device: UiDevice) {
         assertTrue("LoginButton not found or not enabled", loginButton.isClickable)
         return this
     }
-
 }

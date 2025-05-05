@@ -17,3 +17,4 @@
  */
 package com.wire.android.tests.core.registration
 
+// TODO: Add tests for registration

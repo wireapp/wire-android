@@ -141,6 +141,7 @@ import com.wire.kalium.logic.data.mls.CipherSuite
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
+@Suppress("CyclomaticComplexMethod")
 @RootNavGraph
 @WireDestination(
     navArgsDelegate = GroupConversationDetailsNavArgs::class,
@@ -174,7 +175,7 @@ fun GroupConversationDetailsScreen(
     }
 
     val onConversationMediaClick: () -> Unit = {
-        if (groupOptions.isWireCellEnabled) {
+        if (groupOptions.isWireCellEnabled && groupOptions.isWireCellFeatureEnabled) {
             navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(viewModel.conversationId.toString())))
         } else {
             navigator.navigate(NavigationCommand(ConversationMediaScreenDestination(viewModel.conversationId)))

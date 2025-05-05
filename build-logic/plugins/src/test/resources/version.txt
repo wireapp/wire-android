@@ -1,0 +1,5 @@
+VersionCode: 100018802
+VersionName: 4.8.2-18802
+Revision: e53642019
+Buildtime: 2024-08-21 19:32:06
+Application-name: com.wire

@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.common
+package com.wire.android.ui.common.button
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add

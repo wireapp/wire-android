@@ -19,7 +19,6 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -27,7 +26,10 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun CreateGuestLinkBottomSheet(
@@ -74,22 +76,26 @@ private fun CreateInviteLinkSheetItem(
     )
 }
 
-@Preview
+@MultipleThemePreviews
 @Composable
-fun PreviewCreateGuestLinkBottomSheet() {
-    CreateGuestLinkBottomSheet(
-        sheetState = rememberWireModalSheetState(),
-        onItemClick = {},
-        isPasswordInviteLinksAllowed = true,
-    )
+private fun PreviewCreateGuestLinkBottomSheet() {
+    WireTheme {
+        CreateGuestLinkBottomSheet(
+            sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = Unit)),
+            onItemClick = {},
+            isPasswordInviteLinksAllowed = true,
+        )
+    }
 }
 
-@Preview
+@MultipleThemePreviews
 @Composable
-fun PreviewCreateGuestLinkBottomSheetDisabled() {
-    CreateGuestLinkBottomSheet(
-        sheetState = rememberWireModalSheetState(),
-        onItemClick = {},
-        isPasswordInviteLinksAllowed = false,
-    )
+private fun PreviewCreateGuestLinkBottomSheetDisabled() {
+    WireTheme {
+        CreateGuestLinkBottomSheet(
+            sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = Unit)),
+            onItemClick = {},
+            isPasswordInviteLinksAllowed = false,
+        )
+    }
 }

@@ -42,9 +42,14 @@ dependencies {
 
     implementation(libs.ktx.dateTime)
 
+    implementation(libs.androidx.paging3)
+    implementation(libs.androidx.paging3Compose)
+
     testImplementation(libs.junit5.core)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockk.core)
+    testImplementation(libs.turbine)
+    testImplementation(libs.androidx.paging.testing)
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)

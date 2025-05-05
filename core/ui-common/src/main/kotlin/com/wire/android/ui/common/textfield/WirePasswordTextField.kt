@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,13 +58,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.PreviewMultipleThemes
+import java.util.Locale
 
 @Composable
 fun WirePasswordTextField(
@@ -95,7 +96,7 @@ fun WirePasswordTextField(
     WireTextFieldLayout(
         shouldShowPlaceholder = textState.text.isEmpty(),
         placeholderText = placeholderText,
-        labelText = labelText,
+        labelText = labelText?.uppercase(Locale.getDefault()),
         labelMandatoryIcon = labelMandatoryIcon,
         descriptionText = descriptionText,
         semanticDescription = semanticDescription,

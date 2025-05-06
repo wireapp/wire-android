@@ -315,7 +315,7 @@ of these interfaces are also created to make it possible to generate composable 
             <div class="panel panel-default">
                 <div class="panel-heading adr-accepted">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" href="#collapse6">5. Simplified enterprise login</a>
+                        <a data-toggle="collapse" href="#collapse6">6. Simplified enterprise login</a>
 
                         
                         <i class="adr-icon fas fa-fw fa-check"></i>
@@ -324,7 +324,7 @@ of these interfaces are also created to make it possible to generate composable 
                     </h4>
                 </div>
                 <div id="collapse6" class="panel-collapse collapse">
-                    <div class="panel-body"><h1>5. Simplified enterprise login</h1>
+                    <div class="panel-body"><h1>6. Simplified enterprise login</h1>
 <p>Date: 2025-01-23</p>
 <h2>Status</h2>
 <p>Accepted</p>
@@ -366,6 +366,47 @@ flowchart LR
 <li>To select the correct flow, the app will need to load the BE context, based on the API version, and then decide which flow to use.</li>
 <li>The navigation, entry point will need to be dynamic, based on the flow selected.</li>
 </ul>
+</div>
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse7">7. Introducing UIAutomator for integrated testing</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse7" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>7. Introducing UIAutomator for integrated testing</h1>
+<p>Date: 2025-05-06</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>QA wants to migrate from Appium to a new framework to run tests and being closed to the source code that we are testing.
+The tests nowadays are running on an emulator with an apk. After meeting the QA we evaluated options, Espresso and UIAutomator.</p>
+<h2>Decision</h2>
+<p>UIAutomator seems to be the best option for us, as it is a framework that is already in the Android SDK and it is more flexible than Espresso, this last one is more limited to the app under test because of mocks and stubs.
+We will create a new module(s) for testing purposes, and we will use the UIAutomator framework to run the tests, common logic can be extracted and shared between tests modules in case we want to parallelize the tests in the future.</p>
+<h2>Consequences</h2>
+<p>The new structure of the project will be as follows:</p>
+<pre><code>wire-android
+├── app
+│   ├── ...
+├── core
+│   ├── ...
+├── features
+│   ├── ...
+├── tests
+│   ├── ...
+│   ├── testsCore
+│   ├── testsSupport
+└── build.gradle.kts
+</code></pre>
 </div>
                 </div>
             </div>

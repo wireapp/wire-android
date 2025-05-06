@@ -30,7 +30,11 @@ object UserLinkQRMapper {
         return when (segments.size) {
             1 -> {
                 val userId = qualifiedIdMapper.fromStringToQualifiedID(segments.last())
-                val sanitizedId = userId.value.toDefaultQualifiedId(userDomain = userId.domain.takeIf { it.isNotBlank() } ?: defaultDomain)
+                val sanitizedId = userId.value.toDefaultQualifiedId(
+                    userDomain = userId.domain.takeIf {
+                        it.isNotBlank()
+                    } ?: defaultDomain
+                )
                 UserLinkQRResult.Success(sanitizedId)
             }
 

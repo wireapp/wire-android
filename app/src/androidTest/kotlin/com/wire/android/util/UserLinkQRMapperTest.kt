@@ -65,5 +65,4 @@ class UserLinkQRMapperTest {
 
         assertEquals(UserLinkQRMapper.UserLinkQRResult.Success(QualifiedID("user-id", "domain")), result)
     }
-
 }

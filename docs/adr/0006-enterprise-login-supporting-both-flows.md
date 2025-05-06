@@ -1,4 +1,4 @@
-# 5. Simplified enterprise login
+# 6. Simplified enterprise login
 
 Date: 2025-01-23
 

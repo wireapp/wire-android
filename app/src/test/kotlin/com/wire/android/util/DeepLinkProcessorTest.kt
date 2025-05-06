@@ -305,7 +305,7 @@ class DeepLinkProcessorTest {
         val conversationResult = deepLinkProcessor(arrangement.uri)
         assertInstanceOf(DeepLinkResult.OpenOtherUserProfile::class.java, conversationResult)
         assertEquals(
-            DeepLinkResult.OpenOtherUserProfile(UserId("other_user", "domain"), false),
+            DeepLinkResult.OpenOtherUserProfile(UserId("other_user", "other_domain"), false),
             conversationResult
         )
     }
@@ -387,7 +387,7 @@ class DeepLinkProcessorTest {
 
         fun withOtherUserProfileQRDeepLink(userIdToOpen: UserId = OTHER_USER_ID, userId: UserId = CURRENT_USER_ID) = apply {
             coEvery { uri.host } returns DeepLinkProcessor.OPEN_USER_PROFILE_DEEPLINK_HOST
-            coEvery { uri.lastPathSegment } returns userIdToOpen.value
+            coEvery { uri.pathSegments } returns listOf(userIdToOpen.domain, userIdToOpen.value)
             coEvery { uri.getQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM) } returns userId.toString()
         }
 

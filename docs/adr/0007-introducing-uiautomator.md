@@ -1,4 +1,4 @@
-# 5. Simplified enterprise login
+# 7. Introducing UIAutomator for integrated testing
 
 Date: 2025-05-06
 

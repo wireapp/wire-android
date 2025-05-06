@@ -40,7 +40,7 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
-import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
+import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConfiguration
 import com.wire.android.ui.home.conversations.mock.mockAssetAudioMessage
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -134,7 +134,7 @@ private fun AssetMessagesListContent(
                                 onSelfDeletingMessageRead = { },
                                 shouldDisplayMessageStatus = false,
                                 shouldDisplayFooter = false,
-                                swipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
+                                swipeableMessageConfiguration = SwipeableMessageConfiguration.NotSwipeable,
                                 failureInteractionAvailable = false,
                             )
                         }

@@ -150,18 +150,22 @@ class DeepLinkProcessor @Inject constructor(
      */
     private fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean, accountInfo: AccountInfo.Valid): DeepLinkResult {
         val segments = uri.pathSegments
-        segments.takeLast(2).let { domainAndUserId ->
-            return if (domainAndUserId.size == 2) {
-                val userId = domainAndUserId[1]
-                val domain = domainAndUserId[0]
-                userId.toDefaultQualifiedId(domain).let {
-                    DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
-                }
-            } else {
+        return when (segments.size) {
+            1 -> {
                 uri.lastPathSegment?.toDefaultQualifiedId(accountInfo.userId.domain)?.let {
                     DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
                 } ?: DeepLinkResult.Unknown
             }
+
+            2 -> {
+                val domain = segments.first()
+                val userId = segments.last()
+                userId.toDefaultQualifiedId(domain).let {
+                    DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
+                }
+            }
+
+            else -> DeepLinkResult.Unknown
         }
     }
 
@@ -169,9 +173,8 @@ class DeepLinkProcessor @Inject constructor(
      * Converts the string to a [QualifiedID] with the current user domain or default.
      * IMPORTANT! This also handles the special case where iOS is sending the ID in uppercase.
      */
-    private fun String.toDefaultQualifiedId(currentUserDomain: String?): QualifiedID {
-        val domain = currentUserDomain ?: "wire.com"
-        return QualifiedID(this.lowercase(), domain)
+    private fun String.toDefaultQualifiedId(currentUserDomain: String): QualifiedID {
+        return QualifiedID(this.lowercase(), currentUserDomain)
     }
 
     private suspend fun switchAccountIfNeeded(uri: Uri, accountInfo: AccountInfo.Valid): SwitchAccountStatus =

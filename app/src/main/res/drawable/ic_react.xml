@@ -1,0 +1,40 @@
+<!--
+  ~ Wire
+  ~ Copyright (C) 2025 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+  <path
+      android:pathData="M14.175,5.965C14.386,6.605 14.5,7.289 14.5,8C14.5,11.59 11.59,14.5 8,14.5C4.41,14.5 1.5,11.59 1.5,8C1.5,4.41 4.41,1.5 8,1.5C8.711,1.5 9.395,1.614 10.035,1.825C10.106,1.313 10.283,0.834 10.543,0.413C9.744,0.145 8.889,0 8,0C3.582,0 0,3.582 0,8C0,12.418 3.582,16 8,16C12.418,16 16,12.418 16,8C16,7.111 15.855,6.256 15.587,5.457C15.166,5.717 14.687,5.894 14.175,5.965Z"
+      android:fillColor="#000000"/>
+  <path
+      android:pathData="M8,13C5.581,13 3.563,11.282 3.1,9H12.9C12.437,11.282 10.419,13 8,13ZM11.474,10C8.788,10 4.542,10.014 4.542,10.014C4.759,10.386 5.034,10.718 5.354,11H10.646C11.234,10.482 11.474,10 11.474,10Z"
+      android:fillColor="#000000"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M10,7C10.552,7 11,6.552 11,6C11,5.448 10.552,5 10,5C9.448,5 9,5.448 9,6C9,6.552 9.448,7 10,7Z"
+      android:fillColor="#000000"/>
+  <path
+      android:pathData="M7,6C7,6.552 6.552,7 6,7C5.448,7 5,6.552 5,6C5,5.448 5.448,5 6,5C6.552,5 7,5.448 7,6Z"
+      android:fillColor="#000000"/>
+  <path
+      android:pathData="M12.833,0.083H14.167V1.833H15.917V3.167H14.167V4.917H12.833V3.167H11.083V1.833H12.833V0.083Z"
+      android:fillColor="#000000"
+      android:fillType="evenOdd"/>
+</vector>

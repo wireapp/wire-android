@@ -111,7 +111,7 @@ class SelfQRCodeViewModel @Inject constructor(
 
     private fun generateSelfUserUrls(accountsUrl: String): SelfQRCodeState =
         selfQRCodeState.copy(
-            userAccountProfileLink = String.format(BASE_USER_PROFILE_URL, accountsUrl, selfUserId.value),
+            userAccountProfileLink = String.format(BASE_USER_PROFILE_URL, accountsUrl, selfUserId),
             userProfileLink = String.format(DIRECT_BASE_USER_PROFILE_URL, selfUserId.domain, selfUserId.value)
         )
 

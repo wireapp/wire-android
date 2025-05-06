@@ -8,6 +8,7 @@ import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,26 +42,60 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.UIMessage
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
 @Stable
-sealed interface SwipableMessageConfiguration {
-    data object NotSwipable : SwipableMessageConfiguration
-    class SwipableToReply(val onSwipedToReply: (uiMessage: UIMessage.Regular) -> Unit) : SwipableMessageConfiguration
+sealed interface SwipeableMessageConfiguration {
+    data object NotSwipeable : SwipeableMessageConfiguration
+    class Swipeable(
+        val onSwipedRight: (() -> Unit)? = null,
+        val onSwipedLeft: (() -> Unit)? = null,
+    ) : SwipeableMessageConfiguration
 }
 
 enum class SwipeAnchor {
     CENTERED,
-    START_TO_END
+    START_TO_END,
+    END_TO_START,
 }
 
+data class SwipeAction(
+    val icon: Int,
+    val action: () -> Unit,
+)
+
+@Composable
+internal fun SwipeableMessageBox(
+    configuration: SwipeableMessageConfiguration.Swipeable,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    SwipeableBox(
+        modifier = modifier,
+        onSwipeRight = configuration.onSwipedRight?.let {
+            SwipeAction(
+                icon = R.drawable.ic_reply,
+                action = it,
+            )
+        },
+        onSwipeLeft = configuration.onSwipedLeft?.let {
+            SwipeAction(
+                icon = R.drawable.ic_react,
+                action = it,
+            )
+        },
+        content = content,
+    )
+}
+
+@Suppress("CyclomaticComplexMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun SwipableToReplyBox(
+private fun SwipeableBox(
     modifier: Modifier = Modifier,
-    onSwipedToReply: () -> Unit = {},
+    onSwipeRight: SwipeAction? = null,
+    onSwipeLeft: SwipeAction? = null,
     content: @Composable () -> Unit
 ) {
     val density = LocalDensity.current
@@ -86,55 +122,83 @@ internal fun SwipableToReplyBox(
                 velocityThreshold = { screenWidth },
                 snapAnimationSpec = tween(),
                 decayAnimationSpec = splineBasedDecay(density),
-                confirmValueChange = { changedValue ->
-                    if (changedValue == SwipeAnchor.START_TO_END) {
-                        // Attempt to finish dismiss, notify reply intention
-                        onSwipedToReply()
-                    }
-                    if (changedValue == SwipeAnchor.CENTERED) {
-                        // Reset the haptic feedback when drag is stopped
-                        didVibrateOnCurrentDrag = false
-                    }
-                    // Reject state change, only allow returning back to rest position
-                    changedValue == SwipeAnchor.CENTERED
-                },
                 anchors = DraggableAnchors {
+
                     SwipeAnchor.CENTERED at 0f
-                    SwipeAnchor.START_TO_END at screenWidth
+
+                    if (onSwipeRight != null) {
+                        SwipeAnchor.START_TO_END at dragWidth
+                    }
+
+                    if (onSwipeLeft != null) {
+                        SwipeAnchor.END_TO_START at -dragWidth
+                    }
                 }
             )
         }
+
+        LaunchedEffect(dragState.settledValue) {
+            when (dragState.settledValue) {
+                SwipeAnchor.START_TO_END -> {
+                    onSwipeRight?.action?.invoke()
+                    dragState.animateTo(SwipeAnchor.CENTERED)
+                }
+
+                SwipeAnchor.END_TO_START -> {
+                    onSwipeLeft?.action?.invoke()
+                    dragState.animateTo(SwipeAnchor.CENTERED)
+                }
+
+                SwipeAnchor.CENTERED -> {}
+            }
+            didVibrateOnCurrentDrag = false
+        }
+
         val primaryColor = colorsScheme().primary
 
         Box(
             modifier = modifier.fillMaxSize(),
         ) {
+
+            val dragOffset = dragState.requireOffset()
+
             // Drag indication
             Row(
                 modifier = Modifier
                     .matchParentSize()
                     .drawBehind {
-                        // TODO(RTL): Might need adjusting once RTL is supported
                         drawRect(
                             color = primaryColor,
-                            topLeft = Offset(0f, 0f),
-                            size = Size(dragState.requireOffset().absoluteValue, size.height),
+                            topLeft = if (dragOffset >= 0f) {
+                                Offset(0f, 0f)
+                            } else {
+                                Offset(size.width - dragOffset.absoluteValue, 0f)
+                            },
+                            size = Size(dragOffset.absoluteValue, size.height),
                         )
                     },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                if (dragState.offset > 0f) {
-                    val dragProgress = dragState.offset / dragWidth
-                    val adjustedProgress = min(1f, dragProgress)
-                    val progress = FastOutLinearInEasing.transform(adjustedProgress)
-                    // Got to the end, user can release to perform action, so we vibrate to show it
-                    if (progress == 1f && !didVibrateOnCurrentDrag) {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        didVibrateOnCurrentDrag = true
-                    }
 
-                    ReplySwipeIcon(dragWidth, density, progress)
+                val dragProgress = dragState.offset.absoluteValue / dragWidth
+                val adjustedProgress = min(1f, dragProgress)
+                val progress = FastOutLinearInEasing.transform(adjustedProgress)
+
+                // Got to the end, user can release to perform action, so we vibrate to show it
+                if (progress == 1f && !didVibrateOnCurrentDrag) {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    didVibrateOnCurrentDrag = true
+                }
+
+                if (dragState.offset > 0f) {
+                    onSwipeRight?.let { action ->
+                        SwipeActionIcon(action.icon, screenWidth, dragWidth, density, progress)
+                    }
+                } else if (dragState.offset < 0f) {
+                    onSwipeLeft?.let {
+                        SwipeActionIcon(it.icon, screenWidth, dragWidth, density, progress, false)
+                    }
                 }
             }
             // Message content, which is draggable
@@ -154,20 +218,37 @@ internal fun SwipableToReplyBox(
 }
 
 @Composable
-private fun ReplySwipeIcon(dragWidth: Float, density: Density, progress: Float) {
+private fun SwipeActionIcon(
+    resourceId: Int,
+    screenWidth: Float,
+    dragWidth: Float,
+    density: Density,
+    progress: Float,
+    swipeRight: Boolean = true
+) {
     val midPointBetweenStartAndGestureEnd = dragWidth / 2
     val iconSize = dimensions().fabIconSize
     val targetIconAnchorPosition = midPointBetweenStartAndGestureEnd - with(density) { iconSize.toPx() / 2 }
     val xOffset = with(density) {
         val totalTravelDistance = iconSize.toPx() + targetIconAnchorPosition
-        -iconSize.toPx() + (totalTravelDistance * progress)
+        if (swipeRight) {
+            (totalTravelDistance * progress) - iconSize.toPx()
+        } else {
+            (totalTravelDistance * progress) - iconSize.toPx() / 2
+        }
     }
     Icon(
-        painter = painterResource(id = R.drawable.ic_reply),
+        painter = painterResource(id = resourceId),
         contentDescription = "",
         modifier = Modifier
             .size(iconSize)
-            .offset { IntOffset(xOffset.toInt(), 0) },
+            .offset {
+                if (swipeRight) {
+                    IntOffset(xOffset.toInt(), 0)
+                } else {
+                    IntOffset(screenWidth.toInt() - xOffset.toInt(), 0)
+                }
+            },
         tint = colorsScheme().onPrimary
     )
 }

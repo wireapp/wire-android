@@ -63,5 +63,9 @@ gradlePlugin {
             id = libs.plugins.wire.versionizer.get().pluginId
             implementationClass = "AppVersionPlugin"
         }
+        register("androidTestLibraryConventionPlugin") {
+            id = libs.plugins.wire.android.test.library.get().pluginId
+            implementationClass = "AndroidTestLibraryConventionPlugin"
+        }
     }
 }

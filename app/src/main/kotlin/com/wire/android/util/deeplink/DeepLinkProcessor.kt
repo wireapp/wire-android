@@ -152,9 +152,9 @@ class DeepLinkProcessor @Inject constructor(
         val segments = uri.pathSegments
         return when (segments.size) {
             1 -> {
-                uri.lastPathSegment?.toDefaultQualifiedId(accountInfo.userId.domain)?.let {
+                segments.first().toDefaultQualifiedId(accountInfo.userId.domain).let {
                     DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
-                } ?: DeepLinkResult.Unknown
+                }
             }
 
             2 -> {

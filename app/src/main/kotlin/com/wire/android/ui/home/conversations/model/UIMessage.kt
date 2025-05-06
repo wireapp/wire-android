@@ -103,11 +103,22 @@ sealed interface UIMessage {
             get() = isReplyableContent &&
                     isTheMessageAvailableToOtherUsers &&
                     !isDeleted &&
-                    header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable
+                    header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable &&
+                    !isMultipart
+
+        val isReactionAllowed: Boolean
+            get() = !isDeleted &&
+                    !isPending &&
+                    messageContent !is UIMessageContent.Composite &&
+                    header.messageStatus.expirationStatus !is ExpirationStatus.Expirable
+
+        val isSwipeable: Boolean
+            get() = isReplyable || isReactionAllowed
 
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
 
         val isLocation: Boolean = messageContent is UIMessageContent.Location
+        val isMultipart: Boolean = messageContent is UIMessageContent.Multipart
     }
 
     @Serializable

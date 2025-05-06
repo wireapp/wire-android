@@ -280,7 +280,8 @@ fun PreviewSelfQRCodeContent() {
             SelfQRCodeState(
                 userId = UserId("userId", "wire.com"),
                 handle = "userid",
-                userProfileLink = "https://account.wire.com/user-profile/?id=aaaaaaa-222-3333-4444-55555555"
+                userProfileLink = "wire://user/wire.com/aaaaaaa-222-3333-4444-55555555",
+                userAccountProfileLink = "https://account.wire.com/user-profile/?id=aaaaaaa-222-3333-4444-55555555@wire.com"
             ),
             { "".toUri() },
             { }

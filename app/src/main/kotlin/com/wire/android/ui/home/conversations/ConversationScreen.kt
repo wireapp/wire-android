@@ -129,6 +129,7 @@ import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.destinations.MessageDetailsScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
@@ -150,7 +151,7 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewS
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
-import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
+import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConfiguration
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -1088,6 +1089,8 @@ private fun ConversationScreenContent(
         LazyListState(unreadEventCount)
     }
 
+    var showEmojiPickerForMessage by remember { mutableStateOf<String?>(null) }
+
     MessageComposer(
         conversationId = conversationId,
         bottomSheetVisible = bottomSheetVisible,
@@ -1115,6 +1118,9 @@ private fun ConversationScreenContent(
                 ),
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                 onSwipedToReply = onSwipedToReply,
+                onSwipedToReact = { message ->
+                    showEmojiPickerForMessage = message.header.messageId
+                },
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
@@ -1136,6 +1142,19 @@ private fun ConversationScreenContent(
         onAttachmentPicked = onAttachmentPicked,
         onAudioRecorded = onAudioRecorded,
     )
+
+    showEmojiPickerForMessage?.let { messageId ->
+        EmojiPickerBottomSheet(
+            isVisible = true,
+            onEmojiSelected = { emoji ->
+                onReactionClicked(messageId, emoji)
+                showEmojiPickerForMessage = null
+            },
+            onDismiss = {
+                showEmojiPickerForMessage = null
+            },
+        )
+    }
 }
 
 @Composable
@@ -1182,6 +1201,7 @@ fun MessageList(
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onUpdateConversationReadDate: (String) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
+    onSwipedToReact: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
     selectedMessageId: String?,
@@ -1281,9 +1301,15 @@ fun MessageList(
                             }
                         }
                     }
-                    val swipableConfiguration = remember(message) {
-                        SwipableMessageConfiguration.SwipableToReply {
-                            onSwipedToReply(it)
+
+                    val swipeableConfiguration = remember(message) {
+                        if (message is UIMessage.Regular && message.isSwipeable) {
+                            SwipeableMessageConfiguration.Swipeable(
+                                onSwipedRight = { onSwipedToReply(message) }.takeIf { message.isReplyable },
+                                onSwipedLeft = { onSwipedToReact(message) }.takeIf { message.isReactionAllowed },
+                            )
+                        } else {
+                            SwipeableMessageConfiguration.NotSwipeable
                         }
                     }
 
@@ -1294,7 +1320,7 @@ fun MessageList(
                         useSmallBottomPadding = useSmallBottomPadding,
                         assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                         clickActions = clickActions,
-                        swipableMessageConfiguration = swipableConfiguration,
+                        swipeableMessageConfiguration = swipeableConfiguration,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
                         failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED

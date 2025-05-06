@@ -28,9 +28,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationFo
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
 import com.wire.kalium.logic.feature.mlsmigration.MLSMigrationManager
 import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
-import com.wire.kalium.util.KaliumDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch

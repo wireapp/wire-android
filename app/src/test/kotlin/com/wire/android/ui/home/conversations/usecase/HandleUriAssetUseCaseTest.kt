@@ -41,6 +41,31 @@ import org.junit.jupiter.api.extension.ExtendWith
 class HandleUriAssetUseCaseTest {
 
     @Test
+    fun `given an invalid url schema, when invoked, then result should not succeed`() =
+        runTest {
+            // Given
+            val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val mockedAttachment = AssetBundle(
+                "key",
+                "image/jpeg",
+                "some-data-path".toPath(),
+                limit - 1L,
+                "mocked_image.jpeg",
+                AttachmentType.IMAGE
+            )
+            val (_, useCase) = Arrangement()
+                .withGetAssetSizeLimitUseCase(true, limit)
+                .withGetAssetBundleFromUri(mockedAttachment)
+                .arrange()
+
+            // When
+            val result = useCase.invoke("file://mocked_image.jpeg".toUri(), false)
+
+            // Then
+            assert(result is HandleUriAssetUseCase.Result.Failure)
+        }
+
+    @Test
     fun `given a user picks an image asset less than limit, when invoked, then result should succeed`() =
         runTest {
             // Given

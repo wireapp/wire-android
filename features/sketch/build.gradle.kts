@@ -4,6 +4,7 @@ plugins {
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.compose.compiler)
 }
 
 dependencies {

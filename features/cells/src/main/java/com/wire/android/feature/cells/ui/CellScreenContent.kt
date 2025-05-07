@@ -59,6 +59,7 @@ internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
     viewState: CellViewState,
     sendIntent: (CellViewIntent) -> Unit,
+    onFolderClick: (CellNodeUi.Folder) -> Unit,
     downloadFileState: StateFlow<CellNodeUi.File?>,
     fileMenuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (String, String, String?) -> Unit,
@@ -86,7 +87,11 @@ internal fun CellScreenContent(
             CellFilesScreen(
                 cellNodes = viewState.nodes,
                 onItemClick = {
-                    sendIntent(CellViewIntent.OnItemClick(it))
+                    when (it) {
+                        is CellNodeUi.File -> sendIntent(CellViewIntent.OnFileClick(it))
+                        is CellNodeUi.Folder -> onFolderClick(it)
+                    }
+//                    sendIntent(CellViewIntent.OnItemClick(it))
                 },
                 onItemMenuClick = {
                     sendIntent(CellViewIntent.OnItemMenuClick(it))
@@ -256,7 +261,7 @@ private fun EmptyScreen(
                 .weight(1f)
         )
 
-        if (!isSearchResult) {
+        if (!isSearchResult && isAllFiles) {
             WirePrimaryButton(
                 text = stringResource(R.string.reload),
                 onClick = onRetry

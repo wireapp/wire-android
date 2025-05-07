@@ -60,6 +60,9 @@ fun AllFilesScreen(
         actionsFlow = viewModel.actions,
         viewState = state,
         sendIntent = { viewModel.sendIntent(it) },
+        onFolderClick = {
+            // TODO: Handle folder click later
+        },
         downloadFileState = viewModel.downloadFile,
         fileMenuState = viewModel.menu,
         isAllFiles = true,

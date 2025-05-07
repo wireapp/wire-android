@@ -112,7 +112,7 @@ class CellViewModel @Inject constructor(
                         } else {
                             CellViewState.Completed(
                                 nodes = nodes.map {
-                                    when(it) {
+                                    when (it) {
                                         is Node.Folder -> it.toUiModel()
                                         is Node.File -> it.toUiModel(uploadProgress[it.uuid])
                                     }
@@ -147,7 +147,7 @@ class CellViewModel @Inject constructor(
     internal fun sendIntent(intent: CellViewIntent) {
         when (intent) {
             is CellViewIntent.LoadFiles -> loadFiles(intent.clearList, intent.pullToRefresh)
-            is CellViewIntent.OnItemClick -> onItemClick(intent.cellNode)
+            is CellViewIntent.OnFileClick -> onFileClick(intent.file)
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuFileActionSelected -> onMenuFileAction(intent.file, intent.action)
             is CellViewIntent.OnMenuFolderActionSelected -> onMenuFolderAction(intent.folder, intent.action)
@@ -159,15 +159,13 @@ class CellViewModel @Inject constructor(
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
 
-    private fun onItemClick(cellNode: CellNodeUi) {
-        if (cellNode is CellNodeUi.File) {
-            when {
-                cellNode.localFileAvailable() -> openLocalFile(cellNode)
-                cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
-                else -> viewModelScope.launch { _downloadFile.emit(cellNode) }
-            }
-        } else {
-            // TODO: Open folder
+    internal fun screenTitle(): String? = navArgs.screenTitle
+
+    private fun onFileClick(cellNode: CellNodeUi.File) {
+        when {
+            cellNode.localFileAvailable() -> openLocalFile(cellNode)
+            cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
+            else -> viewModelScope.launch { _downloadFile.emit(cellNode) }
         }
     }
 
@@ -374,9 +372,9 @@ class CellViewModel @Inject constructor(
     }
 }
 
-internal sealed interface CellViewIntent {
+ sealed interface CellViewIntent {
     data class LoadFiles(val clearList: Boolean = false, val pullToRefresh: Boolean = false) : CellViewIntent
-    data class OnItemClick(val cellNode: CellNodeUi) : CellViewIntent
+    data class OnFileClick(val file: CellNodeUi.File) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
     data class OnMenuFileActionSelected(val file: CellNodeUi.File, val action: BottomSheetAction) : CellViewIntent
     data class OnMenuFolderActionSelected(val folder: CellNodeUi.Folder, val action: BottomSheetAction) : CellViewIntent
@@ -385,7 +383,7 @@ internal sealed interface CellViewIntent {
     data object OnDownloadMenuClosed : CellViewIntent
 }
 
-internal sealed interface CellViewAction
+ sealed interface CellViewAction
 internal data class ShowDeleteConfirmation(val file: CellNodeUi.File) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
 internal data class ShowPublicLinkScreen(val file: CellNodeUi.File) : CellViewAction
@@ -398,7 +396,7 @@ internal enum class CellError(val message: Int) {
 }
 
 @Immutable
-internal sealed interface CellViewState {
+sealed interface CellViewState {
     data object Loading : CellViewState
     data class Empty(val isSearchResult: Boolean) : CellViewState
     data object Error : CellViewState

@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -36,12 +35,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionsBottomSheet
+import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -49,24 +52,53 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Show files in one conversation.
  * Conversation id is passed to view model via navigation parameters [CellFilesNavArgs].
  */
 @Destination(
-    style = PopUpNavigationAnimation::class,
+    style = SlideNavigationAnimation::class,
     navArgsDelegate = CellFilesNavArgs::class,
 )
 @Composable
 fun ConversationFilesScreen(
     navigator: WireNavigator,
-    modifier: Modifier = Modifier,
-    viewModel: CellViewModel = hiltViewModel()
+    viewModel: CellViewModel = hiltViewModel(),
 ) {
 
-    val state by viewModel.state.collectAsState()
     val sheetState = rememberWireModalSheetState<Unit>()
+
+    ConversationFilesScreenContent(
+        navigator = navigator,
+        currentNodeUuid = viewModel.currentNodeUuid(),
+        actions = viewModel.actions,
+        state = viewModel.state,
+        downloadFile = viewModel.downloadFile,
+        menu = viewModel.menu,
+        sendIntent = { viewModel.sendIntent(it) },
+        sheetState = sheetState,
+    )
+
+}
+
+@Composable
+fun ConversationFilesScreenContent(
+    navigator: WireNavigator,
+    currentNodeUuid: String?,
+    actions: Flow<CellViewAction>,
+    state: StateFlow<CellViewState>,
+    downloadFile: StateFlow<CellNodeUi.File?>,
+    menu: SharedFlow<MenuOptions>,
+    sheetState: WireModalSheetState<Unit>,
+    sendIntent: (CellViewIntent) -> Unit,
+    modifier: Modifier = Modifier,
+    screenTitle: String? = null,
+    navigationIconType: NavigationIconType = NavigationIconType.Close()
+) {
 
     CellsNewActionsBottomSheet(
         sheetState = sheetState,
@@ -74,7 +106,7 @@ fun ConversationFilesScreen(
             sheetState.hide()
         },
         onCreateFolder = {
-            navigator.navigate(NavigationCommand(CreateFolderScreenDestination(viewModel.currentNodeUuid())))
+            navigator.navigate(NavigationCommand(CreateFolderScreenDestination(currentNodeUuid)))
         }
     )
     WireScaffold(
@@ -82,47 +114,59 @@ fun ConversationFilesScreen(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = { navigator.navigateBack() },
-                title = stringResource(R.string.conversation_files_title),
-                navigationIconType = NavigationIconType.Close(),
+                title = screenTitle ?: stringResource(R.string.conversation_files_title),
+                navigationIconType = navigationIconType,
                 elevation = dimensions().spacing0x
             )
         },
         floatingActionButton = {
-            if (state is CellViewState.Completed) {
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                ) {
-                    FloatingActionButton(
-                        text = stringResource(R.string.cells_new_label),
-                        icon = {
-                            Image(
-                                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
-                                contentDescription = stringResource(R.string.cells_new_label_content_description),
-                                contentScale = ContentScale.FillBounds,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                                modifier = Modifier
-                                    .padding(
-                                        start = dimensions().spacing4x,
-                                        top = dimensions().spacing2x
-                                    )
-                                    .size(dimensions().fabIconSize)
-                            )
-                        },
-                        onClick = { sheetState.show() }
-                    )
-                }
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                FloatingActionButton(
+                    text = stringResource(R.string.cells_new_label),
+                    icon = {
+                        Image(
+                            painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
+                            contentDescription = stringResource(R.string.cells_new_label_content_description),
+                            contentScale = ContentScale.FillBounds,
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                            modifier = Modifier
+                                .padding(
+                                    start = dimensions().spacing4x,
+                                    top = dimensions().spacing2x
+                                )
+                                .size(dimensions().fabIconSize)
+                        )
+                    },
+                    onClick = { sheetState.show() }
+                )
             }
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             CellScreenContent(
-                actionsFlow = viewModel.actions,
-                viewState = state,
-                sendIntent = { viewModel.sendIntent(it) },
-                downloadFileState = viewModel.downloadFile,
-                fileMenuState = viewModel.menu,
+                actionsFlow = actions,
+                viewState = state.collectAsState().value,
+                sendIntent = sendIntent,
+                onFolderClick = {
+                    val folderPath = "${currentNodeUuid}/${it.name}"
+
+                    navigator.navigate(
+                        NavigationCommand(
+                            ConversationFilesWithSlideInTransitionScreenDestination(
+                                folderPath,
+                                it.name
+                            ),
+                            BackStackMode.NONE,
+                            launchSingleTop = false
+                        )
+                    )
+                },
+                downloadFileState = downloadFile,
+                fileMenuState = menu,
                 isAllFiles = false,
                 showPublicLinkScreen = { assetId, fileName, linkId ->
                     navigator.navigate(

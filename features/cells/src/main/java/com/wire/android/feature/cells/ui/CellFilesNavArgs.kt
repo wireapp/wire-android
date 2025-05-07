@@ -17,4 +17,8 @@
  */
 package com.wire.android.feature.cells.ui
 
-data class CellFilesNavArgs(val conversationId: String? = null)
+data class CellFilesNavArgs(
+    val conversationId: String? = null,
+    val screenTitle: String? = null
+)
+

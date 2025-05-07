@@ -17,8 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.usecase
 
+import android.app.Application
 import android.net.Uri
-import android.os.Build
 import androidx.core.net.toUri
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
@@ -40,7 +40,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.TIRAMISU])
+@Config(application = Application::class)
 class HandleUriAssetUseCaseTest {
 
     private val dispatcher = StandardTestDispatcher()

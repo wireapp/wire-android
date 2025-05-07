@@ -71,7 +71,6 @@ internal fun Node.File.toUiModel(downloadProgress: Float?) = CellNodeUi.File(
     contentHash = contentHash,
     contentUrl = contentUrl,
     previewUrl = previewUrl,
-    downloadProgress = downloadProgress,
     userName = userName,
     conversationName = conversationName,
     publicLinkId = publicLinkId,

@@ -59,4 +59,5 @@
     <string name="cells_new_label_content_description">New</string>
     <string name="cells_create_folder">Create Folder</string>
     <string name="cells_folder_name">Folder Name</string>
+    <string name="loading_files">Loading files...</string>
 </resources>

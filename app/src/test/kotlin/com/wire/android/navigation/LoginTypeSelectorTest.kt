@@ -18,7 +18,6 @@
 package com.wire.android.navigation
 
 import com.wire.android.config.DefaultServerConfig
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -34,75 +33,60 @@ import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 
 class LoginTypeSelectorTest {
-    private val dispatcherProvider = TestDispatcherProvider()
 
     @Test
     fun `given default config with enterprise context, then can use new login`() =
-        runTest(dispatcherProvider.main()) {
+        runTest {
             val (_, loginTypeSelector) = Arrangement()
                 .withContextFlowForConfig(DefaultServerConfig, flowOf(LoginContext.EnterpriseLogin))
-                .arrange()
+                .arrange(true)
             val result = loginTypeSelector.canUseNewLogin()
             assertEquals(true, result)
         }
 
     @Test
     fun `given custom config with enterprise context, then can use new login`() =
-        runTest(dispatcherProvider.main()) {
+        runTest {
             val config = newServerConfig(1)
             val (_, loginTypeSelector) = Arrangement()
                 .withContextFlowForConfig(DefaultServerConfig, flowOf(LoginContext.FallbackLogin))
                 .withContextFlowForConfig(config.links, flowOf(LoginContext.EnterpriseLogin))
-                .arrange()
+                .arrange(true)
             val result = loginTypeSelector.canUseNewLogin(config.links)
             assertEquals(true, result)
         }
 
     @Test
     fun `given default config with fallback context, then cannot use new login`() =
-        runTest(dispatcherProvider.main()) {
+        runTest {
             val (_, loginTypeSelector) = Arrangement()
                 .withContextFlowForConfig(DefaultServerConfig, flowOf(LoginContext.FallbackLogin))
-                .arrange()
+                .arrange(false)
             val result = loginTypeSelector.canUseNewLogin()
             assertEquals(false, result)
         }
 
     @Test
     fun `given custom config with fallback context, then cannot use new login`() =
-        runTest(dispatcherProvider.main()) {
+        runTest {
             val config = newServerConfig(1)
             val (_, loginTypeSelector) = Arrangement()
                 .withContextFlowForConfig(DefaultServerConfig, flowOf(LoginContext.EnterpriseLogin))
                 .withContextFlowForConfig(config.links, flowOf(LoginContext.FallbackLogin))
-                .arrange()
+                .arrange(true)
             val result = loginTypeSelector.canUseNewLogin(config.links)
             assertEquals(false, result)
         }
 
     @Test
-    fun `given default config with fallback context, when context changes to enterprise, then can use new login after it changes`() =
-        runTest(dispatcherProvider.main()) {
-            val contextFlow = MutableStateFlow<LoginContext>(LoginContext.FallbackLogin)
-            val (_, loginTypeSelector) = Arrangement()
-                .withContextFlowForConfig(DefaultServerConfig, contextFlow)
-                .arrange()
-            val resultBeforeChange = loginTypeSelector.canUseNewLogin()
-            assertEquals(false, resultBeforeChange)
-            contextFlow.value = LoginContext.EnterpriseLogin
-            val resultAfterChange = loginTypeSelector.canUseNewLogin()
-            assertEquals(true, resultAfterChange)
-        }
-
-    @Test
     fun `given custom config with fallback context, when context changes to enterprise, then can use new login after it changes`() =
-        runTest(dispatcherProvider.main()) {
+        runTest {
             val config = newServerConfig(1)
             val contextFlow = MutableStateFlow<LoginContext>(LoginContext.FallbackLogin)
             val (_, loginTypeSelector) = Arrangement()
                 .withContextFlowForConfig(DefaultServerConfig, flowOf(LoginContext.FallbackLogin))
                 .withContextFlowForConfig(config.links, contextFlow)
-                .arrange()
+                .arrange(true)
             val resultBeforeChange = loginTypeSelector.canUseNewLogin(config.links)
             assertEquals(false, resultBeforeChange)
             contextFlow.value = LoginContext.EnterpriseLogin
@@ -118,7 +102,7 @@ class LoginTypeSelectorTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        suspend fun arrange() = this to LoginTypeSelector(dispatcherProvider, coreLogic).also { it.init() }
+        fun arrange(useNewLoginForDefaultBackend: Boolean) = this to LoginTypeSelector(coreLogic, useNewLoginForDefaultBackend)
 
         fun withContextFlowForConfig(config: ServerConfig.Links, contextFlow: Flow<LoginContext>) = apply {
             coEvery { coreLogic.getGlobalScope().observeLoginContext(config) } returns contextFlow

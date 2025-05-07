@@ -83,7 +83,7 @@ class HandleUriAssetUseCase @Inject constructor(
         return try {
             fileManager.checkValidSchema(uri)
             true
-        } catch (exception: IllegalArgumentException) {
+        } catch (e: Exception) {
             false
         }
     }

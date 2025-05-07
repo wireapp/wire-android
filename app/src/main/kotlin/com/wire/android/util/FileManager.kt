@@ -155,11 +155,12 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
      */
     fun checkValidSchema(uri: Uri) {
         appLogger.d("Validating Uri schema for path: ${uri.path} with scheme: ${uri.scheme}")
-        if (uri.scheme == "file") throw IllegalArgumentException("File URI is not supported")
+        if (INVALID_SCHEMA.equals(uri.scheme, ignoreCase = true)) throw IllegalArgumentException("File URI is not supported")
     }
 
     companion object {
         private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
         private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "video_attachment.mp4"
+        private const val INVALID_SCHEMA = "file"
     }
 }

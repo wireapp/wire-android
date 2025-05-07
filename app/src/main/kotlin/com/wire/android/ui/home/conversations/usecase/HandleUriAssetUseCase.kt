@@ -79,6 +79,7 @@ class HandleUriAssetUseCase @Inject constructor(
     /**
      * Handles the correctness of the supported schema of the URI.
      */
+    @Suppress("TooGenericExceptionCaught")
     private fun isValidUriSchema(uri: Uri): Boolean {
         return try {
             fileManager.checkValidSchema(uri)

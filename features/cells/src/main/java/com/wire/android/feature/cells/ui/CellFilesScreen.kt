@@ -39,7 +39,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.model.CellFileUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
@@ -83,10 +82,10 @@ internal fun CellFilesScreen(
             }
         }
 
-        when (files.loadState.append) {
+        when (cellNodes.loadState.append) {
             is LoadState.Error -> item(contentType = "error") {
                 ErrorFooter(
-                    onRetry = { files.retry() }
+                    onRetry = { cellNodes.retry() }
                 )
             }
 
@@ -180,61 +179,6 @@ private fun PreviewErrorFooter() {
     WireTheme {
         ErrorFooter(
             onRetry = {}
-        )
-    }
-}
-
-@PreviewMultipleThemes
-@Composable
-private fun PreviewCellFilesScreen() {
-    WireTheme {
-        CellFilesScreen(
-            cellNodes = listOf(
-                CellNodeUi.File(
-                    uuid = "uuid",
-                    name = "Image name",
-                    mimeType = "image/png",
-                    assetType = AttachmentFileType.IMAGE,
-                    assetSize = 1234L,
-                    localPath = "path/to/local/file",
-                    userName = null,
-                    conversationName = null,
-                    modifiedTime = null,
-                    remotePath = null,
-                    contentHash = null,
-                    contentUrl = null,
-                    previewUrl = null,
-                    downloadProgress = null,
-                    publicLinkId = null,
-                ),
-                CellNodeUi.Folder(
-                    uuid = "uuid2",
-                    name = "PDF name",
-                    userName = null,
-                    conversationName = null,
-                    modifiedTime = null,
-                    contents = listOf()
-                ),
-                CellNodeUi.File(
-                    uuid = "uuid2",
-                    name = "PDF name",
-                    mimeType = "application/pdf",
-                    assetType = AttachmentFileType.PDF,
-                    assetSize = 99234L,
-                    localPath = "path/to/local/file",
-                    userName = null,
-                    conversationName = null,
-                    modifiedTime = null,
-                    remotePath = null,
-                    contentHash = null,
-                    contentUrl = null,
-                    previewUrl = null,
-                    downloadProgress = null,
-                    publicLinkId = null,
-                )
-            ),
-            onItemClick = {},
-            onItemMenuClick = {}
         )
     }
 }

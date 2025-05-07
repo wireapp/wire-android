@@ -63,7 +63,7 @@ fun ConversationFilesScreen(
     modifier: Modifier = Modifier,
     viewModel: CellViewModel = hiltViewModel()
 ) {
-    val pagingListItems = viewModel.filesFlow.collectAsLazyPagingItems()
+    val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
     val sheetState = rememberWireModalSheetState<Unit>()
 
     val isFabVisible = when {

@@ -33,6 +33,7 @@ import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -79,8 +80,8 @@ class CellViewModel @Inject constructor(
     internal val menu = _menu.asSharedFlow()
 
     // Show bottom sheet with download progress.
-    private val _downloadFile: MutableStateFlow<CellNodeUi.File?> = MutableStateFlow(null)
-    internal val downloadFile = _downloadFile.asStateFlow()
+    private val _downloadFileSheet: MutableStateFlow<CellNodeUi.File?> = MutableStateFlow(null)
+    internal val downloadFileSheet = _downloadFileSheet.asStateFlow()
 
     private val _actions = Channel<CellViewAction>(
         capacity = Channel.BUFFERED,
@@ -97,7 +98,7 @@ class CellViewModel @Inject constructor(
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
-    internal val filesFlow = searchQueryFlow
+    internal val nodesFlow = searchQueryFlow
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
         .distinctUntilChanged()
@@ -112,10 +113,14 @@ class CellViewModel @Inject constructor(
                         it.uuid !in removedItems
                     }
                     .map {
-                        it.toUiModel().copy(
-                            downloadProgress = downloadData[it.uuid]?.progress,
-                            localPath = downloadData[it.uuid]?.localPath?.toString()
-                        )
+                        when (it) {
+                            is Node.File -> it.toUiModel().copy(
+                                downloadProgress = downloadData[it.uuid]?.progress,
+                                localPath = downloadData[it.uuid]?.localPath?.toString()
+                            )
+
+                            is Node.Folder -> it.toUiModel()
+                        }
                     }
             }
         }
@@ -145,7 +150,7 @@ class CellViewModel @Inject constructor(
             when {
                 cellNode.localFileAvailable() -> openLocalFile(cellNode)
                 cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
-                else -> viewModelScope.launch { _downloadFile.emit(cellNode) }
+                else -> viewModelScope.launch { _downloadFileSheet.emit(cellNode) }
             }
         } else {
             // TODO: Open folder

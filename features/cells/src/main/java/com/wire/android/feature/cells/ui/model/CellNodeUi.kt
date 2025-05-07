@@ -38,7 +38,6 @@ sealed class CellNodeUi {
         override val userName: String?,
         override val conversationName: String?,
         override val modifiedTime: String?,
-        val contents: List<CellNodeUi> // folder can has files and nested folders
     ) : CellNodeUi()
 
     data class File(
@@ -60,7 +59,15 @@ sealed class CellNodeUi {
     ) : CellNodeUi()
 }
 
-internal fun Node.File.toUiModel(downloadProgress: Float?) = CellNodeUi.File(
+internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
+    uuid = uuid,
+    name = name,
+    userName = userName,
+    conversationName = conversationName,
+    modifiedTime = formattedModifiedTime(),
+)
+
+internal fun Node.File.toUiModel() = CellNodeUi.File(
     uuid = uuid,
     name = name,
     mimeType = mimeType,
@@ -77,7 +84,11 @@ internal fun Node.File.toUiModel(downloadProgress: Float?) = CellNodeUi.File(
     modifiedTime = formattedModifiedTime(),
 )
 
-private fun Node.File.formattedModifiedTime() = lastModified?.let {
+private fun Node.File.formattedModifiedTime() = modifiedTime?.let {
+    Instant.fromEpochMilliseconds(it).cellFileDateTime()
+}
+
+private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }
 

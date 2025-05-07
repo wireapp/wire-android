@@ -59,7 +59,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
-    pagingListItems: LazyPagingItems<CellFileUi>,
+    pagingListItems: LazyPagingItems<CellNodeUi>,
     sendIntent: (CellViewIntent) -> Unit,
     downloadFileState: StateFlow<CellNodeUi.File?>,
     fileMenuState: Flow<MenuOptions?>,
@@ -87,8 +87,8 @@ internal fun CellScreenContent(
         else ->
             CellFilesScreen(
                 cellNodes = pagingListItems,
-                onItemClick = { sendIntent(CellViewIntent.OnFileClick(it)) },
-                onItemMenuClick = { sendIntent(CellViewIntent.OnFileMenuClick(it)) },
+                onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
+                onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
 //                onRefresh = {
 //                    viewModel.loadFiles(pullToRefresh = true)
 //                }

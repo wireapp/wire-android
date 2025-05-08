@@ -41,7 +41,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.model.CellFileUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -75,18 +74,18 @@ internal fun CellFilesScreen(
                     modifier = Modifier
                         .animateItem()
                         .background(color = colorsScheme().surface)
-                        .clickable { onItemClick(file) },
+                        .clickable { onItemClick(item) },
                     cell = item,
-                    onMenuClick = { onItemMenuClick(file) }
+                    onMenuClick = { onItemMenuClick(item) }
                 )
                 WireDivider(modifier = Modifier.fillMaxWidth())
             }
         }
 
-        when (files.loadState.append) {
+        when (cellNodes.loadState.append) {
             is LoadState.Error -> item(contentType = "error") {
                 ErrorFooter(
-                    onRetry = { files.retry() }
+                    onRetry = { cellNodes.retry() }
                 )
             }
 

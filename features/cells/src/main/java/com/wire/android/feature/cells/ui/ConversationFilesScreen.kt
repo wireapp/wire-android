@@ -32,6 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
@@ -73,8 +74,8 @@ fun ConversationFilesScreen(
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
         actions = viewModel.actions,
-        state = viewModel.state,
-        downloadFile = viewModel.downloadFile,
+        pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
+        downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
         sendIntent = { viewModel.sendIntent(it) },
     )
@@ -86,15 +87,14 @@ fun ConversationFilesScreenContent(
     navigator: WireNavigator,
     currentNodeUuid: String?,
     actions: Flow<CellViewAction>,
-    state: StateFlow<CellViewState>,
-    downloadFile: StateFlow<CellNodeUi.File?>,
+    pagingListItems: LazyPagingItems<CellNodeUi>,
+    downloadFileSheet: StateFlow<CellNodeUi.File?>,
     menu: SharedFlow<MenuOptions>,
     sendIntent: (CellViewIntent) -> Unit,
     modifier: Modifier = Modifier,
     screenTitle: String? = null,
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
-    val pagingListItems = viewModel.filesFlow.collectAsLazyPagingItems()
     val sheetState = rememberWireModalSheetState<Unit>()
 
     val isFabVisible = when {
@@ -153,11 +153,11 @@ fun ConversationFilesScreenContent(
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             CellScreenContent(
-                actionsFlow = viewModel.actions,
+                actionsFlow = actions,
                 pagingListItems = pagingListItems,
                 sendIntent = sendIntent,
-                downloadFileState = viewModel.downloadFileSheet,
-                menuState = viewModel.menu,
+                downloadFileState = downloadFileSheet,
+                menuState = menu,
                 isAllFiles = false,
                 onFolderClick = {
                     val folderPath = "${currentNodeUuid}/${it.name}"

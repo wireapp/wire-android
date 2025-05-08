@@ -122,7 +122,7 @@ internal fun CellListItem(
             }
         }
         if (cell is CellNodeUi.File) {
-            file.downloadProgress?.let {
+            cell.downloadProgress?.let {
                 WireLinearProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()

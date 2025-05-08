@@ -19,10 +19,10 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 
 @Destination(
@@ -41,8 +41,8 @@ fun ConversationFilesWithSlideInTransitionScreen(
         currentNodeUuid = viewModel.currentNodeUuid(),
         screenTitle = cellFilesNavArgs.screenTitle,
         actions = viewModel.actions,
-        state = viewModel.state,
-        downloadFile = viewModel.downloadFile,
+        pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
+        downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
         sendIntent = { viewModel.sendIntent(it) },
         navigationIconType = NavigationIconType.Back()

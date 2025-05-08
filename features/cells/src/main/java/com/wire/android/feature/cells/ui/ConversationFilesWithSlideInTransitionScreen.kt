@@ -36,8 +36,6 @@ fun ConversationFilesWithSlideInTransitionScreen(
     viewModel: CellViewModel = hiltViewModel(),
 ) {
 
-    val sheetState = rememberWireModalSheetState<Unit>()
-
     ConversationFilesScreenContent(
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
@@ -47,7 +45,6 @@ fun ConversationFilesWithSlideInTransitionScreen(
         downloadFile = viewModel.downloadFile,
         menu = viewModel.menu,
         sendIntent = { viewModel.sendIntent(it) },
-        sheetState = sheetState,
         navigationIconType = NavigationIconType.Back()
     )
 }

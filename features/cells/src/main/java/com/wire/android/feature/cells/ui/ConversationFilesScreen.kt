@@ -70,8 +70,6 @@ fun ConversationFilesScreen(
     viewModel: CellViewModel = hiltViewModel(),
 ) {
 
-    val sheetState = rememberWireModalSheetState<Unit>()
-
     ConversationFilesScreenContent(
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
@@ -80,7 +78,6 @@ fun ConversationFilesScreen(
         downloadFile = viewModel.downloadFile,
         menu = viewModel.menu,
         sendIntent = { viewModel.sendIntent(it) },
-        sheetState = sheetState,
     )
 
 }
@@ -93,12 +90,12 @@ fun ConversationFilesScreenContent(
     state: StateFlow<CellViewState>,
     downloadFile: StateFlow<CellNodeUi.File?>,
     menu: SharedFlow<MenuOptions>,
-    sheetState: WireModalSheetState<Unit>,
     sendIntent: (CellViewIntent) -> Unit,
     modifier: Modifier = Modifier,
     screenTitle: String? = null,
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
+    val sheetState = rememberWireModalSheetState<Unit>()
 
     CellsNewActionsBottomSheet(
         sheetState = sheetState,

@@ -91,7 +91,6 @@ internal fun CellScreenContent(
                         is CellNodeUi.File -> sendIntent(CellViewIntent.OnFileClick(it))
                         is CellNodeUi.Folder -> onFolderClick(it)
                     }
-//                    sendIntent(CellViewIntent.OnItemClick(it))
                 },
                 onItemMenuClick = {
                     sendIntent(CellViewIntent.OnItemMenuClick(it))

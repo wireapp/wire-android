@@ -61,7 +61,7 @@ internal fun CellScreenContent(
     sendIntent: (CellViewIntent) -> Unit,
     onFolderClick: (CellNodeUi.Folder) -> Unit,
     downloadFileState: StateFlow<CellNodeUi.File?>,
-    fileMenuState: Flow<MenuOptions?>,
+    menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (String, String, String?) -> Unit,
     isAllFiles: Boolean,
 ) {
@@ -169,7 +169,7 @@ internal fun CellScreenContent(
 
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            fileMenuState.collect { showMenu ->
+            menuState.collect { showMenu ->
                 menu = showMenu
             }
         }

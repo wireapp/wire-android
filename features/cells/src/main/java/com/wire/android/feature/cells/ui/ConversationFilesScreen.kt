@@ -44,7 +44,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -163,7 +162,7 @@ fun ConversationFilesScreenContent(
                     )
                 },
                 downloadFileState = downloadFile,
-                fileMenuState = menu,
+                menuState = menu,
                 isAllFiles = false,
                 showPublicLinkScreen = { assetId, fileName, linkId ->
                     navigator.navigate(

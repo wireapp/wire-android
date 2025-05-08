@@ -64,7 +64,7 @@ fun AllFilesScreen(
             // TODO: Handle folder click later
         },
         downloadFileState = viewModel.downloadFile,
-        fileMenuState = viewModel.menu,
+        menuState = viewModel.menu,
         isAllFiles = true,
         showPublicLinkScreen = { assetId, fileName, linkId ->
             navigator.navigate(

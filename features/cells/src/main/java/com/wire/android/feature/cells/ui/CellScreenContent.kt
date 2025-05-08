@@ -41,6 +41,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.FileActionsBottomSheet
@@ -57,13 +59,14 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
-    viewState: CellViewState,
+    pagingListItems: LazyPagingItems<CellFileUi>,
     sendIntent: (CellViewIntent) -> Unit,
     onFolderClick: (CellNodeUi.Folder) -> Unit,
     downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (String, String, String?) -> Unit,
     isAllFiles: Boolean,
+    isSearchResult: Boolean = false,
 ) {
 
     val context = LocalContext.current
@@ -74,27 +77,24 @@ internal fun CellScreenContent(
 
     val downloadFile by downloadFileState.collectAsState()
 
-    when (viewState) {
-        is CellViewState.Loading -> LoadingScreen()
-        is CellViewState.Empty -> EmptyScreen(
-            isSearchResult = viewState.isSearchResult,
+    when {
+        pagingListItems.isLoading() -> LoadingScreen()
+        pagingListItems.isError() -> ErrorScreen { pagingListItems.retry() }
+        pagingListItems.itemCount == 0 -> EmptyScreen(
+            isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
-            onRetry = { sendIntent(CellViewIntent.LoadFiles()) }
+            onRetry = { pagingListItems.retry() }
         )
-
-        is CellViewState.Error -> ErrorScreen { sendIntent(CellViewIntent.LoadFiles()) }
-        is CellViewState.Completed ->
+        else ->
             CellFilesScreen(
-                cellNodes = viewState.nodes,
+                files = pagingListItems,
                 onItemClick = {
                     when (it) {
                         is CellNodeUi.File -> sendIntent(CellViewIntent.OnFileClick(it))
                         is CellNodeUi.Folder -> onFolderClick(it)
                     }
                 },
-                onItemMenuClick = {
-                    sendIntent(CellViewIntent.OnItemMenuClick(it))
-                },
+                onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
 //                onRefresh = {
 //                    viewModel.loadFiles(pullToRefresh = true)
 //                }
@@ -148,9 +148,6 @@ internal fun CellScreenContent(
     }
 
     LaunchedEffect(Unit) {
-
-        sendIntent(CellViewIntent.LoadFiles(clearList = true))
-
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             actionsFlow.collect { action ->
                 when (action) {
@@ -161,6 +158,7 @@ internal fun CellScreenContent(
                         action.file.name ?: action.file.uuid,
                         action.file.publicLinkId
                     )
+                    is RefreshData -> pagingListItems.refresh()
                 }
             }
         }
@@ -202,7 +200,6 @@ private fun ErrorScreen(onRetry: () -> Unit) {
                 .fillMaxHeight()
                 .weight(1f)
         )
-
         Text(
             text = stringResource(R.string.file_list_load_error),
             textAlign = TextAlign.Center,
@@ -268,3 +265,9 @@ private fun EmptyScreen(
         }
     }
 }
+
+internal fun LazyPagingItems<*>.isError(): Boolean =
+    loadState.refresh is LoadState.Error && itemSnapshotList.isEmpty()
+
+internal fun LazyPagingItems<*>.isLoading(): Boolean =
+    loadState.refresh is LoadState.Loading && itemSnapshotList.isEmpty()

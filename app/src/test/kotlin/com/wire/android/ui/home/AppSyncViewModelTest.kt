@@ -18,6 +18,7 @@
 package com.wire.android.ui.home
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.kalium.logic.feature.client.MLSClientManager
 import com.wire.kalium.logic.feature.conversation.keyingmaterials.KeyingMaterialsManager
 import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
@@ -37,9 +38,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
 class AppSyncViewModelTest {
+    private val testDispatcher = TestDispatcherProvider()
+
     @Test
-    fun `when startSyncingAppConfig is called then it should call the use case`() = runTest {
-        val (arrangement, viewModel) = Arrangement().arrange {
+    fun `when startSyncingAppConfig is called then it should call the use case`() = runTest(testDispatcher.io()) {
+        val (arrangement, viewModel) = Arrangement().arrange(testDispatcher) {
             withObserveCertificateRevocationForSelfClient()
             withFeatureFlagsSyncWorker()
             withSyncCertificateRevocationListUseCase()
@@ -62,8 +65,8 @@ class AppSyncViewModelTest {
     }
 
     @Test
-    fun `when startSyncingAppConfig is called multiple times then it should call the use case with delay`() = runTest {
-        val (arrangement, viewModel) = Arrangement().arrange {
+    fun `when startSyncingAppConfig is called multiple times then it should call the use case with delay`() = runTest(testDispatcher.io()) {
+        val (arrangement, viewModel) = Arrangement().arrange(testDispatcher) {
             withObserveCertificateRevocationForSelfClient(1000)
             withFeatureFlagsSyncWorker(1000)
             withSyncCertificateRevocationListUseCase(1000)
@@ -114,16 +117,6 @@ class AppSyncViewModelTest {
             MockKAnnotations.init(this)
         }
 
-        private val viewModel = AppSyncViewModel(
-            syncCertificateRevocationListUseCase,
-            observeCertificateRevocationForSelfClient,
-            featureFlagsSyncWorker,
-            updateApiVersions,
-            mLSClientManager = mlsClientManager,
-            mLSMigrationManager = mlsMigrationManager,
-            keyingMaterialsManager = keyingMaterialsManager
-        )
-
         fun withObserveCertificateRevocationForSelfClient(delayMs: Long = 0) {
             coEvery { observeCertificateRevocationForSelfClient.invoke() } coAnswers {
                 delay(delayMs)
@@ -166,8 +159,17 @@ class AppSyncViewModelTest {
             }
         }
 
-        fun arrange(block: Arrangement.() -> Unit) = apply(block).let {
-            this to viewModel
+        fun arrange(testDispatcher: TestDispatcherProvider, block: Arrangement.() -> Unit) = apply(block).let {
+            this to AppSyncViewModel(
+                syncCertificateRevocationListUseCase,
+                observeCertificateRevocationForSelfClient,
+                featureFlagsSyncWorker,
+                updateApiVersions,
+                mLSClientManager = mlsClientManager,
+                mLSMigrationManager = mlsMigrationManager,
+                keyingMaterialsManager = keyingMaterialsManager,
+                dispatcher = testDispatcher
+            )
         }
     }
 }

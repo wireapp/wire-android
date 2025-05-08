@@ -19,9 +19,8 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
@@ -39,7 +38,7 @@ fun AllFilesScreen(
     viewModel: CellViewModel = hiltViewModel(),
 ) {
 
-    val state by viewModel.state.collectAsState()
+    val pagingListItems = viewModel.filesFlow.collectAsLazyPagingItems()
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
         if (searchBarState.searchQueryTextState.text.isNotEmpty()) {
@@ -49,23 +48,25 @@ fun AllFilesScreen(
     }
 
     val isSearchVisible = when {
-        state is CellViewState.Completed -> true
-        state.isEmptySearch() -> true
-        else -> false
+        pagingListItems.isLoading() -> false
+        pagingListItems.isError() -> false
+        pagingListItems.itemCount == 0 && !viewModel.hasSearchQuery() -> false
+        else -> true
     }
 
     searchBarState.searchVisibleChanged(isSearchVisible)
 
     CellScreenContent(
         actionsFlow = viewModel.actions,
-        viewState = state,
+        pagingListItems = pagingListItems,
         sendIntent = { viewModel.sendIntent(it) },
         onFolderClick = {
             // TODO: Handle folder click later
         },
-        downloadFileState = viewModel.downloadFile,
+        downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,
         isAllFiles = true,
+        isSearchResult = viewModel.hasSearchQuery(),
         showPublicLinkScreen = { assetId, fileName, linkId ->
             navigator.navigate(
                 NavigationCommand(
@@ -79,5 +80,3 @@ fun AllFilesScreen(
         },
     )
 }
-
-private fun CellViewState.isEmptySearch() = this is CellViewState.Empty && isSearchResult

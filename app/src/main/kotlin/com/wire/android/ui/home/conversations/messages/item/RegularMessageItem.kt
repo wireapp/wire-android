@@ -75,7 +75,7 @@ fun RegularMessageItem(
     searchQuery: String = "",
     showAuthor: Boolean = true,
     assetStatus: AssetTransferStatus? = null,
-    swipableMessageConfiguration: SwipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
+    swipeableMessageConfiguration: SwipeableMessageConfiguration = SwipeableMessageConfiguration.NotSwipeable,
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
     failureInteractionAvailable: Boolean = true,
@@ -190,14 +190,15 @@ fun RegularMessageItem(
             }
         )
     }
-    if (swipableMessageConfiguration is SwipableMessageConfiguration.SwipableToReply && isReplyable) {
-        val onSwipe =
-            remember(message) { { swipableMessageConfiguration.onSwipedToReply(message) } }
-        SwipableToReplyBox(onSwipedToReply = onSwipe) {
-            messageContent()
+
+    when (swipeableMessageConfiguration) {
+        is SwipeableMessageConfiguration.Swipeable -> {
+            SwipeableMessageBox(swipeableMessageConfiguration) {
+                messageContent()
+            }
         }
-    } else {
-        messageContent()
+
+        SwipeableMessageConfiguration.NotSwipeable -> messageContent()
     }
 }
 

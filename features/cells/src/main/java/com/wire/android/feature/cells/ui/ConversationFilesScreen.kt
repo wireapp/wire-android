@@ -26,13 +26,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
@@ -94,7 +94,14 @@ fun ConversationFilesScreenContent(
     screenTitle: String? = null,
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
+    val pagingListItems = viewModel.filesFlow.collectAsLazyPagingItems()
     val sheetState = rememberWireModalSheetState<Unit>()
+
+    val isFabVisible = when {
+        pagingListItems.isLoading() -> false
+        pagingListItems.isError() -> false
+        else -> true
+    }
 
     CellsNewActionsBottomSheet(
         sheetState = sheetState,
@@ -116,37 +123,42 @@ fun ConversationFilesScreenContent(
             )
         },
         floatingActionButton = {
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                FloatingActionButton(
-                    text = stringResource(R.string.cells_new_label),
-                    icon = {
-                        Image(
-                            painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
-                            contentDescription = stringResource(R.string.cells_new_label_content_description),
-                            contentScale = ContentScale.FillBounds,
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                            modifier = Modifier
-                                .padding(
-                                    start = dimensions().spacing4x,
-                                    top = dimensions().spacing2x
-                                )
-                                .size(dimensions().fabIconSize)
-                        )
-                    },
-                    onClick = { sheetState.show() }
-                )
+            if (isFabVisible) {
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    FloatingActionButton(
+                        text = stringResource(R.string.cells_new_label),
+                        icon = {
+                            Image(
+                                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
+                                contentDescription = stringResource(R.string.cells_new_label_content_description),
+                                contentScale = ContentScale.FillBounds,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                                modifier = Modifier
+                                    .padding(
+                                        start = dimensions().spacing4x,
+                                        top = dimensions().spacing2x
+                                    )
+                                    .size(dimensions().fabIconSize)
+                            )
+                        },
+                        onClick = { sheetState.show() }
+                    )
+                }
             }
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             CellScreenContent(
-                actionsFlow = actions,
-                viewState = state.collectAsState().value,
+                actionsFlow = viewModel.actions,
+                pagingListItems = pagingListItems,
                 sendIntent = sendIntent,
+                downloadFileState = viewModel.downloadFileSheet,
+                menuState = viewModel.menu,
+                isAllFiles = false,
                 onFolderClick = {
                     val folderPath = "${currentNodeUuid}/${it.name}"
 
@@ -161,9 +173,6 @@ fun ConversationFilesScreenContent(
                         )
                     )
                 },
-                downloadFileState = downloadFile,
-                menuState = menu,
-                isAllFiles = false,
                 showPublicLinkScreen = { assetId, fileName, linkId ->
                     navigator.navigate(
                         NavigationCommand(

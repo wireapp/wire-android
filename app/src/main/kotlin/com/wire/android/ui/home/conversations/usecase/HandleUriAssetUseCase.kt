@@ -40,6 +40,10 @@ class HandleUriAssetUseCase @Inject constructor(
         saveToDeviceIfInvalid: Boolean = false,
         specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
     ): Result = withContext(dispatchers.io()) {
+        if (!isValidUriSchema(uri)) {
+            return@withContext Result.Failure.Unknown
+        }
+
         val tempAssetPath = kaliumFileSystem.tempFilePath(UUID.randomUUID().toString())
         val assetBundle = fileManager.getAssetBundleFromUri(
             attachmentUri = uri,
@@ -69,6 +73,19 @@ class HandleUriAssetUseCase @Inject constructor(
             }
         } else {
             return@withContext Result.Failure.Unknown
+        }
+    }
+
+    /**
+     * Handles the correctness of the supported schema of the URI.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private fun isValidUriSchema(uri: Uri): Boolean {
+        return try {
+            fileManager.checkValidSchema(uri)
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 

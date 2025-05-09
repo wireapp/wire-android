@@ -27,7 +27,6 @@ private const val ONE_MINUTE_FROM_MILLIS = 60 * 1000
 private const val THIRTY_MINUTES = 30
 private const val ONE_WEEK_IN_DAYS = 7
 private const val ONE_DAY = 1
-private const val FORTY_FIVE_MINUTES_DIFFERENCE = 45
 private const val MINIMUM_DAYS_DIFFERENCE = 1
 
 fun String.shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean {
@@ -36,17 +35,12 @@ fun String.shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean {
     val currentLocalDateTime = currentDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
     val previousLocalDateTime = previousDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
 
-    val differenceInMinutes = ChronoUnit.MINUTES.between(
-        currentLocalDateTime,
-        previousLocalDateTime
-    )
-
     val differenceInDays = ChronoUnit.DAYS.between(
         currentLocalDateTime,
         previousLocalDateTime
     )
 
-    return differenceInMinutes > FORTY_FIVE_MINUTES_DIFFERENCE || differenceInDays >= MINIMUM_DAYS_DIFFERENCE
+    return differenceInDays >= MINIMUM_DAYS_DIFFERENCE
 }
 
 fun String.groupedUIMessageDateTime(now: Long): MessageDateTimeGroup? = this

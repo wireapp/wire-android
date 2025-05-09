@@ -54,7 +54,7 @@ fun FileHeaderView(
     labelColor: Color? = null,
     isError: Boolean = false,
 ) {
-    val fileType = type ?: remember(extension) { AttachmentFileType.fromExtension(extension) }
+    val attachmentFileType = type ?: remember(extension) { AttachmentFileType.fromExtension(extension) }
     val sizeString = remember(size) { size?.let { DeviceUtil.formatSize(size) } ?: "" }
 
     Row(
@@ -72,7 +72,7 @@ fun FileHeaderView(
         } else {
             Image(
                 modifier = Modifier.size(dimensions().spacing16x),
-                painter = painterResource(id = fileType.icon()),
+                painter = painterResource(id = attachmentFileType.icon()),
                 contentDescription = null,
             )
         }

@@ -103,7 +103,7 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        val items = viewModel.filesFlow.asSnapshot()
+        val items = viewModel.nodesFlow.asSnapshot()
         assertEquals(items.size, 2)
 
         coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any()) }
@@ -311,7 +311,7 @@ class CellViewModelTest {
 
         viewModel.sendIntent(CellViewIntent.OnFileDeleteConfirmed(testFile))
 
-        with(viewModel.filesFlow.asSnapshot()) {
+        with(viewModel.nodesFlow.asSnapshot()) {
             assertFalse(contains(testFile))
         }
     }
@@ -340,7 +340,7 @@ class CellViewModelTest {
                 .withLoadSuccess()
                 .arrange()
 
-            viewModel.filesFlow.test {
+            viewModel.nodesFlow.test {
                 viewModel.onSearchQueryUpdated("test")
 
                 advanceTimeBy(1000)

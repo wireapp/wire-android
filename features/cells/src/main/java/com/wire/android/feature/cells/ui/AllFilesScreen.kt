@@ -38,7 +38,7 @@ fun AllFilesScreen(
     viewModel: CellViewModel = hiltViewModel(),
 ) {
 
-    val pagingListItems = viewModel.filesFlow.collectAsLazyPagingItems()
+    val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
         if (searchBarState.searchQueryTextState.text.isNotEmpty()) {

@@ -25,6 +25,11 @@
     <string name="share_file">Share file</string>
     <string name="public_link">Copy public link</string>
     <string name="delete_file">Delete file</string>
+    <string name="save_folder">Save Folder</string>
+    <string name="move_folder">Move Folder</string>
+    <string name="share_folder">Share Folder</string>
+    <string name="download_folder">Download folder</string>
+    <string name="delete_folder">Delete folder</string>
     <string name="copy_link">Copy link</string>
     <string name="share_link">Share link</string>
     <string name="copied_to_clipboard_message">Link copied to clipboard</string>

@@ -19,7 +19,7 @@ package com.wire.android.feature.cells.domain.model
 
 import com.wire.android.feature.cells.R
 
-enum class AttachmentFileType(private val extensions: List<String>) {
+enum class AttachmentFileType(val extensions: List<String>) {
     IMAGE(listOf("jpg", "jpeg", "png", "gif", "webp")),
     VIDEO(listOf("mp4", "mov", "m4v", "ogv", "webm")),
     AUDIO(listOf("mp3", "wav", "ogg", "m4a", "flac", "aac")),
@@ -30,25 +30,18 @@ enum class AttachmentFileType(private val extensions: List<String>) {
     ARCHIVE(listOf("zip", "rar", "7z", "tar", "gz", "bz2", "xz", "z")),
     CODE(
         listOf(
-            "xml", "html", "htm", "js", "json", "css", "PHP", "phtml", "sparql",
+            "xml", "html", "htm", "js", "json", "css", "php", "phtml", "sparql",
             "py", "cs", "java", "jsp", "sql", "cgi", "pl", "inc", "xsl", "c", "cpp", "kt"
         )
     ),
     OTHER(emptyList());
 
     companion object {
-        fun fromExtension(extension: String): AttachmentFileType {
-            entries.forEach { type ->
-                if (extension.lowercase() in type.extensions) {
-                    return type
-                }
-            }
-
-            return OTHER
-        }
+        fun fromExtension(ext: String): AttachmentFileType =
+            entries.firstOrNull { it.extensions.contains(ext.lowercase()) } ?: OTHER
 
         fun fromMimeType(mimeType: String): AttachmentFileType {
-            return fromExtension(mimeType.substringAfterLast("/"))
+            return AttachmentFileType.fromExtension(mimeType.substringAfterLast("/"))
         }
     }
 }

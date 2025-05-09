@@ -232,16 +232,15 @@
     <string name="migration_messages_failure">Malheureusement, tous les messages et conversations n\'ont pas pu être migrés en raison d\'une incompatibilité avec l\'ancienne version de Wire (code d\'erreur : %s)</string>
     <string name="migration_cancel_title">Annuler la migration</string>
     <string name="migration_cancel_message">Êtes-vous sûr de vouloir fermer l\'application et annuler la migration en cours ?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Se connecter</string>
     <string name="login_forgot_password">Mot de passe oublié ?</string>
     <string name="login_user_identifier_placeholder">jeanne@exemple.com ou jeanne.doe</string>
-    <string name="login_email_placeholder">jeanne@exemple.com</string>
     <string name="login_user_identifier_label">EMAIL OU NOM D\'UTILISATEUR</string>
     <string name="login_proxy_identifier_label">PROXY EMAIL OU NOM D\'UTILISATEUR</string>
     <string name="login_error_invalid_credentials_title">Information invalide</string>
     <string name="login_error_invalid_credentials_message">Ces identifiants de compte sont incorrects.   Veuillez réessayer.    </string>
-    <string name="login_error_invalid_user_identifier">L\'adresse mail ou le nom d\'utilisateurs n\'est pas valide. Veuillez recommencer.    </string>
     <string name="login_error_user_already_logged_in_title">Compte utilisé</string>
     <string name="login_error_user_already_logged_in_message">Vous êtes déjà connecté avec ces identifiants sur cet appareil.</string>
     <string name="login_sso_error_invalid_cookie_title">Cookie invalide  !</string>
@@ -369,14 +368,12 @@
     <string name="new_group_title">Nouveau groupe</string>
     <string name="new_group_description">Jusqu\'à 500 personnes peuvent rejoindre une conversation de groupe.</string>
     <string name="group_name_title">Nom du groupe</string>
-    <string name="conversation_name_placeholder">Entrez un nom</string>
     <string name="group_name_description">Donnez un nom évocateur au groupe.</string>
     <string name="protocol">Protocole</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Suite cryptographique</string>
     <string name="last_key_material_update_label">Dernière mise à jour de la clé matérielle</string>
     <string name="group_state_label">État du groupe</string>
-    <string name="conversation_can_not_be_created_edit_participant_list">Modifier la liste des participants</string>
     <string name="asset_message_tap_to_download_text">Appuyer ici pour lancer le téléchargement</string>
     <string name="asset_message_upload_in_progress_text">Envoi en cours…</string>
     <string name="asset_message_download_in_progress_text">Téléchargement en cours…</string>
@@ -423,6 +420,7 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Accusés de lecture</string>
     <string name="conversation_options_read_receipt_description">Quand cette option est activée, les participants peuvent voir quand leurs messages ont été lus dans cette conversation.</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Détails du Message</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>
@@ -458,15 +456,11 @@
     <string name="user_profile_status_none">Aucune</string>
     <string name="user_profile_details_tab">Informations</string>
     <string name="user_profile_devices_tab">Appareils</string>
-    <string name="user_profile_role_in_conversation">Rôle dans «%s»</string>
     <string name="user_profile_role_change_error">Il y a eu une erreur en essayant de modifier le rôle. Veuillez vérifier votre connexion internet et réessayer</string>
     <string name="user_profile_unblock_user">Débloquer l\'utilisateur</string>
     <string name="user_profile_logging_out_progress">Déconnexion...</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Supprimer du groupe ?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) ne pourra ni envoyer ni recevoir de message dans cette conversation.</string>
-    <string name="conversation_role_admin">Administrateur</string>
-    <string name="conversation_role_member">Membre</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Supprimer les données ?</string>
     <string name="dialog_logout_wipe_data_checkbox">Supprime toutes vos informations personnelles et conversations de cet appareil</string>
@@ -516,6 +510,7 @@
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
+    <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
@@ -541,6 +536,7 @@
     <!--max account reached dialog-->
     <!--create and restore backup-->
     <!--    report bug-->
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->

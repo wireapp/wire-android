@@ -47,7 +47,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun FolderActionsBottomSheet(
@@ -56,7 +55,6 @@ internal fun FolderActionsBottomSheet(
     onDismiss: () -> Unit,
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
-    val scope = rememberCoroutineScope()
 
     WireModalSheetLayout(
         onDismissRequest = {
@@ -75,11 +73,7 @@ internal fun FolderActionsBottomSheet(
             menuOptions.actions.forEach { action ->
                 MenuItem(
                     modifier = Modifier.clickable {
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                onAction(action)
-                            }
-                        }
+                        onAction(action)
                     },
                     action = action
                 )

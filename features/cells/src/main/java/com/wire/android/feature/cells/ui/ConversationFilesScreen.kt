@@ -173,13 +173,14 @@ fun ConversationFilesScreenContent(
                         )
                     )
                 },
-                showPublicLinkScreen = { assetId, fileName, linkId ->
+                showPublicLinkScreen = { assetId, fileName, linkId, isFolder ->
                     navigator.navigate(
                         NavigationCommand(
                             PublicLinkScreenDestination(
                                 assetId = assetId,
                                 fileName = fileName,
-                                publicLinkId = linkId
+                                publicLinkId = linkId,
+                                isFolder = isFolder
                             )
                         )
                     )

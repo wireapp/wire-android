@@ -286,10 +286,11 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    @Suppress("UNUSED_PARAMETER")
     private fun onMenuFolderAction(folder: CellNodeUi.Folder, action: BottomSheetAction) {
         when ((action as BottomSheetAction.Folder).action) {
-            FolderAction.SHARE -> TODO()
+            FolderAction.SHARE -> {
+                sendAction(ShowPublicLinkScreen(folder))
+            }
             FolderAction.MOVE -> TODO()
             FolderAction.DOWNLOAD -> TODO()
             FolderAction.DELETE -> TODO()
@@ -354,7 +355,7 @@ sealed interface CellViewIntent {
 sealed interface CellViewAction
 internal data class ShowDeleteConfirmation(val file: CellNodeUi.File) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
-internal data class ShowPublicLinkScreen(val file: CellNodeUi.File) : CellViewAction
+internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data object RefreshData : CellViewAction
 
 internal enum class CellError(val message: Int) {

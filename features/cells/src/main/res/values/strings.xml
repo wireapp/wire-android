@@ -35,9 +35,11 @@
     <string name="copied_to_clipboard_message">Link copied to clipboard</string>
     <string name="file_subtitle">%1$s in %2$s</string>
     <string name="file_subtitle_modified">%1$s by %2$s</string>
-    <string name="public_link_message">Your file will be shared via a public link. Only those with the link can view it—ensure you trust your recipients.</string>
+    <string name="public_link_message_file">Your file will be shared via a public link. Only those with the link can view it—ensure you trust your recipients.</string>
+    <string name="public_link_message_folder">Your folder will be shared via a public link. Only those with the link can view it—ensure you trust your recipients.</string>
     <string name="enable_public_link">Enable public link</string>
     <string name="share_file_via_link">Share file via link</string>
+    <string name="share_folder_via_link">Share folder via link</string>
     <string name="no_app_found">No application found to open the file.</string>
     <string name="cell_files_load_failure_message">Failed to load. Please try again later.</string>
     <string name="action_failed">Action failed.</string>

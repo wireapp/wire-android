@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -32,7 +34,9 @@ fun MarkdownParagraph(
     nodeData: NodeData,
     clickable: Boolean,
     onMentionsUpdate: (List<DisplayMention>) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
 ) {
     val padding = if (paragraph.isParentDocument) dimensions().spacing4x else dimensions().spacing0x
     Box(modifier = modifier.padding(bottom = padding)) {
@@ -48,7 +52,10 @@ fun MarkdownParagraph(
             onLongClick = nodeData.actions?.onLongClick,
             onOpenProfile = nodeData.actions?.onOpenProfile,
             onClickLink = nodeData.actions?.onLinkClick,
-            clickable = clickable
+            clickable = clickable,
+            onTextLayout = onTextLayout,
+            maxLines = maxLines,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

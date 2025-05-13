@@ -84,7 +84,8 @@ internal fun MessageBody(
     buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
     searchQuery: String = "",
-    clickable: Boolean = true
+    clickable: Boolean = true,
+    isCollapsed: Boolean? = null,
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
         mapToDisplayMentions(it, LocalContext.current.resources)
@@ -110,9 +111,10 @@ internal fun MessageBody(
 
     markdownDocument?.also {
         MarkdownDocument(
-            it,
-            nodeData,
-            clickable
+            document = it,
+            nodeData = nodeData,
+            clickable = clickable,
+            isCollapsed = isCollapsed,
         )
     }
     buttonList?.also {

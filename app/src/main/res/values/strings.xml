@@ -1782,6 +1782,15 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="press_enter_to_send_title">Press Enter to send</string>
     <string name="press_enter_to_send_text">When this is on, you can send messages with the Enter key on your keyboard.</string>
     <string name="customization_options_header_title">Options</string>
+    <string name="collapse_own_messages_title">Collapse own messages</string>
+    <string name="collapse_own_messages_text">If this is enabled, all your messages are collapsed after three lines.</string>
+
+    <string name="collapse_file_text">You sent a file</string>
+    <string name="collapse_picture_text">You sent a picture</string>
+    <string name="collapse_location_text">You sent a location</string>
+    <string name="collapse_audio_text">You sent an audio message</string>
+    <string name="collapse_video_text">You sent a video</string>
+    <string name="collapse_link_text">You sent a link</string>
 
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels are available for team members.</string>

@@ -57,6 +57,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val APP_LOCK_SOURCE = intPreferencesKey("app_lock_source")
         private val ENTER_TO_SENT = booleanPreferencesKey("enter_to_sent")
         private val WIRE_CELLS = booleanPreferencesKey("wire_cells")
+        private val COLLAPSE_OWN_MESSAGES = booleanPreferencesKey("collapse_own_messages")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -243,5 +244,10 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     fun wireCellsEnabled() = getBooleanPreference(WIRE_CELLS, false)
     suspend fun setWireCellsEnabled(enabled: Boolean) {
         context.dataStore.edit { it[WIRE_CELLS] = enabled }
+    }
+
+    fun collapseOwnMessagesFlow(): Flow<Boolean> = getBooleanPreference(COLLAPSE_OWN_MESSAGES, false)
+    suspend fun setCollapseOwnMessages(enabled: Boolean) {
+        context.dataStore.edit { it[COLLAPSE_OWN_MESSAGES] = enabled }
     }
 }

@@ -33,7 +33,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -81,19 +84,34 @@ fun RegularMessageItem(
     failureInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
+    collapsingMessageEnabled: Boolean = false,
 ): Unit = with(message) {
     @Composable
     fun messageContent() {
+
+        var isCollapsed by remember(message) { mutableStateOf(true.takeIf { collapsingMessageEnabled }) }
+
+        val showAuthorHeader = if (message.messageContent is UIMessageContent.TextMessage) {
+            showAuthor
+        } else if (isDeleted) {
+            showAuthor
+        } else {
+            showAuthor && isCollapsed != true
+        }
+
         MessageItemTemplate(
             modifier = modifier
                 .interceptCombinedClickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = LocalIndication.current,
-                    onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
-                        {
-                            onFullMessageClicked(message.header.messageId)
-                        }
-                    },
+                    onClick =
+                        if (isCollapsed == true) {
+                            { isCollapsed = !(isCollapsed ?: false) }
+                        } else if (clickActions.onFullMessageClicked != null) {
+                            { clickActions.onFullMessageClicked?.invoke(message.header.messageId) }
+                        } else {
+                            null
+                        },
                     onLongPress = when {
                         message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
                         else -> clickActions.onFullMessageLongClicked?.let {
@@ -116,7 +134,7 @@ fun RegularMessageItem(
             },
             content = {
                 Column {
-                    if (showAuthor) {
+                    if (showAuthorHeader) {
                         Spacer(modifier = Modifier.height(dimensions().avatarClickablePadding))
                         MessageAuthorRow(messageHeader = message.header)
                         Spacer(modifier = Modifier.height(dimensions().spacing4x))
@@ -151,6 +169,7 @@ fun RegularMessageItem(
                             shouldDisplayMessageStatus = shouldDisplayMessageStatus,
                             conversationDetailsData = conversationDetailsData,
                             onReplyClicked = clickActions.onReplyClicked,
+                            isCollapsed = isCollapsed,
                         )
                         if (shouldDisplayFooter) {
                             VerticalSpace.x4()

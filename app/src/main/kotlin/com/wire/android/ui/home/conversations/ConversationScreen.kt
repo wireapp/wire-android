@@ -973,6 +973,7 @@ private fun ConversationScreen(
                         messageComposerStateHolder = messageComposerStateHolder,
                         attachments = attachments,
                         messages = conversationMessagesViewState.messages,
+                        collapsingMessageEnabled = conversationInfoViewState.isMessageCollapseEnabled,
                         onSendMessage = onSendMessage,
                         onPingOptionClicked = onPingOptionClicked,
                         onImagesPicked = onImagesPicked,
@@ -1053,6 +1054,7 @@ private fun ConversationScreenContent(
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
     messages: Flow<PagingData<UIMessage>>,
+    collapsingMessageEnabled: Boolean,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>, Boolean) -> Unit,
@@ -1124,7 +1126,8 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
-                currentTimeInMillisFlow = currentTimeInMillisFlow
+                currentTimeInMillisFlow = currentTimeInMillisFlow,
+                collapsingMessageEnabled = collapsingMessageEnabled,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1199,6 +1202,7 @@ fun MessageList(
     lastUnreadMessageInstant: Instant?,
     playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
+    collapsingMessageEnabled: Boolean,
     onUpdateConversationReadDate: (String) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSwipedToReact: (UIMessage.Regular) -> Unit,
@@ -1208,7 +1212,7 @@ fun MessageList(
     interactionAvailability: InteractionAvailability,
     clickActions: MessageClickActions.Content,
     modifier: Modifier = Modifier,
-    currentTimeInMillisFlow: Flow<Long> = flow { }
+    currentTimeInMillisFlow: Flow<Long> = flow { },
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1323,7 +1327,8 @@ fun MessageList(
                         swipeableMessageConfiguration = swipeableConfiguration,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
-                        failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
+                        failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
+                        collapsingMessageEnabled = collapsingMessageEnabled,
                     )
 
                     val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1

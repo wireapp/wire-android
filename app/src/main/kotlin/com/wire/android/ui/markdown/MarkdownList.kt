@@ -29,7 +29,12 @@ import com.wire.android.ui.markdown.MarkdownConstants.BULLET_MARK
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData: NodeData, modifier: Modifier = Modifier) {
+fun MarkdownBulletList(
+    bulletList: MarkdownNode.Block.ListBlock.Bullet,
+    nodeData: NodeData,
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
+) {
     val bottom = if (bulletList.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
 
     val text = buildAnnotatedString {
@@ -39,7 +44,14 @@ fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData
     }
 
     Column(modifier = modifier.padding(bottom = bottom)) {
-        bulletList.children.forEach { listItem ->
+        var totalLines = 0
+        var blockIndex = 0
+
+        while (totalLines <= maxLines && blockIndex < bulletList.children.size) {
+
+            val listItem = bulletList.children[blockIndex++]
+            totalLines += listItem.lines(50, nodeData).coerceAtLeast(1)
+
             Row {
                 MarkdownText(
                     annotatedString = text,
@@ -47,18 +59,33 @@ fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData
                     onLongClick = nodeData.actions?.onLongClick,
                     onOpenProfile = nodeData.actions?.onOpenProfile
                 )
-                MarkdownNodeBlockChildren(children = listItem.children, nodeData = nodeData)
+                MarkdownNodeBlockChildren(
+                    children = listItem.children,
+                    nodeData = nodeData,
+                    maxLines = (maxLines - totalLines).coerceAtLeast(1)
+                )
             }
         }
     }
 }
 
 @Composable
-fun MarkdownOrderedList(orderedList: MarkdownNode.Block.ListBlock.Ordered, nodeData: NodeData, modifier: Modifier = Modifier) {
+fun MarkdownOrderedList(
+    orderedList: MarkdownNode.Block.ListBlock.Ordered,
+    nodeData: NodeData,
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
+) {
     val bottom = if (orderedList.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
 
     Column(modifier = modifier.padding(bottom = bottom)) {
-        orderedList.children.forEach { listItem ->
+
+        var totalLines = 0
+        var blockIndex = 0
+
+        while (totalLines <= maxLines && blockIndex < orderedList.children.size) {
+            val listItem = orderedList.children[blockIndex++]
+
             val text = buildAnnotatedString {
                 pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
                 append("${listItem.orderNumber}${orderedList.delimiter} ")
@@ -72,8 +99,14 @@ fun MarkdownOrderedList(orderedList: MarkdownNode.Block.ListBlock.Ordered, nodeD
                     onLongClick = nodeData.actions?.onLongClick,
                     onOpenProfile = nodeData.actions?.onOpenProfile
                 )
-                MarkdownNodeBlockChildren(children = listItem.children, nodeData = nodeData)
+                MarkdownNodeBlockChildren(
+                    children = listItem.children,
+                    nodeData = nodeData,
+                    maxLines = (maxLines - totalLines).coerceAtLeast(1)
+                )
             }
+
+            totalLines += listItem.lines(50, nodeData).coerceAtLeast(1)
         }
     }
 }

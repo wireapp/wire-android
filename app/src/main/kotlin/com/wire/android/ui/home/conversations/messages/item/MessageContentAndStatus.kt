@@ -51,6 +51,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onReplyClicked: (UIMessage.Regular) -> Unit,
     shouldDisplayMessageStatus: Boolean,
     conversationDetailsData: ConversationDetailsData,
+    isCollapsed: Boolean?,
 ) {
     val onAssetClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {
@@ -74,6 +75,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 messageContent = messageContent,
                 searchQuery = searchQuery,
                 assetStatus = assetStatus,
+                isCollapsed = isCollapsed,
                 onAssetClick = onAssetClickable,
                 onImageClick = onImageClickable,
                 onOpenProfile = onProfileClicked,
@@ -81,7 +83,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onReplyClick = onReplyClickable,
             )
         }
-        if (isMyMessage && shouldDisplayMessageStatus) {
+        if (isMyMessage && shouldDisplayMessageStatus && isCollapsed != true) {
             MessageStatusIndicator(
                 status = message.header.messageStatus.flowStatus,
                 isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
@@ -90,7 +92,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                     start = dimensions().spacing8x
                 )
             )
-        } else {
+        } else if (isCollapsed != true) {
             HorizontalSpace.x24()
         }
     }
@@ -103,38 +105,50 @@ private fun MessageContent(
     messageContent: UIMessageContent.Regular?,
     searchQuery: String,
     assetStatus: AssetTransferStatus?,
+    isCollapsed: Boolean?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
 ) {
+
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
             Column {
-                MessageImage(
-                    asset = messageContent.asset,
-                    imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    onImageClick = onImageClick
-                )
+                CollapsableMessageContainer(
+                    messageContent = messageContent,
+                    isCollapsed = isCollapsed,
+                ) {
+                    MessageImage(
+                        asset = messageContent.asset,
+                        imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+                        transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                        onImageClick = onImageClick
+                    )
+                }
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
         }
 
         is UIMessageContent.VideoMessage -> {
             Column {
-                VideoMessage(
-                    assetSize = messageContent.assetSizeInBytes,
-                    assetName = messageContent.assetName,
-                    assetExtension = messageContent.assetExtension,
-                    assetDataPath = messageContent.assetDataPath,
-                    width = messageContent.width,
-                    height = messageContent.height,
-                    duration = messageContent.duration,
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    onVideoClick = onAssetClick,
-                )
+                CollapsableMessageContainer(
+                    messageContent = messageContent,
+                    isCollapsed = isCollapsed,
+                ) {
+                    VideoMessage(
+                        assetSize = messageContent.assetSizeInBytes,
+                        assetName = messageContent.assetName,
+                        assetExtension = messageContent.assetExtension,
+                        assetDataPath = messageContent.assetDataPath,
+                        width = messageContent.width,
+                        height = messageContent.height,
+                        duration = messageContent.duration,
+                        transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                        onVideoClick = onAssetClick,
+                    )
+                }
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
         }
@@ -161,6 +175,7 @@ private fun MessageContent(
                     buttonList = null,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
+                    isCollapsed = isCollapsed,
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -186,21 +201,27 @@ private fun MessageContent(
                     onOpenProfile = onOpenProfile,
                     buttonList = messageContent.buttonList,
                     messageId = message.header.messageId,
-                    onLinkClick = onLinkClick
+                    onLinkClick = onLinkClick,
+                    isCollapsed = isCollapsed,
                 )
             }
         }
 
         is UIMessageContent.AssetMessage -> {
             Column {
-                MessageAsset(
-                    assetName = messageContent.assetName,
-                    assetExtension = messageContent.assetExtension,
-                    assetSizeInBytes = messageContent.assetSizeInBytes,
-                    assetDataPath = messageContent.assetDataPath,
-                    assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    onAssetClick = onAssetClick
-                )
+                CollapsableMessageContainer(
+                    messageContent = messageContent,
+                    isCollapsed = isCollapsed,
+                ) {
+                    MessageAsset(
+                        assetName = messageContent.assetName,
+                        assetExtension = messageContent.assetExtension,
+                        assetSizeInBytes = messageContent.assetSizeInBytes,
+                        assetDataPath = messageContent.assetDataPath,
+                        assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                        onAssetClick = onAssetClick
+                    )
+                }
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
         }
@@ -236,13 +257,18 @@ private fun MessageContent(
 
         is UIMessageContent.AudioAssetMessage -> {
             Column {
-                AudioMessage(
-                    audioMessageArgs = AudioMessageArgs(message.conversationId, message.header.messageId),
-                    audioMessageDurationInMs = messageContent.audioMessageDurationInMs,
-                    extension = messageContent.assetExtension,
-                    size = messageContent.sizeInBytes,
-                    assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                )
+                CollapsableMessageContainer(
+                    messageContent = messageContent,
+                    isCollapsed = isCollapsed,
+                ) {
+                    AudioMessage(
+                        audioMessageArgs = AudioMessageArgs(message.conversationId, message.header.messageId),
+                        audioMessageDurationInMs = messageContent.audioMessageDurationInMs,
+                        extension = messageContent.assetExtension,
+                        size = messageContent.sizeInBytes,
+                        assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    )
+                }
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
         }
@@ -251,14 +277,19 @@ private fun MessageContent(
             val context = LocalContext.current
             val locationUrl = stringResource(urlCoordinates, zoom, latitude, longitude)
             Column {
-                LocationMessageContent(
-                    locationName = name,
-                    locationUrl = locationUrl,
-                    onLocationClick = Clickable(
-                        enabled = message.isAvailable,
-                        onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
+                CollapsableMessageContainer(
+                    messageContent = messageContent,
+                    isCollapsed = isCollapsed,
+                ) {
+                    LocationMessageContent(
+                        locationName = name,
+                        locationUrl = locationUrl,
+                        onLocationClick = Clickable(
+                            enabled = message.isAvailable,
+                            onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
+                        )
                     )
-                )
+                }
                 PartialDeliveryInformation(deliveryStatus)
             }
         }

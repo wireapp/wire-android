@@ -121,10 +121,13 @@ class ConversationInfoViewModel @Inject constructor(
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             accentId = getAccentId(conversationDetails),
             isWireCellEnabled = isWireCellFeatureEnabled() && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
+            isMessageCollapseEnabled = isCollapsingMessageEnabled(),
         )
     }
 
     private suspend fun isWireCellFeatureEnabled() = globalDataStore.wireCellsEnabled().firstOrNull() ?: false
+
+    private suspend fun isCollapsingMessageEnabled() = globalDataStore.collapseOwnMessagesFlow().firstOrNull() ?: false
 
     private fun getAccentId(conversationDetails: ConversationDetails): Int {
         return if (conversationDetails is ConversationDetails.OneOne) {

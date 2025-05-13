@@ -74,6 +74,7 @@ fun CustomizationScreen(
         onThemeOptionChanged = viewModel::selectThemeOption,
         onBackPressed = navigator::navigateBack,
         onEnterToSendClicked = viewModel::selectPressEnterToSendOption,
+        onCollapseOwnMessagesClicked = viewModel::selectCollapseOwnMessagesOption,
     )
 }
 
@@ -83,6 +84,7 @@ fun CustomizationScreenContent(
     onThemeOptionChanged: (ThemeOption) -> Unit,
     onBackPressed: () -> Unit,
     onEnterToSendClicked: (Boolean) -> Unit,
+    onCollapseOwnMessagesClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -115,7 +117,9 @@ fun CustomizationScreenContent(
             item {
                 CustomizationOptionsContent(
                     enterToSendState = state.pressEnterToSentState,
-                    enterToSendClicked = onEnterToSendClicked
+                    enterToSendClicked = onEnterToSendClicked,
+                    collapseOwnMessages = state.collapseOwnMessagesState,
+                    collapseOwnMessagesClicked = onCollapseOwnMessagesClicked,
                 )
             }
         }
@@ -125,7 +129,9 @@ fun CustomizationScreenContent(
 @Composable
 fun CustomizationOptionsContent(
     enterToSendState: Boolean,
+    collapseOwnMessages: Boolean,
     enterToSendClicked: (Boolean) -> Unit,
+    collapseOwnMessagesClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -138,6 +144,12 @@ fun CustomizationOptionsContent(
             switchState = SwitchState.Enabled(value = enterToSendState, onCheckedChange = enterToSendClicked),
             arrowType = ArrowType.NONE,
             subtitle = stringResource(id = R.string.press_enter_to_send_text)
+        )
+        GroupConversationOptionsItem(
+            title = stringResource(R.string.collapse_own_messages_title),
+            switchState = SwitchState.Enabled(value = collapseOwnMessages, onCheckedChange = collapseOwnMessagesClicked),
+            arrowType = ArrowType.NONE,
+            subtitle = stringResource(id = R.string.collapse_own_messages_text)
         )
     }
 }
@@ -202,6 +214,7 @@ fun ThemeOptionItem(
 fun PreviewSettingsScreen() {
     CustomizationScreenContent(
         CustomizationState(),
+        {},
         {},
         {},
         {},

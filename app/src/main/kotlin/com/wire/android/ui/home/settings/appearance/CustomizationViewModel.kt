@@ -39,6 +39,7 @@ class CustomizationViewModel @Inject constructor(
     init {
         observeThemeState()
         observePressEnterToSendState()
+        observeCollapseOwnMessagesState()
     }
 
     private fun observePressEnterToSendState() {
@@ -63,5 +64,13 @@ class CustomizationViewModel @Inject constructor(
         viewModelScope.launch {
             globalDataStore.setThemeOption(option)
         }
+    }
+
+    private fun observeCollapseOwnMessagesState() = viewModelScope.launch {
+        globalDataStore.collapseOwnMessagesFlow().collect { state = state.copy(collapseOwnMessagesState = it) }
+    }
+
+    fun selectCollapseOwnMessagesOption(option: Boolean) = viewModelScope.launch {
+        globalDataStore.setCollapseOwnMessages(option)
     }
 }

@@ -18,6 +18,7 @@
 package com.wire.android.ui.markdown
 
 import android.text.util.Linkify
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import com.wire.android.ui.markdown.MarkdownConstants.TAG_URL
 import com.wire.android.util.MatchQueryResult
 import com.wire.android.util.QueryMatchExtractor
 import com.wire.kalium.logic.data.message.mention.MessageMention
+import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
@@ -42,7 +44,8 @@ import kotlin.math.min
 fun MarkdownDocument(
     document: MarkdownNode.Document,
     nodeData: NodeData,
-    clickable: Boolean
+    clickable: Boolean,
+    isCollapsed: Boolean? = null,
 ) {
     val filteredDocument = if (nodeData.searchQuery.isNotBlank()) {
         document.filterNodesContainingQuery(nodeData.searchQuery)
@@ -50,11 +53,100 @@ fun MarkdownDocument(
         document
     }
     if (filteredDocument != null) {
-        MarkdownNodeBlockChildren(
-            children = (filteredDocument as MarkdownNode.Document).children,
-            nodeData = nodeData,
-            clickable = clickable
-        )
+        AnimatedContent(isCollapsed == true) { collapsed ->
+            if (collapsed) {
+
+                val lines = (filteredDocument as MarkdownNode.Document).children.sumOf { it.lines(50, nodeData) }
+
+                if (lines > 3) {
+                    MarkdownNodeBlockChildren(
+                        children = (filteredDocument as MarkdownNode.Document).children,
+                        nodeData = nodeData,
+                        clickable = clickable,
+                        maxLines = 3,
+                    )
+                } else {
+                    MarkdownNodeBlockChildren(
+                        children = (filteredDocument as MarkdownNode.Document).children,
+                        nodeData = nodeData,
+                        clickable = clickable,
+                    )
+                }
+            } else {
+                MarkdownNodeBlockChildren(
+                    children = (filteredDocument as MarkdownNode.Document).children,
+                    nodeData = nodeData,
+                    clickable = clickable,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MarkdownNodeBlockChildren(
+    children: List<MarkdownNode.Block>,
+    nodeData: NodeData,
+    maxLines: Int,
+    modifier: Modifier = Modifier,
+    clickable: Boolean = true,
+) {
+    var updateMentions = nodeData.mentions
+    val updatedNodeData = nodeData.copy(mentions = updateMentions)
+
+    var totalLines = 0
+
+    Column(modifier = modifier) {
+
+        var blockIndex = 0
+
+        while (totalLines <= maxLines && blockIndex < children.size) {
+            val node = children[blockIndex++]
+
+            when (node) {
+                is MarkdownNode.Block.BlockQuote -> MarkdownBlockQuote(node, updatedNodeData)
+                is MarkdownNode.Block.IntendedCode -> MarkdownIndentedCodeBlock(indentedCodeBlock = node, nodeData = updatedNodeData)
+                is MarkdownNode.Block.FencedCode -> MarkdownFencedCodeBlock(fencedCodeBlock = node, nodeData = updatedNodeData)
+                is MarkdownNode.Block.Heading -> MarkdownHeading(heading = node, nodeData = updatedNodeData)
+                is MarkdownNode.Block.ListBlock.Ordered -> MarkdownOrderedList(
+                    orderedList = node,
+                    nodeData = updatedNodeData,
+                    maxLines = (maxLines - totalLines).coerceAtLeast(1),
+                )
+                is MarkdownNode.Block.ListBlock.Bullet -> MarkdownBulletList(
+                    bulletList = node,
+                    nodeData = updatedNodeData,
+                    maxLines = (maxLines - totalLines).coerceAtLeast(1),
+                )
+
+                is MarkdownNode.Block.Paragraph -> MarkdownParagraph(
+                    paragraph = node,
+                    nodeData = updatedNodeData,
+                    clickable = clickable,
+                    onMentionsUpdate = {
+                        updateMentions = it
+                    },
+                    maxLines = (maxLines - totalLines).coerceAtLeast(1),
+                )
+
+                is MarkdownNode.Block.Table -> MarkdownTable(
+                    tableBlock = node,
+                    nodeData = updatedNodeData,
+                    onMentionsUpdate = {
+                        updateMentions = it
+                    }
+                )
+
+                is MarkdownNode.Block.ThematicBreak -> MarkdownThematicBreak()
+
+                // Not used Blocks here
+                is MarkdownNode.Block.TableContent.Body -> {}
+                is MarkdownNode.Block.ListItem -> {}
+                is MarkdownNode.Block.TableContent.Head -> {}
+            }
+
+            totalLines += node.lines(50, nodeData)
+        }
     }
 }
 
@@ -63,7 +155,7 @@ fun MarkdownNodeBlockChildren(
     children: List<MarkdownNode.Block>,
     nodeData: NodeData,
     modifier: Modifier = Modifier,
-    clickable: Boolean = true
+    clickable: Boolean = true,
 ) {
     var updateMentions = nodeData.mentions
     val updatedNodeData = nodeData.copy(mentions = updateMentions)
@@ -84,7 +176,7 @@ fun MarkdownNodeBlockChildren(
                     clickable = clickable,
                     onMentionsUpdate = {
                         updateMentions = it
-                    }
+                    },
                 )
 
                 is MarkdownNode.Block.Table -> MarkdownTable(
@@ -371,3 +463,41 @@ private fun convertTypoGraphs(literal: String) = literal
     .replace("(tm)", "™")
     .replace("(TM)", "™")
     .replace("+-", "±")
+
+internal fun MarkdownNode.Block.lines(charLimit: Int, nodeData: NodeData): Int = when (this@lines) {
+    is MarkdownNode.Block.Paragraph ->
+        buildAnnotatedString {
+            inlineNodeChildren(children, this, nodeData)
+        }.text.lines(charLimit)
+    is MarkdownNode.Block.Heading ->
+        buildAnnotatedString {
+            inlineNodeChildren(children, this, nodeData)
+        }.text.lines(charLimit)
+    is MarkdownNode.Block.BlockQuote ->
+        children
+            .filterIsInstance<MarkdownNode.Block.Paragraph>()
+            .firstOrNull()?.let { block ->
+                ceil(
+                    buildAnnotatedString {
+                        inlineNodeChildren(block.children, this, nodeData)
+                    }.text.length / charLimit.toFloat()
+                ).toInt()
+            } ?: 0
+    is MarkdownNode.Block.FencedCode -> ceil(literal.length / charLimit.toFloat()).toInt()
+    is MarkdownNode.Block.IntendedCode -> ceil(literal.length / charLimit.toFloat()).toInt()
+    is MarkdownNode.Block.ListBlock.Bullet -> children.sumOf { block ->
+        block.lines(50, nodeData)
+    }
+    is MarkdownNode.Block.ListBlock.Ordered -> children.sumOf { block ->
+        block.lines(50, nodeData)
+    }
+    is MarkdownNode.Block.ListItem -> children.sumOf { block ->
+        block.lines(50, nodeData)
+    }
+    else -> 0
+}
+
+private fun String.lines(charLimit: Int): Int =
+    split("\n").sumOf { text ->
+        ceil(text.length / charLimit.toFloat()).toInt()
+    }

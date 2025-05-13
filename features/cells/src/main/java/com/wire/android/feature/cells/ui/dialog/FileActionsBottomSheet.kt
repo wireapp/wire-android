@@ -153,7 +153,7 @@ private fun PreviewFileActionsBottomSheet() {
                     name = "test file.pdf",
                     mimeType = "application/pdf",
                     assetType = AttachmentFileType.PDF,
-                    assetSize = 2342342,
+                    size = 2342342,
                     localPath = "",
                     userName = null,
                     conversationName = null,

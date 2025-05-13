@@ -17,15 +17,18 @@
  */
 package com.wire.android.media.audiomessage
 
-import linc.com.amplituda.Amplituda
-import linc.com.amplituda.Cache
+import dagger.Lazy
+import com.linc.amplituda.Amplituda
+import com.linc.amplituda.Cache
+import dagger.Reusable
 import okio.Path
 import java.io.File
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
+@Reusable
 class AudioWavesMaskHelper @Inject constructor(
-    private val amplituda: Amplituda
+    private val amplituda: Lazy<Amplituda>
 ) {
 
     companion object {
@@ -33,14 +36,20 @@ class AudioWavesMaskHelper @Inject constructor(
         private const val WAVE_MAX = 32
     }
 
-    fun getWaveMask(decodedAssetPath: Path): List<Int> = getWaveMask(File(decodedAssetPath.toString()))
+    private fun getAmplituda(): Amplituda? = try {
+        amplituda.get()
+    } catch (e: NullPointerException) {
+        null
+    }
 
-    fun getWaveMask(file: File): List<Int> = amplituda
-        .processAudio(file, Cache.withParams(Cache.REUSE))
-        .get()
-        .amplitudesAsList()
-        .averageWavesMask()
-        .equalizeWavesMask()
+    fun getWaveMask(decodedAssetPath: Path): List<Int>? = getWaveMask(File(decodedAssetPath.toString()))
+
+    fun getWaveMask(file: File): List<Int>? = getAmplituda()
+        ?.processAudio(file, Cache.withParams(Cache.REUSE))
+        ?.get()
+        ?.amplitudesAsList()
+        ?.averageWavesMask()
+        ?.equalizeWavesMask()
 
     private fun List<Double>.equalizeWavesMask(): List<Int> {
         if (this.isEmpty()) return listOf()
@@ -76,6 +85,6 @@ class AudioWavesMaskHelper @Inject constructor(
     }
 
     fun clear() {
-        amplituda.clearCache()
+        getAmplituda()?.clearCache()
     }
 }

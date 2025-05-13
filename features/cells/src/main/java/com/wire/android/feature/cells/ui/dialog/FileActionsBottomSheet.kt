@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun FileActionsBottomSheet(
     menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction) -> Unit,
+    onAction: (BottomSheetAction.File) -> Unit,
     onDismiss: () -> Unit,
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>()
 ) {
@@ -78,7 +78,7 @@ internal fun FileActionsBottomSheet(
 @Composable
 private fun SheetContent(
     menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction) -> Unit
+    onAction: (BottomSheetAction.File) -> Unit
 ) {
     Column(
         modifier = Modifier

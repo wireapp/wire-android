@@ -48,7 +48,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -538,7 +537,7 @@ class WireActivity : AppCompatActivity() {
                     )
                 }
 
-//                UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
+                UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
                 JoinConversationDialog(
                     viewModel.globalAppState.conversationJoinedDialog,
                     navigate,

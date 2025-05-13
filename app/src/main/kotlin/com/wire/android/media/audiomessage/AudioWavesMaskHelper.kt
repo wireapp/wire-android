@@ -17,6 +17,7 @@
  */
 package com.wire.android.media.audiomessage
 
+import android.content.Context
 import dagger.Lazy
 import com.linc.amplituda.Amplituda
 import com.linc.amplituda.Cache
@@ -31,11 +32,13 @@ class AudioWavesMaskHelper @Inject constructor(
     private val amplituda: Lazy<Amplituda>
 ) {
 
+    lateinit var context: Context
     companion object {
         private const val WAVES_AMOUNT = 75
         private const val WAVE_MAX = 32
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun getAmplituda(): Amplituda? = try {
         amplituda.get()
     } catch (e: NullPointerException) {

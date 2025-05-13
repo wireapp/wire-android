@@ -340,7 +340,7 @@ private fun AudioMessageSlider(
 ) {
     Box(modifier = Modifier.fillMaxWidth()) {
         val totalMs = if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f
-        val waves = waveMask?.ifEmpty { getDefaultWaveMask() }?: getDefaultWaveMask()
+        val waves = waveMask?.ifEmpty { getDefaultWaveMask() } ?: getDefaultWaveMask()
         val wavesAmount = waves.size
 
         Row(

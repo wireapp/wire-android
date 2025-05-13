@@ -32,6 +32,7 @@ import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
@@ -80,7 +81,8 @@ class EditConversationMetadataViewModel @Inject constructor(
                 .collectLatest {
                     editConversationNameTextState.setTextAndPlaceCursorAtEnd(it.conversation.name.orEmpty())
                     editConversationState = editConversationState.copy(
-                        originalGroupName = it.conversation.name.orEmpty()
+                        originalGroupName = it.conversation.name.orEmpty(),
+                        isChannel = it.conversation.type == Conversation.Type.Group.Channel,
                     )
                 }
         }

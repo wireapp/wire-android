@@ -37,7 +37,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
-import com.wire.android.feature.cells.ui.dialog.FilesNewActionsBottomSheet
+import com.wire.android.feature.cells.ui.dialog.CellsNewActionsBottomSheet
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -63,7 +63,7 @@ fun ConversationFilesScreen(
     modifier: Modifier = Modifier,
     viewModel: CellViewModel = hiltViewModel()
 ) {
-    val pagingListItems = viewModel.filesFlow.collectAsLazyPagingItems()
+    val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
     val sheetState = rememberWireModalSheetState<Unit>()
 
     val isFabVisible = when {
@@ -72,7 +72,7 @@ fun ConversationFilesScreen(
         else -> true
     }
 
-    FilesNewActionsBottomSheet(
+    CellsNewActionsBottomSheet(
         sheetState = sheetState,
         onDismiss = {
             sheetState.hide()

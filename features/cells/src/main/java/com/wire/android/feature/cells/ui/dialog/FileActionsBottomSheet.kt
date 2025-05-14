@@ -17,51 +17,46 @@
  */
 package com.wire.android.feature.cells.ui.dialog
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.FileIconPreview
 import com.wire.android.feature.cells.ui.MenuOptions
-import com.wire.android.feature.cells.ui.model.CellFileUi
+import com.wire.android.feature.cells.ui.model.BottomSheetAction
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.FileAction
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
-import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FileActionsBottomSheet(
-    menuOptions: MenuOptions,
-    onAction: (FileAction) -> Unit,
+    menuOptions: MenuOptions.FileMenuOptions,
+    onAction: (BottomSheetAction.File) -> Unit,
     onDismiss: () -> Unit,
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>()
 ) {
 
-    val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
-    ModalBottomSheet(
+    WireModalSheetLayout(
         onDismissRequest = {
             onDismiss()
         },
@@ -82,8 +77,8 @@ internal fun FileActionsBottomSheet(
 
 @Composable
 private fun SheetContent(
-    menuOptions: MenuOptions,
-    onAction: (FileAction) -> Unit
+    menuOptions: MenuOptions.FileMenuOptions,
+    onAction: (BottomSheetAction.File) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -99,10 +94,10 @@ private fun SheetContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            FileIconPreview(menuOptions.file)
+            FileIconPreview(menuOptions.cellNodeUi)
 
             Text(
-                text = menuOptions.file.fileName ?: "",
+                text = menuOptions.cellNodeUi.name ?: "",
                 style = typography().title02,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -111,7 +106,7 @@ private fun SheetContent(
         WireDivider(modifier = Modifier.fillMaxWidth())
 
         menuOptions.actions.forEach { action ->
-            MenuItem(
+            BottomSheetMenuItem(
                 modifier = Modifier.clickable { onAction(action) },
                 action = action
             )
@@ -120,55 +115,38 @@ private fun SheetContent(
     }
 }
 
-@Composable
-private fun MenuItem(
-    action: FileAction,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .padding(horizontal = dimensions().spacing16x)
-            .height(dimensions().spacing48x)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
-    ) {
-        Image(
-            painter = painterResource(action.icon),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(
-                color = if (action.isHighlighted) colorsScheme().error else colorsScheme().onSurface
-            )
-        )
-        Text(
-            text = stringResource(action.title),
-            style = typography().body01,
-            color = if (action.isHighlighted) colorsScheme().error else typography().body01.color
-        )
-    }
-}
-
 @PreviewMultipleThemes
 @Composable
 private fun PreviewFileActionsBottomSheet() {
     WireTheme {
-        SheetContent(
-            menuOptions = MenuOptions(
-                file = CellFileUi(
+        FileActionsBottomSheet(
+            sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = Unit)),
+            menuOptions = MenuOptions.FileMenuOptions(
+                cellNodeUi = CellNodeUi.File(
                     uuid = "",
-                    fileName = "test file.pdf",
+                    name = "test file.pdf",
                     mimeType = "application/pdf",
                     assetType = AttachmentFileType.PDF,
                     assetSize = 2342342,
                     localPath = "",
+                    userName = null,
+                    conversationName = null,
+                    modifiedTime = null,
+                    remotePath = null,
+                    contentHash = null,
+                    contentUrl = null,
+                    previewUrl = null,
+                    downloadProgress = null,
+                    publicLinkId = null,
                 ),
                 actions = listOf(
-                    FileAction.SHARE,
-                    FileAction.PUBLIC_LINK,
-                    FileAction.DELETE,
+                    BottomSheetAction.File(FileAction.SHARE),
+                    BottomSheetAction.File(FileAction.PUBLIC_LINK),
+                    BottomSheetAction.File(FileAction.DELETE),
                 )
             ),
             onAction = {},
+            onDismiss = {}
         )
     }
 }

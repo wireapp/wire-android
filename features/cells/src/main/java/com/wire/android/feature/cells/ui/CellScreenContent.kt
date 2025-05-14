@@ -46,8 +46,9 @@ import androidx.paging.compose.LazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.FileActionsBottomSheet
+import com.wire.android.feature.cells.ui.dialog.FolderActionsBottomSheet
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
-import com.wire.android.feature.cells.ui.model.CellFileUi
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -55,12 +56,13 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
-    pagingListItems: LazyPagingItems<CellFileUi>,
+    pagingListItems: LazyPagingItems<CellNodeUi>,
     sendIntent: (CellViewIntent) -> Unit,
-    downloadFileState: StateFlow<CellFileUi?>,
+    downloadFileState: StateFlow<CellNodeUi.File?>,
     fileMenuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (String, String, String?) -> Unit,
     isAllFiles: Boolean,
@@ -70,7 +72,7 @@ internal fun CellScreenContent(
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
 
-    var deleteConfirmation by remember { mutableStateOf<CellFileUi?>(null) }
+    var deleteConfirmation by remember { mutableStateOf<CellNodeUi.File?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
     val downloadFile by downloadFileState.collectAsState()
@@ -85,9 +87,9 @@ internal fun CellScreenContent(
         )
         else ->
             CellFilesScreen(
-                files = pagingListItems,
-                onFileClick = { sendIntent(CellViewIntent.OnFileClick(it)) },
-                onFileMenuClick = { sendIntent(CellViewIntent.OnFileMenuClick(it)) },
+                cellNodes = pagingListItems,
+                onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
+                onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
 //                onRefresh = {
 //                    viewModel.loadFiles(pullToRefresh = true)
 //                }
@@ -95,14 +97,29 @@ internal fun CellScreenContent(
     }
 
     menu?.let { menuOptions ->
-        FileActionsBottomSheet(
-            menuOptions = menuOptions,
-            onDismiss = { menu = null },
-            onAction = { action ->
-                menu = null
-                sendIntent(CellViewIntent.OnMenuActionSelected(menuOptions.file, action))
+        when (menuOptions) {
+            is MenuOptions.FileMenuOptions -> {
+                FileActionsBottomSheet(
+                    menuOptions = menuOptions,
+                    onDismiss = { menu = null },
+                    onAction = { action ->
+                        menu = null
+                        sendIntent(CellViewIntent.OnMenuFileActionSelected(menuOptions.cellNodeUi, action))
+                    }
+                )
             }
-        )
+
+            is MenuOptions.FolderMenuOptions -> {
+                FolderActionsBottomSheet(
+                    menuOptions = menuOptions,
+                    onDismiss = { menu = null },
+                    onAction = { action ->
+                        menu = null
+                        sendIntent(CellViewIntent.OnMenuFolderActionSelected(menuOptions.cellNodeUi, action))
+                    }
+                )
+            }
+        }
     }
 
     downloadFile?.let { file ->
@@ -133,7 +150,7 @@ internal fun CellScreenContent(
                     is ShowDeleteConfirmation -> deleteConfirmation = action.file
                     is ShowPublicLinkScreen -> showPublicLinkScreen(
                         action.file.uuid,
-                        action.file.fileName ?: action.file.uuid,
+                        action.file.name ?: action.file.uuid,
                         action.file.publicLinkId
                     )
                     is RefreshData -> pagingListItems.refresh()
@@ -178,6 +195,7 @@ private fun ErrorScreen(onRetry: () -> Unit) {
                 .fillMaxHeight()
                 .weight(1f)
         )
+
         Text(
             text = stringResource(R.string.file_list_load_error),
             textAlign = TextAlign.Center,

@@ -24,7 +24,7 @@ import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
+import com.wire.kalium.cells.domain.usecase.GetNodesUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
@@ -83,7 +83,7 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveFilesUseCase(cellsScope: CellsScope): GetCellFilesUseCase = cellsScope.observeFiles
+    fun provideObserveFilesUseCase(cellsScope: CellsScope): GetNodesUseCase = cellsScope.observeFiles
 
     @ViewModelScoped
     @Provides

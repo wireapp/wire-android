@@ -44,6 +44,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
@@ -61,7 +62,7 @@ import kotlinx.coroutines.flow.StateFlow
  * Conversation id is passed to view model via navigation parameters [CellFilesNavArgs].
  */
 @Destination(
-    style = SlideNavigationAnimation::class,
+    style = PopUpNavigationAnimation::class,
     navArgsDelegate = CellFilesNavArgs::class,
 )
 @Composable

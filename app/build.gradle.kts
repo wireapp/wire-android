@@ -134,6 +134,7 @@ android {
 aboutLibraries {
     val isAboutLibrariesDisabled = System.getenv("DISABLE_ABOUT_LIBRARIES")?.equals("true", true) ?: false
     registerAndroidTasks = !isAboutLibrariesDisabled
+    excludeFields = arrayOf("generated")
 }
 
 dependencies {

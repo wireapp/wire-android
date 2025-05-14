@@ -15,11 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.publiclink
+package com.wire.android.feature.cells.ui.createfolder
 
-data class PublicLinkNavArgs(
-    val assetId: String,
-    val fileName: String,
-    val publicLinkId: String?,
-    val isFolder: Boolean,
+data class CreateFolderScreenNavArgs(
+    val uuid: String?
 )

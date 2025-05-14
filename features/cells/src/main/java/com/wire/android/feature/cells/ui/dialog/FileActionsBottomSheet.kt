@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,21 +39,20 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FileActionsBottomSheet(
     menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction.File) -> Unit,
+    onAction: (BottomSheetAction) -> Unit,
     onDismiss: () -> Unit,
-    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>()
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
-
-    val scope = rememberCoroutineScope()
 
     WireModalSheetLayout(
         onDismissRequest = {
@@ -65,11 +63,7 @@ internal fun FileActionsBottomSheet(
         SheetContent(
             menuOptions = menuOptions,
             onAction = { action ->
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        onAction(action)
-                    }
-                }
+                onAction(action)
             }
         )
     }
@@ -78,7 +72,7 @@ internal fun FileActionsBottomSheet(
 @Composable
 private fun SheetContent(
     menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction.File) -> Unit
+    onAction: (BottomSheetAction) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -115,6 +109,34 @@ private fun SheetContent(
     }
 }
 
+@Composable
+private fun MenuItem(
+    action: BottomSheetAction.File,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .padding(horizontal = dimensions().spacing16x)
+            .height(dimensions().spacing48x)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+    ) {
+        Image(
+            painter = painterResource(action.data.icon),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(
+                color = if (action.data.isHighlighted) colorsScheme().error else colorsScheme().onSurface
+            )
+        )
+        Text(
+            text = stringResource(action.data.title),
+            style = typography().body01,
+            color = if (action.data.isHighlighted) colorsScheme().error else typography().body01.color
+        )
+    }
+}
+
 @PreviewMultipleThemes
 @Composable
 private fun PreviewFileActionsBottomSheet() {
@@ -131,13 +153,7 @@ private fun PreviewFileActionsBottomSheet() {
                     localPath = "",
                     userName = null,
                     conversationName = null,
-                    modifiedTime = null,
-                    remotePath = null,
-                    contentHash = null,
-                    contentUrl = null,
-                    previewUrl = null,
-                    downloadProgress = null,
-                    publicLinkId = null,
+                    modifiedTime = null
                 ),
                 actions = listOf(
                     BottomSheetAction.File(FileAction.SHARE),

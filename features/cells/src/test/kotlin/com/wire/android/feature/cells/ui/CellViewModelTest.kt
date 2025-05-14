@@ -275,7 +275,7 @@ class CellViewModelTest {
 
             with(expectMostRecentItem()) {
                 assertTrue(this is ShowPublicLinkScreen)
-                assertEquals(testFile, (this as ShowPublicLinkScreen).file)
+                assertEquals(testFile, (this as ShowPublicLinkScreen).cellNode)
             }
         }
     }

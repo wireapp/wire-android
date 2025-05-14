@@ -77,6 +77,8 @@ class PublicLinkViewModel @Inject constructor(
         }
     }
 
+    fun isFolder(): Boolean = navArgs.isFolder
+
     fun onEnabled(enabled: Boolean) {
         _state.update {
             it.copy(

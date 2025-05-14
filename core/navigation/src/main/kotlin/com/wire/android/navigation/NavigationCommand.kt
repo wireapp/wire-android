@@ -32,6 +32,11 @@ data class NavigationCommand(
      * Whether we want to clear the previously added screens on the backstack, only until the current one, or none of them.
      */
     val backStackMode: BackStackMode = BackStackMode.NONE,
+
+    /**
+     * Whether we want to clear the backstack of the current graph.
+     */
+    val launchSingleTop: Boolean = true
 )
 
 enum class BackStackMode {

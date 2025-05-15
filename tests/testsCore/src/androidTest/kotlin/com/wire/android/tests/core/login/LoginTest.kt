@@ -19,7 +19,7 @@ package com.wire.android.tests.core.login
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
-import com.wire.android.tests.core.login.pages.LoginPage
+import com.wire.android.tests.core.pages.LoginPage
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.suite.RC
 import org.junit.Before
@@ -46,5 +46,15 @@ class LoginTest {
             .tapOnEmailField()
             .typeEmail("tester@wire.com")
             .shouldEnableTheLoginButtonWhenValid()
+        //.clickLoginButton()
+
+//        @Test
+//        fun openTheAppAndShouldSeeEmailFieldAndLoginWhenValid() {
+//            val loginPage = LoginPage(device)
+//            loginPage.tapOnEmailField()
+//            loginPage.typeEmail("tester@wire.com")
+//            loginPage.shouldEnableTheLoginButtonWhenValid()
+//        }
     }
+
 }

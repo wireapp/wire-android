@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.login.pages
+package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject
@@ -44,5 +44,12 @@ data class LoginPage(private val device: UiDevice) {
         loginButton.waitForExists(TIMEOUT_IN_MILLISECONDS)
         assertTrue("LoginButton not found or not enabled", loginButton.isClickable)
         return this
+
+//    }
+//
+//    fun clickLoginButton(): LoginPage {
+//        val loginButton = device.findObject(UiSelector().resourceId("loginButton"))
+//        loginButton.click()
+//        return this
     }
 }

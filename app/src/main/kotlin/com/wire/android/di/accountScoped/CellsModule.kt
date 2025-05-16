@@ -27,6 +27,7 @@ import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
 import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
@@ -125,4 +126,8 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideCreateFolderUseCase(cellsScope: CellsScope): CreateFolderUseCase = cellsScope.createFolderUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideMoveNodeUseCase(cellsScope: CellsScope): MoveNodeUseCase = cellsScope.moveNodeUseCase
 }

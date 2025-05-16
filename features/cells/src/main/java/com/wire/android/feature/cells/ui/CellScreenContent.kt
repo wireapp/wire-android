@@ -65,6 +65,7 @@ internal fun CellScreenContent(
     downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (String, String, String?, Boolean) -> Unit,
+    showMoveToFolderScreen: (String, String, String) -> Unit,
     isAllFiles: Boolean,
     isSearchResult: Boolean = false,
 ) {
@@ -159,6 +160,7 @@ internal fun CellScreenContent(
                         action.cellNode.publicLinkId,
                         action.cellNode is CellNodeUi.Folder
                     )
+                    is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
                     is RefreshData -> pagingListItems.refresh()
                 }
             }
@@ -171,19 +173,6 @@ internal fun CellScreenContent(
                 menu = showMenu
             }
         }
-    }
-}
-
-@Composable
-private fun LoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        WireCircularProgressIndicator(
-            modifier = Modifier.size(dimensions().spacing32x),
-            progressColor = colorsScheme().primary
-        )
     }
 }
 

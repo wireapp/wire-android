@@ -50,6 +50,7 @@ enum class FileAction(
     SAVE(R.string.save_file, R.drawable.ic_save),
     SHARE(R.string.share_file, R.drawable.ic_share),
     PUBLIC_LINK(R.string.public_link, R.drawable.ic_file_link),
+    MOVE(R.string.move_file, R.drawable.ic_folder),
     DELETE(R.string.delete_file, R.drawable.ic_file_delete, true),
 }
 

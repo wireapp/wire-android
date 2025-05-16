@@ -124,7 +124,6 @@ private fun PreviewFolderActionsBottomSheet() {
                     userName = "User",
                     conversationName = "Conversation",
                     modifiedTime = null,
-                    contents = listOf(),
                 ),
                 actions = listOf(
                     BottomSheetAction.Folder(FolderAction.MOVE),

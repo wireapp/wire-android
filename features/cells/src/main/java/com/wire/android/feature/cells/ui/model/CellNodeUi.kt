@@ -40,7 +40,6 @@ sealed class CellNodeUi {
         override val conversationName: String?,
         override val modifiedTime: String?,
         override val publicLinkId: String? = null,
-        val contents: List<CellNodeUi> // folder can has files and nested folders
     ) : CellNodeUi()
 
     data class File(
@@ -86,7 +85,6 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     userName = userName,
     conversationName = conversationName,
     modifiedTime = formattedModifiedTime(),
-    contents = listOf()
 )
 
 private fun Node.File.formattedModifiedTime() = lastModified?.let {

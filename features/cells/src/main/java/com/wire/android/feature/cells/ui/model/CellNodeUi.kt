@@ -90,6 +90,7 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
 private fun Node.File.formattedModifiedTime() = lastModified?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }
+
 private fun Node.Folder.formattedModifiedTime() = lastModified?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }

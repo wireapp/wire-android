@@ -74,7 +74,7 @@ internal fun Node.File.toUiModel() = CellNodeUi.File(
     name = name,
     mimeType = mimeType,
     assetType = AttachmentFileType.fromMimeType(mimeType),
-    assetSize = size,
+    assetSize = assetSize,
     localPath = localPath,
     remotePath = remotePath,
     contentHash = contentHash,
@@ -89,6 +89,7 @@ internal fun Node.File.toUiModel() = CellNodeUi.File(
 private fun Node.File.formattedModifiedTime() = modifiedTime?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }
+
 private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }

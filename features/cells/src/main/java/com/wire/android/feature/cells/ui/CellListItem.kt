@@ -260,7 +260,6 @@ private fun PreviewCellListItem() {
                 localPath = null,
                 mimeType = "image/jpg",
                 publicLinkId = "",
-                downloadProgress = 0.75f,
                 userName = "Test User",
                 conversationName = "Test Conversation",
                 modifiedTime = null,

@@ -21,4 +21,3 @@ data class CellFilesNavArgs(
     val conversationId: String? = null,
     val screenTitle: String? = null
 )
-

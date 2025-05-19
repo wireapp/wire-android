@@ -17,9 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.dialog
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,9 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.FileIconPreview
@@ -76,7 +71,7 @@ internal fun FileActionsBottomSheet(
 @Composable
 private fun SheetContent(
     menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction) -> Unit
+    onAction: (BottomSheetAction.File) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -104,40 +99,12 @@ private fun SheetContent(
         WireDivider(modifier = Modifier.fillMaxWidth())
 
         menuOptions.actions.forEach { action ->
-            MenuItem(
+            BottomSheetMenuItem(
                 modifier = Modifier.clickable { onAction(action) },
                 action = action
             )
             WireDivider(modifier = Modifier.fillMaxWidth())
         }
-    }
-}
-
-@Composable
-private fun MenuItem(
-    action: BottomSheetAction.File,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .padding(horizontal = dimensions().spacing16x)
-            .height(dimensions().spacing48x)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
-    ) {
-        Image(
-            painter = painterResource(action.data.icon),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(
-                color = if (action.data.isHighlighted) colorsScheme().error else colorsScheme().onSurface
-            )
-        )
-        Text(
-            text = stringResource(action.data.title),
-            style = typography().body01,
-            color = if (action.data.isHighlighted) colorsScheme().error else typography().body01.color
-        )
     }
 }
 

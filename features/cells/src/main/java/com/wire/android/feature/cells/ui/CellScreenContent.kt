@@ -190,6 +190,7 @@ private fun ErrorScreen(onRetry: () -> Unit) {
                 .fillMaxHeight()
                 .weight(1f)
         )
+
         Text(
             text = stringResource(R.string.file_list_load_error),
             textAlign = TextAlign.Center,

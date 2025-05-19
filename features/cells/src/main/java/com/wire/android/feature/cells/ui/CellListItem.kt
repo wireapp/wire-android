@@ -121,17 +121,15 @@ internal fun CellListItem(
                 )
             }
         }
-        if (cell is CellNodeUi.File) {
-            cell.downloadProgress?.let {
-                WireLinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomStart),
-                    progress = { it },
-                    color = colorsScheme().primary,
-                    trackColor = Color.Transparent,
-                )
-            }
+        cell.downloadProgress?.let {
+            WireLinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart),
+                progress = { it },
+                color = colorsScheme().primary,
+                trackColor = Color.Transparent,
+            )
         }
     }
 }

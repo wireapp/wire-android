@@ -56,6 +56,7 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
@@ -200,6 +201,7 @@ private fun ErrorScreen(onRetry: () -> Unit) {
                 .fillMaxHeight()
                 .weight(1f)
         )
+
         Text(
             text = stringResource(R.string.file_list_load_error),
             textAlign = TextAlign.Center,

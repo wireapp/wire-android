@@ -184,11 +184,13 @@ class RecordAudioMessagePlayer @Inject constructor(
         audioMediaPlayer.seekTo(position)
         audioMediaPlayer.start()
 
-        audioMessageStateUpdate.emit(
-            RecordAudioMediaPlayerStateUpdate.WaveMaskUpdate(
-                wavesMaskHelper.getWaveMask(audioFile)
+        wavesMaskHelper.getWaveMask(audioFile)?.let { waveMask ->
+            audioMessageStateUpdate.emit(
+                RecordAudioMediaPlayerStateUpdate.WaveMaskUpdate(
+                    waveMask = waveMask
+                )
             )
-        )
+        }
 
         audioMessageStateUpdate.emit(
             RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(

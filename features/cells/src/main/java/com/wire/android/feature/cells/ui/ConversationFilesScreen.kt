@@ -61,7 +61,7 @@ import kotlinx.coroutines.flow.StateFlow
  * Conversation id is passed to view model via navigation parameters [CellFilesNavArgs].
  */
 @Destination(
-    style = SlideNavigationAnimation::class,
+    style = PopUpNavigationAnimation::class,
     navArgsDelegate = CellFilesNavArgs::class,
 )
 @Composable

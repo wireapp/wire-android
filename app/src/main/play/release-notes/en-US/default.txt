@@ -1,4 +1,9 @@
-FIXES
-- Fixed a crash when opening the app using deep links
-- Resolved missing 1:1 messages after migrating to MLS
-- Fixed an issue where team owners didn’t get admin rights when joining a channel
+New
+ - Swipe left to add reactions to a message
+Improvement
+- Using QR codes with federation
+Fixes
+- Resolved a security issue when sharing files, pictures, or audio and video messages
+- Fixed an issue when people couldn't open conversations from a notification
+- Resolved a syncing issue on slow internet
+- Fix issue where app stuck processing commits

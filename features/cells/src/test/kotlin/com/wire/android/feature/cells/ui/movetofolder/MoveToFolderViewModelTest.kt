@@ -158,7 +158,7 @@ class MoveToFolderViewModelTest {
         private val viewModel by lazy {
             MoveToFolderViewModel(
                 savedStateHandle = savedStateHandle,
-                getCellFilesUseCase = getCellFilesUseCase,
+                getNodesUseCase = getCellFilesUseCase,
                 moveNodeUseCase = moveNodeUseCase,
             )
         }

@@ -24,7 +24,7 @@ import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.kalium.cells.domain.model.Node
-import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
+import com.wire.kalium.cells.domain.usecase.GetNodesUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -43,7 +43,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MoveToFolderViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
-    private val getCellFilesUseCase: GetCellFilesUseCase,
+    private val getNodesUseCase: GetNodesUseCase,
     private val moveNodeUseCase: MoveNodeUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -75,7 +75,7 @@ class MoveToFolderViewModel @Inject constructor(
 
     fun loadFolders() {
         viewModelScope.launch {
-            getCellFilesUseCase(currentPath(), ALL_FOLDERS)
+            getNodesUseCase(currentPath(), ALL_FOLDERS)
                 .onSuccess { nodes ->
                     val folders = nodes.data.map {
                         when (it) {

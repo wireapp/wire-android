@@ -127,6 +127,10 @@ class CellViewModel @Inject constructor(
             }
         }
 
+    internal fun currentNodeUuid(): String? = navArgs.conversationId
+
+    internal fun screenTitle(): String? = navArgs.screenTitle
+
     internal fun onSearchQueryUpdated(text: String) = viewModelScope.launch {
         searchQueryFlow.emit(text)
     }
@@ -146,10 +150,6 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
         }
     }
-
-    internal fun currentNodeUuid(): String? = navArgs.conversationId
-
-    internal fun screenTitle(): String? = navArgs.screenTitle
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
@@ -277,8 +277,8 @@ class CellViewModel @Inject constructor(
         _menu.emit(menuOption)
     }
 
-    private fun onMenuFileAction(file: CellNodeUi.File, action: BottomSheetAction) {
-        when ((action as BottomSheetAction.File).action) {
+    private fun onMenuFileAction(file: CellNodeUi.File, action: BottomSheetAction.File) {
+        when (action.action) {
             FileAction.SAVE -> downloadFile(file)
             FileAction.SHARE -> shareFile(file)
             FileAction.PUBLIC_LINK -> sendAction(ShowPublicLinkScreen(file))
@@ -287,8 +287,8 @@ class CellViewModel @Inject constructor(
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun onMenuFolderAction(folder: CellNodeUi.Folder, action: BottomSheetAction) {
-        when ((action as BottomSheetAction.Folder).action) {
+    private fun onMenuFolderAction(folder: CellNodeUi.Folder, action: BottomSheetAction.Folder) {
+        when (action.action) {
             FolderAction.SHARE -> TODO()
             FolderAction.MOVE -> TODO()
             FolderAction.DOWNLOAD -> TODO()
@@ -344,8 +344,8 @@ class CellViewModel @Inject constructor(
 sealed interface CellViewIntent {
     data class OnFileClick(val file: CellNodeUi.File) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
-    data class OnMenuFileActionSelected(val file: CellNodeUi.File, val action: BottomSheetAction) : CellViewIntent
-    data class OnMenuFolderActionSelected(val folder: CellNodeUi.Folder, val action: BottomSheetAction) : CellViewIntent
+    data class OnMenuFileActionSelected(val file: CellNodeUi.File, val action: BottomSheetAction.File) : CellViewIntent
+    data class OnMenuFolderActionSelected(val folder: CellNodeUi.Folder, val action: BottomSheetAction.Folder) : CellViewIntent
     data class OnFileDownloadConfirmed(val file: CellNodeUi.File) : CellViewIntent
     data class OnFileDeleteConfirmed(val file: CellNodeUi.File) : CellViewIntent
     data object OnDownloadMenuClosed : CellViewIntent

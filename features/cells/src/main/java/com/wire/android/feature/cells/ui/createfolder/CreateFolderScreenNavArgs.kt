@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui
+package com.wire.android.feature.cells.ui.createfolder
 
-data class CellFilesNavArgs(
-    val conversationId: String? = null,
-    val screenTitle: String? = null
+data class CreateFolderScreenNavArgs(
+    val uuid: String?
 )

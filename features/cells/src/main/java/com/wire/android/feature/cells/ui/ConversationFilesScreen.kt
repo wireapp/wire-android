@@ -32,12 +32,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionsBottomSheet
+import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -48,6 +52,9 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Show files in one conversation.
@@ -60,10 +67,33 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 @Composable
 fun ConversationFilesScreen(
     navigator: WireNavigator,
-    modifier: Modifier = Modifier,
-    viewModel: CellViewModel = hiltViewModel()
+    viewModel: CellViewModel = hiltViewModel(),
 ) {
-    val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
+
+    ConversationFilesScreenContent(
+        navigator = navigator,
+        currentNodeUuid = viewModel.currentNodeUuid(),
+        actions = viewModel.actions,
+        pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
+        downloadFileSheet = viewModel.downloadFileSheet,
+        menu = viewModel.menu,
+        sendIntent = { viewModel.sendIntent(it) },
+    )
+}
+
+@Composable
+fun ConversationFilesScreenContent(
+    navigator: WireNavigator,
+    currentNodeUuid: String?,
+    actions: Flow<CellViewAction>,
+    pagingListItems: LazyPagingItems<CellNodeUi>,
+    downloadFileSheet: StateFlow<CellNodeUi.File?>,
+    menu: SharedFlow<MenuOptions>,
+    sendIntent: (CellViewIntent) -> Unit,
+    modifier: Modifier = Modifier,
+    screenTitle: String? = null,
+    navigationIconType: NavigationIconType = NavigationIconType.Close()
+) {
     val sheetState = rememberWireModalSheetState<Unit>()
 
     val isFabVisible = when {
@@ -78,7 +108,7 @@ fun ConversationFilesScreen(
             sheetState.hide()
         },
         onCreateFolder = {
-            navigator.navigate(NavigationCommand(CreateFolderScreenDestination()))
+            navigator.navigate(NavigationCommand(CreateFolderScreenDestination(currentNodeUuid)))
         }
     )
     WireScaffold(
@@ -86,8 +116,8 @@ fun ConversationFilesScreen(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = { navigator.navigateBack() },
-                title = stringResource(R.string.conversation_files_title),
-                navigationIconType = NavigationIconType.Close(),
+                title = screenTitle ?: stringResource(R.string.conversation_files_title),
+                navigationIconType = navigationIconType,
                 elevation = dimensions().spacing0x
             )
         },
@@ -122,12 +152,25 @@ fun ConversationFilesScreen(
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             CellScreenContent(
-                actionsFlow = viewModel.actions,
+                actionsFlow = actions,
                 pagingListItems = pagingListItems,
-                sendIntent = { viewModel.sendIntent(it) },
-                downloadFileState = viewModel.downloadFileSheet,
-                fileMenuState = viewModel.menu,
+                sendIntent = sendIntent,
+                downloadFileState = downloadFileSheet,
+                menuState = menu,
                 isAllFiles = false,
+                onFolderClick = {
+                    val folderPath = "$currentNodeUuid/${it.name}"
+                    navigator.navigate(
+                        NavigationCommand(
+                            ConversationFilesWithSlideInTransitionScreenDestination(
+                                folderPath,
+                                it.name
+                            ),
+                            BackStackMode.NONE,
+                            launchSingleTop = false
+                        )
+                    )
+                },
                 showPublicLinkScreen = { assetId, fileName, linkId ->
                     navigator.navigate(
                         NavigationCommand(

@@ -62,8 +62,9 @@ internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
     pagingListItems: LazyPagingItems<CellNodeUi>,
     sendIntent: (CellViewIntent) -> Unit,
+    onFolderClick: (CellNodeUi.Folder) -> Unit,
     downloadFileState: StateFlow<CellNodeUi.File?>,
-    fileMenuState: Flow<MenuOptions?>,
+    menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (String, String, String?) -> Unit,
     isAllFiles: Boolean,
     isSearchResult: Boolean = false,
@@ -88,7 +89,12 @@ internal fun CellScreenContent(
         else ->
             CellFilesScreen(
                 cellNodes = pagingListItems,
-                onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
+                onItemClick = {
+                    when (it) {
+                        is CellNodeUi.File -> sendIntent(CellViewIntent.OnFileClick(it))
+                        is CellNodeUi.Folder -> onFolderClick(it)
+                    }
+                },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
 //                onRefresh = {
 //                    viewModel.loadFiles(pullToRefresh = true)
@@ -161,7 +167,7 @@ internal fun CellScreenContent(
 
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            fileMenuState.collect { showMenu ->
+            menuState.collect { showMenu ->
                 menu = showMenu
             }
         }
@@ -253,7 +259,7 @@ private fun EmptyScreen(
                 .weight(1f)
         )
 
-        if (!isSearchResult) {
+        if (!isSearchResult && isAllFiles) {
             WirePrimaryButton(
                 text = stringResource(R.string.reload),
                 onClick = onRetry

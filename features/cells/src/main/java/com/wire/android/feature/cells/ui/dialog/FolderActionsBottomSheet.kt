@@ -43,7 +43,7 @@ internal fun FolderActionsBottomSheet(
     menuOptions: MenuOptions.FolderMenuOptions,
     onAction: (BottomSheetAction.Folder) -> Unit,
     onDismiss: () -> Unit,
-    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>()
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
     val scope = rememberCoroutineScope()
 

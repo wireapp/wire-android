@@ -87,6 +87,7 @@ sealed interface UIMessage {
             get() = messageContent is UIMessageContent.TextMessage ||
                     messageContent is UIMessageContent.AssetMessage ||
                     messageContent is UIMessageContent.AudioAssetMessage ||
+                    messageContent is UIMessageContent.VideoMessage ||
                     messageContent is UIMessageContent.Location ||
                     messageContent is UIMessageContent.Regular
 

@@ -364,6 +364,16 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideCreateMpBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.create
+
+    @ViewModelScoped
+    @Provides
+    fun provideRestoreMpBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.restore
+
+    @ViewModelScoped
+    @Provides
     fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.updateApiVersionsScheduler
 

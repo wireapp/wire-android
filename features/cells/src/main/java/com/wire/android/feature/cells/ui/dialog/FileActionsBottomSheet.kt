@@ -51,7 +51,7 @@ internal fun FileActionsBottomSheet(
     menuOptions: MenuOptions.FileMenuOptions,
     onAction: (BottomSheetAction.File) -> Unit,
     onDismiss: () -> Unit,
-    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>()
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
 
     val scope = rememberCoroutineScope()

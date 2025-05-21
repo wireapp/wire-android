@@ -160,6 +160,7 @@ fun ConversationFilesScreenContent(
                 isAllFiles = false,
                 onFolderClick = {
                     val folderPath = "$currentNodeUuid/${it.name}"
+
                     navigator.navigate(
                         NavigationCommand(
                             ConversationFilesWithSlideInTransitionScreenDestination(
@@ -171,13 +172,14 @@ fun ConversationFilesScreenContent(
                         )
                     )
                 },
-                showPublicLinkScreen = { assetId, fileName, linkId ->
+                showPublicLinkScreen = { assetId, fileName, linkId, isFolder ->
                     navigator.navigate(
                         NavigationCommand(
                             PublicLinkScreenDestination(
                                 assetId = assetId,
                                 fileName = fileName,
-                                publicLinkId = linkId
+                                publicLinkId = linkId,
+                                isFolder = isFolder
                             )
                         )
                     )

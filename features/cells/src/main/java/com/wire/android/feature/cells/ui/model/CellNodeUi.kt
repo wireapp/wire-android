@@ -84,7 +84,6 @@ internal fun Node.File.toUiModel() = CellNodeUi.File(
     modifiedTime = formattedModifiedTime(),
 )
 
-
 internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     uuid = uuid,
     name = name,

@@ -79,7 +79,6 @@ fun ConversationFilesScreen(
         menu = viewModel.menu,
         sendIntent = { viewModel.sendIntent(it) },
     )
-
 }
 
 @Composable
@@ -160,7 +159,7 @@ fun ConversationFilesScreenContent(
                 menuState = menu,
                 isAllFiles = false,
                 onFolderClick = {
-                    val folderPath = "${currentNodeUuid}/${it.name}"
+                    val folderPath = "$currentNodeUuid/${it.name}"
 
                     navigator.navigate(
                         NavigationCommand(

@@ -132,7 +132,6 @@ class CellViewModel @Inject constructor(
                             }
                         }
                     }
-
             }
         }
 
@@ -374,7 +373,7 @@ sealed interface CellViewIntent {
 sealed interface CellViewAction
 internal data class ShowDeleteConfirmation(val file: CellNodeUi.File) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
-internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi.File) : CellViewAction
+internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data object RefreshData : CellViewAction
 
 internal enum class CellError(val message: Int) {

@@ -56,6 +56,7 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,

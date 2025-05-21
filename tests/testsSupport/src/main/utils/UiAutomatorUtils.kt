@@ -22,15 +22,46 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject
 import androidx.test.uiautomator.UiSelector
 
-
 object UiAutomatorUtils {
-    private const val TIMEOUT_IN_MILLISECONDS = 5000L
 
-    fun waitForObject(device: UiDevice, selector: UiSelector): UiObject {
+    private const val TIMEOUT_IN_MILLISECONDS = 5000L
+    private const val CLICKABLE_WAIT_POLL_INTERVAL = 250L
+
+    /**
+     * Waits until the element exists (useful for non-click interactions or assertions).
+     */
+    fun waitForObject(device: UiDevice, selector: UiSelector, timeout: Long = TIMEOUT_IN_MILLISECONDS): UiObject {
         val obj = device.findObject(selector)
-        if (!obj.waitForExists(TIMEOUT_IN_MILLISECONDS)) {
-            throw AssertionError("Element with selector $selector not found within $TIMEOUT_IN_MILLISECONDS ms")
+        if (!obj.waitForExists(timeout)) {
+            throw AssertionError("Element with selector $selector not found within $timeout ms")
         }
         return obj
+    }
+
+    /**
+     * Waits for any one of the given selectors to match an object on screen.
+     *
+     * @param device The UiDevice instance
+     * @param selectors A list of UiSelector objects
+     * @param timeout Timeout in milliseconds (default is 5000)
+     * @return The first matched and enabled UiObject
+     * @throws AssertionError if no selectors match within the timeout
+     */
+    fun waitForAnyObject(
+        device: UiDevice,
+        selectors: List<UiSelector>,
+        timeout: Long = 5000L
+    ): UiObject {
+        val startTime = System.currentTimeMillis()
+        while (System.currentTimeMillis() - startTime < timeout) {
+            for (selector in selectors) {
+                val obj = device.findObject(selector)
+                if (obj.exists() && obj.isEnabled) {
+                    return obj
+                }
+            }
+            Thread.sleep(250)
+        }
+        throw AssertionError("None of the selectors matched any object within $timeout ms")
     }
 }

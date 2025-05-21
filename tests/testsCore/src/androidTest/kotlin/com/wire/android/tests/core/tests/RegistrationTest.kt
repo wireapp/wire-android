@@ -49,7 +49,7 @@ class RegistrationTest {
     @After
     fun tearDown() {
         // This will always be called — even if test fails
-        UiAutomatorSetup.stopApp()
+      //  UiAutomatorSetup.stopApp()
     }
 
     @Test

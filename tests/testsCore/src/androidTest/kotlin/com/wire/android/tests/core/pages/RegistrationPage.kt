@@ -17,13 +17,15 @@
  */
 package com.wire.android.tests.core.pages
 
-import utils.UiAutomatorUtils.waitForObject
+//import utils.UiAutomatorUtils.waitForObject
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import com.wire.android.tests.support.TIMEOUT_IN_MILLISECONDS
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import user.UserClient
+import utils.UiAutomatorUtils.waitForAnyObject
+import utils.UiAutomatorUtils.waitForObject
 
 
 data class RegistrationPage(private val device: UiDevice) {
@@ -50,11 +52,20 @@ data class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
+
     fun clickCreateAccountButton(): RegistrationPage {
-        val loginButton = waitForObject(device, UiSelector().resourceId("Create account"))
-        loginButton.click()
+        val selectors = listOf(
+            UiSelector().text("Create account"),
+            UiSelector().textContains("Create"),
+            UiSelector().className("android.widget.TextView").text("Create account")
+        )
+
+        val button = waitForAnyObject(device, selectors, timeout = 10000L)
+
+        button.click()
         return this
     }
+
 
     fun clickContinueButton(): RegistrationPage {
         val continueButton = waitForObject(device, UiSelector().text("Continue"))

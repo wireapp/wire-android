@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.backup.BackupFileFormat
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
+import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
@@ -59,12 +60,15 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 
+private const val CROSS_PLATFORM_BACKUP_ENABLED = true
+
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class BackupAndRestoreViewModel
 @Inject constructor(
     private val importBackup: RestoreBackupUseCase,
     private val importMpBackup: RestoreMPBackupUseCase,
+    private val createBackupFile: CreateBackupUseCase,
     private val createMpBackupFile: CreateMPBackupUseCase,
     private val verifyBackup: VerifyBackupUseCase,
     private val validatePassword: ValidatePasswordUseCase,
@@ -113,7 +117,15 @@ class BackupAndRestoreViewModel
         updateCreationProgress(PROGRESS_50)
         delay(SMALL_DELAY)
 
-        when (val result = createMpBackupFile(createBackupPasswordState.text.toString())) {
+        val password = createBackupPasswordState.text.toString()
+
+        val result = if (CROSS_PLATFORM_BACKUP_ENABLED) {
+            createMpBackupFile(password)
+        } else {
+            createBackupFile(password)
+        }
+
+        when (result) {
             is CreateBackupResult.Success -> {
                 state = state.copy(backupCreationProgress = BackupCreationProgress.Finished(result.backupFileName))
                 latestCreatedBackup = BackupAndRestoreState.CreatedBackup(

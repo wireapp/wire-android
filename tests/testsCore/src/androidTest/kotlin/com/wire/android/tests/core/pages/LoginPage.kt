@@ -25,67 +25,6 @@ import org.junit.Assert.assertTrue
 
 data class LoginPage(private val device: UiDevice) {
 
-    fun tapOnEmailField(): LoginPage {
-        val emailSsoCodeField = device.findObject(UiSelector().resourceId("userIdentifierInput"))
-        emailSsoCodeField.waitForExists(TIMEOUT_IN_MILLISECONDS)
-        emailSsoCodeField.click()
-        return this
+    
     }
 
-    fun typeEmail(email: String): LoginPage {
-        val emailSsoCodeField: UiObject =
-            device.findObject(UiSelector().resourceId("userIdentifierInput"))
-        emailSsoCodeField.waitForExists(TIMEOUT_IN_MILLISECONDS)
-        emailSsoCodeField.setText(email)
-        return this
-    }
-
-    fun shouldEnableTheLoginButtonWhenValid(): LoginPage {
-        val loginButton = device.findObject(UiSelector().resourceId("loginButton"))
-        loginButton.waitForExists(TIMEOUT_IN_MILLISECONDS)
-        assertTrue("LoginButton not found or not enabled", loginButton.isClickable)
-        return this
-    }
-
-    fun clickLoginButton(): LoginPage {
-        val loginButton = device.findObject(UiSelector().resourceId("loginButton"))
-        loginButton.click()
-        return this
-    }
-
-    fun clickCreateAccountButton(): LoginPage {
-        val loginButton = device.findObject(UiSelector().resourceId("Create account"))
-        loginButton.click()
-        return this
-    }
-
-//    fun enterEmailOnCreatePersonalAccountPage(email: String): LoginPage {
-//       // val emailInputField = device.findObject(UiSelector().className("android.view.View").description("EMAIL"))
-//
-//        val emailInputField = device.findObject(UiSelector().className("android.view.View").descriptionContains("EMAIL"))
-//
-//        //emailInputField.waitForExists(TIMEOUT_IN_MILLISECONDS)
-//        //emailInputField.click()
-//        emailInputField.setText(email)
-//
-//        return this
-//    }
-
-    fun enterEmail(email: String): LoginPage {
-        val emailField: UiObject =  device.findObject(UiSelector().className("android.widget.EditText").instance(0))
-            //device.findObject(UiSelector().text("EMAIL"))
-            //device.findObject(UiSelector().resourceId("userIdentifierInput")
-        //emailField.waitForExists(TIMEOUT_IN_MILLISECONDS)
-        //emailField.click()
-
-        emailField.setText(email)
-        return this
-    }
-//     fun enterEmailOnCreate(email: String): LoginPage {
-//            val emailInputField = device.findObject(UiSelector().className("android.view.View").description("EMAIL"))
-//         //emailInputField.waitForExists(TIMEOUT_IN_MILLISECONDS)
-//         emailInputField.setText(email)
-//
-//        return this
-//    }
-}

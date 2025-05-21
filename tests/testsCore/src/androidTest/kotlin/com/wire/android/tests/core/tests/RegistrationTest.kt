@@ -24,10 +24,10 @@ import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.suite.Tag
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import user.UserClient
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import user.UserClient
 
 /*
 This test works on the following conditions:

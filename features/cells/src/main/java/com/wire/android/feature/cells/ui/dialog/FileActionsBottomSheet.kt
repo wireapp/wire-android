@@ -61,7 +61,7 @@ internal fun FileActionsBottomSheet(
         SheetContent(
             menuOptions = menuOptions,
             onAction = { action ->
-                onAction(action)
+                sheetState.hide { onAction(action) }
             }
         )
     }

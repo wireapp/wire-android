@@ -127,12 +127,6 @@ fun ConversationsScreenContent(
 
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        conversationListViewModel.closeBottomSheet.collect {
-            sheetState.hide()
-        }
-    }
-
     LaunchedEffect(searchBarState.isSearchActive) {
         if (searchBarState.isSearchActive) {
             conversationListViewModel.refreshMissingMetadata()
@@ -357,7 +351,8 @@ fun ConversationsScreenContent(
                     unblockUser = unblockUserDialogState::show,
                     leaveGroup = leaveGroupDialogState::show,
                     deleteGroup = deleteGroupDialogState::show,
-                    deleteGroupLocally = deleteGroupLocallyDialogState::show
+                    deleteGroupLocally = deleteGroupLocallyDialogState::show,
+                    onItemClick = sheetState::hide
                 )
             },
         )

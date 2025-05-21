@@ -7,6 +7,7 @@ android {
         getByName("androidTest") {
             kotlin.srcDirs("src/androidTest/kotlin")
             kotlin.srcDirs(project(":tests:testsSupport").file("src/androidTest/kotlin"))
+            kotlin.srcDirs(project(":tests:testsSupport").file("src/main"))
         }
     }
 }

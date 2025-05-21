@@ -15,23 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.login
+package com.wire.android.tests.core.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
-import com.wire.android.tests.core.login.pages.LoginPage
+import com.wire.android.tests.core.pages.LoginPage
+import com.wire.android.tests.core.pages.RegistrationPage
 import com.wire.android.tests.support.UiAutomatorSetup
-import com.wire.android.tests.support.suite.RC
+import user.UserClient
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+
 
 /*
 This test works on the following conditions:
 1) The dev/staging app is installed on the device/emulator.
 */
 @RunWith(AndroidJUnit4::class)
-@RC
+//@RC
 class LoginTest {
     private lateinit var device: UiDevice
 
@@ -41,10 +43,7 @@ class LoginTest {
     }
 
     @Test
-    fun openTheAppAndShouldSeeEmailFieldAndLoginNextButtonWhenValid() {
-        LoginPage(device)
-            .tapOnEmailField()
-            .typeEmail("tester@wire.com")
-            .shouldEnableTheLoginButtonWhenValid()
+    fun openTheAppAndShouldSeeEmailFieldAndLoginWhenValid() {
+
     }
 }

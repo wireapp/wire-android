@@ -15,6 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.registration
+package utils
 
-// TODO: Add tests for registration
+
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject
+import androidx.test.uiautomator.UiSelector
+
+
+object UiAutomatorUtils {
+    private const val TIMEOUT_IN_MILLISECONDS = 5000L
+
+    fun waitForObject(device: UiDevice, selector: UiSelector): UiObject {
+        val obj = device.findObject(selector)
+        if (!obj.waitForExists(TIMEOUT_IN_MILLISECONDS)) {
+            throw AssertionError("Element with selector $selector not found within $TIMEOUT_IN_MILLISECONDS ms")
+        }
+        return obj
+    }
+}

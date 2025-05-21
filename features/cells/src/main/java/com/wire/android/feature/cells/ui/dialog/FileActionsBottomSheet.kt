@@ -39,7 +39,6 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
@@ -48,7 +47,7 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 internal fun FileActionsBottomSheet(
     menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction) -> Unit,
+    onAction: (BottomSheetAction.File) -> Unit,
     onDismiss: () -> Unit,
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
@@ -71,7 +70,7 @@ internal fun FileActionsBottomSheet(
 @Composable
 private fun SheetContent(
     menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction) -> Unit
+    onAction: (BottomSheetAction.File) -> Unit
 ) {
     Column(
         modifier = Modifier

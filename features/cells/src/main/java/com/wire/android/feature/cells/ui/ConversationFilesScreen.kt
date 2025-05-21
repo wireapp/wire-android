@@ -45,7 +45,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -80,7 +79,6 @@ fun ConversationFilesScreen(
         menu = viewModel.menu,
         sendIntent = { viewModel.sendIntent(it) },
     )
-
 }
 
 @Composable
@@ -161,7 +159,7 @@ fun ConversationFilesScreenContent(
                 menuState = menu,
                 isAllFiles = false,
                 onFolderClick = {
-                    val folderPath = "${currentNodeUuid}/${it.name}"
+                    val folderPath = "$currentNodeUuid/${it.name}"
 
                     navigator.navigate(
                         NavigationCommand(

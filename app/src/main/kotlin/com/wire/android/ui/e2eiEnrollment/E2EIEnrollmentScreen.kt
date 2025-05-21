@@ -185,7 +185,7 @@ private fun E2EIEnrollmentScreenContent(
             }
             TextWithLearnMore(
                 textAnnotatedString = text,
-                learnMoreLink = E2EI_INFO_URL,
+                learnMoreLink = stringResource(R.string.url_e2ee_id_shield),
                 modifier = Modifier.padding(
                     top = MaterialTheme.wireDimensions.dialogTextsSpacing,
                     bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,
@@ -216,8 +216,6 @@ private fun E2EIEnrollmentScreenContent(
         }
     }
 }
-
-private const val E2EI_INFO_URL = "https://support.wire.com/hc/en-us/articles/9211300150685-End-to-end-identity"
 
 @PreviewMultipleThemes
 @Composable

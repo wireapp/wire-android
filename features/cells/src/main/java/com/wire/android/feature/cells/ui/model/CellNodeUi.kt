@@ -78,7 +78,6 @@ internal fun Node.File.toUiModel() = CellNodeUi.File(
     modifiedTime = formattedModifiedTime(),
 )
 
-
 internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     uuid = uuid,
     name = name,
@@ -90,7 +89,6 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
 private fun Node.File.formattedModifiedTime() = modifiedTime?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }
-
 private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }

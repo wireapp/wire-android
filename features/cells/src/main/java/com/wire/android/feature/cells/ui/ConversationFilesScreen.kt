@@ -161,7 +161,7 @@ fun ConversationFilesScreenContent(
                 menuState = menu,
                 isAllFiles = false,
                 onFolderClick = {
-                    val folderPath = "${currentNodeUuid}/${it.name}"
+                    val folderPath = "$currentNodeUuid/${it.name}"
 
                     navigator.navigate(
                         NavigationCommand(

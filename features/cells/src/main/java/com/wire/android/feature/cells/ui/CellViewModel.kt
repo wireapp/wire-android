@@ -294,8 +294,8 @@ class CellViewModel @Inject constructor(
         _menu.emit(menuOption)
     }
 
-    private fun onMenuFileAction(file: CellNodeUi.File, action: BottomSheetAction) {
-        when ((action as BottomSheetAction.File).action) {
+    private fun onMenuFileAction(file: CellNodeUi.File, action: BottomSheetAction.File) {
+        when (action.action) {
             FileAction.SAVE -> downloadNode(file)
             FileAction.SHARE -> shareFile(file)
             FileAction.PUBLIC_LINK -> sendAction(ShowPublicLinkScreen(file))
@@ -303,8 +303,8 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    private fun onMenuFolderAction(folder: CellNodeUi.Folder, action: BottomSheetAction) {
-        when ((action as BottomSheetAction.Folder).action) {
+    private fun onMenuFolderAction(folder: CellNodeUi.Folder, action: BottomSheetAction.Folder) {
+        when (action.action) {
             FolderAction.SHARE -> sendAction(ShowPublicLinkScreen(folder))
             FolderAction.DOWNLOAD -> downloadNode(folder)
             FolderAction.MOVE -> TODO()
@@ -364,8 +364,8 @@ class CellViewModel @Inject constructor(
 sealed interface CellViewIntent {
     data class OnFileClick(val file: CellNodeUi.File) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
-    data class OnMenuFileActionSelected(val file: CellNodeUi.File, val action: BottomSheetAction) : CellViewIntent
-    data class OnMenuFolderActionSelected(val folder: CellNodeUi.Folder, val action: BottomSheetAction) : CellViewIntent
+    data class OnMenuFileActionSelected(val file: CellNodeUi.File, val action: BottomSheetAction.File) : CellViewIntent
+    data class OnMenuFolderActionSelected(val folder: CellNodeUi.Folder, val action: BottomSheetAction.Folder) : CellViewIntent
     data class OnFileDownloadConfirmed(val file: CellNodeUi.File) : CellViewIntent
     data class OnFileDeleteConfirmed(val file: CellNodeUi.File) : CellViewIntent
     data object OnDownloadMenuClosed : CellViewIntent
@@ -374,7 +374,7 @@ sealed interface CellViewIntent {
 sealed interface CellViewAction
 internal data class ShowDeleteConfirmation(val file: CellNodeUi.File) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
-internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
+internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi.File) : CellViewAction
 internal data object RefreshData : CellViewAction
 
 internal enum class CellError(val message: Int) {

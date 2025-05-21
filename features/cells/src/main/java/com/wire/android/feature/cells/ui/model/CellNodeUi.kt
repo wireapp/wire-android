@@ -31,6 +31,7 @@ sealed class CellNodeUi {
     abstract val userName: String?
     abstract val conversationName: String?
     abstract val modifiedTime: String?
+    abstract val publicLinkId: String?
 
     data class Folder(
         override val name: String?,
@@ -38,6 +39,7 @@ sealed class CellNodeUi {
         override val userName: String?,
         override val conversationName: String?,
         override val modifiedTime: String?,
+        override val publicLinkId: String? = null,
     ) : CellNodeUi()
 
     data class File(
@@ -46,6 +48,7 @@ sealed class CellNodeUi {
         override val userName: String?,
         override val conversationName: String?,
         override val modifiedTime: String?,
+        override val publicLinkId: String? = null,
         val mimeType: String,
         val assetType: AttachmentFileType,
         val assetSize: Long?,
@@ -55,7 +58,6 @@ sealed class CellNodeUi {
         val contentUrl: String? = null,
         val previewUrl: String? = null,
         val downloadProgress: Float? = null,
-        val publicLinkId: String? = null,
     ) : CellNodeUi()
 }
 

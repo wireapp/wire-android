@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.wire.android.feature.cells.ui.MenuOptions
 import com.wire.android.feature.cells.ui.model.BottomSheetAction
@@ -36,7 +35,6 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun FolderActionsBottomSheet(
@@ -45,7 +43,6 @@ internal fun FolderActionsBottomSheet(
     onDismiss: () -> Unit,
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
-    val scope = rememberCoroutineScope()
 
     WireModalSheetLayout(
         onDismissRequest = {
@@ -64,11 +61,7 @@ internal fun FolderActionsBottomSheet(
             menuOptions.actions.forEach { action ->
                 BottomSheetMenuItem(
                     modifier = Modifier.clickable {
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                onAction(action)
-                            }
-                        }
+                        onAction(action)
                     },
                     action = action
                 )

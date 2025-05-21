@@ -67,13 +67,14 @@ fun AllFilesScreen(
         menuState = viewModel.menu,
         isAllFiles = true,
         isSearchResult = viewModel.hasSearchQuery(),
-        showPublicLinkScreen = { assetId, fileName, linkId ->
+        showPublicLinkScreen = { assetId, fileName, linkId, isFolder ->
             navigator.navigate(
                 NavigationCommand(
                     PublicLinkScreenDestination(
                         assetId = assetId,
                         fileName = fileName,
-                        publicLinkId = linkId
+                        publicLinkId = linkId,
+                        isFolder = isFolder
                     )
                 )
             )

@@ -134,7 +134,11 @@ fun MoveToFolderScreen(
                             WireSecondaryButton(
                                 text = stringResource(R.string.cells_create_folder),
                                 onClick = {
-                                    navigator.navigate(NavigationCommand(CreateFolderScreenDestination(moveToFolderViewModel.currentPath())))
+                                    navigator.navigate(
+                                        NavigationCommand(
+                                            CreateFolderScreenDestination(moveToFolderViewModel.currentPath())
+                                        )
+                                    )
                                 },
                                 state = WireButtonState.Default,
                                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
@@ -257,9 +261,9 @@ private fun RowItem(
             )
             .alpha(if (cell is CellNodeUi.Folder) 1f else 0.5f)
             .then(
-                if (cell is CellNodeUi.Folder) Modifier.clickable {
-                    onFolderClick(cell)
-                } else Modifier
+                if (cell is CellNodeUi.Folder) {
+                    Modifier.clickable { onFolderClick(cell) }
+                } else { Modifier }
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {

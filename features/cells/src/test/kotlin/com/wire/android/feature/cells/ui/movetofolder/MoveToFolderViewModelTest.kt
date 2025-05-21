@@ -22,7 +22,7 @@ import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.model.PaginatedList
-import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
+import com.wire.kalium.cells.domain.usecase.GetNodesUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
@@ -68,7 +68,7 @@ class MoveToFolderViewModelTest {
                                 userName = "userName",
                                 conversationName = "conversationName",
                                 uuid = "uuid",
-                                lastModified = 0L
+                                modifiedTime = 0L
                             )
                         ),
                         pagination = null
@@ -130,12 +130,11 @@ class MoveToFolderViewModelTest {
 
     private class Arrangement {
 
-
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
-        lateinit var getCellFilesUseCase: GetCellFilesUseCase
+        lateinit var getNodesUseCase: GetNodesUseCase
 
         @MockK
         lateinit var moveNodeUseCase: MoveNodeUseCase
@@ -158,13 +157,13 @@ class MoveToFolderViewModelTest {
         private val viewModel by lazy {
             MoveToFolderViewModel(
                 savedStateHandle = savedStateHandle,
-                getNodesUseCase = getCellFilesUseCase,
+                getNodesUseCase = getNodesUseCase,
                 moveNodeUseCase = moveNodeUseCase,
             )
         }
 
         fun withGetCellFilesUseCaseReturning(result: Either<CoreFailure, PaginatedList<Node>>) = apply {
-            coEvery { getCellFilesUseCase(any(), any(), any(), any()) } returns result
+            coEvery { getNodesUseCase(any(), any(), any(), any()) } returns result
         }
 
         fun withMoveNodeUseCaseReturning(result: Either<CoreFailure, Unit>) = apply {

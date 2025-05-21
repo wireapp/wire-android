@@ -18,13 +18,11 @@
 package com.wire.android.feature.cells.ui
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,7 +50,6 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 

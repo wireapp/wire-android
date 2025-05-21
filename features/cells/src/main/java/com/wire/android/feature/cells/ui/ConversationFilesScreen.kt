@@ -80,7 +80,6 @@ fun ConversationFilesScreen(
         menu = viewModel.menu,
         sendIntent = { viewModel.sendIntent(it) },
     )
-
 }
 
 @Composable

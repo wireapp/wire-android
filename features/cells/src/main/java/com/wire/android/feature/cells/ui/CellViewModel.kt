@@ -123,7 +123,6 @@ class CellViewModel @Inject constructor(
                             }
                         }
                     }
-
             }
         }
 

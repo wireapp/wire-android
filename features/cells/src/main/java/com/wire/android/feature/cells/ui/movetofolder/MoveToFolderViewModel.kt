@@ -64,7 +64,6 @@ class MoveToFolderViewModel @Inject constructor(
         .receiveAsFlow()
         .flowOn(Dispatchers.Main.immediate)
 
-
     fun currentPath(): String = navArgs.currentPath
     fun nodeToMovePath(): String = navArgs.nodeToMovePath
     fun nodeUuid(): String = navArgs.uuid

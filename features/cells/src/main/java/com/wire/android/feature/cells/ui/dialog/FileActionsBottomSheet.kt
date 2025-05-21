@@ -39,7 +39,6 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography

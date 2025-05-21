@@ -127,6 +127,10 @@ class CellViewModel @Inject constructor(
             }
         }
 
+    internal fun currentNodeUuid(): String? = navArgs.conversationId
+
+    internal fun screenTitle(): String? = navArgs.screenTitle
+
     internal fun onSearchQueryUpdated(text: String) = viewModelScope.launch {
         searchQueryFlow.emit(text)
     }
@@ -146,10 +150,6 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
         }
     }
-
-    internal fun currentNodeUuid(): String? = navArgs.conversationId
-
-    internal fun screenTitle(): String? = navArgs.screenTitle
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {

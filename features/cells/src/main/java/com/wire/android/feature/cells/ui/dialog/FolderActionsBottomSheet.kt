@@ -47,7 +47,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun FolderActionsBottomSheet(
@@ -97,6 +96,7 @@ private fun PreviewFolderActionsBottomSheet() {
                     userName = "User",
                     conversationName = "Conversation",
                     modifiedTime = null,
+                    size = null
                 ),
                 actions = listOf(
                     BottomSheetAction.Folder(FolderAction.MOVE),

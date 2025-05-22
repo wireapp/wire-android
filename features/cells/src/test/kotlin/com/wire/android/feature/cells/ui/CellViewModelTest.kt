@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -71,8 +72,8 @@ class CellViewModelTest {
                 remotePath = "remotePath",
                 localPath = "localPath",
                 contentUrl = "https://example.com/file",
-                assetSize = 1024,
-                lastModified = 1234567890L,
+                size = 1024,
+                modifiedTime = 1234567890L,
             ),
             Node.File(
                 uuid = "fileUuid2",
@@ -82,8 +83,8 @@ class CellViewModelTest {
                 remotePath = "remotePath2",
                 localPath = null,
                 contentUrl = null,
-                assetSize = 2048,
-                lastModified = 1234567890L,
+                size = 2048,
+                modifiedTime = 1234567890L,
             )
         )
         val localFilePath = "localPath".toPath()
@@ -376,6 +377,9 @@ class CellViewModelTest {
         @MockK
         lateinit var kaliumFileSystem: KaliumFileSystem
 
+        @MockK
+        lateinit var context: Context
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -423,6 +427,7 @@ class CellViewModelTest {
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,
                 kaliumFileSystem = kaliumFileSystem,
+                context = context
             )
         }
     }

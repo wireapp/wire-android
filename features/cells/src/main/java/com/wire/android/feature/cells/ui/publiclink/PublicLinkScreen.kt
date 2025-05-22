@@ -82,7 +82,11 @@ fun PublicLinkScreen(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = { resultNavigator.navigateBack() },
-                title = stringResource(R.string.share_file_via_link),
+                title = if (viewModel.isFolder()) {
+                    stringResource(R.string.share_folder_via_link)
+                } else {
+                    stringResource(R.string.share_file_via_link)
+                },
                 navigationIconType = NavigationIconType.Close(),
                 elevation = dimensions().spacing0x
             )
@@ -93,6 +97,7 @@ fun PublicLinkScreen(
         ) {
             EnableLinkSection(
                 checked = state.enabled,
+                isFolder = viewModel.isFolder(),
                 onCheckChange = {
                     viewModel.onEnabled(it)
                 }
@@ -142,6 +147,7 @@ fun PublicLinkScreen(
 @Composable
 private fun EnableLinkSection(
     checked: Boolean,
+    isFolder: Boolean,
     onCheckChange: (Boolean) -> Unit
 ) {
     Column(
@@ -172,7 +178,11 @@ private fun EnableLinkSection(
             modifier = Modifier.height(dimensions().spacing16x)
         )
         Text(
-            text = stringResource(R.string.public_link_message),
+            text = if (isFolder) {
+                stringResource(R.string.public_link_message_folder)
+            } else {
+                stringResource(R.string.public_link_message_file)
+            },
             style = typography().body01
         )
     }
@@ -236,6 +246,7 @@ private fun PreviewCreatePublicLinkScreen() {
         Column {
             EnableLinkSection(
                 checked = true,
+                isFolder = false,
                 onCheckChange = {}
             )
             PublicLinkSection(

@@ -17,20 +17,25 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.content.Context
+import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.model.CellFileUi
+import com.wire.android.feature.cells.ui.model.BottomSheetAction
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.FileAction
+import com.wire.android.feature.cells.ui.model.FolderAction
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -38,6 +43,7 @@ import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -56,7 +62,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
+import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
+import java.io.File
 import javax.inject.Inject
 
 @Suppress("TooManyFunctions")
@@ -68,6 +76,7 @@ class CellViewModel @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val fileHelper: FileHelper,
     private val kaliumFileSystem: KaliumFileSystem,
+    @ApplicationContext val context: Context
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
@@ -77,7 +86,7 @@ class CellViewModel @Inject constructor(
     internal val menu = _menu.asSharedFlow()
 
     // Show bottom sheet with download progress.
-    private val _downloadFileSheet: MutableStateFlow<CellFileUi?> = MutableStateFlow(null)
+    private val _downloadFileSheet: MutableStateFlow<CellNodeUi.File?> = MutableStateFlow(null)
     internal val downloadFileSheet = _downloadFileSheet.asStateFlow()
 
     private val _actions = Channel<CellViewAction>(
@@ -95,7 +104,7 @@ class CellViewModel @Inject constructor(
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
-    internal val filesFlow = searchQueryFlow
+    internal val nodesFlow = searchQueryFlow
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
         .distinctUntilChanged()
@@ -110,10 +119,18 @@ class CellViewModel @Inject constructor(
                         it.uuid !in removedItems
                     }
                     .map {
-                        it.toUiModel().copy(
-                            downloadProgress = downloadData[it.uuid]?.progress,
-                            localPath = downloadData[it.uuid]?.localPath?.toString()
-                        )
+                        when (it) {
+                            is Node.Folder -> it.toUiModel().copy(
+                                downloadProgress = downloadData[it.uuid]?.progress
+                            )
+
+                            is Node.File -> {
+                                it.toUiModel().copy(
+                                    downloadProgress = downloadData[it.uuid]?.progress,
+                                    localPath = downloadData[it.uuid]?.localPath?.toString()
+                                )
+                            }
+                        }
                     }
             }
         }
@@ -129,48 +146,59 @@ class CellViewModel @Inject constructor(
     internal fun sendIntent(intent: CellViewIntent) {
         when (intent) {
             is CellViewIntent.OnFileClick -> onFileClick(intent.file)
-            is CellViewIntent.OnFileMenuClick -> onFileMenuClick(intent.file)
-            is CellViewIntent.OnMenuActionSelected -> onMenuAction(intent.file, intent.action)
-            is CellViewIntent.OnFileDownloadConfirmed -> downloadFile(intent.file)
+            is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
+            is CellViewIntent.OnMenuFileActionSelected -> onMenuFileAction(intent.file, intent.action)
+            is CellViewIntent.OnMenuFolderActionSelected -> onMenuFolderAction(intent.folder, intent.action)
+            is CellViewIntent.OnFileDownloadConfirmed -> downloadNode(intent.file)
             is CellViewIntent.OnFileDeleteConfirmed -> deleteFile(intent.file)
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
         }
     }
 
-    private fun onFileClick(file: CellFileUi) {
+    internal fun currentNodeUuid(): String? = navArgs.conversationId
+
+    internal fun screenTitle(): String? = navArgs.screenTitle
+
+    private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
-            file.localFileAvailable() -> openLocalFile(file)
-            file.canOpenWithUrl() -> openFileContentUrl(file)
-            else -> viewModelScope.launch { _downloadFileSheet.emit(file) }
+            cellNode.localFileAvailable() -> openLocalFile(cellNode)
+            cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
+            else -> viewModelScope.launch { _downloadFileSheet.emit(cellNode) }
         }
     }
 
-    private fun downloadFile(file: CellFileUi) = viewModelScope.launch {
+    private fun downloadNode(node: CellNodeUi) = viewModelScope.launch {
 
-        val path = kaliumFileSystem.providePersistentAssetPath(
-            file.fileName ?: run {
-                sendAction(ShowError(CellError.OTHER_ERROR))
-                return@launch
-            }
-        )
+        if (node.name.isNullOrBlank()) {
+            sendAction(ShowError(CellError.OTHER_ERROR))
+            return@launch
+        }
+//
+        val (nodeName, nodeRemotePath) = when (node) {
+            is CellNodeUi.File -> Pair(node.name, node.remotePath)
+            is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)
+        }
 
-        if (kaliumFileSystem.exists(path)) {
-            kaliumFileSystem.delete(path)
+        val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val filePath = File(publicDir, nodeName).toPath().toOkioPath()
+
+        if (kaliumFileSystem.exists(filePath)) {
+            kaliumFileSystem.delete(filePath)
         }
 
         download(
-            assetId = file.uuid,
-            outFilePath = path,
-            remoteFilePath = file.remotePath,
-            assetSize = file.assetSize ?: 0,
+            assetId = node.uuid,
+            outFilePath = filePath,
+            remoteFilePath = nodeRemotePath,
+            assetSize = node.size ?: 0,
         ) { progress ->
-            file.assetSize?.let {
-                updateDownloadProgress(progress, it, file, path)
+            node.size?.let {
+                updateDownloadProgress(progress, it, node, filePath)
             }
         }.onSuccess {
-            updateDownloadData(file.uuid) {
+            updateDownloadData(node.uuid) {
                 DownloadData(
-                    localPath = path
+                    localPath = filePath
                 )
             }
         }.onFailure {
@@ -179,31 +207,33 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    private fun updateDownloadProgress(progress: Long, it: Long, file: CellFileUi, path: Path) = viewModelScope.launch {
+    private fun updateDownloadProgress(progress: Long, it: Long, node: CellNodeUi, path: Path) = viewModelScope.launch {
 
         val value = progress.toFloat() / it
 
         if (value < 1) {
-            updateDownloadData(file.uuid) {
+            updateDownloadData(node.uuid) {
                 DownloadData(
                     progress = value
                 )
             }
         } else {
-            updateDownloadData(file.uuid) {
+            updateDownloadData(node.uuid) {
                 DownloadData(
                     localPath = path
                 )
             }
 
-            if (_downloadFileSheet.value?.uuid == file.uuid) {
+            if (_downloadFileSheet.value?.uuid == node.uuid) {
                 _downloadFileSheet.update { null }
-                openLocalFile(file.copy(localPath = path.toString()))
+                if (node is CellNodeUi.File) {
+                    openLocalFile(node.copy(localPath = path.toString()))
+                }
             }
         }
     }
 
-    private fun openFileContentUrl(file: CellFileUi) {
+    private fun openFileContentUrl(file: CellNodeUi.File) {
         file.contentUrl?.let { url ->
             fileHelper.openAssetUrlWithExternalApp(
                 url = url,
@@ -215,11 +245,11 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    private fun openLocalFile(file: CellFileUi) {
+    private fun openLocalFile(file: CellNodeUi.File) {
         file.localPath?.let { path ->
             fileHelper.openAssetFileWithExternalApp(
                 localPath = path.toPath(),
-                assetName = file.fileName,
+                assetName = file.name,
                 mimeType = file.mimeType,
                 onError = {
                     sendAction(ShowError(CellError.NO_APP_FOUND))
@@ -228,38 +258,65 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    private fun onFileMenuClick(file: CellFileUi) = viewModelScope.launch {
-        _menu.emit(
-            MenuOptions(
-                file = file,
-                actions = buildList {
-                    if (!file.localFileAvailable()) {
-                        add(FileAction.SAVE)
+    private fun onItemMenuClick(cellNode: CellNodeUi) = viewModelScope.launch {
+        val menuOption = when (cellNode) {
+            is CellNodeUi.File -> {
+                val list = buildList {
+                    if (!cellNode.localFileAvailable()) {
+                        add(BottomSheetAction.File(FileAction.SAVE))
                     } else {
-                        add(FileAction.SHARE)
+                        add(BottomSheetAction.File(FileAction.SHARE))
                     }
-                    add(FileAction.PUBLIC_LINK)
-                    add(FileAction.DELETE)
-                },
-            )
-        )
+                    add(BottomSheetAction.File(FileAction.PUBLIC_LINK))
+                    add(BottomSheetAction.File(FileAction.DELETE))
+                }
+                MenuOptions.FileMenuOptions(
+                    cellNodeUi = cellNode,
+                    actions = list,
+                )
+            }
+
+            is CellNodeUi.Folder -> {
+                val list = buildList {
+                    add(BottomSheetAction.Folder(FolderAction.SHARE))
+                    add(BottomSheetAction.Folder(FolderAction.MOVE))
+                    add(BottomSheetAction.Folder(FolderAction.DOWNLOAD))
+                    add(BottomSheetAction.Folder(FolderAction.DELETE))
+                }
+                MenuOptions.FolderMenuOptions(
+                    cellNodeUi = cellNode,
+                    actions = list,
+                )
+            }
+        }
+
+        _menu.emit(menuOption)
     }
 
-    private fun onMenuAction(file: CellFileUi, action: FileAction) {
-        when (action) {
-            FileAction.SAVE -> downloadFile(file)
+    private fun onMenuFileAction(file: CellNodeUi.File, action: BottomSheetAction.File) {
+        when (action.action) {
+            FileAction.SAVE -> downloadNode(file)
             FileAction.SHARE -> shareFile(file)
             FileAction.PUBLIC_LINK -> sendAction(ShowPublicLinkScreen(file))
             FileAction.DELETE -> sendAction(ShowDeleteConfirmation(file))
         }
     }
 
-    private fun shareFile(file: CellFileUi) {
-        file.localPath?.let { localPath ->
+    private fun onMenuFolderAction(folder: CellNodeUi.Folder, action: BottomSheetAction.Folder) {
+        when (action.action) {
+            FolderAction.SHARE -> sendAction(ShowPublicLinkScreen(folder))
+            FolderAction.DOWNLOAD -> downloadNode(folder)
+            FolderAction.MOVE -> TODO()
+            FolderAction.DELETE -> TODO()
+        }
+    }
+
+    private fun shareFile(cell: CellNodeUi.File) {
+        cell.localPath?.let { localPath ->
             fileHelper.shareFileChooser(
                 assetDataPath = localPath.toPath(),
-                assetName = file.fileName,
-                mimeType = file.mimeType,
+                assetName = cell.name,
+                mimeType = cell.mimeType,
                 onError = { sendAction(ShowError(CellError.OTHER_ERROR)) }
             )
         } ?: run {
@@ -267,7 +324,7 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    private fun deleteFile(file: CellFileUi) = viewModelScope.launch {
+    private fun deleteFile(file: CellNodeUi.File) = viewModelScope.launch {
 
         removedItemsFlow.update {
             it + file.uuid
@@ -297,21 +354,26 @@ class CellViewModel @Inject constructor(
             progressMap.toImmutableMap()
         }
     }
+
+    companion object {
+        const val ZIP_EXTENSION = ".zip"
+    }
 }
 
-internal sealed interface CellViewIntent {
-    data class OnFileClick(val file: CellFileUi) : CellViewIntent
-    data class OnFileMenuClick(val file: CellFileUi) : CellViewIntent
-    data class OnMenuActionSelected(val file: CellFileUi, val action: FileAction) : CellViewIntent
-    data class OnFileDownloadConfirmed(val file: CellFileUi) : CellViewIntent
-    data class OnFileDeleteConfirmed(val file: CellFileUi) : CellViewIntent
+sealed interface CellViewIntent {
+    data class OnFileClick(val file: CellNodeUi.File) : CellViewIntent
+    data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
+    data class OnMenuFileActionSelected(val file: CellNodeUi.File, val action: BottomSheetAction.File) : CellViewIntent
+    data class OnMenuFolderActionSelected(val folder: CellNodeUi.Folder, val action: BottomSheetAction.Folder) : CellViewIntent
+    data class OnFileDownloadConfirmed(val file: CellNodeUi.File) : CellViewIntent
+    data class OnFileDeleteConfirmed(val file: CellNodeUi.File) : CellViewIntent
     data object OnDownloadMenuClosed : CellViewIntent
 }
 
-internal sealed interface CellViewAction
-internal data class ShowDeleteConfirmation(val file: CellFileUi) : CellViewAction
+sealed interface CellViewAction
+internal data class ShowDeleteConfirmation(val file: CellNodeUi.File) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
-internal data class ShowPublicLinkScreen(val file: CellFileUi) : CellViewAction
+internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data object RefreshData : CellViewAction
 
 internal enum class CellError(val message: Int) {
@@ -320,10 +382,17 @@ internal enum class CellError(val message: Int) {
     OTHER_ERROR(R.string.action_failed)
 }
 
-internal data class MenuOptions(
-    val file: CellFileUi,
-    val actions: List<FileAction>
-)
+sealed class MenuOptions {
+    data class FileMenuOptions(
+        val cellNodeUi: CellNodeUi.File,
+        val actions: List<BottomSheetAction.File>
+    ) : MenuOptions()
+
+    data class FolderMenuOptions(
+        val cellNodeUi: CellNodeUi.Folder,
+        val actions: List<BottomSheetAction.Folder>
+    ) : MenuOptions()
+}
 
 private data class DownloadData(
     val progress: Float? = null,

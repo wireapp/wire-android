@@ -32,10 +32,10 @@ data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
     val currentPositionInMs: Int,
     val totalTimeInMs: TotalTimeInMs,
-    val wavesMask: List<Int>
+    val wavesMask: List<Int>?
 ) {
     companion object {
-        val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, TotalTimeInMs.NotKnown, listOf())
+        val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, TotalTimeInMs.NotKnown, null)
     }
 
     // if the back-end returned the total time, we use that, in case it didn't we use what we get from
@@ -146,7 +146,7 @@ sealed class AudioMediaPlayerStateUpdate(
     data class WaveMaskUpdate(
         override val conversationId: ConversationId,
         override val messageId: String,
-        val waveMask: List<Int>
+        val waveMask: List<Int>?
     ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
 }
 

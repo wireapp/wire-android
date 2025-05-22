@@ -25,19 +25,23 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
-import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
@@ -51,13 +55,31 @@ import com.wire.android.ui.theme.wireDimensions
 import java.util.Locale
 
 @WireDestination(
-    style = PopUpNavigationAnimation::class
+    style = PopUpNavigationAnimation::class,
+    navArgsDelegate = CreateFolderScreenNavArgs::class,
 )
 @Composable
 fun CreateFolderScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
+    createFolderViewModel: CreateFolderViewModel = hiltViewModel()
 ) {
+    val showErrorDialog = remember { mutableStateOf(false) }
+
+    if (showErrorDialog.value) {
+        WireDialog(
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
+            title = stringResource(id = R.string.cells_create_folder),
+            text = stringResource(id = R.string.create_folder_error),
+            onDismiss = { showErrorDialog.value = false },
+            dismissButtonProperties = WireDialogButtonProperties(
+                onClick = { showErrorDialog.value = false },
+                text = stringResource(id = R.string.cancel),
+                type = WireDialogButtonType.Secondary,
+            )
+        )
+    }
+
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -85,9 +107,17 @@ fun CreateFolderScreen(
                     ) {
                         WirePrimaryButton(
                             text = stringResource(R.string.cells_create_folder),
-                            onClick = {},
-                            state = WireButtonState.Default,
-                            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                            onClick = {
+                                createFolderViewModel.createFolder(
+                                    folderName = createFolderViewModel.fileNameTextFieldState.text.toString(),
+                                    onFailure = {
+                                        showErrorDialog.value = true
+                                    },
+                                    onSuccess = {
+                                        navigator.navigateBack()
+                                    }
+                                )
+                            }
                         )
                     }
                 }
@@ -95,7 +125,7 @@ fun CreateFolderScreen(
         }
     ) {
         WireTextField(
-            textState = TextFieldState(),
+            textState = createFolderViewModel.fileNameTextFieldState,
             placeholderText = stringResource(R.string.cells_folder_name),
             labelText = stringResource(R.string.cells_folder_name).uppercase(Locale.getDefault()),
             modifier = Modifier

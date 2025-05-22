@@ -16,4 +16,14 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_send_button">Gönder</string>
+    <string name="content_description_undo_button">Geri al</string>
+    <string name="sketch_details_empty_text">En sevdiğiniz rengi seçin ve çizmeye başlayın 🎨</string>
+    <string name="content_description_close_button">kapat</string>
+    <string name="title_color_picker">Renk</string>
+    <string name="confirm_changes_title">Çizimi sil?</string>
+    <string name="confirm_changes_text">Göndermeden ayrılırsanız çiziminiz kaybolacaktır.</string>
+    <string name="confirm_changes_confirm">İptal</string>
+    <string name="confirm_changes_dismiss">Vazgeç</string>
+</resources>

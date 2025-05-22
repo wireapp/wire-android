@@ -32,6 +32,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.paging.LoadState
@@ -39,7 +40,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.model.CellFileUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -52,9 +52,9 @@ import com.wire.android.ui.theme.WireTheme
 
 @Composable
 internal fun CellFilesScreen(
-    files: LazyPagingItems<CellFileUi>,
-    onFileClick: (CellFileUi) -> Unit,
-    onFileMenuClick: (CellFileUi) -> Unit,
+    cellNodes: LazyPagingItems<CellNodeUi>,
+    onItemClick: (CellNodeUi) -> Unit,
+    onItemMenuClick: (CellNodeUi) -> Unit,
 ) {
 
     LazyColumn(
@@ -63,28 +63,28 @@ internal fun CellFilesScreen(
             .fillMaxWidth(),
     ) {
         items(
-            count = files.itemCount,
-            key = files.itemKey { it.uuid },
-            contentType = files.itemContentType { it }
+            count = cellNodes.itemCount,
+            key = cellNodes.itemKey { it.uuid },
+            contentType = cellNodes.itemContentType { it }
         ) { index ->
 
-            files[index]?.let { file ->
+            cellNodes[index]?.let { item ->
                 CellListItem(
                     modifier = Modifier
                         .animateItem()
                         .background(color = colorsScheme().surface)
-                        .clickable { onFileClick(file) },
-                    file = file,
-                    onMenuClick = { onFileMenuClick(file) }
+                        .clickable { onItemClick(item) },
+                    cell = item,
+                    onMenuClick = { onItemMenuClick(item) }
                 )
                 WireDivider(modifier = Modifier.fillMaxWidth())
             }
         }
 
-        when (files.loadState.append) {
+        when (cellNodes.loadState.append) {
             is LoadState.Error -> item(contentType = "error") {
                 ErrorFooter(
-                    onRetry = { files.retry() }
+                    onRetry = { cellNodes.retry() }
                 )
             }
 

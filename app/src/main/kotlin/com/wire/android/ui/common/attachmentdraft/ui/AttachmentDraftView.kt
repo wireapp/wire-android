@@ -35,7 +35,7 @@ fun AttachmentDraftView(
 ) {
 
     val extension = remember(attachment.fileName) { attachment.fileName.fileExtension() ?: "" }
-    val fileType = remember(extension) { AttachmentFileType.fromExtension(extension) }
+    val attachmentFileType = remember(extension) { AttachmentFileType.fromExtension(extension) }
 
     AttachmentScaffold(
         onClick = onClick,
@@ -43,7 +43,7 @@ fun AttachmentDraftView(
         showMenuButton = attachment.uploadError,
         modifier = modifier,
     ) {
-        when (fileType) {
+        when (attachmentFileType) {
             AttachmentFileType.IMAGE -> AttachmentImageView(
                 attachment = attachment,
             )

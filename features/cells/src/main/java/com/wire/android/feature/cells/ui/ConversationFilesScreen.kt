@@ -44,7 +44,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -61,7 +61,7 @@ import kotlinx.coroutines.flow.StateFlow
  * Conversation id is passed to view model via navigation parameters [CellFilesNavArgs].
  */
 @Destination(
-    style = PopUpNavigationAnimation::class,
+    style = SlideNavigationAnimation::class,
     navArgsDelegate = CellFilesNavArgs::class,
 )
 @Composable
@@ -160,6 +160,7 @@ fun ConversationFilesScreenContent(
                 isAllFiles = false,
                 onFolderClick = {
                     val folderPath = "$currentNodeUuid/${it.name}"
+
                     navigator.navigate(
                         NavigationCommand(
                             ConversationFilesWithSlideInTransitionScreenDestination(
@@ -171,13 +172,14 @@ fun ConversationFilesScreenContent(
                         )
                     )
                 },
-                showPublicLinkScreen = { assetId, fileName, linkId ->
+                showPublicLinkScreen = { publicLinkScreenData ->
                     navigator.navigate(
                         NavigationCommand(
                             PublicLinkScreenDestination(
-                                assetId = assetId,
-                                fileName = fileName,
-                                publicLinkId = linkId
+                                assetId = publicLinkScreenData.assetId,
+                                fileName = publicLinkScreenData.fileName,
+                                publicLinkId = publicLinkScreenData.linkId,
+                                isFolder = publicLinkScreenData.isFolder
                             )
                         )
                     )

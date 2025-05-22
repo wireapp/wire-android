@@ -19,6 +19,7 @@
 package com.wire.android.ui.common
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlin.math.absoluteValue
@@ -29,6 +30,7 @@ internal fun WireColorScheme.channelConversationColor(id: ConversationId) = chan
 @Composable
 internal fun WireColorScheme.groupConversationColor(id: ConversationId) = groupAvatarColors.withConversationId(id)
 
+@Stable
 private fun <T> List<T>.withConversationId(id: ConversationId): T {
     val hash = id.value.lowercase().hashCode()
     return this[hash.absoluteValue % this.size]

@@ -104,7 +104,7 @@ class CellViewModel @Inject constructor(
         .distinctUntilChanged()
         .flatMapLatest { query ->
             combine(
-                getCellFilesPaged(navArgs.conversationId, query).cachedIn(viewModelScope),
+                getCellFilesPaged(navArgs.conversationId, query, navArgs.onlyDeleted ?: false).cachedIn(viewModelScope),
                 removedItemsFlow,
                 downloadDataFlow,
             ) { pagingData, removedItems, downloadData ->
@@ -142,12 +142,13 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnMenuFileActionSelected -> onMenuFileAction(intent.file, intent.action)
             is CellViewIntent.OnMenuFolderActionSelected -> onMenuFolderAction(intent.folder, intent.action)
             is CellViewIntent.OnFileDownloadConfirmed -> downloadFile(intent.file)
-            is CellViewIntent.OnFileDeleteConfirmed -> deleteFile(intent.file)
+            is CellViewIntent.OnNodeDeleteConfirmed -> deleteFile(intent.file)
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
         }
     }
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
+    internal fun isRecycleBin(): Boolean = navArgs.onlyDeleted ?: false
 
     internal fun screenTitle(): String? = navArgs.screenTitle
 
@@ -246,14 +247,19 @@ class CellViewModel @Inject constructor(
         val menuOption = when (cellNode) {
             is CellNodeUi.File -> {
                 val list = buildList {
-                    if (!cellNode.localFileAvailable()) {
-                        add(BottomSheetAction.File(FileAction.SAVE))
+                    if (isRecycleBin()) {
+                        add(BottomSheetAction.File(FileAction.RESTORE))
+                        add(BottomSheetAction.File(FileAction.DELETE_PERMANENTLY))
                     } else {
-                        add(BottomSheetAction.File(FileAction.SHARE))
+                        if (!cellNode.localFileAvailable()) {
+                            add(BottomSheetAction.File(FileAction.SAVE))
+                        } else {
+                            add(BottomSheetAction.File(FileAction.SHARE))
+                        }
+                        add(BottomSheetAction.File(FileAction.PUBLIC_LINK))
+                        add(BottomSheetAction.File(FileAction.MOVE))
+                        add(BottomSheetAction.File(FileAction.DELETE))
                     }
-                    add(BottomSheetAction.File(FileAction.PUBLIC_LINK))
-                    add(BottomSheetAction.File(FileAction.MOVE))
-                    add(BottomSheetAction.File(FileAction.DELETE))
                 }
                 MenuOptions.FileMenuOptions(
                     cellNodeUi = cellNode,
@@ -263,10 +269,15 @@ class CellViewModel @Inject constructor(
 
             is CellNodeUi.Folder -> {
                 val list = buildList {
-                    add(BottomSheetAction.Folder(FolderAction.SHARE))
-                    add(BottomSheetAction.Folder(FolderAction.MOVE))
-                    add(BottomSheetAction.Folder(FolderAction.DOWNLOAD))
-                    add(BottomSheetAction.Folder(FolderAction.DELETE))
+                    if (isRecycleBin()) {
+                        add(BottomSheetAction.Folder(FolderAction.RESTORE))
+                        add(BottomSheetAction.Folder(FolderAction.DELETE_PERMANENTLY))
+                    } else {
+                        add(BottomSheetAction.Folder(FolderAction.SHARE))
+                        add(BottomSheetAction.Folder(FolderAction.MOVE))
+                        add(BottomSheetAction.Folder(FolderAction.DOWNLOAD))
+                        add(BottomSheetAction.Folder(FolderAction.DELETE))
+                    }
                 }
                 MenuOptions.FolderMenuOptions(
                     cellNodeUi = cellNode,
@@ -283,7 +294,8 @@ class CellViewModel @Inject constructor(
             FileAction.SAVE -> downloadFile(file)
             FileAction.SHARE -> shareFile(file)
             FileAction.PUBLIC_LINK -> sendAction(ShowPublicLinkScreen(file))
-            FileAction.DELETE -> sendAction(ShowDeleteConfirmation(file))
+            FileAction.DELETE -> sendAction(ShowDeleteConfirmation(node = file, isPermanentDelete = false))
+            FileAction.DELETE_PERMANENTLY -> sendAction(ShowDeleteConfirmation(node = file, isPermanentDelete = true))
             FileAction.MOVE -> navArgs.conversationId?.let {
                 sendAction(
                     ShowMoveToFolderScreen(
@@ -293,6 +305,8 @@ class CellViewModel @Inject constructor(
                     )
                 )
             }
+
+            FileAction.RESTORE -> TODO()
         }
     }
 
@@ -310,7 +324,9 @@ class CellViewModel @Inject constructor(
             }
 
             FolderAction.DOWNLOAD -> TODO()
-            FolderAction.DELETE -> TODO()
+            FolderAction.DELETE -> sendAction(ShowDeleteConfirmation(node = folder, isPermanentDelete = false))
+            FolderAction.DELETE_PERMANENTLY -> sendAction(ShowDeleteConfirmation(node = folder, isPermanentDelete = true))
+            FolderAction.RESTORE -> TODO()
         }
     }
 
@@ -327,17 +343,22 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    private fun deleteFile(file: CellNodeUi.File) = viewModelScope.launch {
+    private fun deleteFile(node: CellNodeUi) = viewModelScope.launch {
 
         removedItemsFlow.update {
-            it + file.uuid
+            it + node.uuid
+        }
+        val localPath = if (node is CellNodeUi.File) {
+            node.localPath
+        } else {
+            null
         }
 
-        deleteCellAsset(file.uuid, file.localPath)
+        deleteCellAsset(node.uuid, localPath)
             .onFailure {
                 sendAction(ShowError(CellError.OTHER_ERROR))
                 removedItemsFlow.update {
-                    it - file.uuid
+                    it - node.uuid
                 }
             }
     }
@@ -365,12 +386,12 @@ sealed interface CellViewIntent {
     data class OnMenuFileActionSelected(val file: CellNodeUi.File, val action: BottomSheetAction) : CellViewIntent
     data class OnMenuFolderActionSelected(val folder: CellNodeUi.Folder, val action: BottomSheetAction) : CellViewIntent
     data class OnFileDownloadConfirmed(val file: CellNodeUi.File) : CellViewIntent
-    data class OnFileDeleteConfirmed(val file: CellNodeUi.File) : CellViewIntent
+    data class OnNodeDeleteConfirmed(val file: CellNodeUi) : CellViewIntent
     data object OnDownloadMenuClosed : CellViewIntent
 }
 
 sealed interface CellViewAction
-internal data class ShowDeleteConfirmation(val file: CellNodeUi.File) : CellViewAction
+internal data class ShowDeleteConfirmation(val node: CellNodeUi, val isPermanentDelete: Boolean) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
 internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction

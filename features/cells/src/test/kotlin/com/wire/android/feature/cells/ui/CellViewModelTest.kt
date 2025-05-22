@@ -297,7 +297,7 @@ class CellViewModelTest {
 
             with(expectMostRecentItem()) {
                 assertTrue(this is ShowDeleteConfirmation)
-                assertEquals(testFile, (this as ShowDeleteConfirmation).file)
+                assertEquals(testFile, (this as ShowDeleteConfirmation).node)
             }
         }
     }
@@ -312,7 +312,7 @@ class CellViewModelTest {
         val testFile = testFiles[0]
             .toUiModel()
 
-        viewModel.sendIntent(CellViewIntent.OnFileDeleteConfirmed(testFile))
+        viewModel.sendIntent(CellViewIntent.OnNodeDeleteConfirmed(testFile))
 
         with(viewModel.nodesFlow.asSnapshot()) {
             assertFalse(contains(testFile))
@@ -328,7 +328,7 @@ class CellViewModelTest {
 
         val testFile = testFiles[0].toUiModel()
 
-        viewModel.sendIntent(CellViewIntent.OnFileDeleteConfirmed(testFile))
+        viewModel.sendIntent(CellViewIntent.OnNodeDeleteConfirmed(testFile))
 
         coVerify(exactly = 1) {
             arrangement.deleteCellAssetUseCase(any(), any())

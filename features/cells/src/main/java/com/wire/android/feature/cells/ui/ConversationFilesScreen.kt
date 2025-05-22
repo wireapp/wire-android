@@ -40,12 +40,15 @@ import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlide
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
-import com.wire.android.feature.cells.ui.dialog.CellsNewActionsBottomSheet
+import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
+import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
+import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -74,6 +77,7 @@ fun ConversationFilesScreen(
     ConversationFilesScreenContent(
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
+        isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
@@ -94,25 +98,47 @@ fun ConversationFilesScreenContent(
     sendIntent: (CellViewIntent) -> Unit,
     modifier: Modifier = Modifier,
     screenTitle: String? = null,
+    isRecycleBin: Boolean? = false,
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
-    val sheetState = rememberWireModalSheetState<Unit>()
+    val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
+    val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
 
     val isFabVisible = when {
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
+        isRecycleBin == true -> false
         else -> true
     }
 
-    CellsNewActionsBottomSheet(
-        sheetState = sheetState,
+    CellsNewActionBottomSheet(
+        sheetState = newActionBottomSheetState,
         onDismiss = {
-            sheetState.hide()
+            newActionBottomSheetState.hide()
         },
         onCreateFolder = {
             navigator.navigate(NavigationCommand(CreateFolderScreenDestination(currentNodeUuid)))
         }
     )
+
+    CellsOptionsBottomSheet(
+        sheetState = optionsBottomSheetState,
+        onDismiss = {
+            optionsBottomSheetState.hide()
+        },
+        showRecycleBin = {
+            navigator.navigate(
+                NavigationCommand(
+                    RecycleBinScreenDestination(
+                        conversationId = currentNodeUuid?.substringBefore("/"),
+                        onlyDeleted = true
+                    )
+                )
+            )
+            optionsBottomSheetState.hide()
+        }
+    )
+
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -120,7 +146,13 @@ fun ConversationFilesScreenContent(
                 onNavigationPressed = { navigator.navigateBack() },
                 title = screenTitle ?: stringResource(R.string.conversation_files_title),
                 navigationIconType = navigationIconType,
-                elevation = dimensions().spacing0x
+                elevation = dimensions().spacing0x,
+                actions = {
+                    MoreOptionIcon(
+                        contentDescription = R.string.content_description_conversation_files_more_button,
+                        onButtonClicked = { optionsBottomSheetState.show() }
+                    )
+                }
             )
         },
         floatingActionButton = {
@@ -146,7 +178,7 @@ fun ConversationFilesScreenContent(
                                     .size(dimensions().fabIconSize)
                             )
                         },
-                        onClick = { sheetState.show() }
+                        onClick = { newActionBottomSheetState.show() }
                     )
                 }
             }

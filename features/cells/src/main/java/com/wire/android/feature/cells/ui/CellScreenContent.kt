@@ -18,13 +18,11 @@
 package com.wire.android.feature.cells.ui
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,7 +50,6 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -73,7 +70,7 @@ internal fun CellScreenContent(
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
 
-    var deleteConfirmation by remember { mutableStateOf<CellNodeUi.File?>(null) }
+    var deleteConfirmation by remember { mutableStateOf<Pair<CellNodeUi?, Boolean>?>((null)) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
     val downloadFile by downloadFileState.collectAsState()
@@ -86,6 +83,7 @@ internal fun CellScreenContent(
             isAllFiles = isAllFiles,
             onRetry = { pagingListItems.retry() }
         )
+
         else ->
             CellFilesScreen(
                 cellNodes = pagingListItems,
@@ -136,10 +134,13 @@ internal fun CellScreenContent(
         )
     }
 
-    deleteConfirmation?.let {
+    deleteConfirmation?.first?.let {
         DeleteConfirmationDialog(
+            itemName = it.name ?: "",
+            isFolder = it is CellNodeUi.Folder,
+            isPermanentDelete = deleteConfirmation?.second == true,
             onConfirm = {
-                sendIntent(CellViewIntent.OnFileDeleteConfirmed(it))
+                sendIntent(CellViewIntent.OnNodeDeleteConfirmed(it))
                 deleteConfirmation = null
             },
             onDismiss = {
@@ -153,13 +154,14 @@ internal fun CellScreenContent(
             actionsFlow.collect { action ->
                 when (action) {
                     is ShowError -> Toast.makeText(context, action.error.message, Toast.LENGTH_SHORT).show()
-                    is ShowDeleteConfirmation -> deleteConfirmation = action.file
+                    is ShowDeleteConfirmation -> deleteConfirmation = action.node to action.isPermanentDelete
                     is ShowPublicLinkScreen -> showPublicLinkScreen(
                         action.cellNode.uuid,
                         action.cellNode.name ?: action.cellNode.uuid,
                         action.cellNode.publicLinkId,
                         action.cellNode is CellNodeUi.Folder
                     )
+
                     is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
                     is RefreshData -> pagingListItems.refresh()
                 }

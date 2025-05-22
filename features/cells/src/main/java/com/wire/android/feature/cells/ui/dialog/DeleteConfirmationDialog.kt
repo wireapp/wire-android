@@ -19,12 +19,12 @@ package com.wire.android.feature.cells.ui.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.DialogProperties
 import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 
 @Composable
 fun DeleteConfirmationDialog(
@@ -45,6 +45,6 @@ fun DeleteConfirmationDialog(
             text = stringResource(id = R.string.cancel),
             onClick = onDismiss
         ),
-        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true, dismissOnClickOutside = true)
+        properties = wireDialogPropertiesBuilder(dismissOnBackPress = true, dismissOnClickOutside = true)
     )
 }

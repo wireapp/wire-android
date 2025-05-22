@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation
+package com.wire.android.navigation.wrapper
 
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -38,7 +38,7 @@ object WaitUntilTransitionEndsWrapper : DestinationWrapper {
 
     @Composable
     override fun <T> DestinationScope<T>.Wrap(screenContent: @Composable () -> Unit) {
-        (this as? AnimatedDestinationScope<T>)?.let {
+        if (this is AnimatedDestinationScope<T>) {
             var transitionComplete by remember { mutableStateOf(false) }
             LaunchedEffect(transition.isRunning, transition.currentState, transition.targetState) {
                 with(transition) {
@@ -55,6 +55,8 @@ object WaitUntilTransitionEndsWrapper : DestinationWrapper {
                         }
                 )
             }
+        } else {
+            screenContent()
         }
     }
 }

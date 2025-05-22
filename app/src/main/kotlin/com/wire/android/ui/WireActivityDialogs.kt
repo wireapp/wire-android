@@ -343,7 +343,7 @@ private fun AccountLoggedOutDialogContent(reason: CurrentSessionErrorState, navi
         title = stringResource(id = title),
         text = text,
         onDismiss = remember { { } },
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
+        properties = wireDialogPropertiesBuilder(dismissOnBackPress = false, dismissOnClickOutside = false),
         optionButton1Properties = WireDialogButtonProperties(
             text = stringResource(R.string.label_ok),
             onClick = navigateAway,

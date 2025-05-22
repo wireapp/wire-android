@@ -36,6 +36,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -50,7 +51,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import java.util.Locale
 
-@Destination(
+@WireDestination(
     style = PopUpNavigationAnimation::class
 )
 @Composable

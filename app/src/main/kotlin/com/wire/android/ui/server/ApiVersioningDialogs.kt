@@ -26,6 +26,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 
 @Composable
 private fun ApiVersioningDialog(
@@ -45,7 +46,7 @@ private fun ApiVersioningDialog(
             onClick = onAction,
             type = WireDialogButtonType.Primary
         ),
-        properties = DialogProperties(
+        properties = wireDialogPropertiesBuilder(
             dismissOnBackPress = true,
             dismissOnClickOutside = false,
             usePlatformDefaultWidth = isPreview  // for some reason, @Preview doesn't work well with width other than platform default

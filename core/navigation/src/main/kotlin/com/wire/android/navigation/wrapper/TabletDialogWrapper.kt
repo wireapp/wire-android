@@ -33,9 +33,10 @@ object TabletDialogWrapper : DestinationWrapper {
     @Composable
     override fun <T> DestinationScope<T>.Wrap(screenContent: @Composable () -> Unit) {
         if (this.destination.style is DestinationStyle.Dialog) {
-            Row(modifier = Modifier
-                .clip(RoundedCornerShape(dimensions().spacing20x))
-                .imePadding()
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(dimensions().spacing20x))
+                    .imePadding()
             ) {
                 screenContent()
             }

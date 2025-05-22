@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,17 +43,14 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun FileActionsBottomSheet(
     menuOptions: MenuOptions.FileMenuOptions,
     onAction: (BottomSheetAction.File) -> Unit,
     onDismiss: () -> Unit,
-    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>()
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
-
-    val scope = rememberCoroutineScope()
 
     WireModalSheetLayout(
         onDismissRequest = {
@@ -65,11 +61,7 @@ internal fun FileActionsBottomSheet(
         SheetContent(
             menuOptions = menuOptions,
             onAction = { action ->
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        onAction(action)
-                    }
-                }
+                sheetState.hide { onAction(action) }
             }
         )
     }
@@ -127,17 +119,11 @@ private fun PreviewFileActionsBottomSheet() {
                     name = "test file.pdf",
                     mimeType = "application/pdf",
                     assetType = AttachmentFileType.PDF,
-                    assetSize = 2342342,
+                    size = 2342342,
                     localPath = "",
                     userName = null,
                     conversationName = null,
-                    modifiedTime = null,
-                    remotePath = null,
-                    contentHash = null,
-                    contentUrl = null,
-                    previewUrl = null,
-                    downloadProgress = null,
-                    publicLinkId = null,
+                    modifiedTime = null
                 ),
                 actions = listOf(
                     BottomSheetAction.File(FileAction.SHARE),

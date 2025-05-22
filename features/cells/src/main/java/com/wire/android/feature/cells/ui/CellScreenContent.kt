@@ -62,9 +62,10 @@ internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
     pagingListItems: LazyPagingItems<CellNodeUi>,
     sendIntent: (CellViewIntent) -> Unit,
+    onFolderClick: (CellNodeUi.Folder) -> Unit,
     downloadFileState: StateFlow<CellNodeUi.File?>,
-    fileMenuState: Flow<MenuOptions?>,
-    showPublicLinkScreen: (String, String, String?) -> Unit,
+    menuState: Flow<MenuOptions?>,
+    showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
     isAllFiles: Boolean,
     isSearchResult: Boolean = false,
 ) {
@@ -85,10 +86,16 @@ internal fun CellScreenContent(
             isAllFiles = isAllFiles,
             onRetry = { pagingListItems.retry() }
         )
+
         else ->
             CellFilesScreen(
                 cellNodes = pagingListItems,
-                onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
+                onItemClick = {
+                    when (it) {
+                        is CellNodeUi.File -> sendIntent(CellViewIntent.OnFileClick(it))
+                        is CellNodeUi.Folder -> onFolderClick(it)
+                    }
+                },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
 //                onRefresh = {
 //                    viewModel.loadFiles(pullToRefresh = true)
@@ -149,10 +156,14 @@ internal fun CellScreenContent(
                     is ShowError -> Toast.makeText(context, action.error.message, Toast.LENGTH_SHORT).show()
                     is ShowDeleteConfirmation -> deleteConfirmation = action.file
                     is ShowPublicLinkScreen -> showPublicLinkScreen(
-                        action.file.uuid,
-                        action.file.name ?: action.file.uuid,
-                        action.file.publicLinkId
+                        PublicLinkScreenData(
+                            assetId = action.cellNode.uuid,
+                            fileName = action.cellNode.name ?: action.cellNode.uuid,
+                            linkId = action.cellNode.publicLinkId,
+                            isFolder = action.cellNode is CellNodeUi.Folder
+                        )
                     )
+
                     is RefreshData -> pagingListItems.refresh()
                 }
             }
@@ -161,7 +172,7 @@ internal fun CellScreenContent(
 
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            fileMenuState.collect { showMenu ->
+            menuState.collect { showMenu ->
                 menu = showMenu
             }
         }
@@ -253,7 +264,7 @@ private fun EmptyScreen(
                 .weight(1f)
         )
 
-        if (!isSearchResult) {
+        if (!isSearchResult && isAllFiles) {
             WirePrimaryButton(
                 text = stringResource(R.string.reload),
                 onClick = onRetry

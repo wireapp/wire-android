@@ -32,6 +32,9 @@ sealed class CellNodeUi {
     abstract val conversationName: String?
     abstract val modifiedTime: String?
     abstract val publicLinkId: String?
+    abstract val remotePath: String?
+    abstract val size: Long?
+    abstract val downloadProgress: Float?
 
     data class Folder(
         override val name: String?,
@@ -40,6 +43,9 @@ sealed class CellNodeUi {
         override val conversationName: String?,
         override val modifiedTime: String?,
         override val publicLinkId: String? = null,
+        override val remotePath: String? = null,
+        override val size: Long?,
+        override val downloadProgress: Float? = null,
     ) : CellNodeUi()
 
     data class File(
@@ -49,15 +55,15 @@ sealed class CellNodeUi {
         override val conversationName: String?,
         override val modifiedTime: String?,
         override val publicLinkId: String? = null,
+        override val remotePath: String? = null,
+        override val size: Long?,
+        override val downloadProgress: Float? = null,
         val mimeType: String,
         val assetType: AttachmentFileType,
-        val assetSize: Long?,
         val localPath: String?,
-        val remotePath: String? = null,
         val contentHash: String? = null,
         val contentUrl: String? = null,
         val previewUrl: String? = null,
-        val downloadProgress: Float? = null,
     ) : CellNodeUi()
 }
 
@@ -66,7 +72,7 @@ internal fun Node.File.toUiModel() = CellNodeUi.File(
     name = name,
     mimeType = mimeType,
     assetType = AttachmentFileType.fromMimeType(mimeType),
-    assetSize = assetSize,
+    size = size,
     localPath = localPath,
     remotePath = remotePath,
     contentHash = contentHash,
@@ -84,11 +90,14 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     userName = userName,
     conversationName = conversationName,
     modifiedTime = formattedModifiedTime(),
+    remotePath = remotePath,
+    size = size
 )
 
 private fun Node.File.formattedModifiedTime() = modifiedTime?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }
+
 private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }

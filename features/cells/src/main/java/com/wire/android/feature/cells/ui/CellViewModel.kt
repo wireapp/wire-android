@@ -37,6 +37,7 @@ import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -68,6 +69,7 @@ class CellViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
+    private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val download: DownloadCellFileUseCase,
     private val fileHelper: FileHelper,
     private val kaliumFileSystem: KaliumFileSystem,
@@ -306,7 +308,7 @@ class CellViewModel @Inject constructor(
                 )
             }
 
-            FileAction.RESTORE -> TODO()
+            FileAction.RESTORE -> restoreNodeFromRecycleBin(file.remotePath)
         }
     }
 
@@ -326,7 +328,7 @@ class CellViewModel @Inject constructor(
             FolderAction.DOWNLOAD -> TODO()
             FolderAction.DELETE -> sendAction(ShowDeleteConfirmation(node = folder, isPermanentDelete = false))
             FolderAction.DELETE_PERMANENTLY -> sendAction(ShowDeleteConfirmation(node = folder, isPermanentDelete = true))
-            FolderAction.RESTORE -> TODO()
+            FolderAction.RESTORE -> restoreNodeFromRecycleBin(folder.remotePath)
         }
     }
 
@@ -361,6 +363,20 @@ class CellViewModel @Inject constructor(
                     it - node.uuid
                 }
             }
+    }
+
+    fun restoreNodeFromRecycleBin(path: String?) {
+        viewModelScope.launch {
+            path?.let {
+                restoreNodeFromRecycleBinUseCase(path)
+                    .onSuccess {
+                        sendAction(RefreshData)
+                    }
+                    .onFailure {
+                        sendAction(ShowError(CellError.OTHER_ERROR))
+                    }
+            }
+        }
     }
 
     private fun onDownloadMenuClosed() {

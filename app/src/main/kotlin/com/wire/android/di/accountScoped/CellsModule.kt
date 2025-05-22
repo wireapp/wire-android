@@ -33,6 +33,7 @@ import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
 import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftsUseCase
+import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
@@ -130,4 +131,9 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideMoveNodeUseCase(cellsScope: CellsScope): MoveNodeUseCase = cellsScope.moveNodeUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRestoreNodeFromRecycleBinUseCase(cellsScope: CellsScope): RestoreNodeFromRecycleBinUseCase =
+        cellsScope.restoreNodeFromRecycleBin
 }

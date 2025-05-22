@@ -17,11 +17,9 @@
  */
 package com.wire.android.navigation.annotation
 
-import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.Destination.Companion.COMPOSABLE_NAME
 import com.ramcosta.composedestinations.spec.DestinationStyle
-import com.ramcosta.composedestinations.wrapper.DestinationWrapper
 import com.wire.android.navigation.wrapper.TabletDialogWrapper
 import com.wire.android.navigation.wrapper.WaitUntilTransitionEndsWrapper
 import kotlin.reflect.KClass

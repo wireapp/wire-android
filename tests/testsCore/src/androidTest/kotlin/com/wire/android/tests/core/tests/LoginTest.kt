@@ -45,5 +45,18 @@ class LoginTest {
     @Test
     fun openTheAppAndShouldSeeEmailFieldAndLoginWhenValid() {
 
+        @Test
+        fun UserRegistrationFlow() {
+
+            val registrationPage = LoginPage(device)
+            val userInfo = UserClient.generateUniqueUserInfo()
+
+            registrationPage.assertEmailWelcomePage()
+            registrationPage.loginWithEmail(userInfo.email)
+            registrationPage.assertAndClickLoginButton()
+            registrationPage.clickCreateAccountButton()
+            //registrationPage.clickContinueButton()
+
+        }
     }
 }

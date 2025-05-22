@@ -41,8 +41,8 @@ class RegistrationTest {
 
     @Before
     fun setUp() {
-       // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGGING)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
+       // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGGING)
 
     }
 

@@ -27,6 +27,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 
 @Composable
 fun RestoreConfirmationDialog(
@@ -79,5 +80,16 @@ fun RestoreConfirmationDialog(
         ),
         buttonsHorizontalAlignment = false,
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true, dismissOnClickOutside = true)
+    )
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewRestoreConfirmationDialog() {
+    RestoreConfirmationDialog(
+        itemName = "Test",
+        isFolder = false,
+        onConfirm = {},
+        onDismiss = {}
     )
 }

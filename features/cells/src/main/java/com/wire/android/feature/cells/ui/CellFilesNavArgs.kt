@@ -20,6 +20,6 @@ package com.wire.android.feature.cells.ui
 data class CellFilesNavArgs(
     val conversationId: String? = null,
     val screenTitle: String? = null,
-    val onlyDeleted: Boolean? = false
+    val isRecycleBin: Boolean? = false
 )
 

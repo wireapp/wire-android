@@ -114,7 +114,7 @@ class CellViewModel @Inject constructor(
         .distinctUntilChanged()
         .flatMapLatest { query ->
             combine(
-                getCellFilesPaged(navArgs.conversationId, query, navArgs.onlyDeleted ?: false).cachedIn(viewModelScope),
+                getCellFilesPaged(navArgs.conversationId, query, navArgs.isRecycleBin ?: false).cachedIn(viewModelScope),
                 removedItemsFlow,
                 downloadDataFlow
             ) { pagingData, removedItems, downloadData ->
@@ -161,7 +161,7 @@ class CellViewModel @Inject constructor(
     }
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
-    internal fun isRecycleBin(): Boolean = navArgs.onlyDeleted ?: false
+    internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
     internal fun screenTitle(): String? = navArgs.screenTitle
 
     private fun onFileClick(cellNode: CellNodeUi.File) {

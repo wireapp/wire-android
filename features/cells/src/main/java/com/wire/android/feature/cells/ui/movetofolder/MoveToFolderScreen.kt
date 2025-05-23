@@ -297,6 +297,7 @@ fun PreviewMoveToFolderItem() {
                 userName = "User",
                 conversationName = "Conversation",
                 modifiedTime = null,
+                size = 1234,
             )
         )
     }

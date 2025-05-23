@@ -156,10 +156,11 @@ fun MoveToFolderScreen(
             }
         ) { innerPadding ->
 
-            val nodes = moveToFolderViewModel.nodes.collectAsState()
+            val folders = moveToFolderViewModel.folders.collectAsState()
             val uiState by moveToFolderViewModel.state.collectAsState()
+
             MoveToFolderScreenContent(
-                nodes = nodes,
+                folders = folders,
                 uiState = uiState,
                 onFolderClick = { folder ->
                     navigator.navigate(
@@ -204,7 +205,7 @@ fun MoveToFolderScreen(
 
 @Composable
 private fun MoveToFolderScreenContent(
-    nodes: State<List<CellNodeUi>>,
+    folders: State<List<CellNodeUi>>,
     uiState: MoveToFolderScreenState,
     onFolderClick: (CellNodeUi.Folder) -> Unit,
     innerPadding: PaddingValues
@@ -213,7 +214,7 @@ private fun MoveToFolderScreenContent(
     if (uiState == MoveToFolderScreenState.Loading) {
         LoadingScreen()
     } else {
-        if (nodes.value.isEmpty()) {
+        if (folders.value.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -230,7 +231,7 @@ private fun MoveToFolderScreenContent(
                 modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                nodes.value.forEach { node ->
+                folders.value.forEach { node ->
                     item {
                         RowItem(node) {
                             onFolderClick(it)

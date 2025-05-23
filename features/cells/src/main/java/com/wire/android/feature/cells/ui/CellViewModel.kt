@@ -99,6 +99,8 @@ class CellViewModel @Inject constructor(
         .receiveAsFlow()
         .flowOn(Dispatchers.Main.immediate)
 
+    val isLoading = MutableStateFlow(false)
+
     // Download progress value for each file being downloaded.
     private val downloadDataFlow = MutableStateFlow<Map<String, DownloadData>>(emptyMap())
 
@@ -114,7 +116,7 @@ class CellViewModel @Inject constructor(
             combine(
                 getCellFilesPaged(navArgs.conversationId, query, navArgs.onlyDeleted ?: false).cachedIn(viewModelScope),
                 removedItemsFlow,
-                downloadDataFlow,
+                downloadDataFlow
             ) { pagingData, removedItems, downloadData ->
                 pagingData
                     .filter {
@@ -152,7 +154,8 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnMenuFileActionSelected -> onMenuFileAction(intent.file, intent.action)
             is CellViewIntent.OnMenuFolderActionSelected -> onMenuFolderAction(intent.folder, intent.action)
             is CellViewIntent.OnFileDownloadConfirmed -> downloadNode(intent.file)
-            is CellViewIntent.OnNodeDeleteConfirmed -> deleteFile(intent.file)
+            is CellViewIntent.OnNodeDeleteConfirmed -> deleteFile(intent.node)
+            is CellViewIntent.OnNodeRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
         }
     }
@@ -323,7 +326,7 @@ class CellViewModel @Inject constructor(
                 )
             }
 
-            FileAction.RESTORE -> restoreNodeFromRecycleBin(file.remotePath)
+            FileAction.RESTORE -> sendAction(ShowRestoreConfirmation(node = file))
         }
     }
 
@@ -340,9 +343,10 @@ class CellViewModel @Inject constructor(
                     )
                 )
             }
+
             FolderAction.DELETE -> sendAction(ShowDeleteConfirmation(node = folder, isPermanentDelete = false))
             FolderAction.DELETE_PERMANENTLY -> sendAction(ShowDeleteConfirmation(node = folder, isPermanentDelete = true))
-            FolderAction.RESTORE -> restoreNodeFromRecycleBin(folder.remotePath)
+            FolderAction.RESTORE -> sendAction(ShowRestoreConfirmation(node = folder))
         }
     }
 
@@ -379,14 +383,20 @@ class CellViewModel @Inject constructor(
             }
     }
 
-    fun restoreNodeFromRecycleBin(path: String?) {
+    private fun restoreNodeFromRecycleBin(node: CellNodeUi) {
         viewModelScope.launch {
-            path?.let {
-                restoreNodeFromRecycleBinUseCase(path)
+            isLoading.value = true
+            node.remotePath?.let {
+                restoreNodeFromRecycleBinUseCase(it)
                     .onSuccess {
+                        removedItemsFlow.update { deletedItems ->
+                            deletedItems - node.uuid
+                        }
+                        isLoading.value = false
                         sendAction(RefreshData)
                     }
                     .onFailure {
+                        isLoading.value = false
                         sendAction(ShowError(CellError.OTHER_ERROR))
                     }
             }
@@ -420,12 +430,14 @@ sealed interface CellViewIntent {
     data class OnMenuFileActionSelected(val file: CellNodeUi.File, val action: BottomSheetAction.File) : CellViewIntent
     data class OnMenuFolderActionSelected(val folder: CellNodeUi.Folder, val action: BottomSheetAction.Folder) : CellViewIntent
     data class OnFileDownloadConfirmed(val file: CellNodeUi.File) : CellViewIntent
-    data class OnNodeDeleteConfirmed(val file: CellNodeUi) : CellViewIntent
+    data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent
+    data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data object OnDownloadMenuClosed : CellViewIntent
 }
 
 sealed interface CellViewAction
 internal data class ShowDeleteConfirmation(val node: CellNodeUi, val isPermanentDelete: Boolean) : CellViewAction
+internal data class ShowRestoreConfirmation(val node: CellNodeUi) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
 internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +31,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
+import com.wire.android.feature.cells.ui.FullScreenLoading
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
@@ -52,71 +54,77 @@ fun RecycleBinScreen(
     modifier: Modifier = Modifier,
     cellViewModel: CellViewModel = hiltViewModel()
 ) {
-    WireScaffold(
-        topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = dimensions().spacing0x,
-                titleContent = {
-                    WireTopAppBarTitle(
-                        title = stringResource(R.string.recycle_bin),
-                        style = MaterialTheme.wireTypography.title01,
-                        maxLines = 2
-                    )
-                },
-                navigationIconType = NavigationIconType.Close(com.wire.android.ui.common.R.string.content_description_close),
-                onNavigationPressed = {
-                    navigator.navigateBack()
-                }
-            )
-        }
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            CellScreenContent(
-                actionsFlow = cellViewModel.actions,
-                pagingListItems = cellViewModel.nodesFlow.collectAsLazyPagingItems(),
-                sendIntent = { cellViewModel.sendIntent(it) },
-                downloadFileState = cellViewModel.downloadFileSheet,
-                menuState = cellViewModel.menu,
-                isAllFiles = false,
-                onFolderClick = {
-                    val folderPath = "${cellViewModel.currentNodeUuid()}/recycle_bin/${it.name}"
+    Box {
+        WireScaffold(
+            topBar = {
+                WireCenterAlignedTopAppBar(
+                    elevation = dimensions().spacing0x,
+                    titleContent = {
+                        WireTopAppBarTitle(
+                            title = stringResource(R.string.recycle_bin),
+                            style = MaterialTheme.wireTypography.title01,
+                            maxLines = 2
+                        )
+                    },
+                    navigationIconType = NavigationIconType.Close(com.wire.android.ui.common.R.string.content_description_close),
+                    onNavigationPressed = {
+                        navigator.navigateBack()
+                    }
+                )
+            }
+        ) { innerPadding ->
+            Box(modifier = Modifier.padding(innerPadding)) {
+                CellScreenContent(
+                    actionsFlow = cellViewModel.actions,
+                    pagingListItems = cellViewModel.nodesFlow.collectAsLazyPagingItems(),
+                    sendIntent = { cellViewModel.sendIntent(it) },
+                    downloadFileState = cellViewModel.downloadFileSheet,
+                    menuState = cellViewModel.menu,
+                    isAllFiles = false,
+                    onFolderClick = {
+                        val folderPath = "${cellViewModel.currentNodeUuid()}/recycle_bin/${it.name}"
 
-                    navigator.navigate(
-                        NavigationCommand(
-                            ConversationFilesWithSlideInTransitionScreenDestination(
-                                conversationId = folderPath,
-                                screenTitle = it.name,
-                                onlyDeleted = true
-                            ),
-                            BackStackMode.NONE,
-                            launchSingleTop = false
-                        )
-                    )
-                },
-                showPublicLinkScreen = { publicLinkScreenData ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            PublicLinkScreenDestination(
-                                assetId = publicLinkScreenData.assetId,
-                                fileName = publicLinkScreenData.fileName,
-                                publicLinkId = publicLinkScreenData.linkId,
-                                isFolder = publicLinkScreenData.isFolder
+                        navigator.navigate(
+                            NavigationCommand(
+                                ConversationFilesWithSlideInTransitionScreenDestination(
+                                    conversationId = folderPath,
+                                    screenTitle = it.name,
+                                    onlyDeleted = true
+                                ),
+                                BackStackMode.NONE,
+                                launchSingleTop = false
                             )
                         )
-                    )
-                },
-                showMoveToFolderScreen = { currentPath, nodePath, uuid ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            MoveToFolderScreenDestination(
-                                currentPath = currentPath,
-                                nodeToMovePath = nodePath,
-                                uuid = uuid,
+                    },
+                    showPublicLinkScreen = { publicLinkScreenData ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                PublicLinkScreenDestination(
+                                    assetId = publicLinkScreenData.assetId,
+                                    fileName = publicLinkScreenData.fileName,
+                                    publicLinkId = publicLinkScreenData.linkId,
+                                    isFolder = publicLinkScreenData.isFolder
+                                )
                             )
                         )
-                    )
-                }
-            )
+                    },
+                    showMoveToFolderScreen = { currentPath, nodePath, uuid ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                MoveToFolderScreenDestination(
+                                    currentPath = currentPath,
+                                    nodeToMovePath = nodePath,
+                                    uuid = uuid,
+                                )
+                            )
+                        )
+                    }
+                )
+            }
+        }
+
+        if (cellViewModel.isLoading.collectAsState().value) {
+            FullScreenLoading()
         }
     }
 }

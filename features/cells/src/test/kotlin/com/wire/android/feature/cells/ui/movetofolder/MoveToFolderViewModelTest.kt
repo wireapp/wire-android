@@ -21,8 +21,7 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.kalium.cells.domain.model.Node
-import com.wire.kalium.cells.domain.model.PaginatedList
-import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
+import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
@@ -61,17 +60,16 @@ class MoveToFolderViewModelTest {
         val (_, viewModel) = Arrangement()
             .withGetCellFilesUseCaseReturning(
                 Either.Right(
-                    PaginatedList(
-                        data = listOf(
-                            Node.Folder(
-                                name = "folderName",
-                                userName = "userName",
-                                conversationName = "conversationName",
-                                uuid = "uuid",
-                                lastModified = 0L
-                            )
-                        ),
-                        pagination = null
+                    listOf(
+                        Node.Folder(
+                            name = "folderName",
+                            userName = "userName",
+                            conversationName = "conversationName",
+                            uuid = "uuid",
+                            modifiedTime = 0L,
+                            remotePath = "",
+                            size = 12434,
+                        )
                     )
                 )
             )
@@ -81,7 +79,7 @@ class MoveToFolderViewModelTest {
 
         advanceUntilIdle()
         assertEquals(MoveToFolderScreenState.Success, viewModel.state.value)
-        assertTrue(viewModel.nodes.value.isNotEmpty())
+        assertTrue(viewModel.folders.value.isNotEmpty())
     }
 
     @Test
@@ -135,7 +133,7 @@ class MoveToFolderViewModelTest {
         lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
-        lateinit var getCellFilesUseCase: GetCellFilesUseCase
+        lateinit var getFoldersUseCase: GetFoldersUseCase
 
         @MockK
         lateinit var moveNodeUseCase: MoveNodeUseCase
@@ -158,13 +156,13 @@ class MoveToFolderViewModelTest {
         private val viewModel by lazy {
             MoveToFolderViewModel(
                 savedStateHandle = savedStateHandle,
-                getNodesUseCase = getCellFilesUseCase,
+                getFoldersUseCase = getFoldersUseCase,
                 moveNodeUseCase = moveNodeUseCase,
             )
         }
 
-        fun withGetCellFilesUseCaseReturning(result: Either<CoreFailure, PaginatedList<Node>>) = apply {
-            coEvery { getCellFilesUseCase(any(), any(), any(), any()) } returns result
+        fun withGetCellFilesUseCaseReturning(result: Either<CoreFailure, List<Node.Folder>>) = apply {
+            coEvery { getFoldersUseCase(any()) } returns result
         }
 
         fun withMoveNodeUseCaseReturning(result: Either<CoreFailure, Unit>) = apply {

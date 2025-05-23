@@ -79,4 +79,9 @@
     <string name="content_description_conversation_files_more_button">Open files options</string>
     <string name="recycle_bin">Recycle Bin</string>
     <string name="show_recycle_bin">Show Recycle Bin</string>
+    <string name="dialog_restore_file_title">Restore File?</string>
+    <string name="dialog_restore_folder_title">Restore Folder?</string>
+    <string name="dialog_restore_file_description">This file %1$s will be restored and available to everyone in this conversation.</string>
+    <string name="dialog_restore_folder_description">This folder %1$s will be restored and available to everyone in this conversation.</string>
+    <string name="dialog_restore_button_label">Restore</string>
 </resources>

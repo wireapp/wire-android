@@ -89,7 +89,7 @@ fun RecycleBinScreen(
                                 ConversationFilesWithSlideInTransitionScreenDestination(
                                     conversationId = folderPath,
                                     screenTitle = it.name,
-                                    onlyDeleted = true
+                                    isRecycleBin = true
                                 ),
                                 BackStackMode.NONE,
                                 launchSingleTop = false

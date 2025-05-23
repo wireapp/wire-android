@@ -131,7 +131,7 @@ fun ConversationFilesScreenContent(
                 NavigationCommand(
                     RecycleBinScreenDestination(
                         conversationId = currentNodeUuid?.substringBefore("/"),
-                        onlyDeleted = true
+                        isRecycleBin = true
                     )
                 )
             )

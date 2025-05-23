@@ -37,7 +37,6 @@ dependencies {
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.uiAutomator)
-    implementation("net.datafaker:datafaker:2.4.1")
-    androidTestImplementation("net.datafaker:datafaker:2.4.1")
+    implementation("net.datafaker:datafaker:2.4.2")
 
 }

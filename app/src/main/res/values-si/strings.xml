@@ -40,12 +40,15 @@
     <string name="label_membership_external">බාහිර</string>
     <string name="label_membership_service">සේවාව</string>
     <string name="label_user_deleted">මකා ඇත</string>
+    <string name="label_try_again">නැවත උත්සාහ කරන්න</string>
+    <string name="label_done">කළා</string>
     <string name="label_message_sent_failure">සම්බන්ධතා ගැටලු නිසා පණිවිඩය යැවීමට නොහැකි විය.</string>
     <string name="label_message_edit_sent_failure">සම්බන්ධතා ගැටලු නිසා සංශෝධිත පණිවිඩය යැවීමට නොහැකි විය.</string>
     <string name="label_message_sent_remotely_failure">%s සේවාදායකයට ළඟා වීමට නොහැකි වූ නිසා පණිවිඩය නොයැවිණි.</string>
     <string name="label_message_edit_sent_remotely_failure">%s සේවාදායකයට ළඟා වීමට නොහැකි වූ නිසා සංශෝධිත පණිවිඩය නොයැවිණි.</string>
     <string name="label_message_receive_failure">බාගැනීමේ දෝෂයකි</string>
     <string name="label_message_decryption_failure_message">පණිවිඩය විසංකේතනයට නොහැකි විය.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">පණිවිඩය විකේතනය කළ නොහැකි විය (දෝෂය %s).</string>
     <string name="label_message_decryption_failure_informative_message">නව සංකේතන යතුරු උත්පාදනයට වාරය යළි සකසන්න.</string>
     <string name="label_system_message_self_user_knock">%s හැඬවීය</string>
     <string name="label_system_message_other_user_knock">%s හැඬවීය</string>
@@ -97,6 +100,8 @@
     <string name="content_description_unarchive">අසංරක්‍ෂණය</string>
     <string name="content_description_block_the_user">අවහිර කරන්න</string>
     <string name="content_description_unblock_the_user">අනවහිර</string>
+    <string name="content_description_leave_the_conversation">සංවාදයෙන් ඉවත් වන්න</string>
+    <string name="content_description_delete_the_conversation">සංවාදය මකන්න</string>
     <string name="content_description_conversation_phone_icon">ශ්‍රව්‍ය ඇමතුමක් අරඹන්න</string>
     <string name="content_description_welcome_wire_logo">වයර්</string>
     <string name="content_description_conversation_search_icon">සොයන්න නිරූපකය</string>
@@ -109,6 +114,9 @@
     <string name="content_description_conversation_send_emoticon">චිත්තවේග යැවීමේ බොත්තම</string>
     <string name="content_description_conversation_send_gif">චලරූ යැවීමේ බොත්තම</string>
     <string name="content_description_conversation_mention_someone">යමෙක් සඳහන් කරන්න</string>
+    <string name="content_description_conversation_back_btn">සංවාද ලැයිස්තුවට ආපසු යන්න</string>
+    <string name="content_description_conversation_open_details_label">සංවාද විස්තර විවෘත කරන්න</string>
+    <string name="content_description_new_conversation">පුද්ගලයින් සොයන්න හෝ නව සංවාදයක් සාදන්න</string>
     <string name="content_description_back_button">ආපසු බොත්තම</string>
     <string name="content_description_send_button">යවන්න</string>
     <string name="content_description_timed_message_button">ඉබේ මැකෙන පණිවිඩ බොත්තම</string>
@@ -132,6 +140,8 @@
     <string name="content_description_more_options">තව විකල්ප</string>
     <string name="content_description_add_contact">සබඳතාවය යොදන්න</string>
     <string name="content_description_image_message">ඡායාරූප පණිවිඩයකි</string>
+    <string name="content_description_pause_audio">ශ්‍රව්‍ය විරාම කරන්න</string>
+    <string name="content_description_play_audio">ශ්‍රව්‍ය වාදනය කරන්න</string>
     <string name="content_description_file_message">ගොනු පණිවිඩයකි</string>
     <string name="content_description_ping_everyone">හඬවන්න</string>
     <string name="content_description_self_deleting_message_timer">පණිවිඩ ඉබේ මැකීමට කාලය සකසන්න</string>
@@ -146,6 +156,8 @@
     <string name="content_description_calling_turn_camera_off">රූගතය අක්‍රිය කරන්න</string>
     <string name="content_description_calling_turn_speaker_on">විකාශකය සක්‍රිය කරන්න</string>
     <string name="content_description_calling_turn_speaker_off">විකාශකය අක්‍රිය කරන්න</string>
+    <string name="content_description_calling_in_call_reactions_show">ඇමතුම් ප්‍රතිචාර පැනලයේ පෙන්වන්න</string>
+    <string name="content_description_calling_in_call_reactions_hide">ඇමතුම් ප්‍රතිචාර පැනලයේ සඟවන්න</string>
     <string name="content_description_show_more_options">තව විකල්ප පෙන්වන්න</string>
     <string name="content_description_reply_to_messge">පණිවිඩයට පිළිතුරු</string>
     <string name="content_description_reply_cancel">පිළිතුර අවලංගු කරන්න</string>
@@ -167,11 +179,85 @@
     <string name="content_description_record_audio_button_send">හඬ පණිවිඩය යවන්න</string>
     <string name="content_description_mls_certificate_valid">සියළුම සහභාගීන්ගේ උපාංගවල වලංගු MLS සහතිකයක් ඇත</string>
     <string name="content_description_proteus_certificate_valid">සියළුම සහභාගීන් සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
+    <string name="content_description_jump_to_last_message">සංවාදයේ අවසානය දක්වා අනුචලනය කරන්න</string>
     <string name="content_description_location_icon">ස්ථානය අථකය</string>
+    <string name="content_description_conversation_details_more_btn">සංවාද විකල්ප විවෘත කරන්න</string>
+    <string name="content_description_conversation_details_options_tab_header">විකල්ප</string>
+    <string name="content_description_conversation_details_participants_tab_header">සහභාගිවන්නන්</string>
+    <string name="content_description_conversation_details_close_btn">සංවාද විස්තර වසන්න</string>
+    <string name="content_description_conversation_details_guests_action">අමුත්තන්ගේ ප්‍රවේශය සකසන්න</string>
+    <string name="content_description_conversation_details_self_deleting_action">ස්වයං-මැකීමේ කාලය සකසන්න</string>
+    <string name="content_description_user_profile_more_btn">සංවාද විකල්ප විවෘත කරන්න</string>
+    <string name="content_description_user_profile_close_btn">සංවාද විස්තර වෙත ආපසු යන්න</string>
+    <string name="content_description_user_profile_edit_role_btn">භූමිකාව සංස්කරණය කරන්න</string>
+    <string name="content_description_user_profile_copy_phone_btn">දුරකථනය පිටපත් කරන්න</string>
+    <string name="content_description_user_profile_copy_email_btn">ඊමේල් පිටපත් කරන්න</string>
+    <string name="content_description_user_profile_open_device_btn">උපාංග විස්තර විවෘත කරන්න</string>
+    <string name="content_description_connection_request_close_btn">සම්බන්ධතා ඉල්ලීම් දසුන වසන්න</string>
+    <string name="content_description_search_text_in_conversation_btn">කෙටි පණිවිඩ සොයන්න</string>
+    <string name="content_description_see_media_in_conversation_btn">පින්තූර සහ ගොනු පිළිබඳ දළ විශ්ලේෂණය විවෘත කරන්න</string>
+    <string name="content_description_add_participants_close">සහභාගිවන්නන් එක් කිරීමේ දසුන වසන්න</string>
+    <string name="content_description_add_participants_search_field">නම හෝ පරිශීලක නාමය අනුව පුද්ගලයින් සොයන්න</string>
+    <string name="content_description_add_participants_back_btn">සහභාගිවන්නන්ගේ දසුන එක් කිරීමට ආපසු යන්න</string>
+    <string name="content_description_home_profile_btn">ඔබගේ පැතිකඩ</string>
+    <string name="content_description_home_profile_btn_with_notification">ඔබගේ පැතිකඩ, නොකියවූ ඉඟියක්.</string>
+    <string name="content_description_open_label">විවෘත</string>
+    <string name="content_description_join_call_label">ඇමතුමකට සම්බන්ධ වන්න</string>
+    <string name="content_description_share_label">බෙදාගන්න</string>
+    <string name="content_description_collapse_label">බිඳ වැටීම</string>
+    <string name="content_description_expand_label">පුළුල් කරන්න</string>
+    <string name="content_description_edit_label">සංස්කරණය කරන්න</string>
+    <string name="content_description_select_label">තෝරන්න</string>
+    <string name="content_description_unselect_label">තේරීම ඉවත් කරන්න</string>
+    <string name="content_description_selected_label">තෝරා ගන්නා ලදී</string>
+    <string name="content_description_toggle_setting_label">ටොගල් සැකසුම</string>
+    <string name="content_description_edit_guests_option_back_btn">සංවාද විස්තර වෙත ආපසු යන්න</string>
+    <string name="content_description_edit_self_delete_back_btn">සංවාද විස්තර වෙත ආපසු යන්න</string>
+    <string name="content_description_accept_or_ignore_connection_label">ඉල්ලීම පිළිගන්න හෝ නොසලකා හරින්න</string>
+    <string name="content_description_open_user_profile_label">පැතිකඩ විවෘත කරන්න</string>
+    <string name="content_description_open_conversation_label">විවෘත සංවාදය</string>
+    <string name="content_description_open_service_label">විවෘත සේවාව</string>
+    <string name="content_description_change_it_label">එය වෙනස් කරන්න</string>
+    <string name="content_description_open_link_label">සබැඳිය විවෘත කරන්න</string>
+    <string name="content_description_alert">අනතුරු ඇඟවීම</string>
+    <string name="content_description_drop_down">පතන</string>
+    <string name="content_description_close_dropdown">පතන ලැයිස්තුව වසන්න</string>
+    <string name="content_description_open_notification_settings_label">දැනුම්දීම් සැකසුම් විවෘත කරන්න</string>
+    <string name="content_description_new_conversation_close_btn">නව සංවාද දසුන වසන්න</string>
+    <string name="content_description_new_conversation_back_btn">නව සංවාද දසුනට ආපසු යන්න</string>
+    <string name="content_description_new_conversation_name_back_btn">නව සංවාද දසුනට ආපසු යන්න</string>
+    <string name="content_description_new_group_name_field">කණ්ඩායම් නම ටයිප් කරන්න</string>
+    <string name="content_description_new_channel_name_field">නාලිකාවේ නම ටයිප් කරන්න</string>
+    <string name="content_description_new_conversation_options_heading">සංවාද විකල්ප</string>
+    <string name="content_description_new_group_options_back_btn">නව කණ්ඩායම් නිර්මාණය වෙත ආපසු යන්න</string>
+    <string name="content_description_new_channel_options_back_btn">නව නාලිකා නිර්මාණය වෙත ආපසු යන්න</string>
+    <string name="content_description_pending_connection_badge">සම්බන්ධතා ඉල්ලීම අනුමත කිරීමට නියමිතයි</string>
+    <string name="content_description_self_profile_close">ඔබගේ පැතිකඩ වසන්න</string>
+    <string name="content_description_self_profile_heading">ඔබගේ පැතිකඩ</string>
+    <string name="content_description_self_profile_avatar">ඔබගේ පැතිකඩ පින්තූරය</string>
+    <string name="content_description_self_profile_profile_name">පැතිකඩ නම, %s</string>
+    <string name="content_description_self_profile_username">පරිශීලක නාමය, %s</string>
+    <string name="content_description_self_profile_team">කණ්ඩායමේ නම, %s</string>
+    <string name="content_description_self_profile_change_status">ලබා ගත හැකි තත්ත්වය වෙනස් කරන්න</string>
+    <string name="content_description_self_profile_new_account_btn">නව කණ්ඩායමක් හෝ පුද්ගලික ගිණුමක් සාදන්න හෝ පුරනය වන්න</string>
+    <string name="content_description_self_profile_manage_team_btn">කණ්ඩායම කළමනාකරණය කරන්න</string>
+    <string name="content_description_change_picture_back_btn">ඔබගේ පැතිකඩ දළ විශ්ලේෂණයට ආපසු යන්න</string>
+    <string name="content_description_welcome_screen_close_btn">නව කණ්ඩායම් නිර්මාණය සහ පිවිසුම් දසුන වසන්න</string>
+    <string name="content_description_login_back_btn">නව කණ්ඩායම් නිර්මාණය සහ පිවිසුම් දසුන වෙත ආපසු යන්න.</string>
+    <string name="content_description_login_user_identifier_field">ඔබගේ විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය ඇතුළත් කරන්න.</string>
+    <string name="content_description_login_email_field">ඔබගේ විද්‍යුත් තැපෑල ඇතුළත් කරන්න.</string>
+    <string name="content_description_enterprise_login_email_field">ඔබගේ විද්‍යුත් තැපෑල හෝ SSO කේතය ඇතුළත් කරන්න.</string>
+    <string name="content_description_login_password_field">ඔබගේ මුරපදය ඇතුළත් කරන්න.</string>
+    <string name="content_description_login_sso_code_field">ඔබගේ SSO කේතය හෝ Wire විද්‍යුත් තැපෑල ඇතුළත් කරන්න.</string>
+    <string name="content_description_whats_new_welcome_item">Wire හි නව Android යෙදුමට සාදරයෙන් පිළිගනිමු, සහාය පිටුවට සබැඳිය.</string>
+    <string name="content_description_whats_new_all_releases_item">සියලුම Android නිකුතු සටහන්, නිකුතු සටහන් දළ විශ්ලේෂණයට සබැඳිය</string>
+    <string name="content_description_whats_new_release_item">%1$s, %2$s, නිකුතු විස්තර සඳහා සබැඳිය</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
+    <string name="vault_screen_title">සුරක්ෂිතාගාරය</string>
+    <string name="channels_screen_title">නාලිකා</string>
     <string name="archive_screen_title">සංරක්‍ෂණය</string>
     <string name="archive_screen_empty_state_title">සංරක්‍ෂණ නැත 👻</string>
     <string name="archive_screen_empty_state_description">ඔබගේ සංවාද කදිමට තබා ගැනීමට, භාවිතා නොකරන සංවාද මෙයට ගෙන එන්න. ඕනෑම විටෙක ඒවා අසංරක්‍ෂණය කිරීමට හැකිය.</string>
@@ -183,6 +269,7 @@
     <string name="about_app_screen_title">මෙම යෙදුම ගැන</string>
     <string name="settings_privacy_policy_label">රහස්‍යතා ප්‍රතිපත්තිය</string>
     <string name="settings_terms_of_use_label">නීතිමය</string>
+    <string name="settings_wire_website_label">රැහැන් වෙබ් අඩවිය</string>
     <string name="label_copyright">ප්‍රකාශන අයිතිය</string>
     <string name="item_dependencies_title">පරායත්ත:</string>
     <string name="support_screen_title">සහාය</string>
@@ -191,6 +278,7 @@
     <string name="search_no_results">ගැළපීම් හමු නොවිණි</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">මොනවාද අළුත්?</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Wire හි නව Android යෙදුමට සාදරයෙන් පිළිගනිමු!</string>
     <string name="whats_new_release_notes_group_title">නිකුතු සටහන්</string>
     <string name="whats_new_android_release_notes_label">ඇන්ඩ්‍රොයිඩ් නිකුතු සටහන්</string>
     <!-- Settings -->
@@ -216,6 +304,7 @@
     <string name="server_details_dialog_body_with_proxy">සේවාදායකයේ නම:\n%1$s\n\nසේවාදායකයේ ඒ.ස.නි.:\n%2$s\n\nප්‍රතියුක්තයේ ඒ.ස.නි.:\n%3$s\n\nප්‍රතියුක්තය සත්‍යාපනය:\n%4$s</string>
     <string name="server_details_dialog_title">පරිශ්‍රයක සේවාදායකයකි</string>
     <string name="welcome_migration_dialog_title">අපගේ නව ඇන්ඩ්‍රොයිඩ් යෙදුමට පිළිගනිමු 👋</string>
+    <string name="welcome_migration_dialog_content">අපි යෙදුම සැමට වඩාත් ප්‍රයෝජනවත් වන පරිදි නැවත ගොඩනඟා ගත්තෙමු.\n\nWire හි ප්‍රතිනිර්මාණය කරන ලද යෙදුම ගැන වැඩි විස්තර දැනගන්න - නව විකල්ප සහ වැඩිදියුණු කළ ප්‍රවේශ්‍යතාව, එකම ශක්තිමත් ආරක්ෂාවක් සමඟින්.</string>
     <string name="welcome_migration_dialog_continue">වයර් භාවිතය අරඹන්න</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">යාවත්කාල කළ යුතුය</string>
@@ -225,20 +314,43 @@
     <!-- Migration -->
     <string name="migration_title">වයර් පිහිටුවමින්</string>
     <string name="migration_message">යෙදුම පිහිටුවන තෙක් රැඳී සිටින්න</string>
+    <string name="migration_message_unknown">අපි ඔබ වෙනුවෙන් දත්ත සංක්‍රමණය කරන තෙක් රැඳී සිටින්න.</string>
+    <string name="migration_accounts_message">ඔබගේ ගිණුම් සංක්‍රමණය කරමින්...</string>
+    <string name="migration_messages_message">ඔබගේ පණිවිඩ සංක්‍රමණය කරමින්...</string>
     <string name="migration_title_step">පියවර %1$d/%2$d</string>
     <string name="migration_title_almost_done">සියල්ල අහවරයි!</string>
     <string name="migration_title_updated">වයර් පිහිටුවමින්</string>
+    <string name="migration_login_required">ඔබගේ පණිවිඩ Wire හි පැරණි අනුවාදයෙන් සංක්‍රමණය කිරීම සඳහා, ඔබ ඔබගේ ගිණුමට ලොග් විය යුතුය.</string>
+    <string name="migration_login_required_specific_account">ඔබගේ පණිවිඩ Wire හි පැරණි අනුවාදයෙන් සංක්‍රමණය කිරීම සඳහා, ඔබ ඔබේ %sගිණුමට ලොග් විය යුතුය.</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
+    <string name="migration_messages_failure">අවාසනාවකට, Wire හි පැරණි අනුවාදය සමඟ නොගැලපීම හේතුවෙන් සියලුම පණිවිඩ සහ සංවාද සංක්‍රමණය කිරීමට නොහැකි විය (දෝෂ කේතය: %s)</string>
+    <string name="migration_cancel_title">සංක්‍රමණය අවලංගු කරන්න</string>
+    <string name="migration_cancel_message">ඔබට යෙදුම වසා දමා දැනට සිදුවෙමින් පවතින සංක්‍රමණය අවලංගු කිරීමට අවශ්‍ය බව ඔබට විශ්වාසද?</string>
     <!-- Enterprise Login -->
+    <string name="enterprise_login_welcome">ආරම්භ කිරීමට ඔබගේ විද්‍යුත් තැපෑල ඇතුළත් කරන්න!</string>
+    <string name="enterprise_login_password_title">පුරනය වීමට ඔබගේ මුරපදය ඇතුළත් කරන්න.</string>
+    <string name="enterprise_login_credentials_title">පුරනය වීමට ඔබේ අක්තපත්‍ර ඇතුළත් කරන්න</string>
+    <string name="enterprise_login_next">ඊළඟ</string>
+    <string name="enterprise_login_user_identifier_label">ඊමේල් හෝ SSO කේතය</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">ඊමේල් හෝ SSO කේතය ඇතුළත් කරන්න</string>
+    <string name="enterprise_login_error_invalid_user_identifier">කරුණාකර වලංගු විද්‍යුත් තැපෑලක් හෝ SSO කේතයක් ඇතුළත් කරන්න.</string>
+    <string name="enterprise_login_create_account_label">Wire ගිණුමක් නැද්ද?</string>
+    <string name="enterprise_login_create_account_text_button">ගිණුම තනන්න</string>
+    <string name="enterprise_login_on_prem_welcome_title">%sසඳහා Wire Enterprise වෙත සාදරයෙන් පිළිගනිමු!</string>
+    <string name="enterprise_login_verification_code_title">ඔබට තැපෑලක් තිබේ.</string>
     <!-- Login -->
     <string name="login_title">පිවිසෙන්න</string>
     <string name="login_forgot_password">මුරපදය අමතකද?</string>
     <string name="login_user_identifier_placeholder">කසුන්@නිදසුන.ලංකා හෝ තිසර.කසුන්</string>
+    <string name="login_email_placeholder">ජේන්@example.com</string>
+    <string name="login_email_label">විද්‍යුත් තැපෑල</string>
     <string name="login_user_identifier_label">වි-තැපෑල හෝ පරි.නාමය</string>
     <string name="login_proxy_identifier_label">ප්‍රතියු. වි-තැපෑල හෝ පරි.නාමය</string>
     <string name="login_error_invalid_credentials_title">සාවද්‍ය තොරතුරකි</string>
     <string name="login_error_invalid_credentials_message">මෙම අක්තපත්‍ර වැරදියි.
         ඔබගේ විස්තර තහවුරු කරගෙන උත්සාහ කරන්න.</string>
+    <string name="login_error_invalid_user_identifier">මෙම විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය වලංගු නොවේ. කරුණාකර සත්‍යාපනය කර නැවත උත්සාහ කරන්න.</string>
+    <string name="login_error_invalid_email">මෙම විද්‍යුත් තැපෑල අවලංගුයි. කරුණාකර සත්‍යාපනය කර නැවත උත්සාහ කරන්න.</string>
     <string name="login_error_user_already_logged_in_title">ගිණුම භාවිතයේ ඇත</string>
     <string name="login_error_user_already_logged_in_message">මෙම උපාංගයේ ඔබ දැනටමත් එම අක්තපත්‍ර භාවිතයෙන් ඇතුළු වී ඇත.</string>
     <string name="login_sso_error_invalid_cookie_title">සාවද්‍ය දත්තකඩකි!</string>
@@ -250,6 +362,12 @@
     <string name="login_sso_code_label">SSO කේතය හෝ වි-තැපෑල</string>
     <string name="login_error_invalid_sso_code">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
     <string name="login_error_invalid_sso_code_format">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
+    <string name="login_error_request_2fa_with_handle_title">විද්‍යුත් තැපෑලෙන් පුරනය වන්න</string>
+    <string name="login_error_request_2fa_with_handle_message">ද්වි-සාධක සත්‍යාපනය සක්‍රිය කර ඇති බැවින් ඔබට ඔබේ පරිශීලක නාමය භාවිතා කළ නොහැක. ඒ වෙනුවට ඔබේ විද්‍යුත් තැපෑලෙන් ලොග් වන්න.</string>
+    <string name="login_error_unauthorized_title">අනවසර</string>
+    <string name="login_error_unauthorized_message">මෙම ගිණුමට තවදුරටත් පුරනය වීමට අවසර නැත.</string>
+    <string name="login_error_pending_activation_title">සක්‍රිය කිරීම පොරොත්තුයි</string>
+    <string name="login_error_pending_activation_message">ඔබ ප්‍රවේශ වීමට උත්සාහ කරන ගිණුම සක්‍රිය කිරීම බලාපොරොත්තුවෙන් සිටී. කරුණාකර ඔබගේ විස්තර සත්‍යාපනය කරන්න.</string>
     <string name="deleted_user_error_title">මකාදැමූ ගිණුමකි</string>
     <string name="deleted_user_error_message">ඔබගේ ගිණුම මකා දැමූ නිසා ඔබව
         නික්මවිණි.
@@ -367,13 +485,37 @@
     <string name="sent_a_message_with_content">%s අන්තර්ගතය සහිත පණිවිඩයක් යවා ඇත</string>
     <string name="sent_a_message_with_unknown_content">නොදන්නා අන්තර්ගතයක් සහිත පණිවිඩයක් යවා ඇත</string>
     <string name="new_group_title">නව සමූහය</string>
+    <string name="new_channel_title">නව නාලිකාව</string>
+    <string name="channel_access_label">ප්‍රවේශය</string>
+    <string name="channel_private_label">පුද්ගලික</string>
+    <string name="channel_public_label">පොදු</string>
+    <string name="channel_access_description">සියලුම කණ්ඩායම් සාමාජිකයින්ට පොදු නාලිකාවලට සම්බන්ධ විය හැකිය. නමුත්, නාලිකා පරිපාලකයින්ට හෝ සාමාජිකයින්ට පමණක් පුද්ගලික නාලිකාවකට පුද්ගලයින් එක් කළ හැකිය.\nපුද්ගලික නාලිකාවක් පසුව පොදු ලෙස වෙනස් කළ නොහැක.</string>
+    <string name="channel_access_short_description">සියලුම කණ්ඩායම් සාමාජිකයින්ට පොදු නාලිකාවලට සම්බන්ධ විය හැක. නමුත්, නාලිකා පරිපාලකයින්ට හෝ සාමාජිකයින්ට පමණක් පුද්ගලික නාලිකාවකට පුද්ගලයින් එක් කළ හැක.</string>
+    <string name="channel_add_permission_description">පුද්ගලික නාලිකාවකට සහභාගිවන්නන් එක් කළ හැක්කේ කාටද යන්න තෝරන්න</string>
+    <string name="channel_add_permission_admin_label">පරිපාලකයින්</string>
+    <string name="channel_add_permission_admin_members_label">පරිපාලකයින් සහ සාමාජිකයින්</string>
+    <string name="create_regular_group_button_label">කණ්ඩායමක් සාදන්න</string>
+    <string name="create_channel_button_label">නාලිකාව සාදන්න</string>
     <string name="new_group_description">සමූහ සංවාදයකට {{count}} දෙනෙකුට එක්විය හැකිය.</string>
     <string name="group_name_title">සමූහයේ නම</string>
+    <string name="channel_name_title">නාලිකාවේ නම</string>
+    <string name="conversation_name_placeholder">නමක් ඇතුළත් කරන්න</string>
     <string name="group_name_description">මෙම කණ්ඩායමට අර්ථවත් නමක් දෙන්න.</string>
+    <string name="channel_name_description">මේ නාලිකාවට අර්ථවත් නමක් දෙන්න.</string>
     <string name="protocol">කෙටුම්පත</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">කේතාංකන කට්ටලය</string>
+    <string name="last_key_material_update_label">අවසාන යතුරු ද්‍රව්‍ය යාවත්කාලීනය</string>
     <string name="group_state_label">සමූහයේ තත්‍වය</string>
+    <string name="empty_regular_group_name_error">කරුණාකර කණ්ඩායම් නමක් ඇතුළත් කරන්න.</string>
+    <string name="empty_channel_name_error">කරුණාකර නාලිකා නාමයක් ඇතුළත් කරන්න.</string>
+    <string name="regular_group_name_exceeded_limit_error">කණ්ඩායම් නම අක්ෂර 64 නොඉක්මවිය යුතුය.</string>
+    <string name="channel_name_exceeded_limit_error">නාලිකා නාමය අක්ෂර 64 නොඉක්මවිය යුතුය.</string>
+    <string name="conversation_can_not_be_created_title">සංවාදය නිර්මාණය කළ නොහැක.</string>
+    <string name="create_channel_error_forbidden_message">විශේෂාංගය නොමැත, කරුණාකර ඔබේ කණ්ඩායම් පරිපාලක සමඟ පරීක්ෂා කරන්න.</string>
+    <string name="conversation_can_not_be_created_federation_conflict_description">%1$s සහ %2$s පසුබිම්වල සිටින පුද්ගලයින්ට එකම සංවාදයට සම්බන්ධ විය නොහැක.\n\nසංවාදය නිර්මාණය කිරීමට, බලපෑමට ලක් වූ සහභාගිවන්නන් ඉවත් කරන්න.</string>
+    <string name="conversation_can_not_be_created_edit_participant_list">සහභාගිවන්නන්ගේ ලැයිස්තුව සංස්කරණය කරන්න</string>
+    <string name="conversation_can_not_be_created_discard_creation">සංවාද නිර්මාණය ඉවතලන්න</string>
     <string name="asset_message_tap_to_download_text">බාගැනීමට ඔබන්න</string>
     <string name="asset_message_upload_in_progress_text">උඩුගත වෙමින්…</string>
     <string name="asset_message_download_in_progress_text">බාගත වෙමින්…</string>
@@ -389,16 +531,24 @@
     <string name="member_name_you_label_lowercase">ඔබ</string>
     <string name="label_add_participants">සහභාගීන් යොදන්න</string>
     <string name="username_unavailable_label">නම නොතිබේ</string>
+    <string name="temporary_user_label">%s ඉතිරියි</string>
+    <string name="conversation_unavailable_label">සංවාද නම නොමැත.</string>
     <string name="conversation_details_title">සංවාදයේ විස්තර</string>
     <string name="conversation_details_options_tab">විකල්ප</string>
     <string name="conversation_details_participants_tab">සහභාගීන්</string>
     <string name="conversation_details_options_group_name">සමූහයේ නම</string>
+    <string name="conversation_details_conversation_admins">සංවාද ඇඩ්මින්වරු (%d)</string>
+    <string name="conversation_details_conversation_members">සංවාද සාමාජිකයින් (%d)</string>
+    <string name="conversation_details_participants_info">මෙම සංවාදයට %s සහභාගිවන්නන් සිටී.\nසංවාදයකට පුද්ගලයින් 500ක් දක්වා සම්බන්ධ විය හැක.</string>
     <string name="conversation_details_participants_count">සහභාගීන් %s</string>
     <string name="conversation_details_show_all_participants">සියළු සහභාගීන් පෙන්වන්න (%d)</string>
+    <string name="conversation_details_participants_title">සංවාද සහභාගිවන්නන්</string>
+    <string name="conversation_details_conversation_participants_add">සහභාගිවන්නන් එක් කරන්න</string>
     <string name="conversation_participant_you_label">(ඔබ)</string>
     <string name="conversation_details_is_classified">ආරක්‍ෂණ මට්ටම: VS-NfD</string>
     <string name="conversation_details_is_not_classified">ආරක්‍ෂණ මට්ටම: වර්ගීකෘත නොවේ</string>
     <string name="conversation_options_self_deleting_messages_label">ඉබේ මැකෙන පණිවිඩ</string>
+    <string name="conversation_options_self_deleting_messages_description">මෙය ක්‍රියාත්මක විට, මෙම සංවාදයේ ඇති සියලුම පණිවිඩ නිශ්චිත කාලයකට පසු අතුරුදහන් වනු ඇත.</string>
     <string name="conversation_options_guests_label">අමුත්තන්</string>
     <string name="conversation_details_guest_description">මෙය සක්‍රිය නම්, මෙම සංවාදයට කණ්ඩායමෙන් පිටත අයට එක් වීමට හැකිය</string>
     <string name="conversation_options_guest_description">ඔබගේ කණ්ඩායමෙන් පිටත පුද්ගලයින්ට මෙම සංවාදය විවෘත කිරීමට මෙම විකල්පය සක්‍රිය කරන්න. වයර් නැති අයට ද උපකාරී වේ.</string>
@@ -410,6 +560,16 @@
     <string name="disable_guest_dialog_text">වත්මන් අමුත්තන් සංවාදයෙන් ඉවත් කරනු ලැබේ. නව අමුත්තන්ට ඉඩ නොදෙනු ඇත.</string>
     <string name="disable_services_dialog_title">සේවා ප්‍රවේශය අබල කරන්නද?</string>
     <string name="disable_services_dialog_text">වත්මන් සේවා සංවාදයෙන් ඉවත් කෙරේ. නව සේවා සඳහා ඉඩ නොදෙනු ඇත.</string>
+    <string name="leave_conversation_menu_item">සංවාදයෙන් ඉවත් වන්න…</string>
+    <string name="leave_conversation_dialog_title">“%s” දාලා යන්නද?</string>
+    <string name="leave_conversation_dialog_description">එවිට ඔබට තවදුරටත් කිසිදු උපාංගයකින් මෙම සංවාදයේ පණිවිඩ යැවීමට හෝ කියවීමට නොහැකි වනු ඇත.</string>
+    <string name="leave_conversation_dialog_delete_fully_check">මගේ සියලු උපාංගවල සංවාදය සහ එහි අන්තර්ගතය මා වෙනුවෙන් මකන්න.</string>
+    <string name="delete_conversation_conversation_menu_item">සංවාදය මකන්න…</string>
+    <string name="delete_conversation_conversation_dialog_title">“%s” ඉවත් කරන්නද?</string>
+    <string name="delete_conversation_conversation_dialog_description">ඔබගේ සියලු උපාංගවල සංවාද ලැයිස්තුවෙන් සංවාදය ඉවත් කරනු ලැබේ. ඔබට තවදුරටත් සංවාදයට සහ එහි අන්තර්ගතයට ප්‍රවේශ වීමට නොහැකි වනු ඇත.</string>
+    <string name="delete_conversation_locally_conversation_dialog_title">මට \"%s\" සංවාදය මකන්නද?</string>
+    <string name="delete_conversation_locally_conversation_dialog_description">ඔබට සංවාදයට සහ එහි අන්තර්ගතයට ප්‍රවේශ වීමට නොහැකි වනු ඇත. එය ප්‍රතිසාධනය කිරීමට විකල්පයක් නොමැත.</string>
+    <string name="delete_conversation_locally_delete_for_me_label">මා වෙනුවෙන් මකන්න</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">වයර් සමඟ බෙදාගන්න</string>
     <string name="import_media_searchbar_title">සංවාදයක් සොයන්න</string>
@@ -419,6 +579,9 @@
     <string name="conversation_options_read_receipt_label">කියවූ බවට ලදුපත්</string>
     <string name="conversation_options_read_receipt_description">මෙය සක්‍රිය නම්, පුද්ගලයින්ට මෙම සංවාදය තුළ ඔවුන්ගේ පණිවිඩ කියවූ විට දැකගත හැකිය.</string>
     <!--Wire Cell -->
+    <string name="conversation_options_wire_cell_label">වයර් කෝෂය</string>
+    <string name="conversation_options_wire_cell_description">මෙය ක්‍රියාත්මක විට, සියලුම සංවාද ගොනු Wire Cell Storage හි සුරකිනු ලැබේ.</string>
+    <string name="folder_label_wire_cell">ගොනු ගබඩාව</string>
     <!-- Messages -->
     <string name="message_details_title">පණිවිඩයේ විස්තර</string>
     <string name="message_details_reactions_tab">ප්‍රතික්‍රියා (%s)</string>
@@ -446,22 +609,43 @@
     <!-- User Profile -->
     <string name="user_profile_title">පරිශ්‍රීලක පැතිකඩ</string>
     <string name="user_profile_close_description">පරිශ්‍රීලක පැතිකඩ වසන්න</string>
+    <string name="user_profile_logout">ඉවත් වන්න</string>
     <string name="user_profile_other_accs">ඔබගේ වෙනත් ගිණුම්</string>
     <string name="user_profile_status_availability">තත්‍වය</string>
     <string name="user_profile_status_available">සිටිනවා</string>
     <string name="user_profile_status_busy">කාර්යබහුලයි</string>
     <string name="user_profile_status_away">නොසිටියි</string>
     <string name="user_profile_status_none">කිසිවක් නැත</string>
+    <string name="user_profile_new_account_text">නව කණ්ඩායම හෝ ගිණුමක් එක් කරන්න</string>
+    <string name="user_profile_account_management">කණ්ඩායම කළමනාකරණය කරන්න</string>
     <string name="user_profile_details_tab">විස්තර</string>
     <string name="user_profile_devices_tab">උපාංග</string>
+    <string name="user_profile_conversation_tab">සංවාදය</string>
+    <string name="user_profile_conversation_member">\"%s\" සංවාදයේ සාමාජිකයා</string>
+    <string name="user_profile_conversation_role">භූමිකාව</string>
+    <string name="user_profile_role_in_conversation">\"%s\" චිත්‍රපටයේ භූමිකාව</string>
     <string name="user_profile_role_change_error">භූමිකාව වෙනස් කිරීමට තැත් කිරීමේ දී දෝෂයක් සිදු විය. ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කර නැවත උත්සාහ කරන්න</string>
     <string name="user_profile_unblock_user">අනවහිර කරන්න</string>
+    <string name="user_profile_conversation_remove_button">සංවාදයෙන් ඉවත් කරන්න</string>
     <string name="user_profile_logging_out_progress">නික්මෙමින්...</string>
+    <string name="user_profile_qr_code">QR කේතය විවෘත කරන්න</string>
+    <string name="user_profile_qr_code_title">පැතිකඩ බෙදා ගන්න</string>
+    <string name="user_profile_qr_code_share_link">පැතිකඩ සබැඳිය බෙදා ගන්න</string>
+    <string name="user_profile_qr_code_share_image_link">QR කේතය බෙදා ගන්න</string>
+    <string name="user_profile_create_team_card">කණ්ඩායමක ප්‍රතිලාභ භුක්ති විඳින්න</string>
+    <string name="user_profile_qr_code_description">අනෙක් පුද්ගලයින් සමඟ පහසුවෙන් සම්බන්ධ වීමට ඔබේ පැතිකඩ බෙදා ගන්න. ඔබ දෙදෙනා සන්නිවේදනය ආරම්භ කිරීමට පෙර සම්බන්ධතා ඉල්ලීමක් පිළිගත යුතුය.</string>
+    <string name="user_profile_create_team_card_button">කණ්ඩායමක් සාදන්න</string>
+    <string name="user_profile_create_team_description_card">එකම මට්ටමේ ආරක්ෂාවක් සහිතව අමතර විශේෂාංග නොමිලේ ගවේෂණය කරන්න.</string>
     <!-- Remove Conversation Member Dialog -->
+    <string name="dialog_remove_conversation_member_title">සංවාදයෙන් ඉවත් කරන්නද?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) හට මෙම සංවාදයට පණිවිඩ යැවීමට හෝ ලැබීමට නොහැකි වනු ඇත.</string>
+    <string name="dialog_remove_conversation_member_error">සහභාගිවන්නා සංවාදයෙන් ඉවත් කිරීමේදී දෝෂයක් ඇති විය.</string>
+    <string name="conversation_role_admin">පරිපාලක</string>
+    <string name="conversation_role_member">සාමාජික</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">දත්ත මකන්නද?</string>
     <string name="dialog_logout_wipe_data_checkbox">මෙම උපාංගයේ ඔබගේ සියළුම පෞද්. තොරතුරු හා සංවාද මකන්න</string>
+    <string name="dialog_logout_wipe_data_cancel_description">පිටවීම අවලංගු කරන්න</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">ඔබ සිටින බව යොදන්න</string>
     <string name="user_profile_change_status_dialog_available_text">අන් අයට ඔබ සිටින බව පෙනෙනු ඇත. සංවාදවල දැනුම්දීමේ සැකසුමට අනුව ඔබට ලැබෙන ඇමතුම් සහ පණිවිඩ සඳහා දැනුම්දීම් ලැබෙනු ඇත.</string>
@@ -475,12 +659,28 @@
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">දැනුම්දීම්</string>
     <string name="label_add_to_favourites">ප්‍රියතමයන්ට යොදන්න</string>
+    <string name="label_remove_from_favourites">ප්‍රියතමයන්ගෙන් ඉවත් කරන්න</string>
+    <string name="label_move_to_folder">ෆෝල්ඩරයට ගෙන යන්න...</string>
+    <string name="label_remove_from_folder">“%1$s” ෆෝල්ඩරයෙන් ඉවත් කරන්න.</string>
+    <string name="label_new_folder">නව ෆෝල්ඩරය</string>
+    <string name="folder_create_description">\n“නව ෆෝල්ඩරය” බොත්තම එබීමෙන් නව ෆෝල්ඩරයක් සාදන්න.</string>
     <string name="label_move_to_archive">සංරක්‍ෂිතයට ගෙනයන්න</string>
     <string name="label_unarchive">අසංරක්‍ෂණය</string>
     <string name="label_clear_content">අන්තර්ගතය මකන්න…</string>
     <string name="label_block">අවහිර කරන්න</string>
     <string name="label_unblock">අනවහිර</string>
+    <string name="label_leave_conversation">සංවාදයෙන් ඉවත් වන්න</string>
+    <string name="label_delete_conversation_locally">මා වෙනුවෙන් සංවාදය මකන්න</string>
+    <string name="label_delete_conversation">සංවාදය මකන්න</string>
     <!-- Conversation filter BottomSheet -->
+    <string name="label_filter_conversations">සංවාද පෙරහන් කරන්න</string>
+    <string name="label_filter_all">සියලු සංවාද</string>
+    <string name="label_filter_favorites">ප්‍රියතමයන්</string>
+    <string name="label_filter_folders">ෆෝල්ඩර</string>
+    <string name="label_filter_group">කණ්ඩායම්</string>
+    <string name="label_filter_one_on_one">1:1 සංවාද</string>
+    <string name="label_filter_channels">නාලිකා</string>
+    <string name="label_folders">ෆෝල්ඩර</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">සියල්ල</string>
     <string name="muting_option_all_allowed_text">මෙම සංවාදයේ සියළුම දෑ පිළිබඳව දැනුම්දීම් ලබන්න (ශ්‍රව්‍ය සහ දෘශ්‍ය ඇමතුම් ඇතුළුව)</string>
@@ -501,6 +701,10 @@
     <string name="label_edit">සංස්කරණය</string>
     <string name="label_delete">මකන්න</string>
     <string name="info_message_copied">පණිවිඩය පිටපත් විය</string>
+    <string name="conversation_banner_federated">ඒකාබද්ධ පරිශීලකයින්</string>
+    <string name="conversation_banner_externals">බාහිර</string>
+    <string name="conversation_banner_guests">අමුත්තන්</string>
+    <string name="conversation_banner_services">සේවා</string>
     <string name="conversation_banner_federated_externals_guests_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින්, අමුත්තන් සහ සේවා ඇත</string>
     <string name="conversation_banner_federated_externals_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
     <string name="conversation_banner_federated_externals_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ සේවා ඇත</string>
@@ -521,6 +725,10 @@
     <string name="label_system_message_removed_by_self">%1$s සංවාදයෙන් %2$s ඉවත් කළා</string>
     <string name="label_system_message_added_by_other">%1$s සංවාදයට %2$s එක් කර ඇත</string>
     <string name="label_system_message_removed_by_other">%1$s සංවාදයෙන් %2$s ඉවත් කළා</string>
+    <plurals name="label_system_message_federation_member_removed">
+        <item quantity="one">%1$s සංවාදයෙන් ඉවත් කරන ලදී.</item>
+        <item quantity="other">%1$s සංවාදයෙන් ඉවත් කරන ලදී.</item>
+    </plurals>
     <string name="label_system_message_federation_removed">%1$s සමඟ තවදුරටත් **ඔබගේ සේවාදායකය** ඒකාබද්ධ නොවේ.</string>
     <string name="label_system_message_federation_conection_removed">%1$s සහ %2$s සේවාදායක තවදුරටත් එකාබද්ධ නොවේ.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s සංවාදය හැරගියා</string>
@@ -539,6 +747,9 @@
         <item quantity="other">%1$s කණ්ඩායමෙන් ඉවත් කර ඇත</item>
     </plurals>
     <string name="label_system_message_user_not_available">මෙම පරිශ්‍රීලකයා තවදුරටත් නැත</string>
+    <string name="label_system_message_unsupported_protocol">සංවාදය මෙම උපාංගය මඟින් සහාය නොදක්වන
+        සංකේතන ප්‍රොටෝකෝලයක් භාවිතා කරයි. සම්බන්ධිත පරිශීලකයින්ගේ සමහර උපාංග යාවත්කාලීන කිරීමට අවශ්‍ය විය හැකිය.
+    </string>
     <string name="label_system_message_new_conversation_receipt_mode">කියවූ බවට ලදුපත් %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s සැමට කියවූ බටව ලදුපත් %2$s කළා</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s සැමට කියවූ බටව ලදුපත් %2$s කළා</string>
@@ -549,18 +760,40 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s සැමට ඉබේ මැකෙන පණිවිඩ **අක්‍රිය** කර ඇත</string>
     <string name="label_system_message_deactivated">අක්‍රියයි</string>
     <string name="label_system_message_conversation_history_lost">ඔබ යම් කාලයක් මෙම උපාංගය භාවිතා කර නැත. ඇතැම් පණිවිඩ මෙහි නොපෙන්වයි.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">ඔබ මෙම උපාංගය ටික කාලයකින් යාවත්කාලීන කර නැත. මේ අතරතුර, සම්මත පණිවිඩකරණ ප්‍රොටෝකෝලය Proteus සිට Messaging Layer Security (MLS) දක්වා වෙනස් විය. මෙම වෙනස හේතුවෙන්, සමහර පණිවිඩ මෙහි දිස් නොවිය හැක.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">ඔබ නිසි කලට යෙදුම යාවත්කාල කර නැත. ඇතැම් පණිවිඩ මෙහි නොපෙන්වයි.</string>
+    <string name="label_system_message_conversation_protocol_changed_proteus">සංකේතාංකන ප්‍රොටෝකෝලයේ සංක්‍රමණය අවලංගු කරන ලදී.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">MLS වෙත සංක්‍රමණය හේතුවෙන් ඔබගේ වත්මන් ඇමතුම ගැටලු සහගත විය හැකිය. එසේ වුවහොත්, විසන්ධි කර නැවත අමතන්න.</string>
+    <string name="label_system_message_conversation_protocol_changed_mixed">සංකේතාංකන ප්‍රොටෝකෝලය සංක්‍රමණය කිරීම ආරම්භ කර ඇත. ඔබගේ සියලුම Wire සේවාලාභීන් යාවත්කාලීන කර ඇති බවට වග බලා ගන්න.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">මෙම සංවාදය දැන් නව පණිවිඩකරණ ස්ථර ආරක්‍ෂණ (MLS) කෙටුම්පත භාවිතා කරයි. බාධාවකින් තොරව සන්නිවේදනය සඳහා සැමවිටම ඔබගේ උපාංග වලට නවතම වයර් අනුවාදය බාගන්න.</string>
     <string name="label_system_message_receipt_mode_on">සක්‍රියයි</string>
     <string name="label_system_message_receipt_mode_off">අක්‍රියයි</string>
     <string name="label_system_message_conversation_started_by_self">**ඔබ** සංවාදය ආරම්භ කළා</string>
     <string name="label_system_message_conversation_started_by_other">%1$s සංවාදය ආරම්භ කළා</string>
     <string name="label_system_message_conversation_started_with_members">%1$s සමග</string>
+    <plurals name="label_system_message_conversation_failed_add_members_header">
+        <item quantity="one">**%1$s සහභාගිවන්නා** සංවාදයට එක් කිරීමට නොහැකි විය.</item>
+        <item quantity="other">**%1$s සහභාගිවන්නන්** සංවාදයට එක් කළ නොහැකි විය.</item>
+    </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_legal_hold">
+        <item quantity="one">නීතිමය අත්හිටුවීමක් හේතුවෙන් %1$s සංවාදයට එක් කිරීමට නොහැකි විය.</item>
+        <item quantity="other">නීතිමය අත්හිටුවීමක් හේතුවෙන් %1$s සංවාදයට එක් කිරීමට නොහැකි විය.</item>
+    </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_federation">
+        <item quantity="one">%1$s ඔවුන්ගේ පසු අන්තයට ළඟා විය නොහැකි වූ නිසා සංවාදයට එක් කළ නොහැකි විය.</item>
+        <item quantity="other">%1$s ඔවුන්ගේ පසු අන්තයට ළඟා විය නොහැකි වූ නිසා සංවාදයට එක් කළ නොහැකි විය.</item>
+    </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_unknown">
+        <item quantity="one">%1$s සංවාදයට එක් කළ නොහැකි විය.</item>
+        <item quantity="other">%1$s සංවාදයට එක් කළ නොහැකි විය.</item>
+    </plurals>
     <string name="label_system_message_conversation_degraded_mls">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරන නිසා හෝ වලංගු නොවන සහතිකයක් තිබෙන බැවින් සංවාදය තවදුරටත් සත්‍යාපිත නොවේ.</string>
     <string name="label_system_message_conversation_degraded_proteus">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරන නිසා හෝ වලංගු නොවන සහතිකයක් තිබෙන බැවින් සංවාදය තවදුරටත් සත්‍යාපිත නොවේ.</string>
     <string name="label_system_message_conversation_verified_mls">සියලු උපාංග සත්‍යාපිතයි (අන්ත අනන්‍යතාව)</string>
     <string name="label_system_message_conversation_verified_proteus">සියලු ඇඟිලි සටහන් සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header">**වයර් හරහා සන්නිවේදනය සැමවිටම අන්තයේ සිට අගට සංකේතනය කර ඇත.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message">මෙම සංවාදයේදී ඔබ යවන සහ ලබන සෑම දෙයක්ම ඔබට සහ අනෙකුත් සංවාද සහභාගිවන්නන්ට පමණක් ප්‍රවේශ විය හැකිය.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_footer">කරුණාකර ඔබ සංවේදී තොරතුරු බෙදා ගන්නා අය සමඟ තවමත් ප්‍රවේශම් වන්න.</string>
     <string name="label_conversations_details_verified_proteus">සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
     <string name="label_conversations_details_verified_mls">සත්‍යාපිතයි (අන්ත අනන්‍යතාව)</string>
     <!-- Last messages -->
@@ -580,6 +813,10 @@
     <plurals name="last_message_self_removed_users">
         <item quantity="one">ඔබ පුද්ගලයෙක් සංවාදයෙන් ඉවත් කළා</item>
         <item quantity="other">ඔබ %1$d දෙනෙක් සංවාදයෙන් ඉවත් කළා</item>
+    </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 පුද්ගලයෙකු කණ්ඩායමෙන් ඉවත් කරන ලදී.</item>
+        <item quantity="other">%1$d පිරිසක් කණ්ඩායමෙන් ඉවත් කරන ලදී.</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">ඔබව සංවාදයෙන් ඉවත් කළා</string>
     <plurals name="last_message_other_removed_self_user_and_others">
@@ -638,6 +875,7 @@
         <item quantity="other">පණිවිඩ %1$d</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"පණිවිඩයක් එවා ඇත"</string>
+    <string name="ephemeral_group_channel_event_message">"කෙනෙක් පණිවිඩයක් එව්වා"</string>
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s ලියමින්</item>
@@ -655,10 +893,26 @@
     <string name="label_conversation_pictures_empty">කිසිවෙක් මෙම සංවාදයෙහි ඡායාරූප බෙදාගෙන නැත 🥲</string>
     <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
     <!-- Search Contact-->
+    <string name="label_selected">තෝරා ගන්නා ලදී</string>
+    <string name="label_contacts">සම්බන්ධතා</string>
     <string name="label_new_group">නව සමූහයක්</string>
+    <string name="label_new_channel">නව නාලිකාව</string>
+    <string name="label_create_new_group">නව කණ්ඩායම</string>
+    <string name="label_create_new_channel">නව නාලිකාව</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d සහභාගිවන්නා</item>
+        <item quantity="other">%1$d සහභාගිවන්නන්</item>
+    </plurals>
     <!-- Search Channels -->
+    <string name="label_search_channels">නාලිකා සොයන්න</string>
+    <string name="label_public_channels">පොදු නාලිකා</string>
+    <string name="label_search_public_channels">පොදු නාලිකා සොයන්න</string>
+    <string name="label_browse_public_channels">පොදු නාලිකා බ්‍රවුස් කරන්න</string>
+    <string name="label_search_channels_empty_title">මෙම කණ්ඩායම සඳහා තවමත් පොදු නාලිකා නිර්මාණය කර නොමැත.</string>
+    <string name="label_learn_more_about_channels">නාලිකා ගැන තව දැනගන්න</string>
     <string name="label_new_conversation">නව සංවාදය</string>
     <string name="label_search_people">පුද්ගලයින් සොයන්න</string>
+    <string name="label_public_wire">පොදු වයර්</string>
     <string name="label_search_people_instruction">සරල නමින් හෝ @නමින් පුද්ගලයින් සොයාගන්න</string>
     <string name="label_learn_more_searching_user">තව දැනගන්න</string>
     <string name="label_no_results_found">ප්‍රතිඵල හමු නොවිණි. නැවත උත්සාහ කරන්න.</string>
@@ -677,6 +931,7 @@
     <string name="error_no_network_message">අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කර යළි උත්සාහ කරන්න</string>
     <string name="error_downloading_self_user_profile_picture">ඔබගේ පැතිකඩ රූපය බාගැනීමේ දෝෂයකි - අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කරන්න</string>
     <string name="error_uploading_user_avatar">රූපය උඩුගත කිරීමට නොහැකි විය</string>
+    <string name="error_process_user_avatar">පින්තූරය සැකසිය නොහැකි විය.</string>
     <string name="error_uploading_image_message">රූපය උඩුගත වීමට අසමත් විය</string>
     <string name="error_downloading_image_message">රූපය බාගැනීමට අසමත් විය</string>
     <string name="error_updating_muting_setting">දැනුම්දීම් යාවත්කාල කිරීමට නොහැකි විය</string>
@@ -691,7 +946,13 @@
     <string name="conversation_on_file_downloaded">බාගැනීමේ බහාලුමට %s ගොනුව සාර්ථකව සුරැකිණි</string>
     <string name="error_blocking_user">පරිශ්‍රීලකයා අවහිර කිරීමට නොහැකි විය</string>
     <string name="blocking_user_success">%s අවහිර කෙරිණි</string>
+    <string name="conversation_removed_success">“%s” ඉවත් කරන ලදී</string>
+    <string name="conversation_removed_locally_success">“%s” මට මැකුවා.</string>
+    <string name="leave_conversation_error">සංවාදයෙන් ඉවත් වන අතරතුර දෝෂයක් ඇති විය.</string>
+    <string name="joined_conversation_success">ඔබ සංවාදයට එක් විය.</string>
+    <string name="left_conversation_success">ඔබ සංවාදයෙන් ඉවත් විය.</string>
     <string name="error_unblocking_user">පරිශ්‍රීලකයා අනවහිර කිරීමට නොහැකි විය</string>
+    <string name="delete_conversation_conversation_error">සංවාදය මකා දැමීමේදී දෝෂයක් ඇති විය.</string>
     <string name="error_limit_number_assets_imported_exceeded">එකවර ගොනු 20 ක් පමණක් යැවීමට හැකිය</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">සංවාදය සංරක්‍ෂණය කර ඇත</string>
@@ -702,6 +963,10 @@
     <string name="dialog_archive_conversation_description">මෙම සංවාදය ඔබගේ සංරක්‍ෂිතය වෙත ගෙන යයි. ඔබට තවදුරටත් නව පණිවිඩ, ගොනු සහ ඇමතුම් ලැබේ, නමුත් දැනුම්දීම් නොලැබේ. ඔබට ඕනෑම වේලාවක සංවාදය අසංරක්‍ෂණයට හැකිය.</string>
     <string name="dialog_archive_conversation_option">සංරක්‍ෂණය</string>
     <!-- Favorite -->
+    <string name="success_adding_to_favorite">“%s” ප්‍රියතමයන් වෙත එක් කරන ලදී</string>
+    <string name="success_removing_from_favorite">“%s” ප්‍රියතම ලැයිස්තුවෙන් ඉවත් කරන ලදී.</string>
+    <string name="error_adding_to_favorite">“%s” ප්‍රියතමයන් වෙත එක් කළ නොහැකි විය.</string>
+    <string name="error_removing_from_favorite">“%s” ප්‍රියතමයන්ගෙන් ඉවත් කළ නොහැකි විය.</string>
     <!-- Animation label -->
     <string name="label_open_conversation">සංවාදය අරින්න</string>
     <string name="label_start_conversation">සංවාදය අරඹන්න</string>
@@ -717,14 +982,20 @@
     <string name="notification_reply">පිළිතුර: %1$s</string>
     <string name="notification_not_supported_issue">විශේෂාංගයට සහාය නොදක්වයි</string>
     <string name="notification_connection_request">සබැඳීමට වුවමනාය</string>
+    <string name="notification_conversation_deleted">සංවාදය මකා දමන ලදී</string>
     <string name="notification_action_reply">පිළිතුර</string>
     <string name="notification_receiver_name">ඔබ</string>
     <string name="label_type_a_message">පණිවිඩයක් ලියන්න</string>
+    <string name="notification_action_open_call">ඇමතුම විවෘත කරන්න</string>
+    <string name="notification_action_decline_call">ප්‍රතික්ෂේප කරන්න</string>
     <string name="notification_incoming_call_content">අමතමින්…</string>
     <string name="notification_ongoing_call_content">පවතින ඇමතුම…</string>
+    <string name="notification_group_channel_call_content">%s අමතමින්...</string>
     <string name="notification_call_default_caller_name">යමෙක්</string>
     <string name="notification_call_default_group_name">ලැබෙන සමූහ ඇමතුම</string>
     <string name="notification_outgoing_call_tap_to_return">ඇමතුමට යාමට ඔබන්න - අමතමින්...</string>
+    <string name="notification_audio_message_body">ශ්‍රව්‍ය පණිවිඩය</string>
+    <string name="notification_deleting_conversation">…සංවාදය මකා දමමින්</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">අචල බිටු අනුපාතය</string>
     <string name="calling_button_label_microphone">ශබ්දවාහිනිය</string>
@@ -738,6 +1009,7 @@
     <string name="calling_accept_call">ඇමතුම පිළිගන්න</string>
     <string name="calling_label_ringing_call">නාද වෙමින්…</string>
     <string name="calling_label_incoming_call">අමතමින්…</string>
+    <string name="calling_label_incoming_call_someone_calling">…අමතයි</string>
     <string name="calling_label_default_caller_name">ලැබෙන ඇමතුම</string>
     <string name="calling_label_constant_bit_rate">අචල බිටු අනුපාතය</string>
     <string name="calling_minimize_view">දැක්ම හකුළන්න</string>
@@ -750,6 +1022,14 @@
     <string name="calling_ongoing_double_tap_to_go_back">ආපසු යාමට දෙවරක් ඔබන්න</string>
     <string name="calling_feature_unavailable_title_alert">විශේෂාංගය නොතිබේ</string>
     <string name="calling_feature_unavailable_message_alert">සම්මන්ත්‍රණ ඇමතුම් විකල්පය තිබෙන්නේ වයර් ගෙවන අනුවාදයෙහි පමණි.</string>
+    <string name="calling_feature_unavailable_team_member_message_alert">සම්මන්ත්‍රණ ඇමතුමක් ආරම්භ කිරීමට, ඔබේ කණ්ඩායම ව්‍යවසාය සැලැස්මට උත්ශ්‍රේණි කළ යුතුය.</string>
+    <string name="calling_feature_unavailable_team_admin_title_alert">ව්‍යවසාය වෙත උත්ශ්‍රේණි කරන්න</string>
+    <string name="calling_feature_unavailable_team_admin_message_alert">ඔබේ කණ්ඩායම දැනට නොමිලේ මූලික සැලැස්මේ සිටී. සම්මන්ත්‍රණ ආරම්භ කිරීම සහ තවත් බොහෝ විශේෂාංග වෙත ප්‍රවේශ වීමට ව්‍යවසාය වෙත උත්ශ්‍රේණි කරන්න.</string>
+    <string name="calling_feature_unavailable_team_admin_message_link_alert">Wire හි මිලකරණය පිළිබඳ වැඩිදුර ඉගෙන ගන්න</string>
+    <string name="calling_feature_unavailable_team_admin_upgrade_action_alert">දැන් උත්ශ්‍රේණි කරන්න</string>
+    <string name="calling_feature_enabled_title_alert">වයර් ව්‍යවසාය</string>
+    <string name="calling_feature_enabled_message_alert">ඔබේ කණ්ඩායම Wire Enterprise වෙත උත්ශ්‍රේණි කරන ලද අතර, එමඟින් ඔබට සම්මන්ත්‍රණ ඇමතුම් සහ තවත් බොහෝ විශේෂාංග වෙත ප්‍රවේශය ලබා දේ.</string>
+    <string name="calling_feature_enabled_message_link_alert">Wire Enterprise ගැන තව දැනගන්න</string>
     <string name="calling_screen_connecting_until_call_established">සබැඳෙමින්…</string>
     <string name="calling_confirm_start_call_title_dialog">ඇමතුමක් අරඹන්න</string>
     <string name="calling_confirm_start_call_description_dialog">ඔබට %1$s දෙනෙකුට ඇමතීමට වුවමනාද?</string>
@@ -782,8 +1062,11 @@
     <string name="connection_label_ignore">නොසලකන්න</string>
     <string name="connection_label_send_unverified_warning">සම්බන්ධ වීමට පෙර %sගේ අනන්‍යතාවය නිශ්චිත කරගන්න.</string>
     <string name="connection_label_received_unverified_warning">සම්බන්ධතා ඉල්ලීම පිළිගැනීමට පෙර පුද්ගලයාගේ අනන්‍යතාවය සත්‍යාපනය කරගන්න.</string>
+    <string name="connection_label_user_not_found_warning_title">වයර්ට මේ පුද්ගලයාව හොයාගන්න බෑ.</string>
+    <string name="connection_label_user_not_found_warning_description">ඔබට මෙම ගිණුම සමඟ අවසරය නොමැති විය හැකිය, නැතහොත් පුද්ගලයා Wire හි නොමැති විය හැකිය.</string>
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">සංවාදය ඇරඹීමට නොහැකිය</string>
+    <string name="missing_keypackage_dialog_body">ඔබට දැන් %1$s සමඟ සංවාදය ආරම්භ කළ නොහැක. %1$s හට Wire විවෘත කිරීමට හෝ පළමුව නැවත ලොග් වීමට අවශ්‍ය වේ. කරුණාකර පසුව නැවත උත්සාහ කරන්න.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">මාධ්‍ය එකතුව</string>
     <string name="media_gallery_on_image_downloaded">බාගැනීමේ බහාලුමට සුරැකිණි</string>
@@ -794,6 +1077,7 @@
         පරිපාලක අමතා මෙම කේතය දෙන්න:\n%d\"
     </string>
     <string name="asset_download_dialog_default_title">ගොනුව බාගන්න</string>
+    <string name="empty_conversation_label">නම් නොකළ සංවාදය</string>
     <string name="label_show_more">තව පෙන්වන්න</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">රූප ලැබීම වළක්වා ඇත</string>
@@ -810,14 +1094,26 @@
     <string name="allow_guests">අමුත්තන්ට ඉඩදෙන්න</string>
     <string name="allow_guest_switch_description">ඔබගේ කණ්ඩායමෙන් පිටත පුද්ගලයින්ට මෙම සංවාදය විවෘත කරන්න. මෙය පසුව වෙනස් කිරීමට හැකිය.</string>
     <string name="allow_services">සේවාවලට ඉඩදෙන්න</string>
+    <string name="allow_services_regular_group_description">මෙම සංවාදය සේවාවන් සඳහා විවෘත කරන්න. ඔබට එය පසුව සැමවිටම වෙනස් කළ හැක.</string>
+    <string name="allow_services_channel_description">මෙම සංවාදය ඔබේ කණ්ඩායමෙන් හෝ සේවාවන්ගෙන් පිටත සිටින පුද්ගලයින්ට විවෘත කරන්න. ඔබට එය පසුව සැමවිටම වෙනස් කළ හැක.</string>
     <string name="service_details_label">සේවාව</string>
+    <string name="service_details_add_service_label">සංවාදයට එක් කරන්න</string>
+    <string name="service_details_remove_service_label">සංවාදයෙන් ඉවත් කරන්න</string>
+    <string name="service_remove_success">සේවාව සංවාදයෙන් ඉවත් කරන ලදී</string>
+    <string name="service_remove_error">සංවාදයෙන් සේවාව ඉවත් කිරීමට නොහැකි විය.</string>
+    <string name="service_add_success">සේවාව සංවාදයට එක් කරන ලදී</string>
+    <string name="service_add_error">සංවාදයට සේවාව එක් කිරීමට නොහැකිය.</string>
     <string name="service_no_information_available_title">තොරතුරු නොතිබේ</string>
     <string name="service_no_information_available_subtitle">නැවත උත්සාහ කරන්න හෝ කණ්ඩායමේ පරිපාලකයා අමතන්න</string>
     <string name="read_receipts">කියවූ බවට ලදුපත්</string>
+    <string name="read_receipts_regular_group_description">මෙය ක්‍රියාත්මක විට, මෙම සංවාදයේ ඇති ඔවුන්ගේ පණිවිඩ කියවන විට පුද්ගලයින්ට දැක ගත හැකිය.</string>
+    <string name="read_receipts_channel_description">මෙය ක්‍රියාත්මකව ඇති විට, මෙම නාලිකාවේ ඔවුන්ගේ පණිවිඩ කියවන විට පුද්ගලයින්ට දැක ගත හැකිය.</string>
     <string name="disable_guests_dialog_title">අමුත්තන්ට ඉඩ නොදේ ද?</string>
+    <string name="disable_guests_dialog_description">ඔබ අමුත්තන්ට ප්‍රවේශ වීමට ඉඩ නොදෙන්නේ නම්, පෙර පියවරේදී ඔබ තෝරාගත් අමුත්තන් සංවාදයේ කොටසක් නොවනු ඇත.</string>
     <string name="disable_guests_dialog_button">අමුත්තන්ට ඉඩ නොදෙන්න</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">අවහිර කරන්න ද?</string>
+    <string name="block_user_dialog_body">%1$s හට ඔබව සම්බන්ධ කර ගැනීමට හෝ කණ්ඩායම් සංවාදවලට ඔබව එක් කිරීමට නොහැකි වනු ඇත. මේ පිළිබඳව ඔවුන්ට දැනුම් දෙනු නොලැබේ.</string>
     <string name="block_user_dialog_confirm_button">අවහිර කරන්න</string>
     <string name="other_user_devices_description">වයර් සෑම උපාංගයකටම අනන්‍ය ඇඟිලි සටහනක් ලබා දෙයි. ඒවා %1$s සමඟ සැසඳීමෙන් සංවාදය සත්‍යාපනය කරගන්න.</string>
     <!--Settings -->
@@ -835,6 +1131,7 @@
     <string name="settings_keep_connection_to_websocket_description">%1$s වෙත ස්ථායී සම්බන්ධතාවයක් පවත්වා ගැනීමෙන් දැනුම්දීම් ලැබීම වැඩි දියුණු කරගන්න. ඔබගේ උපාංගයේ ගූගල් සේවා නැති නම් දැනුම්දීමේ සේවා සඳහා විසඳුමක් වේ.</string>
     <string name="settings_service_is_running">සේවාව ධාවනය වෙමින්</string>
     <!--Settings, Appearance -->
+    <string name="settings_customization_label">අභිරුචිකරණය</string>
     <string name="settings_appearance_theme_label">තේමාව</string>
     <string name="settings_appearance_theme_option_system">පද්ධතියේ සැකසුම් සමඟ සමමුහූර්තය</string>
     <string name="settings_appearance_theme_option_default_hint">(පෙරනිමි)</string>
@@ -857,11 +1154,16 @@
     <string name="settings_myaccount_handle_updated">පරිශ්‍රීලක නාමය වෙනස් විය</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">කියවූ බවට ලදුපත යවන්න</string>
+    <string name="settings_send_read_receipts_description">මෙය ක්‍රියාත්මක නම්, ඔබ ඔවුන්ගේ පණිවිඩ කියවා ඇත්දැයි අනෙක් අයට දැක ගත හැකිය.
+කණ්ඩායම් සංවාද වලදී, කණ්ඩායම් පරිපාලකයාට මෙම සැකසුම නැවත ලිවිය හැකිය.</string>
     <string name="settings_censor_screenshots">තිරසේයා වාරණය</string>
     <string name="settings_censor_screenshots_description">මෙය සක්‍රිය නම්, පණිවිඩවල අන්තර්ගතය තිරසේයා හෝ තිර පටිගතවල නොපෙනෙනු ඇත.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">කණ්ඩායමේ සැකසුම හරහා පණිවිඩ ඉබේ මැකීමට බලාත්මක කර ඇති අතර වෙනස් කිරීමට නොහැකිය.\nතිර සේයා හෝ තිර පටිගත වලට පණිවිඩවල අන්තර්ගතය නොපෙනෙනු ඇත.</string>
     <string name="settings_show_typing_indicator_title">ලිවීමේ දර්ශකය</string>
+    <string name="settings_show_typing_indicator_description">මෙය ක්‍රියාත්මක විට, අනෙක් අය පණිවිඩයක් ලියන විට ඔබට පෙනෙන අතර, ඔබ ටයිප් කරන විට අනෙක් අය එය දකී. මෙම සැකසුම මෙම උපාංගයේ ඇති සියලුම සංවාද සඳහා අදාළ වේ.</string>
     <string name="settings_app_lock_title">මුරකේතයකින් අගුළුලන්න</string>
+    <string name="settings_send_anonymous_usage_data_title">නිර්නාමික භාවිත දත්ත යවන්න</string>
+    <string name="settings_send_anonymous_usage_data_description">Wire සමඟ භාවිත දත්ත බෙදා ගැනීමෙන් යෙදුම වැඩිදියුණු කිරීමට උදව් කරන්න. දත්ත නිර්නාමික වන අතර ඔබගේ සන්නිවේදනයේ කිසිදු අන්තර්ගතයක් (පණිවිඩ, ගොනු, ස්ථානය හෝ ඇමතුම් වැනි) ඇතුළත් නොවේ.</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">යෙදුමට අගුලක් සකසන්න</string>
     <string name="settings_set_lock_screen_description">%1$s නිෂ්ක්‍රියත්‍වයකින් පසුව යෙදුමට අගුළු වැටෙනු ඇත. යෙදුම අගුළු හැරීමට මෙම මුරකේතය හෝ වමිතික සත්‍යාපනය භාවිතයට සිදු වේ.\n\nමෙය ප්‍රතිසාධනයට ක්‍රමයක් නැති බැවින් මතක තබා ගැනීමට වග බලා ගන්න.</string>
@@ -892,6 +1194,7 @@
     <string name="devices_title">ඔබගේ උපාංග</string>
     <string name="current_device_label">වත්මන් උපාංගය</string>
     <string name="other_devices_label">වෙනත් උපාංග</string>
+    <string name="devices_loading_error">උපාංග ලබා ගැනීමට උත්සාහ කිරීමේදී දෝෂයක් ඇති විය. කරුණාකර ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">අනවහිර කරන්නද?</string>
     <string name="unblock_user_dialog_body">%1$s හට ඔබ ඇමතීමට සහ ඔබව සමූහ සංවාද වලට එක් කිරීමට හැකි වනු ඇත. ඔබට ඔවුන් සමඟ සෘජු සංවාදයකට ප්‍රවේශ වීමට හැකිය.</string>
@@ -907,6 +1210,7 @@
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">පැතිකඩ අරින්න</string>
     <string name="cant_switch_account_in_call">ඇමතුමක් ඇත්නම් ගිණුම් අතර මාරු වීමට නොහැකිය</string>
+    <string name="deeplink_authorization_needed">මෙම ක්‍රියාව සිදු කිරීමට ඔබ පුරනය විය යුතුය.</string>
     <string name="custom_backend_dialog_title">පරිශ්‍රයක සේවාදායකයකට හරවා යවන්නද?</string>
     <string name="custom_backend_dialog_body">ඔබ ඉදිරියට ගියහොත්, ඔබගේ අනුග්‍රාහකය පහත පරිශ්‍රයේ සේවාදායකයට හරවා යවනු ලැබේ:</string>
     <string name="custom_backend_dialog_body_backend_name">සේවාදායකයේ නම:</string>
@@ -918,6 +1222,9 @@
     <string name="custom_backend_dialog_body_backend_accounts">ගිණුම්වල ඒ.ස.නි.:</string>
     <string name="custom_backend_dialog_body_backend_website">අඩවියේ ඒ.ස.නි.:</string>
     <string name="custom_backend_dialog_body_backend_websocket">සේවාදායකයේ WSURL:</string>
+    <string name="custom_backend_error_title">දෝෂයක් ඇති විය</string>
+    <string name="custom_backend_error_no_internet_connection_body">පරිශ්‍රයේම පසුබිමකට හරවා යැවීම කළ නොහැකි විය, ඔබ අන්තර්ජාලයට සම්බන්ධ වී නැති බව පෙනේ.\n\nඅන්තර්ජාල සම්බන්ධතාවයක් ස්ථාපිත කර නැවත උත්සාහ කරන්න.</string>
+    <string name="custom_backend_error_no_internet_connection_try_again">නැවත උත්සාහ කරන්න</string>
     <string name="label_fetching_your_messages">නව පණිවිඩ ලැබෙමින්</string>
     <string name="label_text_copied">පෙළ පසුරු පුවරුවට පිටපත් විය</string>
     <string name="label_logs_option_title">සටහන්</string>
@@ -933,14 +1240,24 @@
     <string name="label_debug_title">නිදොස්කරණ සැකසුම්</string>
     <string name="label_client_option_title">අනුග්‍රාහකයේ හැඳු.</string>
     <string name="label_device_id">උපාංගයේ හැඳු.: %1$s</string>
+    <string name="label_code_commit_id">කමිට් හැෂ්</string>
     <string name="label_client_id">අනුග්‍රාහකයේ හැඳු.: %1$s</string>
     <string name="label_client_added_time">එක් කළේ</string>
     <string name="label_client_last_active_label">අන්තිමට දුටුවේ</string>
     <string name="label_client_last_active_time_zero_weeks">සතියකට පෙර</string>
     <string name="label_client_last_active_time">%1$s කට පෙර</string>
     <string name="label_client_device_id">ප්‍රෝටියස් හැඳු.</string>
+    <string name="label_key_packages_count">යතුරු පැකේජ ගණන</string>
     <string name="label_mls_client_id">MLS අනුග්‍රාහකයේ හැඳු.</string>
     <string name="conversation_empty_list_description">සහයෝගයෙන් වැඩ කිරීමට අන් අය සමඟ සම්බන්ධ වන්න හෝ නව සමූහයක් සාදන්න!</string>
+    <string name="favorites_empty_list_description">ඔබේ ප්‍රියතම සංවාද තෝරන්න, එවිට ඔබට ඒවා මෙහි සොයාගත හැකිය.</string>
+    <string name="group_empty_list_description">ඔබ තවමත් කිසිදු කණ්ඩායම් සංවාදයක කොටසක් නොවේ.\nනව සංවාදයක් ආරම්භ කරන්න!</string>
+    <string name="channels_empty_list_description">ඔබ කිසිදු නාලිකාවක සාමාජිකයෙකු නොවේ. “බ්‍රවුස් කරන්න” ක්ලික් කිරීමෙන් පොදු නාලිකාවකට සම්බන්ධ වන්න.</string>
+    <string name="one_on_one_empty_list_description">ඔබට තවමත් සම්බන්ධතා නොමැත.\n %1$s හි පුද්ගලයින් සොයා සම්බන්ධ වන්න.</string>
+    <string name="favorites_empty_list_how_to_label">සංවාද ප්‍රියතමයන් ලෙස ලේබල් කරන්නේ කෙසේද?</string>
+    <string name="channels_empty_list_learn_more">නාලිකා ගැන තව දැනගන්න</string>
+    <string name="folders_empty_list_description">සංවිධානාත්මකව සිටීමට ඔබේ සංවාද ෆෝල්ඩරවලට එක් කරන්න.</string>
+    <string name="folders_empty_list_how_to_add">ෆෝල්ඩරයකට සංවාදයක් එකතු කරන්නේ කෙසේද?</string>
     <string name="conversation_empty_list_title">පිළිගනිමු 👋</string>
     <string name="label_no_conversation_found">සංවාද කිසිවක් හමු නොවිණි.</string>
     <string name="label_connect_with_new_users">යමෙක් සමඟ සම්බන්ධ වන්න හෝ සංවාදයක් අරඹන්න</string>
@@ -951,6 +1268,7 @@
     <string name="label_textfield_optional_password">මුරපදය (විකල්පයකි)</string>
     <string name="label_proteus_details">ප්‍රෝටියස් උපාංගයේ විස්තර</string>
     <string name="label_mls_signature">%1$s අත්සන සහිත MLS</string>
+    <string name="label_mls_no_signature_type">එම්එල්එස්</string>
     <string name="label_mls_thumbprint">MLS ඇඟිලි සටහන</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">මුරපදය සකසන්න</string>
@@ -974,6 +1292,7 @@
     <string name="backup_dialog_restore_backup_password_message">මෙම උපස්ථය මුරපදයකින් ආරක්‍ෂිතයි.</string>
     <!--    report bug-->
     <string name="send_feedback_choose_email">\"වි-තැපැල් ප්‍රතිපාදක තෝරන්න:\"</string>
+    <string name="send_bug_report_subject">දෝෂ වාර්තාව</string>
     <string name="backup_dialog_create_backup_save">ගොනුව සුරකින්න</string>
     <string name="backup_dialog_create_backup_share">ගොනුව බෙදාගන්න</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">නොගැළපෙන උපස්ථයකි</string>
@@ -999,6 +1318,11 @@
     <string name="create_team_not_supported_dialog_description">යෙදුම තුළ ප්‍රතියුක්ත සහාය සහිත පරිශ්‍රයක සේවාදායකයක ඔබට නව කණ්ඩායමක් සෑදීමට නොහැකිය.\nමෙම සේවාදායකය වෙනුවට කණ්ඩායම් කළමනාකරණය (%1$s) භාවිතා කරන්න.</string>
     <string name="to_team_management_action">කණ්ඩායම කළමනාකරණය අරින්න</string>
     <!-- Claimed Domain dialog -->
+    <string name="claimed_domain_email_already_in_use_dialog_title">පරිශ්‍රයේ පසු අන්තයක් විසින් හිමිකම් කියන ලද විද්‍යුත් තැපෑල</string>
+    <string name="claimed_domain_email_already_in_use_dialog_description">මෙම විද්‍යුත් තැපෑලෙහි වසම පරිශ්‍රයේ ඇති පසු අන්තයකට අයත් වේ. කරුණාකර ගිණුම් සැකසුම් තුළ ඔබගේ විද්‍යුත් තැපෑල වෙනස් කරන්න හෝ ඔබගේ ගිණුම මකන්න. ඔබ කණ්ඩායමක කොටසක් නම් කරුණාකර ඔබගේ කණ්ඩායම් පරිපාලක අමතන්න.</string>
+    <string name="claimed_domain_change_email_label">ඔබගේ විද්‍යුත් තැපැල් ලිපිනය වෙනස් කරන්නේ කෙසේද?</string>
+    <string name="claimed_domain_delete_personal_account">පුද්ගලික ගිණුමක් මකා දැමිය යුතු ආකාරය</string>
+    <string name="bullet_finger_point">👉</string>
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">යාවත්කාල කළ යුතුය</string>
     <string name="update_app_dialog_body">ඔබට නව විශේෂාංග මග හැරී ඇත. මෙම ගිණුම සමඟ යෙදුම දිගටම භාවිතා කිරීමට නවතම වයර් අනුවාදයට යාවත්කාල කරන්න.</string>
@@ -1007,8 +1331,14 @@
     <string name="cancel_login_dialog_description">දැන් අවලංගු කළහොත්, ඔබට නික්මවනු ඇත.</string>
     <string name="cancel_login_dialog_title">ඔබට අවලංගු කිරීමට වුවමනාද?</string>
     <!-- Analytics Usage dialog -->
+    <string name="analytics_usage_dialog_title">පරිශීලක දත්ත බෙදා ගැනීමට කැමැත්ත</string>
+    <string name="analytics_usage_dialog_text">ව්‍යාජ නාමයක් සහිත හැඳුනුම්පතක් හරහා ඔබේ භාවිත දත්ත බෙදා ගැනීමෙන් Wire වැඩිදියුණු කිරීමට උදව් කරන්න. Wire Group හැරුණු විට දත්ත ඔබේ පුද්ගලික තොරතුරු සමඟ සම්බන්ධ නොවේ හෝ තෙවන පාර්ශවයන් සමඟ බෙදා නොගනී. උදාහරණයක් ලෙස, ඔබ විශේෂාංගයක් භාවිතා කරන විට, ඔබේ යෙදුම් අනුවාදය, උපාංග වර්ගය හෝ ඔබේ මෙහෙයුම් පද්ධතිය එයට ඇතුළත් වේ. දින 365 කට පසු මෙම දත්ත නවතම අවස්ථාවේදී මකා දැමෙනු ඇත.\n\nඅපගේ රහස්‍යතා ප්‍රතිපත්තියේ වැඩිදුර විස්තර සොයා ගන්න. ඔබට ඕනෑම වේලාවක ඔබේ කැමැත්ත අවලංගු කළ හැකිය.</string>
+    <string name="analytics_usage_dialog_button_agree">එකඟයි</string>
+    <string name="analytics_usage_dialog_button_decline">ප්‍රතික්ෂේප කරන්න</string>
+    <string name="analytics_usage_dialog_button_privacy_policy">රහස්යතා ප්රතිපත්තිය</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s මගින් ඔබගේ ඇතැම් පණිවිඩ විසංකේතනයට නොහැකි වූ නමුත් ගැටළුව විසඳා ඇත. මෙය ඔබ එකවර බෙදා ගන්නා සියළුම සංවාද වලට බලපාන ලදි.</string>
+    <string name="label_manual_migration_title">3.82.38 අනුවාදයෙන් සංක්‍රමණය වන්න</string>
     <string name="start_manual_migration">අරඹන්න</string>
     <string name="file_sharing_restricted_description_by_team">මෙම ගිණුමට මෙම විශේෂාංගය අබල කර ඇති නිසා ඔබට මෙම ගොනුව බෙදා ගැනීමට නොහැකිය.</string>
     <string name="file_sharing_restricted_description_no_users">ඕනෑම දෙයක් බෙදා ගැනීමට පෙර ඔබ වයර් වෙත ඇතුළු විය යුතුය</string>
@@ -1018,10 +1348,13 @@
     <string name="join_conversation_dialog_message">ඔබට සංවාදයකට ආරාධනා කර ඇත.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">එක්වන්න</string>
     <string name="join_conversation_via_deeplink_error_title">සංවාදයට එක්වීමට නොහැකිය</string>
+    <string name="join_conversation_via_deeplink_error_link_expired">මෙම සංවාදයට සබැඳිය කල් ඉකුත් වී ඇත, නැතහොත් සංවාදය පෞද්ගලික ලෙස සකසා ඇත.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">මෙම සංවාදයේ උපරිම සහභාගීන් ගණනට ළඟා වී ඇත.</string>
+    <string name="join_conversation_via_deeplink_error_general">දෝෂයක් නිසා ඔබව සංවාදයට එක් කිරීමට නොහැකි විය.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">ඉබේ මැකෙන පණිවිඩ</string>
     <string name="self_deleting_messages_option">බලෙන් පණිවිඩය මකන්න</string>
+    <string name="self_deleting_messages_option_description">මෙය ක්‍රියාත්මක විට, මෙම සංවාදයේ ඇති සියලුම පණිවිඩ නිශ්චිත කාලයකට පසු අතුරුදහන් වනු ඇත. මෙය සියලුම සහභාගිවන්නන්ට අදාළ වේ.</string>
     <string name="self_deleting_messages_folder_timer">මුහුර්තකය</string>
     <!-- visit link -->
     <string name="label_visit_link_title">සබැඳිය බලන්න</string>
@@ -1031,6 +1364,7 @@
     <string name="invalid_link_dialog_body">සබැඳිය ඇරීමට නොහැකි විය</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">ආගන්තුක සබැඳිය</string>
+    <string name="guest_link_description">මෙම සංවාදයට සබැඳියක් ඇති අනෙක් අයට ආරාධනා කරන්න. Wire නොමැති වුවද, සබැඳිය ඇති ඕනෑම කෙනෙකුට සංවාදයට සම්බන්ධ විය හැක.</string>
     <string name="guest_link_button_create_link">සබැඳියක් සාදන්න</string>
     <string name="guest_link_button_copy_link">සබැඳියේ පිටපතක්</string>
     <string name="guest_link_button_share_link">සබැඳිය බෙදාගන්න</string>
@@ -1044,6 +1378,8 @@
     <string name="title_device_key_fingerprint">උපාංගයේ යතුරේ ඇඟිලි සටහන</string>
     <string name="label_client_key_fingerprint_not_available">නොතිබේ</string>
     <string name="guest_room_link_copied">සබැඳිය පසුරු පුවරුවට පිටපත් විය</string>
+    <string name="guest_room_link_enabled">සියලුම සංවාද පරිපාලකයින් සඳහා ආගන්තුක සබැඳි ජනනය කිරීම දැන් සක්‍රීය කර ඇත.</string>
+    <string name="guest_room_link_disabled">සියලුම සංවාද පරිපාලකයින් සඳහා ආගන්තුක සබැඳි ජනනය කිරීම දැන් අබල කර ඇත.</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">මෙදින ගිණුම භාවිතා කර ඇත:</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nවෙතින්: %2$s \n</string>
@@ -1057,6 +1393,8 @@
     <string name="label_client_verified">සත්‍යාපිතයි</string>
     <string name="label_client_unverified">සත්‍යාපිත නොවේ</string>
     <string name="label_self_client_verification_description">ඔබගේම උපාංගය සත්‍යාපනයට, මෙම යතුරේ ඇඟිලි සටහන අනෙක් උපාංගයක ඇති යතුරේ ඇඟිලි සටහන සමඟ සසඳන්න.</string>
+    <string name="label_client_verification_description">මෙම උපාංගයේ ඇඟිලි සලකුණ %sගේ උපාංගයේ පෙන්වා ඇති ඇඟිලි සලකුණට ගැළපෙන බව තහවුරු කරන්න.</string>
+    <string name="label_fingerprint_description">ඇඟිලි සලකුණු නොගැලපේ නම්, දෙපසම නව සංකේතාංකන යතුරු ජනනය කිරීමට සැසිය නැවත සකසන්න.</string>
     <string name="label_self_fingerprint_description">සංවාදයක අනෙකුත් සහභාගීන් සමඟ මෙම යතුරේ ඇඟිලි සටහන බෙදා ගන්න. ඔවුන්ට එය සත්‍යාපනයෙන් සංවාදය සුරක්‍ෂිත බව සහතික කර ගැනීමට හැකිය.</string>
     <string name="unknown_user_name">නොදන්නා</string>
     <string name="device_name_unknown">නොදන්නා උපාංගයකි</string>
@@ -1073,9 +1411,11 @@
     <string name="title_video_could_not_be_sent">දෘශ්‍යකය යැවීමට නොහැකි විය</string>
     <string name="title_image_could_not_be_sent">ඡායාරූපය යැවීමට නොහැකි විය</string>
     <string name="title_file_could_not_be_sent">ගොනුව යැවීමට නොහැකි විය</string>
+    <string name="title_assets_could_not_be_sent">වත්කම් යැවිය නොහැකි විය.</string>
     <string name="label_shared_video_too_large">උපරිම මෙ.බ. %d ක දෘශ්‍යකයක් යැවීමට හැකිය.</string>
     <string name="label_shared_image_too_large">උපරිම මෙ.බ. %d ක රූපයක් යැවීමට හැකිය.</string>
     <string name="label_shared_file_too_large">උපරිම මෙ.බ. %d ක ගොනුවක් යැවීමට හැකිය.</string>
+    <string name="label_shared_multiple_assets_error">සලකුණු කළ සියලු වත්කම් ඉවත් කර නැවත උත්සාහ කරන්න.</string>
     <string name="label_file_saved_to_device">ඔබගේ උපාංගයට ගොනුව සුරැකිණි.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">ඉබේ මැකෙන පණිවිඩය • %1$s</string>
@@ -1141,14 +1481,19 @@
     <string name="notification_obfuscated_message_title">යමෙක්</string>
     <string name="notification_obfuscated_message_content">ඉබේ මැකෙන පණිවිඩයක් එවා ඇත</string>
     <string name="settings_licenses_settings_label">බලපත්‍රයෙහි තොරතුරු</string>
+    <string name="settings_dependencies_label">යැපුම්</string>
     <string name="settings_myaccount_logout">ගිණුම මකන්න</string>
     <string name="delete_acount_dialog_title">ගිණුම මකන්න</string>
     <string name="delete_acount_dialog_text">ඉදිරියට ගියහොත්, අපි වි-තැපෑලෙන් පණිවිඩයක් එවන්නෙමු. ඔබගේ ගිණුම සදහටම මකා දැමීමට සබැඳිය අනුගමනය කරන්න.</string>
     <string name="end_to_end_identity_required_dialog_title">අන්ත අනන්‍යතා සහතිකය</string>
+    <string name="end_to_end_identity_required_dialog_text">අද වන විට, ඔබේ කණ්ඩායම Wire භාවිතය වඩාත් ආරක්ෂිත සහ ප්‍රායෝගික කිරීමට අන්තයේ සිට අන්තය දක්වා අනන්‍යතාවය භාවිතා කරයි.\n\nමෙම උපාංගය සඳහා සත්‍යාපන සහතිකයක් ස්වයංක්‍රීයව ලබා ගැනීමට ඊළඟ පියවරේදී ඔබේ අනන්‍යතා සැපයුම්කරුගේ අක්තපත්‍ර ඇතුළත් කරන්න.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Wire භාවිතය වඩාත් ආරක්ෂිත කිරීම සඳහා ඔබේ කණ්ඩායම දැන් අන්තයේ සිට අන්තය දක්වා අනන්‍යතාවය භාවිතා කරයි.\n\nමෙම උපාංගය සඳහා සත්‍යාපන සහතිකයක් ස්වයංක්‍රීයව ලබා ගැනීමට ඊළඟ පියවරේදී ඔබේ අනන්‍යතා සැපයුම්කරුගේ අක්තපත්‍ර ඇතුළත් කරන්න.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">සහතිකයක් ගන්න</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">පසුව මතක් කරන්න</string>
     <string name="end_to_end_identity_snooze_dialog_text">ඔබට ඊළඟ %1$s අතරතුර වයර් සැකසුම් හරහා සහතිකය ලබා ගැනීමට හැකිය.\nඋපාංග බොත්තම ඔබා ඔබගේ වත්මන් උපාංගය සඳහා සහතිකය ගන්න තෝරන්න. </string>
     <string name="end_to_end_identity_renew_dialog_title">සහතිකය යාවත්කාලය</string>
+    <string name="end_to_end_identity_renew_dialog_text">මෙම උපාංගය සඳහා අන්තයේ සිට අන්තය දක්වා අනන්‍යතා සහතිකය ඉක්මනින් කල් ඉකුත් වේ. ඔබේ සන්නිවේදනය ආරක්ෂිතව තබා ගැනීමට, දැන් ඔබේ සහතිකය යාවත්කාලීන කරන්න.\n\nසහතිකය ස්වයංක්‍රීයව යාවත්කාලීන කිරීමට ඊළඟ පියවරේදී ඔබේ අනන්‍යතා සැපයුම්කරුගේ අක්තපත්‍ර ඇතුළත් කරන්න.</string>
+    <string name="end_to_end_identity_renew_dialog_text_no_snooze">මෙම උපාංගය සඳහා අන්තයේ සිට අන්තය දක්වා අනන්‍යතා සහතිකය කල් ඉකුත් වී ඇත.\n\nසහතිකය ස්වයංක්‍රීයව යාවත්කාලීන කිරීම සඳහා ඊළඟ පියවරේදී ඔබේ අනන්‍යතා සැපයුම්කරුගේ අක්තපත්‍ර ඇතුළත් කරන්න.</string>
     <string name="end_to_end_identity_renew_dialog_positive_button">සහතිකය යාවත්කාලය</string>
     <string name="end_to_end_identity_renew_error_dialog_title">සහතිකය යාවත්කාල කිරීමට නොහැකි විය.</string>
     <string name="end_to_end_identity_renew_error_dialog_text">ඔබට දැන් සහතිකය යාවත්කාලයට නැවත උත්සාහ කිරීමට හැකිය, හෝ ඔබට පසුව සිහිකැඳවීමක් ලැබෙනු ඇත.</string>
@@ -1156,6 +1501,7 @@
     <string name="end_to_end_identity_renew_success_dialog_title">සහතිකය යාවත්කාල විය</string>
     <string name="end_to_end_identity_renew_success_dialog_text">සහතිකය යාවත්කාලීනයි. ඔබගේ උපාංගය සත්‍යාපිතයි.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">සහතිකයේ විස්තර</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">සහතිකය නිකුත් කළ නොහැකි විය.</string>
     <string name="end_to_end_identity_enrollment_error_dialog_text">නැවත උත්සාහ කරන්න හෝ කණ්ඩායමේ පරිපාලකයා අමතන්න.</string>
     <string name="end_to_end_identity_ceritifcate">සහතිකයේ විස්තර</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">අන්ත අනන්‍යතා සහතිකය අහෝසි කෙරිණි</string>
@@ -1176,6 +1522,7 @@
     <string name="record_audio_permission_denied_dialog_settings_button">සැකසුම්</string>
     <string name="record_audio_max_file_size_reached_title">පටිගතය නතර විය</string>
     <string name="record_audio_max_file_size_reached_text">හඬ පණිවිඩ ගොනුවක ප්‍රමාණය මෙ.බ. %1$d කට සීමා වේ.</string>
+    <string name="record_audio_unable_due_to_ongoing_call">ඇමතුමක් අතරතුර ඔබට ශ්‍රව්‍ය පණිවිඩයක් පටිගත කළ නොහැක.</string>
     <string name="record_audio_unable_due_to_error">හඬ පණිවිඩය පටිගතයට උත්සාහ කිරීමේ දී යමක් වැරදී ඇත. නැවත උත්සාහ කරන්න.</string>
     <string name="label_not_now">දැන් නොවේ</string>
     <string name="last_message_composite_with_missing_text">අන්‍යෝන්‍ය පණිවිඩයක් යවා ඇත</string>
@@ -1187,6 +1534,7 @@
     <string name="create_guest_link_without_password_title">මුරපදයක් නැතිව සබැඳියක් සාදන්න</string>
     <string name="conversation_options_create_password_protected_guest_link_title">මුරපදයකින් ආරක්‍ෂිත සබැඳියක් සාදන්න</string>
     <string name="conversation_options_create_password_protected_guest_link_discrption">ආගන්තුක සබැඳිය හරහා සංවාදයට එක් වන අය පළමුව මෙම මුරපදය ඇතුල් කළ යුතුය.</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption_2">ඔබට පසුව මුරපදය වෙනස් කළ නොහැක. එය පිටපත් කර ගබඩා කිරීමට වග බලා ගන්න.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_label">මුරපදය සකසන්න</string>
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">මුරපදය තහවුරු කරන්න</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">මුරපදය යොදන්න</string>
@@ -1239,6 +1587,7 @@
     <string name="legal_hold_system_message_disabled_others">%1$s සඳහා නෛතික රැඳවුම අක්‍රිය කෙරිණි.</string>
     <string name="legal_hold_system_message_disabled_conversation">මෙම සංවාදය තවදුරටත් නෛතික රැඳවුමට යටත් නොවේ.</string>
     <string name="legal_hold_system_message_enabled_conversation">මෙම සංවාදය දැන් නෛතික රැඳවුමට යටත් වේ.</string>
+    <string name="legal_hold_system_message_interaction_disabled">මෙම පරිශීලකයා ඔබේ කණ්ඩායමේ කොටසක් නොවන නිසාත්, ඔබගෙන් එක් අයෙකු නීතිමය රඳවා ගැනීමකට යටත් වන නිසාත්, ඔබට ඔහු සමඟ පණිවිඩ ලිවිය නොහැක. නීතිමය රඳවා ගැනීම අක්‍රිය කළ පසු, ඔබට නැවත පණිවිඩ ලිවිය හැකිය.</string>
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">සංවාදය තවදුරටත් සත්‍යාපිත නොවේ</string>
     <string name="sure_about_messaging_dialog_body">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරයි හෝ වලංගු නොවන සහතිකයක් ඇත.\n\nඔබට තවමත් පණිවිඩය යැවීමට වුවමනා ද?</string>
@@ -1251,6 +1600,7 @@
     <string name="app_permission_dialog_title">යෙදුමේ අවසර</string>
     <string name="app_permission_dialog_settings_positive_button">සැකසුම්</string>
     <string name="app_permission_dialog_settings_negative_button">දැන් නොවේ</string>
+    <string name="notifications_permission_dialog_description">යෙදුමෙන් පූර්ණ ප්‍රයෝජන ගැනීමට, පණිවිඩ ලබා ගැනීමට සහ දුරකථන ඇමතුම්වලට පිළිතුරු දීමට, කරුණාකර Wire හට දැනුම්දීම් පෙන්වීමට ඉඩ දෙන්න.</string>
     <string name="call_permission_dialog_description">ඇමතුමක් ගැනීමට වයර් වෙත ඔබගේ උපාංගයේ සැකසුම් හරහා ශබ්දවාහිනියට ප්‍රවේශ වීමට ඉඩ දෙන්න.</string>
     <string name="record_video_permission_dialog_description">දෘශ්‍ය පටිගතයට උපාංගයේ සැකසුම් වලින් වයර් වෙත ඔබගේ රූගතයට ප්‍රවේශ වීමට ඉඩ දෙන්න.</string>
     <string name="take_picture_permission_dialog_description">ඡායාරූපයක් ගැනීමට උපාංගයේ සැකසුම් වලින් වයර් වෙත ඔබගේ රූගතයට ප්‍රවේශ වීමට ඉඩ දෙන්න.</string>
@@ -1266,12 +1616,101 @@
     <string name="location_loading_label">කරුණාකර රැඳෙන්න...</string>
     <string name="location_could_not_be_shared">ස්ථානය බෙදාගැනීමට නොහැකි විය</string>
     <!-- Asset Preview -->
+    <string name="remove_asset_description">වත්කම ඉවත් කරන්න</string>
+    <string name="asset_attention_description">වත්කම් අවධානය</string>
     <!-- No Activity Errors -->
+    <string name="no_camera_app">මෙම ක්‍රියාව සම්පූර්ණ කිරීමට කැමරා යෙදුමක් හමු නොවීය.</string>
+    <string name="no_gallery_app">මෙම ක්‍රියාව සම්පූර්ණ කිරීමට ගැලරි යෙදුමක් හමු නොවීය.</string>
+    <string name="no_file_manager_app">මෙම ක්‍රියාව සම්පූර්ණ කිරීමට ගොනු කළමනාකරු යෙදුමක් හමු නොවීය.</string>
+    <string name="restricted_asset_error_toast_message">සමාගම් සීමාවන් නිසා ලිපිගොනු යැවීම තහනම්ය.</string>
     <!--    Ping dialog-->
+    <string name="ping_confirm_sending_title_dialog">පිං එකක් යවන්න</string>
+    <string name="ping_confirm_sending_description_dialog">ඔබට %1$s පුද්ගලයින්ට පිං කිරීමට අවශ්‍ය බව ඔබට විශ්වාසද?</string>
+    <string name="ping_confirm_sending_action_dialog">පිං</string>
     <!-- Call Feedback Dialog -->
+    <string name="call_feedback_dialog_title">ඇමතුම් ගුණාත්මක ප්‍රතිපෝෂණය</string>
+    <string name="call_feedback_dialog_message">ඇමතුමේ සමස්ත ගුණාත්මකභාවය ඔබ තක්සේරු කරන්නේ කෙසේද?</string>
+    <string name="call_feedback_dialog_skip">මඟ හරින්න</string>
+    <string name="call_feedback_dialog_do_not_ask">නැවත අසන්න එපා</string>
+    <string name="call_feedback_dialog_label_bad">නරකයි</string>
+    <string name="call_feedback_dialog_label_fair">සාධාරණයි</string>
+    <string name="call_feedback_dialog_label_excellent">විශිෂ්ටයි</string>
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">නිදොස්කරණ සැකසුම්</string>
     <!--    Personal to team migration screen-->
+    <string name="personal_to_team_migration_step_label">පියවර 4න් %1$d</string>
+    <string name="personal_to_team_migration_back_to_wire_button">වයර් වෙත ආපසු</string>
+    <string name="personal_to_team_migration_back_button_label">ආපසු</string>
+    <string name="personal_to_team_migration_back_button_team_name_content_description">කණ්ඩායම් ගිණුම් දළ විශ්ලේෂණය වෙත ආපසු යන්න</string>
+    <string name="personal_to_team_migration_back_button_confirmation_content_description">කණ්ඩායම් නාම දර්ශනයට ආපසු යන්න</string>
+    <string name="personal_to_team_migration_close_icon_content_description">කණ්ඩායම් සංක්‍රමණ ප්‍රවාහය වසන්න</string>
+    <string name="personal_to_team_migration_close_team_account_content_description">කණ්ඩායම් ගිණුම් දළ විශ්ලේෂණය වසන්න</string>
+    <string name="personal_to_team_migration_close_team_name_content_description">කණ්ඩායම් නාම දසුන වසන්න</string>
+    <string name="personal_to_team_migration_close_confirmation_content_description">තහවුරු කිරීමේ දසුන වසන්න</string>
+    <string name="personal_to_team_migration_close_team_created_content_description">කණ්ඩායම නිර්මාණය කළ දසුන වසන්න</string>
+    <string name="personal_to_team_migration_team_plan_step">කණ්ඩායම් ගිණුම</string>
+    <string name="personal_to_team_migration_team_plan_description">ඔබේ සහයෝගීතාවයෙන් වැඩි ප්‍රයෝජන ලබා ගැනීම සඳහා ඔබේ පුද්ගලික ගිණුම කණ්ඩායම් ගිණුමක් බවට පරිවර්තනය කරන්න.</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_label">පරිපාලක කොන්සෝලය:</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_details">කණ්ඩායම් සාමාජිකයින්ට ආරාධනා කර සැකසුම් කළමනාකරණය කරන්න.</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_label">වෙහෙසකින් තොරව සහයෝගීතාවය:</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_details">අමුත්තන් සහ බාහිර පාර්ශවයන් සමඟ සන්නිවේදනය කරන්න.</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_label">විශාල රැස්වීම්:</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_details">සහභාගිවන්නන් 150ක් දක්වා වීඩියෝ සම්මන්ත්‍රණවලට සම්බන්ධ වන්න.</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_label">ලබා ගත හැකි තත්ත්වය:</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_details">ඔබ ලබා ගත හැකි, කාර්යබහුල හෝ දුරින් සිටී නම් ඔබේ කණ්ඩායමට දන්වන්න.</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_label">ව්‍යවසාය වෙත උත්ශ්‍රේණි කරන්න:</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_description">අමතර විශේෂාංග සහ වාරික සහාය ලබා ගන්න.</string>
+    <string name="personal_to_team_migration_team_plan_learn_more_about_wire_plan">Wire හි සැලසුම් ගැන තව දැනගන්න</string>
+    <string name="personal_to_team_migration_team_name_step">කණ්ඩායමේ නම</string>
+    <string name="personal_to_team_migration_team_name_description">ඔබේ කණ්ඩායම සඳහා නමක් තෝරන්න. ඔබට එය ඕනෑම අවස්ථාවක වෙනස් කළ හැකිය.</string>
+    <string name="personal_to_team_migration_team_name_text_field_placeholder">ඔබේ කණ්ඩායම</string>
+    <string name="personal_to_team_migration_confirmation_step">තහවුරු කිරීම</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_first_item">ඔබ කණ්ඩායමක් නිර්මාණය කර ඔබේ පුද්ගලික ගිණුම කණ්ඩායම් ගිණුමකට මාරු කරන්න.</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_second_item">කණ්ඩායම් හිමිකරු ලෙස ඔබට කණ්ඩායම් සාමාජිකයින්ට ආරාධනා කර ඉවත් කළ හැකි අතර කණ්ඩායම් සැකසුම් කළමනාකරණය කළ හැකිය.</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_third_item">මෙම වෙනස ස්ථිර සහ ආපසු හැරවිය නොහැකි ය.</string>
+    <string name="personal_to_team_migration_confirmation_step_terms">මම සංක්‍රමණ නියමයන්ට එකඟ වන අතර මෙම වෙනස ආපසු හැරවිය නොහැකි බව තේරුම් ගනිමි.</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">මම පිළිගන්නවා</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_label">වයර් හි භාවිත නියමයන්.</string>
+    <string name="personal_to_team_migration_done_step">සුභ පැතුම් %1$s!</string>
+    <string name="personal_to_team_migration_done_step_now_team_member_label">ඔබ දැන් කණ්ඩායමේ හිමිකරු %1$s.</string>
+    <string name="personal_to_team_migration_done_step_go_to_team_label">කණ්ඩායම් කළමනාකරණය වෙත යන්න:</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_first_item">ඔබේ පළමු කණ්ඩායම් සාමාජිකයින්ට ආරාධනා කර, එකට වැඩ කිරීම ආරම්භ කරන්න.</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_second_item">ඔබේ කණ්ඩායම් සැකසුම් අභිරුචිකරණය කරන්න</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_title">සුරැකීමෙන් තොරව පිටව යන්නද?</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_description">ඔබ දැන් පිටත්ව යන විට, ඔබේ ප්‍රගතිය නැති වී යන අතර කණ්ඩායම් නිර්මාණය නැවත ආරම්භ කළ යුතුය.</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">කණ්ඩායම් නිර්මාණය දිගටම කරගෙන යන්න</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">සුරැකීමෙන් තොරව පිටවන්න</string>
+    <string name="personal_to_team_migration_error_title">කණ්ඩායම නිර්මාණය කර නැත.</string>
+    <string name="personal_to_team_migration_error_title_already_in_team">දැනටමත් කණ්ඩායමක කොටසක්</string>
+    <string name="personal_to_team_migration_error_message_already_in_team">ඔබ වෙනත් උපාංගයක මෙම විද්‍යුත් තැපැල් ලිපිනය සහිත කණ්ඩායමක් නිර්මාණය කර හෝ සම්බන්ධ වී ඇත.</string>
+    <string name="personal_to_team_migration_error_message_slow_network">මන්දගාමී අන්තර්ජාල සම්බන්ධතාවයක් හේතුවෙන් Wire හට ඔබේ කණ්ඩායම් නිර්මාණය සම්පූර්ණ කිරීමට නොහැකි විය.</string>
+    <string name="personal_to_team_migration_error_message_unknown_error">නොදන්නා දෝෂයක් හේතුවෙන් Wire හට ඔබගේ කණ්ඩායම් නිර්මාණය සම්පූර්ණ කිරීමට නොහැකි විය.</string>
+    <string name="reaction_sender_self">ඔබ</string>
+    <string name="emoji_picker_select_reaction">ප්‍රතිචාරය තෝරන්න</string>
+    <string name="label_user_database_profile">දත්ත සමුදා ලොගර්</string>
     <!-- Move to Folder -->
+    <string name="move_to_folder_success">“%1$s” “%2$s” වෙත ගෙන යන ලදී.</string>
+    <string name="move_to_folder_failed">“%1$s” ගෙනයාමට නොහැකි විය</string>
+    <string name="remove_from_folder_success">“%1$s” “%2$s” වෙතින් ඉවත් කරන ලදී.</string>
+    <string name="remove_from_folder_failed">“%1$s” ඉවත් කළ නොහැකි විය.</string>
+    <string name="new_folder_folder_name">ෆෝල්ඩරයේ නම</string>
+    <string name="new_folder_create_folder">ෆෝල්ඩරය සාදන්න</string>
+    <string name="new_folder_error_name_exist">මෙම නමින් ෆෝල්ඩරයක් දැනටමත් පවතී. කරුණාකර වෙනත් නමක් තෝරන්න.</string>
+    <string name="new_folder_error_name_empty">කරුණාකර ෆෝල්ඩරයේ නම ඇතුළත් කරන්න.</string>
+    <string name="new_folder_error_name_exceeded_limit_error">අවම වශයෙන් අක්ෂර 1ක් සහ උපරිමය අක්ෂර 64ක්</string>
+    <string name="new_folder_failure">“%1$s” ෆෝල්ඩරය එක් කිරීමට නොහැකි විය.</string>
+    <string name="press_enter_to_send_title">යැවීමට Enter ඔබන්න</string>
+    <string name="press_enter_to_send_text">මෙය ක්‍රියාත්මක විට, ඔබට ඔබේ යතුරුපුවරුවේ Enter යතුර භාවිතයෙන් පණිවිඩ යැවිය හැක.</string>
+    <string name="customization_options_header_title">විකල්ප</string>
     <!--    channel not available dialog-->
+    <string name="channel_not_available_dialog_title">කණ්ඩායම් සාමාජිකයින් සඳහා නාලිකා තිබේ.</string>
+    <string name="channel_not_available_dialog_description">කණ්ඩායමක් සාදා නොමිලේ සහයෝගයෙන් කටයුතු කිරීම ආරම්භ කරන්න!</string>
+    <string name="channel_not_available_dialog_create_team_button">වයර් කණ්ඩායම සාදන්න</string>
+    <string name="custimization_options_header_title">විකල්ප</string>
+    <string name="cells_screen_title">සියලුම ගොනු</string>
+    <string name="cells_screen_search_hint">ගොනු සොයන්න</string>
+    <string name="enable_wire_cell">වයර් කොටුව සබල කරන්න</string>
+    <string name="enable_wire_cell_switch_description">මෙම සංවාදයේ ඇති සියලුම ගොනු Wire Cell ගබඩාවට උඩුගත කෙරේ.</string>
+    <string name="failed_attachment_retry_upload">උඩුගත කිරීම නැවත උත්සාහ කරන්න</string>
+    <string name="failed_attachment_remove">ඉවත් කරන්න</string>
 </resources>

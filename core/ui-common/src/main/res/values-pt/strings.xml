@@ -16,15 +16,4 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources>
-    <string name="label_wait_until_synchronised">Aguarde até que o aplicativo esteja sincronizado</string>
-    <string name="label_wait_until_connected">Aguarde até que a conexão com a Internet seja restaurada</string>
-    <string name="content_description_back_button">Botão Voltar</string>
-    <string name="content_description_left_arrow">Voltar</string>
-    <string name="content_description_close_button">Botão Fechar</string>
-    <string name="content_description_close">Fechar</string>
-    <string name="content_description_menu_button">Navegação principal</string>
-    <string name="content_description_drop_down_icon">Seta para baixo</string>
-    <string name="content_description_pending_connection_badge">aprovação do pedido de conexão pendente</string>
-    <string name="content_description_alert">Alerta</string>
-</resources>
+<resources></resources>

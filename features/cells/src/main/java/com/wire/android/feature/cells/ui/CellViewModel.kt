@@ -17,6 +17,8 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.content.Context
+import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -41,6 +43,7 @@ import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -59,7 +62,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
+import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
+import java.io.File
 import javax.inject.Inject
 
 @Suppress("TooManyFunctions")
@@ -71,6 +76,7 @@ class CellViewModel @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val fileHelper: FileHelper,
     private val kaliumFileSystem: KaliumFileSystem,
+    @ApplicationContext val context: Context
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
@@ -114,7 +120,10 @@ class CellViewModel @Inject constructor(
                     }
                     .map {
                         when (it) {
-                            is Node.Folder -> it.toUiModel()
+                            is Node.Folder -> it.toUiModel().copy(
+                                downloadProgress = downloadData[it.uuid]?.progress
+                            )
+
                             is Node.File -> {
                                 it.toUiModel().copy(
                                     downloadProgress = downloadData[it.uuid]?.progress,
@@ -125,10 +134,6 @@ class CellViewModel @Inject constructor(
                     }
             }
         }
-
-    internal fun currentNodeUuid(): String? = navArgs.conversationId
-
-    internal fun screenTitle(): String? = navArgs.screenTitle
 
     internal fun onSearchQueryUpdated(text: String) = viewModelScope.launch {
         searchQueryFlow.emit(text)
@@ -144,11 +149,15 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuFileActionSelected -> onMenuFileAction(intent.file, intent.action)
             is CellViewIntent.OnMenuFolderActionSelected -> onMenuFolderAction(intent.folder, intent.action)
-            is CellViewIntent.OnFileDownloadConfirmed -> downloadFile(intent.file)
+            is CellViewIntent.OnFileDownloadConfirmed -> downloadNode(intent.file)
             is CellViewIntent.OnFileDeleteConfirmed -> deleteFile(intent.file)
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
         }
     }
+
+    internal fun currentNodeUuid(): String? = navArgs.conversationId
+
+    internal fun screenTitle(): String? = navArgs.screenTitle
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
@@ -158,32 +167,38 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    private fun downloadFile(file: CellNodeUi.File) = viewModelScope.launch {
+    private fun downloadNode(node: CellNodeUi) = viewModelScope.launch {
 
-        val path = kaliumFileSystem.providePersistentAssetPath(
-            file.name ?: run {
-                sendAction(ShowError(CellError.OTHER_ERROR))
-                return@launch
-            }
-        )
+        if (node.name.isNullOrBlank()) {
+            sendAction(ShowError(CellError.OTHER_ERROR))
+            return@launch
+        }
+//
+        val (nodeName, nodeRemotePath) = when (node) {
+            is CellNodeUi.File -> Pair(node.name, node.remotePath)
+            is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)
+        }
 
-        if (kaliumFileSystem.exists(path)) {
-            kaliumFileSystem.delete(path)
+        val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val filePath = File(publicDir, nodeName).toPath().toOkioPath()
+
+        if (kaliumFileSystem.exists(filePath)) {
+            kaliumFileSystem.delete(filePath)
         }
 
         download(
-            assetId = file.uuid,
-            outFilePath = path,
-            remoteFilePath = file.remotePath,
-            assetSize = file.assetSize ?: 0,
+            assetId = node.uuid,
+            outFilePath = filePath,
+            remoteFilePath = nodeRemotePath,
+            assetSize = node.size ?: 0,
         ) { progress ->
-            file.assetSize?.let {
-                updateDownloadProgress(progress, it, file, path)
+            node.size?.let {
+                updateDownloadProgress(progress, it, node, filePath)
             }
         }.onSuccess {
-            updateDownloadData(file.uuid) {
+            updateDownloadData(node.uuid) {
                 DownloadData(
-                    localPath = path
+                    localPath = filePath
                 )
             }
         }.onFailure {
@@ -192,26 +207,28 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    private fun updateDownloadProgress(progress: Long, it: Long, file: CellNodeUi.File, path: Path) = viewModelScope.launch {
+    private fun updateDownloadProgress(progress: Long, it: Long, node: CellNodeUi, path: Path) = viewModelScope.launch {
 
         val value = progress.toFloat() / it
 
         if (value < 1) {
-            updateDownloadData(file.uuid) {
+            updateDownloadData(node.uuid) {
                 DownloadData(
                     progress = value
                 )
             }
         } else {
-            updateDownloadData(file.uuid) {
+            updateDownloadData(node.uuid) {
                 DownloadData(
                     localPath = path
                 )
             }
 
-            if (_downloadFileSheet.value?.uuid == file.uuid) {
+            if (_downloadFileSheet.value?.uuid == node.uuid) {
                 _downloadFileSheet.update { null }
-                openLocalFile(file.copy(localPath = path.toString()))
+                if (node is CellNodeUi.File) {
+                    openLocalFile(node.copy(localPath = path.toString()))
+                }
             }
         }
     }
@@ -279,7 +296,7 @@ class CellViewModel @Inject constructor(
 
     private fun onMenuFileAction(file: CellNodeUi.File, action: BottomSheetAction.File) {
         when (action.action) {
-            FileAction.SAVE -> downloadFile(file)
+            FileAction.SAVE -> downloadNode(file)
             FileAction.SHARE -> shareFile(file)
             FileAction.PUBLIC_LINK -> sendAction(ShowPublicLinkScreen(file))
             FileAction.DELETE -> sendAction(ShowDeleteConfirmation(file))
@@ -308,7 +325,7 @@ class CellViewModel @Inject constructor(
                 )
             }
 
-            FolderAction.DOWNLOAD -> TODO()
+            FolderAction.DOWNLOAD -> downloadNode(folder)
             FolderAction.DELETE -> TODO()
         }
     }
@@ -355,6 +372,10 @@ class CellViewModel @Inject constructor(
             progressMap[uuid] = block()
             progressMap.toImmutableMap()
         }
+    }
+
+    companion object {
+        const val ZIP_EXTENSION = ".zip"
     }
 }
 

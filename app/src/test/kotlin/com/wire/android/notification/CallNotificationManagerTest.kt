@@ -17,6 +17,7 @@
  */
 package com.wire.android.notification
 
+import android.app.ActivityManager
 import android.app.Notification
 import android.content.Context
 import android.service.notification.StatusBarNotification
@@ -375,6 +376,9 @@ class CallNotificationManagerTest {
         lateinit var notificationManager: NotificationManagerCompat
 
         @MockK
+        lateinit var activityManager: ActivityManager
+
+        @MockK
         lateinit var callNotificationBuilder: CallNotificationBuilder
 
         @MockK
@@ -384,6 +388,7 @@ class CallNotificationManagerTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkStatic(NotificationManagerCompat::from)
             every { NotificationManagerCompat.from(any()) } returns notificationManager
+            every { context.getSystemService(Context.ACTIVITY_SERVICE) } returns activityManager
             withActiveNotifications(emptyList())
             every { callNotificationBuilder.getIncomingCallNotification(any(), any()) } returns mockk()
             withCurrentSession(AccountInfo.Valid(UserId("userId", "domain")))
@@ -392,6 +397,7 @@ class CallNotificationManagerTest {
         fun clearRecordedCallsForNotificationManager() {
             clearMocks(
                 notificationManager,
+                activityManager,
                 answers = false,
                 recordedCalls = true,
                 childMocks = false,

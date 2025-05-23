@@ -56,6 +56,12 @@ class Navigator(
         if (onlyIfResumed && !isResumed) return
         if (!navController.popBackStack()) finish()
     }
+
+    override fun navigateBackAndRemoveAllConsecutive(currentRoute: String) {
+        while (navController.currentBackStackEntry?.destination?.route == currentRoute) {
+            navController.popBackStack()
+        }
+    }
 }
 
 @Composable

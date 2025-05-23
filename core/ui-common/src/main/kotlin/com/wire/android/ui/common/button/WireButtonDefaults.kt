@@ -190,9 +190,9 @@ data class WireButtonColors(
 }
 
 sealed class WireButtonState {
-    object Default : WireButtonState()
-    object Disabled : WireButtonState()
-    object Selected : WireButtonState()
-    object Error : WireButtonState()
-    object Positive : WireButtonState()
+    data object Default : WireButtonState()
+    data object Disabled : WireButtonState()
+    data object Selected : WireButtonState()
+    data object Error : WireButtonState()
+    data object Positive : WireButtonState()
 }

@@ -17,8 +17,26 @@
  */
 package com.wire.android.navigation
 
-object PreviewNavigator : WireNavigator {
-    override fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean) { /* No-op */ }
-    override fun navigateBack(onlyIfResumed: Boolean) { /* No-op */ }
-    override fun navigateBackAndRemoveAllConsecutive(currentRoute: String) { /* No-op */ }
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisallowComposableCalls
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
+import com.ramcosta.composedestinations.spec.DestinationSpec
+
+object PreviewResultRecipient : ResultRecipient<DestinationSpec<Unit>, String> {
+
+    @Composable
+    override fun onNavResult(
+        listener: @DisallowComposableCalls (NavResult<String>) -> Unit
+    ) {
+        // fake result
+    }
+
+    @Deprecated("Use onNavResult instead")
+    @Composable
+    override fun onResult(
+        listener: @DisallowComposableCalls (String) -> Unit
+    ) {
+        // fake result
+    }
 }

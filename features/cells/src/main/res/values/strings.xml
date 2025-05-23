@@ -28,6 +28,7 @@
     <string name="save_folder">Save Folder</string>
     <string name="move_folder">Move Folder</string>
     <string name="share_folder">Share Folder</string>
+    <string name="move_file">Move file</string>
     <string name="download_folder">Download folder</string>
     <string name="delete_folder">Delete folder</string>
     <string name="copy_link">Copy link</string>
@@ -63,4 +64,9 @@
     <string name="cells_folder_name">Folder Name</string>
     <string name="loading_files">Loading files…</string>
     <string name="create_folder_error">There was an error while creating a new folder. Please try again</string>
+    <string name="move_to_folder">Move to Folder</string>
+    <string name="move_here">Move Here</string>
+    <string name="no_subfolders_message">There are no subfolders in this folder.</string>
+    <string name="item_move_success">Item was moved to folder.</string>
+    <string name="item_move_failure">Failed to move the Item.</string>
 </resources>

@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation
+package com.wire.android.feature.cells.ui.movetofolder
 
-object PreviewNavigator : WireNavigator {
-    override fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean) { /* No-op */ }
-    override fun navigateBack(onlyIfResumed: Boolean) { /* No-op */ }
-    override fun navigateBackAndRemoveAllConsecutive(currentRoute: String) { /* No-op */ }
+enum class MoveToFolderScreenState {
+    LOADING_CONTENT,
+    LOADING_IN_FULL_SCREEN,
+    SUCCESS,
+    ERROR
 }

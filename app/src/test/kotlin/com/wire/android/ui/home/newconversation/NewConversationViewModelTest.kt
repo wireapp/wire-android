@@ -153,7 +153,7 @@ class NewConversationViewModelTest {
                 arrangement.createRegularGroup(
                     viewModel.newGroupNameTextState.text.toString(),
                     viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
-                    ConversationOptions(
+                    CreateConversationParam(
                         access = setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
                         accessRole = setOf(
                             Conversation.AccessRole.TEAM_MEMBER,
@@ -162,7 +162,7 @@ class NewConversationViewModelTest {
                         ),
                         readReceiptsEnabled = true,
                         wireCellEnabled = false,
-                        protocol = ConversationOptions.Protocol.PROTEUS,
+                        protocol = CreateConversationParam.Protocol.PROTEUS,
                         creatorClientId = null
                     )
                 )
@@ -182,7 +182,7 @@ class NewConversationViewModelTest {
         val result2 = viewModel.groupOptionsState
 
         // then
-        assertEquals(ConversationOptions.Protocol.MLS, result)
+        assertEquals(CreateConversationParam.Protocol.MLS, result)
         assertEquals(false, result2.isAllowServicesEnabled)
         assertEquals(false, result2.isAllowServicesPossible)
     }

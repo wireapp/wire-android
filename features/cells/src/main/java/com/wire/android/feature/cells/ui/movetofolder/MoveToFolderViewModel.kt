@@ -49,7 +49,8 @@ class MoveToFolderViewModel @Inject constructor(
 
     private val navArgs: MoveToFolderNavArgs = savedStateHandle.navArgs()
 
-    private val _state: MutableStateFlow<MoveToFolderScreenState> = MutableStateFlow(MoveToFolderScreenState.LOADING_CONTENT)
+    private val _state: MutableStateFlow<MoveToFolderScreenState> =
+        MutableStateFlow(MoveToFolderScreenState.LOADING_CONTENT)
     internal val state = _state.asStateFlow()
 
     private val _nodes: MutableStateFlow<List<CellNodeUi>> = MutableStateFlow(listOf())

@@ -16,4 +16,14 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_send_button">යවන්න</string>
+    <string name="content_description_undo_button">පෙරසේ</string>
+    <string name="sketch_details_empty_text">ඔබගේ ප්‍රියතම පාට තෝරාගෙන අඳින්න 🎨</string>
+    <string name="content_description_close_button">වසන්න</string>
+    <string name="title_color_picker">පාට</string>
+    <string name="confirm_changes_title">ඇඳීම ඉවතලන්නද?</string>
+    <string name="confirm_changes_text">ඔබ නොයවා හැර ගියහොත්, ඇඳීම නැති වනු ඇත.</string>
+    <string name="confirm_changes_confirm">අවලංගු</string>
+    <string name="confirm_changes_dismiss">ඉවතලන්න</string>
+</resources>

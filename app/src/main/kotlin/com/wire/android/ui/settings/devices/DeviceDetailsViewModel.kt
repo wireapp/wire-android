@@ -75,7 +75,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val mlsClientIdentity: GetMLSClientIdentityUseCase,
     private val breakSession: BreakSessionUseCase,
-    isE2EIEnabledUseCase: IsE2EIEnabledUseCase
+    private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
@@ -86,7 +86,6 @@ class DeviceDetailsViewModel @Inject constructor(
     var state: DeviceDetailsState by mutableStateOf(
         DeviceDetailsState(
             isSelfClient = isSelfClient,
-            isE2EIEnabled = isE2EIEnabledUseCase()
         )
     )
         private set
@@ -97,6 +96,15 @@ class DeviceDetailsViewModel @Inject constructor(
         observeUserName()
         getE2eiCertificate()
         observePasswordTextChanges()
+        getIsE2EIEnabled()
+    }
+
+    private fun getIsE2EIEnabled() {
+        viewModelScope.launch {
+            isE2EIEnabledUseCase().let {
+                state = state.copy(isE2EIEnabled = it)
+            }
+        }
     }
 
     private val isSelfClient: Boolean

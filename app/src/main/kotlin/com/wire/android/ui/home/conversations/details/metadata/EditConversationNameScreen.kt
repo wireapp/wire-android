@@ -23,17 +23,19 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.groupname.GroupNameScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @WireDestination(
-    navArgsDelegate = EditConversationNameNavArgs::class
+    navArgsDelegate = EditConversationNameNavArgs::class,
+    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun EditConversationNameScreen(

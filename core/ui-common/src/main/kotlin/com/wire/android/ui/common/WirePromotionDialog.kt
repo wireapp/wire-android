@@ -35,7 +35,7 @@ fun WirePromotionDialog(
     onDismiss: () -> Unit,
     onCreateTeam: () -> Unit,
     modifier: Modifier = Modifier,
-    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    properties: DialogProperties = wireDialogPropertiesBuilder(),
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding)
 ) {

@@ -49,11 +49,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.NavigationSwitchAccountActions
@@ -62,8 +62,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDropDown
@@ -79,6 +78,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AvatarPickerScreenDestination
 import com.wire.android.ui.destinations.MyAccountScreenDestination
@@ -110,7 +110,7 @@ import com.wire.kalium.logic.data.user.UserId
 
 @RootNavGraph
 @WireDestination(
-    style = PopUpNavigationAnimation::class,
+    style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
 )
 @Composable
 @SuppressLint("ComposeModifierMissing")
@@ -530,10 +530,9 @@ private fun LoggingOutDialog(isLoggingOut: Boolean) {
     if (isLoggingOut) {
         ProgressDialog(
             title = stringResource(R.string.user_profile_logging_out_progress),
-            properties = DialogProperties(
+            properties = wireDialogPropertiesBuilder(
                 dismissOnBackPress = false,
                 dismissOnClickOutside = false,
-                usePlatformDefaultWidth = true
             )
         )
     }

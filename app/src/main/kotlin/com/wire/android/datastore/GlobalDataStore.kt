@@ -28,7 +28,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
 import com.wire.android.feature.AppLockSource
-import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.sha256
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -63,14 +62,9 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 
-        private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> =
-            intPreferencesKey("user_migration_status_$userId")
-
         private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
             booleanPreferencesKey("$SHOW_CALLING_DOUBLE_TAP_TOAST$userId")
 
-        private fun userLastMigrationAppVersion(userId: String): Preferences.Key<Int> =
-            intPreferencesKey("migration_app_version_$userId")
     }
 
     suspend fun clear() {
@@ -104,10 +98,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { it[RECORD_AUDIO_EFFECTS_CHECKBOX] = enabled }
     }
 
-    suspend fun setMigrationCompleted() {
-        context.dataStore.edit { it[MIGRATION_COMPLETED] = true }
-    }
-
     suspend fun isWelcomeScreenPresented(): Boolean =
         getBooleanPreference(WELCOME_SCREEN_PRESENTED, false).firstOrNull() ?: false
 
@@ -118,44 +108,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun setWelcomeScreenNotPresented() {
         context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = false }
     }
-
-    suspend fun setUserMigrationStatus(userId: String, status: UserMigrationStatus) {
-        context.dataStore.edit { it[userMigrationStatusKey(userId)] = status.value }
-        when (status) {
-            UserMigrationStatus.Completed,
-            UserMigrationStatus.CompletedWithErrors,
-            UserMigrationStatus.Successfully -> setUserMigrationAppVersion(
-                userId,
-                BuildConfig.VERSION_CODE
-            )
-
-            UserMigrationStatus.NoNeed,
-            UserMigrationStatus.NotStarted -> {
-                /* no-op */
-            }
-        }
-    }
-
-    /**
-     * Returns the migration status of the user with the given [userId].
-     * If there is no status stored, the status will be [UserMigrationStatus.NoNeed]
-     * meaning that the user does not need to be migrated.
-     */
-    fun getUserMigrationStatus(userId: String): Flow<UserMigrationStatus?> =
-        context.dataStore.data.map {
-            it[userMigrationStatusKey(userId)]?.let { status ->
-                UserMigrationStatus.fromInt(
-                    status
-                )
-            }
-        }
-
-    suspend fun setUserMigrationAppVersion(userId: String, version: Int) {
-        context.dataStore.edit { it[userLastMigrationAppVersion(userId)] = version }
-    }
-
-    suspend fun getUserMigrationAppVersion(userId: String): Int? =
-        context.dataStore.data.map { it[userLastMigrationAppVersion(userId)] }.firstOrNull()
 
     suspend fun setShouldShowDoubleTapToastStatus(userId: String, shouldShow: Boolean) {
         context.dataStore.edit { it[userDoubleTapToastStatusKey(userId)] = shouldShow }

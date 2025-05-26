@@ -61,7 +61,6 @@ fun DebugDataOptions(
     onCopyText: (String) -> Unit,
     viewModel: DebugDataOptionsViewModel =
         hiltViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel, DebugDataOptions>(DebugDataOptions),
-    onManualMigrationPressed: (currentAccount: UserId) -> Unit
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     DebugDataOptionsContent(
@@ -71,7 +70,6 @@ fun DebugDataOptions(
         onCopyText = onCopyText,
         onRestartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
         onForceUpdateApiVersions = viewModel::forceUpdateApiVersions,
-        onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount()) },
         onDisableEventProcessingChange = viewModel::disableEventProcessing,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
@@ -91,7 +89,6 @@ fun DebugDataOptionsContent(
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
-    onManualMigrationPressed: () -> Unit,
     enrollE2EICertificate: () -> Unit,
     handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     dismissCertificateDialog: () -> Unit,
@@ -216,13 +213,6 @@ fun DebugDataOptionsContent(
             )
         }
 
-        if (state.isManualMigrationAllowed) {
-            FolderHeader("Other Debug Options")
-            ManualMigrationOptions(
-                onManualMigrationClicked = onManualMigrationPressed
-            )
-        }
-
         if (state.startGettingE2EICertificate) {
             GetE2EICertificateUI(
                 enrollmentResultHandler = { handleE2EIEnrollmentResult(it) },
@@ -259,34 +249,6 @@ private fun GetE2EICertificateSwitch(
         )
     }
 }
-
-//region Scala Migration Options
-@Composable
-private fun ManualMigrationOptions(
-    onManualMigrationClicked: () -> Unit,
-) {
-    RowItemTemplate(
-        modifier = Modifier.wrapContentWidth(),
-        title = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.label_manual_migration_title),
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
-        },
-        actions = {
-            WirePrimaryButton(
-                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                onClick = onManualMigrationClicked,
-                text = stringResource(R.string.start_manual_migration),
-                fillMaxWidth = false
-            )
-        }
-    )
-}
-//endregion
 
 //region MLS Options
 @Composable
@@ -520,14 +482,12 @@ fun PreviewOtherDebugOptions() = WireTheme {
             keyPackagesCount = 10,
             mslClientId = "clientId",
             mlsErrorMessage = "error",
-            isManualMigrationAllowed = true,
             debugId = "debugId",
             commitish = "commitish"
         ),
         onForceUpdateApiVersions = {},
         onDisableEventProcessingChange = {},
         onRestartSlowSyncForRecovery = {},
-        onManualMigrationPressed = {},
         enrollE2EICertificate = {},
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},

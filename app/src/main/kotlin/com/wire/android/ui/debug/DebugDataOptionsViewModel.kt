@@ -27,7 +27,6 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
@@ -103,7 +102,6 @@ class DebugDataOptionsViewModelImpl
 
     init {
         observeMlsMetadata()
-        checkIfCanTriggerManualMigration()
         setGitHashAndDeviceId()
         setAnalyticsTrackingId()
         setServerConfigData()
@@ -243,24 +241,6 @@ class DebugDataOptionsViewModelImpl
                     }
                 )
             }
-        }
-    }
-
-    // If status is NoNeed, it means that the user has already been migrated in and older app version,
-    // or it is a new install
-    // this is why we check the existence of the database file
-    private fun checkIfCanTriggerManualMigration() {
-        viewModelScope.launch {
-            globalDataStore.getUserMigrationStatus(currentAccount.value).first()
-                .let { migrationStatus ->
-                    if (migrationStatus != UserMigrationStatus.NoNeed) {
-                        context.getDatabasePath(currentAccount.value).let {
-                            state = state.copy(
-                                isManualMigrationAllowed = (it.exists() && it.isFile)
-                            )
-                        }
-                    }
-                }
         }
     }
 

@@ -26,7 +26,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -58,7 +57,6 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     @VisibleForTesting
@@ -127,9 +125,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
             when {
-                shouldTriggerMigrationForUser(selfUser.id) -> // check if the user needs to be migrated from scala app
-                    _actions.send(HomeRequirement.Migration(selfUser.id))
-
                 needsToRegisterClient() -> // check if the client needs to be registered
                     _actions.send(HomeRequirement.RegisterDevice)
 

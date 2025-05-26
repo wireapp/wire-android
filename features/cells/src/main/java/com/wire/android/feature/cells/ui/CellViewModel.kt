@@ -382,8 +382,8 @@ class CellViewModel @Inject constructor(
 sealed interface CellViewIntent {
     data class OnFileClick(val file: CellNodeUi.File) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
-    data class OnMenuFileActionSelected(val file: CellNodeUi.File, val action: BottomSheetAction) : CellViewIntent
-    data class OnMenuFolderActionSelected(val folder: CellNodeUi.Folder, val action: BottomSheetAction) : CellViewIntent
+    data class OnMenuFileActionSelected(val file: CellNodeUi.File, val action: BottomSheetAction.File) : CellViewIntent
+    data class OnMenuFolderActionSelected(val folder: CellNodeUi.Folder, val action: BottomSheetAction.Folder) : CellViewIntent
     data class OnFileDownloadConfirmed(val file: CellNodeUi.File) : CellViewIntent
     data class OnFileDeleteConfirmed(val file: CellNodeUi.File) : CellViewIntent
     data object OnDownloadMenuClosed : CellViewIntent

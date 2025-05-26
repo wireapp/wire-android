@@ -45,8 +45,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.dimensions
@@ -62,7 +60,6 @@ import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
-import com.wire.kalium.logic.data.user.UserId
 import java.io.File
 
 @RootNavGraph

@@ -49,7 +49,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         // keys
         private val SHOW_CALLING_DOUBLE_TAP_TOAST =
             booleanPreferencesKey("show_calling_double_tap_toast_")
-        private val MIGRATION_COMPLETED = booleanPreferencesKey("migration_completed")
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
@@ -64,7 +63,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
         private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
             booleanPreferencesKey("$SHOW_CALLING_DOUBLE_TAP_TOAST$userId")
-
     }
 
     suspend fun clear() {
@@ -79,10 +77,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         defaultValue: String
     ): Flow<String> =
         context.dataStore.data.map { it[key] ?: defaultValue }
-
-    fun isMigrationCompletedFlow(): Flow<Boolean> = getBooleanPreference(MIGRATION_COMPLETED, false)
-
-    suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
 
     fun isLoggingEnabled(): Flow<Boolean> =
         getBooleanPreference(IS_LOGGING_ENABLED, BuildConfig.LOGGING_ENABLED)
@@ -100,14 +94,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun isWelcomeScreenPresented(): Boolean =
         getBooleanPreference(WELCOME_SCREEN_PRESENTED, false).firstOrNull() ?: false
-
-    suspend fun setWelcomeScreenPresented() {
-        context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = true }
-    }
-
-    suspend fun setWelcomeScreenNotPresented() {
-        context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = false }
-    }
 
     suspend fun setShouldShowDoubleTapToastStatus(userId: String, shouldShow: Boolean) {
         context.dataStore.edit { it[userDoubleTapToastStatusKey(userId)] = shouldShow }

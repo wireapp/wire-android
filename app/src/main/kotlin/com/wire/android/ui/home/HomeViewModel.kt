@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
@@ -51,7 +50,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
-    private val globalDataStore: GlobalDataStore,
     private val dataStore: UserDataStore,
     private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
@@ -133,21 +131,7 @@ class HomeViewModel @Inject constructor(
 
                 selfUser.handle.isNullOrEmpty() -> // check if the user handle needs to be set
                     _actions.send(HomeRequirement.CreateAccountUsername)
-
-                // check if the "welcome to the new app" screen needs to be displayed
-                shouldDisplayWelcomeToARScreen() ->
-                    homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
             }
-        }
-    }
-
-    private suspend fun shouldDisplayWelcomeToARScreen() =
-        globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
-
-    fun dismissWelcomeMessage() {
-        viewModelScope.launch {
-            globalDataStore.setWelcomeScreenPresented()
-            homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
         }
     }
 }

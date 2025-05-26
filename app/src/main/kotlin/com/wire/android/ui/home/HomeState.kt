@@ -27,7 +27,6 @@ import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
 
 data class HomeState(
     val userAvatarData: UserAvatarData = UserAvatarData(null),
-    val shouldDisplayWelcomeMessage: Boolean = false,
     val shouldDisplayLegalHoldIndicator: Boolean = false,
     val shouldShowCreateTeamUnreadIndicator: Boolean = false,
 )

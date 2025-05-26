@@ -54,7 +54,7 @@ fun RecycleBinScreen(
     modifier: Modifier = Modifier,
     cellViewModel: CellViewModel = hiltViewModel()
 ) {
-    Box {
+    Box(modifier = modifier) {
         WireScaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(

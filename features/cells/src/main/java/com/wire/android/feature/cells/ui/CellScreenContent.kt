@@ -72,7 +72,7 @@ internal fun CellScreenContent(
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
 
-    var deleteConfirmation by remember { mutableStateOf<Pair<CellNodeUi?, Boolean>?>((null)) }
+    var deleteConfirmation by remember { mutableStateOf<Pair<CellNodeUi, Boolean>?>((null)) }
     var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
@@ -137,13 +137,13 @@ internal fun CellScreenContent(
         )
     }
 
-    deleteConfirmation?.first?.let {
+    deleteConfirmation?.let { (node, isPermanentDelete) ->
         DeleteConfirmationDialog(
-            itemName = it.name ?: "",
-            isFolder = it is CellNodeUi.Folder,
-            isPermanentDelete = deleteConfirmation?.second == true,
+            itemName = node.name ?: "",
+            isFolder = node is CellNodeUi.Folder,
+            isPermanentDelete = isPermanentDelete,
             onConfirm = {
-                sendIntent(CellViewIntent.OnNodeDeleteConfirmed(it))
+                sendIntent(CellViewIntent.OnNodeDeleteConfirmed(node))
                 deleteConfirmation = null
             },
             onDismiss = {

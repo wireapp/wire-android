@@ -22,4 +22,3 @@ data class CellFilesNavArgs(
     val screenTitle: String? = null,
     val isRecycleBin: Boolean? = false
 )
-

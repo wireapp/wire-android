@@ -42,9 +42,7 @@ internal fun CellsNewActionBottomSheet(
     onCreateFolder: () -> Unit,
 ) {
     WireModalSheetLayout(
-        onDismissRequest = {
-            onDismiss()
-        },
+        onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
         WireMenuModalSheetContent(

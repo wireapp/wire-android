@@ -21,7 +21,6 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.kalium.cells.domain.model.Node
-import com.wire.kalium.cells.domain.model.PaginatedList
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -59,7 +58,7 @@ class MoveToFolderViewModelTest {
     @Test
     fun `given getCellFilesUseCase success, when loadFiles is called, then emit nodes and update state to Success`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withGetCellFilesUseCaseReturning(
+            .withGetFoldersUseCaseReturning(
                 Either.Right(
                     listOf(
                         Node.Folder(
@@ -79,25 +78,26 @@ class MoveToFolderViewModelTest {
         viewModel.loadFolders()
 
         advanceUntilIdle()
-        assertEquals(MoveToFolderScreenState.Success, viewModel.state.value)
+        assertEquals(MoveToFolderScreenState.SUCCESS, viewModel.state.value)
         assertTrue(viewModel.folders.value.isNotEmpty())
     }
 
     @Test
     fun `given getCellFilesUseCase failure, when loadFiles is called, then update state to Failure`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withGetCellFilesUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
+            .withGetFoldersUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
             .arrange()
 
         viewModel.loadFolders()
 
         advanceUntilIdle()
-        assertEquals(MoveToFolderScreenState.Error, viewModel.state.value)
+        assertEquals(MoveToFolderScreenState.ERROR, viewModel.state.value)
     }
 
     @Test
     fun `given moveNodeUseCase success, when moveHere is called, then send success action`() = runTest {
         val (_, viewModel) = Arrangement()
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
             .withMoveNodeUseCaseReturning(Either.Right(Unit))
             .arrange()
 
@@ -114,6 +114,7 @@ class MoveToFolderViewModelTest {
     @Test
     fun `given moveNodeUseCase failure, when moveHere is called, then send failure action`() = runTest {
         val (_, viewModel) = Arrangement()
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
             .withMoveNodeUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
             .arrange()
 
@@ -128,7 +129,6 @@ class MoveToFolderViewModelTest {
     }
 
     private class Arrangement {
-
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -162,7 +162,7 @@ class MoveToFolderViewModelTest {
             )
         }
 
-        fun withGetCellFilesUseCaseReturning(result: Either<CoreFailure, List<Node.Folder>>) = apply {
+        fun withGetFoldersUseCaseReturning(result: Either<CoreFailure, List<Node.Folder>>) = apply {
             coEvery { getFoldersUseCase(any()) } returns result
         }
 

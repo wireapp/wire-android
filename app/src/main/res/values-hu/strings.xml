@@ -158,7 +158,6 @@
     <string name="content_description_calling_turn_speaker_off">Hangszóró kikapcsolása</string>
     <string name="content_description_calling_in_call_reactions_show">Mutassa a hívásreakciók panelen</string>
     <string name="content_description_calling_in_call_reactions_hide">Rejtse el a hívásreakciók panelen</string>
-    <string name="content_description_show_more_options">További lehetőségek megjelenítése</string>
     <string name="content_description_reply_to_messge">Válasz az üzenetre</string>
     <string name="content_description_reply_cancel">Mégsem válaszol az üzenetre</string>
     <string name="content_description_ping_message">Kopogás üzenet</string>

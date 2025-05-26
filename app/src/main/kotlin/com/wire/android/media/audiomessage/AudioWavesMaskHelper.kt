@@ -41,6 +41,8 @@ class AudioWavesMaskHelper @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun getAmplituda(): Amplituda? = try {
         amplituda.get()
+    } catch (e: UnsatisfiedLinkError) {
+        null
     } catch (e: NullPointerException) {
         null
     }

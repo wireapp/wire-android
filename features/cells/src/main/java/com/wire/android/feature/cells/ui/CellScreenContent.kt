@@ -62,7 +62,7 @@ internal fun CellScreenContent(
     onFolderClick: (CellNodeUi.Folder) -> Unit,
     downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
-    showPublicLinkScreen: (String, String, String?, Boolean) -> Unit,
+    showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
     isAllFiles: Boolean,
     isSearchResult: Boolean = false,
@@ -84,6 +84,7 @@ internal fun CellScreenContent(
             isAllFiles = isAllFiles,
             onRetry = { pagingListItems.retry() }
         )
+
         else ->
             CellFilesScreen(
                 cellNodes = pagingListItems,
@@ -153,10 +154,12 @@ internal fun CellScreenContent(
                     is ShowError -> Toast.makeText(context, action.error.message, Toast.LENGTH_SHORT).show()
                     is ShowDeleteConfirmation -> deleteConfirmation = action.file
                     is ShowPublicLinkScreen -> showPublicLinkScreen(
-                        action.cellNode.uuid,
-                        action.cellNode.name ?: action.cellNode.uuid,
-                        action.cellNode.publicLinkId,
-                        action.cellNode is CellNodeUi.Folder
+                        PublicLinkScreenData(
+                            assetId = action.cellNode.uuid,
+                            fileName = action.cellNode.name ?: action.cellNode.uuid,
+                            linkId = action.cellNode.publicLinkId,
+                            isFolder = action.cellNode is CellNodeUi.Folder
+                        )
                     )
                     is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
                     is RefreshData -> pagingListItems.refresh()

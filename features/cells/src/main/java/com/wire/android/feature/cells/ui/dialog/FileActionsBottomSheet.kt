@@ -47,7 +47,7 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 internal fun FileActionsBottomSheet(
     menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction) -> Unit,
+    onAction: (BottomSheetAction.File) -> Unit,
     onDismiss: () -> Unit,
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
@@ -61,7 +61,7 @@ internal fun FileActionsBottomSheet(
         SheetContent(
             menuOptions = menuOptions,
             onAction = { action ->
-                onAction(action)
+                sheetState.hide { onAction(action) }
             }
         )
     }
@@ -119,7 +119,7 @@ private fun PreviewFileActionsBottomSheet() {
                     name = "test file.pdf",
                     mimeType = "application/pdf",
                     assetType = AttachmentFileType.PDF,
-                    assetSize = 2342342,
+                    size = 2342342,
                     localPath = "",
                     userName = null,
                     conversationName = null,

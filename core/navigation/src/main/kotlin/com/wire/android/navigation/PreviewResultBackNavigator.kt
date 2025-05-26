@@ -15,11 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.movetofolder
+package com.wire.android.navigation
 
-enum class MoveToFolderScreenState {
-    LOADING_CONTENT,
-    LOADING_IN_FULL_SCREEN,
-    SUCCESS,
-    ERROR
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+
+object PreviewResultBackNavigator : ResultBackNavigator<R> {
+    override fun setResult(result: R) { /* No-op */ }
+
+    override fun navigateBack(result: R, onlyIfResumed: Boolean) { /* No-op */ }
+
+    override fun navigateBack(onlyIfResumed: Boolean) { /* No-op */ }
 }

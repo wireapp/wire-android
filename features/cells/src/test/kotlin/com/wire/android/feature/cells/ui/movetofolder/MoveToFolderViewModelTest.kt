@@ -80,7 +80,7 @@ class MoveToFolderViewModelTest {
         viewModel.loadFolders()
 
         advanceUntilIdle()
-        assertEquals(MoveToFolderScreenState.Success, viewModel.state.value)
+        assertEquals(MoveToFolderScreenState.SUCCESS, viewModel.state.value)
         assertTrue(viewModel.nodes.value.isNotEmpty())
     }
 
@@ -93,7 +93,7 @@ class MoveToFolderViewModelTest {
         viewModel.loadFolders()
 
         advanceUntilIdle()
-        assertEquals(MoveToFolderScreenState.Error, viewModel.state.value)
+        assertEquals(MoveToFolderScreenState.ERROR, viewModel.state.value)
     }
 
     @Test

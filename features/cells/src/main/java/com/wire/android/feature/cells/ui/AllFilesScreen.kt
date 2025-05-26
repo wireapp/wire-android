@@ -79,5 +79,6 @@ fun AllFilesScreen(
                 )
             )
         },
+        showMoveToFolderScreen = { _, _, _ -> }
     )
 }

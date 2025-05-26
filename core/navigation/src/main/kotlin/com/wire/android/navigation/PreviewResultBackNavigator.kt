@@ -17,8 +17,12 @@
  */
 package com.wire.android.navigation
 
-object PreviewNavigator : WireNavigator {
-    override fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean) { /* No-op */ }
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+
+object PreviewResultBackNavigator : ResultBackNavigator<R> {
+    override fun setResult(result: R) { /* No-op */ }
+
+    override fun navigateBack(result: R, onlyIfResumed: Boolean) { /* No-op */ }
+
     override fun navigateBack(onlyIfResumed: Boolean) { /* No-op */ }
-    override fun navigateBackAndRemoveAllConsecutive(currentRoute: String) { /* No-op */ }
 }

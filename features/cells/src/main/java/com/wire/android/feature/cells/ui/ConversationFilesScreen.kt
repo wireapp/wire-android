@@ -37,6 +37,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
+import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -44,7 +45,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
-import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -61,7 +62,7 @@ import kotlinx.coroutines.flow.StateFlow
  * Conversation id is passed to view model via navigation parameters [CellFilesNavArgs].
  */
 @WireDestination(
-    style = SlideNavigationAnimation::class,
+    style = PopUpNavigationAnimation::class,
     navArgsDelegate = CellFilesNavArgs::class,
 )
 @Composable
@@ -184,6 +185,17 @@ fun ConversationFilesScreenContent(
                         )
                     )
                 },
+                showMoveToFolderScreen = { currentPath, nodePath, uuid ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            MoveToFolderScreenDestination(
+                                currentPath = currentPath,
+                                nodeToMovePath = nodePath,
+                                uuid = uuid,
+                            )
+                        )
+                    )
+                }
             )
         }
     }

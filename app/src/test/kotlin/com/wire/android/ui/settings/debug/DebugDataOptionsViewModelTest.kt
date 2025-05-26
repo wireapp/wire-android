@@ -24,9 +24,7 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
-import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
@@ -56,7 +54,6 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -216,9 +213,6 @@ internal class DebugDataOptionsHiltArrangement {
     private val currentAccount: UserId = TestUser.SELF_USER_ID
 
     @MockK
-    lateinit var globalDataStore: GlobalDataStore
-
-    @MockK
     lateinit var updateApiVersions: UpdateApiVersionsScheduler
 
     @MockK
@@ -246,7 +240,6 @@ internal class DebugDataOptionsHiltArrangement {
         DebugDataOptionsViewModelImpl(
             context = context,
             currentAccount = currentAccount,
-            globalDataStore = globalDataStore,
             updateApiVersions = updateApiVersions,
             mlsKeyPackageCount = mlsKeyPackageCount,
             restartSlowSyncProcessForRecovery = restartSlowSyncProcessForRecovery,
@@ -276,9 +269,6 @@ internal class DebugDataOptionsHiltArrangement {
         every {
             context.getGitBuildId()
         } returns "gitBuildId"
-        coEvery {
-            globalDataStore.getUserMigrationStatus(TestUser.SELF_USER_ID.value)
-        } returns flowOf(UserMigrationStatus.NoNeed)
         coEvery {
             selfServerConfigUseCase()
         } returns SelfServerConfigUseCase.Result.Success(

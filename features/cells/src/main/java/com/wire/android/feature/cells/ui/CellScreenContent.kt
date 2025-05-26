@@ -54,6 +54,7 @@ import com.wire.android.ui.common.dimensions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
@@ -180,7 +181,6 @@ internal fun CellScreenContent(
                             isFolder = action.cellNode is CellNodeUi.Folder
                         )
                     )
-
                     is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
                     is RefreshData -> pagingListItems.refresh()
                 }

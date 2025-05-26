@@ -48,7 +48,8 @@ class MoveToFolderViewModel @Inject constructor(
 
     private val navArgs: MoveToFolderNavArgs = savedStateHandle.navArgs()
 
-    private val _state: MutableStateFlow<MoveToFolderScreenState> = MutableStateFlow(MoveToFolderScreenState.Loading)
+    private val _state: MutableStateFlow<MoveToFolderScreenState> =
+        MutableStateFlow(MoveToFolderScreenState.LOADING_CONTENT)
     internal val state = _state.asStateFlow()
 
     private val _folders: MutableStateFlow<List<CellNodeUi.Folder>> = MutableStateFlow(listOf())
@@ -72,29 +73,40 @@ class MoveToFolderViewModel @Inject constructor(
         viewModelScope.launch { _actions.send(action) }
     }
 
+    init {
+        loadFolders()
+    }
+
     fun loadFolders() {
         viewModelScope.launch {
             getFoldersUseCase(currentPath())
                 .onSuccess { folders ->
                     _folders.emit(folders.map { it.toUiModel() })
-                    _state.update { MoveToFolderScreenState.Success }
+                    _state.update { MoveToFolderScreenState.SUCCESS }
                 }
                 .onFailure { _ ->
-                    _state.update { MoveToFolderScreenState.Error }
+                    _state.update { MoveToFolderScreenState.ERROR }
                 }
         }
     }
 
     fun moveHere() {
         viewModelScope.launch {
+            _state.update { MoveToFolderScreenState.LOADING_IN_FULL_SCREEN }
             moveNodeUseCase(nodeUuid(), nodeToMovePath(), currentPath())
                 .onSuccess {
+                    _state.update { MoveToFolderScreenState.SUCCESS }
                     sendAction(ActionUiEvent.MoveItemUiEvent.Success)
                 }
                 .onFailure {
+                    _state.update { MoveToFolderScreenState.ERROR }
                     sendAction(ActionUiEvent.MoveItemUiEvent.Failure)
                 }
         }
+    }
+
+    companion object {
+        const val ALL_FOLDERS = ""
     }
 }
 

@@ -21,6 +21,7 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.kalium.cells.domain.model.Node
+import com.wire.kalium.cells.domain.model.PaginatedList
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.common.error.CoreFailure

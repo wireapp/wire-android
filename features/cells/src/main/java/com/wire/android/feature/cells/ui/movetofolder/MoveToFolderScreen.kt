@@ -57,6 +57,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.FileIconPreview
 import com.wire.android.feature.cells.ui.FolderIconPreview
@@ -68,6 +70,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.PreviewNavigator
+import com.wire.android.navigation.PreviewResultRecipient
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -90,6 +93,7 @@ import com.wire.android.ui.theme.wireTypography
 fun MoveToFolderScreen(
     navigator: WireNavigator,
     moveToFolderNavArgs: MoveToFolderNavArgs,
+    createFolderResultRecipient: ResultRecipient<CreateFolderScreenDestination, Boolean>,
     modifier: Modifier = Modifier,
     moveToFolderViewModel: MoveToFolderViewModel = hiltViewModel()
 ) {
@@ -134,7 +138,11 @@ fun MoveToFolderScreen(
                             WireSecondaryButton(
                                 text = stringResource(R.string.cells_create_folder),
                                 onClick = {
-                                    navigator.navigate(NavigationCommand(CreateFolderScreenDestination(moveToFolderViewModel.currentPath())))
+                                    navigator.navigate(
+                                        NavigationCommand(
+                                            CreateFolderScreenDestination(moveToFolderViewModel.currentPath())
+                                        )
+                                    )
                                 },
                                 state = WireButtonState.Default,
                                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
@@ -178,7 +186,7 @@ fun MoveToFolderScreen(
                 innerPadding = innerPadding
             )
         }
-        if (isScreenLoading.value) {
+        if (moveToFolderViewModel.state.collectAsState().value == MoveToFolderScreenState.LOADING_IN_FULL_SCREEN) {
             FullScreenLoading()
         }
     }
@@ -189,7 +197,6 @@ fun MoveToFolderScreen(
             moveToFolderViewModel.actions.collect { action ->
                 when (action) {
                     is ActionUiEvent.MoveItemUiEvent -> {
-                        isScreenLoading.value = false
                         if (action is ActionUiEvent.MoveItemUiEvent.Success) {
                             Toast.makeText(context, context.resources.getString(R.string.item_move_success), Toast.LENGTH_SHORT).show()
                         } else {
@@ -197,6 +204,17 @@ fun MoveToFolderScreen(
                         }
                         navigator.navigateBackAndRemoveAllConsecutive(MoveToFolderScreenDestination.route)
                     }
+                }
+            }
+        }
+    }
+
+    createFolderResultRecipient.onNavResult { result ->
+        when (result) {
+            NavResult.Canceled -> {}
+            is NavResult.Value -> {
+                if (result.value) {
+                    moveToFolderViewModel.loadFolders()
                 }
             }
         }
@@ -211,7 +229,7 @@ private fun MoveToFolderScreenContent(
     innerPadding: PaddingValues
 ) {
 
-    if (uiState == MoveToFolderScreenState.Loading) {
+    if (uiState == MoveToFolderScreenState.LOADING_CONTENT) {
         LoadingScreen()
     } else {
         if (folders.value.isEmpty()) {
@@ -229,7 +247,7 @@ private fun MoveToFolderScreenContent(
         } else {
             LazyColumn(
                 modifier = Modifier.padding(innerPadding),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+                verticalArrangement = Arrangement.spacedBy(dimensions().spacing2x)
             ) {
                 folders.value.forEach { node ->
                     item {
@@ -251,16 +269,18 @@ private fun RowItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(dimensions().spacing56x)
             .background(colorsScheme().surface)
             .padding(
                 bottom = dimensions().spacing2x
             )
             .alpha(if (cell is CellNodeUi.Folder) 1f else 0.5f)
             .then(
-                if (cell is CellNodeUi.Folder) Modifier.clickable {
-                    onFolderClick(cell)
-                } else Modifier
+                if (cell is CellNodeUi.Folder) {
+                    Modifier.clickable { onFolderClick(cell) }
+                } else {
+                    Modifier
+                }
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -288,7 +308,7 @@ fun PreviewMoveToFolderItem() {
                 userName = "User",
                 conversationName = "Conversation",
                 modifiedTime = null,
-                size = 123234,
+                size = 1234,
             )
         )
     }
@@ -305,7 +325,8 @@ fun PreviewMoveToFolderScreen() {
                 nodeToMovePath = "some path",
                 uuid = "243567990900989897",
                 screenName = "some folder.pdf"
-            )
+            ),
+            createFolderResultRecipient = PreviewResultRecipient as ResultRecipient<CreateFolderScreenDestination, Boolean>
         )
     }
 }

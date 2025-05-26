@@ -258,7 +258,7 @@ private fun RowItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(dimensions().spacing56x)
             .background(colorsScheme().surface)
             .padding(
                 bottom = dimensions().spacing2x

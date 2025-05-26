@@ -200,4 +200,3 @@ fun PreviewGroupCallGrid_8Participants() = WireTheme {
 fun PreviewGroupCallGrid_9Participants() = WireTheme {
     PreviewGroupCallGrid(buildPreviewParticipantsList(9))
 }
-

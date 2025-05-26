@@ -43,9 +43,9 @@ interface InCallReactionsState {
 }
 
 object PreviewInCallReactionState : InCallReactionsState {
-    override fun runAnimation(inCallReaction: InCallReaction) {}
+    override fun runAnimation(inCallReaction: InCallReaction) = Unit
     override fun getReactions(): List<AnimatableReaction> = emptyList()
-    override fun updateHeight(height: Float) {}
+    override fun updateHeight(height: Float) = Unit
 }
 
 @Composable

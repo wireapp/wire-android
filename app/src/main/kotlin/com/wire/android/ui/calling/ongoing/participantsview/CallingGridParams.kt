@@ -20,6 +20,7 @@ package com.wire.android.ui.calling.ongoing.participantsview
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.unit.Dp
 
+@Suppress("MagicNumber")
 enum class CallingGridParams(
     val maxItemsPerPage: Int, // maximum number of participants to show on a single page
     val orientation: Orientation, // orientation of the list/grid
@@ -30,7 +31,7 @@ enum class CallingGridParams(
         orientation = Orientation.Vertical,
         { itemsCount ->
             when (itemsCount) {
-                in 0..3 -> 1 to itemsCount  // up to 3 items show single column
+                in 0..3 -> 1 to itemsCount // up to 3 items show single column
                 else -> 2 to ceilDiv(itemsCount, 2) // 4 or more items show grid with 2 columns
             }
         }

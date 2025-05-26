@@ -236,7 +236,7 @@ private fun MoveToFolderScreenContent(
         } else {
             LazyColumn(
                 modifier = Modifier.padding(innerPadding),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+                verticalArrangement = Arrangement.spacedBy(dimensions().spacing2x)
             ) {
                 nodes.value.forEach { node ->
                     item {

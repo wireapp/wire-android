@@ -23,8 +23,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.kalium.cells.domain.model.Node
-import com.wire.kalium.cells.domain.usecase.GetNodesUseCase
+import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -43,7 +42,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MoveToFolderViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
-    private val getNodesUseCase: GetNodesUseCase,
+    private val getFoldersUseCase: GetFoldersUseCase,
     private val moveNodeUseCase: MoveNodeUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -53,8 +52,8 @@ class MoveToFolderViewModel @Inject constructor(
         MutableStateFlow(MoveToFolderScreenState.LOADING_CONTENT)
     internal val state = _state.asStateFlow()
 
-    private val _nodes: MutableStateFlow<List<CellNodeUi>> = MutableStateFlow(listOf())
-    internal val nodes = _nodes.asStateFlow()
+    private val _folders: MutableStateFlow<List<CellNodeUi.Folder>> = MutableStateFlow(listOf())
+    internal val folders = _folders.asStateFlow()
 
     private val _actions = Channel<ActionUiEvent>(
         capacity = Channel.BUFFERED,
@@ -79,15 +78,9 @@ class MoveToFolderViewModel @Inject constructor(
 
     fun loadFolders() {
         viewModelScope.launch {
-            getNodesUseCase(currentPath(), ALL_FOLDERS)
-                .onSuccess { nodes ->
-                    val folders = nodes.data.map {
-                        when (it) {
-                            is Node.Folder -> it.toUiModel()
-                            is Node.File -> it.toUiModel()
-                        }
-                    }
-                    _nodes.emit(folders)
+            getFoldersUseCase(currentPath())
+                .onSuccess { folders ->
+                    _folders.emit(folders.map { it.toUiModel() })
                     _state.update { MoveToFolderScreenState.SUCCESS }
                 }
                 .onFailure { _ ->

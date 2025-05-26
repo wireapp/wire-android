@@ -51,7 +51,9 @@ enum class FileAction(
     SHARE(R.string.share_file, R.drawable.ic_share),
     PUBLIC_LINK(R.string.public_link, R.drawable.ic_file_link),
     MOVE(R.string.move_file, R.drawable.ic_folder),
-    DELETE(R.string.delete_file, R.drawable.ic_file_delete, true),
+    RESTORE(R.string.restore_file, R.drawable.ic_restore),
+    DELETE(R.string.delete_file, R.drawable.ic_delete, true),
+    DELETE_PERMANENTLY(R.string.delete_permanently, R.drawable.ic_delete, true),
 }
 
 enum class FolderAction(
@@ -62,5 +64,7 @@ enum class FolderAction(
     SHARE(R.string.share_folder, R.drawable.ic_share),
     MOVE(R.string.move_folder, R.drawable.ic_folder),
     DOWNLOAD(R.string.download_folder, R.drawable.ic_save),
-    DELETE(R.string.delete_folder, R.drawable.ic_file_delete, true)
+    RESTORE(R.string.restore_folder, R.drawable.ic_restore),
+    DELETE(R.string.delete_folder, R.drawable.ic_delete, true),
+    DELETE_PERMANENTLY(R.string.delete_permanently, R.drawable.ic_delete, true),
 }

@@ -142,7 +142,6 @@
     <string name="content_description_calling_turn_camera_off">Désactiver la caméra</string>
     <string name="content_description_calling_turn_speaker_on">Activer le haut-parleur</string>
     <string name="content_description_calling_turn_speaker_off">Désactiver le haut-parleur</string>
-    <string name="content_description_show_more_options">Afficher plus d’options</string>
     <string name="content_description_reply_to_messge">Répondre au message</string>
     <string name="content_description_reply_cancel">Annuler la réponse au message</string>
     <string name="content_description_ping_message">Message Ping</string>

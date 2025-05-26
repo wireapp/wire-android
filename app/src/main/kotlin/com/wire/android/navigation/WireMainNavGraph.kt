@@ -24,6 +24,7 @@ import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlide
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
+import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.ui.NavGraphs
 
@@ -37,6 +38,7 @@ object WireMainNavGraph : NavGraphSpec {
         .plus(ConversationFilesWithSlideInTransitionScreenDestination)
         .plus(CreateFolderScreenDestination)
         .plus(MoveToFolderScreenDestination)
+        .plus(RecycleBinScreenDestination)
     override val destinationsByRoute = destinations.associateBy { it.route }
     override val nestedNavGraphs = NavGraphs.root.nestedNavGraphs
 }

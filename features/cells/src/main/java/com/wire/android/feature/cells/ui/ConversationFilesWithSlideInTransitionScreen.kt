@@ -40,6 +40,7 @@ fun ConversationFilesWithSlideInTransitionScreen(
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
         screenTitle = cellFilesNavArgs.screenTitle,
+        isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,

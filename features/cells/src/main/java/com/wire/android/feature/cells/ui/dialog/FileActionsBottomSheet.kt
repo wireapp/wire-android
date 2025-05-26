@@ -128,6 +128,7 @@ private fun PreviewFileActionsBottomSheet() {
                 actions = listOf(
                     BottomSheetAction.File(FileAction.SHARE),
                     BottomSheetAction.File(FileAction.PUBLIC_LINK),
+                    BottomSheetAction.File(FileAction.MOVE),
                     BottomSheetAction.File(FileAction.DELETE),
                 )
             ),

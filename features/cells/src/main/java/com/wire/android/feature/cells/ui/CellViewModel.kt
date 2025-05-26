@@ -268,6 +268,7 @@ class CellViewModel @Inject constructor(
                         add(BottomSheetAction.File(FileAction.SHARE))
                     }
                     add(BottomSheetAction.File(FileAction.PUBLIC_LINK))
+                    add(BottomSheetAction.File(FileAction.MOVE))
                     add(BottomSheetAction.File(FileAction.DELETE))
                 }
                 MenuOptions.FileMenuOptions(
@@ -299,14 +300,32 @@ class CellViewModel @Inject constructor(
             FileAction.SHARE -> shareFile(file)
             FileAction.PUBLIC_LINK -> sendAction(ShowPublicLinkScreen(file))
             FileAction.DELETE -> sendAction(ShowDeleteConfirmation(file))
+            FileAction.MOVE -> navArgs.conversationId?.let {
+                sendAction(
+                    ShowMoveToFolderScreen(
+                        currentPath = it.substringBefore("/"),
+                        nodeToMovePath = "$it/${file.name}",
+                        uuid = file.uuid
+                    )
+                )
+            }
         }
     }
 
     private fun onMenuFolderAction(folder: CellNodeUi.Folder, action: BottomSheetAction.Folder) {
         when (action.action) {
             FolderAction.SHARE -> sendAction(ShowPublicLinkScreen(folder))
+            FolderAction.MOVE -> navArgs.conversationId?.let {
+                sendAction(
+                    ShowMoveToFolderScreen(
+                        currentPath = it.substringBefore("/"),
+                        nodeToMovePath = "$it/${folder.name}",
+                        uuid = folder.uuid
+                    )
+                )
+            }
+
             FolderAction.DOWNLOAD -> downloadNode(folder)
-            FolderAction.MOVE -> TODO()
             FolderAction.DELETE -> TODO()
         }
     }
@@ -374,6 +393,7 @@ sealed interface CellViewAction
 internal data class ShowDeleteConfirmation(val file: CellNodeUi.File) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
 internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
+internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
 internal data object RefreshData : CellViewAction
 
 internal enum class CellError(val message: Int) {

@@ -195,7 +195,7 @@ class CallNotificationBuilder @Inject constructor(
         val userIdString = data.userId.toString()
         val conversationIdString = data.conversationId.toString()
         val channelId = NotificationConstants.getOutgoingChannelId(data.userId)
-        val person = Person.Builder().setName(data.conversationName).build()
+        val person = Person.Builder().setName(data.conversationName ?: "").build()
 
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
         return notificationBuilder

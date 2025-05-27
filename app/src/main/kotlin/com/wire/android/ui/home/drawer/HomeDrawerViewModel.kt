@@ -26,6 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,8 +35,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeDrawerViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
-    private val observeArchivedUnreadConversationsCountUseCase: ObserveArchivedUnreadConversationsCountUseCase,
-    private val globalDataStore: GlobalDataStore,
+    private val observeArchivedUnreadConversationsCountUseCase: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
+    private val globalDataStore: Lazy<GlobalDataStore>,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var drawerState by mutableStateOf(
@@ -52,14 +53,14 @@ class HomeDrawerViewModel @Inject constructor(
     }
 
     private fun observeWireCellsFeatureState() = viewModelScope.launch {
-        globalDataStore.wireCellsEnabled().collect {
+        globalDataStore.get().wireCellsEnabled().collect {
             drawerState = drawerState.copy(showFilesOption = it)
         }
     }
 
     private fun observeUnreadArchiveConversationsCount() {
         viewModelScope.launch {
-            observeArchivedUnreadConversationsCountUseCase()
+            observeArchivedUnreadConversationsCountUseCase.get().invoke()
                 .collect { drawerState = drawerState.copy(unreadArchiveConversationsCount = it.toInt()) }
         }
     }

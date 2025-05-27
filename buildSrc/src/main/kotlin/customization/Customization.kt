@@ -204,6 +204,9 @@ object Customization {
          */
         CUSTOM_REPOSITORY("CUSTOM_REPOSITORY"),
 
+        /**
+         * The branch of the [CUSTOM_REPOSITORY] to check out.
+         */
         CUSTOM_BRANCH("CUSTOM_BRANCH"),
 
         /**

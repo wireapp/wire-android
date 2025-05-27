@@ -160,7 +160,6 @@
     <string name="content_description_calling_turn_speaker_off">Выключить динамик</string>
     <string name="content_description_calling_in_call_reactions_show">Показать в панели реакций вызова</string>
     <string name="content_description_calling_in_call_reactions_hide">Скрыть в панели реакций вызова</string>
-    <string name="content_description_show_more_options">Показать больше вариантов</string>
     <string name="content_description_reply_to_messge">Ответить на сообщение</string>
     <string name="content_description_reply_cancel">Отменить ответ на сообщение</string>
     <string name="content_description_ping_message">Пинг</string>

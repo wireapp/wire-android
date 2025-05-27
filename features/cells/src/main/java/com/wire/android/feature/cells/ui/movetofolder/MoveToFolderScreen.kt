@@ -43,6 +43,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -95,9 +97,16 @@ fun MoveToFolderScreen(
     moveToFolderViewModel: MoveToFolderViewModel = hiltViewModel()
 ) {
 
+    val isScreenLoading = remember {
+        mutableStateOf(false)
+    }
+
     val lifecycle = LocalLifecycleOwner.current
     val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        moveToFolderViewModel.loadFolders()
+    }
     Box(modifier = Modifier.fillMaxSize()) {
 
         WireScaffold(
@@ -142,6 +151,7 @@ fun MoveToFolderScreen(
                             WirePrimaryButton(
                                 text = stringResource(R.string.move_here),
                                 onClick = {
+                                    isScreenLoading.value = true
                                     moveToFolderViewModel.moveHere()
                                 },
                                 state = WireButtonState.Default,
@@ -153,10 +163,11 @@ fun MoveToFolderScreen(
             }
         ) { innerPadding ->
 
-            val nodes = moveToFolderViewModel.nodes.collectAsState()
+            val folders = moveToFolderViewModel.folders.collectAsState()
             val uiState by moveToFolderViewModel.state.collectAsState()
+
             MoveToFolderScreenContent(
-                nodes = nodes,
+                folders = folders,
                 uiState = uiState,
                 onFolderClick = { folder ->
                     navigator.navigate(
@@ -211,7 +222,7 @@ fun MoveToFolderScreen(
 
 @Composable
 private fun MoveToFolderScreenContent(
-    nodes: State<List<CellNodeUi>>,
+    folders: State<List<CellNodeUi>>,
     uiState: MoveToFolderScreenState,
     onFolderClick: (CellNodeUi.Folder) -> Unit,
     innerPadding: PaddingValues
@@ -220,7 +231,7 @@ private fun MoveToFolderScreenContent(
     if (uiState == MoveToFolderScreenState.LOADING_CONTENT) {
         LoadingScreen()
     } else {
-        if (nodes.value.isEmpty()) {
+        if (folders.value.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -237,7 +248,7 @@ private fun MoveToFolderScreenContent(
                 modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(dimensions().spacing2x)
             ) {
-                nodes.value.forEach { node ->
+                folders.value.forEach { node ->
                     item {
                         RowItem(node) {
                             onFolderClick(it)

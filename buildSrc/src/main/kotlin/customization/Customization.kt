@@ -101,6 +101,7 @@ object Customization {
         val customCheckoutDir = File(rootDir, CUSTOM_CHECKOUT_DIR_NAME)
 
         val customRepository: String = requireCustomizationProperty(CustomizationGitProperty.CUSTOM_REPOSITORY)
+        val customBranch: String = requireCustomizationProperty(CustomizationGitProperty.CUSTOM_BRANCH)
         val customFolder: String = requireCustomizationProperty(CustomizationGitProperty.CUSTOM_FOLDER)
         val clientFolder: String = requireCustomizationProperty(CustomizationGitProperty.CLIENT_FOLDER)
         val gitUser: String = requireCustomizationProperty(CustomizationGitProperty.GIT_USER)
@@ -111,7 +112,12 @@ object Customization {
         }
 
         val credentials = Credentials(gitUser, gitPassword)
-        Grgit.clone(mapOf("dir" to customCheckoutDir, "uri" to customRepository, "credentials" to credentials))
+        Grgit.clone(mapOf(
+            "dir" to customCheckoutDir,
+            "uri" to customRepository,
+            "refToCheckout" to customBranch,
+            "credentials" to credentials
+        ))
 
         return File(customCheckoutDir, "$customFolder/$clientFolder/$CUSTOM_JSON_FILE_NAME")
     }
@@ -143,6 +149,7 @@ object Customization {
 
     enum class CustomizationGitProperty(val variableName: String) {
         CUSTOM_REPOSITORY("CUSTOM_REPOSITORY"),
+        CUSTOM_BRANCH("CUSTOM_BRANCH"),
         CUSTOM_FOLDER("CUSTOM_FOLDER"),
         CLIENT_FOLDER("CLIENT_FOLDER"),
         GIT_USER("GRGIT_USER"),

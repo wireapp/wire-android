@@ -27,7 +27,7 @@ class AccessToken(
     expiresIn: Long
 ) {
     companion object {
-        private val log: Logger = WireTestLogger.getLog(AccessToken::class.java.simpleName)
+        private val log: Logger = WireTestLogger.getLog(AccessToken::class.simpleName.orEmpty())
     }
 
     private val expiresOnDate: LocalDateTime = LocalDateTime.now().plusSeconds(expiresIn - 15)

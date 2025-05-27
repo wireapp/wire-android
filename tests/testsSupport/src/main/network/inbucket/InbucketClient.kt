@@ -27,16 +27,9 @@ import java.net.URL
 object InbucketClient {
 
     // This function fetches the 6-digit verification code from the latest email sent to the given address
-    suspend fun getVerificationCode(email: String): String {
+    suspend fun getVerificationCode(email: String, inbucketUrl:String, password:String, username:String): String {
 
-        // These values are pulled from BuildConfig (injected at build time from env.properties)
-        val backendUrl = BuildConfig.BACKEND_URL
-        val username = BuildConfig.INBUCKET_USERNAME
-        val inbucketUrl = BuildConfig.INBUCKET_URL
-        val password = BuildConfig.INBUCKET_PASSWORD
-
-
-        val url = URL("https://$inbucketUrl/api/v1/mailbox/$email/latest")
+        val url = URL("$inbucketUrl/api/v1/mailbox/$email/latest")
         val loginString = "$username:$password"
         val base64Login = Base64.encodeToString(loginString.toByteArray(), Base64.NO_WRAP)
 

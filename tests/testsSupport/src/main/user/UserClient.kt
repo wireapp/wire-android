@@ -56,7 +56,6 @@ class UserClient {
             val numbers = "0123456789"
             val specials = "!@#$%^&*()"
 
-
             val passwordBuilder = java.lang.StringBuilder()
 
             repeat(5) {
@@ -75,6 +74,69 @@ class UserClient {
         private fun randomCharacterFrom(characters: String): Char {
             return characters[Random.nextInt(characters.length)]
         }
+    }
+}
+
+
+
+object RandomStringGenerator {
+    // Character pools
+    private const val NUMERIC = "0123456789"
+    private const val ALPHABETIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    private const val ALPHANUMERIC = ALPHABETIC + NUMERIC
+    private const val SPECIAL_CHARS = "!@#$%^&*()-_=+[]{}|;:',.<>/?`~"
+    private const val ALL_CHARS = ALPHANUMERIC + SPECIAL_CHARS
+
+    /**
+     * Generates a random numeric string
+     * @param length Desired length of the string
+     * @return String containing random digits
+     */
+    fun randomNumeric(length: Int): String {
+        require(length >= 0) { "Length must be non-negative" }
+        return List(length) { NUMERIC.random() }.joinToString("")
+    }
+
+    /**
+     * Generates a random alphabetic string (upper and lower case)
+     * @param length Desired length of the string
+     * @return String containing random letters
+     */
+    fun randomAlphabetic(length: Int): String {
+        require(length >= 0) { "Length must be non-negative" }
+        return List(length) { ALPHABETIC.random() }.joinToString("")
+    }
+
+    /**
+     * Generates a random alphanumeric string
+     * @param length Desired length of the string
+     * @return String containing random letters and digits
+     */
+    fun randomAlphanumeric(length: Int): String {
+        require(length >= 0) { "Length must be non-negative" }
+        return List(length) { ALPHANUMERIC.random() }.joinToString("")
+    }
+
+    /**
+     * Generates a random string with special characters
+     * @param length Desired length of the string
+     * @return String containing random letters, digits, and special characters
+     */
+    fun randomWithSpecialChars(length: Int): String {
+        require(length >= 0) { "Length must be non-negative" }
+        return List(length) { ALL_CHARS.random() }.joinToString("")
+    }
+
+    /**
+     * Generates a random string from a custom character pool
+     * @param length Desired length of the string
+     * @param charPool Custom set of characters to choose from
+     * @return String containing random characters from the custom pool
+     */
+    fun randomCustom(length: Int, charPool: String): String {
+        require(length >= 0) { "Length must be non-negative" }
+        require(charPool.isNotEmpty()) { "Character pool must not be empty" }
+        return List(length) { charPool.random() }.joinToString("")
     }
 }
 

@@ -19,6 +19,7 @@ package com.wire.android.tests.core.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
+import com.wire.android.testSupport.BuildConfig
 import com.wire.android.tests.core.pages.RegistrationPage
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.suite.Tag
@@ -52,6 +53,8 @@ class RegistrationTest {
       //  UiAutomatorSetup.stopApp()
     }
 
+
+
     @Test
     fun personalUserRegistrationFlow() {
 
@@ -78,9 +81,12 @@ class RegistrationTest {
         registrationPage.verifyStaticPasswordIsCorrect()
         registrationPage.clickHidePasswordEyeIcon()
         registrationPage.clickContinueButton()
-        val otp = runBlocking { InbucketClient.getVerificationCode(userInfo.email) }
+
+        // These values are pulled from BuildConfig (injected at build time from secrets.json)
+        val otp = runBlocking { InbucketClient.getVerificationCode(userInfo.email,BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETURL,BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETPASSWORD,BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETUSERNAME) }
         registrationPage.enter2FAOnCreatePersonalAccountPage(otp)
         registrationPage.assertAccountCreationSuccessMessage()
+        
         registrationPage.clickGetStartedButton()
         registrationPage.assertUserNamePageIsVisible()
         registrationPage.assertEnterYourUserNameInfoText()

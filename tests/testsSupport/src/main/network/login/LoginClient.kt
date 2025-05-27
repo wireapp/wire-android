@@ -28,7 +28,7 @@ class LoginClient {
 
         @Throws(Exception::class)
         fun loginViaAPI(email: String, password: String): String {
-            val backendUrl = BuildConfig.BACKEND_URL
+            val backendUrl = BuildConfig.BACKENDCONNECTION_STAGING_BACKENDURL
 
             print(backendUrl ?: "")
 

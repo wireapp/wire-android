@@ -11,16 +11,15 @@ android {
         }
     }
 }
+    dependencies {
+        val composeBom = platform(libs.compose.bom)
+        implementation(composeBom)
+        implementation(libs.compose.ui)
+        implementation("net.datafaker:datafaker:2.4.1")
+        androidTestImplementation(libs.androidx.test.runner)
+        androidTestImplementation(libs.androidx.test.extJunit)
+        androidTestImplementation(libs.androidx.espresso.core)
+        androidTestImplementation(libs.androidx.test.uiAutomator)
+        androidTestImplementation(project(":tests:testsSupport"))
+    }
 
-dependencies {
-    val composeBom = platform(libs.compose.bom)
-    implementation(composeBom)
-    implementation(libs.compose.ui)
-    implementation("net.datafaker:datafaker:2.4.2")
-
-    androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation(libs.androidx.test.extJunit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.test.uiAutomator)
-    androidTestImplementation(project(":tests:testsSupport"))
-}

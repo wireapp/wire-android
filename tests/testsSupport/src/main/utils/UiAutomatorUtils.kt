@@ -25,8 +25,6 @@ import androidx.test.uiautomator.UiSelector
 object UiAutomatorUtils {
 
     private const val TIMEOUT_IN_MILLISECONDS = 5000L
-    private const val CLICKABLE_WAIT_POLL_INTERVAL = 250L
-
     /**
      * Waits until the element exists (useful for non-click interactions or assertions).
      */
@@ -65,3 +63,4 @@ object UiAutomatorUtils {
         throw AssertionError("None of the selectors matched any object within $timeout ms")
     }
 }
+

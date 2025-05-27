@@ -20,8 +20,8 @@ package com.wire.android.tests.core.tests
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.tests.core.pages.LoginPage
-import com.wire.android.tests.core.pages.RegistrationPage
 import com.wire.android.tests.support.UiAutomatorSetup
+import junit.framework.TestCase.assertNotNull
 import user.UserClient
 import org.junit.Before
 import org.junit.Test
@@ -41,6 +41,8 @@ class LoginTest {
     fun setUp() {
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
     }
+
+
 
     @Test
     fun openTheAppAndShouldSeeEmailFieldAndLoginWhenValid() {

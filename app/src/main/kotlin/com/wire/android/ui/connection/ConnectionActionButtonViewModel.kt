@@ -26,12 +26,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.di.scopedArgs
 import com.wire.android.di.ViewModelScopedPreview
+import com.wire.android.di.scopedArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
@@ -47,9 +47,15 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -58,20 +64,21 @@ import javax.inject.Inject
 interface ConnectionActionButtonViewModel {
     val infoMessage: SharedFlow<UIText>
         get() = MutableSharedFlow()
+    val actions: Flow<ConnectionButtonAction>
+        get() = MutableSharedFlow()
     fun actionableState(): ConnectionActionState = ConnectionActionState()
     fun onSendConnectionRequest() {}
     fun onCancelConnectionRequest() {}
     fun onAcceptConnectionRequest() {}
-    fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit) {}
+    fun onIgnoreConnectionRequest() {}
     fun onUnblockUser() {}
-    fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {}
     fun onMissingLegalHoldConsentDismissed() {}
-    fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit, onMissingKeyPackages: () -> Unit) {}
+    fun onOpenConversation() {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
-class ConnectionActionButtonViewModelImpl @Inject constructor(
+internal class ConnectionActionButtonViewModelImpl @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
@@ -88,14 +95,23 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
 
     var state: ConnectionActionState by mutableStateOf(ConnectionActionState())
 
+    private val _actions = Channel<ConnectionButtonAction>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    override val actions = _actions
+        .receiveAsFlow()
+        .flowOn(Dispatchers.Main.immediate)
+
     private val _infoMessage = MutableSharedFlow<UIText>()
     override val infoMessage = _infoMessage.asSharedFlow()
 
     override fun actionableState(): ConnectionActionState = state
 
     override fun onSendConnectionRequest() {
+        if (state.isPerformingAction) return
+        state = state.performAction()
         viewModelScope.launch {
-            state = state.performAction()
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Success -> {
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent))
@@ -121,8 +137,9 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
     }
 
     override fun onCancelConnectionRequest() {
+        if (state.isPerformingAction) return
+        state = state.performAction()
         viewModelScope.launch {
-            state = state.performAction()
             when (cancelConnectionRequest(userId)) {
                 is CancelConnectionRequestUseCaseResult.Failure -> {
                     appLogger.e(("Couldn't cancel a connection request to user ${userId.toLogString()}"))
@@ -139,8 +156,9 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
     }
 
     override fun onAcceptConnectionRequest() {
+        if (state.isPerformingAction) return
+        state = state.performAction()
         viewModelScope.launch {
-            state = state.performAction()
             when (acceptConnectionRequest(userId)) {
                 is AcceptConnectionRequestUseCaseResult.Failure -> {
                     appLogger.e(("Couldn't accept a connection request to user ${userId.toLogString()}"))
@@ -156,9 +174,10 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit) {
+    override fun onIgnoreConnectionRequest() {
+        if (state.isPerformingAction) return
+        state = state.performAction()
         viewModelScope.launch {
-            state = state.performAction()
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
                     appLogger.e(("Couldn't ignore a connection request to user ${userId.toLogString()}"))
@@ -167,16 +186,17 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
                 }
 
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
+                    _actions.send(ConnectionRequestIgnored(userName))
                     state = state.finishAction()
-                    onSuccess(userName)
                 }
             }
         }
     }
 
     override fun onUnblockUser() {
+        if (state.isPerformingAction) return
+        state = state.performAction()
         viewModelScope.launch {
-            state = state.performAction()
             when (val result = withContext(dispatchers.io()) { unblockUser(userId) }) {
                 is UnblockUserResult.Failure -> {
                     appLogger.e("Error while unblocking user ${userId.toLogString()} ; Error ${result.coreFailure}")
@@ -192,19 +212,25 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit, onMissingKeyPackages: () -> Unit) {
+    override fun onOpenConversation() {
+        if (state.isPerformingAction) return
+        state = state.performAction()
         viewModelScope.launch {
-            state = state.performAction()
-            when (val result = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }) {
+            val result = withContext(dispatchers.io()) {
+                getOrCreateOneToOneConversation(userId)
+            }
+            when (result) {
                 is CreateConversationResult.Failure -> {
                     appLogger.d(("Couldn't retrieve or create the conversation"))
                     state = state.finishAction()
-                    if (result.coreFailure is CoreFailure.MissingKeyPackages) onMissingKeyPackages()
+                    if (result.coreFailure is CoreFailure.MissingKeyPackages) {
+                        _actions.send(MissingKeyPackages)
+                    }
                 }
 
                 is CreateConversationResult.Success -> {
+                    _actions.send(OpenConversation(result.conversation.id))
                     state = state.finishAction()
-                    onSuccess(result.conversation.id)
                 }
             }
         }
@@ -214,3 +240,8 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         state = state.copy(missingLegalHoldConsentDialogState = MissingLegalHoldConsentDialogState.Hidden)
     }
 }
+
+sealed interface ConnectionButtonAction
+internal data class OpenConversation(val conversationId: ConversationId) : ConnectionButtonAction
+internal data object MissingKeyPackages : ConnectionButtonAction
+internal data class ConnectionRequestIgnored(val userName: String) : ConnectionButtonAction

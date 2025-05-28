@@ -20,7 +20,6 @@ package com.wire.android.util.lifecycle
 
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onFailure
@@ -36,7 +35,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
@@ -53,7 +51,6 @@ import kotlin.time.Duration.Companion.seconds
 class SyncLifecycleManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val migrationManager: MigrationManager
 ) {
 
     private val logger by lazy { appLogger.withFeatureId(SYNC).withTextTag("SyncLifecycleManager") }
@@ -66,11 +63,6 @@ class SyncLifecycleManager @Inject constructor(
         coreLogic.getGlobalScope().sessionRepository.allValidSessionsFlow()
             .filterIsInstance<Either.Right<List<AccountInfo>>>()
             .map { it.value }
-            .combineTransform(migrationManager.isMigrationCompletedFlow()) { accounts, isMigrationCompleted ->
-                if (isMigrationCompleted) {
-                    emit(accounts)
-                }
-            }
             .combine(currentScreenManager.isAppVisibleFlow(), ::Pair)
             .distinctUntilChanged()
             .collectLatest { (accounts, isAppVisible) ->

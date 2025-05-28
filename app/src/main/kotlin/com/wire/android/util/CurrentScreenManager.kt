@@ -43,7 +43,6 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
-import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
@@ -252,7 +251,6 @@ sealed class CurrentScreen {
                 is CreateAccountEmailScreenDestination,
                 is CreateAccountDetailsScreenDestination,
                 is CreateAccountSummaryScreenDestination,
-                is MigrationScreenDestination,
                 is InitialSyncScreenDestination,
                 is E2EIEnrollmentScreenDestination,
                 is E2eiCertificateDetailsScreenDestination,

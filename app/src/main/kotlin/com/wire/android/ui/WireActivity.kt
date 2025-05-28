@@ -89,7 +89,6 @@ import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
-import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
@@ -187,7 +186,6 @@ class WireActivity : AppCompatActivity() {
 
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState()) {
-                InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
                 InitialAppState.NOT_LOGGED_IN -> when (loginTypeSelector.canUseNewLogin()) {
                     true -> NewWelcomeEmptyStartScreenDestination
                     false -> WelcomeScreenDestination

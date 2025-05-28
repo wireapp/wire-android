@@ -155,7 +155,6 @@
     <string name="content_description_calling_turn_speaker_off">Desligar o alto-falante</string>
     <string name="content_description_calling_in_call_reactions_show">Mostrar no painel de reações de chamada</string>
     <string name="content_description_calling_in_call_reactions_hide">Ocultar painel de reações em chamadas</string>
-    <string name="content_description_show_more_options">Mostrar mais opções</string>
     <string name="content_description_reply_to_messge">Responder a mensagem</string>
     <string name="content_description_reply_cancel">Cancelar resposta da mensagem</string>
     <string name="content_description_ping_message">Pingar a mensagem</string>

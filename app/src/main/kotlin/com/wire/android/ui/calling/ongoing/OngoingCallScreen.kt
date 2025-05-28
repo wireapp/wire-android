@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.calling.ongoing
 
@@ -71,14 +72,13 @@ import com.wire.android.ui.calling.controlbuttons.HangUpOngoingButton
 import com.wire.android.ui.calling.controlbuttons.InCallReactionsButton
 import com.wire.android.ui.calling.controlbuttons.MicrophoneButton
 import com.wire.android.ui.calling.controlbuttons.SpeakerButton
-import com.wire.android.ui.calling.model.InCallReaction
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
-import com.wire.android.ui.calling.ongoing.incallreactions.AnimatableReaction
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactionsPanel
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactionsState
+import com.wire.android.ui.calling.ongoing.incallreactions.PreviewInCallReactionState
 import com.wire.android.ui.calling.ongoing.incallreactions.drawInCallReactions
 import com.wire.android.ui.calling.ongoing.incallreactions.rememberInCallReactionsState
 import com.wire.android.ui.calling.ongoing.participantsview.FloatingSelfUserTile
@@ -100,6 +100,9 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
+import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
+import com.wire.android.util.ui.PreviewMultipleThemesForSquare
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -321,6 +324,7 @@ private fun OngoingCallContent(
     participants: PersistentList<UICallParticipant>,
     recentReactions: Map<UserId, String>,
     inPictureInPictureMode: Boolean,
+    initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
     val sheetInitialValue = SheetValue.PartiallyExpanded
     val sheetState = rememberStandardBottomSheetState(
@@ -333,7 +337,7 @@ private fun OngoingCallContent(
 
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
 
-    var showInCallReactionsPanel by remember { mutableStateOf(false) }
+    var showInCallReactionsPanel by remember { mutableStateOf(initialShowInCallReactionsPanel) }
     var showEmojiPicker by remember { mutableStateOf(false) }
     val isConnecting = participants.isEmpty()
 
@@ -359,6 +363,7 @@ private fun OngoingCallContent(
         },
         sheetPeekHeight = if (inPictureInPictureMode) 0.dp else dimensions().defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
+        sheetShadowElevation = dimensions().spacing0x,
         sheetContent = {
             if (!inPictureInPictureMode) {
                 CallingControls(
@@ -394,6 +399,9 @@ private fun OngoingCallContent(
                     .fillMaxSize()
                     .weight(1f)
             ) {
+                LaunchedEffect(this.maxHeight.value) {
+                    inCallReactionsState.updateHeight(this@BoxWithConstraints.maxHeight.value)
+                }
 
                 if (isConnecting) {
                     Column(
@@ -460,6 +468,7 @@ private fun OngoingCallContent(
                                 isInPictureInPictureMode = inPictureInPictureMode,
                                 isOnFrontCamera = callState.isOnFrontCamera,
                                 contentHeight = this@BoxWithConstraints.maxHeight,
+                                contentWidth = this@BoxWithConstraints.maxWidth,
                                 onSelfVideoPreviewCreated = setVideoPreview,
                                 onSelfClearVideoPreview = clearVideoPreview,
                                 requestVideoStreams = requestVideoStreams,
@@ -497,7 +506,8 @@ private fun OngoingCallContent(
             if (showInCallReactionsPanel && !inPictureInPictureMode) {
                 InCallReactionsPanel(
                     onReactionClick = onReactionClick,
-                    onMoreClick = { showEmojiPicker = true }
+                    onMoreClick = { showEmojiPicker = true },
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
             }
 
@@ -642,7 +652,7 @@ private fun AppCompatActivity.observePictureInPictureMode(onChanged: (Boolean) -
 
 @Suppress("EmptyFunctionBlock")
 @Composable
-fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>) {
+fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, inCallReactionsPanelVisible: Boolean = false) {
     OngoingCallContent(
         callState = CallState(
             conversationId = ConversationId("conversationId", "domain"),
@@ -656,10 +666,7 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>) {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         ),
-        inCallReactionsState = object : InCallReactionsState {
-            override fun runAnimation(inCallReaction: InCallReaction) {}
-            override fun getReactions(): List<AnimatableReaction> = emptyList()
-        },
+        inCallReactionsState = PreviewInCallReactionState,
         shouldShowDoubleTapToast = false,
         toggleSpeaker = {},
         toggleMute = {},
@@ -678,25 +685,43 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>) {
         onSelectedParticipant = {},
         selectedParticipantForFullScreen = SelectedParticipant(),
         recentReactions = emptyMap(),
+        initialShowInCallReactionsPanel = inCallReactionsPanelVisible,
     )
+}
+
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
+@PreviewMultipleThemesForSquare
+@Composable
+fun PreviewOngoingCallScreen_2Participants() = WireTheme {
+    PreviewOngoingCallContent(participants = buildPreviewParticipantsList(2))
+}
+
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
+@Composable
+fun PreviewOngoingCallScreen_8Participants() = WireTheme {
+    PreviewOngoingCallContent(participants = buildPreviewParticipantsList(8))
+}
+
+@PreviewMultipleThemesForSquare
+@Composable
+fun PreviewOngoingCallScreen_9Participants() = WireTheme {
+    PreviewOngoingCallContent(participants = buildPreviewParticipantsList(9))
+}
+
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
+@PreviewMultipleThemesForSquare
+@Composable
+fun PreviewOngoingCallScreen_WithInCallReactionsPanel() = WireTheme {
+    PreviewOngoingCallContent(participants = buildPreviewParticipantsList(2), inCallReactionsPanelVisible = true)
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallScreenConnecting() = WireTheme {
     PreviewOngoingCallContent(participants = persistentListOf())
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewOngoingCallScreen_2Participants() = WireTheme {
-    PreviewOngoingCallContent(participants = buildPreviewParticipantsList(2))
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewOngoingCallScreen_8Participants() = WireTheme {
-    PreviewOngoingCallContent(participants = buildPreviewParticipantsList(8))
 }
 
 @PreviewMultipleThemes

@@ -31,4 +31,5 @@
     <string name="content_description_drop_down_icon">Drop down arrow</string>
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
     <string name="content_description_alert">Alert</string>
+    <string name="content_description_show_more_options">Show more options</string>
 </resources>

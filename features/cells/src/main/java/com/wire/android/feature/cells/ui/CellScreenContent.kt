@@ -45,6 +45,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.FileActionsBottomSheet
 import com.wire.android.feature.cells.ui.dialog.FolderActionsBottomSheet
+import com.wire.android.feature.cells.ui.dialog.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -71,7 +72,8 @@ internal fun CellScreenContent(
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
 
-    var deleteConfirmation by remember { mutableStateOf<CellNodeUi.File?>(null) }
+    var deleteConfirmation by remember { mutableStateOf<Pair<CellNodeUi, Boolean>?>((null)) }
+    var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
     val downloadFile by downloadFileState.collectAsState()
@@ -135,14 +137,31 @@ internal fun CellScreenContent(
         )
     }
 
-    deleteConfirmation?.let {
+    deleteConfirmation?.let { (node, isPermanentDelete) ->
         DeleteConfirmationDialog(
+            itemName = node.name ?: "",
+            isFolder = node is CellNodeUi.Folder,
+            isPermanentDelete = isPermanentDelete,
             onConfirm = {
-                sendIntent(CellViewIntent.OnFileDeleteConfirmed(it))
+                sendIntent(CellViewIntent.OnNodeDeleteConfirmed(node))
                 deleteConfirmation = null
             },
             onDismiss = {
                 deleteConfirmation = null
+            }
+        )
+    }
+
+    restoreConfirmation?.let {
+        RestoreConfirmationDialog(
+            itemName = it.name ?: "",
+            isFolder = it is CellNodeUi.Folder,
+            onConfirm = {
+                sendIntent(CellViewIntent.OnNodeRestoreConfirmed(it))
+                restoreConfirmation = null
+            },
+            onDismiss = {
+                restoreConfirmation = null
             }
         )
     }
@@ -152,7 +171,8 @@ internal fun CellScreenContent(
             actionsFlow.collect { action ->
                 when (action) {
                     is ShowError -> Toast.makeText(context, action.error.message, Toast.LENGTH_SHORT).show()
-                    is ShowDeleteConfirmation -> deleteConfirmation = action.file
+                    is ShowDeleteConfirmation -> deleteConfirmation = action.node to action.isPermanentDelete
+                    is ShowRestoreConfirmation -> restoreConfirmation = action.node
                     is ShowPublicLinkScreen -> showPublicLinkScreen(
                         PublicLinkScreenData(
                             assetId = action.cellNode.uuid,

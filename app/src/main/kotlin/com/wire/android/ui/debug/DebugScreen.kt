@@ -55,6 +55,13 @@ import com.wire.android.util.saveFileToDownloadsFolder
 import com.wire.kalium.logic.data.user.UserId
 import okio.Path.Companion.toPath
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 @RootNavGraph
 @WireDestination
@@ -156,24 +163,57 @@ data class DebugContentState(
     }
 
     fun saveLogsLocally() {
-        val dir = File(logPath).parentFile
-        val logFiles = dir?.listFiles() ?: return
+        val dir = File(logPath).parentFile ?: return
+        val logFiles = dir.listFiles() ?: return
         
-        for (file in logFiles) {
-            try {
-                saveFileToDownloadsFolder(file.name, file.absolutePath.toPath(), file.length(), context)
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.label_file_saved_to_device),
-                    Toast.LENGTH_SHORT
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(
-                    context,
-                    "Failed to save ${file.name}",
-                    Toast.LENGTH_SHORT
-                ).show()
+        if (logFiles.isEmpty()) {
+            Toast.makeText(
+                context,
+                "No log files found",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        
+        try {
+            // Create a temporary zip file
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
+            val timestamp = dateFormat.format(Date())
+            val zipFileName = "wire_logs_$timestamp.zip"
+            val tempZipFile = File(context.cacheDir, zipFileName)
+            
+            // Create the zip file
+            ZipOutputStream(FileOutputStream(tempZipFile)).use { zipOut ->
+                for (file in logFiles) {
+                    if (file.isFile) {
+                        FileInputStream(file).use { fileIn ->
+                            val zipEntry = ZipEntry(file.name)
+                            zipOut.putNextEntry(zipEntry)
+                            fileIn.copyTo(zipOut)
+                            zipOut.closeEntry()
+                        }
+                    }
+                }
             }
+            
+            // Save the zip file to Downloads
+            saveFileToDownloadsFolder(zipFileName, tempZipFile.absolutePath.toPath(), tempZipFile.length(), context)
+            
+            // Clean up temporary file
+            tempZipFile.delete()
+            
+            Toast.makeText(
+                context,
+                context.getString(R.string.label_file_saved_to_device),
+                Toast.LENGTH_SHORT
+            ).show()
+            
+        } catch (e: Exception) {
+            Toast.makeText(
+                context,
+                "Failed to save logs: ${e.message}",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }

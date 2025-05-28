@@ -51,7 +51,9 @@ import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
+import com.wire.android.util.saveFileToDownloadsFolder
 import com.wire.kalium.logic.data.user.UserId
+import okio.Path.Companion.toPath
 import java.io.File
 
 @RootNavGraph
@@ -71,7 +73,6 @@ private fun UserDebugContent(
     onNavigationPressed: () -> Unit,
     onManualMigrationPressed: (currentAccount: UserId) -> Unit,
     userDebugViewModel: UserDebugViewModel = hiltViewModel(),
-
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(userDebugViewModel.logPath)
 
@@ -97,6 +98,7 @@ private fun UserDebugContent(
                     onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
                     onDeleteLogs = userDebugViewModel::deleteLogs,
                     onShareLogs = debugContentState::shareLogs,
+                    onSaveLogsLocally = debugContentState::saveLogsLocally
                 )
                 DebugDataOptions(
                     appVersion = BuildConfig.VERSION_NAME,
@@ -141,7 +143,7 @@ data class DebugContentState(
     }
 
     fun shareLogs() {
-        val dir = File(logPath).parentFile
+        val dir = File(logPath).parentFile ?: return
         val fileUris = context.getUrisOfFilesInDirectory(dir)
         val intent = context.multipleFileSharingIntent(fileUris)
         // The first log file is simply text, not compressed. Get its mime type separately
@@ -151,5 +153,27 @@ data class DebugContentState(
         val mimeTypes = fileUris.drop(1).mapNotNull { it.getMimeType(context) }
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toSet().toTypedArray())
         context.startActivity(intent)
+    }
+
+    fun saveLogsLocally() {
+        val dir = File(logPath).parentFile
+        val logFiles = dir?.listFiles() ?: return
+        
+        for (file in logFiles) {
+            try {
+                saveFileToDownloadsFolder(file.name, file.absolutePath.toPath(), file.length(), context)
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.label_file_saved_to_device),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } catch (e: Exception) {
+                Toast.makeText(
+                    context,
+                    "Failed to save ${file.name}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 }

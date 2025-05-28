@@ -85,6 +85,10 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.debug.DebugContentState
+import com.wire.android.ui.debug.LogOptions
+import com.wire.android.ui.debug.UserDebugViewModel
+import com.wire.android.ui.debug.rememberDebugContentState
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
@@ -108,14 +112,16 @@ import kotlinx.coroutines.flow.scan
 @Composable
 fun WelcomeScreen(
     navigator: Navigator,
-    viewModel: WelcomeViewModel = hiltViewModel()
+    viewModel: WelcomeViewModel = hiltViewModel(),
+    debugViewModel: UserDebugViewModel = hiltViewModel()
 ) {
     WelcomeContent(
-        viewModel.state.isThereActiveSession,
-        viewModel.state.maxAccountsReached,
-        viewModel.state.links,
-        navigator::navigateBack,
-        navigator::navigate
+        isThereActiveSession = viewModel.state.isThereActiveSession,
+        maxAccountsReached = viewModel.state.maxAccountsReached,
+        state = viewModel.state.links,
+        navigateBack = navigator::navigateBack,
+        navigate = navigator::navigate,
+        debugViewModel = debugViewModel
     )
 }
 
@@ -126,11 +132,15 @@ private fun WelcomeContent(
     maxAccountsReached: Boolean,
     state: ServerConfig.Links,
     navigateBack: () -> Unit,
-    navigate: (NavigationCommand) -> Unit
+    navigate: (NavigationCommand) -> Unit,
+    debugViewModel: UserDebugViewModel,
 ) {
     val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val context = LocalContext.current
+
+    val debugContentState: DebugContentState = rememberDebugContentState(debugViewModel.logPath)
+
     WireScaffold(topBar = {
         if (isThereActiveSession) {
             WireCenterAlignedTopAppBar(
@@ -218,6 +228,15 @@ private fun WelcomeContent(
                     }
                 )
             }
+            
+            // Add debug log options at the bottom if logging is enabled
+                LogOptions(
+                    isLoggingEnabled = debugViewModel.state.isLoggingEnabled,
+                    onLoggingEnabledChange = debugViewModel::setLoggingEnabledState,
+                    onDeleteLogs = debugViewModel::deleteLogs,
+                    onShareLogs = debugContentState::shareLogs,
+                    onSaveLogsLocally = debugContentState::saveLogsLocally
+                )
         }
     }
 }
@@ -392,7 +411,9 @@ fun PreviewWelcomeScreen() {
             maxAccountsReached = false,
             state = ServerConfig.DEFAULT,
             navigateBack = {},
-            navigate = {})
+            navigate = {},
+            debugViewModel = hiltViewModel()
+        )
     }
 }
 

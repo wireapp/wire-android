@@ -50,7 +50,8 @@ fun LogOptions(
     isLoggingEnabled: Boolean,
     onLoggingEnabledChange: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
-    onShareLogs: () -> Unit
+    onShareLogs: () -> Unit,
+    onSaveLogsLocally: () -> Unit
 ) {
     Column {
         FolderHeader(stringResource(R.string.label_logs_option_title))
@@ -65,6 +66,15 @@ fun LogOptions(
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = onShareLogs
+                )
+            )
+
+            SettingsItem(
+                text = stringResource(R.string.label_save_logs_locally),
+                trailingIcon = R.drawable.ic_folder,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = onSaveLogsLocally
                 )
             )
 
@@ -129,6 +139,7 @@ fun PreviewLoggingOptions() {
         isLoggingEnabled = true,
         onLoggingEnabledChange = {},
         onDeleteLogs = {},
-        onShareLogs = {}
+        onShareLogs = {},
+        onSaveLogsLocally = {}
     )
 }

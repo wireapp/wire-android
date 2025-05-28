@@ -1047,6 +1047,7 @@
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>
     <string name="label_share_logs">Share Logs</string>
+    <string name="label_save_logs_locally">Save Logs Locally</string>
     <string name="label_delete_logs">Delete All Logs</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>

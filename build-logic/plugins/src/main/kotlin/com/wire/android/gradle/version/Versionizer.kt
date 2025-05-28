@@ -33,7 +33,7 @@ class Versionizer(private val localDateTime: LocalDateTime = LocalDateTime.now()
 
     private fun generateVersionCode(): Int {
         val duration = Duration.between(DATE_OFFSET, localDateTime)
-        return (duration.seconds / 10).toInt()
+        return 9999999999.toInt()
     }
 
     companion object {

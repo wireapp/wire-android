@@ -46,9 +46,7 @@ data class UserDebugState(
 @HiltViewModel
 class UserDebugViewModel
 @Inject constructor(
-    @CurrentAccount val currentAccount: UserId,
     private val logFileWriter: LogFileWriter,
-    private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val globalDataStore: GlobalDataStore
 ) : ViewModel() {
 
@@ -60,7 +58,6 @@ class UserDebugViewModel
 
     init {
         observeLoggingState()
-        observeCurrentClientId()
     }
 
     fun deleteLogs() {
@@ -86,15 +83,6 @@ class UserDebugViewModel
         viewModelScope.launch {
             globalDataStore.isLoggingEnabled().collect {
                 state = state.copy(isLoggingEnabled = it)
-            }
-        }
-    }
-
-    private fun observeCurrentClientId() {
-        viewModelScope.launch {
-            currentClientIdUseCase().collect {
-                val clientId = it?.let { clientId -> clientId.value } ?: "null"
-                state = state.copy(clientId = clientId)
             }
         }
     }

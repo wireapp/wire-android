@@ -111,30 +111,6 @@ internal fun CellScreenContent(
                 sendIntent(CellViewIntent.OnMenuItemActionSelected(menuOptions.node, action))
             }
         )
-//        when (menuOptions) {
-//
-//            is MenuOptions.FileMenuOptions -> {
-//                FileActionsBottomSheet(
-//                    menuOptions = menuOptions,
-//                    onDismiss = { menu = null },
-//                    onAction = { action ->
-//                        menu = null
-//                        sendIntent(CellViewIntent.OnMenuFileActionSelected(menuOptions.cellNodeUi, action))
-//                    }
-//                )
-//            }
-//
-//            is MenuOptions.FolderMenuOptions -> {
-//                FolderActionsBottomSheet(
-//                    menuOptions = menuOptions,
-//                    onDismiss = { menu = null },
-//                    onAction = { action ->
-//                        menu = null
-//                        sendIntent(CellViewIntent.OnMenuFolderActionSelected(menuOptions.cellNodeUi, action))
-//                    }
-//                )
-//            }
-//        }
     }
 
     downloadFile?.let { file ->
@@ -189,6 +165,7 @@ internal fun CellScreenContent(
                             isFolder = action.cellNode is CellNodeUi.Folder
                         )
                     )
+
                     is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
                     is RefreshData -> pagingListItems.refresh()
                 }

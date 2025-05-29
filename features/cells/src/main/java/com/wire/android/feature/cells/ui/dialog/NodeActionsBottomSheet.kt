@@ -94,7 +94,11 @@ private fun SheetContent(
             } else {
                 Image(
                     modifier = Modifier
-                        .size(dimensions().spacing28x),
+                        .padding(
+                            start = dimensions().spacing8x,
+                            end = dimensions().spacing8x
+                        )
+                        .size(dimensions().spacing32x),
                     painter = painterResource(R.drawable.ic_folder_item),
                     contentDescription = null,
                 )

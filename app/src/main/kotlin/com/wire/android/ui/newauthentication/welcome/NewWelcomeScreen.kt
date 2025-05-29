@@ -29,7 +29,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthNoNavigationAnimation
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination

@@ -40,7 +40,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled

@@ -73,13 +73,7 @@ fun DeleteConfirmationDialog(
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onConfirm,
-            text = stringResource(
-                id = if (isFolder) {
-                    R.string.delete_folder
-                } else {
-                    R.string.delete_file
-                }
-            ),
+            text = stringResource(id = R.string.delete_label),
             type = WireDialogButtonType.Primary,
             state = WireButtonState.Error
         ),

@@ -166,7 +166,7 @@ private fun EnableLinkSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                text = stringResource(R.string.enable_public_link),
+                text = stringResource(R.string.create_public_link),
                 style = typography().body02
             )
             WireSwitch(

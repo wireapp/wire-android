@@ -19,52 +19,17 @@ package com.wire.android.feature.cells.ui.model
 
 import com.wire.android.feature.cells.R
 
-interface BottomSheetActionData {
-    val title: Int
-    val icon: Int
-    val isHighlighted: Boolean
-}
-
-sealed class BottomSheetAction {
-
-    data class File(
-        val action: FileAction,
-    ) : BottomSheetAction()
-
-    data class Folder(
-        val action: FolderAction,
-    ) : BottomSheetAction()
-
-    val data: BottomSheetActionData
-        get() = when (this) {
-            is File -> action
-            is Folder -> action
-        }
-}
-
-enum class FileAction(
-    override val title: Int,
-    override val icon: Int,
-    override val isHighlighted: Boolean = false
-) : BottomSheetActionData {
-    SAVE(R.string.save_file, R.drawable.ic_save),
-    SHARE(R.string.share_file, R.drawable.ic_share),
+enum class NodeBottomSheetAction(
+    val title: Int,
+    val icon: Int,
+    val isHighlighted: Boolean = false
+) {
+    SAVE(R.string.save_label, R.drawable.ic_save),
+    SHARE(R.string.share_label, R.drawable.ic_share),
     PUBLIC_LINK(R.string.public_link, R.drawable.ic_file_link),
-    MOVE(R.string.move_file, R.drawable.ic_folder),
-    RESTORE(R.string.restore_file, R.drawable.ic_restore),
-    DELETE(R.string.delete_file, R.drawable.ic_delete, true),
-    DELETE_PERMANENTLY(R.string.delete_permanently, R.drawable.ic_delete, true),
-}
-
-enum class FolderAction(
-    override val title: Int,
-    override val icon: Int,
-    override val isHighlighted: Boolean = false
-) : BottomSheetActionData {
-    SHARE(R.string.share_folder, R.drawable.ic_share),
-    MOVE(R.string.move_folder, R.drawable.ic_folder),
-    DOWNLOAD(R.string.download_folder, R.drawable.ic_save),
-    RESTORE(R.string.restore_folder, R.drawable.ic_restore),
-    DELETE(R.string.delete_folder, R.drawable.ic_delete, true),
+    MOVE(R.string.move_label, R.drawable.ic_folder),
+    DOWNLOAD(R.string.download_label, R.drawable.ic_save),
+    RESTORE(R.string.restore_label, R.drawable.ic_restore),
+    DELETE(R.string.delete_label, R.drawable.ic_delete, true),
     DELETE_PERMANENTLY(R.string.delete_permanently, R.drawable.ic_delete, true),
 }

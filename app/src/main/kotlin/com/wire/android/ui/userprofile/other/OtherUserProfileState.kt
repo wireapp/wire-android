@@ -47,7 +47,7 @@ data class OtherUserProfileState(
     val groupState: OtherUserProfileGroupState? = null,
     val botService: BotService? = null,
     val conversationSheetContent: ConversationSheetContent? = null,
-    val otherUserDevices: List<Device> = listOf(),
+    val otherUserDevices: List<Device>? = null,
     val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED,
     val isProteusVerified: Boolean = false,
     val isMLSVerified: Boolean = false,

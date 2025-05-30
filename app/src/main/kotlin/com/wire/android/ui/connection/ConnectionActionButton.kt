@@ -26,11 +26,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.ClickBlockParams
@@ -75,6 +79,8 @@ fun ConnectionActionButton(
             ConnectionActionButtonArgs(userId, userName)
         ),
 ) {
+    val lifecycle = LocalLifecycleOwner.current
+
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val unableStartConversationDialogState = rememberVisibilityState<UnableStartConversationDialogState>()
@@ -110,11 +116,7 @@ fun ConnectionActionButton(
             ConnectionState.ACCEPTED -> WirePrimaryButton(
                 text = stringResource(if (isConversationStarted) R.string.label_open_conversation else R.string.label_start_conversation),
                 loading = viewModel.actionableState().isPerformingAction,
-                onClick = {
-                    viewModel.onOpenConversation(onOpenConversation) {
-                        unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
-                    }
-                },
+                onClick = viewModel::onOpenConversation,
                 modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
 
@@ -153,11 +155,7 @@ fun ConnectionActionButton(
                     text = stringResource(R.string.connection_label_ignore),
                     loading = viewModel.actionableState().isPerformingAction,
                     state = WireButtonState.Error,
-                    onClick = {
-                        viewModel.onIgnoreConnectionRequest {
-                            onConnectionRequestIgnored(it)
-                        }
-                    },
+                    onClick = viewModel::onIgnoreConnectionRequest,
                     clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                     leadingIcon = {
                         Icon(
@@ -203,6 +201,17 @@ fun ConnectionActionButton(
                 },
                 modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
+        }
+    }
+    LaunchedEffect(Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.actions.collect { action ->
+                when (action) {
+                    is OpenConversation -> onOpenConversation(action.conversationId)
+                    is ConnectionRequestIgnored -> onConnectionRequestIgnored(action.userName)
+                    is MissingKeyPackages -> unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
+                }
+            }
         }
     }
 }

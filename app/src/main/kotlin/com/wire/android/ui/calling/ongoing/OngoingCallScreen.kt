@@ -299,7 +299,6 @@ private fun HandleSendingVideoFeed(
     }
 }
 
-
 @Suppress("CyclomaticComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

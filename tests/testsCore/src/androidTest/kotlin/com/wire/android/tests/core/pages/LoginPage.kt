@@ -23,7 +23,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject
 import androidx.test.uiautomator.UiSelector
-import com.wire.android.tests.support.TIMEOUT_IN_MILLISECONDS
+//import com.wire.android.tests.support.TIMEOUT_IN_MILLISECONDS
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiAutomatorUtils
 

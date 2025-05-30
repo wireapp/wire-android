@@ -17,23 +17,19 @@
  */
 package com.wire.android.tests.core.tests
 
-import android.content.Intent
-import android.net.Uri
+import Backend
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import com.wire.android.testSupport.BuildConfig
+import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.pages.ConversationPage
 import com.wire.android.tests.core.pages.LoginPage
 import com.wire.android.tests.core.pages.RegistrationPage
 import com.wire.android.tests.core.pages.SettingsPage
-import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.suite.Tag
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import user.UserClient
 import user.utils.ClientUser
 
 

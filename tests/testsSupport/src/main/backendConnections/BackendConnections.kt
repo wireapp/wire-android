@@ -1,16 +1,24 @@
-import java.util.logging.Logger
-import user.utils.BasicAuth
-import java.net.*
-import javax.net.ssl.TrustManager
-import androidx.test.platform.app.InstrumentationRegistry
+
 import com.wire.android.testSupport.BuildConfig
 import logger.WireTestLogger
 import network.BackendClient
 import org.json.JSONObject
 import user.utils.AccessCookie
+import user.utils.BasicAuth
 import user.utils.ClientUser
+import java.net.Authenticator
+import java.net.HttpCookie
+import java.net.HttpURLConnection
+import java.net.InetSocketAddress
+import java.net.PasswordAuthentication
+import java.net.Proxy
+import java.net.URL
+import java.net.URLEncoder
+import java.util.logging.Logger
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
-import javax.net.ssl.*
 
 class Backend(
     val name: String,
@@ -253,5 +261,10 @@ class Backend(
 
         return "Email Registered"
     }
+
+    fun String.composeCompleteUrl() : String{
+        return "${backendUrl}$this"
+    }
+
 
 }

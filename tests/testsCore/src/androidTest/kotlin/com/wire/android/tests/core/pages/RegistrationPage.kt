@@ -232,7 +232,7 @@ data class RegistrationPage(private val device: UiDevice) {
 
     fun clickAllowNotificationButton(): RegistrationPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.findObject(UiSelector().resourceId("com.android.permissioncontroller:id/permission_allow_button")).click()
+        device.findObject(UiSelector().text("Allow")).click()
         return this
     }
 

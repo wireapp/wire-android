@@ -19,10 +19,7 @@ package com.wire.android.tests.core.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
-import com.wire.android.tests.core.pages.LoginPage
-import com.wire.android.tests.support.UiAutomatorSetup
-import junit.framework.TestCase.assertNotNull
-import user.UserClient
+import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

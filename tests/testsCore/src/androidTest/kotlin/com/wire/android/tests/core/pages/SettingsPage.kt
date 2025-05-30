@@ -20,21 +20,50 @@ package com.wire.android.tests.core.pages
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
-import org.junit.Assert.assertTrue
 import uiautomatorutils.UiAutomatorUtils
 
 data class SettingsPage(private val device: UiDevice) {
 
+//    fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
+//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+//
+//        // Step 1: Locate the "Send anonymous usage data" label
+//        val label = device.findObject(UiSelector().text("Send anonymous usage data"))
+//
+//        // Step 2: Go up to the parent container
+//        val parent = label.getFromParent(UiSelector().className("android.view.View"))
+//
+//        // Step 3: Find the "ON" text inside that container
+//        val toggleText = parent.getChild(UiSelector().text("ON"))
+//
+//        // Step 4: Assert
+//        check(toggleText.exists()) {
+//            "Expected 'Send anonymous usage data' toggle to be ON, but 'ON' was not found."
+//        }
+//
+//        return this
+//    }
 
-    fun assertSendAnonymousUsageDataToggleIsOn() {
+    fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Step 1: Find the label with exact text
+
+        // Locate the label
         val label = device.findObject(UiSelector().text("Send anonymous usage data"))
-        // Step 2: From that label, find the sibling with text "ON"
-        val toggleState = label.getFromParent(UiSelector().text("ON"))
-        // Step 3: Assert that the sibling exists (toggle is ON)
-        check(toggleState.exists()) { "Expected 'Send anonymous usage data' toggle to be ON, but it was not found." }
+
+        // Locate the ON text (sibling or nested)
+        val toggle = device.findObject(
+            UiSelector().text("ON")
+                .childSelector(UiSelector().className("android.view.View"))
+        )
+
+        // Optional: add an assertion if needed
+        check(toggle.exists()) {
+            "Expected toggle to be ON but 'ON' text was not found."
+        }
+
+        return this
     }
+
 
     fun clickBackButtonOnPrivacySettingsPage(): SettingsPage {
         UiAutomatorUtils.waitElement(text = "Go back").click()

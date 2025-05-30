@@ -46,6 +46,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -268,17 +269,15 @@ private fun HandleSendingVideoFeed(
 ) {
     // Pause the video feed when the lifecycle is paused and resume it when the lifecycle is resumed.
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+    val currentCallState by rememberUpdatedState(callState)
     DisposableEffect(lifecycleOwner) {
-
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE && callState.callStatus == CallStatus.ESTABLISHED && callState.isCameraOn) {
-                pauseSendingVideoFeed()
-            }
-            if (event == Lifecycle.Event.ON_RESUME && callState.callStatus == CallStatus.ESTABLISHED && callState.isCameraOn) {
-                startSendingVideoFeed()
-            }
-            if (event == Lifecycle.Event.ON_DESTROY) {
-                clearVideoPreview()
+            with(currentCallState) {
+                when {
+                    event == Lifecycle.Event.ON_PAUSE && callStatus == CallStatus.ESTABLISHED && isCameraOn -> pauseSendingVideoFeed()
+                    event == Lifecycle.Event.ON_RESUME && callStatus == CallStatus.ESTABLISHED && isCameraOn -> startSendingVideoFeed()
+                    event == Lifecycle.Event.ON_DESTROY -> clearVideoPreview()
+                }
             }
         }
 
@@ -299,6 +298,7 @@ private fun HandleSendingVideoFeed(
         }
     }
 }
+
 
 @Suppress("CyclomaticComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class)

@@ -99,6 +99,7 @@ internal class MessageComposerViewModelArrangement {
             currentSessionFlowUseCase()
         } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
         coEvery { globalDataStore.enterToSendFlow() } returns flowOf(false)
+        coEvery { observeEstablishedCalls() } returns emptyFlow()
     }
 
     @MockK
@@ -149,6 +150,9 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var globalDataStore: GlobalDataStore
 
+    @MockK
+    lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -167,6 +171,7 @@ internal class MessageComposerViewModelArrangement {
             kaliumFileSystem = fakeKaliumFileSystem,
             fileManager = fileManager,
             currentSessionFlowUseCase = currentSessionFlowUseCase,
+            observeEstablishedCalls = observeEstablishedCalls,
             globalDataStore = globalDataStore,
         )
     }

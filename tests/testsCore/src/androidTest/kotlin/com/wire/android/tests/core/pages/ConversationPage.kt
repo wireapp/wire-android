@@ -15,13 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.support.suite
+package com.wire.android.tests.core.pages
 
-/**
- * Suite for running scoped tests for release candidate.
- */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class Tag(vararg val value: String)
+import androidx.test.uiautomator.UiDevice
+import uiautomatorutils.UiAutomatorUtils
 
-//annotation class RC
+
+data class ConversationPage(private val device: UiDevice) {
+
+
+    fun clickMainMenuButtonOnConversationVeiwPage(): ConversationPage {
+        UiAutomatorUtils.waitElement(description = "Main navigation").click()
+        return this
+    }
+
+    fun clickSettingsButtonOnMenuEntry(): ConversationPage {
+        UiAutomatorUtils.waitElement(text = "Settings").click()
+        return this
+    }
+
+}

@@ -52,7 +52,7 @@ internal fun CellsOptionsBottomSheet(
             menuItems = buildList {
                 add {
                     ShowRecycleBinItem(
-                        title = stringResource(R.string.show_recycle_bin),
+                        title = stringResource(R.string.open_recycle_bin),
                         onClicked = showRecycleBin,
                         enabled = true
                     )

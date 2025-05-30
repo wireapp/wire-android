@@ -43,8 +43,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
-import com.wire.android.feature.cells.ui.dialog.FileActionsBottomSheet
-import com.wire.android.feature.cells.ui.dialog.FolderActionsBottomSheet
+import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
 import com.wire.android.feature.cells.ui.dialog.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -104,29 +103,14 @@ internal fun CellScreenContent(
     }
 
     menu?.let { menuOptions ->
-        when (menuOptions) {
-            is MenuOptions.FileMenuOptions -> {
-                FileActionsBottomSheet(
-                    menuOptions = menuOptions,
-                    onDismiss = { menu = null },
-                    onAction = { action ->
-                        menu = null
-                        sendIntent(CellViewIntent.OnMenuFileActionSelected(menuOptions.cellNodeUi, action))
-                    }
-                )
+        NodeActionsBottomSheet(
+            menuOptions = menuOptions,
+            onDismiss = { menu = null },
+            onAction = { action ->
+                menu = null
+                sendIntent(CellViewIntent.OnMenuItemActionSelected(menuOptions.node, action))
             }
-
-            is MenuOptions.FolderMenuOptions -> {
-                FolderActionsBottomSheet(
-                    menuOptions = menuOptions,
-                    onDismiss = { menu = null },
-                    onAction = { action ->
-                        menu = null
-                        sendIntent(CellViewIntent.OnMenuFolderActionSelected(menuOptions.cellNodeUi, action))
-                    }
-                )
-            }
-        }
+        )
     }
 
     downloadFile?.let { file ->
@@ -181,6 +165,7 @@ internal fun CellScreenContent(
                             isFolder = action.cellNode is CellNodeUi.Folder
                         )
                     )
+
                     is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
                     is RefreshData -> pagingListItems.refresh()
                 }

@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.tests
 
+
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.testSupport.BuildConfig
@@ -29,6 +30,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import user.UserClient
+import user.utils.ClientUser
 
 /*
 This test works on the following conditions:
@@ -37,14 +39,13 @@ This test works on the following conditions:
 @RunWith(AndroidJUnit4::class)
 @Tag("RC", "regression", "@TC-8694", "@registration")
 //@RC
-class RegistrationTest {
+class PersonalUserRegistrationTest {
     private lateinit var device: UiDevice
 
     @Before
     fun setUp() {
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGGING)
-
     }
 
     @After
@@ -54,15 +55,14 @@ class RegistrationTest {
     }
 
 
-
     @Test
     fun personalUserRegistrationFlow() {
-
         val registrationPage = RegistrationPage(device)
         val userInfo = UserClient.generateUniqueUserInfo()
 
+
         registrationPage.assertEmailWelcomePage()
-        registrationPage.loginWithEmail(userInfo.email)
+        registrationPage.enterPersonalUserRegistrationEmail(userInfo.email)
         registrationPage.assertAndClickLoginButton()
         registrationPage.clickCreateAccountButton()
         registrationPage.clickContinueButton()
@@ -71,32 +71,32 @@ class RegistrationTest {
         registrationPage.assertTermsOfUseModalVisible()  // Asserts all elements
         registrationPage.clickContinueButton()
         registrationPage.assertAndClickContinueButtonOnCreatePersonalAccountPage()
-        registrationPage.enterPersonalDetails(
-            firstName = userInfo.firstName,
-            lastName = userInfo.lastName,
-            password = userInfo.staticPassword,
-            confirmPassword = userInfo.staticPassword
-        )
+        registrationPage.enterFirstName(userInfo.firstName)
+        registrationPage.enterLastName(userInfo.lastName)
+        registrationPage.enterPassword(userInfo.staticPassword)
+        registrationPage.enterConfirmPassword(userInfo.staticPassword)
         registrationPage.clickShowPasswordEyeIcon()
         registrationPage.verifyStaticPasswordIsCorrect()
         registrationPage.clickHidePasswordEyeIcon()
         registrationPage.clickContinueButton()
 
-        // These values are pulled from BuildConfig (injected at build time from secrets.json)
+        // These values are pulled from BuildConfig injected from secrets.json)
         val otp = runBlocking { InbucketClient.getVerificationCode(userInfo.email,BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETURL,BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETPASSWORD,BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETUSERNAME) }
         registrationPage.enter2FAOnCreatePersonalAccountPage(otp)
         registrationPage.assertAccountCreationSuccessMessage()
-        
         registrationPage.clickGetStartedButton()
         registrationPage.assertUserNamePageIsVisible()
         registrationPage.assertEnterYourUserNameInfoText()
         registrationPage.assertUserNameHelpText()
         registrationPage.setUserName(userInfo.username)
         registrationPage.clickConfirmButton()
-        registrationPage.clickAllowNotificationmButton()
+        registrationPage.clickAllowNotificationButton()
         registrationPage.clickDeclineShareDataAlert()
         registrationPage.assertConversationPageVisible()
 
     }
 
 }
+
+
+

@@ -18,34 +18,30 @@
 package user.utils
 
 import java.util.Base64
-//
-//class BasicAuth {
-//
-//    var user: String? = null
-//        private set
-//
-//    var password: String? = null
-//        private set
-//
-//    private var encoded: String
-//
-//    constructor(user: String, password: String) {
-//        this.user = user
-//        this.password = password
-//        encoded = try {
-//            Base64.getEncoder().encodeToString("$user:$password".toByteArray(Charsets.UTF_8))
-//        } catch (e: Exception) {
-//            throw RuntimeException("Could not compile basic auth credentials for backend", e)
-//        }
-//    }
-//
-//    constructor(encoded: String) {
-//        this.encoded = encoded
-//    }
-//
-//    fun getUser(): String? = user
-//
-//    fun getPassword(): String? = password
-//
-//    fun getEncoded(): String = "Basic $encoded"
-//}
+class BasicAuth {
+
+    var user: String? = null
+        private set
+
+    var password: String? = null
+        private set
+
+    private var encoded: String
+
+    constructor(user: String, password: String) {
+        this.user = user
+        this.password = password
+        encoded = try {
+            Base64.getEncoder().encodeToString("$user:$password".toByteArray(Charsets.UTF_8))
+        } catch (e: Exception) {
+            throw RuntimeException("Could not compile basic auth credentials for backend", e)
+        }
+    }
+
+    constructor(encoded: String) {
+        this.encoded = encoded
+    }
+
+
+    fun getEncoded(): String = "Basic $encoded"
+}

@@ -15,37 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.tests
+package com.wire.android.tests.core.pages
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
-import com.wire.android.tests.core.pages.LoginPage
-import com.wire.android.tests.support.UiAutomatorSetup
-import junit.framework.TestCase.assertNotNull
-import user.UserClient
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import uiautomatorutils.UiAutomatorUtils
 
 
-/*
-This test works on the following conditions:
-1) The dev/staging app is installed on the device/emulator.
-*/
-@RunWith(AndroidJUnit4::class)
-//@RC
-class LoginTest {
-    private lateinit var device: UiDevice
+data class ConversationPage(private val device: UiDevice) {
 
-    @Before
-    fun setUp() {
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
+
+    fun clickMainMenuButtonOnConversationVeiwPage(): ConversationPage {
+        UiAutomatorUtils.waitElement(description = "Main navigation").click()
+        return this
     }
 
-    @Test
-    fun openTheAppAndShouldSeeEmailFieldAndLoginWhenValid() {
-
-
-        }
+    fun clickSettingsButtonOnMenuEntry(): ConversationPage {
+        UiAutomatorUtils.waitElement(text = "Settings").click()
+        return this
     }
 
+}

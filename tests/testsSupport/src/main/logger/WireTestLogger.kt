@@ -37,7 +37,6 @@ class WireTestLogger {
 }
 
 
-
 class MinimalFormatter : Formatter() {
     override fun format(record: LogRecord): String {
         val dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(record.millis), ZoneId.systemDefault())

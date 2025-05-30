@@ -78,7 +78,7 @@ class ClientUser {
             .with(DIGITS, 1).build())
         uniqueUsername = sanitizedRandomizedHandle(lastName)
           val domain = "wire.engineering"
-        email ="${uniqueUsername}$domain"
+        email ="${uniqueUsername}@$domain"
        emailPassword = RandomStringGenerator.randomWithSpecialChars(12)
     }
 
@@ -137,7 +137,7 @@ class ClientUser {
     fun setManagedBySCIM() { SCIM = true }
     fun forceTokenExpiration() { accessCredentials = null }
 
-    override fun toString(): String = name ?: ""
+    override fun toString(): String = "Hello, my name is $name and my email is $email and password is $password and emailPassword is $666emailPassword"
 
     override fun equals(other: Any?): Boolean =
         (other is ClientUser) && other.email == email

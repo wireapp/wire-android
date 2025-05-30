@@ -20,6 +20,6 @@
   import user.utils.AccessToken
 
 data class AccessCredentials(
-    val accessToken: AccessToken,
+    val accessToken: AccessToken?=null,
     val accessCookie: AccessCookie
 )

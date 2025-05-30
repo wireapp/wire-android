@@ -78,7 +78,6 @@ class UserClient {
 }
 
 
-
 object RandomStringGenerator {
     // Character pools
     private const val NUMERIC = "0123456789"

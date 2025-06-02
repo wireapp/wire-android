@@ -22,12 +22,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.window.DialogProperties
 import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 
 @Composable
 fun DeleteConfirmationDialog(
@@ -73,13 +73,7 @@ fun DeleteConfirmationDialog(
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onConfirm,
-            text = stringResource(
-                id = if (isFolder) {
-                    R.string.delete_folder
-                } else {
-                    R.string.delete_file
-                }
-            ),
+            text = stringResource(id = R.string.delete_label),
             type = WireDialogButtonType.Primary,
             state = WireButtonState.Error
         ),
@@ -88,6 +82,6 @@ fun DeleteConfirmationDialog(
             onClick = onDismiss
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true, dismissOnClickOutside = true)
+        properties = wireDialogPropertiesBuilder(dismissOnBackPress = true, dismissOnClickOutside = true)
     )
 }

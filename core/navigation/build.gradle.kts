@@ -15,4 +15,6 @@ dependencies {
     implementation(libs.visibilityModifiers)
     implementation(libs.compose.navigation)
     implementation(libs.compose.destinations.core)
+    implementation(project(":core:ui-common"))
+    implementation(libs.compose.material3)
 }

@@ -15,20 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation
+package com.wire.android.navigation.annotation
 
-import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.Destination.Companion.COMPOSABLE_NAME
 import com.ramcosta.composedestinations.spec.DestinationStyle
-import com.ramcosta.composedestinations.wrapper.DestinationWrapper
+import com.wire.android.navigation.wrapper.TabletDialogWrapper
+import com.wire.android.navigation.wrapper.WaitUntilTransitionEndsWrapper
 import kotlin.reflect.KClass
 
-@Destination
-annotation class WireDestination(
+@Destination(
+    wrappers = [WaitUntilTransitionEndsWrapper::class, TabletDialogWrapper::class],
+)
+internal annotation class WireDestination(
     val route: String = COMPOSABLE_NAME,
     val navArgsDelegate: KClass<*> = Nothing::class,
-    val deepLinks: Array<DeepLink> = [],
     val style: KClass<out DestinationStyle> = DestinationStyle.Default::class,
-    val wrappers: Array<KClass<out DestinationWrapper>> = [WaitUntilTransitionEndsWrapper::class],
 )

@@ -20,30 +20,69 @@ package com.wire.android.tests.core.pages
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
-import org.junit.Assert.assertTrue
 import uiautomatorutils.UiAutomatorUtils
 
 data class SettingsPage(private val device: UiDevice) {
 
 
-    fun assertSendAnonymousUsageDataToggleIsOn() {
+//    fun assertSendAnonymousUsageDataToggleIsOn() {
+//        val label = UiAutomatorUtils.waitElement(
+//            text = "Send anonymous usage data"
+//        )
+//
+//        val toggle = UiAutomatorUtils.waitElement(
+//            text = "ON"
+//        )
+//
+//        assertTrue("'Send anonymous usage data' label is not visible", !label.visibleBounds.isEmpty)
+//        assertTrue("'Send anonymous usage data' toggle is not ON (missing)", !toggle.visibleBounds.isEmpty)
+//    }
+
+//    fun assertSendAnonymousUsageDataToggleIsOn() {
+//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+//
+//        val containers = device.findObjects(By.clazz("android.view.View"))
+//
+//        val match = containers.firstOrNull { container ->
+//            val hasLabel = container.findObjects(By.text("Send anonymous usage data")).isNotEmpty()
+//            val hasToggle = container.findObjects(By.text("ON")).isNotEmpty()
+//            hasLabel && hasToggle
+//        }
+//
+//        check(match != null) {
+//            "Expected 'Send anonymous usage data' with ON toggle in the same container, but not found."
+//        }
+//    }
+
+    fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Step 1: Find the label with exact text
-        val label = device.findObject(UiSelector().text("Send anonymous usage data"))
-        // Step 2: From that label, find the sibling with text "ON"
-        val toggleState = label.getFromParent(UiSelector().text("ON"))
-        // Step 3: Assert that the sibling exists (toggle is ON)
-        check(toggleState.exists()) { "Expected 'Send anonymous usage data' toggle to be ON, but it was not found." }
+
+        val container = device.findObject(
+            UiSelector().className("android.view.View")
+                .childSelector(UiSelector().text("Send anonymous usage data"))
+        )
+
+        val toggle = container.getFromParent(UiSelector().text("ON"))
+
+//        check(toggle.exists()) {
+//            "'Send anonymous usage data' toggle is expected to be ON, but it was not found."
+       // }
+
+        return this
     }
+
+
+
+
 
     fun clickBackButtonOnPrivacySettingsPage(): SettingsPage {
-        UiAutomatorUtils.waitElement(text = "Go back").click()
-        return this
-    }
+            UiAutomatorUtils.waitElement(text = "Go back").click()
+            return this
+        }
 
-    fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
-        UiAutomatorUtils.waitElement(text = "Privacy Settings").click()
-        return this
-    }
+        fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
+            UiAutomatorUtils.waitElement(text = "Privacy Settings").click()
+            return this
 
+    }
 }

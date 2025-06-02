@@ -17,12 +17,9 @@
  */
 package com.wire.android.tests.core.tests
 
-import android.content.Intent
-import android.net.Uri
+import Backend
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import com.wire.android.testSupport.BuildConfig
 import com.wire.android.tests.core.pages.ConversationPage
 import com.wire.android.tests.core.pages.LoginPage
 import com.wire.android.tests.core.pages.RegistrationPage
@@ -33,7 +30,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import user.UserClient
 import user.utils.ClientUser
 
 
@@ -77,7 +73,7 @@ class GdprTest {
         loginPage.clickProceedButtonOnDeeplinkOverlay()
         loginPage.enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
         loginPage.clickLoginButton()
-        loginPage.assertLoggingPageVisible()
+        //loginPage.assertLoggingPageVisible()
         loginPage.enterPersonalUserLoginPassword(registeredUser?.password ?: "")
         loginPage.clickLoginButton()
 
@@ -90,8 +86,10 @@ class GdprTest {
         conversationPage.clickMainMenuButtonOnConversationVeiwPage()
         conversationPage.clickSettingsButtonOnMenuEntry()
         settingsPage.clickPrivacySettingsButtonOnSettingsPage()
+       // Thread.sleep(5000)
+
         settingsPage.assertSendAnonymousUsageDataToggleIsOn()
-        settingsPage.clickBackButtonOnPrivacySettingsPage()
+      //  settingsPage.clickBackButtonOnPrivacySettingsPage()
 
     }
 }

@@ -62,6 +62,11 @@ class DebugModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveDatabaseLoggerState(debugScope: DebugScope) =
+        debugScope.observeDatabaseLoggerState
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveAsyncNotificationsEnabled(debugScope: DebugScope) = debugScope.observeIsConsumableNotificationsEnabled
 
     @ViewModelScoped

@@ -763,7 +763,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="backup_label_conversation_restored">Rozmowy zosta&#322;y przywr&#243;cone</string>
     <string name="backup_label_loading_conversations">&#321;adowanie rozm&#243;w</string>
     <string name="backup_dialog_restore_backup_title">Przywr&#243;&#263; z kopii zapasowej</string>
-    <string name="backup_dialog_restore_backup_message">Zast&#261;pi to histori&#281; rozm&#243;w na tym urz&#261;dzeniu. Mo&#380;na przywr&#243;ci&#263; tylko histori&#281; z kopii zapasowej utworzonej na tej samej platformie.</string>
     <string name="backup_dialog_choose_backup_file_option">Wybierz plik kopii zapasowej</string>
     <string name="backup_label_enter_password">Wprowad&#378; has&#322;o</string>
     <string name="backup_dialog_restore_backup_password_message">Ta kopia zapasowa jest chroniona has&#322;em.</string>

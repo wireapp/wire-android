@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
+import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -94,7 +95,6 @@ import com.wire.android.ui.newauthentication.login.NewLoginContainer
 import com.wire.android.ui.newauthentication.login.NewLoginHeader
 import com.wire.android.ui.newauthentication.login.NewLoginSubtitle
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
@@ -131,7 +131,7 @@ fun NewLoginPasswordScreen(
         passwordTextState = loginEmailViewModel.passwordTextState,
         onLoginButtonClick = loginEmailViewModel::login,
         onCreateAccount = {
-            if (FeatureVisibilityFlags.NewRegistrationEnabled) {
+            if (ENABLE_NEW_REGISTRATION) {
                 navigator.navigate(NavigationCommand(CreateAccountSelectorScreenDestination(loginEmailViewModel.serverConfig)))
             } else {
                 navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))

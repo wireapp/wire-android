@@ -67,6 +67,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
@@ -94,7 +95,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -223,7 +223,7 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            if (FeatureVisibilityFlags.NewRegistrationEnabled) {
+                            if (ENABLE_NEW_REGISTRATION) {
                                 navigate(NavigationCommand(CreateAccountSelectorScreenDestination(state)))
                             } else {
                                 navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))

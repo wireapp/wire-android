@@ -89,7 +89,12 @@ class GdprTest {
        // Thread.sleep(5000)
 
         settingsPage.assertSendAnonymousUsageDataToggleIsOn()
-      //  settingsPage.clickBackButtonOnPrivacySettingsPage()
+        settingsPage.clickBackButtonOnPrivacySettingsPage()
+        settingsPage.clickDebugSettingsButton()
+
+        settingsPage.assertAnalyticsInitializedIsSetToTrue()
+
+        settingsPage.assertAnalyticsTrackingIdentifierIsDispayed()
 
     }
 }

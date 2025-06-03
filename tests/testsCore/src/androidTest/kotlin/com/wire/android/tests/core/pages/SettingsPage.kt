@@ -20,39 +20,11 @@ package com.wire.android.tests.core.pages
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
+import junit.framework.TestCase.assertTrue
 import uiautomatorutils.UiAutomatorUtils
 
 data class SettingsPage(private val device: UiDevice) {
 
-
-//    fun assertSendAnonymousUsageDataToggleIsOn() {
-//        val label = UiAutomatorUtils.waitElement(
-//            text = "Send anonymous usage data"
-//        )
-//
-//        val toggle = UiAutomatorUtils.waitElement(
-//            text = "ON"
-//        )
-//
-//        assertTrue("'Send anonymous usage data' label is not visible", !label.visibleBounds.isEmpty)
-//        assertTrue("'Send anonymous usage data' toggle is not ON (missing)", !toggle.visibleBounds.isEmpty)
-//    }
-
-//    fun assertSendAnonymousUsageDataToggleIsOn() {
-//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//
-//        val containers = device.findObjects(By.clazz("android.view.View"))
-//
-//        val match = containers.firstOrNull { container ->
-//            val hasLabel = container.findObjects(By.text("Send anonymous usage data")).isNotEmpty()
-//            val hasToggle = container.findObjects(By.text("ON")).isNotEmpty()
-//            hasLabel && hasToggle
-//        }
-//
-//        check(match != null) {
-//            "Expected 'Send anonymous usage data' with ON toggle in the same container, but not found."
-//        }
-//    }
 
     fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -64,25 +36,63 @@ data class SettingsPage(private val device: UiDevice) {
 
         val toggle = container.getFromParent(UiSelector().text("ON"))
 
-//        check(toggle.exists()) {
-//            "'Send anonymous usage data' toggle is expected to be ON, but it was not found."
-       // }
+        assertTrue("'Send anonymous usage data' label is not visible", !toggle.visibleBounds.isEmpty)
 
         return this
     }
 
 
+    fun clickBackButtonOnPrivacySettingsPage() {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        device.pressBack()
+    }
 
 
+    fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
+        UiAutomatorUtils.waitElement(text = "Privacy Settings").click()
+        return this
+    }
 
-    fun clickBackButtonOnPrivacySettingsPage(): SettingsPage {
-            UiAutomatorUtils.waitElement(text = "Go back").click()
-            return this
-        }
 
-        fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
-            UiAutomatorUtils.waitElement(text = "Privacy Settings").click()
-            return this
+    fun clickDebugSettingsButton(): SettingsPage {
+        //val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        UiAutomatorUtils.waitElement(text = "Debug Settings").click()
+        //device.findObject(UiSelector().text("Debug Settings")).click()
+        return this
+    }
 
+    fun assertAnalyticsInitializedIsSetToTrue(): SettingsPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        // Step 1: Match full label text exactly as shown in UI
+        val container = device.findObject(
+            UiSelector().className("android.view.View")
+                .childSelector(UiSelector().text("Analytics Initialized"))
+        )
+        // Step 2: Look for the value next to it
+        val value = container.getFromParent(UiSelector().text("true"))
+
+        assertTrue("'Analytics Initialized' is not set to true", value.exists() && value.visibleBounds.width() > 0)
+
+        return this
+    }
+
+    fun assertAnalyticsTrackingIdentifierIsDispayed(): SettingsPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        // Step 1: Find the container with the label text
+        val container = device.findObject(
+            UiSelector().className("android.view.View")
+                .childSelector(UiSelector().text("Analytics Tracking Identifier"))
+        )
+        // Step 2: Use fromParent to locate the sibling TextView that holds the identifier
+        val identifierView = container.getFromParent(
+            UiSelector().className("android.widget.TextView")
+                .instance(1) // Typically the second TextView under the same parent
+        )
+        // Step 3: Assert it's visible and not empty
+        val value = identifierView.text
+        assertTrue("Analytics tracking ID is missing or blank", value.isNotBlank())
+
+        return this
     }
 }

@@ -32,6 +32,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.uiText
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.E2EIFailure
 import com.wire.kalium.common.functional.Either
@@ -41,6 +42,7 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
+import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
@@ -235,8 +237,12 @@ class DebugDataOptionsViewModelImpl
     override fun enableAsyncNotifications(enabled: Boolean) {
         if (enabled) {
             viewModelScope.launch {
-                startUsingAsyncNotifications()
-                state = state.copy(isAsyncNotificationsEnabled = enabled)
+                when (val result = startUsingAsyncNotifications()) {
+                    is StartUsingAsyncNotificationsResult.Failure ->
+                        _infoMessage.emit(UIText.DynamicString("Can't enable async notifications, error: ${result.coreFailure.uiText()}"))
+
+                    is StartUsingAsyncNotificationsResult.Success -> state = state.copy(isAsyncNotificationsEnabled = enabled)
+                }
             }
         }
     }

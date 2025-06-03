@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -38,7 +39,6 @@ import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -51,8 +51,9 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@CreatePersonalAccountNavGraph(start = true)
+@RootNavGraph
 @WireDestination(
+    navArgsDelegate = CreateAccountSelectorNavArgs::class,
     style = AuthPopUpNavigationAnimation::class
 )
 @Composable
@@ -88,7 +89,7 @@ fun CreateAccountSelectorContent(
             navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
         }
 
-        OverviewContent(
+        AccountTypes(
             onBackPressed = navigator::navigateBack,
             onContinuePressed = ::navigateToEmailScreen,
             serverConfig = viewModel.serverConfig,
@@ -105,7 +106,7 @@ fun CreateAccountSelectorContent(
 }
 
 @Composable
-private fun OverviewContent(
+private fun AccountTypes(
     onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit,
     serverConfig: ServerConfig.Links
@@ -148,7 +149,7 @@ private fun OverviewContent(
 fun PreviewCreateAccountOverviewScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
-            OverviewContent(
+            AccountTypes(
                 onBackPressed = { },
                 onContinuePressed = { },
                 ServerConfig.DEFAULT

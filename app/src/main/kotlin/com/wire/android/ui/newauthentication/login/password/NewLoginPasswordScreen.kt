@@ -83,6 +83,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.CreateAccountSelectorScreenDestination
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -93,6 +94,7 @@ import com.wire.android.ui.newauthentication.login.NewLoginContainer
 import com.wire.android.ui.newauthentication.login.NewLoginHeader
 import com.wire.android.ui.newauthentication.login.NewLoginSubtitle
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
@@ -129,7 +131,11 @@ fun NewLoginPasswordScreen(
         passwordTextState = loginEmailViewModel.passwordTextState,
         onLoginButtonClick = loginEmailViewModel::login,
         onCreateAccount = {
-            navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
+            if (FeatureVisibilityFlags.NewRegistrationEnabled) {
+                navigator.navigate(NavigationCommand(CreateAccountSelectorScreenDestination(loginEmailViewModel.serverConfig)))
+            } else {
+                navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
+            }
         },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = loginEmailViewModel::cancelLogin,

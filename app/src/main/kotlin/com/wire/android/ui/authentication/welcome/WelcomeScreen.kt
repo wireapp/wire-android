@@ -86,6 +86,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.CreateAccountSelectorScreenDestination
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
@@ -93,6 +94,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -221,7 +223,11 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
+                            if (FeatureVisibilityFlags.NewRegistrationEnabled) {
+                                navigate(NavigationCommand(CreateAccountSelectorScreenDestination(state)))
+                            } else {
+                                navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
+                            }
                         }
                     }
                 )

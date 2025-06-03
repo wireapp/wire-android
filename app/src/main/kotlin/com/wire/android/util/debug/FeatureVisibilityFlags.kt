@@ -57,6 +57,7 @@ object FeatureVisibilityFlags {
     const val SearchConversationMessages = true
     const val DrawingIcon = true
     const val QRCodeEnabled = true
+    const val NewRegistrationEnabled = true
 }
 
 val LocalFeatureVisibilityFlags = staticCompositionLocalOf { FeatureVisibilityFlags }

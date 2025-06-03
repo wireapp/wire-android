@@ -19,6 +19,7 @@ package com.wire.android.ui.debug
 
 data class DebugDataOptionsState(
     val isEventProcessingDisabled: Boolean = false,
+    val isAsyncNotificationsEnabled: Boolean = false,
     val keyPackagesCount: Int = 0,
     val mslClientId: String = "null",
     val mlsErrorMessage: String = "null",

@@ -61,7 +61,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@CreatePersonalAccountNavGraph(start = true)
+@CreatePersonalAccountNavGraph(start = false)
 @WireDestination(navArgsDelegate = CreateAccountOverviewNavArgs::class)
 @Composable
 fun CreatePersonalAccountOverviewScreen(

@@ -469,6 +469,7 @@
     <string name="label_quote_original_message_is_a_picture">Picture</string>
     <string name="label_quote_original_message_date">Original message from %s</string>
     <!-- Create Account -->
+    <string name="create_account_selector_title">How will you use Wire?</string>
     <string name="create_personal_account_title">Create a Personal Account</string>
     <string name="create_personal_account_summary_title">Personal Account Created</string>
     <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>

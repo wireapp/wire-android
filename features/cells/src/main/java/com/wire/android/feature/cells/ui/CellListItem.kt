@@ -121,17 +121,15 @@ internal fun CellListItem(
                 )
             }
         }
-        if (cell is CellNodeUi.File) {
-            cell.downloadProgress?.let {
-                WireLinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomStart),
-                    progress = { cell.downloadProgress },
-                    color = colorsScheme().primary,
-                    trackColor = Color.Transparent,
-                )
-            }
+        cell.downloadProgress?.let {
+            WireLinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart),
+                progress = { it },
+                color = colorsScheme().primary,
+                trackColor = Color.Transparent,
+            )
         }
     }
 }
@@ -254,12 +252,12 @@ private fun PreviewCellListItem() {
             cell = CellNodeUi.File(
                 uuid = "",
                 name = "file name",
+                downloadProgress = 0.75f,
                 assetType = AttachmentFileType.IMAGE,
-                assetSize = 123214,
+                size = 123214,
                 localPath = null,
                 mimeType = "image/jpg",
                 publicLinkId = "",
-                downloadProgress = 0.75f,
                 userName = "Test User",
                 conversationName = "Test Conversation",
                 modifiedTime = null,

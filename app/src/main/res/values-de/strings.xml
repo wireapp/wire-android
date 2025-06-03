@@ -142,7 +142,6 @@
     <string name="content_description_calling_turn_camera_off">Kamera ausschalten</string>
     <string name="content_description_calling_turn_speaker_on">Lautsprecher einschalten</string>
     <string name="content_description_calling_turn_speaker_off">Lautsprecher ausschalten</string>
-    <string name="content_description_show_more_options">Weitere Optionen anzeigen</string>
     <string name="content_description_reply_to_messge">Auf die Nachricht antworten</string>
     <string name="content_description_copy">Kopieren</string>
     <string name="content_description_edit">Bearbeiten</string>
@@ -184,6 +183,7 @@
     <string name="content_description_accept_or_ignore_connection_label">Anfrage akzeptieren oder ignorieren</string>
     <string name="content_description_open_user_profile_label">Profil öffnen</string>
     <string name="content_description_open_conversation_label">Unterhaltung öffnen</string>
+    <string name="content_description_open_service_label">Dienst öffnen</string>
     <string name="content_description_open_link_label">Link öffnen</string>
     <string name="content_description_alert">Hinweis</string>
     <string name="content_description_drop_down">Auswahlliste</string>
@@ -669,6 +669,7 @@
     <string name="conversation_banner_federated">Föderierte Benutzer</string>
     <string name="conversation_banner_externals">Externe</string>
     <string name="conversation_banner_guests">Gäste</string>
+    <string name="conversation_banner_services">Dienste</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Föderierte Benutzer, Externe und Gäste anwesend, Dienste aktiv</string>
     <string name="conversation_banner_federated_externals_guests_present">Föderierte Benutzer, Externe und Gäste anwesend</string>
     <string name="conversation_banner_federated_externals_services_present">Föderierte Benutzer und Externe anwesend, Dienste aktiv</string>
@@ -1054,6 +1055,10 @@
     <string name="service_details_label">Dienst</string>
     <string name="service_details_add_service_label">Zur Unterhaltung hinzufügen</string>
     <string name="service_details_remove_service_label">Aus Unterhaltung entfernen</string>
+    <string name="service_remove_success">Dienst aus der Unterhaltung entfernt</string>
+    <string name="service_remove_error">Dienst kann nicht aus Unterhaltung entfernt werden</string>
+    <string name="service_add_success">Dienst zur Unterhaltung hinzugefügt</string>
+    <string name="service_add_error">Dienst kann nicht zur Unterhaltung hinzugefügt werden</string>
     <string name="service_no_information_available_title">Keine Informationen verfügbar</string>
     <string name="service_no_information_available_subtitle">Versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin</string>
     <string name="read_receipts">Lesebestätigungen</string>

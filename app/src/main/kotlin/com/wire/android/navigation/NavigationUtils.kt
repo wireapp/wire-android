@@ -77,7 +77,7 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
             BackStackMode.NONE -> {
             }
         }
-        launchSingleTop = true
+        launchSingleTop = command.launchSingleTop
         restoreState = true
     }
 }

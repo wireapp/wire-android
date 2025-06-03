@@ -20,7 +20,7 @@ package com.wire.android.ui.home.cell
 import androidx.compose.runtime.Composable
 import com.wire.android.feature.cells.ui.AllFilesScreen
 import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.home.HomeStateHolder
 
 @HomeNavGraph

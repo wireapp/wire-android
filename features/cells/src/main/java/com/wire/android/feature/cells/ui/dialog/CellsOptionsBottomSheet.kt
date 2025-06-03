@@ -32,14 +32,15 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-internal fun CellsNewActionsBottomSheet(
+internal fun CellsOptionsBottomSheet(
     sheetState: WireModalSheetState<Unit>,
     onDismiss: () -> Unit,
-    onCreateFolder: () -> Unit,
+    showRecycleBin: () -> Unit,
 ) {
     WireModalSheetLayout(
         onDismissRequest = {
@@ -50,9 +51,9 @@ internal fun CellsNewActionsBottomSheet(
         WireMenuModalSheetContent(
             menuItems = buildList {
                 add {
-                    CreateFolderSheetItem(
-                        title = stringResource(R.string.cells_create_folder),
-                        onClicked = onCreateFolder,
+                    ShowRecycleBinItem(
+                        title = stringResource(R.string.open_recycle_bin),
+                        onClicked = showRecycleBin,
                         enabled = true
                     )
                 }
@@ -62,7 +63,7 @@ internal fun CellsNewActionsBottomSheet(
 }
 
 @Composable
-private fun CreateFolderSheetItem(
+private fun ShowRecycleBinItem(
     title: String,
     onClicked: () -> Unit,
     enabled: Boolean,
@@ -72,8 +73,9 @@ private fun CreateFolderSheetItem(
         onItemClick = onClicked,
         leading = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_folder),
+                painter = painterResource(id = R.drawable.ic_delete),
                 contentDescription = null,
+                tint = colorsScheme().onBackground,
                 modifier = Modifier
                     .size(MaterialTheme.wireDimensions.wireIconButtonSize)
             )
@@ -84,12 +86,12 @@ private fun CreateFolderSheetItem(
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewFilesNewActionsBottomSheet() {
+private fun PreviewCellsOptionsBottomSheet() {
     WireTheme {
-        CellsNewActionsBottomSheet(
+        CellsOptionsBottomSheet(
             sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = Unit)),
             onDismiss = {},
-            onCreateFolder = {}
+            showRecycleBin = {}
         )
     }
 }

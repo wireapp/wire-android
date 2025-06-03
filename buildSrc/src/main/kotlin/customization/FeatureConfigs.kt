@@ -49,6 +49,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WEBSOCKET_ENABLED_BY_DEFAULT("websocket_enabled_by_default", ConfigType.BOOLEAN),
     TEAM_APP_LOCK("team_app_lock", ConfigType.BOOLEAN),
     TEAM_APP_LOCK_TIMEOUT("team_app_lock_timeout", ConfigType.INT),
+    ENABLE_CROSSPLATFORM_BACKUP("enable_crossplatform_backup", ConfigType.BOOLEAN),
 
     /**
      * Security/Cryptography stuff

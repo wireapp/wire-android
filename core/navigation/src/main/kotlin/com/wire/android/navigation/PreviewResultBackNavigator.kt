@@ -17,18 +17,12 @@
  */
 package com.wire.android.navigation
 
-import com.ramcosta.composedestinations.annotation.DeepLink
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.Destination.Companion.COMPOSABLE_NAME
-import com.ramcosta.composedestinations.spec.DestinationStyle
-import com.ramcosta.composedestinations.wrapper.DestinationWrapper
-import kotlin.reflect.KClass
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 
-@Destination
-annotation class WireDestination(
-    val route: String = COMPOSABLE_NAME,
-    val navArgsDelegate: KClass<*> = Nothing::class,
-    val deepLinks: Array<DeepLink> = [],
-    val style: KClass<out DestinationStyle> = DestinationStyle.Default::class,
-    val wrappers: Array<KClass<out DestinationWrapper>> = [WaitUntilTransitionEndsWrapper::class],
-)
+object PreviewResultBackNavigator : ResultBackNavigator<R> {
+    override fun setResult(result: R) { /* No-op */ }
+
+    override fun navigateBack(result: R, onlyIfResumed: Boolean) { /* No-op */ }
+
+    override fun navigateBack(onlyIfResumed: Boolean) { /* No-op */ }
+}

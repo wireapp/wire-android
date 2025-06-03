@@ -17,24 +17,26 @@
  */
 package com.wire.android.feature.cells.ui.dialog
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.FileIconPreview
 import com.wire.android.feature.cells.ui.MenuOptions
-import com.wire.android.feature.cells.ui.model.BottomSheetAction
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.model.FileAction
+import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -44,17 +46,14 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.launch
 
 @Composable
-internal fun FileActionsBottomSheet(
-    menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction.File) -> Unit,
+internal fun NodeActionsBottomSheet(
+    menuOptions: MenuOptions,
+    onAction: (NodeBottomSheetAction) -> Unit,
     onDismiss: () -> Unit,
-    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>()
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
-
-    val scope = rememberCoroutineScope()
 
     WireModalSheetLayout(
         onDismissRequest = {
@@ -65,11 +64,7 @@ internal fun FileActionsBottomSheet(
         SheetContent(
             menuOptions = menuOptions,
             onAction = { action ->
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        onAction(action)
-                    }
-                }
+                sheetState.hide { onAction(action) }
             }
         )
     }
@@ -77,8 +72,8 @@ internal fun FileActionsBottomSheet(
 
 @Composable
 private fun SheetContent(
-    menuOptions: MenuOptions.FileMenuOptions,
-    onAction: (BottomSheetAction.File) -> Unit
+    menuOptions: MenuOptions,
+    onAction: (NodeBottomSheetAction) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -94,10 +89,23 @@ private fun SheetContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            FileIconPreview(menuOptions.cellNodeUi)
+            if (menuOptions.node is CellNodeUi.File) {
+                FileIconPreview(menuOptions.node)
+            } else {
+                Image(
+                    modifier = Modifier
+                        .padding(
+                            start = dimensions().spacing8x,
+                            end = dimensions().spacing8x
+                        )
+                        .size(dimensions().spacing32x),
+                    painter = painterResource(R.drawable.ic_folder_item),
+                    contentDescription = null,
+                )
+            }
 
             Text(
-                text = menuOptions.cellNodeUi.name ?: "",
+                text = menuOptions.node.name ?: "",
                 style = typography().title02,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -119,30 +127,25 @@ private fun SheetContent(
 @Composable
 private fun PreviewFileActionsBottomSheet() {
     WireTheme {
-        FileActionsBottomSheet(
+        NodeActionsBottomSheet(
             sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = Unit)),
-            menuOptions = MenuOptions.FileMenuOptions(
-                cellNodeUi = CellNodeUi.File(
+            menuOptions = MenuOptions(
+                node = CellNodeUi.File(
                     uuid = "",
                     name = "test file.pdf",
                     mimeType = "application/pdf",
                     assetType = AttachmentFileType.PDF,
-                    assetSize = 2342342,
+                    size = 2342342,
                     localPath = "",
                     userName = null,
                     conversationName = null,
-                    modifiedTime = null,
-                    remotePath = null,
-                    contentHash = null,
-                    contentUrl = null,
-                    previewUrl = null,
-                    downloadProgress = null,
-                    publicLinkId = null,
+                    modifiedTime = null
                 ),
                 actions = listOf(
-                    BottomSheetAction.File(FileAction.SHARE),
-                    BottomSheetAction.File(FileAction.PUBLIC_LINK),
-                    BottomSheetAction.File(FileAction.DELETE),
+                    NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.MOVE,
+                    NodeBottomSheetAction.DELETE,
                 )
             ),
             onAction = {},

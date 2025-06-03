@@ -60,12 +60,9 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 
-private const val CROSS_PLATFORM_BACKUP_ENABLED = true
-
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
-class BackupAndRestoreViewModel
-@Inject constructor(
+class BackupAndRestoreViewModel @Inject constructor(
     private val importBackup: RestoreBackupUseCase,
     private val importMpBackup: RestoreMPBackupUseCase,
     private val createBackupFile: CreateBackupUseCase,
@@ -75,7 +72,8 @@ class BackupAndRestoreViewModel
     private val kaliumFileSystem: KaliumFileSystem,
     private val fileManager: FileManager,
     private val userDataStore: UserDataStore,
-    private val dispatcher: DispatcherProvider
+    private val dispatcher: DispatcherProvider,
+    private val mpBackupSettings: MPBackupSettings,
 ) : ViewModel() {
 
     val createBackupPasswordState: TextFieldState = TextFieldState()
@@ -119,7 +117,7 @@ class BackupAndRestoreViewModel
 
         val password = createBackupPasswordState.text.toString()
 
-        val result = if (CROSS_PLATFORM_BACKUP_ENABLED) {
+        val result = if (mpBackupSettings is MPBackupSettings.Enabled) {
             createMpBackupFile(password)
         } else {
             createBackupFile(password)

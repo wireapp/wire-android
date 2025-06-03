@@ -29,6 +29,7 @@ import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
 import com.wire.android.ui.home.settings.backup.BackupCreationProgress
 import com.wire.android.ui.home.settings.backup.BackupRestoreProgress
+import com.wire.android.ui.home.settings.backup.MPBackupSettings
 import com.wire.android.ui.home.settings.backup.PasswordValidation
 import com.wire.android.ui.home.settings.backup.RestoreFileValidation
 import com.wire.android.util.FileManager
@@ -37,6 +38,7 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.backup.BackupFileFormat
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
+import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
@@ -109,7 +111,7 @@ class BackupAndRestoreViewModelTest {
         // Then
         assert(backupAndRestoreViewModel.state.backupCreationProgress is BackupCreationProgress.Finished)
         assertFalse(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted!!)
-        coVerify(exactly = 1) { arrangement.createBackupFile(password = emptyPassword) }
+        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = emptyPassword) }
     }
 
     @Test
@@ -129,7 +131,7 @@ class BackupAndRestoreViewModelTest {
         // Then
         assertInstanceOf(BackupCreationProgress.Finished::class.java, backupAndRestoreViewModel.state.backupCreationProgress)
         assertTrue(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted!!)
-        coVerify(exactly = 1) { arrangement.createBackupFile(password = password) }
+        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = password) }
     }
 
     @Test
@@ -198,7 +200,7 @@ class BackupAndRestoreViewModelTest {
         // Then
         assertEquals(backupAndRestoreViewModel.state.backupCreationProgress, BackupCreationProgress.Failed)
         assert(backupAndRestoreViewModel.latestCreatedBackup == null)
-        coVerify(exactly = 1) { arrangement.createBackupFile(password = password) }
+        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = password) }
     }
 
     @Test
@@ -502,7 +504,7 @@ class BackupAndRestoreViewModelTest {
             withGetLastBackupDateSeconds()
             every { Uri.parse("some-backup") } returns mockUri
             coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
-            coEvery { createBackupFile(any()) } returns CreateBackupResult.Success("".toPath(), "")
+            coEvery { createMpBackupFile(any()) } returns CreateBackupResult.Success("".toPath(), "")
             coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success(BackupFileFormat.ANDROID, true)
         }
 
@@ -513,7 +515,10 @@ class BackupAndRestoreViewModelTest {
         lateinit var importMpBackup: RestoreMPBackupUseCase
 
         @MockK
-        lateinit var createBackupFile: CreateMPBackupUseCase
+        lateinit var createMpBackupFile: CreateMPBackupUseCase
+
+        @MockK
+        lateinit var createBackupFile: CreateBackupUseCase
 
         @MockK
         private lateinit var verifyBackup: VerifyBackupUseCase
@@ -532,23 +537,27 @@ class BackupAndRestoreViewModelTest {
         private val viewModel = BackupAndRestoreViewModel(
             importBackup = importBackup,
             importMpBackup = importMpBackup,
-            createMpBackupFile = createBackupFile,
+            createMpBackupFile = createMpBackupFile,
             verifyBackup = verifyBackup,
             kaliumFileSystem = fakeKaliumFileSystem,
             dispatcher = dispatcher,
             fileManager = fileManager,
             validatePassword = validatePassword,
-            userDataStore = userDataStore
+            userDataStore = userDataStore,
+            createBackupFile = createBackupFile,
+            mpBackupSettings = MPBackupSettings.Enabled,
         )
 
         fun withSuccessfulCreation(password: String) = apply {
             val backupFilePath = "some-file-path".toPath()
             val backupName = "some-backup.zip"
-            coEvery { createBackupFile(eq(password)) } returns CreateBackupResult.Success(backupFilePath, backupName)
+            coEvery { createMpBackupFile(eq(password)) } returns CreateBackupResult.Success(backupFilePath, backupName)
         }
 
         fun withFailedCreation(password: String) = apply {
-            coEvery { createBackupFile(eq(password)) } returns CreateBackupResult.Failure(CoreFailure.Unknown(IOException("Some db error")))
+            coEvery {
+                createMpBackupFile(eq(password))
+            } returns CreateBackupResult.Failure(CoreFailure.Unknown(IOException("Some db error")))
         }
 
         fun withPreviouslyCreatedBackup(backup: BackupAndRestoreState.CreatedBackup) = apply {

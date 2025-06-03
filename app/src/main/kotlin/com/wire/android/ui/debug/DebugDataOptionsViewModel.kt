@@ -233,9 +233,11 @@ class DebugDataOptionsViewModelImpl
     }
 
     override fun enableAsyncNotifications(enabled: Boolean) {
-        viewModelScope.launch {
-            startUsingAsyncNotifications()
-            state = state.copy(isAsyncNotificationsEnabled = enabled)
+        if (enabled) {
+            viewModelScope.launch {
+                startUsingAsyncNotifications()
+                state = state.copy(isAsyncNotificationsEnabled = enabled)
+            }
         }
     }
 

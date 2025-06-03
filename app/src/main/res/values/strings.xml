@@ -1295,6 +1295,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
     <string name="label_debug_tools_title" translatable="false">Debug Tools</string>
     <string name="label_disable_event_processing" translatable="false">Disable event processing</string>
+    <string name="label_enable_async_notifications" translatable="false">Enable async notifications</string>
     <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
@@ -1344,7 +1345,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="backup_label_conversation_restored">Conversations have been restored</string>
     <string name="backup_label_loading_conversations">Loading conversations</string>
     <string name="backup_dialog_restore_backup_title">Restore from backup </string>
-    <string name="backup_dialog_restore_backup_message">The backup contents will replace the conversation history on this device. You can only restore history from a backup of the same platform.</string>
+    <string name="backup_dialog_restore_backup_message">The existing history on this device remains and will be completed by the new backup. You can restore history from all your devices and different platforms but not from another account.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
     <string name="backup_label_enter_password">Enter password</string>
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>

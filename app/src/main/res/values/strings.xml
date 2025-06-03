@@ -470,13 +470,21 @@
     <string name="label_quote_original_message_date">Original message from %s</string>
     <!-- Create Account -->
     <string name="create_account_selector_title">How will you use Wire?</string>
-    <string name="create_personal_account_title">Create a Personal Account</string>
+    <string name="create_account_selector_team_title">For collaboration</string>
+    <string name="create_account_selector_team_subtitle">Work securely with your team.</string>
+    <string name="create_account_selector_team_highlight_one">Communicate with your colleagues and share documents via a single app</string>
+    <string name="create_account_selector_team_highlight_two">Start for free, upgrade anytime</string>
+    <string name="create_account_selector_personal_title">For private use</string>
+    <string name="create_account_selector_personal_subtitle">Chat with friends and family.</string>
+    <string name="create_account_selector_personal_highlight_one">Send messages and share pictures</string>
+    <string name="create_account_selector_personal_highlight_two">Always free</string>
+    <string name="create_personal_account_title">Create Personal Account</string>
     <string name="create_personal_account_summary_title">Personal Account Created</string>
     <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
     <string name="create_personal_account_email_text">Enter your email to start using the most secure collaboration platform.</string>
     <string name="create_personal_account_details_text">Enter your personal details:</string>
     <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
-    <string name="create_team_title">Create a Team</string>
+    <string name="create_team_title">Create Team</string>
     <string name="create_team_summary_title">Team Created</string>
     <string name="create_team_content_title">Wire for Free</string>
     <string name="create_team_text">Messaging for small organizations or single person consulting firms.\n</string>

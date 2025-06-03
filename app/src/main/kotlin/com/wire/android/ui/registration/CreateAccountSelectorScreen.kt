@@ -18,16 +18,16 @@
 
 package com.wire.android.ui.registration
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,6 +42,7 @@ import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
 import com.wire.android.ui.newauthentication.login.NewLoginContainer
@@ -128,15 +129,42 @@ private fun AccountTypes(
             )
         },
         content = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                val context = LocalContext.current
-                Spacer(modifier = Modifier.weight(1f))
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceEvenly) {
+                Text(
+                    text = stringResource(id = R.string.create_account_selector_team_title).uppercase(),
+                    style = MaterialTheme.wireTypography.title03,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = stringResource(id = R.string.create_account_selector_team_subtitle),
+                    style = MaterialTheme.wireTypography.body01,
+                )
+                HorizontalDivider()
                 WirePrimaryButton(
-                    text = stringResource(R.string.label_continue),
+                    text = stringResource(R.string.create_team_title),
                     onClick = onContinuePressed,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(MaterialTheme.wireDimensions.spacing16x),
+                )
+            }
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = stringResource(id = R.string.create_account_selector_personal_title).uppercase(),
+                    style = MaterialTheme.wireTypography.title03,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = stringResource(id = R.string.create_account_selector_personal_subtitle),
+                    style = MaterialTheme.wireTypography.body01,
+                )
+                WireSecondaryButton(
+                    text = stringResource(R.string.create_personal_account_title),
+                    onClick = onContinuePressed,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(MaterialTheme.wireDimensions.spacing16x)
                 )
             }
         }

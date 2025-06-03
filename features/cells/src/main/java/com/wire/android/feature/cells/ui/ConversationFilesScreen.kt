@@ -34,7 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
@@ -47,6 +46,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -64,7 +64,7 @@ import kotlinx.coroutines.flow.StateFlow
  * Show files in one conversation.
  * Conversation id is passed to view model via navigation parameters [CellFilesNavArgs].
  */
-@Destination(
+@WireDestination(
     style = PopUpNavigationAnimation::class,
     navArgsDelegate = CellFilesNavArgs::class,
 )

@@ -29,7 +29,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.common.VisibilityState
@@ -40,6 +39,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -58,10 +58,9 @@ fun EmailAlreadyInUseClaimedDomainDialog(
             },
             onDismiss = onDismiss,
             buttonsHorizontalAlignment = false,
-            properties = DialogProperties(
+            properties = wireDialogPropertiesBuilder(
                 dismissOnBackPress = false,
                 dismissOnClickOutside = false,
-                usePlatformDefaultWidth = false
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = onDismiss,

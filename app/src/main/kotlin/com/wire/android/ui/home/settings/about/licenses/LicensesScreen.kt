@@ -34,7 +34,7 @@ import com.mikepenz.aboutlibraries.ui.compose.util.htmlReadyLicenseContent
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 
 @RootNavGraph

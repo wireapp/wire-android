@@ -293,6 +293,8 @@ internal class DebugDataOptionsHiltArrangement {
             dispatcherProvider = TestDispatcherProvider(),
             selfServerConfigUseCase = selfServerConfigUseCase,
             getDefaultProtocolUseCase = getDefaultProtocolUseCase,
+            startUsingAsyncNotifications = startUsingAsyncNotifications,
+            observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled
         )
     }
 
@@ -328,26 +330,11 @@ internal class DebugDataOptionsHiltArrangement {
         )
         every {
             getDefaultProtocolUseCase()
-        } returns SupportedProtocol.PROTEUSwithObserveIsConsumableNotificationsEnabled(false)
+        } returns SupportedProtocol.PROTEUS
+
+        withObserveIsConsumableNotificationsEnabled(false)
         }
     }
-
-    fun arrange() = this to DebugDataOptionsViewModelImpl(
-        context = context,
-        currentAccount = currentAccount,
-        globalDataStore = globalDataStore,
-        updateApiVersions = updateApiVersions,
-        mlsKeyPackageCount = mlsKeyPackageCount,
-        restartSlowSyncProcessForRecovery = restartSlowSyncProcessForRecovery,
-        checkCrlRevocationList = checkCrlRevocationList,
-        getCurrentAnalyticsTrackingIdentifier = getCurrentAnalyticsTrackingIdentifier,
-        sendFCMToken = sendFCMToken,
-        dispatcherProvider = TestDispatcherProvider(),
-        selfServerConfigUseCase = selfServerConfigUseCase,
-        getDefaultProtocolUseCase = getDefaultProtocolUseCase,
-        observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled,
-        startUsingAsyncNotifications = startUsingAsyncNotifications
-    )
 
     suspend fun withObserveIsConsumableNotificationsEnabled(isEnabled: Boolean = false) = apply {
         coEvery {
@@ -366,7 +353,6 @@ internal class DebugDataOptionsHiltArrangement {
             sendFCMToken()
         } returns Either.Right(Unit)
     }
-
     suspend fun withSendFCMTokenClientIdFailure() = apply {
         coEvery {
             sendFCMToken()
@@ -468,4 +454,6 @@ internal class DebugDataOptionsHiltArrangement {
             CoreFailure.Unknown(IllegalStateException())
         )
     }
+
+    fun arrange() = this to viewModel
 }

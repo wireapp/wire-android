@@ -83,10 +83,18 @@ fun CreateAccountSelectorScreen(
         navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
     }
 
+    fun navigateToEmailTeamScreen() {
+        val createAccountNavArgs = CreateAccountNavArgs(
+            flowType = CreateAccountFlowType.CreateTeam,
+            customServerConfig = viewModel.navArgs.customServerConfig
+        )
+        navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
+    }
+
     CreateAccountSelectorContent(
         customServerLinks = viewModel.serverConfig,
         onPersonalAccountCreationClicked = ::navigateToEmailScreen,
-        onTeamAccountCreationClicked = ::navigateToEmailScreen,
+        onTeamAccountCreationClicked = ::navigateToEmailTeamScreen,
         onNavigateBack = navigator::navigateBack,
     )
 }

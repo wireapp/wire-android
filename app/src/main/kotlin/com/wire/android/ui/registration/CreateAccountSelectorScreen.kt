@@ -252,7 +252,7 @@ private fun AccountType(
 
 @Composable
 @Preview
-fun PreviewCreateAccountOverviewScreen() = WireTheme {
+fun PreviewCreateAccountSelectorScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             CreateAccountSelectorContent(

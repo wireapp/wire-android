@@ -29,7 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateAccountSelectorViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-):  ViewModel() {
+) : ViewModel() {
     val navArgs: CreateAccountOverviewNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig.orDefault()
 }

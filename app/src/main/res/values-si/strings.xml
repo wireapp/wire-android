@@ -1285,7 +1285,6 @@
     <string name="backup_label_conversation_restored">සංවාද ප්‍රත්‍යර්පණය වී ඇත</string>
     <string name="backup_label_loading_conversations">සංවාද පූරණය වෙමින්</string>
     <string name="backup_dialog_restore_backup_title">උපස්ථයකින් ප්‍රත්‍යර්පණය </string>
-    <string name="backup_dialog_restore_backup_message">උපස්ථයේ අන්තර්ගතය මෙම උපාංගයේ සංවාද ඉතිහාසය ප්‍රතිස්ථාපනය කරනු ඇත. සමාන වේදිකාවක උපස්ථයකින් පමණක් ඉතිහාසය ප්‍රත්‍යර්පණයට හැකිය.</string>
     <string name="backup_dialog_choose_backup_file_option">උපස්ථ ගොනුව තෝරන්න</string>
     <string name="backup_label_enter_password">මුරපදය යොදන්න</string>
     <string name="backup_dialog_restore_backup_password_message">මෙම උපස්ථය මුරපදයකින් ආරක්‍ෂිතයි.</string>

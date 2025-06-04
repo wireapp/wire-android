@@ -36,8 +36,8 @@ import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
@@ -50,9 +50,9 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.common.functional.Either
 
 @Composable
 fun DebugDataOptions(
@@ -77,7 +77,8 @@ fun DebugDataOptions(
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
         checkCrlRevocationList = viewModel::checkCrlRevocationList,
-        onResendFCMToken = viewModel::forceSendFCMToken
+        onResendFCMToken = viewModel::forceSendFCMToken,
+        onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications
     )
 }
 
@@ -89,6 +90,7 @@ fun DebugDataOptionsContent(
     buildVariant: String,
     onCopyText: (String) -> Unit,
     onDisableEventProcessingChange: (Boolean) -> Unit,
+    onEnableAsyncNotificationsChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     onManualMigrationPressed: () -> Unit,
@@ -213,6 +215,8 @@ fun DebugDataOptionsContent(
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
                 checkCrlRevocationList = checkCrlRevocationList,
                 onResendFCMToken = onResendFCMToken,
+                isAsyncNotificationsEnabled = state.isAsyncNotificationsEnabled,
+                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
             )
         }
 
@@ -371,6 +375,8 @@ private fun DebugToolsOptionsPreview() {
             onForceUpdateApiVersions = {},
             checkCrlRevocationList = {},
             onResendFCMToken = {},
+            isAsyncNotificationsEnabled = true,
+            onEnableAsyncNotificationsChange = {}
         )
     }
 }
@@ -383,6 +389,8 @@ private fun DebugToolsOptions(
     onForceUpdateApiVersions: () -> Unit,
     checkCrlRevocationList: () -> Unit,
     onResendFCMToken: () -> Unit,
+    isAsyncNotificationsEnabled: Boolean,
+    onEnableAsyncNotificationsChange: (Boolean) -> Unit,
 ) {
     FolderHeader(stringResource(R.string.label_debug_tools_title))
     Column {
@@ -475,6 +483,7 @@ private fun DebugToolsOptions(
                     )
                 }
             )
+            EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
         }
     }
 }
@@ -495,6 +504,36 @@ private fun DisableEventProcessingSwitch(
         },
         actions = {
             WireSwitch(
+                checked = isEnabled,
+                onCheckedChange = onCheckedChange,
+                modifier = Modifier
+                    .padding(end = dimensions().spacing8x)
+                    .size(
+                        width = dimensions().buttonSmallMinSize.width,
+                        height = dimensions().buttonSmallMinSize.height
+                    )
+            )
+        }
+    )
+}
+
+@Composable
+private fun EnableAsyncNotifications(
+    isEnabled: Boolean = false,
+    onCheckedChange: ((Boolean) -> Unit)?,
+) {
+    RowItemTemplate(
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.label_enable_async_notifications),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                enabled = !isEnabled,
                 checked = isEnabled,
                 onCheckedChange = onCheckedChange,
                 modifier = Modifier
@@ -532,6 +571,7 @@ fun PreviewOtherDebugOptions() = WireTheme {
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},
-        onResendFCMToken = {}
+        onResendFCMToken = {},
+        onEnableAsyncNotificationsChange = {}
     )
 }

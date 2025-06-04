@@ -57,8 +57,8 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
-import com.wire.android.ui.newauthentication.login.NewLoginContainer
-import com.wire.android.ui.newauthentication.login.NewLoginHeader
+import com.wire.android.ui.newauthentication.login.NewAuthContainer
+import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -98,9 +98,9 @@ fun CreateAccountSelectorContent(
     onPersonalAccountCreationClicked: () -> Unit,
     onTeamAccountCreationClicked: () -> Unit,
 ) {
-    NewLoginContainer(
+    NewAuthContainer(
         header = {
-            NewLoginHeader(
+            NewAuthHeader(
                 title = {
                     Text(
                         text = stringResource(id = R.string.create_account_selector_title),

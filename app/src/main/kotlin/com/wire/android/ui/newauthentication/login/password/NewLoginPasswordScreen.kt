@@ -91,9 +91,9 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
-import com.wire.android.ui.newauthentication.login.NewLoginContainer
-import com.wire.android.ui.newauthentication.login.NewLoginHeader
-import com.wire.android.ui.newauthentication.login.NewLoginSubtitle
+import com.wire.android.ui.newauthentication.login.NewAuthContainer
+import com.wire.android.ui.newauthentication.login.NewAuthHeader
+import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -162,9 +162,9 @@ internal fun LoginPasswordContent(
     navigateBack: () -> Unit,
     isCloudAccountCreationPossible: Boolean,
 ) {
-    NewLoginContainer(
+    NewAuthContainer(
         header = {
-            NewLoginHeader(
+            NewAuthHeader(
                 title = {
                     if (serverConfig.isOnPremises) {
                         ServerTitle(
@@ -175,7 +175,7 @@ internal fun LoginPasswordContent(
                             modifier = Modifier.padding(bottom = dimensions().spacing24x),
                         )
                     }
-                    NewLoginSubtitle(
+                    NewAuthSubtitle(
                         title = stringResource(id = R.string.enterprise_login_password_title),
                     )
                 },

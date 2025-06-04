@@ -190,7 +190,7 @@ private fun AccountType(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing12x),
             modifier = Modifier
-                .padding(vertical = dimensions().spacing24x, horizontal = dimensions().spacing16x)
+                .padding(vertical = dimensions().spacing16x, horizontal = dimensions().spacing16x)
         ) {
             Text(
                 text = title.uppercase(),
@@ -222,7 +222,7 @@ private fun AccountType(
                         modifier = Modifier.padding(start = dimensions().spacing8x)
                     )
                 }
-                HorizontalDivider(modifier = Modifier.padding(horizontal = dimensions().spacing16x))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = dimensions().spacing12x))
             }
 
             when {
@@ -230,7 +230,9 @@ private fun AccountType(
                     WirePrimaryButton(
                         text = onContinueButtonText,
                         onClick = onContinuePressed,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = dimensions().spacing8x)
                     )
                 }
 
@@ -238,7 +240,9 @@ private fun AccountType(
                     WireSecondaryButton(
                         text = onContinueButtonText,
                         onClick = onContinuePressed,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = dimensions().spacing8x)
                     )
                 }
             }

@@ -1272,7 +1272,6 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="backup_label_conversation_restored">Beszélgetések visszaállítva</string>
     <string name="backup_label_loading_conversations">Beszélgetések betöltése</string>
     <string name="backup_dialog_restore_backup_title">Visszaállítás biztonsági másolatból </string>
-    <string name="backup_dialog_restore_backup_message">A mentés tartalma felülírja a beszélgetések előzményeit ezen az eszközön. Csak olyan mentést tud visszaállítani, ami ugyanazon a rendszeren (platformon) készült.</string>
     <string name="backup_dialog_choose_backup_file_option">Válasszon biztonsági másolatot</string>
     <string name="backup_label_enter_password">Adja meg a jelszót</string>
     <string name="backup_dialog_restore_backup_password_message">Ez a biztonsági másolat jelszóvédett.</string>

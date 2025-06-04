@@ -18,16 +18,26 @@
 
 package com.wire.android.ui.registration
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,6 +53,8 @@ import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
 import com.wire.android.ui.newauthentication.login.NewLoginContainer
@@ -62,125 +74,180 @@ fun CreateAccountSelectorScreen(
     navigator: Navigator,
     viewModel: CreateAccountSelectorViewModel = hiltViewModel()
 ) {
-    CreateAccountSelectorContent(navigator, CreateAccountFlowType.CreatePersonalAccount, viewModel)
-}
 
-//@CreateTeamAccountNavGraph(start = true)
-//@WireDestination(navArgsDelegate = CreateAccountOverviewNavArgs::class)
-//@Composable
-//fun CreateTeamAccountOverviewScreen(
-//    navigator: Navigator,
-//    viewModel: CreateAccountOverviewViewModel = hiltViewModel()
-//) {
-//    CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreateTeam, viewModel)
-//}
+    fun navigateToEmailScreen() {
+        val createAccountNavArgs = CreateAccountNavArgs(
+            flowType = CreateAccountFlowType.CreatePersonalAccount,
+            customServerConfig = viewModel.navArgs.customServerConfig
+        )
+        navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
+    }
+
+    CreateAccountSelectorContent(
+        customServerLinks = viewModel.serverConfig,
+        onPersonalAccountCreationClicked = ::navigateToEmailScreen,
+        onTeamAccountCreationClicked = ::navigateToEmailScreen,
+        onNavigateBack = navigator::navigateBack,
+    )
+}
 
 @Composable
 fun CreateAccountSelectorContent(
-    navigator: Navigator,
-    flowType: CreateAccountFlowType,
-    viewModel: CreateAccountSelectorViewModel,
-) {
-    with(flowType) {
-        fun navigateToEmailScreen() {
-            val createAccountNavArgs = CreateAccountNavArgs(
-                flowType = this,
-                customServerConfig = viewModel.navArgs.customServerConfig
-            )
-            navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
-        }
-
-        AccountTypes(
-            onBackPressed = navigator::navigateBack,
-            onContinuePressed = ::navigateToEmailScreen,
-            serverConfig = viewModel.serverConfig,
-//            overviewParams = CreateAccountOverviewParams(
-//                title = stringResource(id = titleResId),
-//                contentTitle = overviewResources.overviewContentTitleResId?.let { stringResource(id = it) } ?: "",
-//                contentText = stringResource(id = overviewResources.overviewContentTextResId),
-//                contentIconResId = overviewResources.overviewContentIconResId,
-//                learnMoreText = stringResource(id = overviewResources.overviewLearnMoreTextResId),
-//                learnMoreUrl = viewModel.learnMoreUrl(),
-//            )
-        )
-    }
-}
-
-@Composable
-private fun AccountTypes(
-    onBackPressed: () -> Unit,
-    onContinuePressed: () -> Unit,
-    serverConfig: ServerConfig.Links
+    customServerLinks: ServerConfig.Links?,
+    onNavigateBack: () -> Unit,
+    onPersonalAccountCreationClicked: () -> Unit,
+    onTeamAccountCreationClicked: () -> Unit,
 ) {
     NewLoginContainer(
         header = {
             NewLoginHeader(
                 title = {
-                    Text(text = stringResource(id = R.string.create_account_selector_title), style = MaterialTheme.wireTypography.title01)
-                    if (serverConfig.isOnPremises) {
+                    Text(
+                        text = stringResource(id = R.string.create_account_selector_title),
+                        style = MaterialTheme.wireTypography.title01
+                    )
+                    if (customServerLinks?.isOnPremises == true) {
                         ServerTitle(
-                            serverLinks = serverConfig,
+                            serverLinks = customServerLinks,
                             style = MaterialTheme.wireTypography.body01
                         )
                     }
                 },
                 canNavigateBack = true,
-                onNavigateBack = onBackPressed
+                onNavigateBack = onNavigateBack
             )
         },
+        contentPadding = dimensions().spacing16x,
         content = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceEvenly) {
-                Text(
-                    text = stringResource(id = R.string.create_account_selector_team_title).uppercase(),
-                    style = MaterialTheme.wireTypography.title03,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = stringResource(id = R.string.create_account_selector_team_subtitle),
-                    style = MaterialTheme.wireTypography.body01,
-                )
-                HorizontalDivider()
-                WirePrimaryButton(
-                    text = stringResource(R.string.create_team_title),
-                    onClick = onContinuePressed,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(MaterialTheme.wireDimensions.spacing16x),
-                )
-            }
+            AccountType(
+                title = stringResource(id = R.string.create_account_selector_team_title),
+                subtitle = stringResource(id = R.string.create_account_selector_team_subtitle),
+                highlights = listOf(
+                    stringResource(id = R.string.create_account_selector_team_highlight_one),
+                    stringResource(id = R.string.create_account_selector_team_highlight_two)
+                ),
+                accountTypeStyling = AccountTypeStyling(
+                    containerBorderColor = MaterialTheme.colorScheme.primary,
+                    shouldUsePrimaryButton = true
+                ),
+                onContinueButtonText = stringResource(R.string.create_team_title),
+                onContinuePressed = onTeamAccountCreationClicked
+            )
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = stringResource(id = R.string.create_account_selector_personal_title).uppercase(),
-                    style = MaterialTheme.wireTypography.title03,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = stringResource(id = R.string.create_account_selector_personal_subtitle),
-                    style = MaterialTheme.wireTypography.body01,
-                )
-                WireSecondaryButton(
-                    text = stringResource(R.string.create_personal_account_title),
-                    onClick = onContinuePressed,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(MaterialTheme.wireDimensions.spacing16x)
-                )
-            }
+            AccountType(
+                title = stringResource(id = R.string.create_account_selector_personal_title),
+                subtitle = stringResource(id = R.string.create_account_selector_personal_subtitle),
+                highlights = listOf(
+                    stringResource(id = R.string.create_account_selector_personal_highlight_one),
+                    stringResource(id = R.string.create_account_selector_personal_highlight_two)
+                ),
+                accountTypeStyling = AccountTypeStyling(
+                    containerBorderColor = MaterialTheme.colorScheme.outline,
+                    shouldUsePrimaryButton = false
+                ),
+                onContinueButtonText = stringResource(R.string.create_personal_account_title),
+                onContinuePressed = onPersonalAccountCreationClicked
+            )
         }
     )
 }
 
+/**
+ * Metadata for the accounty type container styles.
+ */
+data class AccountTypeStyling(
+    val containerBorderColor: Color,
+    val shouldUsePrimaryButton: Boolean,
+)
+
+@Composable
+private fun AccountType(
+    title: String,
+    subtitle: String,
+    highlights: List<String>,
+    accountTypeStyling: AccountTypeStyling,
+    onContinueButtonText: String,
+    onContinuePressed: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .padding(bottom = dimensions().spacing24x, start = dimensions().spacing16x, end = dimensions().spacing16x)
+            .border(
+                border = BorderStroke(dimensions().spacing1x, accountTypeStyling.containerBorderColor),
+                shape = RoundedCornerShape(dimensions().spacing24x)
+            )
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing12x),
+            modifier = Modifier
+                .padding(vertical = dimensions().spacing24x, horizontal = dimensions().spacing16x)
+        ) {
+            Text(
+                text = title.uppercase(),
+                style = MaterialTheme.wireTypography.title03,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.wireTypography.body01,
+            )
+            HorizontalDivider(modifier = Modifier.padding(horizontal = dimensions().spacing16x))
+            highlights.forEach { highlight ->
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier
+                        .padding(horizontal = dimensions().spacing16x)
+                        .fillMaxWidth()
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .size(dimensions().spacing16x),
+                        imageVector = Icons.Filled.CheckCircle,
+                        tint = colorsScheme().positive,
+                        contentDescription = null,
+                    )
+                    Text(
+                        text = highlight,
+                        style = MaterialTheme.wireTypography.body01,
+                        modifier = Modifier.padding(start = dimensions().spacing8x)
+                    )
+                }
+                HorizontalDivider(modifier = Modifier.padding(horizontal = dimensions().spacing16x))
+            }
+
+            when {
+                accountTypeStyling.shouldUsePrimaryButton -> {
+                    WirePrimaryButton(
+                        text = onContinueButtonText,
+                        onClick = onContinuePressed,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                else -> {
+                    WireSecondaryButton(
+                        text = onContinueButtonText,
+                        onClick = onContinuePressed,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 @Preview
 fun PreviewCreateAccountOverviewScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
-            AccountTypes(
-                onBackPressed = { },
-                onContinuePressed = { },
-                ServerConfig.DEFAULT
+            CreateAccountSelectorContent(
+                customServerLinks = null,
+                onNavigateBack = {},
+                onPersonalAccountCreationClicked = {},
+                onTeamAccountCreationClicked = {}
             )
         }
     }

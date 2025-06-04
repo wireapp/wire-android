@@ -17,7 +17,9 @@
  */
 package com.wire.android.ui.home.messagecomposer
 
+import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -81,10 +83,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
-import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
+import com.wire.android.R
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.allUploaded
+import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
+import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.MessageComposerDefault
@@ -455,7 +458,13 @@ fun EnabledMessageComposer(
                             optionsVisible = inputStateHolder.optionsVisible,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
-                            onRecordAudioMessageClicked = ::toAudioRecording,
+                            onRecordAudioMessageClicked = {
+                                if (!messageComposerViewState.value.isCallOngoing) {
+                                    toAudioRecording()
+                                } else {
+                                    showRecordNotAllowedMessage(context)
+                                }
+                            },
                             onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
                             onLocationPickerClicked = onLocationClicked,
                             onImagesPicked = { onImagesPicked(it, false) },
@@ -481,6 +490,10 @@ fun EnabledMessageComposer(
             }
         }
     }
+}
+
+private fun showRecordNotAllowedMessage(context: Context) {
+    Toast.makeText(context, R.string.record_audio_unable_due_to_ongoing_call, Toast.LENGTH_SHORT).show()
 }
 
 private fun Size.getDistanceToCorner(corner: Offset): Float {

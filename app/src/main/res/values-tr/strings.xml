@@ -158,7 +158,6 @@
     <string name="content_description_calling_turn_speaker_off">Hoparlörü kapat</string>
     <string name="content_description_calling_in_call_reactions_show">Çağrı tepkileri panelinde göster</string>
     <string name="content_description_calling_in_call_reactions_hide">Çağrı tepkileri panelinde gizle</string>
-    <string name="content_description_show_more_options">Daha fazla seçenek göster</string>
     <string name="content_description_reply_to_messge">Mesajı yanıtla</string>
     <string name="content_description_reply_cancel">Yanıtlamayı iptal et</string>
     <string name="content_description_ping_message">Seslenme mesajı</string>

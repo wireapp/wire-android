@@ -144,7 +144,6 @@
     <string name="content_description_calling_turn_camera_off">カメラをオフにする</string>
     <string name="content_description_calling_turn_speaker_on">スピーカーをオンにする</string>
     <string name="content_description_calling_turn_speaker_off">スピーカーをオフにする</string>
-    <string name="content_description_show_more_options">詳細設定を表示</string>
     <string name="content_description_reply_to_messge">このメッセージに返信する</string>
     <string name="content_description_reply_cancel">返信をキャンセル</string>
     <string name="content_description_ping_message">pingメッセージ</string>

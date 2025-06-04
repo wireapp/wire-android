@@ -44,6 +44,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
@@ -57,9 +58,11 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -82,6 +85,7 @@ class MessageComposerViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val currentSessionFlowUseCase: CurrentSessionFlowUseCase,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val globalDataStore: GlobalDataStore,
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -111,6 +115,7 @@ class MessageComposerViewModel @Inject constructor(
         observeIsTypingAvailable()
         setFileSharingStatus()
         getEnterToSendState()
+        observeCallState()
     }
 
     private fun getEnterToSendState() {
@@ -225,5 +230,14 @@ class MessageComposerViewModel @Inject constructor(
         viewModelScope.launch {
             saveMessageDraft(messageDraft)
         }
+    }
+
+    private fun observeCallState() = viewModelScope.launch {
+        observeEstablishedCalls()
+            .map { it.isNotEmpty() }
+            .distinctUntilChanged()
+            .collectLatest { hasOngoingCalls ->
+                messageComposerViewState.value = messageComposerViewState.value.copy(isCallOngoing = hasOngoingCalls)
+            }
     }
 }

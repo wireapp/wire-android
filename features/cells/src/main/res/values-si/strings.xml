@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Wire
+  ~ Copyright (C) 2025 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<resources>
+    <string name="retry">නැවත</string>
+    <string name="file_list_load_error">ගොනු ලැයිස්තුව පූරණය කිරීමේදී දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න.</string>
+    <string name="file_list_empty_message">තවම ගොනු නොමැත. ඔබගේ සංවාද හරහා බෙදාගෙන ඇති සියලුම ගොනු ඔබට මෙහි සොයාගත හැකිය.</string>
+    <string name="conversation_file_list_empty_message">මෙම සංවාදයේ ගොනු නොමැත.</string>
+    <string name="file_list_search_empty_message">ගොනු කිසිවක් හමු නොවීය.</string>
+    <string name="save_label">ගොනුව සුරකින්න</string>
+    <string name="share_label">ගොනුව බෙදා ගන්න</string>
+    <string name="public_link">පොදු සබැඳිය පිටපත් කරන්න</string>
+    <string name="delete_label">ගොනුව මකන්න</string>
+    <string name="move_label">ෆෝල්ඩරය ගෙන යන්න</string>
+    <string name="download_label">ෆෝල්ඩරය බාගන්න</string>
+    <string name="copy_link">සබැඳිය පිටපත් කරන්න</string>
+    <string name="share_link">සබැඳිය බෙදා ගන්න</string>
+    <string name="copied_to_clipboard_message">සබැඳිය පසුරු පුවරුවට පිටපත් කරන ලදී</string>
+    <string name="file_subtitle">%2$sකින් %1$s</string>
+    <string name="file_subtitle_modified">%1$s %2$sවිසින්</string>
+    <string name="create_public_link">පොදු සබැඳිය සක්‍රීය කරන්න</string>
+    <string name="share_file_via_link">සබැඳිය හරහා ගොනුව බෙදා ගන්න</string>
+    <string name="no_app_found">ගොනුව විවෘත කිරීමට යෙදුමක් හමු නොවීය.</string>
+    <string name="cell_files_load_failure_message">පූරණය කිරීමට අසමත් විය. කරුණාකර පසුව නැවත උත්සාහ කරන්න.</string>
+    <string name="action_failed">ක්‍රියාව අසාර්ථක විය.</string>
+    <string name="cancel">අවලංගු කරන්න</string>
+    <string name="reload">නැවත පූරණය කරන්න</string>
+    <string name="error_delete_public_link">පොදු සබැඳිය ඉවත් කිරීමට අසමත් විය.</string>
+    <string name="error_load_public_link">පොදු සබැඳිය පූරණය කිරීමට අසමත් විය.</string>
+    <string name="error_create_public_link">පොදු සබැඳිය නිර්මාණය කිරීමට අසමත් විය.</string>
+    <string name="cell_files_download_failure_message">බාගැනීම අසාර්ථක විය.</string>
+    <string name="download_file_message">මෙම ගොනුව තවම බාගත කර නැත. ඔබට එය දැන් බාගත කිරීමට අවශ්‍යද?</string>
+    <string name="download">බාගත කරන්න</string>
+    <string name="error_share_link">සබැඳිය බෙදා ගැනීමට අසමත් විය.</string>
+    <string name="conversation_files_title">ගොනු</string>
+    <string name="creating_link">පොදු සබැඳියක් නිර්මාණය කිරීම…</string>
+    <string name="cells_new_label">අලුත්</string>
+    <string name="cells_new_label_content_description">අලුත්</string>
+    <string name="cells_create_folder">ෆෝල්ඩරය සාදන්න</string>
+    <string name="cells_folder_name">ෆෝල්ඩරයේ නම</string>
+</resources>

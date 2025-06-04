@@ -68,7 +68,8 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.adjustDestinationStylesForTablets
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
@@ -382,6 +383,8 @@ fun HomeContent(
                             val navHostEngine = rememberAnimatedNavHostEngine(
                                 rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
                             )
+
+                            adjustDestinationStylesForTablets()
                             DestinationsNavHost(
                                 navGraph = NavGraphs.home,
                                 engine = navHostEngine,

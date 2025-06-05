@@ -78,7 +78,7 @@ class ConversationInfoViewModelTest {
                 conversationDetails = oneToOneConversationDetails
             )
             .arrange()
-        launch { viewModel.observeConversationDetails {} }.run {
+        launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
@@ -99,7 +99,7 @@ class ConversationInfoViewModelTest {
                 conversationDetails = oneToOneConversationDetails
             )
             .arrange()
-        launch { viewModel.observeConversationDetails {} }.run {
+        launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
@@ -114,7 +114,7 @@ class ConversationInfoViewModelTest {
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .arrange()
-        launch { viewModel.observeConversationDetails {} }.run {
+        launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
@@ -136,7 +136,7 @@ class ConversationInfoViewModelTest {
                 conversationDetails = firstConversationDetails
             )
             .arrange()
-        launch { viewModel.observeConversationDetails {} }.run {
+        launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
@@ -179,7 +179,7 @@ class ConversationInfoViewModelTest {
                 conversationDetails = oneToOneConversationDetails
             )
             .arrange()
-        launch { viewModel.observeConversationDetails {} }.run {
+        launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
@@ -195,7 +195,7 @@ class ConversationInfoViewModelTest {
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = conversationDetails)
             .arrange()
-        launch { viewModel.observeConversationDetails {} }.run {
+        launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             val actualAvatar = viewModel.conversationInfoViewState.conversationAvatar
             // When - Then
@@ -214,7 +214,7 @@ class ConversationInfoViewModelTest {
             .arrange()
 
         // then
-        launch { viewModel.observeConversationDetails {} }.run {
+        launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             assertEquals(
                 groupConversationDetails.conversation.protocol,
@@ -237,7 +237,7 @@ class ConversationInfoViewModelTest {
             .arrange()
 
         // then
-        launch { viewModel.observeConversationDetails {} }.run {
+        launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             assertEquals(
                 groupConversationDetails.conversation.protocol,
@@ -260,7 +260,7 @@ class ConversationInfoViewModelTest {
             .arrange()
 
         // then
-        launch { viewModel.observeConversationDetails {} }.run {
+        launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             assertEquals(
                 groupConversationDetails.conversation.protocol,
@@ -297,10 +297,10 @@ class ConversationInfoViewModelTest {
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailFailure(StorageFailure.DataNotFound)
             .arrange()
-        launch { viewModel.observeConversationDetails(arrangement.onNotFound) }.run {
+        launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When - Then
-            verify(exactly = 1) { arrangement.onNotFound() }
+            assertEquals(true, viewModel.conversationInfoViewState.notFound)
             cancel()
         }
     }

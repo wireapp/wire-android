@@ -78,16 +78,17 @@ class ConversationInfoViewModel @Inject constructor(
         is removed without back params indicating that the user actually have just done that. The info about the group being removed
         could appear before the back navigation params. That's why it's being observed in the `LaunchedEffect` in the Composable.
     */
-    suspend fun observeConversationDetails(onNotFound: () -> Unit) {
+    suspend fun observeConversationDetails() {
         observeConversationDetails(conversationId)
-            .collect { it.handleConversationDetailsResult(onNotFound) }
+            .collect { it.handleConversationDetailsResult() }
     }
 
-    private suspend fun ObserveConversationDetailsUseCase.Result.handleConversationDetailsResult(onNotFound: () -> Unit) {
+    private suspend fun ObserveConversationDetailsUseCase.Result.handleConversationDetailsResult() {
         when (this) {
             is ObserveConversationDetailsUseCase.Result.Failure -> {
                 when (val failure = this.storageFailure) {
-                    is StorageFailure.DataNotFound -> onNotFound()
+                    is StorageFailure.DataNotFound ->
+                        conversationInfoViewState = conversationInfoViewState.copy(notFound = true)
 
                     is StorageFailure.Generic ->
                         appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)

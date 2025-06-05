@@ -33,9 +33,9 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -124,19 +124,14 @@ class ConversationMessagesViewModel @Inject constructor(
     )
         private set
 
-    var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
-        DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Hidden,
-            forEveryone = DeleteMessageDialogActiveState.Hidden
-        )
-    )
+    var deleteMessageDialogState: DeleteMessageDialogState by mutableStateOf(DeleteMessageDialogState.Hidden)
         private set
 
     val deleteMessageHelper = DeleteMessageDialogHelper(
         viewModelScope,
         conversationId,
         ::updateDeleteDialogState
-    ) { messageId, deleteForEveryone, _ ->
+    ) { messageId, deleteForEveryone ->
         deleteMessage(
             conversationId = conversationId,
             messageId = messageId,
@@ -398,10 +393,11 @@ class ConversationMessagesViewModel @Inject constructor(
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
-    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
-        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let {
-            deleteMessageDialogsState = newValue(it)
+    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogState) -> DeleteMessageDialogState) {
+        newValue(deleteMessageDialogState).also {
+            deleteMessageDialogState = it
         }
+    }
 
     fun updateImageOnFullscreenMode(message: UIMessage.Regular?) {
         lastImageMessageShownOnGallery = message
@@ -421,24 +417,12 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean) =
-        if (deleteForEveryone) {
-            updateDeleteDialogState {
-                it.copy(
-                    forEveryone = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId,
-                    )
-                )
-            }
-        } else {
-            updateDeleteDialogState {
-                it.copy(
-                    forYourself = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId,
-                    )
-                )
-            }
+        updateDeleteDialogState {
+            DeleteMessageDialogState.Visible(
+                type = if (deleteForEveryone) DeleteMessageDialogType.ForEveryone else DeleteMessageDialogType.ForYourself,
+                messageId = messageId,
+                conversationId = conversationId
+            )
         }
 
     private suspend fun isWireCellFeatureEnabled() = globalDataStore.wireCellsEnabled().firstOrNull() ?: false

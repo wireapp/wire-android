@@ -35,7 +35,6 @@ import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
-import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
@@ -240,24 +239,6 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
                 assertTrue(expectMostRecentItem() is ShowToast)
-            }
-        }
-
-    @Test
-    fun `given Intent with ServerConfig, when currentSession is absent and migration is required, then initialAppState is NOT_MIGRATED`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withMigrationRequired()
-                .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
-                .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home))
-                .arrange()
-
-            viewModel.actions.test {
-                viewModel.handleDeepLink(mockedIntent())
-                assertEquals(InitialAppState.NOT_MIGRATED, viewModel.initialAppState())
-                assertEquals(null, viewModel.globalAppState.customBackendDialog)
-                expectNoEvents()
             }
         }
 
@@ -777,7 +758,6 @@ class WireActivityViewModelTest {
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
             coEvery { observeSessionsUseCase.invoke() } returns flowOf(GetAllSessionsResult.Failure.NoSessionFound)
-            coEvery { migrationManager.shouldMigrate() } returns false
             every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
             coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
@@ -810,9 +790,6 @@ class WireActivityViewModelTest {
 
         @MockK
         private lateinit var switchAccount: AccountSwitchUseCase
-
-        @MockK
-        private lateinit var migrationManager: MigrationManager
 
         @MockK
         private lateinit var observeSyncStateUseCase: ObserveSyncStateUseCase
@@ -866,7 +843,6 @@ class WireActivityViewModelTest {
                 deepLinkProcessor = { deepLinkProcessor },
                 observeSessions = { observeSessionsUseCase },
                 accountSwitch = { switchAccount },
-                migrationManager = { migrationManager },
                 servicesManager = { servicesManager },
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = { observeIfAppUpdateRequired },
@@ -954,10 +930,6 @@ class WireActivityViewModelTest {
 
         fun withIsPersistentWebSocketServiceRunning(isRunning: Boolean): Arrangement = apply {
             every { servicesManager.isPersistentWebSocketServiceRunning() } returns isRunning
-        }
-
-        fun withMigrationRequired(): Arrangement = apply {
-            coEvery { migrationManager.shouldMigrate() } returns true
         }
 
         fun withNewClient(result: NewClientResult) = apply {

@@ -959,7 +959,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="backup_label_conversation_restored">Conversazioni ripristinate</string>
     <string name="backup_label_loading_conversations">Caricamento conversazioni</string>
     <string name="backup_dialog_restore_backup_title">Ripristina da backup</string>
-    <string name="backup_dialog_restore_backup_message">Il contenuto del backup sostituir&#224; la cronologia delle conversazioni su questo dispositivo. Puoi ripristinare solo la cronologia da un backup della stessa piattaforma.</string>
     <string name="backup_dialog_choose_backup_file_option">Scegli file di backup</string>
     <string name="backup_label_enter_password">Inserisci la password</string>
     <string name="backup_dialog_restore_backup_password_message">Questo backup &#232; protetto da password.</string>

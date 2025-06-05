@@ -48,7 +48,6 @@ class CheckAssetRestrictionsViewModel @Inject constructor() : ViewModel() {
                 else -> RestrictionCheckState.Success(assetBundleList = importedMediaList.map { it.assetBundle })
             }
         }
-
     }
 
     fun hideDialog() {

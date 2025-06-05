@@ -250,7 +250,7 @@ class ConversationMessagesViewModelTest {
 
             // Then
             viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
-                DeleteMessageDialogType.ForEveryone,  "", viewModel.conversationId
+                DeleteMessageDialogType.ForEveryone, "", viewModel.conversationId
             )
         }
 
@@ -267,7 +267,7 @@ class ConversationMessagesViewModelTest {
 
             // Then
             viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
-                DeleteMessageDialogType.ForYourself,  "", viewModel.conversationId
+                DeleteMessageDialogType.ForYourself, "", viewModel.conversationId
             )
         }
 
@@ -284,7 +284,7 @@ class ConversationMessagesViewModelTest {
 
             // Then
             viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
-                DeleteMessageDialogType.ForYourself,  "", viewModel.conversationId
+                DeleteMessageDialogType.ForYourself, "", viewModel.conversationId
             )
         }
 

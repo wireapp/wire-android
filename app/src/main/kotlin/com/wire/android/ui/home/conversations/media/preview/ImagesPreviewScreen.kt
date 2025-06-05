@@ -95,12 +95,11 @@ fun ImagesPreviewScreen(
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
 ) {
     LaunchedEffect(checkAssetRestrictionsViewModel.state) {
-        with (checkAssetRestrictionsViewModel.state) {
+        with(checkAssetRestrictionsViewModel.state) {
             if (this is RestrictionCheckState.Success) {
                 resultNavigator.setResult(ImagesPreviewNavBackArgs(this.assetBundleList))
                 resultNavigator.navigateBack()
             }
-
         }
     }
     Content(

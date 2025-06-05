@@ -32,3 +32,9 @@ annotation class CreatePersonalAccountNavGraph(
 annotation class CreateTeamAccountNavGraph(
     val start: Boolean = false
 )
+
+@RootNavGraph
+@NavGraph
+annotation class CreateAccountNavGraph(
+    val start: Boolean = false
+)

@@ -20,7 +20,6 @@ package com.wire.android.ui.registration.selector
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.wire.android.config.orDefault
-import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +29,7 @@ import javax.inject.Inject
 class CreateAccountSelectorViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    val navArgs: CreateAccountOverviewNavArgs = savedStateHandle.navArgs()
+    val navArgs: CreateAccountSelectorNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig.orDefault()
+    val email: String = navArgs.email.orEmpty()
 }

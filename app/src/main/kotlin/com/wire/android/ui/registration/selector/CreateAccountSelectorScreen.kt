@@ -41,15 +41,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.config.orDefault
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -57,6 +59,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
+import com.wire.android.ui.destinations.CreateAccountDataDetailScreenDestination
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
@@ -64,7 +67,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@RootNavGraph
+@CreateAccountNavGraph(start = true)
 @WireDestination(
     navArgsDelegate = CreateAccountSelectorNavArgs::class,
     style = AuthPopUpNavigationAnimation::class
@@ -78,15 +81,17 @@ fun CreateAccountSelectorScreen(
     fun navigateToEmailScreen() {
         val createAccountNavArgs = CreateAccountNavArgs(
             flowType = CreateAccountFlowType.CreatePersonalAccount,
-            customServerConfig = viewModel.navArgs.customServerConfig
+            customServerConfig = viewModel.serverConfig.orDefault(),
+            userRegistrationInfo = UserRegistrationInfo(viewModel.email)
         )
-        navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
+        navigator.navigate(NavigationCommand(CreateAccountDataDetailScreenDestination(createAccountNavArgs)))
     }
 
     fun navigateToEmailTeamScreen() {
         val createAccountNavArgs = CreateAccountNavArgs(
             flowType = CreateAccountFlowType.CreateTeam,
-            customServerConfig = viewModel.navArgs.customServerConfig
+            customServerConfig = viewModel.serverConfig.orDefault(),
+            userRegistrationInfo = UserRegistrationInfo(viewModel.email)
         )
         navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
     }

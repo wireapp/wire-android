@@ -811,7 +811,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="backup_label_conversation_restored">Conversaciones restauradas</string>
     <string name="backup_label_loading_conversations">Cargando conversaciones</string>
     <string name="backup_dialog_restore_backup_title">Restaurar desde copia de seguridad</string>
-    <string name="backup_dialog_restore_backup_message">El contenido de la copia de seguridad reemplazar&#225; el historial de conversaciones en este dispositivo. Solo puedes restaurar un historial desde una copia de seguridad de la misma plataforma.</string>
     <string name="backup_dialog_choose_backup_file_option">Seleccionar archivo de copia de seguridad</string>
     <string name="backup_label_enter_password">Ingresa una contrase&#241;a</string>
     <string name="backup_dialog_restore_backup_password_message">Esta copia de seguridad est&#225; protegida por contrase&#241;a.</string>

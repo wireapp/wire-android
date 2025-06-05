@@ -23,11 +23,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
@@ -59,7 +57,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -87,7 +84,6 @@ class DebugDataOptionsViewModelImpl
 @Inject constructor(
     @ApplicationContext private val context: Context,
     @CurrentAccount val currentAccount: UserId,
-    private val globalDataStore: GlobalDataStore,
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCount: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
@@ -111,7 +107,6 @@ class DebugDataOptionsViewModelImpl
     init {
         observeAsyncNotificationsEnabledData()
         observeMlsMetadata()
-        checkIfCanTriggerManualMigration()
         setGitHashAndDeviceId()
         setAnalyticsTrackingId()
         setServerConfigData()
@@ -272,24 +267,6 @@ class DebugDataOptionsViewModelImpl
                     }
                 )
             }
-        }
-    }
-
-    // If status is NoNeed, it means that the user has already been migrated in and older app version,
-    // or it is a new install
-    // this is why we check the existence of the database file
-    private fun checkIfCanTriggerManualMigration() {
-        viewModelScope.launch {
-            globalDataStore.getUserMigrationStatus(currentAccount.value).first()
-                .let { migrationStatus ->
-                    if (migrationStatus != UserMigrationStatus.NoNeed) {
-                        context.getDatabasePath(currentAccount.value).let {
-                            state = state.copy(
-                                isManualMigrationAllowed = (it.exists() && it.isFile)
-                            )
-                        }
-                    }
-                }
         }
     }
 

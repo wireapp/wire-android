@@ -24,9 +24,7 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
-import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
@@ -253,9 +251,6 @@ internal class DebugDataOptionsHiltArrangement {
     private val currentAccount: UserId = TestUser.SELF_USER_ID
 
     @MockK
-    lateinit var globalDataStore: GlobalDataStore
-
-    @MockK
     lateinit var updateApiVersions: UpdateApiVersionsScheduler
 
     @MockK
@@ -285,6 +280,24 @@ internal class DebugDataOptionsHiltArrangement {
     @MockK
     lateinit var startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase
 
+    private val viewModel by lazy {
+        DebugDataOptionsViewModelImpl(
+            context = context,
+            currentAccount = currentAccount,
+            updateApiVersions = updateApiVersions,
+            mlsKeyPackageCount = mlsKeyPackageCount,
+            restartSlowSyncProcessForRecovery = restartSlowSyncProcessForRecovery,
+            checkCrlRevocationList = checkCrlRevocationList,
+            getCurrentAnalyticsTrackingIdentifier = getCurrentAnalyticsTrackingIdentifier,
+            sendFCMToken = sendFCMToken,
+            dispatcherProvider = TestDispatcherProvider(),
+            selfServerConfigUseCase = selfServerConfigUseCase,
+            getDefaultProtocolUseCase = getDefaultProtocolUseCase,
+            startUsingAsyncNotifications = startUsingAsyncNotifications,
+            observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled
+        )
+    }
+
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -303,44 +316,25 @@ internal class DebugDataOptionsHiltArrangement {
                 context.getGitBuildId()
             } returns "gitBuildId"
             coEvery {
-                globalDataStore.getUserMigrationStatus(TestUser.SELF_USER_ID.value)
-            } returns flowOf(UserMigrationStatus.NoNeed)
-            coEvery {
                 selfServerConfigUseCase()
-            } returns SelfServerConfigUseCase.Result.Success(
-                ServerConfig(
-                    id = "id",
-                    links = mockk(),
-                    metaData = ServerConfig.MetaData(
-                        federation = true,
-                        commonApiVersion = CommonApiVersionType.Unknown,
-                        domain = null,
-                    )
+        } returns SelfServerConfigUseCase.Result.Success(
+            ServerConfig(
+                id = "id",
+                links = mockk(),
+                metaData = ServerConfig.MetaData(
+                    federation = true,
+                    commonApiVersion = CommonApiVersionType.Unknown,
+                    domain = null,
                 )
             )
-            every {
-                getDefaultProtocolUseCase()
-            } returns SupportedProtocol.PROTEUS
-            withObserveIsConsumableNotificationsEnabled(false)
+        )
+        every {
+            getDefaultProtocolUseCase()
+        } returns SupportedProtocol.PROTEUS
+
+        withObserveIsConsumableNotificationsEnabled(false)
         }
     }
-
-    fun arrange() = this to DebugDataOptionsViewModelImpl(
-        context = context,
-        currentAccount = currentAccount,
-        globalDataStore = globalDataStore,
-        updateApiVersions = updateApiVersions,
-        mlsKeyPackageCount = mlsKeyPackageCount,
-        restartSlowSyncProcessForRecovery = restartSlowSyncProcessForRecovery,
-        checkCrlRevocationList = checkCrlRevocationList,
-        getCurrentAnalyticsTrackingIdentifier = getCurrentAnalyticsTrackingIdentifier,
-        sendFCMToken = sendFCMToken,
-        dispatcherProvider = TestDispatcherProvider(),
-        selfServerConfigUseCase = selfServerConfigUseCase,
-        getDefaultProtocolUseCase = getDefaultProtocolUseCase,
-        observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled,
-        startUsingAsyncNotifications = startUsingAsyncNotifications
-    )
 
     suspend fun withObserveIsConsumableNotificationsEnabled(isEnabled: Boolean = false) = apply {
         coEvery {
@@ -359,7 +353,6 @@ internal class DebugDataOptionsHiltArrangement {
             sendFCMToken()
         } returns Either.Right(Unit)
     }
-
     suspend fun withSendFCMTokenClientIdFailure() = apply {
         coEvery {
             sendFCMToken()
@@ -461,4 +454,6 @@ internal class DebugDataOptionsHiltArrangement {
             CoreFailure.Unknown(IllegalStateException())
         )
     }
+
+    fun arrange() = this to viewModel
 }

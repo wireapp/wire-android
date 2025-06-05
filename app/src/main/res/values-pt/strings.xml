@@ -1204,7 +1204,6 @@ Em conversas de grupo, o administrador do grupo pode substituir essa configuraç
     <string name="backup_label_conversation_restored">Conversas foram restauradas</string>
     <string name="backup_label_loading_conversations">Carregando conversas</string>
     <string name="backup_dialog_restore_backup_title">Restaurar a partir do backup</string>
-    <string name="backup_dialog_restore_backup_message">O conteúdo do backup substituirá o histórico de conversas neste dispositivo. Você só pode restaurar o histórico de um backup da mesma plataforma.</string>
     <string name="backup_dialog_choose_backup_file_option">Escolha o arquivo de backup</string>
     <string name="backup_label_enter_password">Insira a senha</string>
     <string name="backup_dialog_restore_backup_password_message">Este backup está protegido por senha.</string>

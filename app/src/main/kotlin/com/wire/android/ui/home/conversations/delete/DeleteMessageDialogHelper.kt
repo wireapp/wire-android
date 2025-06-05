@@ -35,7 +35,7 @@ class DeleteMessageDialogHelper(
         }
 
     fun showDeleteMessageForYourselfDialog(messageId: String) {
-        updateStateIfDialogVisible {
+        updateDeleteDialogState {
             DeleteMessageDialogState.Visible(
                 type = DeleteMessageDialogType.ForYourself,
                 messageId = messageId,

@@ -176,11 +176,6 @@ fun HomeScreen(
     }
 
     val homeState = homeViewModel.homeState
-    if (homeViewModel.homeState.shouldDisplayWelcomeMessage) {
-        WelcomeNewUserDialog(
-            dismissDialog = homeViewModel::dismissWelcomeMessage
-        )
-    }
 
     if (analyticsUsageViewModel.state.shouldDisplayDialog) {
         AnalyticsUsageDialog(

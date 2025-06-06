@@ -174,3 +174,4 @@ class CreateAccountDataDetailViewModel @Inject constructor(
         is RequestActivationCodeResult.Failure.Generic -> CreateAccountDataDetailViewState.DetailsError.DialogError.GenericError(this.failure)
         is RequestActivationCodeResult.Success -> CreateAccountDataDetailViewState.DetailsError.None
     }
+}

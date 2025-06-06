@@ -154,24 +154,33 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                 onEmailContinue()
             }
         }
+    }
 
-        fun onDetailsErrorDismiss() {
-            detailsState = detailsState.copy(error = CreateAccountDataDetailViewState.DetailsError.None)
-        }
+    fun onDetailsErrorDismiss() {
+        detailsState = detailsState.copy(error = CreateAccountDataDetailViewState.DetailsError.None)
+    }
 
-        fun onTermsDialogDismiss() {
-            detailsState = detailsState.copy(termsDialogVisible = false)
-        }
+    fun onTermsDialogDismiss() {
+        detailsState = detailsState.copy(termsDialogVisible = false)
     }
 
     private fun RequestActivationCodeResult.toEmailError() = when (this) {
-        is RequestActivationCodeResult.Failure.AlreadyInUse -> CreateAccountDataDetailViewState.DetailsError.EmailFieldError.AlreadyInUseError
+        is RequestActivationCodeResult.Failure.AlreadyInUse ->
+            CreateAccountDataDetailViewState.DetailsError.EmailFieldError.AlreadyInUseError
+
         is RequestActivationCodeResult.Failure.BlacklistedEmail ->
             CreateAccountDataDetailViewState.DetailsError.EmailFieldError.BlacklistedEmailError
 
-        is RequestActivationCodeResult.Failure.DomainBlocked -> CreateAccountDataDetailViewState.DetailsError.EmailFieldError.DomainBlockedError
-        is RequestActivationCodeResult.Failure.InvalidEmail -> CreateAccountDataDetailViewState.DetailsError.EmailFieldError.InvalidEmailError
-        is RequestActivationCodeResult.Failure.Generic -> CreateAccountDataDetailViewState.DetailsError.DialogError.GenericError(this.failure)
-        is RequestActivationCodeResult.Success -> CreateAccountDataDetailViewState.DetailsError.None
+        is RequestActivationCodeResult.Failure.DomainBlocked ->
+            CreateAccountDataDetailViewState.DetailsError.EmailFieldError.DomainBlockedError
+
+        is RequestActivationCodeResult.Failure.InvalidEmail ->
+            CreateAccountDataDetailViewState.DetailsError.EmailFieldError.InvalidEmailError
+
+        is RequestActivationCodeResult.Failure.Generic ->
+            CreateAccountDataDetailViewState.DetailsError.DialogError.GenericError(this.failure)
+
+        is RequestActivationCodeResult.Success ->
+            CreateAccountDataDetailViewState.DetailsError.None
     }
 }

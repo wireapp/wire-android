@@ -22,12 +22,16 @@ data class DisplayNameState(
     val loading: Boolean = false,
     val saveEnabled: Boolean = false,
     val error: NameError = NameError.None,
+    val completed: Completed = Completed.None,
 ) {
+    enum class Completed {
+        None, Success, Failure
+    }
     sealed interface NameError {
-        object None : NameError
+        data object None : NameError
         sealed interface TextFieldError : NameError {
-            object NameEmptyError : TextFieldError
-            object NameExceedLimitError : TextFieldError
+            data object NameEmptyError : TextFieldError
+            data object NameExceedLimitError : TextFieldError
         }
     }
 }

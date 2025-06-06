@@ -44,6 +44,9 @@ fun AddMembersSearchScreen(
     navArgs: AddMembersSearchNavArgs,
     addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel(),
 ) {
+    if (addMembersToConversationViewModel.newGroupState.isCompleted) {
+        navigator.navigateBack()
+    }
     SearchUsersAndServicesScreen(
         searchTitle = stringResource(id = R.string.label_add_participants),
         onOpenUserProfile = { contact: Contact ->
@@ -51,11 +54,7 @@ fun AddMembersSearchScreen(
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         onContactChecked = addMembersToConversationViewModel::updateSelectedContacts,
-        onContinue = {
-            addMembersToConversationViewModel.addMembersToConversation(
-                onCompleted = navigator::navigateBack // TODO: move the navigation to the screen not view model
-            )
-        },
+        onContinue = addMembersToConversationViewModel::addMembersToConversation,
         isGroupSubmitVisible = true,
         onClose = navigator::navigateBack,
         onServiceClicked = { contact: Contact ->

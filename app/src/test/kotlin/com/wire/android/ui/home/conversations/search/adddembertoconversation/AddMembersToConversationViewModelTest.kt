@@ -105,7 +105,7 @@ class AddMembersToConversationViewModelTest {
     }
 
     @Test
-    fun `given contact, when adding to group conversion, then use case is called`() = runTest {
+    fun `given contact, when adding to group conversation, then use case is called`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange {
                 withAddMembersSearchNavArgs(
@@ -130,21 +130,22 @@ class AddMembersToConversationViewModelTest {
 
         viewModel.updateSelectedContacts(true, expected)
 
-        viewModel.addMembersToConversation(onCompleted = {})
+        viewModel.addMembersToConversation()
         advanceUntilIdle()
 
         coVerify(exactly = 1) {
-            arrangement.addMemberToConversionUseCase(
+            arrangement.addMemberToConversationUseCase(
                 conversationId = ConversationId("conversationId", "domain"),
                 userIdList = listOf(UserId(expected.id, expected.domain))
             )
         }
+        assertEquals(true, viewModel.newGroupState.isCompleted)
     }
 
     private class Arrangement {
 
         @MockK
-        lateinit var addMemberToConversionUseCase: AddMemberToConversationUseCase
+        lateinit var addMemberToConversationUseCase: AddMemberToConversationUseCase
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -162,12 +163,12 @@ class AddMembersToConversationViewModelTest {
         }
 
         fun withAddMemberToConversationUseCase(result: AddMemberToConversationUseCase.Result) {
-            coEvery { addMemberToConversionUseCase(any(), any()) } returns result
+            coEvery { addMemberToConversationUseCase(any(), any()) } returns result
         }
 
         fun arrange(block: Arrangement.() -> Unit): Pair<Arrangement, AddMembersToConversationViewModel> = apply(block).let {
             viewModel = AddMembersToConversationViewModel(
-                addMemberToConversation = addMemberToConversionUseCase,
+                addMemberToConversation = addMemberToConversationUseCase,
                 dispatchers = testDispatchers,
                 savedStateHandle = savedStateHandle
             )

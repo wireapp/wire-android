@@ -49,7 +49,7 @@ class AddMembersToConversationViewModel @Inject constructor(
 
     var newGroupState: AddMembersToConversationState by mutableStateOf(AddMembersToConversationState())
         private set
-    fun addMembersToConversation(onCompleted: () -> Unit) {
+    fun addMembersToConversation() {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 // TODO: addMembersToConversationUseCase does not handle failure
@@ -58,7 +58,7 @@ class AddMembersToConversationViewModel @Inject constructor(
                     userIdList = newGroupState.selectedContacts.map { UserId(it.id, it.domain) }
                 )
             }
-            onCompleted()
+            newGroupState = newGroupState.copy(isCompleted = true)
         }
     }
 
@@ -75,5 +75,6 @@ class AddMembersToConversationViewModel @Inject constructor(
 }
 
 data class AddMembersToConversationState(
-    val selectedContacts: ImmutableSet<Contact> = persistentSetOf()
+    val selectedContacts: ImmutableSet<Contact> = persistentSetOf(),
+    val isCompleted: Boolean = false,
 )

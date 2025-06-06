@@ -124,7 +124,7 @@ class AvatarPickerViewModel @Inject constructor(
         )
     }
 
-    fun uploadNewPickedAvatar(onComplete: (avatarAssetId: String?) -> Unit) {
+    fun uploadNewPickedAvatar() {
         val imgUri = pictureState.avatarUri
 
         viewModelScope.launch {
@@ -137,7 +137,7 @@ class AvatarPickerViewModel @Inject constructor(
                 when (val result = uploadUserAvatar(avatarPath, imageDataSize)) {
                     is UploadAvatarResult.Success -> {
                         dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-                        onComplete(dataStore.avatarAssetId.first())
+                        pictureState = PictureState.Completed(imgUri, dataStore.avatarAssetId.first())
                     }
 
                     is UploadAvatarResult.Failure -> {
@@ -176,6 +176,7 @@ class AvatarPickerViewModel @Inject constructor(
         data class Uploading(override val avatarUri: Uri) : PictureState(avatarUri)
         data class Initial(override val avatarUri: Uri) : PictureState(avatarUri)
         data class Picked(override val avatarUri: Uri) : PictureState(avatarUri)
+        data class Completed(override val avatarUri: Uri, val assetId: String?) : PictureState(avatarUri)
         data object Empty : PictureState("".toUri())
     }
 

@@ -51,12 +51,12 @@ class ChangeHandleViewModelTest {
             .withUpdateHandleResult(SetUserHandleResult.Success)
             .arrange()
 
-        viewModel.onSaveClicked(arrangement.onSuccess)
+        viewModel.onSaveClicked()
 
         coVerify(exactly = 1) {
             arrangement.setHandle("handle")
-            arrangement.onSuccess()
         }
+        assertEquals(true, viewModel.state.isSuccess)
     }
 
     @Test
@@ -67,9 +67,10 @@ class ChangeHandleViewModelTest {
             .withUpdateHandleResult(SetUserHandleResult.Failure.HandleExists)
             .arrange()
 
-        viewModel.onSaveClicked(arrangement.onSuccess)
+        viewModel.onSaveClicked()
 
         assertEquals(viewModel.state.error, HandleUpdateErrorState.TextFieldError.UsernameTakenError)
+        assertEquals(false, viewModel.state.isSuccess)
     }
 
     @Test
@@ -80,9 +81,10 @@ class ChangeHandleViewModelTest {
             .withUpdateHandleResult(SetUserHandleResult.Failure.InvalidHandle)
             .arrange()
 
-        viewModel.onSaveClicked(arrangement.onSuccess)
+        viewModel.onSaveClicked()
 
         assertEquals(viewModel.state.error, HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
+        assertEquals(false, viewModel.state.isSuccess)
         coVerify(exactly = 1) {
             arrangement.validateHandle("handle")
         }
@@ -97,12 +99,13 @@ class ChangeHandleViewModelTest {
             .withUpdateHandleResult(SetUserHandleResult.Failure.Generic(expectedError))
             .arrange()
 
-        viewModel.onSaveClicked(arrangement.onSuccess)
+        viewModel.onSaveClicked()
 
         assertEquals(
             viewModel.state.error,
             HandleUpdateErrorState.DialogError.GenericError(expectedError)
         )
+        assertEquals(false, viewModel.state.isSuccess)
     }
 
     @Test
@@ -143,9 +146,6 @@ class ChangeHandleViewModelTest {
     }
 
     private class Arrangement {
-        @MockK(relaxed = true)
-        lateinit var onSuccess: () -> Unit
-
         @MockK
         lateinit var setHandle: SetUserHandleUseCase
 

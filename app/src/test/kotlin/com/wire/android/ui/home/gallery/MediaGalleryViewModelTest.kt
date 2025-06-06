@@ -20,16 +20,18 @@ package com.wire.android.ui.home.gallery
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
@@ -44,7 +46,6 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -140,9 +141,10 @@ class MediaGalleryViewModelTest {
         viewModel.deleteCurrentImage()
 
         // Then
-        val deleteMessageDialogsState = viewModel.mediaGalleryViewState.deleteMessageDialogsState
-        assert(deleteMessageDialogsState is DeleteMessageDialogsState.States)
-        assert((deleteMessageDialogsState as DeleteMessageDialogsState.States).forEveryone is DeleteMessageDialogActiveState.Visible)
+        val deleteMessageDialogsState = viewModel.mediaGalleryViewState.deleteMessageDialogState
+        assertIs<DeleteMessageDialogState.Visible>(deleteMessageDialogsState).let {
+            assertEquals(DeleteMessageDialogType.ForEveryone, it.type)
+        }
     }
 
     @Test
@@ -158,10 +160,10 @@ class MediaGalleryViewModelTest {
             .arrange()
 
         // When
-        viewModel.deleteMessageHelper.onDeleteMessage("", true, arrangement.onDeleted)
+        viewModel.deleteMessageHelper.onDeleteMessage("", true)
 
         // Then
-        coVerify(exactly = 1) { arrangement.onDeleted() }
+        assertEquals(true, viewModel.mediaGalleryViewState.messageDeleted)
     }
 
     @Test
@@ -179,10 +181,10 @@ class MediaGalleryViewModelTest {
 
         viewModel.snackbarMessage.test {
             // When
-            viewModel.deleteMessageHelper.onDeleteMessage("", true, arrangement.onDeleted)
+            viewModel.deleteMessageHelper.onDeleteMessage("", true)
 
             // Then
-            coVerify(exactly = 0) { arrangement.onDeleted() }
+            assertEquals(false, viewModel.mediaGalleryViewState.messageDeleted)
             assertEquals(MediaGallerySnackbarMessages.DeletingMessageError, awaitItem())
         }
     }
@@ -202,9 +204,6 @@ class MediaGalleryViewModelTest {
 
         @MockK
         lateinit var deleteMessage: DeleteMessageUseCase
-
-        @MockK(relaxed = true)
-        lateinit var onDeleted: () -> Unit
 
         init {
             // Tests setup

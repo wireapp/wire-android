@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,8 +51,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.edit.assetMessageOptionsMenuItems
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
@@ -100,10 +100,13 @@ fun MediaGalleryScreen(
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 
+    LaunchedEffect(viewModelState.messageDeleted) {
+        if (viewModelState.messageDeleted) navigator.navigateBack()
+    }
+
     DeleteMessageDialog(
-        state = viewModelState.deleteMessageDialogsState,
+        state = viewModelState.deleteMessageDialogState,
         actions = mediaGalleryViewModel.deleteMessageHelper,
-        onDeleted = navigator::navigateBack
     )
 
     MediaGalleryContent(
@@ -250,10 +253,7 @@ fun PreviewMediaGalleryScreen() = WireTheme {
         state = MediaGalleryViewState(
             screenTitle = "Media Gallery",
             messageBottomSheetOptionsEnabled = true,
-            deleteMessageDialogsState = DeleteMessageDialogsState.States(
-                forYourself = DeleteMessageDialogActiveState.Hidden,
-                forEveryone = DeleteMessageDialogActiveState.Hidden
-            )
+            deleteMessageDialogState = DeleteMessageDialogState.Hidden,
         ),
         imageAsset = mockedPrivateAsset(),
         onCloseClick = {},

@@ -21,26 +21,23 @@ package com.wire.android.ui.home.conversations.delete
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
-sealed class DeleteMessageDialogsState {
-    data class States(
-        val forEveryone: DeleteMessageDialogActiveState,
-        val forYourself: DeleteMessageDialogActiveState
-    ) : DeleteMessageDialogsState()
+sealed class DeleteMessageDialogState {
+    data object Hidden : DeleteMessageDialogState()
 
-    data class Error(val coreFailure: CoreFailure) : DeleteMessageDialogsState()
-}
-
-sealed class DeleteMessageDialogActiveState {
-    object Hidden : DeleteMessageDialogActiveState()
     data class Visible(
+        val type: DeleteMessageDialogType,
         val messageId: String,
         val conversationId: ConversationId,
         val loading: Boolean = false,
         val error: DeleteMessageError = DeleteMessageError.None
-    ) : DeleteMessageDialogActiveState()
+    ) : DeleteMessageDialogState()
 }
 
 sealed class DeleteMessageError {
-    object None : DeleteMessageError()
+    data object None : DeleteMessageError()
     data class GenericError(val coreFailure: CoreFailure) : DeleteMessageError()
+}
+
+enum class DeleteMessageDialogType {
+    ForEveryone, ForYourself
 }

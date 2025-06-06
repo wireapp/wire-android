@@ -54,12 +54,13 @@ class InitialSyncViewModel @Inject constructor(
     }
 
     private fun waitUntilSyncIsCompleted() =
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.io()) {
             delay(DefaultDurationMillis.toLong()) // it can be triggered instantly so it's added to keep smooth transitions
             withContext(dispatchers.io()) {
-                observeSyncState().firstOrNull { it is SyncState.Live }
+                observeSyncState().firstOrNull { it is SyncState.Live }?.let {
+                    userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                }
             }?.let {
-                userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
                 isSyncCompleted = true
             } ?: run {
                 appLogger.e("InitialSyncViewModel: SyncState is null")

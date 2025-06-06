@@ -22,8 +22,11 @@ import android.view.View
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -37,14 +40,18 @@ import androidx.compose.ui.unit.times
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
+import com.wire.android.ui.calling.ongoing.participantsview.CallingGridParams
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
+import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
+import com.wire.android.util.ui.PreviewMultipleThemesForSquare
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun GroupCallGrid(
+    gridParams: CallingGridParams,
     participants: List<UICallParticipant>,
     pageIndex: Int,
     isSelfUserMuted: Boolean,
@@ -61,13 +68,12 @@ fun GroupCallGrid(
     contentPadding: Dp = dimensions().spacing4x,
     spacedBy: Dp = dimensions().spacing2x,
 ) {
-    // We need the number of tiles rows needed to calculate their height
-    val numberOfTilesRows = remember(participants.size) {
-        tilesRowsCount(participants.size)
+    val (columns, rows) = remember(gridParams, participants.size) {
+        gridParams.calculateColumnsAndRows(participants.size)
     }
     val tileHeight = remember(participants.size, contentHeight, contentPadding, spacedBy) {
-        val heightAvailableForItems = contentHeight - 2 * contentPadding - (numberOfTilesRows - 1) * spacedBy
-        heightAvailableForItems / numberOfTilesRows
+        val heightAvailableForItems = contentHeight - 2 * contentPadding - (rows - 1) * spacedBy
+        heightAvailableForItems / rows
     }
     LazyVerticalGrid(
         modifier = modifier,
@@ -75,7 +81,7 @@ fun GroupCallGrid(
         contentPadding = PaddingValues(contentPadding),
         horizontalArrangement = Arrangement.spacedBy(spacedBy),
         verticalArrangement = Arrangement.spacedBy(spacedBy),
-        columns = GridCells.Fixed(NUMBER_OF_GRID_CELLS)
+        columns = GridCells.Fixed(columns)
     ) {
 
         items(
@@ -114,54 +120,83 @@ fun GroupCallGrid(
     }
 }
 
-/**
- * Returns the number of lines needed to display x participants in a page
- */
-private fun tilesRowsCount(participantsSize: Int): Int = with(participantsSize) {
-    return@with if (this % 2 == 0) (this / 2) else ((this / 2) + 1)
-}
-
 private fun getContentType(
     isCameraOn: Boolean,
     isSharingScreen: Boolean
 ) = if (isCameraOn || isSharingScreen) "videoRender" else null
 
-private const val NUMBER_OF_GRID_CELLS = 2
-
 @Composable
 private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.height(800.dp)) {
-        GroupCallGrid(
-            participants = participants,
-            pageIndex = 0,
-            isSelfUserMuted = false,
-            isSelfUserCameraOn = false,
-            contentHeight = 800.dp,
-            onSelfVideoPreviewCreated = {},
-            onSelfClearVideoPreview = {},
-            onDoubleTap = { },
-            isInPictureInPictureMode = false,
-            recentReactions = emptyMap(),
-            isOnFrontCamera = false,
-            flipCamera = {},
-        )
+    Box(modifier = modifier.padding(top = 60.dp, bottom = 80.dp)) { // paddings to simulate top and bottom bars
+        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+            GroupCallGrid(
+                gridParams = CallingGridParams.fromScreenDimensions(maxWidth, maxHeight),
+                participants = participants,
+                pageIndex = 0,
+                isSelfUserMuted = false,
+                isSelfUserCameraOn = false,
+                contentHeight = maxHeight,
+                onSelfVideoPreviewCreated = {},
+                onSelfClearVideoPreview = {},
+                onDoubleTap = { },
+                isInPictureInPictureMode = false,
+                recentReactions = emptyMap(),
+                isOnFrontCamera = false,
+                flipCamera = {},
+            )
+        }
     }
 }
 
-@PreviewMultipleThemes
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
+@PreviewMultipleThemesForSquare
+@Composable
+fun PreviewGroupCallGrid_1Participant() = WireTheme {
+    PreviewGroupCallGrid(buildPreviewParticipantsList(1))
+}
+
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
+@PreviewMultipleThemesForSquare
+@Composable
+fun PreviewGroupCallGrid_2Participants() = WireTheme {
+    PreviewGroupCallGrid(buildPreviewParticipantsList(2))
+}
+
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
+@PreviewMultipleThemesForSquare
+@Composable
+fun PreviewGroupCallGrid_3Participants() = WireTheme {
+    PreviewGroupCallGrid(buildPreviewParticipantsList(3))
+}
+
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
+@PreviewMultipleThemesForSquare
 @Composable
 fun PreviewGroupCallGrid_4Participants() = WireTheme {
     PreviewGroupCallGrid(buildPreviewParticipantsList(4))
 }
 
-@PreviewMultipleThemes
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
+@PreviewMultipleThemesForSquare
 @Composable
 fun PreviewGroupCallGrid_6Participants() = WireTheme {
     PreviewGroupCallGrid(buildPreviewParticipantsList(6))
 }
 
-@PreviewMultipleThemes
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
 @Composable
 fun PreviewGroupCallGrid_8Participants() = WireTheme {
     PreviewGroupCallGrid(buildPreviewParticipantsList(8))
+}
+
+@PreviewMultipleThemesForSquare
+@Composable
+fun PreviewGroupCallGrid_9Participants() = WireTheme {
+    PreviewGroupCallGrid(buildPreviewParticipantsList(9))
 }

@@ -223,6 +223,7 @@ class PublicLinkViewModelTest {
                 assetId = "assetId",
                 fileName = "fileName",
                 publicLinkId = "publicLinkId",
+                isFolder = false,
             )
         }
 
@@ -231,6 +232,7 @@ class PublicLinkViewModelTest {
                 assetId = "assetId",
                 fileName = "fileName",
                 publicLinkId = "publicLinkId",
+                isFolder = false,
             )
         }
 
@@ -239,6 +241,7 @@ class PublicLinkViewModelTest {
                 assetId = "assetId",
                 fileName = "fileName",
                 publicLinkId = null,
+                isFolder = false,
             )
         }
 

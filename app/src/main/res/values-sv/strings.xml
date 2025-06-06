@@ -119,7 +119,6 @@
     <string name="content_description_calling_turn_camera_off">Stäng utav kameran</string>
     <string name="content_description_calling_turn_speaker_on">Sätt igång högtalaren</string>
     <string name="content_description_calling_turn_speaker_off">Stäng av högtalaren</string>
-    <string name="content_description_show_more_options">Visa fler alternativ</string>
     <string name="content_description_reply_to_messge">Svara på meddelandet</string>
     <string name="content_description_edit">Redigera</string>
     <string name="content_description_record_audio_button_send">Skicka ljudmeddelande</string>

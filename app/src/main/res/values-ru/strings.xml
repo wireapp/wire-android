@@ -160,7 +160,6 @@
     <string name="content_description_calling_turn_speaker_off">Выключить динамик</string>
     <string name="content_description_calling_in_call_reactions_show">Показать в панели реакций вызова</string>
     <string name="content_description_calling_in_call_reactions_hide">Скрыть в панели реакций вызова</string>
-    <string name="content_description_show_more_options">Показать больше вариантов</string>
     <string name="content_description_reply_to_messge">Ответить на сообщение</string>
     <string name="content_description_reply_cancel">Отменить ответ на сообщение</string>
     <string name="content_description_ping_message">Пинг</string>
@@ -1345,7 +1344,7 @@
     <string name="backup_label_conversation_restored">Беседы были восстановлены</string>
     <string name="backup_label_loading_conversations">Загрузка бесед</string>
     <string name="backup_dialog_restore_backup_title">Восстановить из резервной копии </string>
-    <string name="backup_dialog_restore_backup_message">Содержимое резервной копии заменит историю бесед на этом устройстве. Восстановить историю можно только из резервной копии для одной и той же платформы.</string>
+    <string name="backup_dialog_restore_backup_message">Текущая история на этом устройстве сохранится и будет дополнена новой резервной копией. Вы можете восстановить историю со всех ваших устройств и разных платформ, но не из другого аккаунта.</string>
     <string name="backup_dialog_choose_backup_file_option">Выберите резервную копию</string>
     <string name="backup_label_enter_password">Введите пароль</string>
     <string name="backup_dialog_restore_backup_password_message">Эта резервная копия защищена паролем.</string>

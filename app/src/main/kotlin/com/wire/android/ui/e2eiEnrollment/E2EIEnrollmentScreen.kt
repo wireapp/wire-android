@@ -26,7 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -39,11 +38,11 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
-import com.wire.android.ui.common.ClickableText
+import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -58,7 +57,6 @@ import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.home.E2EIEnrollmentErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
-import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -123,7 +121,6 @@ private fun E2EIEnrollmentScreenContent(
     onCancelEnrollmentClicked: () -> Unit,
     onProceedEnrollmentClicked: () -> Unit
 ) {
-    val uriHandler = LocalUriHandler.current
     BackHandler {
         onBackButtonClicked()
     }
@@ -186,20 +183,13 @@ private fun E2EIEnrollmentScreenContent(
                 )
                 withStyle(style) { append(stringResource(id = R.string.end_to_end_identity_required_dialog_text_no_snooze)) }
             }
-            ClickableText(
-                text = text,
-                style = MaterialTheme.wireTypography.body01,
+            TextWithLearnMore(
+                textAnnotatedString = text,
+                learnMoreLink = stringResource(R.string.url_e2ee_id_shield),
                 modifier = Modifier.padding(
                     top = MaterialTheme.wireDimensions.dialogTextsSpacing,
                     bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,
                 ),
-                onClick = { offset ->
-                    text.getStringAnnotations(
-                        tag = MarkdownConstants.TAG_URL,
-                        start = offset,
-                        end = offset,
-                    ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
-                }
             )
         }
 

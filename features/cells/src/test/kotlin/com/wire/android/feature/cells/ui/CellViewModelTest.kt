@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -24,13 +25,14 @@ import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.feature.cells.ui.model.FileAction
+import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
-import com.wire.kalium.cells.domain.model.CellFile
+import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
@@ -41,6 +43,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -61,25 +64,27 @@ class CellViewModelTest {
 
     private companion object {
         val testFiles = listOf(
-            CellFile(
+            Node.File(
                 uuid = "fileUuid",
                 versionId = "versionId",
-                fileName = "fileName",
+                name = "fileName",
                 mimeType = "image/png",
                 remotePath = "remotePath",
                 localPath = "localPath",
                 contentUrl = "https://example.com/file",
-                assetSize = 1024,
+                size = 1024,
+                modifiedTime = 1234567890L,
             ),
-            CellFile(
+            Node.File(
                 uuid = "fileUuid2",
                 versionId = "versionId2",
-                fileName = "fileName2",
+                name = "fileName2",
                 mimeType = "image/png",
                 remotePath = "remotePath2",
                 localPath = null,
                 contentUrl = null,
-                assetSize = 2048,
+                size = 2048,
+                modifiedTime = 1234567890L,
             )
         )
         val localFilePath = "localPath".toPath()
@@ -193,15 +198,14 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        viewModel.menu.test {
-
+        viewModel.menu.filterIsInstance(MenuOptions::class).test {
             val testFile = testFiles[0].toUiModel()
 
-            viewModel.sendIntent(CellViewIntent.OnFileMenuClick(testFile))
+            viewModel.sendIntent(CellViewIntent.OnItemMenuClick(testFile))
 
             with(expectMostRecentItem()) {
-                assertEquals(testFile, file)
-                assertEquals(FileAction.SHARE, actions.first())
+                assertEquals(testFile, node)
+                assertEquals(NodeBottomSheetAction.SHARE, actions.first())
             }
         }
     }
@@ -212,17 +216,17 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        viewModel.menu.test {
+        viewModel.menu.filterIsInstance(MenuOptions::class).test {
 
             val testFile = testFiles[0]
                 .toUiModel()
                 .copy(localPath = null)
 
-            viewModel.sendIntent(CellViewIntent.OnFileMenuClick(testFile))
+            viewModel.sendIntent(CellViewIntent.OnItemMenuClick(testFile))
 
             with(expectMostRecentItem()) {
-                assertEquals(testFile, file)
-                assertEquals(FileAction.SAVE, actions.first())
+                assertEquals(testFile, node)
+                assertEquals(NodeBottomSheetAction.SAVE, actions.first())
             }
         }
     }
@@ -238,7 +242,7 @@ class CellViewModelTest {
             .toUiModel()
             .copy(localPath = null)
 
-        viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.SAVE))
+        viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.SAVE))
 
         coVerify(exactly = 1) {
             arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any())
@@ -254,7 +258,7 @@ class CellViewModelTest {
         val testFile = testFiles[0]
             .toUiModel()
 
-        viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.SHARE))
+        viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.SHARE))
 
         coVerify(exactly = 1) {
             arrangement.fileHelper.shareFileChooser(any(), any(), any(), any())
@@ -271,11 +275,11 @@ class CellViewModelTest {
             .toUiModel()
 
         viewModel.actions.test {
-            viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.PUBLIC_LINK))
+            viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.PUBLIC_LINK))
 
             with(expectMostRecentItem()) {
                 assertTrue(this is ShowPublicLinkScreen)
-                assertEquals(testFile, (this as ShowPublicLinkScreen).file)
+                assertEquals(testFile, (this as ShowPublicLinkScreen).cellNode)
             }
         }
     }
@@ -290,11 +294,11 @@ class CellViewModelTest {
             .toUiModel()
 
         viewModel.actions.test {
-            viewModel.sendIntent(CellViewIntent.OnMenuActionSelected(testFile, FileAction.DELETE))
+            viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.DELETE))
 
             with(expectMostRecentItem()) {
                 assertTrue(this is ShowDeleteConfirmation)
-                assertEquals(testFile, (this as ShowDeleteConfirmation).file)
+                assertEquals(testFile, (this as ShowDeleteConfirmation).node)
             }
         }
     }
@@ -309,7 +313,7 @@ class CellViewModelTest {
         val testFile = testFiles[0]
             .toUiModel()
 
-        viewModel.sendIntent(CellViewIntent.OnFileDeleteConfirmed(testFile))
+        viewModel.sendIntent(CellViewIntent.OnNodeDeleteConfirmed(testFile))
 
         with(viewModel.nodesFlow.asSnapshot()) {
             assertFalse(contains(testFile))
@@ -325,7 +329,7 @@ class CellViewModelTest {
 
         val testFile = testFiles[0].toUiModel()
 
-        viewModel.sendIntent(CellViewIntent.OnFileDeleteConfirmed(testFile))
+        viewModel.sendIntent(CellViewIntent.OnNodeDeleteConfirmed(testFile))
 
         coVerify(exactly = 1) {
             arrangement.deleteCellAssetUseCase(any(), any())
@@ -368,10 +372,16 @@ class CellViewModelTest {
         lateinit var downloadCellFileUseCase: DownloadCellFileUseCase
 
         @MockK
+        lateinit var restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase
+
+        @MockK
         lateinit var fileHelper: FileHelper
 
         @MockK
         lateinit var kaliumFileSystem: KaliumFileSystem
+
+        @MockK
+        lateinit var context: Context
 
         init {
 
@@ -417,9 +427,11 @@ class CellViewModelTest {
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
+                restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,
                 kaliumFileSystem = kaliumFileSystem,
+                context = context
             )
         }
     }

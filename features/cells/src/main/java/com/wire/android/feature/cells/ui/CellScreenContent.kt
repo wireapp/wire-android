@@ -18,13 +18,11 @@
 package com.wire.android.feature.cells.ui
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,14 +43,13 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
-import com.wire.android.feature.cells.ui.dialog.FileActionsBottomSheet
-import com.wire.android.feature.cells.ui.dialog.FolderActionsBottomSheet
+import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
+import com.wire.android.feature.cells.ui.dialog.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -62,9 +59,11 @@ internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
     pagingListItems: LazyPagingItems<CellNodeUi>,
     sendIntent: (CellViewIntent) -> Unit,
+    onFolderClick: (CellNodeUi.Folder) -> Unit,
     downloadFileState: StateFlow<CellNodeUi.File?>,
-    fileMenuState: Flow<MenuOptions?>,
-    showPublicLinkScreen: (String, String, String?) -> Unit,
+    menuState: Flow<MenuOptions?>,
+    showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
+    showMoveToFolderScreen: (String, String, String) -> Unit,
     isAllFiles: Boolean,
     isSearchResult: Boolean = false,
 ) {
@@ -72,7 +71,8 @@ internal fun CellScreenContent(
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
 
-    var deleteConfirmation by remember { mutableStateOf<CellNodeUi.File?>(null) }
+    var deleteConfirmation by remember { mutableStateOf<Pair<CellNodeUi, Boolean>?>((null)) }
+    var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
     val downloadFile by downloadFileState.collectAsState()
@@ -85,10 +85,16 @@ internal fun CellScreenContent(
             isAllFiles = isAllFiles,
             onRetry = { pagingListItems.retry() }
         )
+
         else ->
             CellFilesScreen(
                 cellNodes = pagingListItems,
-                onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
+                onItemClick = {
+                    when (it) {
+                        is CellNodeUi.File -> sendIntent(CellViewIntent.OnFileClick(it))
+                        is CellNodeUi.Folder -> onFolderClick(it)
+                    }
+                },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
 //                onRefresh = {
 //                    viewModel.loadFiles(pullToRefresh = true)
@@ -97,29 +103,14 @@ internal fun CellScreenContent(
     }
 
     menu?.let { menuOptions ->
-        when (menuOptions) {
-            is MenuOptions.FileMenuOptions -> {
-                FileActionsBottomSheet(
-                    menuOptions = menuOptions,
-                    onDismiss = { menu = null },
-                    onAction = { action ->
-                        menu = null
-                        sendIntent(CellViewIntent.OnMenuFileActionSelected(menuOptions.cellNodeUi, action))
-                    }
-                )
+        NodeActionsBottomSheet(
+            menuOptions = menuOptions,
+            onDismiss = { menu = null },
+            onAction = { action ->
+                menu = null
+                sendIntent(CellViewIntent.OnMenuItemActionSelected(menuOptions.node, action))
             }
-
-            is MenuOptions.FolderMenuOptions -> {
-                FolderActionsBottomSheet(
-                    menuOptions = menuOptions,
-                    onDismiss = { menu = null },
-                    onAction = { action ->
-                        menu = null
-                        sendIntent(CellViewIntent.OnMenuFolderActionSelected(menuOptions.cellNodeUi, action))
-                    }
-                )
-            }
-        }
+        )
     }
 
     downloadFile?.let { file ->
@@ -130,14 +121,31 @@ internal fun CellScreenContent(
         )
     }
 
-    deleteConfirmation?.let {
+    deleteConfirmation?.let { (node, isPermanentDelete) ->
         DeleteConfirmationDialog(
+            itemName = node.name ?: "",
+            isFolder = node is CellNodeUi.Folder,
+            isPermanentDelete = isPermanentDelete,
             onConfirm = {
-                sendIntent(CellViewIntent.OnFileDeleteConfirmed(it))
+                sendIntent(CellViewIntent.OnNodeDeleteConfirmed(node))
                 deleteConfirmation = null
             },
             onDismiss = {
                 deleteConfirmation = null
+            }
+        )
+    }
+
+    restoreConfirmation?.let {
+        RestoreConfirmationDialog(
+            itemName = it.name ?: "",
+            isFolder = it is CellNodeUi.Folder,
+            onConfirm = {
+                sendIntent(CellViewIntent.OnNodeRestoreConfirmed(it))
+                restoreConfirmation = null
+            },
+            onDismiss = {
+                restoreConfirmation = null
             }
         )
     }
@@ -147,12 +155,18 @@ internal fun CellScreenContent(
             actionsFlow.collect { action ->
                 when (action) {
                     is ShowError -> Toast.makeText(context, action.error.message, Toast.LENGTH_SHORT).show()
-                    is ShowDeleteConfirmation -> deleteConfirmation = action.file
+                    is ShowDeleteConfirmation -> deleteConfirmation = action.node to action.isPermanentDelete
+                    is ShowRestoreConfirmation -> restoreConfirmation = action.node
                     is ShowPublicLinkScreen -> showPublicLinkScreen(
-                        action.file.uuid,
-                        action.file.name ?: action.file.uuid,
-                        action.file.publicLinkId
+                        PublicLinkScreenData(
+                            assetId = action.cellNode.uuid,
+                            fileName = action.cellNode.name ?: action.cellNode.uuid,
+                            linkId = action.cellNode.publicLinkId,
+                            isFolder = action.cellNode is CellNodeUi.Folder
+                        )
                     )
+
+                    is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
                     is RefreshData -> pagingListItems.refresh()
                 }
             }
@@ -161,23 +175,10 @@ internal fun CellScreenContent(
 
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            fileMenuState.collect { showMenu ->
+            menuState.collect { showMenu ->
                 menu = showMenu
             }
         }
-    }
-}
-
-@Composable
-private fun LoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        WireCircularProgressIndicator(
-            modifier = Modifier.size(dimensions().spacing32x),
-            progressColor = colorsScheme().primary
-        )
     }
 }
 
@@ -253,7 +254,7 @@ private fun EmptyScreen(
                 .weight(1f)
         )
 
-        if (!isSearchResult) {
+        if (!isSearchResult && isAllFiles) {
             WirePrimaryButton(
                 text = stringResource(R.string.reload),
                 onClick = onRetry

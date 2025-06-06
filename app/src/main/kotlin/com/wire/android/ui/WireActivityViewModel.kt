@@ -38,7 +38,6 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
-import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
@@ -110,13 +109,12 @@ import javax.inject.Inject
 class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
-    private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
+    currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
     private val deepLinkProcessor: Lazy<DeepLinkProcessor>,
     private val observeSessions: Lazy<ObserveSessionsUseCase>,
     private val accountSwitch: Lazy<AccountSwitchUseCase>,
-    private val migrationManager: Lazy<MigrationManager>,
     private val servicesManager: Lazy<ServicesManager>,
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: Lazy<ObserveIfAppUpdateRequiredUseCase>,
@@ -266,7 +264,6 @@ class WireActivityViewModel @Inject constructor(
     suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
         when {
-            shouldMigrate() -> InitialAppState.NOT_MIGRATED
             shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
             shouldEnrollToE2ei() -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
@@ -322,11 +319,6 @@ class WireActivityViewModel @Inject constructor(
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch(dispatchers.io()) {
-            if (shouldMigrate()) {
-                // means User is Logged in, but didn't finish the migration yet.
-                // so we need to finish migration first.
-                return@launch
-            }
             when (val result = deepLinkProcessor.get().invoke(intent?.data, intent?.action)) {
                 DeepLinkResult.AuthorizationNeeded -> sendAction(OnAuthorizationNeeded)
                 is DeepLinkResult.SSOLogin -> sendAction(OnSSOLogin(result))
@@ -495,8 +487,6 @@ class WireActivityViewModel @Inject constructor(
 
     private suspend fun shouldLogIn(): Boolean = observeCurrentValidUserId.first() == null
 
-    private suspend fun shouldMigrate(): Boolean = migrationManager.get().shouldMigrate()
-
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
@@ -613,7 +603,7 @@ data class GlobalAppState(
 )
 
 enum class InitialAppState {
-    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
+    NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
 }
 
 internal sealed interface WireActivityViewAction

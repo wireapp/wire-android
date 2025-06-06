@@ -102,6 +102,8 @@
     <string name="content_description_unarchive">Разархивировать</string>
     <string name="content_description_block_the_user">Заблокировать</string>
     <string name="content_description_unblock_the_user">Разблокировать</string>
+    <string name="content_description_leave_the_conversation">Покинуть беседу</string>
+    <string name="content_description_delete_the_conversation">Удалить беседу</string>
     <string name="content_description_conversation_phone_icon">Начать звонок</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Значок поиска</string>
@@ -116,6 +118,7 @@
     <string name="content_description_conversation_mention_someone">Упомянуть кого-нибудь</string>
     <string name="content_description_conversation_back_btn">Вернуться к списку бесед</string>
     <string name="content_description_conversation_open_details_label">открыть информацию о беседе</string>
+    <string name="content_description_new_conversation">Поиск друзей или создание новой беседы</string>
     <string name="content_description_back_button">Кнопка назад</string>
     <string name="content_description_send_button">Отправить</string>
     <string name="content_description_timed_message_button">Самоудаляющиеся сообщения, кнопка</string>
@@ -157,7 +160,6 @@
     <string name="content_description_calling_turn_speaker_off">Выключить динамик</string>
     <string name="content_description_calling_in_call_reactions_show">Показать в панели реакций вызова</string>
     <string name="content_description_calling_in_call_reactions_hide">Скрыть в панели реакций вызова</string>
-    <string name="content_description_show_more_options">Показать больше вариантов</string>
     <string name="content_description_reply_to_messge">Ответить на сообщение</string>
     <string name="content_description_reply_cancel">Отменить ответ на сообщение</string>
     <string name="content_description_ping_message">Пинг</string>
@@ -244,6 +246,8 @@
     <string name="content_description_welcome_screen_close_btn">Закрыть просмотр создания новой команды и авторизации</string>
     <string name="content_description_login_back_btn">Вернуться к просмотру создания новой команды и авторизации</string>
     <string name="content_description_login_user_identifier_field">введите свой email или псевдоним</string>
+    <string name="content_description_login_email_field">введите свой email</string>
+    <string name="content_description_enterprise_login_email_field">введите свой email или или код SSO</string>
     <string name="content_description_login_password_field">введите свой пароль</string>
     <string name="content_description_login_sso_code_field">введите свой код SSO или Wire email</string>
     <string name="content_description_whats_new_welcome_item">Добро пожаловать в новое приложение Wire для Android, ссылка на страницу поддержки</string>
@@ -254,6 +258,7 @@
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
     <string name="vault_screen_title">Хранилище</string>
+    <string name="channels_screen_title">Каналы</string>
     <string name="archive_screen_title">Архив</string>
     <string name="archive_screen_empty_state_title">В архиве пока ничего нет 👻</string>
     <string name="archive_screen_empty_state_description">Для поддержания порядка в списке бесед переместите сюда неиспользуемые. Позже их всегда можно будет разархивировать.</string>
@@ -322,20 +327,32 @@
     <string name="migration_messages_failure">К сожалению, не все сообщения и беседы удалось перенести из-за несовместимости со старой версией Wire (код ошибки: %s)</string>
     <string name="migration_cancel_title">Отменить миграцию</string>
     <string name="migration_cancel_message">Вы уверены, что хотите закрыть приложение и отменить выполняющуюся миграцию?</string>
+    <!-- Enterprise Login -->
+    <string name="enterprise_login_welcome">Введите ваш email, чтобы начать!</string>
+    <string name="enterprise_login_password_title">Введите пароль для входа</string>
+    <string name="enterprise_login_credentials_title">Введите ваши учетные данные для входа</string>
+    <string name="enterprise_login_next">Вперед</string>
+    <string name="enterprise_login_user_identifier_label">EMAIL ИЛИ КОД SSO</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">Введите email или код SSO</string>
+    <string name="enterprise_login_error_invalid_user_identifier">Пожалуйста, введите действительный email или код доступа SSO</string>
+    <string name="enterprise_login_create_account_label">У вас нет аккаунта Wire?</string>
+    <string name="enterprise_login_create_account_text_button">Создать аккаунт</string>
+    <string name="enterprise_login_on_prem_welcome_title">Приветствуем вас в Wire Enterprise для %s!</string>
+    <string name="enterprise_login_verification_code_title">Вам пришло письмо</string>
     <!-- Login -->
     <string name="login_title">Войти</string>
     <string name="login_forgot_password">Забыли пароль?</string>
     <string name="login_user_identifier_placeholder">maria@example.com или maria.ivanova</string>
     <string name="login_email_placeholder">maria@example.com</string>
+    <string name="login_email_label">EMAIL</string>
     <string name="login_user_identifier_label">EMAIL ИЛИ ПСЕВДОНИМ</string>
     <string name="login_proxy_identifier_label">PROXY EMAIL ИЛИ ПСЕВДОНИМ</string>
     <string name="login_error_invalid_credentials_title">Неверная информация</string>
     <string name="login_error_invalid_credentials_message">Эти учетные данные неверны. 
         Проверьте их и повторите попытку.
     </string>
-    <string name="login_error_invalid_user_identifier">Этот адрес электронной почты или имя пользователя неверны. Пожалуйста,
-        проверьте и повторите попытку.
-    </string>
+    <string name="login_error_invalid_user_identifier">Адрес email или псевдоним неверны. Пожалуйста, проверьте и повторите попытку.</string>
+    <string name="login_error_invalid_email">Адрес email неверен. Пожалуйста, проверьте и повторите попытку.</string>
     <string name="login_error_user_already_logged_in_title">Используемая учетная запись</string>
     <string name="login_error_user_already_logged_in_message">Вы уже авторизованы с этими учетными данными на данном устройстве.</string>
     <string name="login_sso_error_invalid_cookie_title">Неверный cookie!</string>
@@ -349,6 +366,10 @@
     <string name="login_error_invalid_sso_code_format">Введите действительный код доступа SSO</string>
     <string name="login_error_request_2fa_with_handle_title">Войти c email</string>
     <string name="login_error_request_2fa_with_handle_message">Вы не можете использовать псевдоним, поскольку активирована двухфакторная аутентификация. Пожалуйста, авторизуйтесь, используя свой адрес email.</string>
+    <string name="login_error_unauthorized_title">Неавторизован</string>
+    <string name="login_error_unauthorized_message">У этого аккаунта истек срок действия авторизации.</string>
+    <string name="login_error_pending_activation_title">Ожидание активации</string>
+    <string name="login_error_pending_activation_message">Аккаунт, к которому вы пытаетесь получить доступ, ожидает активации. Пожалуйста, проверьте свои данные.</string>
     <string name="deleted_user_error_title">Удаленный аккаунт</string>
     <string name="deleted_user_error_message">Вы деавторизованы, поскольку ваша учетная запись была
         удалена.
@@ -476,6 +497,7 @@
     <string name="channel_private_label">Приватный</string>
     <string name="channel_public_label">Публичный</string>
     <string name="channel_access_description">Все члены команды могут присоединяться к публичным каналам. Но только администраторы или участники канала могут добавлять людей в приватный канал.\nПриватный канал не может быть позже изменен на публичный.</string>
+    <string name="channel_access_short_description">Все члены команды могут присоединяться к публичным каналам. Но только администраторы или участники канала могут добавлять пользователей в приватный канал.</string>
     <string name="channel_add_permission_description">Выберите, кто может добавлять участников в приватный канал</string>
     <string name="channel_add_permission_admin_label">Администраторы</string>
     <string name="channel_add_permission_admin_members_label">Администраторы и члены</string>
@@ -496,7 +518,11 @@
     <string name="empty_channel_name_error">Пожалуйста, введите название канала</string>
     <string name="regular_group_name_exceeded_limit_error">Название группы не должно превышать 64 символа</string>
     <string name="channel_name_exceeded_limit_error">Название канала не должно превышать 64 символа</string>
+    <string name="conversation_can_not_be_created_title">Беседа не может быть создана</string>
+    <string name="create_channel_error_forbidden_message">Функция недоступна, пожалуйста, уточните у администратора вашей команды</string>
+    <string name="conversation_can_not_be_created_federation_conflict_description">Пользователи из бэкендов %1$s и %2$s не могут присоединиться к одной беседе.\n\nДля создания беседы удалите затронутых участников.</string>
     <string name="conversation_can_not_be_created_edit_participant_list">Изменить список участников</string>
+    <string name="conversation_can_not_be_created_discard_creation">Отменить создание беседы</string>
     <string name="asset_message_tap_to_download_text">Нажмите для загрузки</string>
     <string name="asset_message_upload_in_progress_text">Отправка…</string>
     <string name="asset_message_download_in_progress_text">Загрузка…</string>
@@ -515,16 +541,23 @@
     <string name="label_add_participants">Добавить участников</string>
     <string name="username_unavailable_label">Имя недоступно</string>
     <string name="temporary_user_label">%s покинул(-а)</string>
+    <string name="conversation_unavailable_label">Название беседы недоступно</string>
     <string name="conversation_details_title">Информация о беседе</string>
     <string name="conversation_details_options_tab">ПАРАМЕТРЫ</string>
     <string name="conversation_details_participants_tab">УЧАСТНИКИ</string>
     <string name="conversation_details_options_group_name">НАЗВАНИЕ ГРУППЫ</string>
+    <string name="conversation_details_conversation_admins">АДМИНИСТРАТОРЫ БЕСЕДЫ (%d)</string>
+    <string name="conversation_details_conversation_members">УЧАСТНИКИ БЕСЕДЫ (%d)</string>
+    <string name="conversation_details_participants_info">В этой беседе %s участника(-ов).\nК беседе могут присоединиться до 500 человек.</string>
     <string name="conversation_details_participants_count">%s участников</string>
     <string name="conversation_details_show_all_participants">Показать всех участников (%d)</string>
+    <string name="conversation_details_participants_title">Участники беседы</string>
+    <string name="conversation_details_conversation_participants_add">Добавить участников</string>
     <string name="conversation_participant_you_label">(Вы)</string>
     <string name="conversation_details_is_classified">УРОВЕНЬ БЕЗОПАСНОСТИ: VS-NfD</string>
     <string name="conversation_details_is_not_classified">УРОВЕНЬ БЕЗОПАСНОСТИ: НЕКЛАССИФИЦИРОВАН</string>
     <string name="conversation_options_self_deleting_messages_label">Самоудаляющиеся сообщения</string>
+    <string name="conversation_options_self_deleting_messages_description">Если этот параметр включен, все сообщения в этой беседе будут исчезать через определенное время.</string>
     <string name="conversation_options_guests_label">Гости</string>
     <string name="conversation_details_guest_description">Когда эта опция включена, к беседе могут присоединиться пользователи, не входящие в вашу команду</string>
     <string name="conversation_options_guest_description">Включите эту опцию, чтобы открыть эту беседу для пользователей не из вашей команды, даже если у них нет Wire.</string>
@@ -536,6 +569,16 @@
     <string name="disable_guest_dialog_text">Текущие гости будут удалены из беседы. Новые гости допущены не будут.</string>
     <string name="disable_services_dialog_title">Отключить доступ сервисов?</string>
     <string name="disable_services_dialog_text">Текущие сервисы будут удалены из беседы. Новые сервисы допущены не будут.</string>
+    <string name="leave_conversation_menu_item">Покинуть беседу…</string>
+    <string name="leave_conversation_dialog_title">Покинуть “%s”?</string>
+    <string name="leave_conversation_dialog_description">Вы больше не сможете отправлять и читать сообщения в этой беседе ни на одном устройстве.</string>
+    <string name="leave_conversation_dialog_delete_fully_check">Удалить беседу и ее контент у меня на всех моих устройствах</string>
+    <string name="delete_conversation_conversation_menu_item">Удалить беседу…</string>
+    <string name="delete_conversation_conversation_dialog_title">Удалить “%s”?</string>
+    <string name="delete_conversation_conversation_dialog_description">Беседа будет удалена из списка бесед на всех устройствах. Вы больше не сможете получить доступ к беседе и ее контенту.</string>
+    <string name="delete_conversation_locally_conversation_dialog_title">Удалить беседу «%s» у меня?</string>
+    <string name="delete_conversation_locally_conversation_dialog_description">Вы не сможете получить доступ к беседе и ее содержимому. Восстановить ее невозможно.</string>
+    <string name="delete_conversation_locally_delete_for_me_label">Удалить у меня</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Поделиться с Wire</string>
     <string name="import_media_searchbar_title">Поиск по беседе</string>
@@ -544,6 +587,10 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Отчеты о прочтении</string>
     <string name="conversation_options_read_receipt_description">При включении ваши собеседники смогут видеть когда было прочитано их сообщение.</string>
+    <!--Wire Cell -->
+    <string name="conversation_options_wire_cell_label">Wire Cell</string>
+    <string name="conversation_options_wire_cell_description">Если этот параметр включен, все файлы бесед сохраняются в хранилище Wire Cell.</string>
+    <string name="folder_label_wire_cell">Файловое хранилище</string>
     <!-- Messages -->
     <string name="message_details_title">Сведения о сообщении</string>
     <string name="message_details_reactions_tab">РЕАКЦИИ (%s)</string>
@@ -584,9 +631,13 @@
     <string name="user_profile_account_management">Управлять командой</string>
     <string name="user_profile_details_tab">Подробности</string>
     <string name="user_profile_devices_tab">Устройства</string>
+    <string name="user_profile_conversation_tab">Беседа</string>
+    <string name="user_profile_conversation_member">Участник беседы ”%s”</string>
+    <string name="user_profile_conversation_role">РОЛЬ</string>
     <string name="user_profile_role_in_conversation">Роль в ”%s”</string>
     <string name="user_profile_role_change_error">При попытке изменить роль возникла ошибка. Проверьте, пожалуйста, подключение к интернету и повторите попытку</string>
     <string name="user_profile_unblock_user">Разблокировать пользователя</string>
+    <string name="user_profile_conversation_remove_button">Удалить из беседы</string>
     <string name="user_profile_logging_out_progress">Выход...</string>
     <string name="user_profile_qr_code">Открыть QR-код</string>
     <string name="user_profile_qr_code_title">Поделиться профилем</string>
@@ -597,8 +648,9 @@
     <string name="user_profile_create_team_card_button">Создать команду</string>
     <string name="user_profile_create_team_description_card">Познакомьтесь с дополнительными возможностями бесплатно, сохранив тот же уровень безопасности.</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Удалить из группы?</string>
+    <string name="dialog_remove_conversation_member_title">Удалить из беседы?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) не сможет отправлять или получать сообщения в этой беседе.</string>
+    <string name="dialog_remove_conversation_member_error">При удалении участника из беседы произошла ошибка</string>
     <string name="conversation_role_admin">Администратор</string>
     <string name="conversation_role_member">Участник</string>
     <!-- Logout Wipe Data Dialog -->
@@ -628,6 +680,9 @@
     <string name="label_clear_content">Очистить контент…</string>
     <string name="label_block">Заблокировать</string>
     <string name="label_unblock">Разблокировать</string>
+    <string name="label_leave_conversation">Покинуть беседу</string>
+    <string name="label_delete_conversation_locally">Удалить беседу у меня</string>
+    <string name="label_delete_conversation">Удалить беседу</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Отфильтровать беседы</string>
     <string name="label_filter_all">Все беседы</string>
@@ -732,10 +787,37 @@
     <string name="label_system_message_conversation_started_by_self">**Вы** начали беседу</string>
     <string name="label_system_message_conversation_started_by_other">%1$s начал(-а) беседу</string>
     <string name="label_system_message_conversation_started_with_members">С %1$s</string>
+    <plurals name="label_system_message_conversation_failed_add_members_header">
+        <item quantity="one">Не удалось добавить в беседу **%1$s участника**.</item>
+        <item quantity="few">Не удалось добавить в беседу **%1$s участников**.</item>
+        <item quantity="many">Не удалось добавить в беседу **%%1$s участников**.</item>
+        <item quantity="other">Не удалось добавить в беседу **%%1$s участников**.</item>
+    </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_legal_hold">
+        <item quantity="one">%1$s не может быть добавлен в беседу из-за юридического ограничения.</item>
+        <item quantity="few">%1$s не могут быть добавлены в беседу из-за юридического ограничения.</item>
+        <item quantity="many">%1$s не могут быть добавлены в беседу из-за юридического ограничения.</item>
+        <item quantity="other">%1$s не могут быть добавлены в беседу из-за юридического ограничения.</item>
+    </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_federation">
+        <item quantity="one">Не удалось добавить %1$s в беседу, поскольку невозможно связаться с его бэкендом.</item>
+        <item quantity="few">Не удалось добавить %1$s в беседу, поскольку невозможно связаться с их бэкендом.</item>
+        <item quantity="many">Не удалось добавить %1$s в беседу, поскольку невозможно связаться с их бэкендом.</item>
+        <item quantity="other">Не удалось добавить %1$s в беседу, поскольку невозможно связаться с их бэкендом.</item>
+    </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_unknown">
+        <item quantity="one">Не удалось добавить %1$s в беседу.</item>
+        <item quantity="few">Не удалось добавить %1$s в беседу.</item>
+        <item quantity="many">Не удалось добавить %1$s в беседу.</item>
+        <item quantity="other">Не удалось добавить %1$s в беседу.</item>
+    </plurals>
     <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header">**Коммуникации в Wire всегда зашифрованы сквозным шифрованием.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message">Все, что вы отправляете и получаете в этой беседе, доступно только вам и другим участникам беседы.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_footer">Пожалуйста, будьте осторожны со всеми с кем делитесь конфиденциальной информацией.</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
     <!-- Last messages -->
@@ -867,6 +949,19 @@
     <string name="label_new_channel">Новый канал</string>
     <string name="label_create_new_group">Новая группа</string>
     <string name="label_create_new_channel">Новый канал</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d участник</item>
+        <item quantity="few">%1$d участника</item>
+        <item quantity="many">%1$d участников</item>
+        <item quantity="other">%1$d участников</item>
+    </plurals>
+    <!-- Search Channels -->
+    <string name="label_search_channels">Поиск каналов</string>
+    <string name="label_public_channels">Публичные каналы</string>
+    <string name="label_search_public_channels">Поиск публичных каналов</string>
+    <string name="label_browse_public_channels">Обзор публичных каналов</string>
+    <string name="label_search_channels_empty_title">Для этой команды еще не создано ни одного публичного канала.</string>
+    <string name="label_learn_more_about_channels">Подробнее о каналах</string>
     <string name="label_new_conversation">Новая беседа</string>
     <string name="label_search_people">Поиск пользователей</string>
     <string name="label_public_wire">Wire Public</string>
@@ -904,7 +999,7 @@
     <string name="error_blocking_user">Пользователь не может быть заблокирован</string>
     <string name="blocking_user_success">%s заблокирован</string>
     <string name="conversation_removed_success">“%s” удален</string>
-    <string name="conversation_removed_locally_success">Удалили себя из \"%s\"</string>
+    <string name="conversation_removed_locally_success">“%s” у меня удален</string>
     <string name="leave_conversation_error">При выходе из беседы произошла ошибка</string>
     <string name="joined_conversation_success">Вы присоединились к беседе.</string>
     <string name="left_conversation_success">Вы покинули беседу.</string>
@@ -939,6 +1034,7 @@
     <string name="notification_reply">Ответ: %1$s</string>
     <string name="notification_not_supported_issue">Функция не поддерживается</string>
     <string name="notification_connection_request">Хочет подключиться</string>
+    <string name="notification_conversation_deleted">Удалена беседа</string>
     <string name="notification_action_reply">Ответить</string>
     <string name="notification_receiver_name">Вы</string>
     <string name="label_type_a_message">Введите сообщение</string>
@@ -1055,12 +1151,19 @@
     <string name="allow_services_regular_group_description">Открыть эту беседу для сервисов. Вы всегда сможете изменить это позже.</string>
     <string name="allow_services_channel_description">Откройте эту беседу для людей, не из вашей команды или сервисов. Вы всегда сможете изменить это позже.</string>
     <string name="service_details_label">Сервис</string>
+    <string name="service_details_add_service_label">Добавить в беседу</string>
+    <string name="service_details_remove_service_label">Удалить из беседы</string>
+    <string name="service_remove_success">Сервис удален из беседы</string>
+    <string name="service_remove_error">Не удалось удалить сервис из беседы</string>
+    <string name="service_add_success">Сервис не был добавлен в беседу</string>
+    <string name="service_add_error">Не удалось добавить сервис в беседу</string>
     <string name="service_no_information_available_title">Информация недоступна</string>
     <string name="service_no_information_available_subtitle">Попробуйте еще раз или свяжитесь с администратором группы</string>
     <string name="read_receipts">Отчеты о прочтении</string>
     <string name="read_receipts_regular_group_description">При включении ваши собеседники смогут видеть когда было прочитано их сообщение.</string>
     <string name="read_receipts_channel_description">При включении ваши собеседники смогут видеть когда было прочитано их сообщение в этом канале.</string>
     <string name="disable_guests_dialog_title">Не разрешать гостей?</string>
+    <string name="disable_guests_dialog_description">Гости, выбранные на предыдущем этапе, не смогут войти в беседу, если не разрешить гостевой доступ.</string>
     <string name="disable_guests_dialog_button">Не разрешать гостей</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Заблокировать пользователя?</string>
@@ -1241,7 +1344,7 @@
     <string name="backup_label_conversation_restored">Беседы были восстановлены</string>
     <string name="backup_label_loading_conversations">Загрузка бесед</string>
     <string name="backup_dialog_restore_backup_title">Восстановить из резервной копии </string>
-    <string name="backup_dialog_restore_backup_message">Содержимое резервной копии заменит историю бесед на этом устройстве. Восстановить историю можно только из резервной копии для одной и той же платформы.</string>
+    <string name="backup_dialog_restore_backup_message">Текущая история на этом устройстве сохранится и будет дополнена новой резервной копией. Вы можете восстановить историю со всех ваших устройств и разных платформ, но не из другого аккаунта.</string>
     <string name="backup_dialog_choose_backup_file_option">Выберите резервную копию</string>
     <string name="backup_label_enter_password">Введите пароль</string>
     <string name="backup_dialog_restore_backup_password_message">Эта резервная копия защищена паролем.</string>
@@ -1272,6 +1375,12 @@
     <string name="create_personal_account_not_supported_dialog_description">Нельзя создать личный аккаунт во внутреннем бэкэнде с поддержкой прокси.</string>
     <string name="create_team_not_supported_dialog_description">Вы не можете создать новую команду на локальном бэкэнде с поддержкой прокси в приложении.\nИспользуйте управление командой (%1$s) на этом бэкэнде.</string>
     <string name="to_team_management_action">Открыть управление командой</string>
+    <!-- Claimed Domain dialog -->
+    <string name="claimed_domain_email_already_in_use_dialog_title">Email, заявленный в локальном бэкенде</string>
+    <string name="claimed_domain_email_already_in_use_dialog_description">Домен этого email принадлежит локальному бэкенду. Пожалуйста, измените свой email в настройках аккаунта или удалите аккаунт. Если вы являетесь частью команды, обратитесь к администратору команды.</string>
+    <string name="claimed_domain_change_email_label">Как изменить адрес email</string>
+    <string name="claimed_domain_delete_personal_account">Как удалить личный аккаунт</string>
+    <string name="bullet_finger_point">👉</string>
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Требуется обновление</string>
     <string name="update_app_dialog_body">Вы упускаете новые возможности. Обновите приложение до последней версии Wire, чтобы продолжить работу с этой учетной записью.</string>
@@ -1297,10 +1406,13 @@
     <string name="join_conversation_dialog_message">Вас пригласили в беседу.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Присоединиться</string>
     <string name="join_conversation_via_deeplink_error_title">Невозможно присоединиться к беседе</string>
+    <string name="join_conversation_via_deeplink_error_link_expired">Срок действия ссылки на эту беседу истек или беседа стала приватной.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Достигнуто максимальное количество участников в этой беседе.</string>
+    <string name="join_conversation_via_deeplink_error_general">Из-за ошибки вы не можете быть добавлены в беседу.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Самоудаляющиеся сообщения</string>
     <string name="self_deleting_messages_option">Принудительное удаление сообщений</string>
+    <string name="self_deleting_messages_option_description">При включении этой опции все сообщения в данной беседе будут исчезать через определенное время. Это относится ко всем участникам.</string>
     <string name="self_deleting_messages_folder_timer">Таймер</string>
     <!-- visit link -->
     <string name="label_visit_link_title">Перейти по ссылке</string>
@@ -1327,6 +1439,8 @@
     <string name="title_device_key_fingerprint">ОТПЕЧАТОК КЛЮЧА УСТРОЙСТВА</string>
     <string name="label_client_key_fingerprint_not_available">НЕДОСТУПНО</string>
     <string name="guest_room_link_copied">Ссылка скопирована в буфер обмена</string>
+    <string name="guest_room_link_enabled">Генерация гостевых ссылок теперь включена для всех администраторов беседы</string>
+    <string name="guest_room_link_disabled">Генерация гостевых ссылок теперь отключена для всех администраторов беседы</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Ваш аккаунт использовался на</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nОт: %2$s \n</string>
@@ -1674,4 +1788,11 @@
     <string name="channel_not_available_dialog_title">Каналы доступны для членов команды.</string>
     <string name="channel_not_available_dialog_description">Создайте команду и начните взаимодействовать бесплатно!</string>
     <string name="channel_not_available_dialog_create_team_button">Создать команду Wire</string>
+    <string name="custimization_options_header_title">Настройки</string>
+    <string name="cells_screen_title">Все файлы</string>
+    <string name="cells_screen_search_hint">Поиск файлов</string>
+    <string name="enable_wire_cell">Включить Wire Cell</string>
+    <string name="enable_wire_cell_switch_description">Все файлы в этой беседе будут загружены в хранилище Wire Cell.</string>
+    <string name="failed_attachment_retry_upload">Повторить загрузку</string>
+    <string name="failed_attachment_remove">Удалить</string>
 </resources>

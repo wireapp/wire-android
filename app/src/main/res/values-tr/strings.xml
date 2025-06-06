@@ -40,6 +40,8 @@
     <string name="label_membership_external">Harici</string>
     <string name="label_membership_service">Hizmet</string>
     <string name="label_user_deleted">Silinmiş</string>
+    <string name="label_try_again">Yeniden Dene</string>
+    <string name="label_done">Tamamlandı</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Bağlantı sorunları nedeniyle düzenlenen mesaj gönderilemedi.</string>
     <string name="label_message_sent_remotely_failure">%s arka ucuna ulaşılamadığından mesaj gönderilemedi.</string>
@@ -98,6 +100,8 @@
     <string name="content_description_unarchive">Arşivden Çıkar</string>
     <string name="content_description_block_the_user">Engelle</string>
     <string name="content_description_unblock_the_user">Engeli kaldır</string>
+    <string name="content_description_leave_the_conversation">Sohbetten ayrıl</string>
+    <string name="content_description_delete_the_conversation">Konuşmayı sil</string>
     <string name="content_description_conversation_phone_icon">Sesli aramayı başlat</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Arama simgesi</string>
@@ -110,6 +114,9 @@
     <string name="content_description_conversation_send_emoticon">İfade gönder düğmesi</string>
     <string name="content_description_conversation_send_gif">GIF gönder düğmesi</string>
     <string name="content_description_conversation_mention_someone">Birinden bahset</string>
+    <string name="content_description_conversation_back_btn"> Sohbet listesine geri dön</string>
+    <string name="content_description_conversation_open_details_label">konuşma detaylarını aç</string>
+    <string name="content_description_new_conversation">Kişileri arayın veya yeni bir sohbet oluşturun</string>
     <string name="content_description_back_button">Geri tuşu</string>
     <string name="content_description_send_button">Gönder</string>
     <string name="content_description_timed_message_button">Kendini yok eden iletiler, düğme</string>
@@ -133,6 +140,8 @@
     <string name="content_description_more_options">Daha fazla seçenekler</string>
     <string name="content_description_add_contact">Kişi ekleme</string>
     <string name="content_description_image_message">Resimli mesaj</string>
+    <string name="content_description_pause_audio">Sesi duraklat</string>
+    <string name="content_description_play_audio">Sesi oynat</string>
     <string name="content_description_file_message">Dosya mesajı</string>
     <string name="content_description_ping_everyone">Seslenme</string>
     <string name="content_description_self_deleting_message_timer">Kendi kendini silen mesajlar için zamanlayıcı ayarlama</string>
@@ -147,7 +156,8 @@
     <string name="content_description_calling_turn_camera_off">Kamerayı kapat</string>
     <string name="content_description_calling_turn_speaker_on">Hoparlörü aç</string>
     <string name="content_description_calling_turn_speaker_off">Hoparlörü kapat</string>
-    <string name="content_description_show_more_options">Daha fazla seçenek göster</string>
+    <string name="content_description_calling_in_call_reactions_show">Çağrı tepkileri panelinde göster</string>
+    <string name="content_description_calling_in_call_reactions_hide">Çağrı tepkileri panelinde gizle</string>
     <string name="content_description_reply_to_messge">Mesajı yanıtla</string>
     <string name="content_description_reply_cancel">Yanıtlamayı iptal et</string>
     <string name="content_description_ping_message">Seslenme mesajı</string>
@@ -168,12 +178,52 @@
     <string name="content_description_record_audio_button_send">Sesli mesaj gönder</string>
     <string name="content_description_mls_certificate_valid">Tüm katılımcıların tüm cihazları geçerli bir MLS sertifikasına sahiptir</string>
     <string name="content_description_proteus_certificate_valid">Tüm katılımcıların tamamı doğrulanmıştır (Proteus)</string>
+    <string name="content_description_jump_to_last_message">Konuşmanın sonuna doğru kaydırın</string>
     <string name="content_description_location_icon">Konum öğesi</string>
+    <string name="content_description_conversation_details_more_btn">Konuşma seçeneklerini aç</string>
     <string name="content_description_conversation_details_options_tab_header">Seçenekler</string>
+    <string name="content_description_conversation_details_participants_tab_header">Katılımcılar</string>
+    <string name="content_description_conversation_details_close_btn">Konuşma ayrıntılarını kapat</string>
+    <string name="content_description_conversation_details_guests_action">misafir erişimini ayarla</string>
+    <string name="content_description_conversation_details_self_deleting_action">kendi silme süresini ayarla</string>
+    <string name="content_description_user_profile_more_btn">Konuşma seçeneklerini aç</string>
+    <string name="content_description_user_profile_close_btn">Konuşma detaylarına geri dön</string>
     <string name="content_description_user_profile_edit_role_btn">Rolü düzenle</string>
+    <string name="content_description_user_profile_copy_phone_btn">Telefonu kopyala</string>
     <string name="content_description_user_profile_copy_email_btn">Email\'i kopyala</string>
     <string name="content_description_user_profile_open_device_btn">cihaz detaylarını aç</string>
+    <string name="content_description_connection_request_close_btn">Bağlantı isteği görünümünü kapat</string>
+    <string name="content_description_search_text_in_conversation_btn">Metin mesajlarını ara</string>
+    <string name="content_description_see_media_in_conversation_btn">Resimlerin ve dosyaların genel görünümünü aç</string>
+    <string name="content_description_add_participants_close">Katılımcı ekleme görünümünü kapat</string>
+    <string name="content_description_add_participants_search_field">Kişileri isme veya kullanıcı adına göre arayın</string>
+    <string name="content_description_add_participants_back_btn">Katılımcıları ekleme görünümüne geri dön</string>
+    <string name="content_description_home_profile_btn">Profiliniz</string>
+    <string name="content_description_home_profile_btn_with_notification">Profiliniz, okunmamış bir ipucu.</string>
+    <string name="content_description_open_label">aç</string>
+    <string name="content_description_join_call_label">bir çağrıya katıl</string>
+    <string name="content_description_share_label">paylaş</string>
+    <string name="content_description_collapse_label">daralt</string>
+    <string name="content_description_expand_label">genişlet</string>
+    <string name="content_description_edit_label">düzenle</string>
     <string name="content_description_select_label">seç</string>
+    <string name="content_description_unselect_label">seçimi kaldır</string>
+    <string name="content_description_selected_label">seçildi</string>
+    <string name="content_description_toggle_setting_label">geçiş ayarı</string>
+    <string name="content_description_edit_guests_option_back_btn">Konuşma detaylarına geri dön</string>
+    <string name="content_description_edit_self_delete_back_btn">Konuşma detaylarına geri dön</string>
+    <string name="content_description_accept_or_ignore_connection_label">isteği kabul et veya yok say</string>
+    <string name="content_description_open_user_profile_label">profili aç</string>
+    <string name="content_description_open_conversation_label">açık konuşma</string>
+    <string name="content_description_open_service_label">açık servis</string>
+    <string name="content_description_change_it_label">değiştir</string>
+    <string name="content_description_open_link_label">bağlantıyı aç</string>
+    <string name="content_description_alert">Uyarı</string>
+    <string name="content_description_drop_down">Açılır liste</string>
+    <string name="content_description_close_dropdown">açılır listeyi kapat</string>
+    <string name="content_description_open_notification_settings_label">bildirim ayarlarını aç</string>
+    <string name="content_description_new_conversation_close_btn">Yeni konuşma görünümünü kapat</string>
+    <string name="content_description_login_password_field">parolanızı girin</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -224,13 +274,23 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="api_versioning_server_version_not_supported_message">Wire sunucunuzun güncellenmesi gerekiyor. Lütfen sistem yöneticinizi bilgilendirin.</string>
     <!-- Migration -->
     <string name="migration_message">Uygulamayı sizin için ayarlarken lütfen bekleyin</string>
+    <!-- Enterprise Login -->
+    <string name="enterprise_login_password_title">Giriş yapmak için parolanızı girin</string>
     <!-- Login -->
+    <string name="login_forgot_password">Parolanızı mı unuttunuz?</string>
+    <string name="login_password_placeholder">Parola</string>
+    <string name="login_password_label">PAROLA</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
+    <string name="remove_device_invalid_password">Geçersiz parola</string>
     <!-- Register Device -->
+    <string name="register_device_text">Bu cihazda Wire\'ı kullanmak için parolanızı girin.</string>
     <!-- Delete Message -->
     <!-- Replies/Quotes to other messages -->
     <!-- Create Account -->
+    <string name="create_account_details_password_error">Geçersiz parola</string>
+    <string name="create_account_details_password_not_matching_error">Parolalar uyuşmuyor</string>
+    <string name="create_account_details_confirm_password_label">PAROLAYI ONAYLA</string>
     <!-- Conversations -->
     <string name="conversation_label_conversations">KONUŞMALAR</string>
     <string name="group_name_title">Grup adı</string>
@@ -244,6 +304,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Okundu bilgisi</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
@@ -269,6 +330,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Medya</string>
     <!-- Search Contact-->
+    <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
@@ -293,14 +355,21 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--Settings, Appearance -->
     <!--Settings, My Account -->
     <string name="settings_myaccount_domain">Alan Adı</string>
+    <string name="settings_myaccount_reset_password">Parolayı Sıfırla</string>
     <!--Settings, My Account > Display name -->
     <!--Privacy Settings -->
     <!--Privacy Settings, App lock -->
     <!--Devices -->
     <!--unblock user dialog -->
     <!--max account reached dialog-->
+    <string name="label_textfield_optional_password">Parola (seçime bağlı)</string>
     <!--create and restore backup-->
+    <string name="backup_dialog_create_backup_set_password_title">Parola ayarla</string>
+    <string name="backup_dialog_create_backup_set_password_message">Yedekleme sıkıştırılacak ve bir parola ile şifrelenecektir. Güvenli bir yerde sakladığınızdan emin olun.</string>
+    <string name="backup_label_wrong_password">Yanlış parola</string>
+    <string name="backup_label_enter_password">Parolanı gir</string>
     <!--    report bug-->
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->

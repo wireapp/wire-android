@@ -167,7 +167,6 @@
     <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
     <string name="content_description_calling_in_call_reactions_show">Show in call reactions panel</string>
     <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
-    <string name="content_description_show_more_options">Show more options</string>
     <string name="content_description_reply_to_messge">Reply to the message</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
     <string name="content_description_ping_message">Ping message</string>
@@ -296,6 +295,7 @@
     <string name="url_change_email" translatable="false">https://support.wire.com/hc/articles/203762940</string>
     <string name="url_delete_personal_account" translatable="false">https://support.wire.com/hc/articles/207555795</string>
     <string name="url_system_message_learn_more_about_e2ee" translatable="false">https://support.wire.com/hc/articles/10898523878173</string>
+    <string name="url_e2ee_id_shield" translatable="false">https://support.wire.com/hc/articles/9211300150685</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="channels_screen_title">Channels</string>
@@ -1294,6 +1294,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
     <string name="label_debug_tools_title" translatable="false">Debug Tools</string>
     <string name="label_disable_event_processing" translatable="false">Disable event processing</string>
+    <string name="label_enable_async_notifications" translatable="false">Enable async notifications</string>
     <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
@@ -1343,7 +1344,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="backup_label_conversation_restored">Conversations have been restored</string>
     <string name="backup_label_loading_conversations">Loading conversations</string>
     <string name="backup_dialog_restore_backup_title">Restore from backup </string>
-    <string name="backup_dialog_restore_backup_message">The backup contents will replace the conversation history on this device. You can only restore history from a backup of the same platform.</string>
+    <string name="backup_dialog_restore_backup_message">The existing history on this device remains and will be completed by the new backup. You can restore history from all your devices and different platforms but not from another account.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
     <string name="backup_label_enter_password">Enter password</string>
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>

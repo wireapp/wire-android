@@ -31,9 +31,16 @@ object InCallReactions {
     const val reactionDelayMs = 3000L
 
     /**
-     * Total duration for reaction animation
+     * Speed of reaction animation (dp/sec).
+     * How many dp the reaction will move in 1 second.
+     * 0.25dp in 1ms so 750dp in 3000ms (the average call content height on new phones).
      */
-    const val animationDurationMs = 3000
+    const val animationDurationSpeedDpPerMs = 0.25f
+
+    /**
+     * Calculate the duration of reaction animation (ms) for the given distance.
+     */
+    fun animationDurationMs(distance: Float) = (distance / animationDurationSpeedDpPerMs).toInt()
 
     /**
      * Duration for reaction fade out animation

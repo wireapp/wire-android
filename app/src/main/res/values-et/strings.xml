@@ -89,7 +89,6 @@
     <string name="content_description_calling_turn_camera_off">Lülita kaamera välja</string>
     <string name="content_description_calling_turn_speaker_on">Lülita kõlar sisse</string>
     <string name="content_description_calling_turn_speaker_off">Lülita kõlar välja</string>
-    <string name="content_description_show_more_options">Kuva rohkem valikuid</string>
     <string name="content_description_reply_to_messge">Vasta sõnumile</string>
     <string name="content_description_reply_cancel">Tühista sõnumile vastamine</string>
     <string name="content_description_ping_message">Pingisõnum</string>
@@ -131,11 +130,11 @@
     <!-- Migration -->
     <string name="migration_title_almost_done">Peaaegu valmis!</string>
     <string name="migration_title_updated">Wire\'i seadistamine</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Logi sisse</string>
     <string name="login_forgot_password">Unustasid parooli?</string>
     <string name="login_user_identifier_placeholder">jaan@näide.ee või jaan.tamm</string>
-    <string name="login_email_placeholder">jaan@näide.ee</string>
     <string name="login_user_identifier_label">E-POST VÕI KASUTAJANIMI</string>
     <string name="login_proxy_identifier_label">PROKSI E-POST VÕI KASUTAJANIMI</string>
     <string name="login_error_invalid_credentials_title">Vale info</string>
@@ -182,6 +181,7 @@
     <string name="conversations_mentions_tab_title">Mainimised</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->
+    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
@@ -277,9 +277,9 @@
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
+    <!-- Search Channels -->
     <!-- Snackbar messages -->
     <string name="blocking_user_success">%s blokeeritud</string>
-    <string name="conversation_removed_success">“%s” eemaldatud</string>
     <!-- Archiving -->
     <!-- Favorite -->
     <!-- Animation label -->
@@ -300,7 +300,6 @@
     <string name="label_type_a_message">Sisesta sõnum</string>
     <string name="notification_incoming_call_content">Helistab…</string>
     <string name="notification_ongoing_call_content">Käimasolev kõne…</string>
-    <string name="notification_group_channel_call_content">%s helistab...</string>
     <string name="notification_call_default_caller_name">Keegi</string>
     <string name="notification_call_default_group_name">Sissetulev grupikõne</string>
     <!-- Calling-->
@@ -368,6 +367,7 @@
     <string name="label_more_comming_soon">(varsti tuleb juurde)</string>
     <!--create and restore backup-->
     <!--    report bug-->
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Uuenda</string>
     <string name="cancel_login_button_label">Tühista</string>

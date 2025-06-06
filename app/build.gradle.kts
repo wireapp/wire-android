@@ -41,6 +41,7 @@ plugins {
     id(libs.plugins.wire.kover.get().pluginId)
     id(libs.plugins.wire.versionizer.get().pluginId)
     alias(libs.plugins.screenshot)
+    id(libs.plugins.wire.android.navigation.get().pluginId)
 }
 
 repositories {
@@ -135,6 +136,7 @@ android {
 aboutLibraries {
     val isAboutLibrariesDisabled = System.getenv("DISABLE_ABOUT_LIBRARIES")?.equals("true", true) ?: false
     registerAndroidTasks = !isAboutLibrariesDisabled
+    excludeFields = arrayOf("generated")
 }
 
 dependencies {
@@ -148,7 +150,6 @@ dependencies {
     implementation(project(":features:cells"))
     implementation(project(":features:sketch"))
     implementation(project(":core:ui-common"))
-    implementation(project(":core:navigation"))
 
     // kover
     kover(project(":features:sketch"))
@@ -204,11 +205,8 @@ dependencies {
     implementation(libs.compose.material.ripple)
     implementation(libs.compose.ui.preview)
     implementation(libs.compose.activity)
-    implementation(libs.compose.navigation)
     implementation(libs.compose.constraintLayout)
     implementation(libs.compose.runtime.liveData)
-    implementation(libs.compose.destinations.core)
-    ksp(libs.compose.destinations.ksp)
 
     // Accompanist
     implementation(libs.accompanist.placeholder)

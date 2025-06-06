@@ -20,4 +20,5 @@ package com.wire.android.navigation
 object PreviewNavigator : WireNavigator {
     override fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean) { /* No-op */ }
     override fun navigateBack(onlyIfResumed: Boolean) { /* No-op */ }
+    override fun navigateBackAndRemoveAllConsecutive(currentRoute: String) { /* No-op */ }
 }

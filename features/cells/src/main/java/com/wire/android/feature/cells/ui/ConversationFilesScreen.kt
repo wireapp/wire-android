@@ -32,15 +32,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
+import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
-import com.wire.android.feature.cells.ui.dialog.FilesNewActionsBottomSheet
+import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
+import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
+import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
+import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -48,47 +56,102 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Show files in one conversation.
  * Conversation id is passed to view model via navigation parameters [CellFilesNavArgs].
  */
-@Destination(
+@WireDestination(
     style = PopUpNavigationAnimation::class,
     navArgsDelegate = CellFilesNavArgs::class,
 )
 @Composable
 fun ConversationFilesScreen(
     navigator: WireNavigator,
-    modifier: Modifier = Modifier,
-    viewModel: CellViewModel = hiltViewModel()
+    viewModel: CellViewModel = hiltViewModel(),
 ) {
-    val pagingListItems = viewModel.filesFlow.collectAsLazyPagingItems()
-    val sheetState = rememberWireModalSheetState<Unit>()
+
+    ConversationFilesScreenContent(
+        navigator = navigator,
+        currentNodeUuid = viewModel.currentNodeUuid(),
+        isRecycleBin = viewModel.isRecycleBin(),
+        actions = viewModel.actions,
+        pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
+        downloadFileSheet = viewModel.downloadFileSheet,
+        menu = viewModel.menu,
+        sendIntent = { viewModel.sendIntent(it) },
+    )
+}
+
+@Composable
+fun ConversationFilesScreenContent(
+    navigator: WireNavigator,
+    currentNodeUuid: String?,
+    actions: Flow<CellViewAction>,
+    pagingListItems: LazyPagingItems<CellNodeUi>,
+    downloadFileSheet: StateFlow<CellNodeUi.File?>,
+    menu: SharedFlow<MenuOptions>,
+    sendIntent: (CellViewIntent) -> Unit,
+    modifier: Modifier = Modifier,
+    screenTitle: String? = null,
+    isRecycleBin: Boolean? = false,
+    navigationIconType: NavigationIconType = NavigationIconType.Close()
+) {
+    val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
+    val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
 
     val isFabVisible = when {
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
+        isRecycleBin == true -> false
         else -> true
     }
 
-    FilesNewActionsBottomSheet(
-        sheetState = sheetState,
+    CellsNewActionBottomSheet(
+        sheetState = newActionBottomSheetState,
         onDismiss = {
-            sheetState.hide()
+            newActionBottomSheetState.hide()
         },
         onCreateFolder = {
-            navigator.navigate(NavigationCommand(CreateFolderScreenDestination()))
+            navigator.navigate(NavigationCommand(CreateFolderScreenDestination(currentNodeUuid)))
         }
     )
+
+    CellsOptionsBottomSheet(
+        sheetState = optionsBottomSheetState,
+        onDismiss = {
+            optionsBottomSheetState.hide()
+        },
+        showRecycleBin = {
+            navigator.navigate(
+                NavigationCommand(
+                    RecycleBinScreenDestination(
+                        conversationId = currentNodeUuid?.substringBefore("/"),
+                        isRecycleBin = true
+                    )
+                )
+            )
+            optionsBottomSheetState.hide()
+        }
+    )
+
     WireScaffold(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = { navigator.navigateBack() },
-                title = stringResource(R.string.conversation_files_title),
-                navigationIconType = NavigationIconType.Close(),
-                elevation = dimensions().spacing0x
+                title = screenTitle ?: stringResource(R.string.conversation_files_title),
+                navigationIconType = navigationIconType,
+                elevation = dimensions().spacing0x,
+                actions = {
+                    MoreOptionIcon(
+                        contentDescription = R.string.content_description_conversation_files_more_button,
+                        onButtonClicked = { optionsBottomSheetState.show() }
+                    )
+                }
             )
         },
         floatingActionButton = {
@@ -114,7 +177,7 @@ fun ConversationFilesScreen(
                                     .size(dimensions().fabIconSize)
                             )
                         },
-                        onClick = { sheetState.show() }
+                        onClick = { newActionBottomSheetState.show() }
                     )
                 }
             }
@@ -122,23 +185,49 @@ fun ConversationFilesScreen(
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             CellScreenContent(
-                actionsFlow = viewModel.actions,
+                actionsFlow = actions,
                 pagingListItems = pagingListItems,
-                sendIntent = { viewModel.sendIntent(it) },
-                downloadFileState = viewModel.downloadFileSheet,
-                fileMenuState = viewModel.menu,
+                sendIntent = sendIntent,
+                downloadFileState = downloadFileSheet,
+                menuState = menu,
                 isAllFiles = false,
-                showPublicLinkScreen = { assetId, fileName, linkId ->
+                onFolderClick = {
+                    val folderPath = "$currentNodeUuid/${it.name}"
+
+                    navigator.navigate(
+                        NavigationCommand(
+                            ConversationFilesWithSlideInTransitionScreenDestination(
+                                folderPath,
+                                it.name
+                            ),
+                            BackStackMode.NONE,
+                            launchSingleTop = false
+                        )
+                    )
+                },
+                showPublicLinkScreen = { publicLinkScreenData ->
                     navigator.navigate(
                         NavigationCommand(
                             PublicLinkScreenDestination(
-                                assetId = assetId,
-                                fileName = fileName,
-                                publicLinkId = linkId
+                                assetId = publicLinkScreenData.assetId,
+                                fileName = publicLinkScreenData.fileName,
+                                publicLinkId = publicLinkScreenData.linkId,
+                                isFolder = publicLinkScreenData.isFolder
                             )
                         )
                     )
                 },
+                showMoveToFolderScreen = { currentPath, nodePath, uuid ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            MoveToFolderScreenDestination(
+                                currentPath = currentPath,
+                                nodeToMovePath = nodePath,
+                                uuid = uuid,
+                            )
+                        )
+                    )
+                }
             )
         }
     }

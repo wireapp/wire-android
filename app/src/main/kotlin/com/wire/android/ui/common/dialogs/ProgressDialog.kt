@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -40,7 +41,7 @@ import com.wire.android.ui.theme.wireTypography
 fun ProgressDialog(
     title: String,
     modifier: Modifier = Modifier,
-    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    properties: DialogProperties = wireDialogPropertiesBuilder(),
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     onDismiss: () -> Unit = {}
 ) {

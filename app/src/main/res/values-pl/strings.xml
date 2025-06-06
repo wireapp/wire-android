@@ -114,7 +114,6 @@
     <string name="content_description_calling_turn_camera_off">Wy&#322;&#261;cz kamer&#281;</string>
     <string name="content_description_calling_turn_speaker_on">W&#322;&#261;cz g&#322;o&#347;nik</string>
     <string name="content_description_calling_turn_speaker_off">Wy&#322;&#261;cz g&#322;o&#347;nik</string>
-    <string name="content_description_show_more_options">Poka&#380; wi&#281;cej opcji</string>
     <string name="content_description_reply_to_messge">Odpowiedz na wiadomo&#347;&#263;</string>
     <string name="content_description_reply_cancel">Anuluj odpowied&#378; na wiadomo&#347;&#263;</string>
     <string name="content_description_ping_message">Zaczepka</string>
@@ -186,16 +185,15 @@ URL &#347;rodowiska:
     <string name="migration_messages_failure">Niestety, nie wszystkie wiadomo&#347;ci i konwersacje mog&#322;y zosta&#263; przeniesione ze wzgl&#281;du na niekompatybilno&#347;&#263; ze starsz&#261; wersj&#261; Wire (kod b&#322;&#281;du: %s)</string>
     <string name="migration_cancel_title">Anuluj migracj&#281;</string>
     <string name="migration_cancel_message">Czy na pewno chcesz zamkn&#261;&#263; aplikacj&#281; i anulowa&#263; proces migracji?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Zaloguj si&#281;</string>
     <string name="login_forgot_password">Zapomnia&#322;e&#347; has&#322;a?</string>
     <string name="login_user_identifier_placeholder">adam@email.com lub adam.nowak</string>
-    <string name="login_email_placeholder">adam@email.com</string>
     <string name="login_user_identifier_label">ADRES EMAIL LUB NAZWA U&#379;YTKOWNIKA</string>
     <string name="login_proxy_identifier_label">PROXY ADRES EMAIL LUB NAZWA U&#379;YTKOWNIKA</string>
     <string name="login_error_invalid_credentials_title">Niepoprawne dane logowania</string>
     <string name="login_error_invalid_credentials_message">Podane dane logowania s&#261; niepoprawne. Sprawd&#378; swoje dane i spr&#243;buj ponownie.</string>
-    <string name="login_error_invalid_user_identifier">Ten adres email lub nazwa u&#380;ytkownika jest nieprawid&#322;owy. Sprawd&#378; i spr&#243;buj ponownie.</string>
     <string name="login_error_user_already_logged_in_title">Konto ju&#380; zalogowane</string>
     <string name="login_error_user_already_logged_in_message">Jeste&#347; ju&#380; zalogowany tymi danymi na tym urz&#261;dzeniu.</string>
     <string name="login_sso_error_invalid_cookie_title">Nieprawid&#322;owy plik cookie!</string>
@@ -308,7 +306,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="new_group_title">Nowa grupa</string>
     <string name="new_group_description">Do grupy mo&#380;e do&#322;&#261;czy&#263; do 500 os&#243;b.</string>
     <string name="group_name_title">Nazwa grupy</string>
-    <string name="conversation_name_placeholder">Wprowad&#378; nazw&#281;</string>
     <string name="group_name_description">Przypisz tej grupie znacz&#261;c&#261; nazw&#281;.</string>
     <string name="protocol">Protok&#243;&#322;</string>
     <string name="cipher_suite">Pakiet Szyfr&#243;w</string>
@@ -330,8 +327,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="conversation_details_options_tab">OPCJE</string>
     <string name="conversation_details_participants_tab">UCZESTNICY</string>
     <string name="conversation_details_options_group_name">NAZWA GRUPY</string>
-    <string name="conversation_details_participants_info">Ta grupa ma %s uczestnik&#243;w.
-Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="conversation_details_show_all_participants">Poka&#380; wszystkich uczestnik&#243;w (%d)</string>
     <string name="conversation_participant_you_label">(Ty)</string>
     <string name="conversation_details_is_classified">POZIOM BEZPIECZE&#323;STWA: VS-NfD</string>
@@ -355,6 +350,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Potwierdzenia odczytania</string>
     <string name="conversation_options_read_receipt_description">Gdy ta opcja jest w&#322;&#261;czona, inne osoby mog&#261; zobaczy&#263; kiedy ich wiadomo&#347;ci w tej rozmowie zosta&#322;y przeczytane.</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Szczeg&#243;&#322;y Wiadomo&#347;ci</string>
     <string name="message_details_reactions_tab">REAKCJE (%s)</string>
@@ -381,14 +377,10 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="user_profile_status_none">Brak</string>
     <string name="user_profile_details_tab">Szczeg&#243;&#322;y</string>
     <string name="user_profile_devices_tab">Urz&#261;dzenia</string>
-    <string name="user_profile_role_in_conversation">Rola w \"%s\"</string>
     <string name="user_profile_role_change_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas zmiany roli. Sprawd&#378; swoje po&#322;&#261;czenie internetowe i spr&#243;buj ponownie.</string>
     <string name="user_profile_unblock_user">Odblokuj u&#380;ytkownika</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Usun&#261;&#263; z grupy?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) nie b&#281;dzie m&#243;g&#322; wysy&#322;a&#263; ani odbiera&#263; wiadomo&#347;ci w tej rozmowie.</string>
-    <string name="conversation_role_admin">Administrator</string>
-    <string name="conversation_role_member">Cz&#322;onek</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Wyczy&#347;ci&#263; dane?</string>
     <string name="dialog_logout_wipe_data_checkbox">Usu&#324; wszystkie twoje informacje osobiste i rozmowy na tym urz&#261;dzeniu</string>
@@ -463,9 +455,6 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_system_message_conversation_history_lost">Nie korzysta&#322;e&#347;(a&#347;) z tego urz&#261;dzenia przez jaki&#347; czas. Niekt&#243;re wiadomo&#347;ci mog&#261; nie by&#263; widoczne.</string>
     <string name="label_system_message_receipt_mode_on">w&#322;&#261;czone</string>
     <string name="label_system_message_receipt_mode_off">wy&#322;&#261;czone</string>
-    <string name="label_system_message_conversation_started_sensitive_information_header">**Komunikacja w Wire jest zawsze szyfrowana end-to-end.**</string>
-    <string name="label_system_message_conversation_started_sensitive_information_message">Wszystko, co wysy&#322;asz i odbierasz w tej konwersacji, jest dost&#281;pne tylko dla Ciebie i pozosta&#322;ych uczestnik&#243;w konwersacji.</string>
-    <string name="label_system_message_conversation_started_sensitive_information_footer">Mimo to zachowaj ostro&#380;no&#347;&#263;, komu udost&#281;pniasz wra&#380;liwe informacje.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Doda&#322;e&#347;(a&#347;) 1 osob&#281; do rozmowy</item>
@@ -561,6 +550,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <!-- Conversation Media -->
     <!-- Search Contact-->
     <string name="label_new_group">Nowa grupa</string>
+    <!-- Search Channels -->
     <string name="label_new_conversation">Nowa rozmowa</string>
     <string name="label_search_people">Szukaj ludzi</string>
     <string name="label_search_people_instruction">Wyszukaj ludzi po ich nazwie profilowej lub @nazwie u&#380;ytkownika</string>
@@ -592,12 +582,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="conversation_on_file_downloaded">Plik %s zosta&#322; pomy&#347;lnie zapisany w folderze Pobrane.</string>
     <string name="error_blocking_user">Nie mo&#380;na zablokowa&#263; u&#380;ytkownika.</string>
     <string name="blocking_user_success">%s zosta&#322; zablokowany.</string>
-    <string name="conversation_removed_success">\"%s\" zosta&#322; usuni&#281;ty.</string>
-    <string name="leave_conversation_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas opuszczania rozmowy.</string>
-    <string name="joined_conversation_success">Do&#322;&#261;czy&#322;e&#347; do rozmowy.</string>
-    <string name="left_conversation_success">Opu&#347;ci&#322;e&#347; rozmow&#281;.</string>
     <string name="error_unblocking_user">Nie mo&#380;na odblokowa&#263; u&#380;ytkownika.</string>
-    <string name="delete_conversation_conversation_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas usuwania rozmowy.</string>
     <string name="error_limit_number_assets_imported_exceeded">Mo&#380;esz przes&#322;a&#263; jednocze&#347;nie maksymalnie 20 plik&#243;w</string>
     <!-- Archiving -->
     <!-- Favorite -->
@@ -619,7 +604,6 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_type_a_message">Napisz wiadomo&#347;&#263;</string>
     <string name="notification_incoming_call_content">Dzwoni...</string>
     <string name="notification_ongoing_call_content">Trwa po&#322;&#261;czenie...</string>
-    <string name="notification_group_channel_call_content">%s dzwoni...</string>
     <string name="notification_call_default_caller_name">Kto&#347;</string>
     <string name="notification_call_default_group_name">Po&#322;&#261;czenie grupowe przychodz&#261;ce</string>
     <!-- Calling-->
@@ -678,7 +662,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="sso_error_dialog_message">Spr&#243;buj ponownie. Je&#347;li to nie pomo&#380;e, skontaktuj si&#281; z administratorem i podaj ten kod:
 %d</string>
     <string name="asset_download_dialog_default_title">Pobierz plik</string>
-    <string name="empty_conversation_label">Konwersacja bez nazwy</string>
     <string name="label_show_more">Poka&#380; wi&#281;cej</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Otrzymywanie obraz&#243;w jest zabronione</string>
@@ -780,7 +763,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="backup_label_conversation_restored">Rozmowy zosta&#322;y przywr&#243;cone</string>
     <string name="backup_label_loading_conversations">&#321;adowanie rozm&#243;w</string>
     <string name="backup_dialog_restore_backup_title">Przywr&#243;&#263; z kopii zapasowej</string>
-    <string name="backup_dialog_restore_backup_message">Zast&#261;pi to histori&#281; rozm&#243;w na tym urz&#261;dzeniu. Mo&#380;na przywr&#243;ci&#263; tylko histori&#281; z kopii zapasowej utworzonej na tej samej platformie.</string>
     <string name="backup_dialog_choose_backup_file_option">Wybierz plik kopii zapasowej</string>
     <string name="backup_label_enter_password">Wprowad&#378; has&#322;o</string>
     <string name="backup_dialog_restore_backup_password_message">Ta kopia zapasowa jest chroniona has&#322;em.</string>
@@ -810,6 +792,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="create_team_not_supported_dialog_description">Nie mo&#380;esz utworzy&#263; nowego zespo&#322;u na &#347;rodowisku wewn&#281;trznym z obs&#322;ug&#261; proxy w aplikacji.
 Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodowisku.</string>
     <string name="to_team_management_action">Otw&#243;rz zarz&#261;dzanie zespo&#322;ami</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Wymagana aktualizacja</string>
     <string name="update_app_dialog_body">Omijaj&#261; Ci&#281; nowe funkcje. Zaktualizuj do najnowszej wersji Wire, aby nadal korzysta&#263; z aplikacji dla tego konta.</string>

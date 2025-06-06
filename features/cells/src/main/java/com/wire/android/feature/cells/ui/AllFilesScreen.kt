@@ -38,7 +38,7 @@ fun AllFilesScreen(
     viewModel: CellViewModel = hiltViewModel(),
 ) {
 
-    val pagingListItems = viewModel.filesFlow.collectAsLazyPagingItems()
+    val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
         if (searchBarState.searchQueryTextState.text.isNotEmpty()) {
@@ -60,20 +60,25 @@ fun AllFilesScreen(
         actionsFlow = viewModel.actions,
         pagingListItems = pagingListItems,
         sendIntent = { viewModel.sendIntent(it) },
+        onFolderClick = {
+            // TODO: Handle folder click later
+        },
         downloadFileState = viewModel.downloadFileSheet,
-        fileMenuState = viewModel.menu,
+        menuState = viewModel.menu,
         isAllFiles = true,
         isSearchResult = viewModel.hasSearchQuery(),
-        showPublicLinkScreen = { assetId, fileName, linkId ->
+        showPublicLinkScreen = { publicLinkScreenData ->
             navigator.navigate(
                 NavigationCommand(
                     PublicLinkScreenDestination(
-                        assetId = assetId,
-                        fileName = fileName,
-                        publicLinkId = linkId
+                        assetId = publicLinkScreenData.assetId,
+                        fileName = publicLinkScreenData.fileName,
+                        publicLinkId = publicLinkScreenData.linkId,
+                        isFolder = publicLinkScreenData.isFolder
                     )
                 )
             )
         },
+        showMoveToFolderScreen = { _, _, _ -> }
     )
 }

@@ -97,7 +97,7 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
@@ -1368,39 +1368,31 @@ private fun MessageGroupDateTime(
 
         is MessageDateTimeGroup.Daily -> {
             when (messageDateTimeGroup.type) {
-                MessageDateTimeGroup.Daily.Type.Today -> DateUtils.getRelativeDateTimeString(
-                    context,
-                    messageDateTime.time,
-                    DateUtils.DAY_IN_MILLIS,
-                    DateUtils.DAY_IN_MILLIS,
-                    0
-                ).toString()
-
+                MessageDateTimeGroup.Daily.Type.Today,
                 MessageDateTimeGroup.Daily.Type.Yesterday ->
-                    DateUtils.getRelativeDateTimeString(
-                        context,
+                    DateUtils.getRelativeTimeSpanString(
                         messageDateTime.time,
+                        now,
                         DateUtils.DAY_IN_MILLIS,
-                        DateUtils.DAY_IN_MILLIS * 2,
                         0
                     ).toString()
 
                 MessageDateTimeGroup.Daily.Type.WithinWeek -> DateUtils.formatDateTime(
                     context,
                     messageDateTime.time,
-                    DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+                    DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE
                 )
 
                 MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear -> DateUtils.formatDateTime(
                     context,
                     messageDateTime.time,
-                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+                    DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE
                 )
 
                 MessageDateTimeGroup.Daily.Type.Other -> DateUtils.formatDateTime(
                     context,
                     messageDateTime.time,
-                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_TIME
+                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR
                 )
             }
         }

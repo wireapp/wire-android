@@ -22,15 +22,19 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.GetCellFilesUseCase
+import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
+import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
 import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftsUseCase
+import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
@@ -83,7 +87,7 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveFilesUseCase(cellsScope: CellsScope): GetCellFilesUseCase = cellsScope.observeFiles
+    fun provideObserveFilesUseCase(cellsScope: CellsScope): GetPaginatedNodesUseCase = cellsScope.observeFiles
 
     @ViewModelScoped
     @Provides
@@ -120,4 +124,21 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideRetryAttachmentUploadUseCase(cellsScope: CellsScope): RetryAttachmentUploadUseCase = cellsScope.retryAttachmentUpload
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreateFolderUseCase(cellsScope: CellsScope): CreateFolderUseCase = cellsScope.createFolderUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideMoveNodeUseCase(cellsScope: CellsScope): MoveNodeUseCase = cellsScope.moveNodeUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetFoldersUseCase(cellsScope: CellsScope): GetFoldersUseCase = cellsScope.getFoldersUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRestoreNodeFromRecycleBinUseCase(cellsScope: CellsScope): RestoreNodeFromRecycleBinUseCase =
+        cellsScope.restoreNodeFromRecycleBin
 }

@@ -77,6 +77,11 @@ fun UIMessage.Regular.mapToQuotedContent(): UIQuotedMessage.UIQuotedData.Content
             assetMimeType = messageContent.assetExtension
         )
 
+        is UIMessageContent.VideoMessage -> UIQuotedMessage.UIQuotedData.GenericAsset(
+            assetName = messageContent.assetName,
+            assetMimeType = messageContent.assetExtension
+        )
+
         is UIMessageContent.RestrictedAsset -> UIQuotedMessage.UIQuotedData.GenericAsset(
             assetName = messageContent.assetName,
             assetMimeType = messageContent.mimeType

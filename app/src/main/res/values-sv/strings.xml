@@ -119,7 +119,6 @@
     <string name="content_description_calling_turn_camera_off">Stäng utav kameran</string>
     <string name="content_description_calling_turn_speaker_on">Sätt igång högtalaren</string>
     <string name="content_description_calling_turn_speaker_off">Stäng av högtalaren</string>
-    <string name="content_description_show_more_options">Visa fler alternativ</string>
     <string name="content_description_reply_to_messge">Svara på meddelandet</string>
     <string name="content_description_edit">Redigera</string>
     <string name="content_description_record_audio_button_send">Skicka ljudmeddelande</string>
@@ -134,7 +133,6 @@
     <string name="content_description_self_profile_avatar">Din profilbild</string>
     <string name="content_description_self_profile_profile_name">Profilnamn, %s</string>
     <string name="content_description_self_profile_username">Användarnamn, %s</string>
-    <string name="content_description_login_user_identifier_field">ange din e-postadress eller användarnamn</string>
     <string name="content_description_login_password_field">ange ditt lösenord</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
@@ -177,19 +175,16 @@
     <string name="migration_messages_failure">Tyvärr så kunde inte alla meddelanden och konversationer migreras till följd av inkompatibilitet med den äldre Wire-versionen (fel-kod: %s)</string>
     <string name="migration_cancel_title">Avbryt migreringen</string>
     <string name="migration_cancel_message">Är du säker på att du vill stänga ner applikationen och avbryta den pågående migreringen?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Logga in</string>
     <string name="login_forgot_password">Glömt lösenord?</string>
     <string name="login_user_identifier_placeholder">jane@example.com eller jane.doe</string>
-    <string name="login_email_placeholder">jane@example.com</string>
     <string name="login_user_identifier_label">E-POSTADRESS ELLER ANVÄNDARNAMN</string>
     <string name="login_proxy_identifier_label">EPOST-ADRESS ELLER ANVÄNDARNAMN FÖR PROXY</string>
     <string name="login_error_invalid_credentials_title">Ogiltig information</string>
     <string name="login_error_invalid_credentials_message">De här kontouppgifterna är felaktiga.
         Vänligen bekräfta dina uppgifter och försök igen.
-    </string>
-    <string name="login_error_invalid_user_identifier">Den här e-postadressen eller användarnamnet är ogiltigt. Vänligen
-        bekräfta och försök igen.
     </string>
     <string name="login_error_user_already_logged_in_title">Konto som används</string>
     <string name="login_error_user_already_logged_in_message">Du är redan inloggad med dessa uppgifter i den här enheten.</string>
@@ -272,10 +267,8 @@
     <string name="new_group_title">Ny grupp</string>
     <string name="new_group_description">Upp till 500 personer kan ansluta till en grupp-konversation.</string>
     <string name="group_name_title">Gruppnamn</string>
-    <string name="conversation_name_placeholder">Ange ett namn</string>
     <string name="group_name_description">Ge den här gruppen ett meningsfullt namn.</string>
     <string name="protocol">Protokoll</string>
-    <string name="conversation_can_not_be_created_edit_participant_list">Redigera deltagarlista</string>
     <string name="asset_message_tap_to_download_text">Tryck för att hämta</string>
     <string name="asset_message_upload_in_progress_text">Laddar upp…</string>
     <string name="asset_message_download_in_progress_text">Hämtar…</string>
@@ -298,6 +291,7 @@
     <string name="export_media_subject_title">Delar media från Wire</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Läskvitton</string>
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Meddelandedetaljer</string>
     <string name="message_details_reactions_tab">REAKTIONER (%s)</string>
@@ -328,7 +322,6 @@
     <string name="user_profile_status_none">Ingen</string>
     <string name="user_profile_details_tab">Detaljer</string>
     <string name="user_profile_devices_tab">Enheter</string>
-    <string name="user_profile_role_in_conversation">Roll i \"%s\"</string>
     <string name="user_profile_unblock_user">Avblockera användare</string>
     <string name="user_profile_logging_out_progress">Loggar ut...</string>
     <string name="user_profile_qr_code">Öppna QR-kod</string>
@@ -336,9 +329,6 @@
     <string name="user_profile_qr_code_share_link">Dela profillänk</string>
     <string name="user_profile_qr_code_share_image_link">Dela QR-kod</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Ta bort från gruppen?</string>
-    <string name="conversation_role_admin">Administratör</string>
-    <string name="conversation_role_member">Medlem</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Rensa data?</string>
     <string name="dialog_logout_wipe_data_checkbox">Ta bort all din personliga information och konversationer i den här enheten</string>
@@ -420,7 +410,7 @@
     <!-- Search Contact-->
     <string name="label_contacts">Kontakter</string>
     <string name="label_new_group">Ny grupp</string>
-    <string name="label_create_new_group">Skapa ny grupp</string>
+    <!-- Search Channels -->
     <string name="label_new_conversation">Ny konversation</string>
     <string name="label_learn_more_searching_user">Läs mer</string>
     <string name="label_no_results_found">Inga resultat kunde hittas. Försök igen.</string>
@@ -431,7 +421,6 @@
     <string name="error_server_miscommunication_message">Försök igen</string>
     <string name="error_no_network_title">Väntar på nätverk</string>
     <string name="error_no_network_message">Kontrollera din internetanslutning och försök igen</string>
-    <string name="left_conversation_success">Du har lämnat konversationen.</string>
     <!-- Archiving -->
     <!-- Favorite -->
     <!-- Animation label -->
@@ -446,7 +435,6 @@
     <string name="notification_receiver_name">Du</string>
     <string name="label_type_a_message">Skriv ett meddelande</string>
     <string name="notification_incoming_call_content">Ringer…</string>
-    <string name="notification_group_channel_call_content">%s ringer...</string>
     <!-- Calling-->
     <string name="calling_button_label_microphone">Mikrofon</string>
     <string name="calling_button_label_camera">Kamera</string>
@@ -543,6 +531,7 @@
     <string name="conversation_label">konversation</string>
     <string name="dialog_clear_content_title">Rensa innehåll?</string>
     <string name="dialog_clear_content_option">Rensa innehåll</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Uppdatera</string>
     <string name="cancel_login_button_label">Avbryt</string>

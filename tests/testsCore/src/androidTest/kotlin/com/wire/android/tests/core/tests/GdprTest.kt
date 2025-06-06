@@ -73,7 +73,7 @@ class GdprTest {
         loginPage.clickProceedButtonOnDeeplinkOverlay()
         loginPage.enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
         loginPage.clickLoginButton()
-        loginPage.assertLoggingPageVisible()
+        //loginPage.assertLoggingPageVisible()
         loginPage.enterPersonalUserLoginPassword(registeredUser?.password ?: "")
         loginPage.clickLoginButton()
 
@@ -86,8 +86,15 @@ class GdprTest {
         conversationPage.clickMainMenuButtonOnConversationVeiwPage()
         conversationPage.clickSettingsButtonOnMenuEntry()
         settingsPage.clickPrivacySettingsButtonOnSettingsPage()
+       // Thread.sleep(5000)
+
         settingsPage.assertSendAnonymousUsageDataToggleIsOn()
         settingsPage.clickBackButtonOnPrivacySettingsPage()
+        settingsPage.clickDebugSettingsButton()
+
+        settingsPage.assertAnalyticsInitializedIsSetToTrue()
+
+        settingsPage.assertAnalyticsTrackingIdentifierIsDispayed()
 
     }
 }

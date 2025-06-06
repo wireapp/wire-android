@@ -23,8 +23,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import user.UserClient
 import uiautomatorutils.UiAutomatorUtils
+import user.UserClient
 
 
 data class RegistrationPage(private val device: UiDevice) {
@@ -223,18 +223,18 @@ data class RegistrationPage(private val device: UiDevice) {
         UiAutomatorUtils.waitElement(text = "Confirm").click()
         return this
     }
-//
-//    fun clickAllowNotificationButton(): RegistrationPage {
-//        UiAutomatorUtils.waitElement(resourceId = "com.android.permissioncontroller:id/permission_allow_button").click()
-//        return this
-//    }
-
 
     fun clickAllowNotificationButton(): RegistrationPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.findObject(UiSelector().text("Allow")).click()
+        UiAutomatorUtils.waitElement(resourceId = "com.android.permissioncontroller:id/permission_allow_button").click()
         return this
     }
+
+
+//    fun clickAllowNotificationButton(): RegistrationPage {
+//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+//        device.findObject(UiSelector().resourceId("com.android.permissioncontroller:id/permission_allow_button")).click()
+//        return this
+//    }
 
     fun clickDeclineShareDataAlert(): RegistrationPage {
         UiAutomatorUtils.waitElement(text = "Decline").click()

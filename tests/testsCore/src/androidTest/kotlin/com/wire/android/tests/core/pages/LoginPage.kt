@@ -17,13 +17,12 @@
  */
 package com.wire.android.tests.core.pages
 
+import Backend
 import android.content.Intent
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiObject
 import androidx.test.uiautomator.UiSelector
-//import com.wire.android.tests.support.TIMEOUT_IN_MILLISECONDS
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiAutomatorUtils
 
@@ -44,6 +43,15 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+
+    fun enterPersonalUserLoginPassword(password: String): LoginPage {
+        val passwordInputField = UiAutomatorUtils.waitElement(resourceId = "PasswordInput")
+        passwordInputField.click()
+        passwordInputField.text = password
+        return this
+    }
+
+
     fun clickStagingDeepLink(): LoginPage {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val deepLinkUrl = "wire://access/?config=${backendClient?.deeplink}"
@@ -57,13 +65,6 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
-
-    fun enterPersonalUserLoginPassword(password: String): LoginPage {
-        val passwordInputField = UiAutomatorUtils.waitElement(resourceId = "PasswordInput")
-        passwordInputField.click()
-        passwordInputField.text = password
-        return this
-    }
 
     fun assertLoggingPageVisible(): LoginPage {
         val loginPage = UiAutomatorUtils.waitElement(resourceId = "loginButton")

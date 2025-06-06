@@ -35,6 +35,7 @@ data class CreateAccountNavArgs(
 @Parcelize
 data class UserRegistrationInfo(
     val email: String = String.EMPTY,
+    val name: String = String.EMPTY,
     val firstName: String = String.EMPTY,
     val lastName: String = String.EMPTY,
     val password: String = String.EMPTY,

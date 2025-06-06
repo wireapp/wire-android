@@ -503,6 +503,10 @@
     <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
     <string name="create_account_email_domain_blocked_error">You can\'t create this account as your email domain is intentionally blocked.</string>
     <string name="create_account_details_first_name_placeholder">Jane</string>
+    <string name="create_account_details_name_placeholder">Enter your name</string>
+    <string name="create_account_details_password_placeholder">Enter password</string>
+    <string name="create_account_details_password_confirm_placeholder">Confirm password</string>
+    <string name="create_account_details_name_label">NAME</string>
     <string name="create_account_details_first_name_label">FIRST NAME</string>
     <string name="create_account_details_last_name_placeholder">Doe</string>
     <string name="create_account_details_last_name_label">LAST NAME</string>

@@ -18,17 +18,15 @@
 
 package com.wire.android.ui.registration.details
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,42 +35,59 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
-import com.wire.android.ui.common.rememberBottomBarElevationState
-import com.wire.android.ui.common.rememberTopBarElevationState
-import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.preview.EdgeToEdgePreview
+import com.wire.android.ui.common.textfield.DefaultEmailDone
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
+import com.wire.android.ui.newauthentication.login.NewAuthContainer
+import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreateAccountNavGraph
-@WireDestination(navArgsDelegate = CreateAccountNavArgs::class)
+@WireDestination(
+    navArgsDelegate = CreateAccountNavArgs::class,
+    style = AuthPopUpNavigationAnimation::class
+)
 @Composable
 fun CreateAccountDataDetailScreen(
     navigator: Navigator,
@@ -84,8 +99,8 @@ fun CreateAccountDataDetailScreen(
                 CreateAccountCodeScreenDestination(
                     createAccountNavArgs.copy(
                         userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
-                            firstName = firstNameTextState.text.toString().trim(),
-                            lastName = lastNameTextState.text.toString().trim(),
+                            email = emailTextState.text.toString().trim(),
+                            name = nameTextState.text.toString().trim(),
                             password = passwordTextState.text.toString(),
                             teamName = teamNameTextState.text.toString().trim()
                         )
@@ -98,13 +113,16 @@ fun CreateAccountDataDetailScreen(
             if (createAccountDataDetailViewModel.detailsState.success) navigateToCodeScreen()
         }
 
-        DetailsContent(
+        AccountDetailsContent(
             state = detailsState,
-            firstNameTextState = firstNameTextState,
-            lastNameTextState = lastNameTextState,
+            emailTextState = emailTextState,
+            nameTextState = nameTextState,
             passwordTextState = passwordTextState,
             confirmPasswordTextState = confirmPasswordTextState,
             teamNameTextState = teamNameTextState,
+            tosUrl = tosUrl(),
+            onTermsDialogDismiss = ::onTermsDialogDismiss,
+            onTermsAccept = ::onTermsAccept,
             onBackPressed = navigator::navigateBack,
             onContinuePressed = ::onDetailsContinue,
             onErrorDismiss = ::onDetailsErrorDismiss,
@@ -114,41 +132,42 @@ fun CreateAccountDataDetailScreen(
 }
 
 @Composable
-private fun DetailsContent(
+private fun AccountDetailsContent(
     state: CreateAccountDataDetailViewState,
-    firstNameTextState: TextFieldState,
-    lastNameTextState: TextFieldState,
+    emailTextState: TextFieldState,
+    nameTextState: TextFieldState,
     passwordTextState: TextFieldState,
     confirmPasswordTextState: TextFieldState,
     teamNameTextState: TextFieldState,
+    tosUrl: String,
+    onTermsDialogDismiss: () -> Unit,
+    onTermsAccept: () -> Unit,
     onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit,
     onErrorDismiss: () -> Unit,
     serverConfig: ServerConfig.Links
 ) {
-    val scrollState = rememberScrollState()
-    WireScaffold(
-        topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = scrollState.rememberTopBarElevationState().value,
-                title = stringResource(id = R.string.create_personal_account_title),
-                onNavigationPressed = onBackPressed,
-                subtitleContent = {
+    NewAuthContainer(
+        header = {
+            NewAuthHeader(
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.create_personal_account_title),
+                        style = MaterialTheme.wireTypography.title01
+                    )
                     if (serverConfig.isOnPremises) {
                         ServerTitle(
                             serverLinks = serverConfig,
                             style = MaterialTheme.wireTypography.body01
                         )
                     }
-                }
+                },
+                canNavigateBack = true,
+                onNavigateBack = onBackPressed
             )
         },
-    ) { internalPadding ->
-        Column(
-            modifier = Modifier
-                .padding(internalPadding)
-                .fillMaxHeight()
-        ) {
+        contentPadding = dimensions().spacing16x,
+        content = {
             val keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
                 autoCorrectEnabled = true,
@@ -156,31 +175,39 @@ private fun DetailsContent(
                 imeAction = ImeAction.Next,
             )
             val keyboardController = LocalSoftwareKeyboardController.current
-            val firstNameFocusRequester = remember { FocusRequester() }
+            val emailFocusRequester = remember { FocusRequester() }
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
             ) {
-
-                Text(
-                    text = stringResource(R.string.create_personal_account_details_text),
-                    style = MaterialTheme.wireTypography.body01,
+                WireTextField(
+                    textState = emailTextState,
+                    placeholderText = stringResource(R.string.create_account_email_placeholder),
+                    labelText = stringResource(R.string.create_account_email_label),
+                    labelMandatoryIcon = true,
+                    state = if (!state.error.isEmailError()) WireTextFieldState.Default
+                    else WireTextFieldState.Error(),
+                    keyboardOptions = KeyboardOptions.DefaultEmailDone,
+                    onKeyboardAction = { keyboardController?.hide() },
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(
-                            horizontal = MaterialTheme.wireDimensions.spacing16x,
-                            vertical = MaterialTheme.wireDimensions.spacing24x
+                            start = MaterialTheme.wireDimensions.spacing16x,
+                            end = MaterialTheme.wireDimensions.spacing16x,
+                            bottom = MaterialTheme.wireDimensions.spacing16x
                         )
+                        .testTag("emailField")
+                        .focusRequester(emailFocusRequester)
                 )
+                AnimatedVisibility(visible = state.error.isEmailError()) {
+                    EmailErrorDetailText(state.error)
+                }
 
                 WireTextField(
-                    textState = firstNameTextState,
-                    placeholderText = stringResource(R.string.create_account_details_first_name_placeholder),
-                    labelText = stringResource(R.string.create_account_details_first_name_label),
+                    textState = nameTextState,
+                    placeholderText = stringResource(R.string.create_account_details_name_placeholder),
+                    labelText = stringResource(R.string.create_account_details_name_label),
                     labelMandatoryIcon = true,
                     state = WireTextFieldState.Default,
                     keyboardOptions = keyboardOptions,
@@ -190,24 +217,7 @@ private fun DetailsContent(
                             end = MaterialTheme.wireDimensions.spacing16x,
                             bottom = MaterialTheme.wireDimensions.spacing16x
                         )
-                        .focusRequester(firstNameFocusRequester)
                         .testTag("firstName"),
-                )
-
-                WireTextField(
-                    textState = lastNameTextState,
-                    placeholderText = stringResource(R.string.create_account_details_last_name_placeholder),
-                    labelText = stringResource(R.string.create_account_details_last_name_label),
-                    labelMandatoryIcon = true,
-                    state = WireTextFieldState.Default,
-                    keyboardOptions = keyboardOptions,
-                    modifier = Modifier
-                        .padding(
-                            start = MaterialTheme.wireDimensions.spacing16x,
-                            end = MaterialTheme.wireDimensions.spacing16x,
-                            bottom = MaterialTheme.wireDimensions.spacing16x
-                        )
-                        .testTag("lastName"),
                 )
 
                 if (state.type == CreateAccountFlowType.CreateTeam) {
@@ -230,13 +240,14 @@ private fun DetailsContent(
 
                 WirePasswordTextField(
                     textState = passwordTextState,
+                    placeholderText = stringResource(R.string.create_account_details_password_placeholder),
                     labelMandatoryIcon = true,
                     descriptionText = stringResource(R.string.create_account_details_password_description),
                     keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Next),
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                         .testTag("password"),
-                    state = if (state.error is CreateAccountDataDetailViewState.DetailsError.TextFieldError.InvalidPasswordError) {
+                    state = if (state.error is CreateAccountDataDetailViewState.DetailsError.PasswordError.InvalidPasswordError) {
                         WireTextFieldState.Error()
                     } else {
                         WireTextFieldState.Default
@@ -246,6 +257,7 @@ private fun DetailsContent(
 
                 WirePasswordTextField(
                     textState = confirmPasswordTextState,
+                    placeholderText = stringResource(R.string.create_account_details_password_confirm_placeholder),
                     labelText = stringResource(R.string.create_account_details_confirm_password_label),
                     labelMandatoryIcon = true,
                     keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
@@ -256,11 +268,11 @@ private fun DetailsContent(
                             vertical = MaterialTheme.wireDimensions.spacing16x
                         )
                         .testTag("confirmPassword"),
-                    state = if (state.error is CreateAccountDataDetailViewState.DetailsError.TextFieldError) when (state.error) {
-                        CreateAccountDataDetailViewState.DetailsError.TextFieldError.PasswordsNotMatchingError ->
+                    state = if (state.error is CreateAccountDataDetailViewState.DetailsError.PasswordError) when (state.error) {
+                        CreateAccountDataDetailViewState.DetailsError.PasswordError.PasswordsNotMatchingError ->
                             WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
 
-                        CreateAccountDataDetailViewState.DetailsError.TextFieldError.InvalidPasswordError ->
+                        CreateAccountDataDetailViewState.DetailsError.PasswordError.InvalidPasswordError ->
                             WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
                     } else WireTextFieldState.Default,
                     autoFill = false,
@@ -268,45 +280,143 @@ private fun DetailsContent(
             }
 
             LaunchedEffect(Unit) {
-                firstNameFocusRequester.requestFocus()
+                emailFocusRequester.requestFocus()
                 keyboardController?.show()
             }
 
-            Surface(
-                shadowElevation = scrollState.rememberBottomBarElevationState().value,
-                color = MaterialTheme.wireColorScheme.background
-            ) {
-                WirePrimaryButton(
-                    modifier = Modifier
-                        .padding(MaterialTheme.wireDimensions.spacing16x)
-                        .fillMaxWidth(),
-                    text = stringResource(R.string.label_continue),
-                    onClick = onContinuePressed,
-                    fillMaxWidth = true,
-                    loading = state.loading,
-                    state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
+            WirePrimaryButton(
+                modifier = Modifier
+                    .padding(MaterialTheme.wireDimensions.spacing16x)
+                    .fillMaxWidth(),
+                text = stringResource(R.string.label_continue),
+                onClick = onContinuePressed,
+                fillMaxWidth = true,
+                loading = state.loading,
+                state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
+            )
+
+            if (state.termsDialogVisible) {
+                val context = LocalContext.current
+                TermsConditionsDialog(
+                    onDialogDismiss = onTermsDialogDismiss,
+                    onContinuePressed = onTermsAccept,
+                    onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, tosUrl) }
                 )
             }
+            if (state.error is CreateAccountDataDetailViewState.DetailsError.DialogError.GenericError) {
+                CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
+            }
+        }
+    )
+}
+
+@Composable
+private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed: () -> Unit, onViewPolicyPressed: () -> Unit) {
+    WireDialog(
+        title = stringResource(R.string.create_account_email_terms_dialog_title),
+        text = stringResource(R.string.create_account_email_terms_dialog_text),
+        onDismiss = onDialogDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onContinuePressed,
+            text = stringResource(id = R.string.label_continue),
+            type = WireDialogButtonType.Primary,
+        )
+    ) {
+        Column {
+            WireSecondaryButton(
+                text = stringResource(R.string.label_cancel),
+                onClick = onDialogDismiss,
+                fillMaxWidth = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+                    .testTag("cancelButton"),
+            )
+            WireSecondaryButton(
+                text = stringResource(R.string.create_account_email_terms_dialog_view_policy),
+                onClick = onViewPolicyPressed,
+                fillMaxWidth = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("viewTC")
+            )
         }
     }
-    if (state.error is CreateAccountDataDetailViewState.DetailsError.DialogError.GenericError) {
-        CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
+}
+
+@Composable
+private fun EmailErrorDetailText(error: CreateAccountDataDetailViewState.DetailsError) {
+    val learnMoreTag = "learn_more"
+    val context = LocalContext.current
+    val learnMoreUrl = stringResource(id = R.string.url_create_account_learn_more)
+    val learnMoreText = stringResource(id = R.string.label_learn_more)
+    val annotatedText = buildAnnotatedString {
+        append(
+            if (error is CreateAccountDataDetailViewState.DetailsError.EmailFieldError) when (error) {
+                CreateAccountDataDetailViewState.DetailsError.EmailFieldError.AlreadyInUseError ->
+                    stringResource(R.string.create_account_email_already_in_use_error)
+
+                CreateAccountDataDetailViewState.DetailsError.EmailFieldError.BlacklistedEmailError ->
+                    stringResource(R.string.create_account_email_blacklisted_error)
+
+                CreateAccountDataDetailViewState.DetailsError.EmailFieldError.DomainBlockedError ->
+                    stringResource(R.string.create_account_email_domain_blocked_error)
+
+                CreateAccountDataDetailViewState.DetailsError.EmailFieldError.InvalidEmailError ->
+                    stringResource(R.string.create_account_email_invalid_error)
+            } else ""
+        )
+        if (error is CreateAccountDataDetailViewState.DetailsError.EmailFieldError.AlreadyInUseError) {
+            append(" ")
+            pushStringAnnotation(tag = learnMoreTag, annotation = learnMoreUrl)
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    fontWeight = MaterialTheme.wireTypography.label05.fontWeight,
+                    fontSize = MaterialTheme.wireTypography.label05.fontSize,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) { append(learnMoreText) }
+            pop()
+        }
     }
+    ClickableText(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                vertical = MaterialTheme.wireDimensions.spacing8x,
+                horizontal = MaterialTheme.wireDimensions.spacing16x
+            ),
+        style = MaterialTheme.wireTypography.label04.copy(color = MaterialTheme.wireColorScheme.error, textAlign = TextAlign.Start),
+        text = annotatedText,
+        onClick = { offset ->
+            annotatedText.getStringAnnotations(tag = learnMoreTag, start = offset, end = offset).firstOrNull()?.let {
+                CustomTabsHelper.launchUrl(context, learnMoreUrl)
+            }
+        }
+    )
 }
 
 @Composable
 @PreviewMultipleThemes
 fun PreviewCreateAccountDetailsScreen() = WireTheme {
-    DetailsContent(
-        state = CreateAccountDataDetailViewState(CreateAccountFlowType.CreateTeam),
-        firstNameTextState = TextFieldState(),
-        lastNameTextState = TextFieldState(),
-        passwordTextState = TextFieldState(),
-        confirmPasswordTextState = TextFieldState(),
-        teamNameTextState = TextFieldState(),
-        onBackPressed = {},
-        onContinuePressed = {},
-        onErrorDismiss = {},
-        serverConfig = ServerConfig.DEFAULT
-    )
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout {
+            AccountDetailsContent(
+                state = CreateAccountDataDetailViewState(CreateAccountFlowType.CreatePersonalAccount),
+                emailTextState = TextFieldState(),
+                nameTextState = TextFieldState(),
+                passwordTextState = TextFieldState(),
+                confirmPasswordTextState = TextFieldState(),
+                teamNameTextState = TextFieldState(),
+                tosUrl = "",
+                onTermsDialogDismiss = {},
+                onTermsAccept = {},
+                onBackPressed = {},
+                onContinuePressed = {},
+                onErrorDismiss = {},
+                serverConfig = ServerConfig.DEFAULT
+            )
+        }
+    }
 }

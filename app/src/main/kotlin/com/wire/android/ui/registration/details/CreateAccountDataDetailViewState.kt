@@ -19,10 +19,12 @@
 package com.wire.android.ui.registration.details
 
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.kalium.common.error.NetworkFailure
+import com.wire.kalium.common.error.CoreFailure
 
 data class CreateAccountDataDetailViewState(
     val type: CreateAccountFlowType,
+    val termsDialogVisible: Boolean = false,
+    val termsAccepted: Boolean = false,
     val continueEnabled: Boolean = false,
     val loading: Boolean = false,
     val error: DetailsError = DetailsError.None,
@@ -30,13 +32,23 @@ data class CreateAccountDataDetailViewState(
 ) {
     sealed class DetailsError {
         data object None : DetailsError()
-        sealed class TextFieldError : DetailsError() {
-            data object InvalidPasswordError : TextFieldError()
-            data object PasswordsNotMatchingError : TextFieldError()
+        sealed class PasswordError : DetailsError() {
+            data object InvalidPasswordError : PasswordError()
+            data object PasswordsNotMatchingError : PasswordError()
+        }
+
+        sealed class EmailFieldError : DetailsError() {
+            data object InvalidEmailError : EmailFieldError()
+            data object BlacklistedEmailError : EmailFieldError()
+            data object AlreadyInUseError : EmailFieldError()
+            data object DomainBlockedError : EmailFieldError()
         }
 
         sealed class DialogError : DetailsError() {
-            data class GenericError(val coreFailure: NetworkFailure) : DialogError()
+            data class GenericError(val coreFailure: CoreFailure) : DialogError()
         }
+
+        fun isPasswordError() = this is PasswordError
+        fun isEmailError() = this is EmailFieldError
     }
 }

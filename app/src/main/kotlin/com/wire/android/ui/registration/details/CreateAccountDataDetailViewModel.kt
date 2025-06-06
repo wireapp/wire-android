@@ -25,12 +25,17 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.config.orDefault
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -40,29 +45,33 @@ import javax.inject.Inject
 class CreateAccountDataDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val validateEmail: ValidateEmailUseCase,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
 
     val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 
-    val firstNameTextState: TextFieldState = TextFieldState()
-    val lastNameTextState: TextFieldState = TextFieldState()
+    val emailTextState: TextFieldState = TextFieldState(createAccountNavArgs.userRegistrationInfo.email)
+    val nameTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
     val confirmPasswordTextState: TextFieldState = TextFieldState()
     val teamNameTextState: TextFieldState = TextFieldState()
+
     var detailsState: CreateAccountDataDetailViewState by mutableStateOf(CreateAccountDataDetailViewState(createAccountNavArgs.flowType))
 
     val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig.orDefault()
+    fun tosUrl(): String = serverConfig.tos
 
     init {
         viewModelScope.launch {
             combine(
-                firstNameTextState.textAsFlow(),
-                lastNameTextState.textAsFlow(),
+                emailTextState.textAsFlow(),
+                nameTextState.textAsFlow(),
                 passwordTextState.textAsFlow(),
                 confirmPasswordTextState.textAsFlow(),
                 teamNameTextState.textAsFlow(),
-            ) { firstName, lastName, password, confirmPassword, teamName ->
-                firstName.isNotBlank() && lastName.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
+            ) { email, name, password, confirmPassword, teamName ->
+                email.isNotBlank() && name.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
                         && (detailsState.type == CreateAccountFlowType.CreatePersonalAccount || teamName.isNotBlank())
             }.collect { fieldsNotEmpty ->
                 detailsState = detailsState.copy(
@@ -73,15 +82,65 @@ class CreateAccountDataDetailViewModel @Inject constructor(
         }
     }
 
+    private fun onEmailContinue() {
+        detailsState = detailsState.copy(loading = true, continueEnabled = false)
+        viewModelScope.launch {
+            val email = emailTextState.text.toString().trim().lowercase()
+            val emailError = when (validateEmail(email)) {
+                true -> CreateAccountDataDetailViewState.DetailsError.None
+                false -> CreateAccountDataDetailViewState.DetailsError.EmailFieldError.InvalidEmailError
+            }
+            detailsState = detailsState.copy(
+                loading = false,
+                continueEnabled = true,
+                termsDialogVisible = !detailsState.termsAccepted && emailError is CreateAccountDataDetailViewState.DetailsError.None,
+                error = emailError
+            )
+            if (detailsState.termsAccepted) onTermsAccept()
+        }.invokeOnCompletion {
+            detailsState = detailsState.copy(loading = false)
+        }
+    }
+
+    fun onTermsAccept() {
+        detailsState = detailsState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
+        viewModelScope.launch {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)(null).let {
+                when (it) {
+                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+
+                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                        // TODO: show dialog
+                        return@launch
+                    }
+
+                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                        // TODO: show dialog
+                        return@launch
+                    }
+
+                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                        return@launch
+                    }
+                }
+            }
+
+            val email = emailTextState.text.toString().trim().lowercase()
+            val emailError = authScope.registerScope.requestActivationCode(email).toEmailError()
+            detailsState = detailsState.copy(loading = false, continueEnabled = true, error = emailError)
+            if (emailError is CreateAccountDataDetailViewState.DetailsError.None) detailsState = detailsState.copy(success = true)
+        }
+    }
+
     fun onDetailsContinue() {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val detailsError = when {
                 !validatePasswordUseCase(passwordTextState.text.toString()).isValid ->
-                    CreateAccountDataDetailViewState.DetailsError.TextFieldError.InvalidPasswordError
+                    CreateAccountDataDetailViewState.DetailsError.PasswordError.InvalidPasswordError
 
                 passwordTextState.text.toString() != confirmPasswordTextState.text.toString() ->
-                    CreateAccountDataDetailViewState.DetailsError.TextFieldError.PasswordsNotMatchingError
+                    CreateAccountDataDetailViewState.DetailsError.PasswordError.PasswordsNotMatchingError
 
                 else -> CreateAccountDataDetailViewState.DetailsError.None
             }
@@ -90,11 +149,28 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                 continueEnabled = true,
                 error = detailsError
             )
-            if (detailsState.error is CreateAccountDataDetailViewState.DetailsError.None) detailsState = detailsState.copy(success = true)
+            if (detailsState.error is CreateAccountDataDetailViewState.DetailsError.None) {
+                detailsState = detailsState.copy(success = true)
+                onEmailContinue()
+            }
+        }
+
+        fun onDetailsErrorDismiss() {
+            detailsState = detailsState.copy(error = CreateAccountDataDetailViewState.DetailsError.None)
+        }
+
+        fun onTermsDialogDismiss() {
+            detailsState = detailsState.copy(termsDialogVisible = false)
         }
     }
 
-    fun onDetailsErrorDismiss() {
-        detailsState = detailsState.copy(error = CreateAccountDataDetailViewState.DetailsError.None)
+    private fun RequestActivationCodeResult.toEmailError() = when (this) {
+        is RequestActivationCodeResult.Failure.AlreadyInUse -> CreateAccountDataDetailViewState.DetailsError.EmailFieldError.AlreadyInUseError
+        is RequestActivationCodeResult.Failure.BlacklistedEmail ->
+            CreateAccountDataDetailViewState.DetailsError.EmailFieldError.BlacklistedEmailError
+
+        is RequestActivationCodeResult.Failure.DomainBlocked -> CreateAccountDataDetailViewState.DetailsError.EmailFieldError.DomainBlockedError
+        is RequestActivationCodeResult.Failure.InvalidEmail -> CreateAccountDataDetailViewState.DetailsError.EmailFieldError.InvalidEmailError
+        is RequestActivationCodeResult.Failure.Generic -> CreateAccountDataDetailViewState.DetailsError.DialogError.GenericError(this.failure)
+        is RequestActivationCodeResult.Success -> CreateAccountDataDetailViewState.DetailsError.None
     }
-}

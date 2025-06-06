@@ -15,6 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.registration
+package user.utils
 
-// TODO: Add tests for registration
+import java.util.Base64
+class BasicAuth {
+
+    var user: String? = null
+        private set
+
+    var password: String? = null
+        private set
+
+    private var encoded: String
+
+    constructor(user: String, password: String) {
+        this.user = user
+        this.password = password
+        encoded = try {
+            Base64.getEncoder().encodeToString("$user:$password".toByteArray(Charsets.UTF_8))
+        } catch (e: Exception) {
+            throw RuntimeException("Could not compile basic auth credentials for backend", e)
+        }
+    }
+
+    constructor(encoded: String) {
+        this.encoded = encoded
+    }
+
+
+    fun getEncoded(): String = "Basic $encoded"
+}

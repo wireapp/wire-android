@@ -533,7 +533,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
 }
 
 internal sealed interface GroupConversationDetailsViewAction {
-    data class Message(val text: UIText): GroupConversationDetailsViewAction
+    data class Message(val text: UIText) : GroupConversationDetailsViewAction
     data class Left(val groupDialogState: GroupDialogState) : GroupConversationDetailsViewAction
     data class Deleted(val groupDialogState: GroupDialogState) : GroupConversationDetailsViewAction
 }

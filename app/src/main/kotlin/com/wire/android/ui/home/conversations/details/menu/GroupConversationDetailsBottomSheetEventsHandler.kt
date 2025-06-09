@@ -19,7 +19,6 @@
 package com.wire.android.ui.home.conversations.details.menu
 
 import com.wire.android.ui.home.conversationslist.model.DialogState
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.util.DateTimeUtil

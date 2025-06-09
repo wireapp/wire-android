@@ -132,7 +132,7 @@ fun EditSelfDeletingMessagesScreen(
                 WireButton(
                     loading = state.isLoading,
                     state = if (state.didDurationChange()) WireButtonState.Default else WireButtonState.Disabled,
-                    onClick =::applyNewDuration,
+                    onClick = ::applyNewDuration,
                     text = stringResource(id = R.string.label_apply),
                     modifier = Modifier.padding(all = MaterialTheme.wireDimensions.spacing16x)
                 )

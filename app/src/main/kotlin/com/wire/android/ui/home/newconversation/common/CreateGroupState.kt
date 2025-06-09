@@ -21,7 +21,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 
 sealed interface CreateGroupState {
 
-    data object Default: CreateGroupState
+    data object Default : CreateGroupState
 
     sealed interface Error : CreateGroupState {
         data object Unknown : Error

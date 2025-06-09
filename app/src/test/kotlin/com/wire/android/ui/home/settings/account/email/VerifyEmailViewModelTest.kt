@@ -29,7 +29,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -64,7 +63,6 @@ class VerifyEmailViewModelTest {
 
         @MockK
         lateinit var updateEmail: UpdateEmailUseCase
-
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

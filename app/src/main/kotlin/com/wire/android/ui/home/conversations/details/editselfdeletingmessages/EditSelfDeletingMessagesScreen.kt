@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -83,6 +84,9 @@ fun EditSelfDeletingMessagesScreen(
         }
     ) { internalPadding ->
         with(editSelfDeletingMessagesViewModel) {
+            LaunchedEffect(state.isCompleted) {
+                if (state.isCompleted) navigator.navigateBack()
+            }
             Column(modifier = Modifier.padding(internalPadding)) {
                 SelfDeletingMessageOption(
                     switchState = state.isEnabled,
@@ -128,7 +132,7 @@ fun EditSelfDeletingMessagesScreen(
                 WireButton(
                     loading = state.isLoading,
                     state = if (state.didDurationChange()) WireButtonState.Default else WireButtonState.Disabled,
-                    onClick = { applyNewDuration(navigator::navigateBack) },
+                    onClick =::applyNewDuration,
                     text = stringResource(id = R.string.label_apply),
                     modifier = Modifier.padding(all = MaterialTheme.wireDimensions.spacing16x)
                 )

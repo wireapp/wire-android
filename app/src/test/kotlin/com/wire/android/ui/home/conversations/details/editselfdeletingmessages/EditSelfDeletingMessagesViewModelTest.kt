@@ -60,12 +60,12 @@ class EditSelfDeletingMessagesViewModelTest {
 
         // When
         viewModel.updateSelfDeletingMessageOption(false)
-        viewModel.applyNewDuration(arrangement.onCompleted)
+        viewModel.applyNewDuration()
 
         // Then
         assertEquals(false, viewModel.state.isEnabled)
         assertEquals(null, viewModel.state.locallySelected)
-        verify { arrangement.onCompleted() }
+        assertEquals(true, viewModel.state.isCompleted)
     }
 
     @Test
@@ -78,12 +78,12 @@ class EditSelfDeletingMessagesViewModelTest {
         // When
         viewModel.updateSelfDeletingMessageOption(true)
         viewModel.onSelectDuration(newTimer)
-        viewModel.applyNewDuration(arrangement.onCompleted)
+        viewModel.applyNewDuration()
 
         // Then
         assertEquals(newTimer, viewModel.state.remotelySelected)
         assertEquals(newTimer, viewModel.state.locallySelected)
-        verify { arrangement.onCompleted() }
+        assertEquals(true, viewModel.state.isCompleted)
     }
 
     private class Arrangement {
@@ -105,9 +105,6 @@ class EditSelfDeletingMessagesViewModelTest {
 
         @MockK
         private lateinit var conversationDetails: ObserveConversationDetailsUseCase
-
-        @MockK(relaxed = true)
-        lateinit var onCompleted: () -> Unit
 
         private val viewModel by lazy {
             EditSelfDeletingMessagesViewModel(

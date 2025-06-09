@@ -26,33 +26,16 @@ import com.wire.kalium.util.DateTimeUtil
 
 @Suppress("TooManyFunctions")
 interface GroupConversationDetailsBottomSheetEventsHandler {
-    fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus, onMessage: (UIText) -> Unit)
-    fun updateConversationArchiveStatus(
-        dialogState: DialogState,
-        timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds(),
-        onMessage: (UIText) -> Unit
-    )
-
-    fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit)
+    fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus)
+    fun updateConversationArchiveStatus(dialogState: DialogState, timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds())
+    fun onClearConversationContent(dialogState: DialogState)
 
     companion object {
         @Suppress("TooManyFunctions")
         val PREVIEW = object : GroupConversationDetailsBottomSheetEventsHandler {
-            override fun onMutingConversationStatusChange(
-                conversationId: ConversationId?,
-                status: MutedConversationStatus,
-                onMessage: (UIText) -> Unit
-            ) {
-            }
-
-            override fun updateConversationArchiveStatus(
-                dialogState: DialogState,
-                timestamp: Long,
-                onMessage: (UIText) -> Unit
-            ) {
-            }
-
-            override fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit) {}
+            override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {}
+            override fun updateConversationArchiveStatus(dialogState: DialogState, timestamp: Long) {}
+            override fun onClearConversationContent(dialogState: DialogState) {}
         }
     }
 }

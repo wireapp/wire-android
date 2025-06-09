@@ -30,6 +30,8 @@ import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangeme
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.MLS_CLIENT_IDENTITY_WITH_VALID_E2EI
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedClientID
@@ -53,14 +55,11 @@ import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.right
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -112,13 +111,13 @@ class DeviceDetailsViewModelTest {
             .withDeleteDeviceResult(DeleteClientResult.Success)
             .arrange()
 
-        viewModel.removeDevice(arrangement.onSuccess)
+        viewModel.removeDevice()
 
         // then
         coVerify {
             arrangement.deleteClientUseCase(any())
         }
-        verify { arrangement.onSuccess() }
+        assertEquals(true, viewModel.state.deviceRemoved)
     }
 
     @Test
@@ -129,12 +128,12 @@ class DeviceDetailsViewModelTest {
             .withUserRequiresPasswordResult(IsPasswordRequiredUseCase.Result.Success(true))
             .arrange()
 
-        viewModel.removeDevice(arrangement.onSuccess)
+        viewModel.removeDevice()
 
         coVerify(exactly = 0) {
             arrangement.deleteClientUseCase(any())
         }
-        verify(exactly = 0) { arrangement.onSuccess.invoke() }
+        assertEquals(false, viewModel.state.deviceRemoved)
         assertIs<RemoveDeviceDialogState.Visible>(viewModel.state.removeDeviceDialogState)
         assertIs<RemoveDeviceError.None>(viewModel.state.error)
     }
@@ -153,7 +152,7 @@ class DeviceDetailsViewModelTest {
             coVerify(exactly = 0) {
                 arrangement.deleteClientUseCase(any())
             }
-            verify(exactly = 0) { arrangement.onSuccess.invoke() }
+            assertEquals(false, viewModel.state.deviceRemoved)
             assertIs<RemoveDeviceDialogState.Hidden>(viewModel.state.removeDeviceDialogState)
             assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }
@@ -168,13 +167,13 @@ class DeviceDetailsViewModelTest {
                 .withDeleteDeviceResult(DeleteClientResult.Failure.Generic(CoreFailure.Unknown(RuntimeException("error"))))
                 .arrange()
 
-            viewModel.removeDevice(arrangement.onSuccess)
+            viewModel.removeDevice()
             viewModel.clearDeleteClientError()
 
             coVerify(exactly = 0) {
                 arrangement.deleteClientUseCase.invoke(any())
             }
-            verify(exactly = 0) { arrangement.onSuccess.invoke() }
+            assertEquals(false, viewModel.state.deviceRemoved)
             assertIs<RemoveDeviceDialogState.Visible>(viewModel.state.removeDeviceDialogState)
             assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }
@@ -189,14 +188,14 @@ class DeviceDetailsViewModelTest {
                 .withDeleteDeviceResult(DeleteClientResult.Success)
                 .arrange()
 
-            viewModel.removeDevice(arrangement.onSuccess)
-            viewModel.onRemoveConfirmed(arrangement.onSuccess)
+            viewModel.removeDevice()
+            viewModel.onRemoveConfirmed()
             advanceUntilIdle()
 
             coVerify {
                 arrangement.deleteClientUseCase.invoke(any())
             }
-            verify { arrangement.onSuccess() }
+            assertEquals(true, viewModel.state.deviceRemoved)
             assertIs<RemoveDeviceDialogState.Visible>(viewModel.state.removeDeviceDialogState).let {
                 assertEquals(true, it.removeEnabled == false)
             }
@@ -213,12 +212,12 @@ class DeviceDetailsViewModelTest {
                 .withDeleteDeviceResult(DeleteClientResult.Success)
                 .arrange()
 
-            viewModel.removeDevice(arrangement.onSuccess)
+            viewModel.removeDevice()
 
             coVerify {
                 arrangement.deleteClientUseCase(any())
             }
-            verify { arrangement.onSuccess() }
+            assertEquals(true, viewModel.state.deviceRemoved)
             assertIs<RemoveDeviceDialogState.Hidden>(viewModel.state.removeDeviceDialogState)
             assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }
@@ -354,9 +353,6 @@ class DeviceDetailsViewModelTest {
 
         @MockK
         lateinit var getE2eiCertificate: GetMLSClientIdentityUseCase
-
-        @MockK(relaxed = true)
-        lateinit var onSuccess: () -> Unit
 
         @MockK
         lateinit var isE2EIEnabledUseCase: IsE2EIEnabledUseCase

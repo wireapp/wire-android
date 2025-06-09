@@ -30,6 +30,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -60,10 +61,14 @@ fun VerifyEmailScreen(
     navigator: Navigator,
     viewModel: VerifyEmailViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(viewModel.state.noChange) {
+        if (viewModel.state.noChange) navigator.navigateBack()
+    }
+
     VerifyEmailContent(
         state = viewModel.state,
         onBackPressed = navigator::navigateBack,
-        onResendVerificationEmailClicked = { viewModel.onResendVerificationEmailClicked(navigator::navigateBack) },
+        onResendVerificationEmailClicked = viewModel::onResendVerificationEmailClicked,
         newEmail = viewModel.newEmail
     )
 }

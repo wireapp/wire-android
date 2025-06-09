@@ -56,23 +56,18 @@ class TeamMigrationViewModel @Inject constructor(
         sendPersonalTeamCreationFlowStepEvent(step)
     }
 
-    fun setIsMigratingState(isMigrating: Boolean) {
-        teamMigrationState = teamMigrationState.copy(isMigrating = isMigrating)
-    }
-
-    fun migrateFromPersonalToTeamAccount(onSuccess: () -> Unit) {
+    fun migrateFromPersonalToTeamAccount() {
         viewModelScope.launch {
+            teamMigrationState = teamMigrationState.copy(isMigrating = true)
             migrateFromPersonalToTeam.invoke(
                 teamMigrationState.teamNameTextState.text.trim().toString(),
             ).let { result ->
-                when (result) {
-                    is MigrateFromPersonalToTeamResult.Success -> {
-                        onSuccess()
-                    }
+                teamMigrationState = when (result) {
+                    is MigrateFromPersonalToTeamResult.Success ->
+                        teamMigrationState.copy(isMigrating = false, migrationCompleted = true)
 
-                    is MigrateFromPersonalToTeamResult.Error -> {
-                        onMigrationFailure(result.failure)
-                    }
+                    is MigrateFromPersonalToTeamResult.Error ->
+                        teamMigrationState.copy(isMigrating = false, migrationFailure = result.failure)
                 }
             }
         }
@@ -80,10 +75,6 @@ class TeamMigrationViewModel @Inject constructor(
 
     fun failureHandled() {
         teamMigrationState = teamMigrationState.copy(migrationFailure = null)
-    }
-
-    private fun onMigrationFailure(failure: MigrateFromPersonalToTeamFailure) {
-        teamMigrationState = teamMigrationState.copy(migrationFailure = failure)
     }
 
     private fun setUsername() {

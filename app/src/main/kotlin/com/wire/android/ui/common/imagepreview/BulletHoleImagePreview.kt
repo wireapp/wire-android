@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.common.imagepreview
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -50,9 +49,8 @@ import com.wire.android.util.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@SuppressLint("ProduceStateDoesNotAssignValue") // false positive, more info here: https://issuetracker.google.com/issues/368420773
 @Composable
-private fun loadBitmap(imageUri: Uri): State<Bitmap?> {
+private fun loadBitMap(imageUri: Uri): State<Bitmap?> {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     return produceState<Bitmap?>(initialValue = null, imageUri) {
@@ -85,7 +83,7 @@ fun BulletHoleImagePreview(
                 }
         ) {
             Image(
-                painter = rememberAsyncImagePainter(loadBitmap(imageUri).value),
+                painter = rememberAsyncImagePainter(loadBitMap(imageUri).value),
                 contentScale = ContentScale.Crop,
                 contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(),

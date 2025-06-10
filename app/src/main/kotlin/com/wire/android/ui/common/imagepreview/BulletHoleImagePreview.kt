@@ -30,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
@@ -47,15 +46,14 @@ import coil.compose.rememberAsyncImagePainter
 import com.wire.android.ui.common.dimensions
 import com.wire.android.util.toBitmap
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 private fun loadBitMap(imageUri: Uri): State<Bitmap?> {
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     return produceState<Bitmap?>(initialValue = null, imageUri) {
-        coroutineScope.launch(Dispatchers.IO) {
-            value = imageUri.toBitmap(context)
+        value = withContext(Dispatchers.IO) {
+            imageUri.toBitmap(context)
         }
     }
 }

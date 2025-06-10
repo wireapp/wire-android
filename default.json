@@ -10,7 +10,8 @@
             "analytics_enabled": true,
             "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
             "analytics_server_url": "https://countly.wire.com/",
-            "enable_crossplatform_backup": false
+            "enable_crossplatform_backup": false,
+            "enable_new_registration": false
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
@@ -33,7 +34,8 @@
             "analytics_enabled": false,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://countly.wire.com/",
-            "enable_crossplatform_backup": true
+            "enable_crossplatform_backup": true,
+            "enable_new_registration": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -55,7 +57,8 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://countly.wire.com/",
-            "enable_crossplatform_backup": true
+            "enable_crossplatform_backup": true,
+            "enable_new_registration": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -66,7 +69,8 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://countly.wire.com/",
-            "enable_crossplatform_backup": true
+            "enable_crossplatform_backup": true,
+            "enable_new_registration": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -78,7 +82,8 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://countly.wire.com/",
             "paginated_conversation_list_enabled": true,
-            "enable_crossplatform_backup": true
+            "enable_crossplatform_backup": true,
+            "enable_new_registration": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -89,7 +94,8 @@
             "analytics_enabled": false,
             "analytics_app_key": "",
             "analytics_server_url": "",
-            "enable_crossplatform_backup": false
+            "enable_crossplatform_backup": false,
+            "enable_new_registration": false
         }
     },
     "application_name": "Wire",

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,29 +15,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.authentication.create.common
+package com.wire.android.ui.registration.selector
 
+import android.os.Parcel
 import android.os.Parcelable
-import com.wire.android.ui.registration.selector.ServerConfigLinksParceler
-import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import dev.ahmedmourad.bundlizer.Bundlizer
+import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 
 @Parcelize
 @TypeParceler<ServerConfig.Links?, ServerConfigLinksParceler>()
-data class CreateAccountNavArgs(
-    val flowType: CreateAccountFlowType,
-    val userRegistrationInfo: UserRegistrationInfo = UserRegistrationInfo(),
-    val customServerConfig: ServerConfig.Links? = null,
-) : Parcelable
+data class CreateAccountSelectorNavArgs(val customServerConfig: ServerConfig.Links? = null) : Parcelable
 
-@Parcelize
-data class UserRegistrationInfo(
-    val email: String = String.EMPTY,
-    val firstName: String = String.EMPTY,
-    val lastName: String = String.EMPTY,
-    val password: String = String.EMPTY,
-    val teamName: String = String.EMPTY,
-    val teamIcon: String = "default"
-) : Parcelable
+object ServerConfigLinksParceler : Parceler<ServerConfig.Links?> {
+    override fun create(parcel: Parcel) = parcel.readBundle()?.let {
+        Bundlizer.unbundle(ServerConfig.Links.serializer(), it)
+    }
+    override fun ServerConfig.Links?.write(parcel: Parcel, flags: Int) {
+        if (this != null) {
+            parcel.writeBundle(Bundlizer.bundle(ServerConfig.Links.serializer(), this))
+        }
+    }
+}

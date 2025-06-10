@@ -56,7 +56,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -125,9 +124,6 @@ class SharedCallingViewModelTest {
 
     @MockK
     private lateinit var userTypeMapper: UserTypeMapper
-
-    @MockK(relaxed = true)
-    private lateinit var onCompleted: () -> Unit
 
     private val uiCallParticipantMapper: UICallParticipantMapper by lazy {
         UICallParticipantMapper(userTypeMapper)
@@ -291,13 +287,15 @@ class SharedCallingViewModelTest {
         coEvery { muteCall(any(), false) } returns Unit
         every { callRinger.stop() } returns Unit
 
-        sharedCallingViewModel.hangUpCall(onCompleted)
-        advanceUntilIdle()
+        sharedCallingViewModel.actions.test {
+            sharedCallingViewModel.hangUpCall()
+            advanceUntilIdle()
 
-        coVerify(exactly = 1) { endCall(any()) }
-        coVerify(exactly = 1) { muteCall(any(), false) }
-        coVerify(exactly = 1) { callRinger.stop() }
-        verify(exactly = 1) { onCompleted() }
+            coVerify(exactly = 1) { endCall(any()) }
+            coVerify(exactly = 1) { muteCall(any(), false) }
+            coVerify(exactly = 1) { callRinger.stop() }
+            assertEquals(SharedCallingViewActions.HungUpCall(conversationId), awaitItem())
+        }
     }
 
     @Test
@@ -313,16 +311,18 @@ class SharedCallingViewModelTest {
         coEvery { flipToFrontCamera(any()) } returns Unit
         coEvery { turnLoudSpeakerOff() } returns Unit
 
-        sharedCallingViewModel.hangUpCall(onCompleted)
-        advanceUntilIdle()
+        sharedCallingViewModel.actions.test {
+            sharedCallingViewModel.hangUpCall()
+            advanceUntilIdle()
 
-        coVerify(exactly = 1) { endCall(any()) }
-        coVerify(exactly = 1) { muteCall(any(), false) }
-        coVerify(exactly = 1) { flipToFrontCamera(any()) }
-        coVerify(exactly = 1) { turnLoudSpeakerOff() }
-        coVerify(exactly = 1) { muteCall(any(), false) }
-        coVerify(exactly = 1) { callRinger.stop() }
-        verify(exactly = 1) { onCompleted() }
+            coVerify(exactly = 1) { endCall(any()) }
+            coVerify(exactly = 1) { muteCall(any(), false) }
+            coVerify(exactly = 1) { flipToFrontCamera(any()) }
+            coVerify(exactly = 1) { turnLoudSpeakerOff() }
+            coVerify(exactly = 1) { muteCall(any(), false) }
+            coVerify(exactly = 1) { callRinger.stop() }
+            assertEquals(SharedCallingViewActions.HungUpCall(conversationId), awaitItem())
+        }
     }
 
     @Test

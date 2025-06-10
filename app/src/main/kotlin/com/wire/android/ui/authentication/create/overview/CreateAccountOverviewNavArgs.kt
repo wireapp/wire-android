@@ -17,25 +17,12 @@
  */
 package com.wire.android.ui.authentication.create.overview
 
-import android.os.Parcel
 import android.os.Parcelable
+import com.wire.android.ui.registration.selector.ServerConfigLinksParceler
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dev.ahmedmourad.bundlizer.Bundlizer
-import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 
 @Parcelize
 @TypeParceler<ServerConfig.Links?, ServerConfigLinksParceler>()
 data class CreateAccountOverviewNavArgs(val customServerConfig: ServerConfig.Links? = null) : Parcelable
-
-object ServerConfigLinksParceler : Parceler<ServerConfig.Links?> {
-    override fun create(parcel: Parcel) = parcel.readBundle()?.let {
-        Bundlizer.unbundle(ServerConfig.Links.serializer(), it)
-    }
-    override fun ServerConfig.Links?.write(parcel: Parcel, flags: Int) {
-        if (this != null) {
-            parcel.writeBundle(Bundlizer.bundle(ServerConfig.Links.serializer(), this))
-        }
-    }
-}

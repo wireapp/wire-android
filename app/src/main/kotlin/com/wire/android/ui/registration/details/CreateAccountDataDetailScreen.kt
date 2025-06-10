@@ -53,6 +53,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
+import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
@@ -80,12 +81,13 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreateAccountNavGraph
 @WireDestination(
-    navArgsDelegate = CreateAccountNavArgs::class,
+    navArgsDelegate = CreateAccountDataNavArgs::class,
     style = AuthPopUpNavigationAnimation::class
 )
 @Composable
@@ -97,14 +99,23 @@ fun CreateAccountDataDetailScreen(
         fun navigateToCodeScreen() = navigator.navigate(
             NavigationCommand(
                 CreateAccountCodeScreenDestination(
-                    createAccountNavArgs.copy(
-                        userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
+//                    createAccountNavArgs.copy(
+//                        userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
+//                            email = emailTextState.text.toString().trim(),
+//                            name = nameTextState.text.toString().trim(),
+//                            password = passwordTextState.text.toString(),
+//                            teamName = String.EMPTY
+//                        )
+//                    )
+                    CreateAccountNavArgs(
+                        CreateAccountFlowType.CreatePersonalAccount, userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
                             email = emailTextState.text.toString().trim(),
                             name = nameTextState.text.toString().trim(),
                             password = passwordTextState.text.toString(),
-                            teamName = teamNameTextState.text.toString().trim()
+                            teamName = String.EMPTY
                         )
                     )
+
                 )
             )
         )
@@ -119,7 +130,6 @@ fun CreateAccountDataDetailScreen(
             nameTextState = nameTextState,
             passwordTextState = passwordTextState,
             confirmPasswordTextState = confirmPasswordTextState,
-            teamNameTextState = teamNameTextState,
             tosUrl = tosUrl(),
             onTermsDialogDismiss = ::onTermsDialogDismiss,
             onTermsAccept = ::onTermsAccept,
@@ -138,7 +148,6 @@ private fun AccountDetailsContent(
     nameTextState: TextFieldState,
     passwordTextState: TextFieldState,
     confirmPasswordTextState: TextFieldState,
-    teamNameTextState: TextFieldState,
     tosUrl: String,
     onTermsDialogDismiss: () -> Unit,
     onTermsAccept: () -> Unit,
@@ -219,24 +228,6 @@ private fun AccountDetailsContent(
                         )
                         .testTag("firstName"),
                 )
-
-                if (state.type == CreateAccountFlowType.CreateTeam) {
-                    WireTextField(
-                        textState = teamNameTextState,
-                        placeholderText = stringResource(R.string.create_account_details_team_name_placeholder),
-                        labelText = stringResource(R.string.create_account_details_team_name_label),
-                        labelMandatoryIcon = true,
-                        state = WireTextFieldState.Default,
-                        keyboardOptions = keyboardOptions,
-                        modifier = Modifier
-                            .padding(
-                                start = MaterialTheme.wireDimensions.spacing16x,
-                                end = MaterialTheme.wireDimensions.spacing16x,
-                                bottom = MaterialTheme.wireDimensions.spacing16x
-                            )
-                            .testTag("teamName"),
-                    )
-                }
 
                 WirePasswordTextField(
                     textState = passwordTextState,
@@ -403,12 +394,11 @@ fun PreviewCreateAccountDetailsScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             AccountDetailsContent(
-                state = CreateAccountDataDetailViewState(CreateAccountFlowType.CreatePersonalAccount),
+                state = CreateAccountDataDetailViewState(),
                 emailTextState = TextFieldState(),
                 nameTextState = TextFieldState(),
                 passwordTextState = TextFieldState(),
                 confirmPasswordTextState = TextFieldState(),
-                teamNameTextState = TextFieldState(),
                 tosUrl = "",
                 onTermsDialogDismiss = {},
                 onTermsAccept = {},

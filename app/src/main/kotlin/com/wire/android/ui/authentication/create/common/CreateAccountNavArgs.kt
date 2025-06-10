@@ -24,10 +24,18 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 
+@Deprecated("This nav arg belongs to the old registration flow, please use the new one [CreateAccountDataNavArgs]")
 @Parcelize
 @TypeParceler<ServerConfig.Links?, ServerConfigLinksParceler>()
 data class CreateAccountNavArgs(
     val flowType: CreateAccountFlowType,
+    val userRegistrationInfo: UserRegistrationInfo = UserRegistrationInfo(),
+    val customServerConfig: ServerConfig.Links? = null,
+) : Parcelable
+
+@Parcelize
+@TypeParceler<ServerConfig.Links?, ServerConfigLinksParceler>()
+data class CreateAccountDataNavArgs(
     val userRegistrationInfo: UserRegistrationInfo = UserRegistrationInfo(),
     val customServerConfig: ServerConfig.Links? = null,
 ) : Parcelable

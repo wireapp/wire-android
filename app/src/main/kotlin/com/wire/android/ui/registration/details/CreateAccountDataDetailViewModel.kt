@@ -26,8 +26,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.config.orDefault
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.CoreLogic
@@ -49,15 +48,14 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
 
-    val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
+    val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
 
     val emailTextState: TextFieldState = TextFieldState(createAccountNavArgs.userRegistrationInfo.email)
     val nameTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
     val confirmPasswordTextState: TextFieldState = TextFieldState()
-    val teamNameTextState: TextFieldState = TextFieldState()
 
-    var detailsState: CreateAccountDataDetailViewState by mutableStateOf(CreateAccountDataDetailViewState(createAccountNavArgs.flowType))
+    var detailsState: CreateAccountDataDetailViewState by mutableStateOf(CreateAccountDataDetailViewState())
 
     val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig.orDefault()
     fun tosUrl(): String = serverConfig.tos
@@ -69,10 +67,8 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                 nameTextState.textAsFlow(),
                 passwordTextState.textAsFlow(),
                 confirmPasswordTextState.textAsFlow(),
-                teamNameTextState.textAsFlow(),
-            ) { email, name, password, confirmPassword, teamName ->
+            ) { email, name, password, confirmPassword ->
                 email.isNotBlank() && name.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
-                        && (detailsState.type == CreateAccountFlowType.CreatePersonalAccount || teamName.isNotBlank())
             }.collect { fieldsNotEmpty ->
                 detailsState = detailsState.copy(
                     error = CreateAccountDataDetailViewState.DetailsError.None,

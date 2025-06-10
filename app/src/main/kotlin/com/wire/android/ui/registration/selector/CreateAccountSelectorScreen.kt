@@ -47,6 +47,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
+import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
@@ -79,8 +80,7 @@ fun CreateAccountSelectorScreen(
 ) {
 
     fun navigateToEmailScreen() {
-        val createAccountNavArgs = CreateAccountNavArgs(
-            flowType = CreateAccountFlowType.CreatePersonalAccount,
+        val createAccountNavArgs = CreateAccountDataNavArgs(
             customServerConfig = viewModel.serverConfig.orDefault(),
             userRegistrationInfo = UserRegistrationInfo(viewModel.email)
         )
@@ -88,12 +88,12 @@ fun CreateAccountSelectorScreen(
     }
 
     fun navigateToEmailTeamScreen() {
-        val createAccountNavArgs = CreateAccountNavArgs(
-            flowType = CreateAccountFlowType.CreateTeam,
-            customServerConfig = viewModel.serverConfig.orDefault(),
-            userRegistrationInfo = UserRegistrationInfo(viewModel.email)
-        )
-        navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
+//        val createAccountNavArgs = CreateAccountNavArgs(
+//            flowType = CreateAccountFlowType.CreateTeam,
+//            customServerConfig = viewModel.serverConfig.orDefault(),
+//            userRegistrationInfo = UserRegistrationInfo(viewModel.email)
+//        )
+//        navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
     }
 
     CreateAccountSelectorContent(
@@ -166,7 +166,7 @@ fun CreateAccountSelectorContent(
 }
 
 /**
- * Metadata for the accounty type container styles.
+ * Metadata for the account type container styles.
  */
 data class AccountTypeStyling(
     val containerBorderColor: Color,

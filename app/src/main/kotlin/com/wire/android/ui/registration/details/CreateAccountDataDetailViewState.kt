@@ -22,7 +22,6 @@ import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.kalium.common.error.CoreFailure
 
 data class CreateAccountDataDetailViewState(
-    val type: CreateAccountFlowType,
     val termsDialogVisible: Boolean = false,
     val termsAccepted: Boolean = false,
     val continueEnabled: Boolean = false,

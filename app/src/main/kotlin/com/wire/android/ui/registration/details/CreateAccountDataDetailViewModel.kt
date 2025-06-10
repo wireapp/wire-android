@@ -149,9 +149,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                 continueEnabled = true,
                 error = detailsError
             )
-            // todo, validate with to continue instead of assuming correct
             if (detailsState.error is CreateAccountDataDetailViewState.DetailsError.None) {
-                detailsState = detailsState.copy(success = true)
                 onEmailContinue()
             }
         }

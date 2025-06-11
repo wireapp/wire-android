@@ -28,6 +28,4 @@ data class CreateAccountCodeViewState(
     val email: String = "",
     val loading: Boolean = false,
     val result: CodeVerificationResult = CodeVerificationResult.None,
-) {
-
-}
+)

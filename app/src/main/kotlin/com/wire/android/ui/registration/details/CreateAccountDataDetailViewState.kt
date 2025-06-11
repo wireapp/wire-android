@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.registration.details
 
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.kalium.common.error.CoreFailure
 
 data class CreateAccountDataDetailViewState(

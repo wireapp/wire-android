@@ -70,12 +70,14 @@ fun CreateAccountUsernameScreen(
     )
 
     LaunchedEffect(viewModel.state.success) {
-        if (viewModel.state.success) navigator.navigate(
-            NavigationCommand(
-                InitialSyncScreenDestination,
-                BackStackMode.CLEAR_WHOLE
+        if (viewModel.state.success) {
+            navigator.navigate(
+                NavigationCommand(
+                    InitialSyncScreenDestination,
+                    BackStackMode.CLEAR_WHOLE
+                )
             )
-        )
+        }
     }
 }
 

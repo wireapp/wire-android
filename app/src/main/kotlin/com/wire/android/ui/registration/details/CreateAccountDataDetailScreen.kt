@@ -185,8 +185,11 @@ private fun AccountDetailsContent(
                     placeholderText = stringResource(R.string.create_account_email_placeholder),
                     labelText = stringResource(R.string.create_account_email_label),
                     labelMandatoryIcon = true,
-                    state = if (!state.error.isEmailError()) WireTextFieldState.Default
-                    else WireTextFieldState.Error(),
+                    state = if (!state.error.isEmailError()) {
+                        WireTextFieldState.Default
+                    } else {
+                        WireTextFieldState.Error()
+                    },
                     keyboardOptions = KeyboardOptions.DefaultEmailDone,
                     onKeyboardAction = { keyboardController?.hide() },
                     modifier = Modifier
@@ -248,13 +251,17 @@ private fun AccountDetailsContent(
                             vertical = MaterialTheme.wireDimensions.spacing16x
                         )
                         .testTag("confirmPassword"),
-                    state = if (state.error is CreateAccountDataDetailViewState.DetailsError.PasswordError) when (state.error) {
-                        CreateAccountDataDetailViewState.DetailsError.PasswordError.PasswordsNotMatchingError ->
-                            WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
+                    state = if (state.error is CreateAccountDataDetailViewState.DetailsError.PasswordError) {
+                        when (state.error) {
+                            CreateAccountDataDetailViewState.DetailsError.PasswordError.PasswordsNotMatchingError ->
+                                WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
 
-                        CreateAccountDataDetailViewState.DetailsError.PasswordError.InvalidPasswordError ->
-                            WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
-                    } else WireTextFieldState.Default,
+                            CreateAccountDataDetailViewState.DetailsError.PasswordError.InvalidPasswordError ->
+                                WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
+                        }
+                    } else {
+                        WireTextFieldState.Default
+                    },
                     autoFill = false,
                 )
             }
@@ -272,7 +279,11 @@ private fun AccountDetailsContent(
                 onClick = onContinuePressed,
                 fillMaxWidth = true,
                 loading = state.loading,
-                state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                state = if (state.continueEnabled) {
+                    WireButtonState.Default
+                } else {
+                    WireButtonState.Disabled
+                },
             )
 
             if (state.termsDialogVisible) {
@@ -332,19 +343,23 @@ private fun EmailErrorDetailText(error: CreateAccountDataDetailViewState.Details
     val learnMoreText = stringResource(id = R.string.label_learn_more)
     val annotatedText = buildAnnotatedString {
         append(
-            if (error is CreateAccountDataDetailViewState.DetailsError.EmailFieldError) when (error) {
-                CreateAccountDataDetailViewState.DetailsError.EmailFieldError.AlreadyInUseError ->
-                    stringResource(R.string.create_account_email_already_in_use_error)
+            if (error is CreateAccountDataDetailViewState.DetailsError.EmailFieldError) {
+                when (error) {
+                    CreateAccountDataDetailViewState.DetailsError.EmailFieldError.AlreadyInUseError ->
+                        stringResource(R.string.create_account_email_already_in_use_error)
 
-                CreateAccountDataDetailViewState.DetailsError.EmailFieldError.BlacklistedEmailError ->
-                    stringResource(R.string.create_account_email_blacklisted_error)
+                    CreateAccountDataDetailViewState.DetailsError.EmailFieldError.BlacklistedEmailError ->
+                        stringResource(R.string.create_account_email_blacklisted_error)
 
-                CreateAccountDataDetailViewState.DetailsError.EmailFieldError.DomainBlockedError ->
-                    stringResource(R.string.create_account_email_domain_blocked_error)
+                    CreateAccountDataDetailViewState.DetailsError.EmailFieldError.DomainBlockedError ->
+                        stringResource(R.string.create_account_email_domain_blocked_error)
 
-                CreateAccountDataDetailViewState.DetailsError.EmailFieldError.InvalidEmailError ->
-                    stringResource(R.string.create_account_email_invalid_error)
-            } else ""
+                    CreateAccountDataDetailViewState.DetailsError.EmailFieldError.InvalidEmailError ->
+                        stringResource(R.string.create_account_email_invalid_error)
+                }
+            } else {
+                ""
+            }
         )
         if (error is CreateAccountDataDetailViewState.DetailsError.EmailFieldError.AlreadyInUseError) {
             append(" ")

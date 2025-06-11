@@ -171,23 +171,29 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
-            registerClient(storedUserId, registerParam.password).let {
-                when (it) {
-                    is RegisterClientResult.Failure -> {
-                        updateCodeErrorState(it.toCodeError())
-                        return@launch
-                    }
+            registerClient(storedUserId, registerParam)
+        }
+    }
 
-                    is RegisterClientResult.Success -> {
-                        codeState =
-                            codeState.copy(result = CreateAccountVerificationCodeViewState.Result.Success)
-                    }
+    private suspend fun registerClient(
+        storedUserId: UserId,
+        registerParam: RegisterParam.PersonalAccount
+    ) {
+        registerClient(storedUserId, registerParam.password).let {
+            when (it) {
+                is RegisterClientResult.Failure -> {
+                    updateCodeErrorState(it.toCodeError())
+                }
 
-                    is RegisterClientResult.E2EICertificateRequired -> {
-                        // TODO
-                        codeState =
-                            codeState.copy(result = CreateAccountVerificationCodeViewState.Result.Success)
-                    }
+                is RegisterClientResult.Success -> {
+                    codeState =
+                        codeState.copy(result = CreateAccountVerificationCodeViewState.Result.Success)
+                }
+
+                is RegisterClientResult.E2EICertificateRequired -> {
+                    // TODO
+                    codeState =
+                        codeState.copy(result = CreateAccountVerificationCodeViewState.Result.Success)
                 }
             }
         }
@@ -220,16 +226,39 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
     }
 
     private fun RegisterResult.Failure.toCodeError() = when (this) {
-        RegisterResult.Failure.InvalidActivationCode -> CreateAccountVerificationCodeViewState.Result.Error.TextFieldError.InvalidActivationCodeError
-        RegisterResult.Failure.AccountAlreadyExists -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.AccountAlreadyExistsError
-        RegisterResult.Failure.BlackListed -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.BlackListedError
-        RegisterResult.Failure.EmailDomainBlocked -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.EmailDomainBlockedError
-        RegisterResult.Failure.InvalidEmail -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.InvalidEmailError
-        RegisterResult.Failure.TeamMembersLimitReached -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.TeamMembersLimitError
-        RegisterResult.Failure.UserCreationRestricted -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.CreationRestrictedError
-        is RegisterResult.Failure.Generic -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.GenericError(
-            this.failure
-        )
+        RegisterResult.Failure.InvalidActivationCode -> {
+            CreateAccountVerificationCodeViewState.Result.Error.TextFieldError.InvalidActivationCodeError
+        }
+
+        RegisterResult.Failure.AccountAlreadyExists -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.AccountAlreadyExistsError
+        }
+
+        RegisterResult.Failure.BlackListed -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.BlackListedError
+        }
+
+        RegisterResult.Failure.EmailDomainBlocked -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.EmailDomainBlockedError
+        }
+
+        RegisterResult.Failure.InvalidEmail -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.InvalidEmailError
+        }
+
+        RegisterResult.Failure.TeamMembersLimitReached -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.TeamMembersLimitError
+        }
+
+        RegisterResult.Failure.UserCreationRestricted -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.CreationRestrictedError
+        }
+
+        is RegisterResult.Failure.Generic -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.GenericError(
+                this.failure
+            )
+        }
     }
 
     private fun AddAuthenticatedUserUseCase.Result.Failure.toCodeError() = when (this) {
@@ -241,14 +270,30 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
     }
 
     private fun RequestActivationCodeResult.toCodeError() = when (this) {
-        RequestActivationCodeResult.Failure.AlreadyInUse -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.AccountAlreadyExistsError
-        RequestActivationCodeResult.Failure.BlacklistedEmail -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.BlackListedError
-        RequestActivationCodeResult.Failure.DomainBlocked -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.EmailDomainBlockedError
-        RequestActivationCodeResult.Failure.InvalidEmail -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.InvalidEmailError
-        is RequestActivationCodeResult.Failure.Generic -> CreateAccountVerificationCodeViewState.Result.Error.DialogError.GenericError(
-            this.failure
-        )
+        RequestActivationCodeResult.Failure.AlreadyInUse -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.AccountAlreadyExistsError
+        }
 
-        RequestActivationCodeResult.Success -> CreateAccountVerificationCodeViewState.Result.None
+        RequestActivationCodeResult.Failure.BlacklistedEmail -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.BlackListedError
+        }
+
+        RequestActivationCodeResult.Failure.DomainBlocked -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.EmailDomainBlockedError
+        }
+
+        RequestActivationCodeResult.Failure.InvalidEmail -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.InvalidEmailError
+        }
+
+        is RequestActivationCodeResult.Failure.Generic -> {
+            CreateAccountVerificationCodeViewState.Result.Error.DialogError.GenericError(
+                this.failure
+            )
+        }
+
+        RequestActivationCodeResult.Success -> {
+            CreateAccountVerificationCodeViewState.Result.None
+        }
     }
 }

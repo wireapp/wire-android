@@ -24,7 +24,7 @@ data class CreateAccountVerificationCodeViewState(
     val codeLength: Int = DEFAULT_VERIFICATION_CODE_LENGTH,
     val email: String = "",
     val loading: Boolean = false,
-    val result: CodeVerificationResult = CodeVerificationResult.None,
+    val result: CreateAccountCodeResult = CreateAccountCodeResult.None,
 ) {
 
     companion object {
@@ -32,10 +32,10 @@ data class CreateAccountVerificationCodeViewState(
     }
 }
 
-sealed interface CodeVerificationResult {
-    data object None : CodeVerificationResult
-    data object Success : CodeVerificationResult
-    sealed class Error : CodeVerificationResult {
+sealed interface CreateAccountCodeResult {
+    data object None : CreateAccountCodeResult
+    data object Success : CreateAccountCodeResult
+    sealed class Error : CreateAccountCodeResult {
         sealed class TextFieldError : Error() {
             data object InvalidActivationCodeError : TextFieldError()
         }

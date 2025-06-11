@@ -19,7 +19,7 @@
 package com.wire.android.ui.authentication.create.code
 
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.registration.code.CodeVerificationResult
+import com.wire.android.ui.registration.code.CreateAccountCodeResult
 import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewState.Companion.DEFAULT_VERIFICATION_CODE_LENGTH
 
 data class CreateAccountCodeViewState(
@@ -27,5 +27,5 @@ data class CreateAccountCodeViewState(
     val codeLength: Int = DEFAULT_VERIFICATION_CODE_LENGTH,
     val email: String = "",
     val loading: Boolean = false,
-    val result: CodeVerificationResult = CodeVerificationResult.None,
+    val result: CreateAccountCodeResult = CreateAccountCodeResult.None,
 )

@@ -106,7 +106,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
     }
 
     fun clearCodeError() {
-        codeState = codeState.copy(result = CodeVerificationResult.None)
+        codeState = codeState.copy(result = CreateAccountCodeResult.None)
     }
 
     fun clearCodeField() {
@@ -187,19 +187,19 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
 
                 is RegisterClientResult.Success -> {
                     codeState =
-                        codeState.copy(result = CodeVerificationResult.Success)
+                        codeState.copy(result = CreateAccountCodeResult.Success)
                 }
 
                 is RegisterClientResult.E2EICertificateRequired -> {
                     // TODO
                     codeState =
-                        codeState.copy(result = CodeVerificationResult.Success)
+                        codeState.copy(result = CreateAccountCodeResult.Success)
                 }
             }
         }
     }
 
-    private fun updateCodeErrorState(codeError: CodeVerificationResult.Error) {
+    private fun updateCodeErrorState(codeError: CreateAccountCodeResult.Error) {
         codeState = codeState.copy(loading = false, result = codeError)
     }
 
@@ -213,8 +213,8 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
         )
 
     private fun RegisterClientResult.Failure.toCodeError() = when (this) {
-        is RegisterClientResult.Failure.TooManyClients -> CodeVerificationResult.Error.TooManyDevicesError
-        is RegisterClientResult.Failure.Generic -> CodeVerificationResult.Error.DialogError.GenericError(
+        is RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeResult.Error.TooManyDevicesError
+        is RegisterClientResult.Failure.Generic -> CreateAccountCodeResult.Error.DialogError.GenericError(
             this.genericFailure
         )
 
@@ -227,35 +227,35 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
 
     private fun RegisterResult.Failure.toCodeError() = when (this) {
         RegisterResult.Failure.InvalidActivationCode -> {
-            CodeVerificationResult.Error.TextFieldError.InvalidActivationCodeError
+            CreateAccountCodeResult.Error.TextFieldError.InvalidActivationCodeError
         }
 
         RegisterResult.Failure.AccountAlreadyExists -> {
-            CodeVerificationResult.Error.DialogError.AccountAlreadyExistsError
+            CreateAccountCodeResult.Error.DialogError.AccountAlreadyExistsError
         }
 
         RegisterResult.Failure.BlackListed -> {
-            CodeVerificationResult.Error.DialogError.BlackListedError
+            CreateAccountCodeResult.Error.DialogError.BlackListedError
         }
 
         RegisterResult.Failure.EmailDomainBlocked -> {
-            CodeVerificationResult.Error.DialogError.EmailDomainBlockedError
+            CreateAccountCodeResult.Error.DialogError.EmailDomainBlockedError
         }
 
         RegisterResult.Failure.InvalidEmail -> {
-            CodeVerificationResult.Error.DialogError.InvalidEmailError
+            CreateAccountCodeResult.Error.DialogError.InvalidEmailError
         }
 
         RegisterResult.Failure.TeamMembersLimitReached -> {
-            CodeVerificationResult.Error.DialogError.TeamMembersLimitError
+            CreateAccountCodeResult.Error.DialogError.TeamMembersLimitError
         }
 
         RegisterResult.Failure.UserCreationRestricted -> {
-            CodeVerificationResult.Error.DialogError.CreationRestrictedError
+            CreateAccountCodeResult.Error.DialogError.CreationRestrictedError
         }
 
         is RegisterResult.Failure.Generic -> {
-            CodeVerificationResult.Error.DialogError.GenericError(
+            CreateAccountCodeResult.Error.DialogError.GenericError(
                 this.failure
             )
         }
@@ -263,37 +263,37 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
 
     private fun AddAuthenticatedUserUseCase.Result.Failure.toCodeError() = when (this) {
         is AddAuthenticatedUserUseCase.Result.Failure.Generic ->
-            CodeVerificationResult.Error.DialogError.GenericError(this.genericFailure)
+            CreateAccountCodeResult.Error.DialogError.GenericError(this.genericFailure)
 
         AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists ->
-            CodeVerificationResult.Error.DialogError.UserAlreadyExistsError
+            CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
     }
 
     private fun RequestActivationCodeResult.toCodeError() = when (this) {
         RequestActivationCodeResult.Failure.AlreadyInUse -> {
-            CodeVerificationResult.Error.DialogError.AccountAlreadyExistsError
+            CreateAccountCodeResult.Error.DialogError.AccountAlreadyExistsError
         }
 
         RequestActivationCodeResult.Failure.BlacklistedEmail -> {
-            CodeVerificationResult.Error.DialogError.BlackListedError
+            CreateAccountCodeResult.Error.DialogError.BlackListedError
         }
 
         RequestActivationCodeResult.Failure.DomainBlocked -> {
-            CodeVerificationResult.Error.DialogError.EmailDomainBlockedError
+            CreateAccountCodeResult.Error.DialogError.EmailDomainBlockedError
         }
 
         RequestActivationCodeResult.Failure.InvalidEmail -> {
-            CodeVerificationResult.Error.DialogError.InvalidEmailError
+            CreateAccountCodeResult.Error.DialogError.InvalidEmailError
         }
 
         is RequestActivationCodeResult.Failure.Generic -> {
-            CodeVerificationResult.Error.DialogError.GenericError(
+            CreateAccountCodeResult.Error.DialogError.GenericError(
                 this.failure
             )
         }
 
         RequestActivationCodeResult.Success -> {
-            CodeVerificationResult.None
+            CreateAccountCodeResult.None
         }
     }
 }

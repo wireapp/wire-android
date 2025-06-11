@@ -1,0 +1,36 @@
+name: "Quality Gates"
+
+on:
+  workflow_call:
+    outputs:
+      quality-passed:
+        description: "Quality gates status"
+        value: ${{ jobs.validate.outputs.result }}
+
+concurrency:
+  group: quality-gates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  code-analysis:
+    uses: ./.github/workflows/code-analysis.yml
+
+  ui-tests:
+    uses: ./.github/workflows/gradle-run-ui-tests.yml
+
+  unit-tests:
+    uses: ./.github/workflows/gradle-run-unit-tests.yml
+    secrets: inherit
+
+  validate:
+    name: "Validate Quality Gates"
+    needs: [code-analysis, ui-tests, unit-tests]
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Check all quality gates passed
+        id: result
+        run: |
+          echo "All quality gates passed successfully"
+          echo "status=success" >> $GITHUB_OUTPUT

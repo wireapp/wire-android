@@ -1,0 +1,149 @@
+name: "Build Wire Android (Unified)"
+
+on:
+  workflow_call:
+    inputs:
+      build-config:
+        description: "JSON build configuration matrix"
+        required: true
+        type: string
+      enable-deployment:
+        description: "Enable deployment after successful build"
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: build-unified-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Run quality gates first
+  quality-gates:
+    uses: ./.github/workflows/quality-gates.yml
+
+  # Build matrix job
+  build:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(inputs.build-config) }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Keystore
+        uses: ./.github/actions/setup-keystore
+        with:
+          keystore-type: ${{ matrix.keystore-type }}
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Set build environment variables
+        run: |
+          echo "Building ${{ matrix.flavor }}${{ matrix.variant }}"
+          
+          # Set keystore environment variables based on keystore type
+          case "${{ matrix.keystore-type }}" in
+            debug)
+              echo "KEYSTORE_KEY_NAME_DEBUG=${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}" >> $GITHUB_ENV
+              echo "KEYPWD_DEBUG=${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_DEBUG=${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}" >> $GITHUB_ENV
+              ;;
+            prerelease)
+              echo "KEYSTORE_KEY_NAME_RELEASE=${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}" >> $GITHUB_ENV
+              echo "KEYPWD_RELEASE=${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_RELEASE=${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}" >> $GITHUB_ENV
+              ;;
+            internal)
+              echo "KEYSTORE_KEY_NAME_COMPAT=${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}" >> $GITHUB_ENV
+              echo "KEYPWD_COMPAT=${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_COMPAT=${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}" >> $GITHUB_ENV
+              echo "KEYSTORE_KEY_NAME_COMPAT_RELEASE=${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}" >> $GITHUB_ENV
+              echo "KEYPWD_COMPAT_RELEASE=${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_COMPAT_RELEASE=${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}" >> $GITHUB_ENV
+              ;;
+            public)
+              echo "KEYSTORE_KEY_NAME_COMPAT_RELEASE=${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}" >> $GITHUB_ENV
+              echo "KEYPWD_COMPAT_RELEASE=${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_COMPAT_RELEASE=${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}" >> $GITHUB_ENV
+              ;;
+          esac
+
+      - name: Build APK
+        if: matrix.build-type == 'apk' || matrix.build-type == 'both'
+        run: |
+          ./gradlew app:assemble${{ matrix.flavor }}${{ matrix.variant }}
+        env:
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+
+      - name: Build AAB
+        if: matrix.build-type == 'bundle' || matrix.build-type == 'both'
+        run: |
+          ./gradlew app:bundle${{ matrix.flavor }}${{ matrix.variant }}
+        env:
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+
+      - name: Generate version file
+        if: matrix.generate-version-file == true
+        run: ./gradlew generateVersionFile
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.flavor }}-${{ matrix.variant }}-artifacts
+          path: |
+            app/build/outputs/
+            ${{ matrix.generate-version-file == true && 'app/version.txt' || '' }}
+          retention-days: 7
+
+      - name: Build summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "**Flavor**: ${{ matrix.flavor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Variant**: ${{ matrix.variant }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Keystore**: ${{ matrix.keystore-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Type**: ${{ matrix.build-type }}" >> $GITHUB_STEP_SUMMARY
+          
+          # List generated artifacts
+          echo "**Generated Artifacts**:" >> $GITHUB_STEP_SUMMARY
+          find app/build/outputs/ -name "*.apk" -o -name "*.aab" | head -10 | while read file; do
+            echo "- \`$(basename "$file")\`" >> $GITHUB_STEP_SUMMARY
+          done
+
+  # Deploy job (conditional)
+  deploy:
+    needs: build
+    if: inputs.enable-deployment == true
+    strategy:
+      matrix:
+        include: ${{ fromJson(inputs.build-config) }}
+    uses: ./.github/workflows/deploy.yml
+    with:
+      artifacts-path: app/build/outputs/
+      deployment-targets: ${{ matrix.deployment-targets }}
+      build-flavor: ${{ matrix.flavor }}
+      build-variant: ${{ matrix.variant }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}

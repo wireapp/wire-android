@@ -50,7 +50,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // TODO: Cover this viewModel  with unit test
-
 @HiltViewModel
 class CreateAccountCodeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

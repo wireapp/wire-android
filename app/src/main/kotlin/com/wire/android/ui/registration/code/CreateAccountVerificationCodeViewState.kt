@@ -24,32 +24,33 @@ data class CreateAccountVerificationCodeViewState(
     val codeLength: Int = DEFAULT_VERIFICATION_CODE_LENGTH,
     val email: String = "",
     val loading: Boolean = false,
-    val result: Result = Result.None,
+    val result: CodeVerificationResult = CodeVerificationResult.None,
 ) {
-    sealed interface Result {
-        data object None : Result
-        data object Success : Result
-        sealed class Error : Result {
-            sealed class TextFieldError : Error() {
-                data object InvalidActivationCodeError : TextFieldError()
-            }
-
-            sealed class DialogError : Error() {
-                data object InvalidEmailError : DialogError()
-                data object AccountAlreadyExistsError : DialogError()
-                data object BlackListedError : DialogError()
-                data object EmailDomainBlockedError : DialogError()
-                data object TeamMembersLimitError : DialogError()
-                data object CreationRestrictedError : DialogError()
-                data object UserAlreadyExistsError : DialogError()
-                data class GenericError(val coreFailure: CoreFailure) : DialogError()
-            }
-
-            data object TooManyDevicesError : Error()
-        }
-    }
 
     companion object {
         const val DEFAULT_VERIFICATION_CODE_LENGTH = 6
+    }
+}
+
+sealed interface CodeVerificationResult {
+    data object None : CodeVerificationResult
+    data object Success : CodeVerificationResult
+    sealed class Error : CodeVerificationResult {
+        sealed class TextFieldError : Error() {
+            data object InvalidActivationCodeError : TextFieldError()
+        }
+
+        sealed class DialogError : Error() {
+            data object InvalidEmailError : DialogError()
+            data object AccountAlreadyExistsError : DialogError()
+            data object BlackListedError : DialogError()
+            data object EmailDomainBlockedError : DialogError()
+            data object TeamMembersLimitError : DialogError()
+            data object CreationRestrictedError : DialogError()
+            data object UserAlreadyExistsError : DialogError()
+            data class GenericError(val coreFailure: CoreFailure) : DialogError()
+        }
+
+        data object TooManyDevicesError : Error()
     }
 }

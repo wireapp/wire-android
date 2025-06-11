@@ -99,7 +99,7 @@ fun CreateAccountVerificationCodeScreen(
             serverConfig = serverConfig
         )
 
-        (codeState.result as? CreateAccountVerificationCodeViewState.Result.Error.DialogError)?.let {
+        (codeState.result as? CodeVerificationResult.Error.DialogError)?.let {
             val (title, message) = it.getResources()
             WireDialog(
                 title = title,
@@ -113,13 +113,18 @@ fun CreateAccountVerificationCodeScreen(
             )
         }
         LaunchedEffect(codeState.result) {
-            if (codeState.result is CreateAccountVerificationCodeViewState.Result.Success) {
+            if (codeState.result is CodeVerificationResult.Success) {
                 navigateToUsernameScreen()
             }
-            if (codeState.result is CreateAccountVerificationCodeViewState.Result.Error.TooManyDevicesError) {
+            if (codeState.result is CodeVerificationResult.Error.TooManyDevicesError) {
                 clearCodeError()
                 clearCodeField()
-                navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+                navigator.navigate(
+                    NavigationCommand(
+                        RemoveDeviceScreenDestination,
+                        BackStackMode.CLEAR_WHOLE
+                    )
+                )
             }
         }
     }
@@ -178,7 +183,7 @@ private fun CodeContent(
                         codeLength = state.codeLength,
                         textState = textState,
                         state = when (state.result) {
-                            is CreateAccountVerificationCodeViewState.Result.Error.TextFieldError.InvalidActivationCodeError ->
+                            is CodeVerificationResult.Error.TextFieldError.InvalidActivationCodeError ->
                                 WireTextFieldState.Error(stringResource(id = R.string.create_account_code_error))
 
                             else -> WireTextFieldState.Default
@@ -193,7 +198,10 @@ private fun CodeContent(
                         )
                     }
                     VerticalSpace.x16()
-                    ResendCodeText(onResendCodePressed = onResendCodePressed, clickEnabled = !state.loading)
+                    ResendCodeText(
+                        onResendCodePressed = onResendCodePressed,
+                        clickEnabled = !state.loading
+                    )
                 }
                 Spacer(modifier = Modifier.weight(1f))
             }
@@ -208,41 +216,41 @@ private fun CodeContent(
 }
 
 @Composable
-private fun CreateAccountVerificationCodeViewState.Result.Error.DialogError.getResources() = when (this) {
-    CreateAccountVerificationCodeViewState.Result.Error.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
+private fun CodeVerificationResult.Error.DialogError.getResources() = when (this) {
+    CodeVerificationResult.Error.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_already_in_use_error)
     )
 
-    CreateAccountVerificationCodeViewState.Result.Error.DialogError.BlackListedError -> DialogErrorStrings(
+    CodeVerificationResult.Error.DialogError.BlackListedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_blacklisted_error)
     )
 
-    CreateAccountVerificationCodeViewState.Result.Error.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
+    CodeVerificationResult.Error.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_domain_blocked_error)
     )
 
-    CreateAccountVerificationCodeViewState.Result.Error.DialogError.InvalidEmailError -> DialogErrorStrings(
+    CodeVerificationResult.Error.DialogError.InvalidEmailError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_invalid_error)
     )
 
-    CreateAccountVerificationCodeViewState.Result.Error.DialogError.TeamMembersLimitError -> DialogErrorStrings(
+    CodeVerificationResult.Error.DialogError.TeamMembersLimitError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_code_error_team_members_limit_reached)
     )
 
-    CreateAccountVerificationCodeViewState.Result.Error.DialogError.CreationRestrictedError -> DialogErrorStrings(
+    CodeVerificationResult.Error.DialogError.CreationRestrictedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_code_error_personal_account_creation_restricted)
     )
     // TODO: sync with design about the error message
-    CreateAccountVerificationCodeViewState.Result.Error.DialogError.UserAlreadyExistsError ->
+    CodeVerificationResult.Error.DialogError.UserAlreadyExistsError ->
         DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
 
-    is CreateAccountVerificationCodeViewState.Result.Error.DialogError.GenericError ->
+    is CodeVerificationResult.Error.DialogError.GenericError ->
         this.coreFailure.dialogErrorStrings(LocalContext.current.resources)
 }
 

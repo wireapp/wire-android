@@ -138,9 +138,8 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
                 }
             }
 
-            val registerParam = RegisterParam.PrivateAccount(
-                firstName = createAccountNavArgs.userRegistrationInfo.name,
-                lastName = "", // todo change param on kalium
+            val registerParam = RegisterParam.PersonalAccount(
+                name = createAccountNavArgs.userRegistrationInfo.name,
                 password = createAccountNavArgs.userRegistrationInfo.password,
                 email = createAccountNavArgs.userRegistrationInfo.email,
                 emailActivationCode = codeTextState.text.toString()

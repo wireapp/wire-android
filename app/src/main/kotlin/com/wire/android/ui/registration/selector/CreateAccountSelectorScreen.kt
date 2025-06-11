@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.registration.selector
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -104,6 +105,7 @@ fun CreateAccountSelectorScreen(
     )
 }
 
+@SuppressLint("ComposeModifierMissing")
 @Composable
 fun CreateAccountSelectorContent(
     customServerLinks: ServerConfig.Links?,

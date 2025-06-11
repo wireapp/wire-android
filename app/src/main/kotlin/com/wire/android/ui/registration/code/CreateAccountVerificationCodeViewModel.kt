@@ -106,7 +106,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
     }
 
     fun clearCodeError() {
-        codeState = codeState.copy(result = CodeVerificationResultø.None)
+        codeState = codeState.copy(result = CodeVerificationResult.None)
     }
 
     fun clearCodeField() {

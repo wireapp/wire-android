@@ -45,6 +45,12 @@ jobs:
           name: ${{ inputs.build-flavor }}-${{ inputs.build-variant }}-artifacts
           path: ${{ inputs.artifacts-path }}
 
+      - name: Convert to lowercase
+        id: lowercase
+        run: |
+          echo "build-flavour=$(echo '${{ inputs.build-flavor }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "build-variant=$(echo '${{ inputs.build-variant }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
       - name: Deploy to S3
         if: matrix.target.type == 's3'
         uses: ./.github/actions/deploy-to-s3
@@ -53,8 +59,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          build-flavour: ${{ inputs.build-flavor }}
-          build-variant: ${{ inputs.build-variant }}
+          build-flavour: ${{ steps.lowercase.outputs.build-flavour }}
+          build-variant: ${{ steps.lowercase.outputs.build-variant }}
 
       - name: Deploy to Google Play
         if: matrix.target.type == 'google-play'
@@ -62,7 +68,7 @@ jobs:
         with:
           serviceAccountJson: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: ${{ matrix.target.package-name }}
-          releaseFiles: ${{ inputs.artifacts-path }}/bundle/${{ inputs.build-flavor }}${{ inputs.build-variant }}/*.aab
+          releaseFiles: ${{ inputs.artifacts-path }}/bundle/${{ steps.lowercase.outputs.build-flavour }}${{ steps.lowercase.outputs.build-variant }}/*.aab
           track: ${{ matrix.target.track }}
           status: ${{ matrix.target.status || 'completed' }}
 
@@ -71,7 +77,7 @@ jobs:
         uses: softprops/action-gh-release@v2.2.2
         with:
           files: |
-            ${{ inputs.artifacts-path }}/apk/${{ inputs.build-flavor }}/${{ inputs.build-variant }}/*.apk
+            ${{ inputs.artifacts-path }}/apk/${{ steps.lowercase.outputs.build-flavour }}/${{ steps.lowercase.outputs.build-variant }}/*.apk
             ${{ matrix.target.additional-files || '' }}
           tag_name: ${{ github.event.release.tag_name }}
           name: ${{ github.event.release.name }}

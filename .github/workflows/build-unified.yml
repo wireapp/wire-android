@@ -49,6 +49,11 @@ jobs:
         uses: ./.github/actions/setup-keystore
         with:
           keystore-type: ${{ matrix.keystore-type }}
+        env:
+          ENCODED_KEYSTORE_DEBUG: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
+          ENCODED_KEYSTORE_PRE_RELEASE: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
+          ENCODED_KEYSTORE_INTERNAL_RELEASE: ${{ secrets.ENCODED_KEYSTORE_INTERNAL_RELEASE }}
+          ENCODED_KEYSTORE_PUBLIC_RELEASE: ${{ secrets.ENCODED_KEYSTORE_PUBLIC_RELEASE }}
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew

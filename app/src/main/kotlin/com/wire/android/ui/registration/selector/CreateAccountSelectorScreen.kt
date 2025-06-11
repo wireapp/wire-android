@@ -89,6 +89,7 @@ fun CreateAccountSelectorScreen(
     }
 
     fun navigateToEmailTeamScreen() {
+        // TODO: this will be addressed in next PR for task WPB-17526
 //        val createAccountNavArgs = CreateAccountNavArgs(
 //            flowType = CreateAccountFlowType.CreateTeam,
 //            customServerConfig = viewModel.serverConfig.orDefault(),

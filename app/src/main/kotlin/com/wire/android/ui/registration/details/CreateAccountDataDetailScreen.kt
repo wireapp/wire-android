@@ -54,8 +54,6 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
@@ -73,7 +71,7 @@ import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
+import com.wire.android.ui.destinations.CreateAccountVerificationCodeScreenDestination
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
@@ -98,24 +96,15 @@ fun CreateAccountDataDetailScreen(
     with(createAccountDataDetailViewModel) {
         fun navigateToCodeScreen() = navigator.navigate(
             NavigationCommand(
-                CreateAccountCodeScreenDestination(
-//                    createAccountNavArgs.copy(
-//                        userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
-//                            email = emailTextState.text.toString().trim(),
-//                            name = nameTextState.text.toString().trim(),
-//                            password = passwordTextState.text.toString(),
-//                            teamName = String.EMPTY
-//                        )
-//                    )
-                    CreateAccountNavArgs(
-                        CreateAccountFlowType.CreatePersonalAccount, userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
+                CreateAccountVerificationCodeScreenDestination(
+                    createAccountNavArgs.copy(
+                        userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
                             email = emailTextState.text.toString().trim(),
                             name = nameTextState.text.toString().trim(),
                             password = passwordTextState.text.toString(),
                             teamName = String.EMPTY
                         )
                     )
-
                 )
             )
         )

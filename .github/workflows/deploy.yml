@@ -42,7 +42,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Build Artifacts
+          name: ${{ inputs.build-flavor }}-${{ inputs.build-variant }}-artifacts
           path: ${{ inputs.artifacts-path }}
 
       - name: Deploy to S3

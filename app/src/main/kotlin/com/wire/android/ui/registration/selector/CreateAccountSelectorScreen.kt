@@ -96,12 +96,7 @@ fun CreateAccountSelectorScreen(
     val startForResult = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
         navigator.navigate(
             NavigationCommand(
-                NewLoginPasswordScreenDestination(
-                    PreFilledUserIdentifierType.PreFilled(
-                        viewModel.email,
-                        editable = true
-                    )
-                ),
+                NewLoginPasswordScreenDestination(PreFilledUserIdentifierType.PreFilled(viewModel.email)),
                 BackStackMode.REMOVE_CURRENT_NESTED_GRAPH
             )
         )

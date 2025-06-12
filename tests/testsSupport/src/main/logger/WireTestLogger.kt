@@ -28,12 +28,12 @@ import java.io.StringWriter
 
 class WireTestLogger {
 
-    companion object{
-    fun  getLog( className:String) :Logger{
-        Logger.getLogger("").getHandlers()[0].setFormatter(MinimalFormatter())
-        return Logger.getLogger(className)
+    companion object {
+        fun getLog(className: String): Logger {
+            Logger.getLogger("").getHandlers()[0].setFormatter(MinimalFormatter())
+            return Logger.getLogger(className)
+        }
     }
-}
 }
 
 

@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
- package user.utils
+package user.utils
 
 import AccessCredentials
 import java.time.Duration
@@ -45,7 +45,8 @@ class ClientUser {
     var uniqueUsername: String? = null
     val uniqueUsernameAliases: MutableSet<String> = HashSet()
     val passwordAliases: MutableSet<String> = HashSet()
-//    var accentColor: AccentColor = AccentColor.Undefined
+
+    //    var accentColor: AccentColor = AccentColor.Undefined
     var teamId: String? = null
     var expiresIn: Duration? = null
     var serviceProviderId: String? = null
@@ -71,15 +72,16 @@ class ClientUser {
         name = "$firstName $lastName"
         password = faker.text().text(
             Text.TextSymbolsBuilder.builder()
-            .len(8)
-            .with(EN_LOWERCASE, 3)
-            .with(EN_UPPERCASE, 1)
-            .with(customSpecialSymbols, 1)
-            .with(DIGITS, 1).build())
+                .len(8)
+                .with(EN_LOWERCASE, 3)
+                .with(EN_UPPERCASE, 1)
+                .with(customSpecialSymbols, 1)
+                .with(DIGITS, 1).build()
+        )
         uniqueUsername = sanitizedRandomizedHandle(lastName)
-          val domain = "wire.engineering"
-        email ="${uniqueUsername}@$domain"
-       emailPassword = RandomStringGenerator.randomWithSpecialChars(12)
+        val domain = "wire.engineering"
+        email = "${uniqueUsername}@$domain"
+        emailPassword = RandomStringGenerator.randomWithSpecialChars(12)
     }
 
     constructor(firstName: String, lastName: String, email: String, password: String) {
@@ -128,33 +130,43 @@ class ClientUser {
                 }
             } else {
                 ""
-              //  BackendConnections.get(backendName).getUserId(this)
+                //  BackendConnections.get(backendName).getUserId(this)
             }
         }
         return id
     }
 
-    fun setManagedBySCIM() { SCIM = true }
-    fun forceTokenExpiration() { accessCredentials = null }
+    fun setManagedBySCIM() {
+        SCIM = true
+    }
 
-    override fun toString(): String = "Hello, my name is $name and my email is $email and password is $password and emailPassword is $666emailPassword"
+    fun forceTokenExpiration() {
+        accessCredentials = null
+    }
+
+    override fun toString(): String =
+        "Hello, my name is $name and my email is $email and password is $password and emailPassword is $emailPassword"
 
     override fun equals(other: Any?): Boolean =
         (other is ClientUser) && other.email == email
 
     fun isSSOUser(): Boolean = SSO
-    fun setUserIsSSOUser() { SSO = true }
+    fun setUserIsSSOUser() {
+        SSO = true
+    }
+
     fun isManagedBySCIM(): Boolean = SCIM
     fun isHardcoded(): Boolean = hardcoded
     fun hasRegisteredLegalHoldService(): Boolean = registeredLegalHoldServices
-    fun setRegisteredLegalHoldService(value: Boolean) { registeredLegalHoldServices = value }
+    fun setRegisteredLegalHoldService(value: Boolean) {
+        registeredLegalHoldServices = value
+    }
+
     fun hasServiceProvider(): Boolean = serviceProviderId != null
 
     companion object {
         fun sanitizedRandomizedHandle(derivative: String?): String =
             "${derivative}${RandomStringGenerator.randomAlphabetic(10)}"
                 .lowercase()
-
-
     }
 }

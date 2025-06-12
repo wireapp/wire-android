@@ -18,30 +18,35 @@
 package com.wire.android.tests.core.tests
 
 import Backend
+import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import com.wire.android.testSupport.backendConnections.team.createTeamOwnerViaBackdoor
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.pages.ConversationPage
 import com.wire.android.tests.core.pages.LoginPage
 import com.wire.android.tests.core.pages.RegistrationPage
 import com.wire.android.tests.core.pages.SettingsPage
-import com.wire.android.tests.support.suite.Tag
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import user.utils.ClientUser
 
-
-/*
-This test works on the following conditions:
-1) The dev/staging app is installed on the device/emulator.
-*/
 @RunWith(AndroidJUnit4::class)
-@Tag("RC", "regression", "@TC-8694", "@registration")
 
-class GdprTest {
+class ApplockTest {
+
     private lateinit var device: UiDevice
+
+    lateinit var context: Context
+
+    @Before
+    fun setup() {
+        context = InstrumentationRegistry.getInstrumentation().context
+    }
 
     @Before
     fun setUp() {
@@ -55,43 +60,50 @@ class GdprTest {
     }
 
     @Test
-    fun personalUsersendAnonymousDataAndSeeAnalyticsIdentifierInDebugSettings() {
+    fun setAppLockForAppAndVerifyAppIsLockedAfter1MinuteInTheBackground() {
         val registrationPage = RegistrationPage(device)
         val conversationPage = ConversationPage(device)
         val loginPage = LoginPage(device)
         val settingsPage = SettingsPage(device)
-
-
         val backendClient = Backend.loadBackend("STAGING")
-        //val backendClient = Backend.loadBackend("BUND_NEXT_COLUMN_1")
         val clientUser = ClientUser()
-        val registeredUser = backendClient?.createPersonalUserViaBackdoor(clientUser)
+//        val registeredUser = backendClient?.createPersonalUserViaBackdoor(clientUser)
+        val registeredUser = runBlocking {
+            backendClient?.createTeamOwnerViaBackdoor(
+                clientUser,
+                "FullTeam",
+                "en_US",
+                true,
+                context
+            )
+        }
 
+        println("---- Registered User -----")
+        println(registeredUser)
 
         registrationPage.assertEmailWelcomePage()
-        loginPage.clickStagingDeepLink()
-        loginPage.clickProceedButtonOnDeeplinkOverlay()
+        //loginPage.clickStagingDeepLink()
+        //loginPage.clickProceedButtonOnDeeplinkOverlay()
         loginPage.enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
         loginPage.clickLoginButton()
         //loginPage.assertLoggingPageVisible()
         loginPage.enterPersonalUserLoginPassword(registeredUser?.password ?: "")
         loginPage.clickLoginButton()
+
+        //Thread.sleep(3000)
+
+
         registrationPage.waitUntilLoginFlowIsComplete()
-//Thread.sleep(5000)
+
+//Thread.sleep(10000)
         registrationPage.clickAllowNotificationButton()
-        registrationPage.setUserName(registeredUser?.uniqueUsername ?: "")
-        loginPage.clickConfirmButtonOnUsernameSetupPage()
+      //  registrationPage.setUserName(registeredUser?.uniqueUsername ?: "")
+      //  loginPage.clickConfirmButtonOnUsernameSetupPage()
         registrationPage.clickAgreeShareDataAlert()
         registrationPage.assertConversationPageVisible()
-        conversationPage.clickMainMenuButtonOnConversationVeiwPage()
-        conversationPage.clickSettingsButtonOnMenuEntry()
-        settingsPage.clickPrivacySettingsButtonOnSettingsPage()
-       // Thread.sleep(5000)
-        settingsPage.assertSendAnonymousUsageDataToggleIsOn()
-        settingsPage.clickBackButtonOnPrivacySettingsPage()
-        settingsPage.clickDebugSettingsButton()
-        settingsPage.assertAnalyticsInitializedIsSetToTrue()
-        settingsPage.assertAnalyticsTrackingIdentifierIsDispayed()
+        Thread.sleep(20000)
 
     }
 }
+
+

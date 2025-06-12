@@ -17,11 +17,13 @@
  */
 package uiautomatorutils
 
+import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
+import androidx.test.uiautomator.UiSelector
 
 /**
  * ✔️ Waits until the element exists
@@ -29,7 +31,7 @@ import androidx.test.uiautomator.UiObject2
  * ✔️ Works for both interactive (buttons) and passive (labels) elements without extra parameters
  */
 
-object UiAutomatorUtils {
+object UiWaitUtils {
     private const val TIMEOUT_IN_MILLISECONDS = 10000L
 
     fun waitElement(
@@ -74,6 +76,27 @@ object UiAutomatorUtils {
                 ).joinToString(", ")
         )
     }
+
+    fun waitUntilElementGone(
+        device: UiDevice,
+        selector: UiSelector,
+        timeoutMillis: Long = 30_000,
+        pollingInterval: Long = 500
+    ) {
+        val deadline = SystemClock.uptimeMillis() + timeoutMillis
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            val element = device.findObject(selector)
+            if (!element.exists()) {
+                return
+            }
+
+            SystemClock.sleep(pollingInterval)
+        }
+
+        throw AssertionError("Element matching selector [$selector] did not disappear within timeout.")
+    }
+
 }
 
 

@@ -1,12 +1,25 @@
 package com.wire.android.testSupport.backendConnections.team
 
+import com.wire.android.testSupport.R
 import AccessCredentials
 import Backend
+import InbucketClient.getInbucketVerificationCode
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import backendConnections.HttpRequestException
+import kotlinx.coroutines.delay
 import network.BackendClient
+import network.BackendClient.accessCredentials
+import network.BackendClient.response
+import org.json.JSONArray
 import org.json.JSONObject
 import user.utils.AccessCookie
+import user.utils.AccessToken
+import user.utils.Asset
 import user.utils.ClientUser
+import util.NumberSequence
+import java.io.IOException
 import java.net.URL
 
 private suspend fun Backend.bookEmail(email: String): String {
@@ -30,7 +43,8 @@ suspend fun Backend.createTeamOwnerViaBackdoor(
     user: ClientUser,
     teamName: String,
     locale: String,
-    updateHandle: Boolean
+    updateHandle: Boolean,
+    context: Context,
 ): ClientUser {
     bookEmail(user.email.orEmpty())
 
@@ -42,7 +56,7 @@ suspend fun Backend.createTeamOwnerViaBackdoor(
         put("name", user.name)
         put("locale", locale)
         put("password", user.password)
-        activationCode.let { put("email_code", it) }
+        put("email_code", activationCode)
 
         val team = JSONObject().apply {
             put("name", teamName)
@@ -51,40 +65,221 @@ suspend fun Backend.createTeamOwnerViaBackdoor(
         }
         put("team", team)
     }
-      val response = BackendClient.sendJsonRequestWithCookies(
+    val response = BackendClient.sendJsonRequestWithCookies(
         url = url,
         method = "POST",
         body = requestBody.toString(),
         headers = defaultheaders
     )
 
+    val responseJson = JSONObject(response.body)
 
-  val responseJson = JSONObject(response.body)
+    println("\nResponse: ${response.cookies}")
 
     user.id = responseJson.getString("id")
     user.teamId = responseJson.getString("team")
 
-
-
     val cookie = AccessCookie("zuid", response.cookies)
     user.accessCredentials = AccessCredentials(null, cookie)
 
-    updateUserPicture(user)
+    updateUserPicture(user, context)
 
     if (updateHandle) {
-        updateUniqueUsername(user, user.uniqueUsername)
+        updateUniqueUsername(user, user.uniqueUsername.orEmpty())
     }
 
     return user
 }
 
-fun getImageInputStream(context: Context) = context.getResources().openRawResource(R.drawable.default_team_avatar);
+fun getImageInputStream(context: Context) = context.resources.openRawResource(R.drawable.default_team_avatar)
 
+private suspend fun Backend.updateUserPicture(user: ClientUser, context: Context) {
+    val bitmap = getImageInputStream(context).use {
+        BitmapFactory.decodeStream(it)
+    } ?: throw IllegalStateException("Couldn't get avatar")
+    updateUserPicture(user, bitmap)
+}
+
+private suspend fun Backend.updateUserPicture(user: ClientUser, image: Bitmap) {
+    val token = getAuthToken(user)
+    val square = ImageUtil.cropToSquare(image)
+    val preview = ImageUtil.scaleTo(square, 200, 200)
+    val previewKey = retryOnBackendFailure {
+        BackendClient.uploadAsset(
+            URL(TeamRoutes.UploadAsset.route.composeCompleteUrl()),
+            token,
+            true,
+            "eternal",
+            ImageUtil.asByteArray(preview)
+        )
+    }
+    val completeKey = retryOnBackendFailure {
+        BackendClient.uploadAsset(
+            URL(TeamRoutes.UploadAsset.route.composeCompleteUrl()),
+            token,
+            true,
+            "eternal",
+            ImageUtil.asByteArray(image)
+        )
+    }
+    val assets = setOf(
+        Asset(previewKey, "image", "preview"),
+        Asset(completeKey, "image", "complete")
+    )
+    retryOnBackendFailure {
+        updateSelfAssets(token, assets);
+        null
+    }
+}
+
+private fun Backend.updateSelfAssets(token: AccessToken?, assets: Set<Asset>) {
+    BackendClient.sendJsonRequest(
+        url = URL(TeamRoutes.SelfAssets.route.composeCompleteUrl()),
+        method = "PUT",
+        body = JSONObject().apply {
+            val array = JSONArray()
+            assets.forEach {
+                array.put(it.toJson())
+            }
+            put("assets", array)
+        }.toString(),
+        headers = defaultheaders,
+        accessToken = token
+    )
+}
+
+
+private suspend fun Backend.updateUniqueUsername(user: ClientUser, newUniqueUsername: String) {
+    var username = newUniqueUsername
+    val tryAvoidDuplicates = username.equals(user.uniqueUsername, true)
+    var ntry = 0
+    while (true) {
+        try {
+            updateSelfHandle(getAuthToken(user), username)
+            user.uniqueUsername = username
+            return;
+        } catch (e: HttpRequestException) {
+            if (tryAvoidDuplicates && e.returnCode == 409 && ntry < 5) {
+                // Try to generate another handle if this one already exists
+                username = ClientUser.sanitizedRandomizedHandle(user.firstName);
+            } else {
+                throw e
+            }
+        }
+        ntry++
+    }
+}
+
+
+private fun Backend.updateSelfHandle(token: AccessToken?, handle: String) {
+    BackendClient.sendJsonRequest(
+        url = URL(TeamRoutes.SelfHandle.route.composeCompleteUrl()),
+        method = "PUT",
+        body = JSONObject().apply {
+            put("handle", handle)
+        }.toString(),
+        headers = defaultheaders,
+        accessToken = token
+    )
+}
+
+
+private suspend fun Backend.getAuthToken(user: ClientUser): AccessToken? {
+    return getAuthCredentials(user).accessToken
+}
+
+private suspend fun Backend.getAuthCredentials(user: ClientUser): AccessCredentials {
+    val credentials = user.accessCredentials
+    return when {
+        credentials == null -> login(user).also {
+            user.accessCredentials = it
+        }
+
+        credentials.accessToken == null || credentials.accessToken.isInvalid() || credentials.accessToken.isExpired() -> access(credentials).also {
+            user.accessCredentials = it
+        }
+
+        else -> credentials
+    }
+}
+
+private suspend fun Backend.login(user: ClientUser): AccessCredentials {
+    val connection = BackendClient.makeRequest(
+        url = URL("login".composeCompleteUrl()),
+        method = "POST",
+        body = JSONObject().apply {
+            put("email", user.email)
+            put("password", user.password)
+            put("label", "")
+        }.toString(),
+        expectedResponseCodes = NumberSequence.Array(intArrayOf(200, 403)),
+        headers = defaultheaders,
+    )
+
+    return when (connection.responseCode) {
+        403 -> {
+            if (inbucketUrl.isBlank()) {
+                throw IOException("Received 403 for 2FA but no inbucket url present - check your backend settings")
+            }
+            val verificationCode = getInbucketVerificationCode(
+                user.email ?: throw IllegalArgumentException("No email tied to user")
+            )
+            val connection2fa = BackendClient.makeRequest(
+                url = URL("login".composeCompleteUrl()),
+                method = "POST",
+                body = JSONObject().apply {
+                    put("email", user.email)
+                    put("password", user.password)
+                    put("verification_code", verificationCode)
+                }.toString(),
+                headers = defaultheaders,
+            )
+            connection2fa.accessCredentials(connection2fa.response())
+        }
+
+        else -> {
+            connection.accessCredentials(connection.response())
+        }
+    }
+}
+
+private fun Backend.access(credentials: AccessCredentials): AccessCredentials {
+    val connection = BackendClient.makeRequest(
+        url = URL("access".composeCompleteUrl()),
+        method = "POST",
+        body = JSONObject().apply {
+            put("withCredentials", true)
+        }.toString(),
+        headers = defaultheaders,
+        accessToken = credentials.accessToken,
+        cookie = credentials.accessCookie
+    )
+    return connection.accessCredentials(connection.response())
+}
+
+
+private suspend fun <T> retryOnBackendFailure(action: () -> T): T {
+    var ntry = 1;
+    var savedException: Exception? = null
+    while (ntry <= 2) {
+        try {
+            return action();
+        } catch (e: Exception) {
+            savedException = e;
+            delay(2000L * ntry)
+        }
+        ntry++;
+    }
+    throw savedException ?: Exception("Unknown Error")
+}
 
 
 enum class TeamRoutes(val route: String) {
     BookEmail("activate/send"),
-    Register("register")
+    Register("register"),
+    UploadAsset("assets/v3"),
+    SelfAssets("self"),
+    SelfHandle("self/handle"),
 }
 
 val defaultheaders = mapOf(

@@ -90,6 +90,7 @@ class PersonalUserRegistrationTest {
         registrationPage.assertUserNameHelpText()
         registrationPage.setUserName(userInfo.username)
         registrationPage.clickConfirmButton()
+        registrationPage.waitUntilLoginFlowIsComplete()
         registrationPage.clickAllowNotificationButton()
         registrationPage.clickDeclineShareDataAlert()
         registrationPage.assertConversationPageVisible()

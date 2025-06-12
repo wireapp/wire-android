@@ -22,8 +22,8 @@ import java.util.logging.Logger
 import logger.WireTestLogger
 
 class AccessToken(
-    private val value: String,
-    private var type: String,
+    val value: String,
+    var type: String,
     expiresIn: Long
 ) {
     companion object {
@@ -31,10 +31,6 @@ class AccessToken(
     }
 
     private val expiresOnDate: LocalDateTime = LocalDateTime.now().plusSeconds(expiresIn - 15)
-
-    fun getType(): String = type
-
-    fun getValue(): String = value
 
     fun isInvalid(): Boolean = (value.isEmpty() || type.isEmpty())
 

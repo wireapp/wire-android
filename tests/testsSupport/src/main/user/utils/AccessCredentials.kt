@@ -16,10 +16,10 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
- import user.utils.AccessCookie
-  import user.utils.AccessToken
+import user.utils.AccessCookie
+import user.utils.AccessToken
 
 data class AccessCredentials(
-    val accessToken: AccessToken?=null,
-    val accessCookie: AccessCookie
+    val accessToken: AccessToken? = null,
+    val accessCookie: AccessCookie? = null,
 )

@@ -15,23 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.pages
+package backendConnections
 
-import androidx.test.uiautomator.UiDevice
-import uiautomatorutils.UiWaitUtils
-
-
-data class ConversationPage(private val device: UiDevice) {
-
-
-    fun clickMainMenuButtonOnConversationVeiwPage(): ConversationPage {
-        UiWaitUtils.waitElement(description = "Main navigation").click()
-        return this
-    }
-
-    fun clickSettingsButtonOnMenuEntry(): ConversationPage {
-        UiWaitUtils.waitElement(text = "Settings").click()
-        return this
-    }
-
-}
+class HttpRequestException(override val message: String, val returnCode: Int): RuntimeException()

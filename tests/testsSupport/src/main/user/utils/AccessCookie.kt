@@ -21,15 +21,10 @@ import java.net.HttpCookie
 import java.util.Date
 
 class AccessCookie(
-    private val name: String,
-    expirationDate: Date,
-    private val value: String
+    val name: String,
+    private val expirationDate: Date,
+    val value: String
 ) {
-    private val expirationDate: Date
-
-    fun getName(): String = name
-
-    fun getValue(): String = value
 
     fun isExpired(): Boolean = Date().after(expirationDate)
 
@@ -44,8 +39,4 @@ class AccessCookie(
         Date(Date().time + (cookies.first { it.name == cookieName }.maxAge * 1000)),
         cookies.first { it.name == cookieName }.value
     )
-
-    init {
-        this.expirationDate = expirationDate
-    }
 }

@@ -17,9 +17,11 @@
  */
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 import kotlin.math.min
 
-object ImageUtils {
+object ImageUtil {
 
     fun cropToSquare(bitmap: Bitmap): Bitmap {
         val size = min(bitmap.width, bitmap.height)
@@ -43,5 +45,13 @@ object ImageUtils {
 
         // Create scaled bitmap
         return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true)
+    }
+
+    @Throws(IOException::class)
+    fun asByteArray(bitmap: Bitmap, format: Bitmap.CompressFormat = Bitmap.CompressFormat.WEBP, quality: Int = 80): ByteArray {
+        ByteArrayOutputStream().use { outputStream ->
+            bitmap.compress(format, quality, outputStream)
+            return outputStream.toByteArray()
+        }
     }
 }

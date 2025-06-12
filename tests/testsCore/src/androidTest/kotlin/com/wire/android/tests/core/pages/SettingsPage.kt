@@ -21,7 +21,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import junit.framework.TestCase.assertTrue
-import uiautomatorutils.UiAutomatorUtils
+import uiautomatorutils.UiWaitUtils
 
 data class SettingsPage(private val device: UiDevice) {
 
@@ -49,14 +49,14 @@ data class SettingsPage(private val device: UiDevice) {
 
 
     fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
-        UiAutomatorUtils.waitElement(text = "Privacy Settings").click()
+        UiWaitUtils.waitElement(text = "Privacy Settings").click()
         return this
     }
 
 
     fun clickDebugSettingsButton(): SettingsPage {
         //val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        UiAutomatorUtils.waitElement(text = "Debug Settings").click()
+        UiWaitUtils.waitElement(text = "Debug Settings").click()
         //device.findObject(UiSelector().text("Debug Settings")).click()
         return this
     }

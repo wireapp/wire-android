@@ -15,23 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.pages
+package user.utils
 
-import androidx.test.uiautomator.UiDevice
-import uiautomatorutils.UiWaitUtils
+import org.json.JSONObject
 
-
-data class ConversationPage(private val device: UiDevice) {
-
-
-    fun clickMainMenuButtonOnConversationVeiwPage(): ConversationPage {
-        UiWaitUtils.waitElement(description = "Main navigation").click()
-        return this
+data class Asset(val key: String, val type: String, val size: String) {
+    fun toJson() = JSONObject().apply {
+        put("key", key);
+        put("type", type);
+        put("size", size);
     }
-
-    fun clickSettingsButtonOnMenuEntry(): ConversationPage {
-        UiWaitUtils.waitElement(text = "Settings").click()
-        return this
-    }
-
 }

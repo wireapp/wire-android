@@ -16,18 +16,17 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 import android.util.Base64
-import androidx.test.platform.app.InstrumentationRegistry
-import com.wire.android.testSupport.BuildConfig
 import kotlinx.coroutines.delay
-import network.BackendClient.Companion.sendJsonRequest
+import network.BackendClient.sendJsonRequest
 import org.json.JSONObject
+import java.io.IOException
 import java.net.URL
 
 // This object is responsible for interacting with the Inbucket email server used in testing
 object InbucketClient {
 
     // This function fetches the 6-digit verification code from the latest email sent to the given address
-    suspend fun getVerificationCode(email: String, inbucketUrl:String, password:String, username:String): String {
+    suspend fun getVerificationCode(email: String, inbucketUrl: String, password: String, username: String): String {
 
         val url = URL("$inbucketUrl/api/v1/mailbox/$email/latest")
         val loginString = "$username:$password"
@@ -62,5 +61,13 @@ object InbucketClient {
 
         println("Verification Code Found: $verificationCode for $email")
         return verificationCode
+    }
+
+    suspend fun Backend.getInbucketVerificationCode(email: String): String {
+        if (inbucketUrl.isBlank()) {
+            throw IOException("Received 403 for 2FA but no inbucket url present - check your backend settings")
+        }
+        trigger2FA(email)
+        return getVerificationCode(email, inbucketUrl, inbucketPassword, inbucketUsername)
     }
 }

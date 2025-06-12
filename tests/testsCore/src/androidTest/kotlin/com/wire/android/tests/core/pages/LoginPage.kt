@@ -24,7 +24,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import org.junit.Assert.assertTrue
-import uiautomatorutils.UiAutomatorUtils
+import uiautomatorutils.UiWaitUtils
 
 
 data class LoginPage(private val device: UiDevice) {
@@ -45,7 +45,7 @@ data class LoginPage(private val device: UiDevice) {
 
 
     fun enterPersonalUserLoginPassword(password: String): LoginPage {
-        val passwordInputField = UiAutomatorUtils.waitElement(resourceId = "PasswordInput")
+        val passwordInputField = UiWaitUtils.waitElement(resourceId = "PasswordInput")
         passwordInputField.click()
         passwordInputField.text = password
         return this
@@ -67,27 +67,27 @@ data class LoginPage(private val device: UiDevice) {
 
 
     fun assertLoggingPageVisible(): LoginPage {
-        val loginPage = UiAutomatorUtils.waitElement(resourceId = "loginButton")
+        val loginPage = UiWaitUtils.waitElement(resourceId = "loginButton")
         assertTrue("Login page is not visible", !loginPage.visibleBounds.isEmpty)
         return this
 
     }
 
     fun clickLoginButton(): LoginPage {
-        val nextButton = UiAutomatorUtils.waitElement(resourceId = "loginButton")
+        val nextButton = UiWaitUtils.waitElement(resourceId = "loginButton")
         assertTrue("Login button is not clickable", nextButton.isClickable)
         nextButton.click()
         return this
     }
 
     fun clickProceedButtonOnDeeplinkOverlay(): LoginPage {
-        val proceedButton = UiAutomatorUtils.waitElement(text = "Proceed")
+        val proceedButton = UiWaitUtils.waitElement(text = "Proceed")
         proceedButton.click()
         return this
     }
 
     fun clickConfirmButtonOnUsernameSetupPage(): LoginPage {
-        val confirmButton = UiAutomatorUtils.waitElement(text = "Confirm")
+        val confirmButton = UiWaitUtils.waitElement(text = "Confirm")
         confirmButton.click()
         return this
     }

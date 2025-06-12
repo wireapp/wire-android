@@ -1,4 +1,3 @@
-
 import com.wire.android.testSupport.BuildConfig
 import logger.WireTestLogger
 import network.BackendClient
@@ -30,12 +29,14 @@ class Backend(
     val domain: String,
     val deeplink: String,
     val inbucketUrl: String,
+    val inbucketUsername: String,
+    val inbucketPassword: String,
     val keycloakUrl: String,
     val acmeDiscoveryUrl: String,
     val k8sNamespace: String,
     val socksProxy: String,
-    var proxy: Proxy? = if (!socksProxy.isNullOrEmpty()) {
-        
+    var proxy: Proxy? = if (socksProxy.isNotEmpty()) {
+
         Authenticator.setDefault(object : Authenticator() {
             override fun getPasswordAuthentication(): PasswordAuthentication {
                 return PasswordAuthentication(
@@ -57,11 +58,11 @@ class Backend(
             fun field(name: String): String? =
                 CredentialManager.getSecretFieldValue("BACKENDCONNECTION_$connectionName", name.uppercase())
 
-            val backendUrl = field("backendUrl") ?:""
-            val backendWebsocket = field("backendWebsocket")?:""
+            val backendUrl = field("backendUrl") ?: ""
+            val backendWebsocket = field("backendWebsocket") ?: ""
             val basicAuthUsername = field("basicAuthUsername")
             val basicAuthPassword = field("basicAuthPassword")
-            val basicAuthGeneral = field("basicAuth")?:""
+            val basicAuthGeneral = field("basicAuth") ?: ""
             val inbucketUsername = field("inbucketUsername")
             val inbucketPassword = field("inbucketPassword")
 
@@ -69,14 +70,22 @@ class Backend(
 
             return Backend(
                 name = connectionName,
-                backendUrl = backendUrl?:"",
+                backendUrl = backendUrl,
                 webappUrl = field("webappUrl") ?: "",
                 backendWebsocket = backendWebsocket,
-                basicAuth = if(basicAuthUsername.isNullOrEmpty() || basicAuthPassword.isNullOrEmpty()) BasicAuth(basicAuthGeneral) else BasicAuth(basicAuthUsername, basicAuthPassword),
-                inbucketAuth =if(inbucketUsername.isNullOrEmpty()!=true && inbucketPassword.isNullOrEmpty()!=true)  BasicAuth(inbucketUsername, inbucketPassword) else BasicAuth(basicAuthGeneral) ,
+                basicAuth = if (basicAuthUsername.isNullOrEmpty() || basicAuthPassword.isNullOrEmpty()) BasicAuth(basicAuthGeneral) else BasicAuth(
+                    basicAuthUsername,
+                    basicAuthPassword
+                ),
+                inbucketAuth = if (!inbucketUsername.isNullOrEmpty() && !inbucketPassword.isNullOrEmpty()) BasicAuth(
+                    inbucketUsername,
+                    inbucketPassword
+                ) else BasicAuth(basicAuthGeneral),
                 domain = field("domain") ?: "",
                 deeplink = field("deeplink") ?: "",
                 inbucketUrl = field("inbucketUrl") ?: "",
+                inbucketUsername = inbucketUsername ?: "",
+                inbucketPassword = inbucketPassword ?: "",
                 keycloakUrl = field("keycloakUrl") ?: "",
                 acmeDiscoveryUrl = field("acmeDiscoveryUrl") ?: "",
                 k8sNamespace = field("k8sNamespace") ?: "",
@@ -262,9 +271,7 @@ class Backend(
         return "Email Registered"
     }
 
-    fun String.composeCompleteUrl() : String{
+    fun String.composeCompleteUrl(): String {
         return "${backendUrl}$this"
     }
-
-
 }

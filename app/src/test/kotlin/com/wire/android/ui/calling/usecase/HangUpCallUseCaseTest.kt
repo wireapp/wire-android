@@ -133,7 +133,7 @@ class HangUpCallUseCaseTest {
         coVerify(exactly = 0) { arrangement.flipToFrontCameraUseCase(call.conversationId) }
     }
 
-    inner class Arrangement() {
+    inner class Arrangement {
 
         private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
 

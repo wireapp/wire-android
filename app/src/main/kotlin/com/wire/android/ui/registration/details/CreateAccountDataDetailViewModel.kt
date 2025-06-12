@@ -159,7 +159,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
         detailsState = detailsState.copy(termsDialogVisible = false)
     }
 
-    fun onPrivacyPolicyAccepted(isAccepted : Boolean) {
+    fun onPrivacyPolicyAccepted(isAccepted: Boolean) {
         detailsState = detailsState.copy(privacyPolicyAccepted = isAccepted)
     }
 

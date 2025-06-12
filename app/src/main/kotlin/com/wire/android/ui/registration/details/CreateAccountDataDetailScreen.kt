@@ -344,7 +344,7 @@ private fun RowScope.BackLinkToTeamCreation() {
     Text(
         modifier = Modifier
             .align(Alignment.CenterVertically)
-            .padding(bottom =  MaterialTheme.wireDimensions.spacing16x)
+            .padding(bottom = MaterialTheme.wireDimensions.spacing16x)
             .fillMaxWidth(),
         text = annotatedString,
         style = MaterialTheme.wireTypography.label04,

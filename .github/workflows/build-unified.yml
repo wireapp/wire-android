@@ -18,20 +18,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Run quality gates first
+  # Run quality gates first - builds only proceed if ALL quality gates pass
   quality-gates:
+    name: "Quality Gates"
     uses: ./.github/workflows/quality-gates.yml
 
-  # Build matrix job
+  # Build matrix job - only runs if quality gates pass
   build:
+    name: "Build ${{ matrix.flavor }}${{ matrix.variant }}"
     needs: quality-gates
+    if: needs.quality-gates.outputs.quality-passed == 'success'
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: false  # Continue building other flavors even if one fails
       matrix:
         include: ${{ fromJson(inputs.build-config) }}
     
     steps:
+      - name: Quality gates passed - starting build
+        run: |
+          echo "## Build Starting" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Quality gates passed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 Building ${{ matrix.flavor }}${{ matrix.variant }}..." >> $GITHUB_STEP_SUMMARY
+          
       - name: Checkout
         uses: actions/checkout@v4
         with:

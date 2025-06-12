@@ -54,7 +54,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginErrorDialog
@@ -195,9 +195,9 @@ private fun LoginContent(
     canNavigateBack: Boolean,
     navigateBack: () -> Unit,
 ) {
-    NewLoginContainer(
+    NewAuthContainer(
         header = {
-            NewLoginHeader(
+            NewAuthHeader(
                 title = {
                     if (serverConfig.isOnPremises) {
                         ServerTitle(
@@ -207,7 +207,7 @@ private fun LoginContent(
                             titleResId = R.string.enterprise_login_on_prem_welcome_title,
                             modifier = Modifier.padding(bottom = dimensions().spacing24x),
                         )
-                        NewLoginSubtitle(
+                        NewAuthSubtitle(
                             title = stringResource(id = R.string.enterprise_login_credentials_title),
                         )
                     } else {
@@ -219,7 +219,7 @@ private fun LoginContent(
                                 .padding(horizontal = dimensions().spacing32x)
                                 .size(dimensions().spacing120x)
                         )
-                        NewLoginSubtitle(
+                        NewAuthSubtitle(
                             title = stringResource(R.string.enterprise_login_welcome),
                             modifier = Modifier.padding(top = dimensions().spacing16x)
                         )

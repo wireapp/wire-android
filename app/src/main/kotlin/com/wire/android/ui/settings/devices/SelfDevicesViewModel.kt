@@ -47,11 +47,11 @@ class SelfDevicesViewModel @Inject constructor(
     private val observeClientList: ObserveClientsByUserIdUseCase,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
-    isE2EIEnabledUseCase: IsE2EIEnabledUseCase
+    private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : ViewModel() {
 
     var state: SelfDevicesState by mutableStateOf(
-        SelfDevicesState(deviceList = listOf(), isLoadingClientsList = true, currentDevice = null, isE2EIEnabled = isE2EIEnabledUseCase())
+        SelfDevicesState(deviceList = listOf(), isLoadingClientsList = true, currentDevice = null)
     )
         private set
 
@@ -61,6 +61,15 @@ class SelfDevicesViewModel @Inject constructor(
     init {
         observeClientList()
         updateSelfClientsListFromRemote()
+        getIsE2EIEnabled()
+    }
+
+    private fun getIsE2EIEnabled() {
+        viewModelScope.launch {
+            isE2EIEnabledUseCase().let {
+                state = state.copy(isE2EIEnabled = it)
+            }
+        }
     }
 
     private fun updateSelfClientsListFromRemote() {

@@ -29,8 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
@@ -49,6 +47,7 @@ fun ImageVector.Icon(modifier: Modifier = Modifier): @Composable (() -> Unit) =
 fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: () -> Unit): () -> Unit {
     val syncStateObserver = LocalSyncStateObserver.current
     val context = LocalContext.current
+    val clickerHandler = remember { SingleClickHandler() }
     return remember(clickBlockParams, syncStateObserver, clickAction) {
         {
             when {
@@ -58,7 +57,7 @@ fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: ()
                 clickBlockParams.blockWhenSyncing && syncStateObserver.isSyncing ->
                     Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
 
-                else -> clickAction()
+                else -> clickerHandler.ensureSingleClick { clickAction() }
             }
         }
     }
@@ -85,3 +84,22 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
         this.semantics(mergeDescendants = true) { }
     }
 } ?: this
+
+private class SingleClickHandler {
+
+    private companion object {
+        private const val CLICK_THRESHOLD = 500L
+    }
+
+    private val now: Long
+        get() = System.currentTimeMillis()
+
+    private var lastEventTimeMs: Long = 0
+
+    fun ensureSingleClick(block: () -> Unit) {
+        if (now - lastEventTimeMs >= CLICK_THRESHOLD) {
+            block()
+        }
+        lastEventTimeMs = now
+    }
+}

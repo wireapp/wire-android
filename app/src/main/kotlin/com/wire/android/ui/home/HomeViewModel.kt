@@ -24,9 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -52,13 +50,11 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
-    private val globalDataStore: GlobalDataStore,
     private val dataStore: UserDataStore,
     private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     @VisibleForTesting
@@ -127,9 +123,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
             when {
-                shouldTriggerMigrationForUser(selfUser.id) -> // check if the user needs to be migrated from scala app
-                    _actions.send(HomeRequirement.Migration(selfUser.id))
-
                 needsToRegisterClient() -> // check if the client needs to be registered
                     _actions.send(HomeRequirement.RegisterDevice)
 
@@ -138,21 +131,7 @@ class HomeViewModel @Inject constructor(
 
                 selfUser.handle.isNullOrEmpty() -> // check if the user handle needs to be set
                     _actions.send(HomeRequirement.CreateAccountUsername)
-
-                // check if the "welcome to the new app" screen needs to be displayed
-                shouldDisplayWelcomeToARScreen() ->
-                    homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
             }
-        }
-    }
-
-    private suspend fun shouldDisplayWelcomeToARScreen() =
-        globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
-
-    fun dismissWelcomeMessage() {
-        viewModelScope.launch {
-            globalDataStore.setWelcomeScreenPresented()
-            homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
         }
     }
 }

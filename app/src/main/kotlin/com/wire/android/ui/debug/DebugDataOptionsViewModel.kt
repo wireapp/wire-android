@@ -23,21 +23,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.uiText
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.E2EIFailure
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
+import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
+import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
+import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -46,8 +50,6 @@ import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,7 +57,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -74,6 +75,7 @@ interface DebugDataOptionsViewModel {
     fun forceUpdateApiVersions() {}
     fun disableEventProcessing(disabled: Boolean) {}
     fun forceSendFCMToken() {}
+    fun enableAsyncNotifications(enabled: Boolean) {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -82,7 +84,6 @@ class DebugDataOptionsViewModelImpl
 @Inject constructor(
     @ApplicationContext private val context: Context,
     @CurrentAccount val currentAccount: UserId,
-    private val globalDataStore: GlobalDataStore,
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCount: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
@@ -92,6 +93,8 @@ class DebugDataOptionsViewModelImpl
     private val dispatcherProvider: DispatcherProvider,
     private val selfServerConfigUseCase: SelfServerConfigUseCase,
     private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
+    private val observeAsyncNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase,
+    private val startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase,
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     override var state by mutableStateOf(
@@ -102,12 +105,20 @@ class DebugDataOptionsViewModelImpl
     override val infoMessage = _infoMessage.asSharedFlow()
 
     init {
+        observeAsyncNotificationsEnabledData()
         observeMlsMetadata()
-        checkIfCanTriggerManualMigration()
         setGitHashAndDeviceId()
         setAnalyticsTrackingId()
         setServerConfigData()
         setDefaultProtocol()
+    }
+
+    private fun observeAsyncNotificationsEnabledData() {
+        viewModelScope.launch {
+            observeAsyncNotificationsEnabled().collect {
+                state = state.copy(isAsyncNotificationsEnabled = it)
+            }
+        }
     }
 
     private fun setDefaultProtocol() {
@@ -218,6 +229,19 @@ class DebugDataOptionsViewModelImpl
         }
     }
 
+    override fun enableAsyncNotifications(enabled: Boolean) {
+        if (enabled) {
+            viewModelScope.launch {
+                when (val result = startUsingAsyncNotifications()) {
+                    is StartUsingAsyncNotificationsResult.Failure ->
+                        _infoMessage.emit(UIText.DynamicString("Can't enable async notifications, error: ${result.coreFailure.uiText()}"))
+
+                    is StartUsingAsyncNotificationsResult.Success -> state = state.copy(isAsyncNotificationsEnabled = enabled)
+                }
+            }
+        }
+    }
+
     override fun forceSendFCMToken() {
         viewModelScope.launch {
             withContext(dispatcherProvider.io()) {
@@ -243,24 +267,6 @@ class DebugDataOptionsViewModelImpl
                     }
                 )
             }
-        }
-    }
-
-    // If status is NoNeed, it means that the user has already been migrated in and older app version,
-    // or it is a new install
-    // this is why we check the existence of the database file
-    private fun checkIfCanTriggerManualMigration() {
-        viewModelScope.launch {
-            globalDataStore.getUserMigrationStatus(currentAccount.value).first()
-                .let { migrationStatus ->
-                    if (migrationStatus != UserMigrationStatus.NoNeed) {
-                        context.getDatabasePath(currentAccount.value).let {
-                            state = state.copy(
-                                isManualMigrationAllowed = (it.exists() && it.isFile)
-                            )
-                        }
-                    }
-                }
         }
     }
 

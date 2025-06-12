@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with: 
+          token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
 
       - name: "Set base branch from input"
         env:

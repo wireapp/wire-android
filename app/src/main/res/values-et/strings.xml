@@ -89,7 +89,6 @@
     <string name="content_description_calling_turn_camera_off">Lülita kaamera välja</string>
     <string name="content_description_calling_turn_speaker_on">Lülita kõlar sisse</string>
     <string name="content_description_calling_turn_speaker_off">Lülita kõlar välja</string>
-    <string name="content_description_show_more_options">Kuva rohkem valikuid</string>
     <string name="content_description_reply_to_messge">Vasta sõnumile</string>
     <string name="content_description_reply_cancel">Tühista sõnumile vastamine</string>
     <string name="content_description_ping_message">Pingisõnum</string>

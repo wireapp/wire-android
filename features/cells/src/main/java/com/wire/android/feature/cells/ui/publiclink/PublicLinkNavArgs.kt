@@ -21,4 +21,5 @@ data class PublicLinkNavArgs(
     val assetId: String,
     val fileName: String,
     val publicLinkId: String?,
+    val isFolder: Boolean,
 )

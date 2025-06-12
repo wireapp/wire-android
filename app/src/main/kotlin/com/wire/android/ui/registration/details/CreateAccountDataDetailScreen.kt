@@ -21,6 +21,8 @@ package com.wire.android.ui.registration.details
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
@@ -39,13 +41,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
@@ -57,6 +62,7 @@ import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
+import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -120,6 +126,7 @@ fun CreateAccountDataDetailScreen(
             passwordTextState = passwordTextState,
             confirmPasswordTextState = confirmPasswordTextState,
             tosUrl = tosUrl(),
+            onPrivacyPolicyAccepted = ::onPrivacyPolicyAccepted,
             onTermsDialogDismiss = ::onTermsDialogDismiss,
             onTermsAccept = ::onTermsAccept,
             onBackPressed = navigator::navigateBack,
@@ -138,6 +145,7 @@ private fun AccountDetailsContent(
     passwordTextState: TextFieldState,
     confirmPasswordTextState: TextFieldState,
     tosUrl: String,
+    onPrivacyPolicyAccepted: (Boolean) -> Unit,
     onTermsDialogDismiss: () -> Unit,
     onTermsAccept: () -> Unit,
     onBackPressed: () -> Unit,
@@ -264,6 +272,14 @@ private fun AccountDetailsContent(
                     },
                     autoFill = false,
                 )
+
+                Row(modifier = Modifier.padding(end = MaterialTheme.wireDimensions.spacing16x)) {
+                    WireCheckbox(
+                        checked = state.privacyPolicyAccepted,
+                        onCheckedChange = onPrivacyPolicyAccepted,
+                    )
+                    WirePrivacyPolicyLink()
+                }
             }
 
             LaunchedEffect(Unit) {
@@ -286,6 +302,10 @@ private fun AccountDetailsContent(
                 },
             )
 
+            Row(modifier = Modifier.fillMaxWidth()) {
+                BackLinkToTeamCreation()
+            }
+
             if (state.termsDialogVisible) {
                 val context = LocalContext.current
                 TermsConditionsDialog(
@@ -298,6 +318,67 @@ private fun AccountDetailsContent(
                 CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
             }
         }
+    )
+}
+
+@Composable
+private fun RowScope.BackLinkToTeamCreation() {
+    val context = LocalContext.current
+    val annotatedString = buildAnnotatedString {
+        append(stringResource(R.string.create_account_email_backlink_to_team_label))
+        append("\n")
+        val createATeam = stringResource(R.string.welcome_button_create_team)
+        withLink(
+            link = LinkAnnotation.Clickable(
+                tag = "teamCreation",
+                styles = TextLinkStyles(SpanStyle(textDecoration = TextDecoration.Underline)),
+                linkInteractionListener = {
+                    CustomTabsHelper.launchUrl(context, createATeam)
+                },
+            ),
+        ) {
+            append(stringResource(R.string.welcome_button_create_team))
+        }
+    }
+
+    Text(
+        modifier = Modifier
+            .align(Alignment.CenterVertically)
+            .padding(bottom =  MaterialTheme.wireDimensions.spacing16x)
+            .fillMaxWidth(),
+        text = annotatedString,
+        style = MaterialTheme.wireTypography.label04,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+private fun RowScope.WirePrivacyPolicyLink() {
+    val context = LocalContext.current
+    val annotatedString = buildAnnotatedString {
+        append(stringResource(R.string.create_account_email_share_anonymous_data_label))
+        append(" ")
+        val urlPrivacyPolicy = stringResource(R.string.url_privacy_policy)
+        withLink(
+            link = LinkAnnotation.Clickable(
+                tag = "privacyPolicy",
+                styles = TextLinkStyles(SpanStyle(textDecoration = TextDecoration.Underline)),
+                linkInteractionListener = {
+                    CustomTabsHelper.launchUrl(context, urlPrivacyPolicy)
+                },
+            ),
+        ) {
+            append(stringResource(R.string.create_account_email_share_anonymous_data_link_label))
+        }
+        append(" ")
+        append(stringResource(R.string.create_account_email_share_anonymous_data_optional_label))
+    }
+
+    Text(
+        modifier = Modifier.align(Alignment.CenterVertically),
+        text = annotatedString,
+        style = MaterialTheme.wireTypography.label04,
+        textAlign = TextAlign.Start
     )
 }
 
@@ -404,6 +485,7 @@ fun PreviewCreateAccountDetailsScreen() = WireTheme {
                 passwordTextState = TextFieldState(),
                 confirmPasswordTextState = TextFieldState(),
                 tosUrl = "",
+                onPrivacyPolicyAccepted = {},
                 onTermsDialogDismiss = {},
                 onTermsAccept = {},
                 onBackPressed = {},

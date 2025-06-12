@@ -497,6 +497,10 @@
     <string name="create_account_email_footer_text">Already have an account? </string>
     <string name="create_account_email_terms_dialog_title">Terms of Use</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
+    <string name="create_account_email_share_anonymous_data_label">I agree to share anonymous usage data. Find all details in our</string>
+    <string name="create_account_email_share_anonymous_data_link_label">Privacy Policy</string>
+    <string name="create_account_email_share_anonymous_data_optional_label">(Optional)</string>
+    <string name="create_account_email_backlink_to_team_label">Looking for team collaboration?</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
     <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
     <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>

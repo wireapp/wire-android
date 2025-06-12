@@ -21,6 +21,7 @@ package com.wire.android.ui.registration.details
 import com.wire.kalium.common.error.CoreFailure
 
 data class CreateAccountDataDetailViewState(
+    val privacyPolicyAccepted: Boolean = false,
     val termsDialogVisible: Boolean = false,
     val termsAccepted: Boolean = false,
     val continueEnabled: Boolean = false,

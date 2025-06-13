@@ -62,19 +62,18 @@ class ChangeDisplayNameViewModel @Inject constructor(
         }
     }
 
-    fun saveDisplayName(
-        onFailure: () -> Unit,
-        onSuccess: () -> Unit,
-    ) {
+    fun saveDisplayName() {
         displayNameState = displayNameState.copy(loading = true)
         viewModelScope.launch {
             updateDisplayName(textState.text.toString().trim())
-                .also { displayNameState = displayNameState.copy(loading = false) }
                 .let {
-                    when (it) {
-                        is DisplayNameUpdateResult.Failure -> onFailure()
-                        is DisplayNameUpdateResult.Success -> onSuccess()
-                    }
+                    displayNameState = displayNameState.copy(
+                        loading = false,
+                        completed = when (it) {
+                            is DisplayNameUpdateResult.Failure -> DisplayNameState.Completed.Failure
+                            is DisplayNameUpdateResult.Success -> DisplayNameState.Completed.Success
+                        }
+                    )
                 }
         }
     }

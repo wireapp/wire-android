@@ -294,8 +294,11 @@ fun ConversationScreen(
 
     LaunchedEffect(alreadyDeletedByUser) {
         if (!alreadyDeletedByUser) {
-            conversationInfoViewModel.observeConversationDetails(navigator::navigateBack)
+            conversationInfoViewModel.observeConversationDetails()
         }
+    }
+    LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.notFound) {
+        if (conversationInfoViewModel.conversationInfoViewState.notFound) navigator.navigateBack()
     }
 
     // set message composer input to edit mode when editMessage is not null from MessageDraft
@@ -645,7 +648,7 @@ fun ConversationScreen(
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
     DeleteMessageDialog(
-        state = conversationMessagesViewModel.deleteMessageDialogsState,
+        state = conversationMessagesViewModel.deleteMessageDialogState,
         actions = conversationMessagesViewModel.deleteMessageHelper
     )
     DownloadedAssetDialog(

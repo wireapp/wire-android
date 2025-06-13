@@ -111,17 +111,19 @@ fun AvatarPickerScreen(
         }
     }
 
+    LaunchedEffect(viewModel.pictureState) {
+        (viewModel.pictureState as? PictureState.Completed)?.let {
+            resultNavigator.setResult(it.assetId)
+            resultNavigator.navigateBack()
+        }
+    }
+
     AvatarPickerContent(
         pictureState = viewModel.pictureState,
         state = state,
         onCloseClick = navigator::navigateBack,
         onCancelClick = viewModel::loadInitialAvatarState,
-        onSaveClick = {
-            viewModel.uploadNewPickedAvatar { avatarAssetId ->
-                resultNavigator.setResult(avatarAssetId)
-                resultNavigator.navigateBack()
-            }
-        }
+        onSaveClick = viewModel::uploadNewPickedAvatar
     )
 
     PermissionPermanentlyDeniedDialog(

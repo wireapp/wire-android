@@ -102,9 +102,12 @@ fun CreateAccountSelectorScreen(
         )
     }
 
+    val teamAccountCreationUrl =
+        viewModel.teamAccountCreationUrl + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
+
     fun navigateToTeamScreen() {
         val customTabsIntent = CustomTabsHelper.buildCustomTabIntent(context)
-        customTabsIntent.intent.setData(viewModel.teamAccountCreationUrl.toUri())
+        customTabsIntent.intent.setData(teamAccountCreationUrl.toUri())
         startForResult.launch(customTabsIntent.intent)
     }
 

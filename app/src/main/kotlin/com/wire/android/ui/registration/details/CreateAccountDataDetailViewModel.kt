@@ -59,6 +59,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
 
     val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig.orDefault()
     fun tosUrl(): String = serverConfig.tos
+    fun teamCreationUrl(): String = serverConfig.teams
 
     init {
         viewModelScope.launch {

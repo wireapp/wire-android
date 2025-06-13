@@ -18,6 +18,9 @@
 package com.wire.android.feature.cells.ui.createfolder
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.ui.navArgs
@@ -36,18 +39,21 @@ class CreateFolderViewModel @Inject constructor(
 
     private val navArgs: CreateFolderScreenNavArgs = savedStateHandle.navArgs()
 
+    var createFolderState: CreateFolderState by mutableStateOf(CreateFolderState.Default)
+        private set
+
     val fileNameTextFieldState: TextFieldState = TextFieldState()
 
-    internal fun createFolder(
-        folderName: String,
-        onSuccess: () -> Unit,
-        onFailure: () -> Unit
-    ) {
+    internal fun createFolder(folderName: String) {
         viewModelScope.launch {
-            createFolderUseCase("${navArgs.uuid}/$folderName").fold(
-                { onFailure() },
-                { onSuccess() }
+            createFolderState = createFolderUseCase("${navArgs.uuid}/$folderName").fold(
+                { CreateFolderState.Failure },
+                { CreateFolderState.Success },
             )
         }
     }
+}
+
+enum class CreateFolderState {
+    Default, Success, Failure
 }

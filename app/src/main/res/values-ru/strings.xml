@@ -428,13 +428,22 @@
     <string name="label_quote_original_message_is_a_picture">Изображение</string>
     <string name="label_quote_original_message_date">Исходное сообщение от %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Создание личного аккаунта</string>
+    <string name="create_account_selector_title">Как вы будете использовать Wire?</string>
+    <string name="create_account_selector_team_title">Для совместной работы</string>
+    <string name="create_account_selector_team_subtitle">Работайте безопасно вместе со своей командой.</string>
+    <string name="create_account_selector_team_highlight_one">Общайтесь с коллегами и делитесь документами через одно приложение</string>
+    <string name="create_account_selector_team_highlight_two">Начните бесплатно, улучшите в любое время</string>
+    <string name="create_account_selector_personal_title">Для частного использования</string>
+    <string name="create_account_selector_personal_subtitle">Общаться с друзьями и близкими.</string>
+    <string name="create_account_selector_personal_highlight_one">Отправлять сообщения и делиться фотографиями</string>
+    <string name="create_account_selector_personal_highlight_two">Всегда бесплатно</string>
+    <string name="create_personal_account_title">Создать личный аккаунт</string>
     <string name="create_personal_account_summary_title">Личный аккаунт создан</string>
     <string name="create_personal_account_text">Безопасное общение с друзьями и близкими с использованием публичного облачного сервера Wire.</string>
     <string name="create_personal_account_email_text">Введите ваш email, чтобы начать пользоваться самой надежной платформой для совместной работы.</string>
     <string name="create_personal_account_details_text">Введите ваши персональные данные:</string>
     <string name="create_personal_account_summary_text">Вы успешно создали свой личный аккаунт. Начните общаться защищенно - где бы вы ни находились!</string>
-    <string name="create_team_title">Создание команды</string>
+    <string name="create_team_title">Создать команду</string>
     <string name="create_team_summary_title">Команда создана</string>
     <string name="create_team_content_title">Wire Free</string>
     <string name="create_team_text">Обмен сообщениями для небольших организаций или консалтинговых фирм, состоящих из одного человека.\n</string>

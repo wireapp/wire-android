@@ -22,4 +22,5 @@ import com.wire.android.ui.authentication.create.common.handle.HandleUpdateError
 data class ChangeHandleState(
     val error: HandleUpdateErrorState = HandleUpdateErrorState.None,
     val isSaveButtonEnabled: Boolean = false,
+    val isSuccess: Boolean = false,
 )

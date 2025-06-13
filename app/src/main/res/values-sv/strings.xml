@@ -225,7 +225,6 @@
     <string name="label_delete_for_everyone">Radera för alla</string>
     <!-- Replies/Quotes to other messages -->
     <!-- Create Account -->
-    <string name="create_personal_account_title">Skapa ett personligt konto</string>
     <string name="create_account_email_label">E-POSTADRESS</string>
     <string name="create_account_email_footer_text">Har du redan ett konto? </string>
     <string name="create_account_email_terms_dialog_title">Användarvillkor</string>

@@ -34,13 +34,8 @@ object CustomTabsHelper {
 
     @JvmStatic
     fun launchUri(context: Context, uri: Uri) {
-        val builder = CustomTabsIntent.Builder()
-            .setCloseButtonIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_close))
-            .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
-            .setShowTitle(true)
         try {
-            val customTabsIntent = builder.build()
-            customTabsIntent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
+            val customTabsIntent = buildCustomTabIntent(context)
             customTabsIntent.launchUrl(context, uri)
         } catch (exception: ActivityNotFoundException) {
             AppJsonStyledLogger.log(
@@ -49,6 +44,17 @@ object CustomTabsHelper {
                 jsonStringKeyValues = mapOf("targetURI" to uri),
                 error = exception
             )
+        }
+    }
+
+    fun buildCustomTabIntent(context: Context): CustomTabsIntent {
+        val customTabsIntent = CustomTabsIntent.Builder()
+            .setCloseButtonIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_close))
+            .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
+            .setShowTitle(true)
+
+        return customTabsIntent.build().apply {
+            intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
         }
     }
 }

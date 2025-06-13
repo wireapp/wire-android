@@ -501,6 +501,7 @@
     <string name="create_account_email_share_anonymous_data_link_label">Privacy Policy</string>
     <string name="create_account_email_share_anonymous_data_optional_label">(Optional)</string>
     <string name="create_account_email_backlink_to_team_label">Looking for team collaboration?</string>
+    <string name="create_account_email_backlink_to_team_suffix_url" translatable="false">/signup/account?origin=android</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
     <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
     <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>

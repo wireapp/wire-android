@@ -125,6 +125,7 @@ fun CreateAccountDataDetailScreen(
             nameTextState = nameTextState,
             passwordTextState = passwordTextState,
             confirmPasswordTextState = confirmPasswordTextState,
+            teamCreationUrl = teamCreationUrl() + stringResource(R.string.create_account_email_backlink_to_team_suffix_url),
             tosUrl = tosUrl(),
             onPrivacyPolicyAccepted = ::onPrivacyPolicyAccepted,
             onTermsDialogDismiss = ::onTermsDialogDismiss,
@@ -144,6 +145,7 @@ private fun AccountDetailsContent(
     nameTextState: TextFieldState,
     passwordTextState: TextFieldState,
     confirmPasswordTextState: TextFieldState,
+    teamCreationUrl: String,
     tosUrl: String,
     onPrivacyPolicyAccepted: (Boolean) -> Unit,
     onTermsDialogDismiss: () -> Unit,
@@ -301,7 +303,7 @@ private fun AccountDetailsContent(
             )
 
             Row(modifier = Modifier.fillMaxWidth()) {
-                BackLinkToTeamCreation()
+                BackLinkToTeamCreation(teamCreationUrl)
             }
 
             if (state.termsDialogVisible) {
@@ -320,19 +322,16 @@ private fun AccountDetailsContent(
 }
 
 @Composable
-private fun RowScope.BackLinkToTeamCreation() {
+private fun RowScope.BackLinkToTeamCreation(teamCreationUrl: String) {
     val context = LocalContext.current
     val annotatedString = buildAnnotatedString {
         append(stringResource(R.string.create_account_email_backlink_to_team_label))
         append("\n")
-        val createATeam = stringResource(R.string.welcome_button_create_team)
         withLink(
             link = LinkAnnotation.Clickable(
                 tag = "teamCreation",
                 styles = TextLinkStyles(SpanStyle(textDecoration = TextDecoration.Underline)),
-                linkInteractionListener = {
-                    CustomTabsHelper.launchUrl(context, createATeam)
-                },
+                linkInteractionListener = { CustomTabsHelper.launchUrl(context, teamCreationUrl) }
             ),
         ) {
             append(stringResource(R.string.welcome_button_create_team))
@@ -482,6 +481,7 @@ fun PreviewCreateAccountDetailsScreen() = WireTheme {
                 nameTextState = TextFieldState(),
                 passwordTextState = TextFieldState(),
                 confirmPasswordTextState = TextFieldState(),
+                teamCreationUrl = "",
                 tosUrl = "",
                 onPrivacyPolicyAccepted = {},
                 onTermsDialogDismiss = {},

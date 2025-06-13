@@ -30,23 +30,39 @@ import javax.inject.Inject
 @HiltViewModel
 class CheckAssetRestrictionsViewModel @Inject constructor() : ViewModel() {
 
-    var assetTooLargeDialogState: AssetTooLargeDialogState by mutableStateOf(
-        AssetTooLargeDialogState.Hidden
-    )
+    var state: RestrictionCheckState by mutableStateOf(RestrictionCheckState.None)
         private set
 
-    fun checkRestrictions(importedMediaList: List<ImportedMediaAsset>, onSuccess: (bundleList: List<AssetBundle>) -> Unit) {
-        importedMediaList.firstOrNull { it.assetSizeExceeded != null }?.let {
-            assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                assetType = it.assetBundle.assetType,
-                maxLimitInMB = it.assetSizeExceeded!!,
-                savedToDevice = false,
-                multipleAssets = importedMediaList.size > 1,
-            )
-        } ?: onSuccess(importedMediaList.map { it.assetBundle })
+    fun checkRestrictions(importedMediaList: List<ImportedMediaAsset>) {
+        importedMediaList.firstOrNull { it.assetSizeExceeded != null }.let { assetTooLarge ->
+            state = when {
+                assetTooLarge != null -> RestrictionCheckState.AssetTooLarge(
+                    assetTooLargeDialogStateVisible = AssetTooLargeDialogState.Visible(
+                        assetType = assetTooLarge.assetBundle.assetType,
+                        maxLimitInMB = assetTooLarge.assetSizeExceeded!!,
+                        savedToDevice = false,
+                        multipleAssets = importedMediaList.size > 1,
+                    )
+                )
+
+                else -> RestrictionCheckState.Success(assetBundleList = importedMediaList.map { it.assetBundle })
+            }
+        }
     }
 
     fun hideDialog() {
-        assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
+        state = RestrictionCheckState.None
     }
+}
+
+sealed interface RestrictionCheckState {
+    data object None : RestrictionCheckState
+    data class Success(val assetBundleList: List<AssetBundle>) : RestrictionCheckState
+    data class AssetTooLarge(val assetTooLargeDialogStateVisible: AssetTooLargeDialogState.Visible) : RestrictionCheckState
+
+    val assetTooLargeDialogState: AssetTooLargeDialogState
+        get() = when (this) {
+                is AssetTooLarge -> assetTooLargeDialogStateVisible
+                else -> AssetTooLargeDialogState.Hidden
+            }
 }

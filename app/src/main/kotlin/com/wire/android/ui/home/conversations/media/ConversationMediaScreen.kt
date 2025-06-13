@@ -126,7 +126,7 @@ fun ConversationMediaScreen(
     )
 
     DeleteMessageDialog(
-        state = conversationMessagesViewModel.deleteMessageDialogsState,
+        state = conversationMessagesViewModel.deleteMessageDialogState,
         actions = conversationMessagesViewModel.deleteMessageHelper,
     )
 

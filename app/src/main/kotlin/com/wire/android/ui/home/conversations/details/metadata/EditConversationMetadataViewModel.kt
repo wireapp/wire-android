@@ -102,18 +102,17 @@ class EditConversationMetadataViewModel @Inject constructor(
         editConversationState = GroupNameValidator.onGroupNameErrorAnimated(editConversationState)
     }
 
-    fun saveNewGroupName(
-        onFailure: () -> Unit,
-        onSuccess: () -> Unit,
-    ) {
+    fun saveNewGroupName() {
         viewModelScope.launch {
             withContext(dispatcher.io()) {
                 renameConversation(conversationId, editConversationNameTextState.text.toString())
             }.let { renamingResult ->
-                when (renamingResult) {
-                    is RenamingResult.Failure -> onFailure()
-                    is RenamingResult.Success -> onSuccess()
-                }
+                editConversationState = editConversationState.copy(
+                    completed = when (renamingResult) {
+                        is RenamingResult.Failure -> GroupMetadataState.Completed.Failure
+                        is RenamingResult.Success -> GroupMetadataState.Completed.Success
+                    }
+                )
             }
         }
     }

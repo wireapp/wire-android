@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,16 +67,17 @@ fun ChangeHandleScreen(
     resultNavigator: ResultBackNavigator<Boolean>,
     viewModel: ChangeHandleViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(viewModel.state.isSuccess) {
+        if (viewModel.state.isSuccess) {
+            resultNavigator.setResult(true)
+            resultNavigator.navigateBack()
+        }
+    }
     ChangeHandleContent(
         textState = viewModel.textState,
         state = viewModel.state,
         onBackPressed = navigator::navigateBack,
-        onSaveClicked = {
-            viewModel.onSaveClicked() {
-                resultNavigator.setResult(true)
-                resultNavigator.navigateBack()
-            }
-        },
+        onSaveClicked = viewModel::onSaveClicked,
         onErrorDismiss = viewModel::onErrorDismiss
     )
 }

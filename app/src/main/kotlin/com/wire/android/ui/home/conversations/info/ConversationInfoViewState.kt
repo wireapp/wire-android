@@ -39,6 +39,7 @@ data class ConversationInfoViewState(
     val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.UNKNOWN,
     val accentId: Int = -1,
     val isWireCellEnabled: Boolean = false,
+    val notFound: Boolean = false,
 )
 
 sealed class ConversationDetailsData(open val conversationProtocol: Conversation.ProtocolInfo?) {

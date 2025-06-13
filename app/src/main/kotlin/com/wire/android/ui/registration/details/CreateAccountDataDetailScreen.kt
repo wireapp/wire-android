@@ -174,15 +174,8 @@ private fun AccountDetailsContent(
         },
         contentPadding = dimensions().spacing16x,
         content = {
-            val keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Words,
-                autoCorrectEnabled = true,
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next,
-            )
             val keyboardController = LocalSoftwareKeyboardController.current
             val emailFocusRequester = remember { FocusRequester() }
-
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
@@ -219,7 +212,12 @@ private fun AccountDetailsContent(
                     labelText = stringResource(R.string.create_account_details_name_label),
                     labelMandatoryIcon = true,
                     state = WireTextFieldState.Default,
-                    keyboardOptions = keyboardOptions,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        autoCorrectEnabled = true,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next,
+                    ),
                     modifier = Modifier
                         .padding(
                             start = MaterialTheme.wireDimensions.spacing16x,

@@ -21,14 +21,14 @@ package com.wire.android.ui.common.groupname
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 
 data class GroupMetadataState(
     val originalGroupName: String = "",
     val selectedUsers: ImmutableSet<Contact> = persistentSetOf(),
-    val groupProtocol: ConversationOptions.Protocol = ConversationOptions.Protocol.PROTEUS,
+    val groupProtocol: CreateConversationParam.Protocol = CreateConversationParam.Protocol.PROTEUS,
     val animatedGroupNameError: Boolean = false,
     val continueEnabled: Boolean = false,
     val isLoading: Boolean = false,

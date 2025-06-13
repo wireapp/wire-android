@@ -19,37 +19,13 @@
 package com.wire.android.ui.authentication.create.code
 
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.kalium.common.error.CoreFailure
+import com.wire.android.ui.registration.code.CreateAccountCodeResult
+import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewState.Companion.DEFAULT_VERIFICATION_CODE_LENGTH
 
 data class CreateAccountCodeViewState(
     val type: CreateAccountFlowType,
     val codeLength: Int = DEFAULT_VERIFICATION_CODE_LENGTH,
     val email: String = "",
     val loading: Boolean = false,
-    val result: Result = Result.None,
-) {
-    sealed interface Result {
-        data object None : Result
-        data object Success : Result
-        sealed class Error : Result {
-            sealed class TextFieldError : Error() {
-                data object InvalidActivationCodeError : TextFieldError()
-            }
-
-            sealed class DialogError : Error() {
-                data object InvalidEmailError : DialogError()
-                data object AccountAlreadyExistsError : DialogError()
-                data object BlackListedError : DialogError()
-                data object EmailDomainBlockedError : DialogError()
-                data object TeamMembersLimitError : DialogError()
-                data object CreationRestrictedError : DialogError()
-                data object UserAlreadyExistsError : DialogError()
-                data class GenericError(val coreFailure: CoreFailure) : DialogError()
-            }
-            data object TooManyDevicesError : Error()
-        }
-    }
-    companion object {
-        const val DEFAULT_VERIFICATION_CODE_LENGTH = 6
-    }
-}
+    val result: CreateAccountCodeResult = CreateAccountCodeResult.None,
+)

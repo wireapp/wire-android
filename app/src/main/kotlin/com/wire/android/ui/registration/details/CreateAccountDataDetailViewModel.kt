@@ -159,6 +159,10 @@ class CreateAccountDataDetailViewModel @Inject constructor(
         detailsState = detailsState.copy(termsDialogVisible = false)
     }
 
+    fun onPrivacyPolicyAccepted(isAccepted: Boolean) {
+        detailsState = detailsState.copy(privacyPolicyAccepted = isAccepted)
+    }
+
     private fun RequestActivationCodeResult.toEmailError() = when (this) {
         is RequestActivationCodeResult.Failure.AlreadyInUse ->
             CreateAccountDataDetailViewState.DetailsError.EmailFieldError.AlreadyInUseError

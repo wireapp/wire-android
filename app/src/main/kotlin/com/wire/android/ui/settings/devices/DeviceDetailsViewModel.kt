@@ -228,7 +228,7 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    fun removeDevice(onSuccess: () -> Unit) {
+    fun removeDevice() {
         viewModelScope.launch {
             val isPasswordRequired: Boolean = when (val passwordRequiredResult = isPasswordRequired()) {
                 is IsPasswordRequiredUseCase.Result.Failure -> {
@@ -240,7 +240,7 @@ class DeviceDetailsViewModel @Inject constructor(
             }
             when (isPasswordRequired) {
                 true -> showDeleteClientDialog(state.device)
-                false -> deleteDevice(null, onSuccess)
+                false -> deleteDevice(null)
             }
         }
     }
@@ -255,7 +255,7 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun deleteDevice(password: String?, onSuccess: () -> Unit) {
+    private suspend fun deleteDevice(password: String?) {
         when (val result = deleteClient(DeleteClientParam(password, deviceId))) {
             is DeleteClientResult.Failure.Generic -> state = state.copy(
                 error = RemoveDeviceError.GenericError(result.genericFailure)
@@ -266,11 +266,11 @@ class DeviceDetailsViewModel @Inject constructor(
             )
 
             DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(state.device)
-            DeleteClientResult.Success -> onSuccess()
+            DeleteClientResult.Success -> state = state.copy(deviceRemoved = true)
         }
     }
 
-    fun onRemoveConfirmed(onSuccess: () -> Unit) {
+    fun onRemoveConfirmed() {
         (state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
             updateStateIfDialogVisible {
                 state.copy(
@@ -278,7 +278,7 @@ class DeviceDetailsViewModel @Inject constructor(
                 )
             }
             viewModelScope.launch {
-                deleteDevice(passwordTextState.text.toString(), onSuccess)
+                deleteDevice(passwordTextState.text.toString())
                 updateStateIfDialogVisible { state.copy(removeDeviceDialogState = it.copy(loading = false)) }
             }
         }

@@ -29,9 +29,9 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -42,15 +42,15 @@ import org.junit.jupiter.api.extension.ExtendWith
 class VerifyEmailViewModelTest {
 
     @Test
-    fun `given updateEmail returns Success NoChange, when onVerifyEmail is called, then call onNoChange`() = runTest {
+    fun `given updateEmail returns Success NoChange, when onVerifyEmail is called, then change state noChange to true`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withNewEmail("newEmail")
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Success.NoChange)
             .arrange()
 
-        viewModel.onResendVerificationEmailClicked(arrangement.onNoChange)
+        viewModel.onResendVerificationEmailClicked()
 
-        verify(exactly = 1) { arrangement.onNoChange() }
+        assertEquals(true, viewModel.state.noChange)
         coVerify(exactly = 1) {
             arrangement.updateEmail(any())
         }
@@ -63,9 +63,6 @@ class VerifyEmailViewModelTest {
 
         @MockK
         lateinit var updateEmail: UpdateEmailUseCase
-
-        @MockK(relaxed = true)
-        lateinit var onNoChange: () -> Unit
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

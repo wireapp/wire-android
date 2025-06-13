@@ -27,15 +27,15 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
-import com.wire.android.media.CallRinger
 import com.wire.android.ui.calling.model.ReactionSender
+import com.wire.android.ui.calling.usecase.HangUpCallUseCase
 import com.wire.kalium.common.error.NetworkFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.InCallReactionMessage
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
@@ -50,11 +50,9 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
-import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -76,7 +74,7 @@ class SharedCallingViewModelTest {
     private lateinit var observeEstablishedCall: ObserveEstablishedCallWithSortedParticipantsUseCase
 
     @MockK
-    private lateinit var endCall: EndCallUseCase
+    private lateinit var hangUpCall: HangUpCallUseCase
 
     @MockK
     private lateinit var muteCall: MuteCallUseCase
@@ -118,9 +116,6 @@ class SharedCallingViewModelTest {
     lateinit var getCurrentClientId: ObserveCurrentClientIdUseCase
 
     @MockK
-    private lateinit var callRinger: CallRinger
-
-    @MockK
     private lateinit var view: View
 
     @MockK
@@ -153,7 +148,7 @@ class SharedCallingViewModelTest {
             conversationId = conversationId,
             conversationDetails = observeConversationDetails,
             observeEstablishedCallWithSortedParticipants = observeEstablishedCall,
-            endCall = endCall,
+            hangUpCall = hangUpCall,
             muteCall = muteCall,
             flipToFrontCamera = flipToFrontCamera,
             flipToBackCamera = flipToBackCamera,
@@ -163,7 +158,6 @@ class SharedCallingViewModelTest {
             turnLoudSpeakerOff = turnLoudSpeakerOff,
             turnLoudSpeakerOn = turnLoudSpeakerOn,
             observeSpeaker = observeSpeaker,
-            callRinger = callRinger,
             uiCallParticipantMapper = uiCallParticipantMapper,
             userTypeMapper = userTypeMapper,
             observeInCallReactionsUseCase = observeInCallReactionsUseCase,
@@ -286,42 +280,13 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given an active call, when the user ends call, then invoke endCall useCase`() = runTest(dispatcherProvider.main()) {
-        coEvery { endCall(any()) } returns Unit
-        coEvery { muteCall(any(), false) } returns Unit
-        every { callRinger.stop() } returns Unit
+    fun `given an active call, when the user ends call, then invoke hangUpCall useCase`() = runTest(dispatcherProvider.main()) {
+        coEvery { hangUpCall(any()) } returns Unit
 
         sharedCallingViewModel.hangUpCall(onCompleted)
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { endCall(any()) }
-        coVerify(exactly = 1) { muteCall(any(), false) }
-        coVerify(exactly = 1) { callRinger.stop() }
-        verify(exactly = 1) { onCompleted() }
-    }
-
-    @Test
-    fun `given an active call, when the user ends call, then reset call config`() = runTest(dispatcherProvider.main()) {
-        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(
-            isCameraOn = true,
-            isSpeakerOn = true
-        )
-
-        coEvery { endCall(any()) } returns Unit
-        coEvery { muteCall(any(), false) } returns Unit
-        every { callRinger.stop() } returns Unit
-        coEvery { flipToFrontCamera(any()) } returns Unit
-        coEvery { turnLoudSpeakerOff() } returns Unit
-
-        sharedCallingViewModel.hangUpCall(onCompleted)
-        advanceUntilIdle()
-
-        coVerify(exactly = 1) { endCall(any()) }
-        coVerify(exactly = 1) { muteCall(any(), false) }
-        coVerify(exactly = 1) { flipToFrontCamera(any()) }
-        coVerify(exactly = 1) { turnLoudSpeakerOff() }
-        coVerify(exactly = 1) { muteCall(any(), false) }
-        coVerify(exactly = 1) { callRinger.stop() }
+        coVerify(exactly = 1) { hangUpCall(any()) }
         verify(exactly = 1) { onCompleted() }
     }
 
@@ -400,7 +365,7 @@ class SharedCallingViewModelTest {
 
         // then
         coVerify(exactly = 1) {
-            sendInCallReactionUseCase(OngoingCallViewModelTest.Companion.conversationId, "👍")
+            sendInCallReactionUseCase(OngoingCallViewModelTest.conversationId, "👍")
         }
     }
 

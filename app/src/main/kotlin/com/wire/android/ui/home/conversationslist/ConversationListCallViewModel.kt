@@ -27,32 +27,44 @@ import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface ConversationCallListViewModel {
+interface ConversationListCallViewModel {
     val joinCallDialogState: VisibilityState<ConversationId> get() = VisibilityState()
-    fun joinOngoingCall(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {}
-    fun joinAnyway(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {}
+    val actions: Flow<ConversationListCallViewActions> get() = emptyFlow()
+    fun joinOngoingCall(conversationId: ConversationId) {}
+    fun joinAnyway(conversationId: ConversationId) {}
 }
 
-object ConversationCallListViewModelPreview : ConversationCallListViewModel
+object ConversationListCallViewModelPreview : ConversationListCallViewModel
 
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
 @HiltViewModel
-class ConversationCallListViewModelImpl @Inject constructor(
+class ConversationListCallViewModelImpl @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase
-) : ConversationCallListViewModel, ViewModel() {
+) : ConversationListCallViewModel, ViewModel() {
 
     override val joinCallDialogState: VisibilityState<ConversationId> = VisibilityState()
 
     private var establishedCallConversationId: QualifiedID? = null
     private var conversationId: QualifiedID? = null
+
+    private val _actions = Channel<ConversationListCallViewActions>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    override val actions = _actions.receiveAsFlow()
 
     private suspend fun observeEstablishedCall() {
         observeEstablishedCalls()
@@ -68,17 +80,17 @@ class ConversationCallListViewModelImpl @Inject constructor(
         }
     }
 
-    override fun joinAnyway(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
+    override fun joinAnyway(conversationId: ConversationId) {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
                 delay(DELAY_END_CALL)
             }
-            joinOngoingCall(conversationId, onJoined)
+            joinOngoingCall(conversationId)
         }
     }
 
-    override fun joinOngoingCall(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
+    override fun joinOngoingCall(conversationId: ConversationId) {
         this.conversationId = conversationId
         if (establishedCallConversationId != null) {
             joinCallDialogState.show(conversationId)
@@ -87,11 +99,19 @@ class ConversationCallListViewModelImpl @Inject constructor(
             viewModelScope.launch {
                 answerCall(conversationId = conversationId)
             }
-            onJoined(conversationId)
+            sendAction(ConversationListCallViewActions.JoinedCall(conversationId))
         }
+    }
+
+    private fun sendAction(action: ConversationListCallViewActions) {
+        viewModelScope.launch { _actions.send(action) }
     }
 
     companion object {
         const val DELAY_END_CALL = 200L
     }
+}
+
+sealed interface ConversationListCallViewActions {
+    data class JoinedCall(val conversationId: ConversationId) : ConversationListCallViewActions
 }

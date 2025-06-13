@@ -54,7 +54,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -120,9 +119,6 @@ class SharedCallingViewModelTest {
 
     @MockK
     private lateinit var userTypeMapper: UserTypeMapper
-
-    @MockK(relaxed = true)
-    private lateinit var onCompleted: () -> Unit
 
     private val uiCallParticipantMapper: UICallParticipantMapper by lazy {
         UICallParticipantMapper(userTypeMapper)
@@ -283,11 +279,13 @@ class SharedCallingViewModelTest {
     fun `given an active call, when the user ends call, then invoke hangUpCall useCase`() = runTest(dispatcherProvider.main()) {
         coEvery { hangUpCall(any()) } returns Unit
 
-        sharedCallingViewModel.hangUpCall(onCompleted)
-        advanceUntilIdle()
+        sharedCallingViewModel.actions.test {
+            sharedCallingViewModel.hangUpCall()
+            advanceUntilIdle()
 
-        coVerify(exactly = 1) { hangUpCall(any()) }
-        verify(exactly = 1) { onCompleted() }
+            coVerify(exactly = 1) { hangUpCall(any()) }
+            assertEquals(SharedCallingViewActions.HungUpCall(conversationId), awaitItem())
+        }
     }
 
     @Test

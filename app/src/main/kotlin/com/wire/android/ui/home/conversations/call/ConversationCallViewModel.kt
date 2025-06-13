@@ -46,18 +46,21 @@ import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificati
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationListCallViewModel @Inject constructor(
+class ConversationCallViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
@@ -82,6 +85,12 @@ class ConversationListCallViewModel @Inject constructor(
     val callingEnabled = MutableSharedFlow<Unit>(replay = 1)
 
     var establishedCallConversationId: QualifiedID? = null
+
+    private val _actions = Channel<ConversationCallViewActions>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val actions = _actions.receiveAsFlow()
 
     init {
         listenOngoingCall()
@@ -158,24 +167,24 @@ class ConversationListCallViewModel @Inject constructor(
             }
     }
 
-    fun joinAnyway(onAnswered: (conversationId: ConversationId) -> Unit) {
+    fun joinAnyway() {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
                 delay(DELAY_END_CALL)
             }
-            joinOngoingCall(onAnswered)
+            joinOngoingCall()
         }
     }
 
-    fun joinOngoingCall(onAnswered: (conversationId: ConversationId) -> Unit) {
+    fun joinOngoingCall() {
         viewModelScope.launch {
             if (conversationCallViewState.hasEstablishedCall) {
                 showJoinCallAnywayDialog()
             } else {
                 dismissJoinCallAnywayDialog()
                 answerCall(conversationId = conversationId)
-                onAnswered(conversationId)
+                sendAction(ConversationCallViewActions.JoinedCall(conversationId))
             }
         }
     }
@@ -188,12 +197,12 @@ class ConversationListCallViewModel @Inject constructor(
         conversationCallViewState = conversationCallViewState.copy(shouldShowJoinAnywayDialog = false)
     }
 
-    fun endEstablishedCallIfAny(onCompleted: () -> Unit) {
+    fun initiateCall() {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
             }
-            onCompleted()
+            sendAction(ConversationCallViewActions.InitiatedCall(conversationId))
         }
     }
 
@@ -217,7 +226,16 @@ class ConversationListCallViewModel @Inject constructor(
         }
     }
 
+    private fun sendAction(action: ConversationCallViewActions) {
+        viewModelScope.launch { _actions.send(action) }
+    }
+
     companion object {
         const val DELAY_END_CALL = 200L
     }
+}
+
+sealed interface ConversationCallViewActions {
+    data class JoinedCall(val conversationId: ConversationId) : ConversationCallViewActions
+    data class InitiatedCall(val conversationId: ConversationId) : ConversationCallViewActions
 }

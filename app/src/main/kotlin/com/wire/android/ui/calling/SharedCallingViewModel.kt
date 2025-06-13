@@ -37,6 +37,7 @@ import com.wire.android.ui.calling.usecase.HangUpCallUseCase
 import com.wire.android.util.ExpiringMap
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.withDelayAfterFirst
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.call.VideoState
@@ -58,7 +59,6 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
-import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.assisted.Assisted
@@ -111,6 +111,12 @@ class SharedCallingViewModel @AssistedInject constructor(
     var callState by mutableStateOf(CallState(conversationId))
 
     var participantsState by mutableStateOf(persistentListOf<UICallParticipant>())
+
+    private val _actions = Channel<SharedCallingViewActions>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val actions = _actions.receiveAsFlow()
 
     private val _inCallReactions = Channel<InCallReaction>(
         capacity = 300, // Max reactions to keep in queue
@@ -220,9 +226,9 @@ class SharedCallingViewModel @AssistedInject constructor(
         }.collect()
     }
 
-    fun hangUpCall(onCompleted: () -> Unit) {
+    fun hangUpCall() {
         hangUpCall(conversationId)
-        onCompleted()
+        sendAction(SharedCallingViewActions.HungUpCall(conversationId))
     }
 
     fun toggleSpeaker() {
@@ -330,6 +336,10 @@ class SharedCallingViewModel @AssistedInject constructor(
             delegate = mutableStateMapOf<UserId, String>()
         )
 
+    private fun sendAction(action: SharedCallingViewActions) {
+        viewModelScope.launch { _actions.send(action) }
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(conversationId: ConversationId): SharedCallingViewModel
@@ -337,3 +347,7 @@ class SharedCallingViewModel @AssistedInject constructor(
 }
 
 private fun List<UICallParticipant>.senderName(userId: QualifiedID) = firstOrNull { it.id.value == userId.value }?.name
+
+sealed interface SharedCallingViewActions {
+    data class HungUpCall(val conversationId: ConversationId) : SharedCallingViewActions
+}

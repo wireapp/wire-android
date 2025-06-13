@@ -19,6 +19,7 @@
 
 package com.wire.android.ui.home.conversationslist
 
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -34,7 +35,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -45,7 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-class ConversationCallListViewModelTest {
+class ConversationListCallViewModelTest {
 
     private val dispatcherProvider = TestDispatcherProvider()
 
@@ -53,60 +53,64 @@ class ConversationCallListViewModelTest {
     fun `given a conversation id, when joining an ongoing call, then verify that answer call usecase is called`() =
         runTest(dispatcherProvider.main()) {
         // Given
-        val (arrangement, conversationCallListViewModel) = Arrangement().arrange()
+        val (arrangement, conversationListCallViewModel) = Arrangement().arrange()
 
-        // When
-        conversationCallListViewModel.joinOngoingCall(conversationId = conversationId, onJoined = arrangement.onJoined)
+            conversationListCallViewModel.actions.test {
+                // When
+                conversationListCallViewModel.joinOngoingCall(conversationId = conversationId)
 
-        // Then
-        coVerify(exactly = 1) { arrangement.answerCall(conversationId = conversationId) }
-        verify(exactly = 1) { arrangement.onJoined(conversationId) }
+                // Then
+                coVerify(exactly = 1) { arrangement.answerCall(conversationId = conversationId) }
+                assertEquals(ConversationListCallViewActions.JoinedCall(conversationId), awaitItem())
+            }
     }
 
     @Test
     fun `given join dialog displayed, when user dismiss it, then hide it`() = runTest(dispatcherProvider.main()) {
         // Given
-        val (_, conversationCallListViewModel) = Arrangement()
+        val (_, conversationListCallViewModel) = Arrangement()
             .withEstablishedCall(call)
             .arrange()
-        conversationCallListViewModel.joinCallDialogState.show(call.conversationId)
+        conversationListCallViewModel.joinCallDialogState.show(call.conversationId)
 
         // When
-        conversationCallListViewModel.joinCallDialogState.dismiss()
+        conversationListCallViewModel.joinCallDialogState.dismiss()
 
         // Then
-        assertEquals(false, conversationCallListViewModel.joinCallDialogState.isVisible)
+        assertEquals(false, conversationListCallViewModel.joinCallDialogState.isVisible)
     }
 
     @Test
     fun `given no ongoing call, when user tries to join a call, then invoke answerCall call use case`() =
         runTest(dispatcherProvider.main()) {
         // Given
-        val (arrangement, conversationCallListViewModel) = Arrangement()
+        val (arrangement, conversationListCallViewModel) = Arrangement()
             .withEstablishedCall(null)
             .arrange()
 
-        // When
-        conversationCallListViewModel.joinOngoingCall(conversationId, arrangement.onJoined)
+            conversationListCallViewModel.actions.test {
+                // When
+                conversationListCallViewModel.joinOngoingCall(conversationId)
 
-        // Then
-        coVerify(exactly = 1) { arrangement.answerCall(conversationId = any()) }
-        coVerify(exactly = 1) { arrangement.onJoined(any()) }
-        assertEquals(false, conversationCallListViewModel.joinCallDialogState.isVisible)
+                // Then
+                coVerify(exactly = 1) { arrangement.answerCall(conversationId = any()) }
+                assertEquals(ConversationListCallViewActions.JoinedCall(conversationId), awaitItem())
+                assertEquals(false, conversationListCallViewModel.joinCallDialogState.isVisible)
+            }
     }
 
     @Test
     fun `given an ongoing call, when user tries to join a call, then show JoinCallAnywayDialog`() = runTest(dispatcherProvider.main()) {
         // Given
-        val (arrangement, conversationCallListViewModel) = Arrangement()
+        val (arrangement, conversationListCallViewModel) = Arrangement()
             .withEstablishedCall(call)
             .arrange()
 
         // When
-        conversationCallListViewModel.joinOngoingCall(conversationId, arrangement.onJoined)
+        conversationListCallViewModel.joinOngoingCall(conversationId)
 
         // Then
-        assertEquals(true, conversationCallListViewModel.joinCallDialogState.isVisible)
+        assertEquals(true, conversationListCallViewModel.joinCallDialogState.isVisible)
         coVerify(inverse = true) { arrangement.answerCall(conversationId = any()) }
     }
 
@@ -114,13 +118,13 @@ class ConversationCallListViewModelTest {
     fun `given an ongoing call, when user confirms dialog to join a call, then end current call and join the newer one`() =
         runTest(dispatcherProvider.main()) {
         // Given
-        val (arrangement, conversationCallListViewModel) = Arrangement()
+        val (arrangement, conversationListCallViewModel) = Arrangement()
             .withEstablishedCall(call)
             .arrange()
-        conversationCallListViewModel.joinCallDialogState.show(call.conversationId)
+        conversationListCallViewModel.joinCallDialogState.show(call.conversationId)
 
         // When
-        conversationCallListViewModel.joinAnyway(conversationId, arrangement.onJoined)
+        conversationListCallViewModel.joinAnyway(conversationId)
 
         // Then
         coVerify(exactly = 1) { arrangement.endCall(any()) }
@@ -137,9 +141,6 @@ class ConversationCallListViewModelTest {
         @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
-        @MockK(relaxed = true)
-        lateinit var onJoined: (ConversationId) -> Unit
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
@@ -150,7 +151,7 @@ class ConversationCallListViewModelTest {
             coEvery { observeEstablishedCalls.invoke() } returns flowOf(listOfNotNull(call))
         }
 
-        fun arrange() = this to ConversationCallListViewModelImpl(
+        fun arrange() = this to ConversationListCallViewModelImpl(
             answerCall = answerCall,
             endCall = endCall,
             observeEstablishedCalls = observeEstablishedCalls

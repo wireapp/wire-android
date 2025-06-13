@@ -74,22 +74,15 @@ fun TeamMigrationConfirmationStepScreen(
 ) {
     val state = teamMigrationViewModel.teamMigrationState
 
+    LaunchedEffect(state.migrationCompleted) {
+        if (state.migrationCompleted) {
+            navigator.navigate(NavigationCommand(TeamMigrationDoneStepScreenDestination, BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
+        }
+    }
+
     TeamMigrationConfirmationStepScreenContent(
         isMigrating = state.isMigrating,
-        onContinueButtonClicked = {
-            teamMigrationViewModel.setIsMigratingState(true)
-            teamMigrationViewModel.migrateFromPersonalToTeamAccount(
-                onSuccess = {
-                    teamMigrationViewModel.setIsMigratingState(false)
-                    navigator.navigate(
-                        NavigationCommand(
-                            TeamMigrationDoneStepScreenDestination,
-                            BackStackMode.REMOVE_CURRENT_NESTED_GRAPH
-                        )
-                    )
-                }
-            )
-        },
+        onContinueButtonClicked = teamMigrationViewModel::migrateFromPersonalToTeamAccount,
         onBackButtonClicked = navigator::navigateBack,
     )
 

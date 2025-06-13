@@ -34,6 +34,7 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
+import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -52,6 +53,11 @@ fun NewGroupNameScreen(
     LaunchedEffect(Unit) {
         newConversationViewModel.observeGroupNameChanges()
     }
+    LaunchedEffect(newConversationViewModel.createGroupState) {
+        (newConversationViewModel.createGroupState as? CreateGroupState.Created)?.let {
+            navigateToGroup(it.conversationId)
+        }
+    }
     GroupNameScreen(
         newGroupState = newConversationViewModel.newGroupState,
         newGroupNameTextState = newConversationViewModel.newGroupNameTextState,
@@ -59,13 +65,13 @@ fun NewGroupNameScreen(
             if (newConversationViewModel.newGroupState.isSelfTeamMember == true) {
                 navigator.navigate(NavigationCommand(GroupOptionScreenDestination))
             } else {
-                newConversationViewModel.createGroup(::navigateToGroup)
+                newConversationViewModel.createGroup()
             }
         },
         onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated,
         onBackPressed = navigator::navigateBack
     )
-    newConversationViewModel.createGroupState.error?.let {
+    (newConversationViewModel.createGroupState as? CreateGroupState.Error)?.let {
         CreateGroupErrorDialog(
             error = it,
             onDismiss = newConversationViewModel::onCreateGroupErrorDismiss,

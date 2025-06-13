@@ -40,7 +40,11 @@ data class GroupMetadataState(
     val isServicesAllowed: Boolean = false,
     val channelAccessType: ChannelAccessType = ChannelAccessType.PRIVATE,
     val channelAddPermissionType: ChannelAddPermissionType = ChannelAddPermissionType.ADMINS,
+    val completed: Completed = Completed.None,
 ) {
+    enum class Completed {
+        None, Success, Failure
+    }
     sealed interface NewGroupError {
         data object None : NewGroupError
         sealed interface TextFieldError : NewGroupError {

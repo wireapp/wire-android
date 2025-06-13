@@ -212,7 +212,8 @@ fun PreviewImportedMediaAssetMessageContent() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED
+            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+            assetDataPath = null,
         )
     }
 }
@@ -226,7 +227,8 @@ fun PreviewLoadingAssetMessage() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS
+            assetTransferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
+            assetDataPath = null,
         )
     }
 }
@@ -240,7 +242,8 @@ fun PreviewFailedDownloadAssetMessage() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.FAILED_DOWNLOAD
+            assetTransferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
+            assetDataPath = null,
         )
     }
 }

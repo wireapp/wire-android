@@ -3,7 +3,6 @@ package com.wire.android.ui.registration.selector
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.config.SnapshotExtension
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import io.mockk.MockKAnnotations
@@ -16,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
 class CreateAccountSelectorViewModelTest {
 
     @Test

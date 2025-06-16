@@ -39,8 +39,14 @@ interface ActionsManager<T> {
 }
 
 class ActionsManagerImpl<T> : ActionsManager<T> {
-    private val _actions: Channel<T> = Channel(capacity = Channel.BUFFERED, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    override val actions: Flow<T> = _actions.receiveAsFlow().flowOn(Dispatchers.Main.immediate)
+    private val _actions: Channel<T> = Channel(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    override val actions: Flow<T> = _actions
+        .receiveAsFlow()
+        .flowOn(Dispatchers.Main.immediate)
+
     override fun <VM : ViewModel> VM.sendAction(action: T) {
         viewModelScope.launch { _actions.send(action) }
     }

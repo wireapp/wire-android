@@ -44,6 +44,7 @@ class CreateAccountDataDetailViewModelTest {
         advanceUntilIdle()
 
         assertEquals(false, viewModel.detailsState.success)
+        coVerify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
     }
 
     @Test
@@ -61,6 +62,7 @@ class CreateAccountDataDetailViewModelTest {
             viewModel.detailsState.error
         )
         assertEquals(false, viewModel.detailsState.success)
+        coVerify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
     }
 
     @Test
@@ -81,6 +83,38 @@ class CreateAccountDataDetailViewModelTest {
         coVerify(exactly = 1) { arrangement.validateEmailUseCase(any()) }
         assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
         assertEquals(true, viewModel.detailsState.termsDialogVisible)
+    }
+
+    @Test
+    fun `given request code error, when terms accepted, then show error`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withValidateEmailResult(true)
+            .withValidatePasswordResult(ValidatePasswordResult.Valid)
+            .withActivationCodeResult(RequestActivationCodeResult.Failure.InvalidEmail)
+            .arrange()
+
+        viewModel.onDetailsContinue()
+        viewModel.onTermsAccept()
+        advanceUntilIdle()
+
+        assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.EmailFieldError.InvalidEmailError>(viewModel.detailsState.error)
+        assertEquals(false, viewModel.detailsState.success)
+    }
+
+    @Test
+    fun `given request code success, when terms accepted, then show success`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withValidateEmailResult(true)
+            .withValidatePasswordResult(ValidatePasswordResult.Valid)
+            .withActivationCodeResult(RequestActivationCodeResult.Success)
+            .arrange()
+
+        viewModel.onDetailsContinue()
+        viewModel.onTermsAccept()
+        advanceUntilIdle()
+
+        assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
+        assertEquals(true, viewModel.detailsState.success)
     }
 
     private class Arrangement {
@@ -110,12 +144,15 @@ class CreateAccountDataDetailViewModelTest {
             every { savedStateHandle.navArgs<CreateAccountDataNavArgs>() } returns
                     CreateAccountDataNavArgs(userRegistrationInfo = UserRegistrationInfo())
 
+            coEvery { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
             coEvery {
                 autoVersionAuthScopeUseCase(null)
             } returns AutoVersionAuthScopeUseCase.Result.Success(
                 authenticationScope
             )
-            every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+            coEvery { autoVersionAuthScopeUseCase(any()) } returns
+                    AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+            coEvery { authenticationScope.registerScope.requestActivationCode } returns requestActivationCodeUseCase
         }
 
         fun withActivationCodeResult(result: RequestActivationCodeResult) = apply {

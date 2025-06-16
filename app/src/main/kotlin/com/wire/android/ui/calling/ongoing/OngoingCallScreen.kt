@@ -62,11 +62,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.ConversationName
+import com.wire.android.ui.calling.SharedCallingViewActions
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
 import com.wire.android.ui.calling.controlbuttons.HangUpOngoingButton
@@ -134,6 +136,7 @@ fun OngoingCallScreen(
     val inCallReactionsState = rememberInCallReactionsState()
 
     val activity = LocalActivity.current as AppCompatActivity
+    val lifecycle = LocalLifecycleOwner.current
     val isPiPAvailableOnThisDevice = activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
     val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice
     var inPictureInPictureMode by remember { mutableStateOf(shouldUsePiPMode && activity.isInPictureInPictureMode) }
@@ -159,12 +162,15 @@ fun OngoingCallScreen(
         }
     }
 
-    val hangUpCall = remember {
-        {
-            sharedCallingViewModel.hangUpCall { activity.finishAndRemoveTask() }
+    LaunchedEffect(Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            sharedCallingViewModel.actions.collect { action ->
+                when (action) {
+                    is SharedCallingViewActions.HungUpCall -> activity.finishAndRemoveTask()
+                }
+            }
         }
     }
-
     val onCollapse = remember {
         {
             if (shouldUsePiPMode) {
@@ -196,7 +202,7 @@ fun OngoingCallScreen(
         shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
         toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
         toggleMute = sharedCallingViewModel::toggleMute,
-        hangUpCall = hangUpCall,
+        hangUpCall = sharedCallingViewModel::hangUpCall,
         toggleVideo = sharedCallingViewModel::toggleVideo,
         flipCamera = sharedCallingViewModel::flipCamera,
         setVideoPreview = sharedCallingViewModel::setVideoPreview,

@@ -37,10 +37,13 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList")
@@ -61,6 +64,12 @@ class IncomingCallViewModel @AssistedInject constructor(
 
     var incomingCallState by mutableStateOf(IncomingCallState())
         private set
+
+    private val _actions = Channel<IncomingCallViewActions>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val actions = _actions.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -184,6 +193,10 @@ class IncomingCallViewModel @AssistedInject constructor(
                 }
             }
         }
+    }
+
+    private fun sendAction(action: IncomingCallViewActions) {
+        viewModelScope.launch { _actions.send(action) }
     }
 
     companion object {

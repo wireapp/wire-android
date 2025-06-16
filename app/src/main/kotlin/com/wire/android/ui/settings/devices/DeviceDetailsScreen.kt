@@ -111,13 +111,14 @@ fun DeviceDetailsScreen(
     navigator: Navigator,
     viewModel: DeviceDetailsViewModel = hiltViewModel()
 ) {
-    if (viewModel.state.error is RemoveDeviceError.InitError) navigator.navigateBack()
-    else {
-        DeviceDetailsContent(
+    when {
+        viewModel.state.error is RemoveDeviceError.InitError -> navigator.navigateBack()
+        viewModel.state.deviceRemoved -> navigator.navigateBack()
+        else -> DeviceDetailsContent(
             state = viewModel.state,
             passwordTextState = viewModel.passwordTextState,
-            onDeleteDevice = { viewModel.removeDevice(navigator::navigateBack) },
-            onRemoveConfirm = { viewModel.onRemoveConfirmed(navigator::navigateBack) },
+            onDeleteDevice = viewModel::removeDevice,
+            onRemoveConfirm = viewModel::onRemoveConfirmed,
             onDialogDismiss = viewModel::onDialogDismissed,
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
             onNavigateBack = navigator::navigateBack,

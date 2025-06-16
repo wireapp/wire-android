@@ -112,6 +112,12 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     var participantsState by mutableStateOf(persistentListOf<UICallParticipant>())
 
+    private val _actions = Channel<SharedCallingViewActions>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val actions = _actions.receiveAsFlow()
+
     private val _inCallReactions = Channel<InCallReaction>(
         capacity = 300, // Max reactions to keep in queue
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
@@ -329,6 +335,10 @@ class SharedCallingViewModel @AssistedInject constructor(
             expiration = InCallReactions.recentReactionShowDurationMs,
             delegate = mutableStateMapOf<UserId, String>()
         )
+
+    private fun sendAction(action: SharedCallingViewActions) {
+        viewModelScope.launch { _actions.send(action) }
+    }
 
     @AssistedFactory
     interface Factory {

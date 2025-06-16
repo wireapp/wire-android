@@ -45,9 +45,12 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import java.io.File
@@ -74,6 +77,12 @@ class RecordAudioViewModel @Inject constructor(
 
     var state: RecordAudioState by mutableStateOf(RecordAudioState())
         private set
+
+    private val _actions = Channel<RecordAudioViewActions>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val actions = _actions.receiveAsFlow()
 
     private var hasOngoingCall: Boolean = false
 
@@ -408,6 +417,10 @@ class RecordAudioViewModel @Inject constructor(
         super.onCleared()
         recordAudioMessagePlayer.close()
         audioWavesMaskHelper.clear()
+    }
+
+    private fun sendAction(action: RecordAudioViewActions) {
+        viewModelScope.launch { _actions.send(action) }
     }
 
     companion object {

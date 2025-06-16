@@ -75,6 +75,8 @@ import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -85,6 +87,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -126,6 +129,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     private val _groupOptionsState = MutableStateFlow(GroupConversationOptionsState(conversationId))
     val groupOptionsState: StateFlow<GroupConversationOptionsState> = _groupOptionsState
+
+    private val _actions = Channel<GroupConversationDetailsViewAction>(
+        capacity = Channel.BUFFERED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    internal val actions = _actions.receiveAsFlow()
 
     var requestInProgress: Boolean by mutableStateOf(false)
         private set
@@ -257,11 +266,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         null
     }
 
-    fun leaveGroup(
-        leaveGroupState: LeaveGroupDialogState,
-        onSuccess: () -> Unit,
-        onFailure: (UIText) -> Unit
-    ) {
+    fun leaveGroup(leaveGroupState: LeaveGroupDialogState) {
         viewModelScope.launch {
             requestInProgress = true
             val response = withContext(dispatcher.io()) {
@@ -270,12 +275,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 }
             }
             when (response) {
-                is RemoveMemberFromConversationUseCase.Result.Failure -> onFailure(response.cause.uiText())
+                is RemoveMemberFromConversationUseCase.Result.Failure -> onMessage(response.cause.uiText())
                 RemoveMemberFromConversationUseCase.Result.Success -> {
                     if (leaveGroupState.shouldDelete) {
-                        deleteGroupLocally(leaveGroupState, onSuccess, onFailure)
+                        deleteGroupLocally(leaveGroupState)
                     } else {
-                        onSuccess()
+                        action(GroupConversationDetailsViewAction.Left(leaveGroupState))
                     }
                 }
 
@@ -285,35 +290,28 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun deleteGroup(
-        groupState: GroupDialogState,
-        onSuccess: () -> Unit,
-        onFailure: (UIText) -> Unit
-    ) {
+    fun deleteGroup(groupState: GroupDialogState) {
         viewModelScope.launch {
             requestInProgress = true
             when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
-                is Result.Failure.GenericFailure -> onFailure(response.coreFailure.uiText())
-                Result.Failure.NoTeamFailure -> onFailure(CoreFailure.Unknown(null).uiText())
-                Result.Success -> onSuccess()
+                is Result.Failure.GenericFailure -> onMessage(response.coreFailure.uiText())
+                Result.Failure.NoTeamFailure -> onMessage(CoreFailure.Unknown(null).uiText())
+                Result.Success -> action(GroupConversationDetailsViewAction.Deleted(groupState))
             }
             requestInProgress = false
         }
     }
 
-    fun deleteGroupLocally(
-        groupDialogState: GroupDialogState,
-        onSuccess: () -> Unit,
-        onFailure: (UIText) -> Unit
-    ) {
+    private fun deleteGroupLocally(groupDialogState: GroupDialogState) {
         viewModelScope.launch {
             workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
                 .collect { status ->
                     when (status) {
-                        ConversationDeletionLocallyStatus.SUCCEEDED -> onSuccess()
+                        ConversationDeletionLocallyStatus.SUCCEEDED ->
+                            action(GroupConversationDetailsViewAction.Left(groupDialogState))
 
                         ConversationDeletionLocallyStatus.FAILED ->
-                            onFailure(UIText.StringResource(R.string.delete_conversation_conversation_error))
+                            onMessage(UIText.StringResource(R.string.delete_conversation_conversation_error))
 
                         ConversationDeletionLocallyStatus.RUNNING,
                         ConversationDeletionLocallyStatus.IDLE -> {
@@ -453,11 +451,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         _groupOptionsState.value = newState
     }
 
-    override fun onMutingConversationStatusChange(
-        conversationId: ConversationId?,
-        status: MutedConversationStatus,
-        onMessage: (UIText) -> Unit
-    ) {
+    override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
         conversationId?.let {
             viewModelScope.launch {
                 when (updateConversationMutedStatus(conversationId, status, Date().time)) {
@@ -473,13 +467,13 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit) {
+    override fun onClearConversationContent(dialogState: DialogState) {
         viewModelScope.launch {
             requestInProgress = true
             with(dialogState) {
                 val result = withContext(dispatcher.io()) { clearConversationContent(conversationId) }
                 requestInProgress = false
-                handleClearContentResult(result, conversationTypeDetail, onMessage)
+                handleClearContentResult(result, conversationTypeDetail)
             }
         }
     }
@@ -487,7 +481,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private fun handleClearContentResult(
         clearContentResult: ClearConversationContentUseCase.Result,
         conversationTypeDetail: ConversationTypeDetail,
-        onMessage: (UIText) -> Unit
     ) {
         if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException(
             "Unsupported conversation type to clear content, something went wrong?"
@@ -500,11 +493,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun updateConversationArchiveStatus(
-        dialogState: DialogState,
-        timestamp: Long,
-        onMessage: (UIText) -> Unit
-    ) {
+    override fun updateConversationArchiveStatus(dialogState: DialogState, timestamp: Long) {
         viewModelScope.launch {
             val shouldArchive = dialogState.isArchived.not()
             requestInProgress = true
@@ -533,7 +522,18 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
+    private fun action(action: GroupConversationDetailsViewAction) {
+        viewModelScope.launch { _actions.send(action) }
+    }
+    private fun onMessage(text: UIText) = action(GroupConversationDetailsViewAction.Message(text))
+
     companion object {
         const val TAG = "GroupConversationDetailsViewModel"
     }
+}
+
+internal sealed interface GroupConversationDetailsViewAction {
+    data class Message(val text: UIText) : GroupConversationDetailsViewAction
+    data class Left(val groupDialogState: GroupDialogState) : GroupConversationDetailsViewAction
+    data class Deleted(val groupDialogState: GroupDialogState) : GroupConversationDetailsViewAction
 }

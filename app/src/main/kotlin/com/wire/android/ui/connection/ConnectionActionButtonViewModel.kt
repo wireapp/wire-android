@@ -27,6 +27,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.di.scopedArgs
+import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -47,7 +48,6 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -56,11 +56,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @ViewModelScopedPreview
-interface ConnectionActionButtonViewModel {
-    val infoMessage: SharedFlow<UIText>
-        get() = MutableSharedFlow()
-    val actions: Flow<ConnectionButtonAction>
-        get() = MutableSharedFlow()
+interface ConnectionActionButtonViewModel : ActionsManager<ConnectionButtonAction> {
+    val infoMessage: SharedFlow<UIText> get() = MutableSharedFlow()
     fun actionableState(): ConnectionActionState = ConnectionActionState()
     fun onSendConnectionRequest() {}
     fun onCancelConnectionRequest() {}
@@ -89,8 +86,6 @@ internal class ConnectionActionButtonViewModelImpl @Inject constructor(
     val userName: String = args.userName
 
     var state: ConnectionActionState by mutableStateOf(ConnectionActionState())
-
-    override val actions: Flow<ConnectionButtonAction> = super<ActionsViewModel>.actions
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     override val infoMessage = _infoMessage.asSharedFlow()

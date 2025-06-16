@@ -58,9 +58,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -74,6 +71,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.CollapsingTopBarScaffold
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
@@ -637,30 +635,25 @@ private fun HandleViewActions(
     setResultAndNavigateBack: (GroupConversationDetailsNavBackArgs) -> Unit,
     showSnackbarMessage: (UIText) -> Unit,
 ) {
-    val lifecycle = LocalLifecycleOwner.current
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            actions.collect { action ->
-                when (action) {
-                    is GroupConversationDetailsViewAction.Deleted -> setResultAndNavigateBack(
-                        GroupConversationDetailsNavBackArgs(
-                            groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
-                            isGroupDeleted = true,
-                            conversationName = action.groupDialogState.conversationName
-                        )
-                    )
+    HandleActions(actions) { action ->
+        when (action) {
+            is GroupConversationDetailsViewAction.Deleted -> setResultAndNavigateBack(
+                GroupConversationDetailsNavBackArgs(
+                    groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
+                    isGroupDeleted = true,
+                    conversationName = action.groupDialogState.conversationName
+                )
+            )
 
-                    is GroupConversationDetailsViewAction.Left -> setResultAndNavigateBack(
-                        GroupConversationDetailsNavBackArgs(
-                            groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
-                            hasLeftGroup = true,
-                            conversationName = action.groupDialogState.conversationName
-                        )
-                    )
+            is GroupConversationDetailsViewAction.Left -> setResultAndNavigateBack(
+                GroupConversationDetailsNavBackArgs(
+                    groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
+                    hasLeftGroup = true,
+                    conversationName = action.groupDialogState.conversationName
+                )
+            )
 
-                    is GroupConversationDetailsViewAction.Message -> showSnackbarMessage(action.text)
-                }
-            }
+            is GroupConversationDetailsViewAction.Message -> showSnackbarMessage(action.text)
         }
     }
 }

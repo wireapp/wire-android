@@ -28,18 +28,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-open class ActionsViewModel<T> : ViewModel() {
-    private val _actions = Channel<T>(capacity = Channel.BUFFERED, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    open val actions = _actions.receiveAsFlow().flowOn(Dispatchers.Main.immediate)
+interface ActionsManager<T> {
+    val actions: Flow<T> get() = emptyFlow()
+    fun <VM : ViewModel> VM.sendAction(action: T) {}
+}
 
-    protected fun sendAction(action: T) {
+class ActionsManagerImpl<T> : ActionsManager<T> {
+    private val _actions: Channel<T> = Channel(capacity = Channel.BUFFERED, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    override val actions: Flow<T> = _actions.receiveAsFlow().flowOn(Dispatchers.Main.immediate)
+    override fun <VM : ViewModel> VM.sendAction(action: T) {
         viewModelScope.launch { _actions.send(action) }
     }
 }
+
+open class ActionsViewModel<T> : ViewModel(), ActionsManager<T> by ActionsManagerImpl()
 
 @Composable
 fun <T> HandleActions(actionsFlow: Flow<T>, onAction: (T) -> Unit) {

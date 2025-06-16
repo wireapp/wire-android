@@ -32,4 +32,5 @@ class CreateAccountSelectorViewModel @Inject constructor(
     val navArgs: CreateAccountSelectorNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig.orDefault()
     val email: String = navArgs.email.orEmpty()
+    val teamAccountCreationUrl = serverConfig.teams
 }

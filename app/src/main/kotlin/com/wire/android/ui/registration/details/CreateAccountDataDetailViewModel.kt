@@ -43,7 +43,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateAccountDataDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val validatePassword: ValidatePasswordUseCase,
     private val validateEmail: ValidateEmailUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
@@ -59,6 +59,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
 
     val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig.orDefault()
     fun tosUrl(): String = serverConfig.tos
+    fun teamCreationUrl(): String = serverConfig.teams
 
     init {
         viewModelScope.launch {
@@ -132,7 +133,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val detailsError = when {
-                !validatePasswordUseCase(passwordTextState.text.toString()).isValid ->
+                !validatePassword(passwordTextState.text.toString()).isValid ->
                     CreateAccountDataDetailViewState.DetailsError.PasswordError.InvalidPasswordError
 
                 passwordTextState.text.toString() != confirmPasswordTextState.text.toString() ->

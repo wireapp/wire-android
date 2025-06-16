@@ -132,7 +132,14 @@ fun NewLoginPasswordScreen(
         onLoginButtonClick = loginEmailViewModel::login,
         onCreateAccount = {
             if (ENABLE_NEW_REGISTRATION) {
-                navigator.navigate(NavigationCommand(CreateAccountSelectorScreenDestination(loginEmailViewModel.serverConfig)))
+                navigator.navigate(
+                    NavigationCommand(
+                        CreateAccountSelectorScreenDestination(
+                            customServerConfig = loginEmailViewModel.serverConfig,
+                            email = loginEmailViewModel.userIdentifierTextState.text.toString()
+                        )
+                    )
+                )
             } else {
                 navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
             }

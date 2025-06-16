@@ -29,7 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.R
@@ -104,9 +107,9 @@ fun ConversationsScreenContent(
             }
         )
     },
-    conversationCallListViewModel: ConversationCallListViewModel = when {
-        LocalInspectionMode.current -> ConversationCallListViewModelPreview
-        else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_$conversationsSource")
+    conversationListCallViewModel: ConversationListCallViewModel = when {
+        LocalInspectionMode.current -> ConversationListCallViewModelPreview
+        else -> hiltViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
     },
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
@@ -126,6 +129,7 @@ fun ConversationsScreenContent(
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current
 
     LaunchedEffect(searchBarState.isSearchActive) {
         if (searchBarState.isSearchActive) {
@@ -135,6 +139,21 @@ fun ConversationsScreenContent(
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
         conversationListViewModel.searchQueryChanged(searchBarState.searchQueryTextState.text.toString())
+    }
+
+    LaunchedEffect(Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            conversationListCallViewModel.actions.collect { action ->
+                when (action) {
+                    is ConversationListCallViewActions.JoinedCall -> {
+                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
+                        getOngoingCallIntent(context, action.conversationId.toString()).run {
+                            context.startActivity(this)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun showConfirmationDialogOrUnarchive(): (DialogState) -> Unit {
@@ -165,17 +184,9 @@ fun ConversationsScreenContent(
                 navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(it)))
             }
         }
-        val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
-            {
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                getOngoingCallIntent(context, it.toString()).run {
-                    context.startActivity(this)
-                }
-            }
-        }
         val onJoinCall: (ConversationId) -> Unit = remember {
             {
-                conversationCallListViewModel.joinOngoingCall(it, onJoinedCall)
+                conversationListCallViewModel.joinOngoingCall(it)
             }
         }
         val onNewConversationClicked: () -> Unit = remember {
@@ -264,11 +275,11 @@ fun ConversationsScreenContent(
             }
         }
 
-        VisibilityState(conversationCallListViewModel.joinCallDialogState) { callConversationId ->
+        VisibilityState(conversationListCallViewModel.joinCallDialogState) { callConversationId ->
             appLogger.i("$TAG showing showJoinAnywayDialog..")
             JoinAnywayDialog(
-                onDismiss = conversationCallListViewModel.joinCallDialogState::dismiss,
-                onConfirm = { conversationCallListViewModel.joinAnyway(callConversationId, onJoinedCall) }
+                onDismiss = conversationListCallViewModel.joinCallDialogState::dismiss,
+                onConfirm = { conversationListCallViewModel.joinAnyway(callConversationId) }
             )
         }
 

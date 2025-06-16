@@ -51,7 +51,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
-class ConversationListCallViewModelTest {
+class ConversationCallViewModelTest {
 
     @Test
     fun `given join dialog displayed, when user dismiss it, then hide it`() = runTest {
@@ -75,11 +75,13 @@ class ConversationListCallViewModelTest {
             .arrange()
         viewModel.conversationCallViewState = viewModel.conversationCallViewState.copy(hasEstablishedCall = false)
 
-        viewModel.joinOngoingCall(arrangement.onAnswered)
+        viewModel.actions.test {
+            viewModel.joinOngoingCall()
 
-        coVerify(exactly = 1) { arrangement.joinCall(conversationId = any()) }
-        coVerify(exactly = 1) { arrangement.onAnswered(any()) }
-        assertEquals(false, viewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
+            coVerify(exactly = 1) { arrangement.joinCall(conversationId = arrangement.conversationId) }
+            assertEquals(ConversationCallViewActions.JoinedCall(arrangement.conversationId), awaitItem())
+            assertEquals(false, viewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
+        }
     }
 
     @Test
@@ -89,7 +91,7 @@ class ConversationListCallViewModelTest {
             .arrange()
         viewModel.conversationCallViewState = viewModel.conversationCallViewState.copy(hasEstablishedCall = true)
 
-        viewModel.joinOngoingCall(arrangement.onAnswered)
+        viewModel.joinOngoingCall()
 
         assertEquals(true, viewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
         coVerify(inverse = true) { arrangement.joinCall(conversationId = any()) }
@@ -105,7 +107,7 @@ class ConversationListCallViewModelTest {
             viewModel.conversationCallViewState.copy(hasEstablishedCall = true)
         viewModel.establishedCallConversationId = ConversationId("value", "Domain")
 
-        viewModel.joinAnyway(arrangement.onAnswered)
+        viewModel.joinAnyway()
 
         coVerify(exactly = 1) { arrangement.endCall(any()) }
     }
@@ -171,9 +173,6 @@ class ConversationListCallViewModelTest {
         @MockK
         private lateinit var isConferenceCallingEnabled: IsEligibleToStartCallUseCase
 
-        @MockK(relaxed = true)
-        lateinit var onAnswered: (conversationId: ConversationId) -> Unit
-
         @MockK
         private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
@@ -192,12 +191,13 @@ class ConversationListCallViewModelTest {
         @MockK
         lateinit var observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase
 
+        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
         init {
             MockKAnnotations.init(this)
         }
 
         suspend fun withDefaultAnswers() = apply {
-            val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
             every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
             coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
             coEvery { observeOngoingCalls.invoke() } returns emptyFlow()
@@ -225,7 +225,7 @@ class ConversationListCallViewModelTest {
             coEvery { endCall(any()) } returns Unit
         }
 
-        fun arrange(): Pair<Arrangement, ConversationListCallViewModel> = this to ConversationListCallViewModel(
+        fun arrange(): Pair<Arrangement, ConversationCallViewModel> = this to ConversationCallViewModel(
             savedStateHandle = savedStateHandle,
             observeOngoingCalls = observeOngoingCalls,
             observeEstablishedCalls = observeEstablishedCalls,

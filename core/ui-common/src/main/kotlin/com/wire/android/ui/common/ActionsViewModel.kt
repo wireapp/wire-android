@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-open class ActionsViewModel<T>: ViewModel() {
+open class ActionsViewModel<T> : ViewModel() {
     private val _actions = Channel<T>(capacity = Channel.BUFFERED, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     open val actions = _actions.receiveAsFlow().flowOn(Dispatchers.Main.immediate)
 

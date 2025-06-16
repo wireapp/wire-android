@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.ClickBlockParams
@@ -77,8 +76,6 @@ fun ConnectionActionButton(
             ConnectionActionButtonArgs(userId, userName)
         ),
 ) {
-    val lifecycle = LocalLifecycleOwner.current
-
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val unableStartConversationDialogState = rememberVisibilityState<UnableStartConversationDialogState>()

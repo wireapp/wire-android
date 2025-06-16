@@ -23,10 +23,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -58,7 +58,7 @@ class MyAccountViewModel @Inject constructor(
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
     private val dispatchers: DispatcherProvider,
     private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     var myAccountState by mutableStateOf(MyAccountState())
         private set

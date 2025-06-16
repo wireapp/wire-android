@@ -22,12 +22,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.di.scopedArgs
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
@@ -47,15 +47,10 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -87,7 +82,7 @@ internal class ConnectionActionButtonViewModelImpl @Inject constructor(
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     savedStateHandle: SavedStateHandle
-) : ConnectionActionButtonViewModel, ViewModel() {
+) : ConnectionActionButtonViewModel, ActionsViewModel<ConnectionButtonAction>() {
 
     private val args: ConnectionActionButtonArgs = savedStateHandle.scopedArgs()
     private val userId: QualifiedID = args.userId
@@ -95,13 +90,7 @@ internal class ConnectionActionButtonViewModelImpl @Inject constructor(
 
     var state: ConnectionActionState by mutableStateOf(ConnectionActionState())
 
-    private val _actions = Channel<ConnectionButtonAction>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    override val actions = _actions
-        .receiveAsFlow()
-        .flowOn(Dispatchers.Main.immediate)
+    override val actions: Flow<ConnectionButtonAction> = super<ActionsViewModel>.actions
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     override val infoMessage = _infoMessage.asSharedFlow()
@@ -186,7 +175,7 @@ internal class ConnectionActionButtonViewModelImpl @Inject constructor(
                 }
 
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
-                    _actions.send(ConnectionRequestIgnored(userName))
+                    sendAction(ConnectionRequestIgnored(userName))
                     state = state.finishAction()
                 }
             }
@@ -224,12 +213,12 @@ internal class ConnectionActionButtonViewModelImpl @Inject constructor(
                     appLogger.d(("Couldn't retrieve or create the conversation"))
                     state = state.finishAction()
                     if (result.coreFailure is CoreFailure.MissingKeyPackages) {
-                        _actions.send(MissingKeyPackages)
+                        sendAction(MissingKeyPackages)
                     }
                 }
 
                 is CreateConversationResult.Success -> {
-                    _actions.send(OpenConversation(result.conversation.id))
+                    sendAction(OpenConversation(result.conversation.id))
                     state = state.finishAction()
                 }
             }

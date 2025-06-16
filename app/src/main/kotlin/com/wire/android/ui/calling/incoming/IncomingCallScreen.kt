@@ -35,9 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
@@ -50,6 +47,7 @@ import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -77,7 +75,6 @@ fun IncomingCallScreen(
     onCallAccepted: () -> Unit
 ) {
     val activity = LocalActivity.current
-    val lifecycle = LocalLifecycleOwner.current
 
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -116,14 +113,10 @@ fun IncomingCallScreen(
             }
         }
     }
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            incomingCallViewModel.actions.collect { action ->
-                when (action) {
-                    IncomingCallViewActions.AppLocked -> (activity as CallActivity).openAppLockActivity()
-                    is IncomingCallViewActions.RejectedCall -> activity.finishAndRemoveTask()
-                }
-            }
+    HandleActions(incomingCallViewModel.actions) { action ->
+        when (action) {
+            IncomingCallViewActions.AppLocked -> (activity as CallActivity).openAppLockActivity()
+            is IncomingCallViewActions.RejectedCall -> activity.finishAndRemoveTask()
         }
     }
 

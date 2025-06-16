@@ -19,9 +19,9 @@ package com.wire.android.feature.cells.ui.createfolder
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.ui.navArgs
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
 import com.wire.kalium.common.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,9 +30,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateFolderViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val createFolderUseCase: CreateFolderUseCase,
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     private val navArgs: CreateFolderScreenNavArgs = savedStateHandle.navArgs()
 

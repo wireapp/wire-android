@@ -18,8 +18,8 @@
 
 package com.wire.android.ui.home.conversationslist
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -27,14 +27,11 @@ import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,18 +50,13 @@ class ConversationListCallViewModelImpl @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase
-) : ConversationListCallViewModel, ViewModel() {
+) : ConversationListCallViewModel, ActionsViewModel<ConversationListCallViewActions>() {
 
     override val joinCallDialogState: VisibilityState<ConversationId> = VisibilityState()
 
     private var establishedCallConversationId: QualifiedID? = null
     private var conversationId: QualifiedID? = null
-
-    private val _actions = Channel<ConversationListCallViewActions>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    override val actions = _actions.receiveAsFlow()
+    override val actions = super<ActionsViewModel>.actions
 
     private suspend fun observeEstablishedCall() {
         observeEstablishedCalls()
@@ -101,10 +93,6 @@ class ConversationListCallViewModelImpl @Inject constructor(
             }
             sendAction(ConversationListCallViewActions.JoinedCall(conversationId))
         }
-    }
-
-    private fun sendAction(action: ConversationListCallViewActions) {
-        viewModelScope.launch { _actions.send(action) }
     }
 
     companion object {

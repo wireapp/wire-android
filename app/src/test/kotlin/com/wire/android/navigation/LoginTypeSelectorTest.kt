@@ -102,7 +102,7 @@ class LoginTypeSelectorTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        fun arrange(useNewLoginForDefaultBackend: Boolean) = this to LoginTypeSelector(coreLogic, useNewLoginForDefaultBackend)
+        fun arrange(useNewLoginForDefaultBackend: Boolean) = this to LoginTypeSelector({ coreLogic }, useNewLoginForDefaultBackend)
 
         fun withContextFlowForConfig(config: ServerConfig.Links, contextFlow: Flow<LoginContext>) = apply {
             coEvery { coreLogic.getGlobalScope().observeLoginContext(config) } returns contextFlow

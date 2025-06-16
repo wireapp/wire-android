@@ -78,8 +78,8 @@ class HomeDrawerViewModelTest {
 
         fun arrange() = this to HomeDrawerViewModel(
             savedStateHandle = savedStateHandle,
-            observeArchivedUnreadConversationsCountUseCase = observeArchivedUnreadConversationsCount,
-            globalDataStore = globalDataStore
+            observeArchivedUnreadConversationsCountUseCase = { observeArchivedUnreadConversationsCount },
+            globalDataStore = { globalDataStore },
         )
     }
 }

@@ -14,6 +14,7 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -63,10 +64,11 @@ class CreateAccountDataDetailViewModelTest {
     }
 
     @Test
-    fun `given valid passwords, when executing, then validate email`() = runTest {
+    fun `given valid passwords, when executing, then validate email and request terms of service acceptance`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withValidatePasswordResult(ValidatePasswordResult.Valid)
             .withValidateEmailResult(true)
+            .withActivationCodeResult(RequestActivationCodeResult.Success)
             .arrange()
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
         viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
@@ -78,6 +80,7 @@ class CreateAccountDataDetailViewModelTest {
         assertEquals(false, viewModel.detailsState.success)
         coVerify(exactly = 1) { arrangement.validateEmailUseCase(any()) }
         assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
+        assertEquals(true, viewModel.detailsState.termsDialogVisible)
     }
 
     private class Arrangement {
@@ -94,7 +97,7 @@ class CreateAccountDataDetailViewModelTest {
         lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
 
         @MockK
-        lateinit var versionedAuthenticationScope: AuthenticationScope
+        lateinit var authenticationScope: AuthenticationScope
 
         @MockK
         lateinit var requestActivationCodeUseCase: RequestActivationCodeUseCase
@@ -106,6 +109,17 @@ class CreateAccountDataDetailViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.navArgs<CreateAccountDataNavArgs>() } returns
                     CreateAccountDataNavArgs(userRegistrationInfo = UserRegistrationInfo())
+
+            coEvery {
+                autoVersionAuthScopeUseCase(null)
+            } returns AutoVersionAuthScopeUseCase.Result.Success(
+                authenticationScope
+            )
+            every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+        }
+
+        fun withActivationCodeResult(result: RequestActivationCodeResult) = apply {
+            coEvery { requestActivationCodeUseCase(any()) } returns result
         }
 
         fun withValidateEmailResult(result: Boolean) = apply {

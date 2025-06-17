@@ -29,10 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.R
@@ -44,6 +41,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
@@ -129,7 +127,6 @@ fun ConversationsScreenContent(
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val context = LocalContext.current
-    val lifecycle = LocalLifecycleOwner.current
 
     LaunchedEffect(searchBarState.isSearchActive) {
         if (searchBarState.isSearchActive) {
@@ -141,16 +138,12 @@ fun ConversationsScreenContent(
         conversationListViewModel.searchQueryChanged(searchBarState.searchQueryTextState.text.toString())
     }
 
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            conversationListCallViewModel.actions.collect { action ->
-                when (action) {
-                    is ConversationListCallViewActions.JoinedCall -> {
-                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                        getOngoingCallIntent(context, action.conversationId.toString()).run {
-                            context.startActivity(this)
-                        }
-                    }
+    HandleActions(conversationListCallViewModel.actions) { action ->
+        when (action) {
+            is ConversationListCallViewActions.JoinedCall -> {
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
+                getOngoingCallIntent(context, action.conversationId.toString()).run {
+                    context.startActivity(this)
                 }
             }
         }

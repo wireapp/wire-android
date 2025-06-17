@@ -27,6 +27,7 @@ import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
 import com.wire.kalium.logic.feature.mlsmigration.MLSMigrationManager
+import com.wire.kalium.logic.feature.mls.MLSPublicKeysSyncWorker
 import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -43,6 +44,7 @@ class AppSyncViewModel @Inject constructor(
     private val syncCertificateRevocationListUseCase: SyncCertificateRevocationListUseCase,
     private val observeCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase,
     private val featureFlagsSyncWorker: FeatureFlagsSyncWorker,
+    private val mlsPublicKeysSyncWorker: MLSPublicKeysSyncWorker,
     private val updateApiVersions: UpdateApiVersionsUseCase,
     private val mLSMigrationManager: MLSMigrationManager,
     private val keyingMaterialsManager: KeyingMaterialsManager,
@@ -83,6 +85,7 @@ class AppSyncViewModel @Inject constructor(
             listOf(
                 viewModelScope.launch(dispatcher.io()) { syncCertificateRevocationListUseCase() },
                 viewModelScope.launch(dispatcher.io()) { featureFlagsSyncWorker.execute() },
+                viewModelScope.launch(dispatcher.io()) { mlsPublicKeysSyncWorker.executeImmediately() },
                 viewModelScope.launch(dispatcher.io()) { observeCertificateRevocationForSelfClient.invoke() },
                 viewModelScope.launch(dispatcher.io()) { updateApiVersions() },
                 viewModelScope.launch(dispatcher.io()) { mLSClientManager() },

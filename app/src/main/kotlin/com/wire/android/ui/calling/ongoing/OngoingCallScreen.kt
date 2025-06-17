@@ -87,6 +87,7 @@ import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
@@ -337,7 +338,7 @@ private fun OngoingCallContent(
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
 
     var showInCallReactionsPanel by remember { mutableStateOf(initialShowInCallReactionsPanel) }
-    var showEmojiPicker by remember { mutableStateOf(false) }
+    val emojiPickerState = rememberWireModalSheetState<Unit>(skipPartiallyExpanded = false)
     val isConnecting = participants.isEmpty()
 
     WireBottomSheetScaffold(
@@ -505,19 +506,16 @@ private fun OngoingCallContent(
             if (showInCallReactionsPanel && !inPictureInPictureMode) {
                 InCallReactionsPanel(
                     onReactionClick = onReactionClick,
-                    onMoreClick = { showEmojiPicker = true },
+                    onMoreClick = { emojiPickerState.show(Unit) },
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
             }
 
             EmojiPickerBottomSheet(
-                isVisible = showEmojiPicker,
-                onEmojiSelected = {
-                    showEmojiPicker = false
-                    onReactionClick(it)
-                },
-                onDismiss = {
-                    showEmojiPicker = false
+                sheetState = emojiPickerState,
+                onEmojiSelected = { emoji, _ ->
+                    emojiPickerState.hide()
+                    onReactionClick(emoji)
                 },
             )
         }

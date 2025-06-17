@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.theme.WireTheme
@@ -64,7 +65,7 @@ fun ReactionOption(
     modifier: Modifier = Modifier,
     emojiFontSize: TextUnit = 28.sp
 ) {
-    var isEmojiPickerVisible by remember { mutableStateOf(false) }
+    val emojiPickerState = rememberWireModalSheetState<Unit>(skipPartiallyExpanded = false)
     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
         Column(modifier = modifier) {
             Row {
@@ -100,7 +101,7 @@ fun ReactionOption(
                 }
                 IconButton(
                     onClick = {
-                        isEmojiPickerVisible = true
+                        emojiPickerState.show(Unit)
                     },
                 ) {
                     Icon(
@@ -112,13 +113,10 @@ fun ReactionOption(
         }
     }
     EmojiPickerBottomSheet(
-        isVisible = isEmojiPickerVisible,
-        onDismiss = {
-            isEmojiPickerVisible = false
-        },
-        onEmojiSelected = {
-            onReactionClick(it)
-            isEmojiPickerVisible = false
+        sheetState = emojiPickerState,
+        onEmojiSelected = { emoji, _ ->
+            emojiPickerState.hide()
+            onReactionClick(emoji)
         }
     )
 }

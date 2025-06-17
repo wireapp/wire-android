@@ -1089,7 +1089,7 @@ private fun ConversationScreenContent(
         LazyListState(unreadEventCount)
     }
 
-    var showEmojiPickerForMessage by remember { mutableStateOf<String?>(null) }
+    val emojiPickerState = rememberWireModalSheetState<String>(skipPartiallyExpanded = false)
 
     MessageComposer(
         conversationId = conversationId,
@@ -1119,7 +1119,7 @@ private fun ConversationScreenContent(
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                 onSwipedToReply = onSwipedToReply,
                 onSwipedToReact = { message ->
-                    showEmojiPickerForMessage = message.header.messageId
+                    emojiPickerState.show(message.header.messageId)
                 },
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
@@ -1143,18 +1143,14 @@ private fun ConversationScreenContent(
         onAudioRecorded = onAudioRecorded,
     )
 
-    showEmojiPickerForMessage?.let { messageId ->
-        EmojiPickerBottomSheet(
-            isVisible = true,
-            onEmojiSelected = { emoji ->
-                onReactionClicked(messageId, emoji)
-                showEmojiPickerForMessage = null
-            },
-            onDismiss = {
-                showEmojiPickerForMessage = null
-            },
-        )
-    }
+
+    EmojiPickerBottomSheet(
+        sheetState = emojiPickerState,
+        onEmojiSelected = { emoji, messageId ->
+            emojiPickerState.hide()
+            onReactionClicked(messageId, emoji)
+        },
+    )
 }
 
 @Composable

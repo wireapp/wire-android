@@ -25,6 +25,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -65,14 +67,16 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.adjustDestinationStylesForTablets
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
-import com.wire.android.ui.common.FloatingActionButton
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.button.FloatingActionButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -120,8 +124,13 @@ fun HomeScreen(
             creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
         )
 ) {
-    homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
     val context = LocalContext.current
+
+    homeViewModel.checkRequirements()
+
+    HandleActions(homeViewModel.actions) { action ->
+        action.navigate(navigator::navigate)
+    }
 
     val homeScreenState = rememberHomeScreenState(navigator)
     val notificationsPermissionDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -162,11 +171,6 @@ fun HomeScreen(
     }
 
     val homeState = homeViewModel.homeState
-    if (homeViewModel.homeState.shouldDisplayWelcomeMessage) {
-        WelcomeNewUserDialog(
-            dismissDialog = homeViewModel::dismissWelcomeMessage
-        )
-    }
 
     if (analyticsUsageViewModel.state.shouldDisplayDialog) {
         AnalyticsUsageDialog(
@@ -344,13 +348,19 @@ fun HomeContent(
                         }
                     },
                     topBarCollapsing = {
-                        if (currentNavigationItem.isSearchable) {
-                            SearchTopBar(
-                                isSearchActive = searchBarState.isSearchActive,
-                                searchBarHint = stringResource(R.string.search_bar_conversations_hint),
-                                searchQueryTextState = searchBarState.searchQueryTextState,
-                                onActiveChanged = searchBarState::searchActiveChanged,
-                            )
+                        currentNavigationItem.searchBar?.let { searchBar ->
+                            AnimatedVisibility(
+                                visible = searchBarState.isSearchVisible,
+                                enter = fadeIn() + slideInVertically(),
+                                exit = fadeOut() + slideOutVertically()
+                            ) {
+                                SearchTopBar(
+                                    isSearchActive = searchBarState.isSearchActive,
+                                    searchBarHint = stringResource(searchBar.hint),
+                                    searchQueryTextState = searchBarState.searchQueryTextState,
+                                    onActiveChanged = searchBarState::searchActiveChanged,
+                                )
+                            }
                         }
                     },
                     collapsingEnabled = !searchBarState.isSearchActive,
@@ -368,6 +378,8 @@ fun HomeContent(
                             val navHostEngine = rememberAnimatedNavHostEngine(
                                 rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
                             )
+
+                            adjustDestinationStylesForTablets()
                             DestinationsNavHost(
                                 navGraph = NavGraphs.home,
                                 engine = navHostEngine,

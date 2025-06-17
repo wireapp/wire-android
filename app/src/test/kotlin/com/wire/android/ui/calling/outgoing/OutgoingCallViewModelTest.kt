@@ -179,7 +179,7 @@ class OutgoingCallViewModelTest {
             isCbrEnabled = false,
             maxParticipants = 0,
             conversationName = "ONE_ON_ONE Name",
-            conversationType = Conversation.Type.ONE_ON_ONE,
+            conversationType = Conversation.Type.OneOnOne,
             callerName = "otherUsername",
             callerTeamName = "team_1"
         )

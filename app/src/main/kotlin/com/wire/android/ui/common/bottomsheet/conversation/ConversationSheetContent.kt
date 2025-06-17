@@ -50,7 +50,8 @@ fun ConversationSheetContent(
     leaveGroup: (LeaveGroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
     deleteGroupLocally: (GroupDialogState) -> Unit,
-    isBottomSheetVisible: () -> Boolean = { true }
+    isBottomSheetVisible: () -> Boolean = { true },
+    onItemClick: () -> Unit = {},
 ) {
     // it may be null as initial state
     if (conversationSheetState.conversationSheetContent == null) return
@@ -69,7 +70,8 @@ fun ConversationSheetContent(
                 leaveGroup = leaveGroup,
                 deleteGroup = deleteGroup,
                 deleteGroupLocally = deleteGroupLocally,
-                navigateToNotification = conversationSheetState::toMutingNotificationOption
+                navigateToNotification = conversationSheetState::toMutingNotificationOption,
+                onItemClick = onItemClick,
             )
         }
 
@@ -104,16 +106,32 @@ sealed class ConversationOptionNavigation {
     object MutingNotificationOption : ConversationOptionNavigation()
 }
 
-sealed class ConversationTypeDetail {
-    data class Group(val conversationId: ConversationId, val isFromTheSameTeam: Boolean) : ConversationTypeDetail()
+sealed interface ConversationTypeDetail {
+    sealed interface Group : ConversationTypeDetail {
+        val conversationId: ConversationId
+        val isFromTheSameTeam: Boolean
+
+        data class Regular(
+            override val conversationId: ConversationId,
+            override val isFromTheSameTeam: Boolean,
+        ) : Group
+
+        data class Channel(
+            override val conversationId: ConversationId,
+            override val isFromTheSameTeam: Boolean,
+            val isPrivate: Boolean,
+            val isSelfUserTeamAdmin: Boolean
+        ) : Group
+    }
+
     data class Private(
         val avatarAsset: UserAvatarAsset?,
         val userId: UserId,
         val blockingState: BlockingState,
         val isUserDeleted: Boolean
-    ) : ConversationTypeDetail()
+    ) : ConversationTypeDetail
 
-    data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
+    data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail
 
     val labelResource: Int
         get() = if (this is Group) R.string.group_label else R.string.conversation_label
@@ -144,11 +162,20 @@ data class ConversationSheetContent(
             && !conversationTypeDetail.isUserDeleted)
             || conversationTypeDetail is ConversationTypeDetail.Group)
 
-    fun canDeleteGroup(): Boolean {
-       return conversationTypeDetail is ConversationTypeDetail.Group &&
+    /**
+     * TODO(refactor): All of this logic to figure out permissions should live in Kalium/Logic module, instead of in the presentation layer
+     */
+    fun canDeleteGroup(): Boolean = canDeleteChannel || canDeleteRegularGroup
+
+    private val canDeleteRegularGroup: Boolean
+        get() = conversationTypeDetail is ConversationTypeDetail.Group.Regular &&
                 selfRole == Conversation.Member.Role.Admin &&
                 conversationTypeDetail.isFromTheSameTeam && isTeamConversation
-    }
+
+    private val canDeleteChannel: Boolean
+        get() = conversationTypeDetail is ConversationTypeDetail.Group.Channel &&
+                conversationTypeDetail.isFromTheSameTeam && isTeamConversation &&
+                (selfRole == Conversation.Member.Role.Admin || conversationTypeDetail.isSelfUserTeamAdmin)
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
 

@@ -29,7 +29,6 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -40,6 +39,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -117,7 +117,7 @@ fun ForgotLockCodeResettingDeviceDialog() {
     WireDialog(
         title = stringResource(R.string.settings_forgot_lock_screen_please_wait_label),
         titleLoading = true,
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
+        properties = wireDialogPropertiesBuilder(dismissOnBackPress = false, dismissOnClickOutside = false),
         onDismiss = {},
     )
 }

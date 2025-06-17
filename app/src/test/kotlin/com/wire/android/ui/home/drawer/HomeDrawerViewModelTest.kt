@@ -20,13 +20,16 @@ package com.wire.android.ui.home.drawer
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -62,16 +65,21 @@ class HomeDrawerViewModelTest {
         @MockK
         lateinit var observeArchivedUnreadConversationsCount: ObserveArchivedUnreadConversationsCountUseCase
 
+        @MockK
+        lateinit var globalDataStore: GlobalDataStore
+
         val unreadArchivedConversationsCountChannel = Channel<Long>(capacity = Channel.UNLIMITED)
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeArchivedUnreadConversationsCount() } returns unreadArchivedConversationsCountChannel.consumeAsFlow()
+            every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
         }
 
         fun arrange() = this to HomeDrawerViewModel(
-            savedStateHandle,
-            observeArchivedUnreadConversationsCount
+            savedStateHandle = savedStateHandle,
+            observeArchivedUnreadConversationsCountUseCase = observeArchivedUnreadConversationsCount,
+            globalDataStore = globalDataStore
         )
     }
 }

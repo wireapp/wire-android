@@ -111,7 +111,10 @@ fun WireCenterAlignedTopAppBar(
                 },
                 navigationIcon = { navigationIconType?.let { NavigationIconButton(iconType = it, onClick = onNavigationPressed) } },
                 colors = wireTopAppBarColors(),
-                actions = actions
+                actions = actions,
+                modifier = Modifier
+                    // TopAppBarHorizontalPadding is 4.dp so another 4.dp needs to be added to match 8.dp from designs
+                    .padding(end = dimensions().spacing4x),
             )
             bottomContent()
         }

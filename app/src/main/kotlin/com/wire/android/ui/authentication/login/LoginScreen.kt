@@ -41,29 +41,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.TransitionAnimationType
-import com.wire.android.ui.authentication.ServerTitle
+import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderPreview
 import com.wire.android.ui.common.TabItem
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
@@ -81,12 +76,11 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
-@RootNavGraph
+@LoginNavGraph(start = true)
 @WireDestination(
     navArgsDelegate = LoginNavArgs::class
 )
@@ -94,6 +88,7 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navigator: Navigator,
     loginNavArgs: LoginNavArgs,
+    ssoUrlConfigHolder: SSOUrlConfigHolder,
     loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 ) {
 
@@ -110,7 +105,8 @@ fun LoginScreen(
             navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
         loginEmailViewModel = loginEmailViewModel,
-        ssoLoginResult = loginNavArgs.ssoLoginResult
+        ssoLoginResult = loginNavArgs.ssoLoginResult,
+        ssoUrlConfigHolder = ssoUrlConfigHolder,
     )
 }
 
@@ -120,7 +116,8 @@ private fun LoginContent(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
-    ssoLoginResult: DeepLinkResult.SSOLogin?
+    ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoUrlConfigHolder: SSOUrlConfigHolder,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         /*
@@ -135,7 +132,14 @@ private fun LoginContent(
             if (isCodeInputNecessary) {
                 LoginEmailVerificationCodeScreen(loginEmailViewModel)
             } else {
-                MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, ssoLoginResult)
+                MainLoginContent(
+                    onBackPressed = onBackPressed,
+                    onSuccess = onSuccess,
+                    onRemoveDeviceNeeded = onRemoveDeviceNeeded,
+                    loginEmailViewModel = loginEmailViewModel,
+                    ssoLoginResult = ssoLoginResult,
+                    ssoUrlConfigHolder = ssoUrlConfigHolder
+                )
             }
         }
     }
@@ -148,7 +152,8 @@ private fun MainLoginContent(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
-    ssoLoginResult: DeepLinkResult.SSOLogin?
+    ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoUrlConfigHolder: SSOUrlConfigHolder,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -217,7 +222,7 @@ private fun MainLoginContent(
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
                     LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult)
+                    LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult, ssoUrlConfigHolder)
                 }
             }
             if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
@@ -230,126 +235,6 @@ private fun MainLoginContent(
         }
     }
 }
-
-@Composable
-fun LoginErrorDialog(
-    error: LoginState.Error,
-    onDialogDismiss: () -> Unit,
-    updateTheApp: () -> Unit,
-    ssoLoginResult: DeepLinkResult.SSOLogin? = null
-) {
-    val dialogErrorData: LoginDialogErrorData = when (error) {
-        is LoginState.Error.DialogError.InvalidCredentialsError -> LoginDialogErrorData(
-            title = stringResource(R.string.login_error_invalid_credentials_title),
-            body = AnnotatedString(stringResource(R.string.login_error_invalid_credentials_message)),
-            onDismiss = onDialogDismiss
-        )
-
-        is LoginState.Error.DialogError.UserAlreadyExists -> LoginDialogErrorData(
-            title = stringResource(R.string.login_error_user_already_logged_in_title),
-            body = AnnotatedString(stringResource(R.string.login_error_user_already_logged_in_message)),
-            onDismiss = onDialogDismiss
-        )
-
-        is LoginState.Error.DialogError.ProxyError -> {
-            LoginDialogErrorData(
-                title = stringResource(R.string.error_socket_title),
-                body = AnnotatedString(stringResource(R.string.error_socket_message)),
-                onDismiss = onDialogDismiss
-            )
-        }
-
-        is LoginState.Error.DialogError.GenericError -> {
-            val strings = error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
-            LoginDialogErrorData(
-                strings.title,
-                strings.annotatedMessage,
-                onDialogDismiss
-            )
-        }
-
-        is LoginState.Error.DialogError.InvalidSSOCodeError -> LoginDialogErrorData(
-            title = stringResource(R.string.login_error_invalid_credentials_title),
-            body = AnnotatedString(stringResource(R.string.login_error_invalid_sso_code)),
-            onDismiss = onDialogDismiss
-        )
-
-        is LoginState.Error.DialogError.InvalidSSOCookie -> LoginDialogErrorData(
-            title = stringResource(R.string.login_sso_error_invalid_cookie_title),
-            body = AnnotatedString(stringResource(R.string.login_sso_error_invalid_cookie_message)),
-            onDismiss = onDialogDismiss
-        )
-
-        is LoginState.Error.DialogError.SSOResultError -> {
-            with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
-                LoginDialogErrorData(
-                    title = stringResource(R.string.sso_error_dialog_title),
-                    body = AnnotatedString(stringResource(R.string.sso_error_dialog_message, this.ssoError.errorCode)),
-                    onDismiss = onDialogDismiss
-                )
-            }
-        }
-
-        is LoginState.Error.DialogError.ServerVersionNotSupported -> LoginDialogErrorData(
-            title = stringResource(R.string.api_versioning_server_version_not_supported_title),
-            body = AnnotatedString(stringResource(R.string.api_versioning_server_version_not_supported_message)),
-            onDismiss = onDialogDismiss,
-            actionTextId = R.string.label_close,
-            dismissOnClickOutside = false
-        )
-
-        is LoginState.Error.DialogError.ClientUpdateRequired -> LoginDialogErrorData(
-            title = stringResource(R.string.api_versioning_client_update_required_title),
-            body = AnnotatedString(stringResource(R.string.api_versioning_client_update_required_message)),
-            onDismiss = onDialogDismiss,
-            actionTextId = R.string.label_update,
-            onAction = updateTheApp,
-            dismissOnClickOutside = false
-        )
-
-        LoginState.Error.DialogError.Request2FAWithHandle -> {
-            LoginDialogErrorData(
-                title = stringResource(R.string.login_error_request_2fa_with_handle_title),
-                body = AnnotatedString(stringResource(R.string.login_error_request_2fa_with_handle_message)),
-                onDismiss = onDialogDismiss
-            )
-        }
-        LoginState.Error.TextFieldError.InvalidValue,
-        LoginState.Error.DialogError.PasswordNeededToRegisterClient,
-        LoginState.Error.TooManyDevicesError -> {
-            LoginDialogErrorData(
-                title = stringResource(R.string.error_unknown_title),
-                body = AnnotatedString(stringResource(R.string.error_unknown_message)),
-                onDismiss = onDialogDismiss
-            )
-        }
-    }
-
-    WireDialog(
-        title = dialogErrorData.title,
-        text = dialogErrorData.body,
-        onDismiss = dialogErrorData.onDismiss,
-        optionButton1Properties = WireDialogButtonProperties(
-            text = stringResource(dialogErrorData.actionTextId),
-            onClick = dialogErrorData.onAction,
-            type = WireDialogButtonType.Primary
-        ),
-        properties = DialogProperties(
-            dismissOnBackPress = true,
-            dismissOnClickOutside = dialogErrorData.dismissOnClickOutside,
-            usePlatformDefaultWidth = false
-        )
-    )
-}
-
-data class LoginDialogErrorData(
-    val title: String,
-    val body: AnnotatedString,
-    val onDismiss: () -> Unit,
-    @StringRes val actionTextId: Int = R.string.label_ok,
-    val onAction: () -> Unit = onDismiss,
-    val dismissOnClickOutside: Boolean = true
-)
 
 enum class LoginTabItem(@StringRes val titleResId: Int) : TabItem {
     EMAIL(R.string.login_tab_email),
@@ -366,7 +251,8 @@ private fun PreviewLoginScreen() = WireTheme {
             onSuccess = { _, _ -> },
             onRemoveDeviceNeeded = {},
             loginEmailViewModel = hiltViewModel(),
-            ssoLoginResult = null
+            ssoLoginResult = null,
+            ssoUrlConfigHolder = SSOUrlConfigHolderPreview,
         )
     }
 }

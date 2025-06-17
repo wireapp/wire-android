@@ -67,6 +67,9 @@ class DebugModule {
 
     @ViewModelScoped
     @Provides
-    fun provideOptimizeDatabaseUseCase(debugScope: DebugScope) =
-        debugScope.optimizeDatabase
+    fun provideObserveAsyncNotificationsEnabled(debugScope: DebugScope) = debugScope.observeIsConsumableNotificationsEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun provideStartUsingAsyncNotifications(debugScope: DebugScope) = debugScope.startUsingAsyncNotifications
 }

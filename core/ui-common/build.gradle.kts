@@ -3,6 +3,7 @@ plugins {
     id(libs.plugins.wire.kover.get().pluginId)
     alias(libs.plugins.kotlin.serialization)
     id(BuildPlugins.junit5)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -28,13 +29,17 @@ dependencies {
     implementation(libs.compose.ui.preview)
     debugImplementation(libs.compose.ui.tooling)
 
-    implementation(libs.accompanist.systemUI)
     implementation(libs.visibilityModifiers)
+
+    // Compose Preview
+    implementation(libs.compose.edgetoedge.preview)
 
     // Image loading
     implementation(libs.coil.core)
     implementation(libs.coil.gif)
     implementation(libs.coil.compose)
+
+    implementation(libs.ktx.dateTime)
 
     testImplementation(libs.junit5.core)
     testImplementation(libs.junit5.params)

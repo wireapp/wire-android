@@ -20,19 +20,21 @@ package com.wire.android.ui.home.newconversation.groupname
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameScreen
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupOptionScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
+import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
+import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -48,6 +50,14 @@ fun NewGroupNameScreen(
     fun navigateToGroup(conversationId: ConversationId): Unit =
         navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
 
+    LaunchedEffect(Unit) {
+        newConversationViewModel.observeGroupNameChanges()
+    }
+    LaunchedEffect(newConversationViewModel.createGroupState) {
+        (newConversationViewModel.createGroupState as? CreateGroupState.Created)?.let {
+            navigateToGroup(it.conversationId)
+        }
+    }
     GroupNameScreen(
         newGroupState = newConversationViewModel.newGroupState,
         newGroupNameTextState = newConversationViewModel.newGroupNameTextState,
@@ -55,19 +65,19 @@ fun NewGroupNameScreen(
             if (newConversationViewModel.newGroupState.isSelfTeamMember == true) {
                 navigator.navigate(NavigationCommand(GroupOptionScreenDestination))
             } else {
-                newConversationViewModel.createGroup(::navigateToGroup)
+                newConversationViewModel.createGroup()
             }
         },
         onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated,
         onBackPressed = navigator::navigateBack
     )
-    newConversationViewModel.createGroupState.error?.let {
+    (newConversationViewModel.createGroupState as? CreateGroupState.Error)?.let {
         CreateGroupErrorDialog(
             error = it,
             onDismiss = newConversationViewModel::onCreateGroupErrorDismiss,
-            onAccept = {
+            onEditParticipantsList = {
                 newConversationViewModel.onCreateGroupErrorDismiss()
-                navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
+                navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
             },
             onCancel = {
                 newConversationViewModel.onCreateGroupErrorDismiss()

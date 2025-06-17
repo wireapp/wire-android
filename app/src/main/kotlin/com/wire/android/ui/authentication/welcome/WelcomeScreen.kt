@@ -67,13 +67,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.authentication.ServerTitle
+import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
@@ -85,6 +87,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.CreateAccountSelectorScreenDestination
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
@@ -101,9 +104,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
-@RootNavGraph(start = true)
+@RootNavGraph
 @WireDestination(
     style = PopUpNavigationAnimation::class,
+    navArgsDelegate = WelcomeNavArgs::class
 )
 @Composable
 fun WelcomeScreen(
@@ -162,7 +166,11 @@ private fun WelcomeContent(
             )
 
             if (state.isOnPremises) {
-                ServerTitle(serverLinks = state, modifier = Modifier.padding(top = dimensions().spacing16x))
+                ServerTitle(
+                    serverLinks = state,
+                    modifier = Modifier
+                        .padding(top = dimensions().spacing16x, start = dimensions().spacing32x, end = dimensions().spacing32x)
+                )
             }
 
             WelcomeCarousel(modifier = Modifier.weight(1f, true))
@@ -177,7 +185,9 @@ private fun WelcomeContent(
                         testTagsAsResourceId = true
                     }
             ) {
-                LoginButton(onClick = { navigate(NavigationCommand(LoginScreenDestination())) })
+                LoginButton(
+                    onClick = { navigate(NavigationCommand(LoginScreenDestination(loginPasswordPath = LoginPasswordPath(state)))) }
+                )
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
@@ -196,7 +206,7 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination))
+                            navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(state)))
                         }
                     }
                 }
@@ -213,7 +223,11 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination))
+                            if (ENABLE_NEW_REGISTRATION) {
+                                navigate(NavigationCommand(CreateAccountSelectorScreenDestination(state)))
+                            } else {
+                                navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
+                            }
                         }
                     }
                 )

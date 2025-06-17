@@ -10,6 +10,10 @@ files: [
     "translation": "/app/src/main/res/values-%two_letters_code%/%original_file_name%",
   },
   {
+    "source": "/features/cells/src/main/res/values/strings.xml",
+    "translation": "/features/cells/src/main/res/values-%two_letters_code%/%original_file_name%",
+  },
+  {
     "source": "/features/sketch/src/main/res/values/strings.xml",
     "translation": "/features/sketch/src/main/res/values-%two_letters_code%/%original_file_name%",
   },

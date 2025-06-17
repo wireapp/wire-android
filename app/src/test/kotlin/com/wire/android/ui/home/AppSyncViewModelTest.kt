@@ -18,16 +18,19 @@
 package com.wire.android.ui.home
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
+import com.wire.kalium.logic.feature.client.MLSClientManager
+import com.wire.kalium.logic.feature.conversation.keyingmaterials.KeyingMaterialsManager
 import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
+import com.wire.kalium.logic.feature.mlsmigration.MLSMigrationManager
 import com.wire.kalium.logic.feature.mls.MLSPublicKeysSyncWorker
 import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -36,14 +39,19 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
 class AppSyncViewModelTest {
+    private val testDispatcher = TestDispatcherProvider()
+
     @Test
-    fun `when startSyncingAppConfig is called then it should call the use case`() = runTest {
-        val (arrangement, viewModel) = Arrangement().arrange {
+    fun `when startSyncingAppConfig is called then it should call the use case`() = runTest(testDispatcher.io()) {
+        val (arrangement, viewModel) = Arrangement().arrange(testDispatcher) {
             withObserveCertificateRevocationForSelfClient()
             withFeatureFlagsSyncWorker()
             withMLSPublicKeysSyncWorker()
             withSyncCertificateRevocationListUseCase()
             withUpdateApiVersions()
+            withMlsClientManager()
+            withMlsMigrationManager()
+            withKeyingMaterialsManager()
         }
 
         viewModel.startSyncingAppConfig()
@@ -54,16 +62,22 @@ class AppSyncViewModelTest {
         coVerify { arrangement.featureFlagsSyncWorker.execute() }
         coVerify { arrangement.mlsPublicKeysSyncWorker.executeImmediately() }
         coVerify { arrangement.updateApiVersions() }
+        coVerify { arrangement.mlsClientManager() }
+        coVerify { arrangement.mlsMigrationManager() }
+        coVerify { arrangement.keyingMaterialsManager() }
     }
 
     @Test
-    fun `when startSyncingAppConfig is called multiple times then it should call the use case with delay`() = runTest {
-        val (arrangement, viewModel) = Arrangement().arrange {
+    fun `when startSyncingAppConfig is called multiple times then it should call the use case with delay`() = runTest(testDispatcher.io()) {
+        val (arrangement, viewModel) = Arrangement().arrange(testDispatcher) {
             withObserveCertificateRevocationForSelfClient(1000)
             withFeatureFlagsSyncWorker(1000)
             withMLSPublicKeysSyncWorker(1000)
             withSyncCertificateRevocationListUseCase(1000)
             withUpdateApiVersions(1000)
+            withMlsClientManager(1000)
+            withMlsMigrationManager(1000)
+            withKeyingMaterialsManager(1000)
         }
 
         viewModel.startSyncingAppConfig()
@@ -76,6 +90,9 @@ class AppSyncViewModelTest {
         coVerify(exactly = 1) { arrangement.featureFlagsSyncWorker.execute() }
         coVerify(exactly = 1) { arrangement.mlsPublicKeysSyncWorker.executeImmediately() }
         coVerify(exactly = 1) { arrangement.updateApiVersions() }
+        coVerify(exactly = 1) { arrangement.mlsClientManager() }
+        coVerify(exactly = 1) { arrangement.mlsMigrationManager() }
+        coVerify(exactly = 1) { arrangement.keyingMaterialsManager() }
     }
 
     private class Arrangement {
@@ -95,19 +112,19 @@ class AppSyncViewModelTest {
         @MockK
         lateinit var updateApiVersions: UpdateApiVersionsUseCase
 
+        @MockK
+        lateinit var mlsClientManager: MLSClientManager
+
+        @MockK
+        lateinit var mlsMigrationManager: MLSMigrationManager
+
+        @MockK
+        lateinit var keyingMaterialsManager: KeyingMaterialsManager
+
         init {
             MockKAnnotations.init(this)
         }
 
-        private val viewModel = AppSyncViewModel(
-            syncCertificateRevocationListUseCase,
-            observeCertificateRevocationForSelfClient,
-            featureFlagsSyncWorker,
-            mlsPublicKeysSyncWorker,
-            updateApiVersions
-        )
-
-        @OptIn(InternalCoroutinesApi::class)
         fun withObserveCertificateRevocationForSelfClient(delayMs: Long = 0) {
             coEvery { observeCertificateRevocationForSelfClient.invoke() } coAnswers {
                 delay(delayMs)
@@ -138,8 +155,36 @@ class AppSyncViewModelTest {
             }
         }
 
-        fun arrange(block: Arrangement.() -> Unit) = apply(block).let {
-            this to viewModel
+        fun withMlsClientManager(delayMs: Long = 0) {
+            coEvery { mlsClientManager() } coAnswers {
+                delay(delayMs)
+            }
+        }
+
+        fun withMlsMigrationManager(delayMs: Long = 0) {
+            coEvery { mlsMigrationManager() } coAnswers {
+                delay(delayMs)
+            }
+        }
+
+        fun withKeyingMaterialsManager(delayMs: Long = 0) {
+            coEvery { keyingMaterialsManager() } coAnswers {
+                delay(delayMs)
+            }
+        }
+
+        fun arrange(testDispatcher: TestDispatcherProvider, block: Arrangement.() -> Unit) = apply(block).let {
+            this to AppSyncViewModel(
+                syncCertificateRevocationListUseCase = syncCertificateRevocationListUseCase,
+                observeCertificateRevocationForSelfClient = observeCertificateRevocationForSelfClient,
+                featureFlagsSyncWorker = featureFlagsSyncWorker,
+                mlsPublicKeysSyncWorker = mlsPublicKeysSyncWorker,
+                updateApiVersions = updateApiVersions,
+                mLSClientManager = mlsClientManager,
+                mLSMigrationManager = mlsMigrationManager,
+                keyingMaterialsManager = keyingMaterialsManager,
+                dispatcher = testDispatcher
+            )
         }
     }
 }

@@ -24,7 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.config.orDefault
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -41,7 +41,6 @@ import javax.inject.Inject
 class CreateAccountDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
-    authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
 
     val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
@@ -53,7 +52,7 @@ class CreateAccountDetailsViewModel @Inject constructor(
     val teamNameTextState: TextFieldState = TextFieldState()
     var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(createAccountNavArgs.flowType))
 
-    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
+    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig.orDefault()
 
     init {
         viewModelScope.launch {
@@ -75,7 +74,7 @@ class CreateAccountDetailsViewModel @Inject constructor(
         }
     }
 
-    fun onDetailsContinue(onSuccess: () -> Unit) {
+    fun onDetailsContinue() {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val detailsError = when {
@@ -92,7 +91,7 @@ class CreateAccountDetailsViewModel @Inject constructor(
                 continueEnabled = true,
                 error = detailsError
             )
-            if (detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onSuccess()
+            if (detailsState.error is CreateAccountDetailsViewState.DetailsError.None) detailsState = detailsState.copy(success = true)
         }
     }
 

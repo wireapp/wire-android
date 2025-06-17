@@ -43,11 +43,15 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
-import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
+import com.wire.android.ui.destinations.NewLoginScreenDestination
+import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
+import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
+import com.wire.android.ui.destinations.WelcomeChooserScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
@@ -236,13 +240,17 @@ sealed class CurrentScreen {
                 is SelfDevicesScreenDestination -> DeviceManager
 
                 is WelcomeScreenDestination,
+                is NewWelcomeEmptyStartScreenDestination,
+                is WelcomeChooserScreenDestination,
                 is LoginScreenDestination,
+                is NewLoginScreenDestination,
+                is NewLoginPasswordScreenDestination,
+                is NewLoginVerificationCodeScreenDestination,
                 is CreatePersonalAccountOverviewScreenDestination,
                 is CreateTeamAccountOverviewScreenDestination,
                 is CreateAccountEmailScreenDestination,
                 is CreateAccountDetailsScreenDestination,
                 is CreateAccountSummaryScreenDestination,
-                is MigrationScreenDestination,
                 is InitialSyncScreenDestination,
                 is E2EIEnrollmentScreenDestination,
                 is E2eiCertificateDetailsScreenDestination,

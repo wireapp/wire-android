@@ -36,14 +36,20 @@ import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.navigation.style.DefaultNestedNavGraphAnimations
 import com.wire.android.navigation.style.DefaultRootNavGraphAnimations
 import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
+import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun MainNavHost(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector?,
     startDestination: Route,
     modifier: Modifier = Modifier,
 ) {
@@ -56,6 +62,7 @@ fun MainNavHost(
         )
     )
 
+    adjustDestinationStylesForTablets()
     DestinationsNavHost(
         modifier = modifier,
         navGraph = WireMainNavGraph,
@@ -66,12 +73,47 @@ fun MainNavHost(
             // 👇 To make Navigator available to all destinations as a non-navigation parameter
             dependency(navigator)
 
+            // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter if provided
+            if (loginTypeSelector != null) dependency(loginTypeSelector)
+
             // 👇 To tie NewConversationViewModel to nested NewConversationNavGraph, making it shared between all screens that belong to it
             dependency(NavGraphs.newConversation) {
                 val parentEntry = remember(navBackStackEntry) {
                     navController.getBackStackEntry(NavGraphs.newConversation.route)
                 }
                 hiltViewModel<NewConversationViewModel>(parentEntry)
+            }
+
+            // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
+            dependency(NewLoginVerificationCodeScreenDestination) {
+                val loginPasswordEntry = remember(navBackStackEntry) {
+                    navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
+                }
+                hiltViewModel<LoginEmailViewModel>(loginPasswordEntry)
+            }
+
+            // 👇 To tie SSOUrlConfigHolder to nested LoginNavGraph, making it shared between all screens that belong to it
+            dependency(NavGraphs.login) {
+                val parentEntry = remember(navBackStackEntry) {
+                    navController.getBackStackEntry(NavGraphs.login.route)
+                }
+                SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
+            }
+
+            // 👇 To tie SSOUrlConfigHolder to nested NewLoginNavGraph, making it shared between all screens that belong to it
+            dependency(NavGraphs.newLogin) {
+                val parentEntry = remember(navBackStackEntry) {
+                    navController.getBackStackEntry(NavGraphs.newLogin.route)
+                }
+                SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
+            }
+
+            // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph, making it shared between all screens that belong to it
+            dependency(NavGraphs.personalToTeamMigration) {
+                val parentEntry = remember(navBackStackEntry) {
+                    navController.getBackStackEntry(NavGraphs.personalToTeamMigration.route)
+                }
+                hiltViewModel<TeamMigrationViewModel>(parentEntry)
             }
         },
         manualComposableCallsBuilder = {

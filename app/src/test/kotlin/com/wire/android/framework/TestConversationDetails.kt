@@ -43,9 +43,10 @@ object TestConversationDetails {
         UserType.EXTERNAL,
     )
 
-    val GROUP = ConversationDetails.Group(
+    val GROUP = ConversationDetails.Group.Regular(
         TestConversation.ONE_ON_ONE,
         isSelfUserMember = true,
-        selfRole = Conversation.Member.Role.Member
+        selfRole = Conversation.Member.Role.Member,
+        wireCell = null,
     )
 }

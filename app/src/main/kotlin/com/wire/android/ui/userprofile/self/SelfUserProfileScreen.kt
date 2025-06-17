@@ -49,20 +49,21 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.avatar.UserStatusIndicator
@@ -77,11 +78,12 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AvatarPickerScreenDestination
 import com.wire.android.ui.destinations.MyAccountScreenDestination
+import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
-import com.wire.android.ui.destinations.TeamMigrationScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.legalhold.banner.LegalHoldPendingBanner
@@ -108,12 +110,13 @@ import com.wire.kalium.logic.data.user.UserId
 
 @RootNavGraph
 @WireDestination(
-    style = PopUpNavigationAnimation::class,
+    style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
 )
 @Composable
 @SuppressLint("ComposeModifierMissing")
 fun SelfUserProfileScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
     viewModelSelf: SelfUserProfileViewModel = hiltViewModel(),
     legalHoldRequestedViewModel: LegalHoldRequestedViewModel = hiltViewModel()
@@ -128,7 +131,9 @@ fun SelfUserProfileScreen(
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = navigator::navigateBack,
-        logout = { viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate)) },
+        logout = {
+            viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
+        },
         onChangeUserProfilePicture = {
             navigator.navigate(
                 NavigationCommand(
@@ -138,7 +143,10 @@ fun SelfUserProfileScreen(
         },
         onEditClick = { navigator.navigate(NavigationCommand(AppSettingsScreenDestination)) },
         onStatusClicked = viewModelSelf::changeStatusClick,
-        onAddAccountClick = { navigator.navigate(NavigationCommand(WelcomeScreenDestination)) },
+        onAddAccountClick = {
+            val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
+            navigator.navigate(NavigationCommand(destination))
+        },
         dismissStatusDialog = viewModelSelf::dismissStatusDialog,
         onStatusChange = viewModelSelf::changeStatus,
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
@@ -146,10 +154,7 @@ fun SelfUserProfileScreen(
         onLegalHoldAcceptClick = legalHoldRequestedViewModel::show,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
         onOtherAccountClick = {
-            viewModelSelf.switchAccount(
-                it,
-                NavigationSwitchAccountActions(navigator::navigate)
-            )
+            viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
         },
         onQrCodeClick = {
             viewModelSelf.trackQrCodeClick()
@@ -163,7 +168,7 @@ fun SelfUserProfileScreen(
             )
         },
         onCreateAccount = {
-            navigator.navigate(NavigationCommand(TeamMigrationScreenDestination))
+            navigator.navigate(NavigationCommand(NavGraphs.personalToTeamMigration))
         },
         onAccountDetailsClick = { navigator.navigate(NavigationCommand(MyAccountScreenDestination)) },
         isUserInCall = viewModelSelf::isUserInCall,
@@ -525,10 +530,9 @@ private fun LoggingOutDialog(isLoggingOut: Boolean) {
     if (isLoggingOut) {
         ProgressDialog(
             title = stringResource(R.string.user_profile_logging_out_progress),
-            properties = DialogProperties(
+            properties = wireDialogPropertiesBuilder(
                 dismissOnBackPress = false,
                 dismissOnClickOutside = false,
-                usePlatformDefaultWidth = true
             )
         )
     }

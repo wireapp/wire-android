@@ -38,7 +38,7 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackBarMessage
-import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -103,7 +103,6 @@ import java.util.Date
 @Suppress("TooManyFunctions")
 interface ConversationListViewModel {
     val infoMessage: SharedFlow<SnackBarMessage> get() = MutableSharedFlow()
-    val closeBottomSheet: SharedFlow<Unit> get() = MutableSharedFlow()
     val requestInProgress: Boolean get() = false
     val conversationListState: ConversationListState get() = ConversationListState.Paginated(emptyFlow())
     suspend fun refreshMissingMetadata() {}
@@ -174,8 +173,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private var _requestInProgress: Boolean by mutableStateOf(false)
     override val requestInProgress: Boolean get() = _requestInProgress
 
-    override val closeBottomSheet = MutableSharedFlow<Unit>()
-
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
     private val isSelfUserUnderLegalHoldFlow = MutableSharedFlow<Boolean>(replay = 1)
 
@@ -184,6 +181,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         ConversationsSource.FAVORITES,
         is ConversationsSource.FOLDER,
         ConversationsSource.GROUPS,
+        ConversationsSource.CHANNELS,
         ConversationsSource.ONE_ON_ONE -> true
 
         ConversationsSource.ARCHIVE -> false
@@ -360,7 +358,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
             when (val result = unblockUserUseCase(userId)) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
-                    closeBottomSheet.emit(Unit)
                 }
 
                 is UnblockUserResult.Failure -> {
@@ -411,7 +408,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     override fun deleteGroupLocally(groupDialogState: GroupDialogState) {
         viewModelScope.launch {
-            closeBottomSheet.emit(Unit)
             workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
                 .collect { status ->
                     when (status) {
@@ -525,6 +521,7 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
     ConversationsSource.MAIN -> ConversationFilter.All
     ConversationsSource.ARCHIVE -> ConversationFilter.All
     ConversationsSource.GROUPS -> ConversationFilter.Groups
+    ConversationsSource.CHANNELS -> ConversationFilter.Channels
     ConversationsSource.FAVORITES -> ConversationFilter.Favorites
     ConversationsSource.ONE_ON_ONE -> ConversationFilter.OneOnOne
     is ConversationsSource.FOLDER -> ConversationFilter.Folder(folderId = folderId, folderName = folderName)
@@ -538,7 +535,8 @@ private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUn
     when (isSelfUserUnderLegalHold) {
         true -> when (this) {
             is ConversationItem.ConnectionConversation -> this.copy(showLegalHoldIndicator = false)
-            is ConversationItem.GroupConversation -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.Group.Regular -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.Group.Channel -> this.copy(showLegalHoldIndicator = false)
             is ConversationItem.PrivateConversation -> this.copy(showLegalHoldIndicator = false)
         }
 
@@ -558,39 +556,25 @@ private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map
 
         ConversationsSource.FAVORITES,
         ConversationsSource.GROUPS,
+        ConversationsSource.CHANNELS,
         ConversationsSource.ONE_ON_ONE,
         is ConversationsSource.FOLDER,
         ConversationsSource.MAIN -> {
-            val unreadConversations = filter {
-                when (it.mutedStatus) {
-                    MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
-                        BadgeEventType.Blocked -> false
-                        BadgeEventType.Deleted -> false
-                        BadgeEventType.Knock -> true
-                        BadgeEventType.MissedCall -> true
-                        BadgeEventType.None -> false
-                        BadgeEventType.ReceivedConnectionRequest -> true
-                        BadgeEventType.SentConnectRequest -> false
-                        BadgeEventType.UnreadMention -> true
-                        is BadgeEventType.UnreadMessage -> true
-                        BadgeEventType.UnreadReply -> true
-                    }
-
-                    MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
-                        when (it.badgeEventType) {
-                            BadgeEventType.UnreadReply -> true
-                            BadgeEventType.UnreadMention -> true
-                            BadgeEventType.ReceivedConnectionRequest -> true
-                            else -> false
-                        }
-
-                    MutedConversationStatus.AllMuted -> false
-                } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
-            }
-
-            val remainingConversations = this - unreadConversations.toSet()
-
+            val (unreadConversations, remainingConversations) = unreadToReadConversationsItems()
             buildMap {
+                if (unreadConversations.isNotEmpty()) {
+                    put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+                }
+                if (remainingConversations.isNotEmpty()) {
+                    put(ConversationFolder.Predefined.Conversations, remainingConversations)
+                }
+            }
+        }
+
+        is ConversationsSource.CHANNELS -> {
+            val (unreadConversations, remainingConversations) = unreadToReadConversationsItems()
+            buildMap {
+                put(ConversationFolder.Predefined.BrowseChannels, emptyList())
                 if (unreadConversations.isNotEmpty()) {
                     put(ConversationFolder.Predefined.NewActivities, unreadConversations)
                 }
@@ -602,11 +586,44 @@ private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map
     }
 }
 
+@Suppress("CyclomaticComplexMethod")
+private fun List<ConversationItem>.unreadToReadConversationsItems(): Pair<List<ConversationItem>, List<ConversationItem>> {
+    val unreadConversations = filter {
+        when (it.mutedStatus) {
+            MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
+                BadgeEventType.Blocked -> false
+                BadgeEventType.Deleted -> false
+                BadgeEventType.Knock -> true
+                BadgeEventType.MissedCall -> true
+                BadgeEventType.None -> false
+                BadgeEventType.ReceivedConnectionRequest -> true
+                BadgeEventType.SentConnectRequest -> false
+                BadgeEventType.UnreadMention -> true
+                is BadgeEventType.UnreadMessage -> true
+                BadgeEventType.UnreadReply -> true
+            }
+
+            MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
+                when (it.badgeEventType) {
+                    BadgeEventType.UnreadReply -> true
+                    BadgeEventType.UnreadMention -> true
+                    BadgeEventType.ReceivedConnectionRequest -> true
+                    else -> false
+                }
+
+            MutedConversationStatus.AllMuted -> false
+        } || (it is ConversationItem.Group && it.hasOnGoingCall)
+    }
+
+    val remainingConversations = this - unreadConversations.toSet()
+    return unreadConversations to remainingConversations
+}
+
 private fun searchConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> =
     conversationDetails.filter { details ->
         when (details) {
             is ConversationItem.ConnectionConversation -> details.conversationInfo.name.contains(searchQuery, true)
-            is ConversationItem.GroupConversation -> details.groupName.contains(searchQuery, true)
+            is ConversationItem.Group -> details.groupName.contains(searchQuery, true)
             is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(searchQuery, true)
         }
     }

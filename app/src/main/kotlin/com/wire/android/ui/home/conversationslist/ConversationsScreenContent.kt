@@ -41,6 +41,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
@@ -55,9 +56,10 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
-import com.wire.android.ui.common.topappbar.search.SearchBarState
-import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.common.search.SearchBarState
+import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.BrowseChannelsScreenDestination
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
@@ -103,9 +105,9 @@ fun ConversationsScreenContent(
             }
         )
     },
-    conversationCallListViewModel: ConversationCallListViewModel = when {
-        LocalInspectionMode.current -> ConversationCallListViewModelPreview
-        else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_$conversationsSource")
+    conversationListCallViewModel: ConversationListCallViewModel = when {
+        LocalInspectionMode.current -> ConversationListCallViewModelPreview
+        else -> hiltViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
     },
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
@@ -126,12 +128,6 @@ fun ConversationsScreenContent(
 
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        conversationListViewModel.closeBottomSheet.collect {
-            sheetState.hide()
-        }
-    }
-
     LaunchedEffect(searchBarState.isSearchActive) {
         if (searchBarState.isSearchActive) {
             conversationListViewModel.refreshMissingMetadata()
@@ -140,6 +136,17 @@ fun ConversationsScreenContent(
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
         conversationListViewModel.searchQueryChanged(searchBarState.searchQueryTextState.text.toString())
+    }
+
+    HandleActions(conversationListCallViewModel.actions) { action ->
+        when (action) {
+            is ConversationListCallViewActions.JoinedCall -> {
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
+                getOngoingCallIntent(context, action.conversationId.toString()).run {
+                    context.startActivity(this)
+                }
+            }
+        }
     }
 
     fun showConfirmationDialogOrUnarchive(): (DialogState) -> Unit {
@@ -170,17 +177,9 @@ fun ConversationsScreenContent(
                 navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(it)))
             }
         }
-        val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
-            {
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                getOngoingCallIntent(context, it.toString()).run {
-                    context.startActivity(this)
-                }
-            }
-        }
         val onJoinCall: (ConversationId) -> Unit = remember {
             {
-                conversationCallListViewModel.joinOngoingCall(it, onJoinedCall)
+                conversationListCallViewModel.joinOngoingCall(it)
             }
         }
         val onNewConversationClicked: () -> Unit = remember {
@@ -205,7 +204,7 @@ fun ConversationsScreenContent(
             is ConversationListState.Paginated -> {
                 val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
                 val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
-
+                searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
                 when {
                     // when conversation list is not yet fetched, show loading indicator
                     showLoading -> loadingListContent(lazyListState)
@@ -226,8 +225,10 @@ fun ConversationsScreenContent(
                             )
                         },
                         onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
-                        onStopCurrentAudio = onStopCurrentAudio
-
+                        onStopCurrentAudio = onStopCurrentAudio,
+                        onBrowsePublicChannels = {
+                            navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination))
+                        }
                     )
                     // when there is no conversation in any folder
                     searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
@@ -236,11 +237,13 @@ fun ConversationsScreenContent(
             }
 
             is ConversationListState.NotPaginated -> {
+                val hasConversations = state.conversations.isNotEmpty() && state.conversations.any { it.value.isNotEmpty() }
+                searchBarState.searchVisibleChanged(isSearchVisible = hasConversations || searchBarState.isSearchActive)
                 when {
                     // when conversation list is not yet fetched, show loading indicator
                     state.isLoading -> loadingListContent(lazyListState)
                     // when there is at least one conversation in any folder
-                    state.conversations.isNotEmpty() && state.conversations.any { it.value.isNotEmpty() } -> ConversationList(
+                    hasConversations -> ConversationList(
                         lazyListState = lazyListState,
                         conversationListItems = state.conversations,
                         onOpenConversation = onOpenConversation,
@@ -265,11 +268,11 @@ fun ConversationsScreenContent(
             }
         }
 
-        VisibilityState(conversationCallListViewModel.joinCallDialogState) { callConversationId ->
+        VisibilityState(conversationListCallViewModel.joinCallDialogState) { callConversationId ->
             appLogger.i("$TAG showing showJoinAnywayDialog..")
             JoinAnywayDialog(
-                onDismiss = conversationCallListViewModel.joinCallDialogState::dismiss,
-                onConfirm = { conversationCallListViewModel.joinAnyway(callConversationId, onJoinedCall) }
+                onDismiss = conversationListCallViewModel.joinCallDialogState::dismiss,
+                onConfirm = { conversationListCallViewModel.joinAnyway(callConversationId) }
             )
         }
 
@@ -352,7 +355,8 @@ fun ConversationsScreenContent(
                     unblockUser = unblockUserDialogState::show,
                     leaveGroup = leaveGroupDialogState::show,
                     deleteGroup = deleteGroupDialogState::show,
-                    deleteGroupLocally = deleteGroupLocallyDialogState::show
+                    deleteGroupLocally = deleteGroupLocallyDialogState::show,
+                    onItemClick = sheetState::hide
                 )
             },
         )

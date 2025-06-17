@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import android.view.KeyEvent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -317,7 +318,7 @@ private fun MessageComposerTextInput(
                 }
             }
             .onPreInterceptKeyBeforeSoftKeyboard { event ->
-                if (event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_BACK) {
+                if (event.key.nativeKeyCode == KeyEvent.KEYCODE_BACK) {
                     onClearFocus()
                     if (isTextExpanded) {
                         onTextCollapse()

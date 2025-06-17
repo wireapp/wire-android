@@ -38,13 +38,12 @@ import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
-import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
-import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
@@ -72,30 +71,13 @@ internal fun ConversationMainSheetContent(
     leaveGroup: (LeaveGroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
     deleteGroupLocally: (GroupDialogState) -> Unit,
-    navigateToNotification: () -> Unit
+    navigateToNotification: () -> Unit,
+    onItemClick: () -> Unit,
 ) {
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
             title = conversationSheetContent.title,
-            leadingIcon = {
-                if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
-                    GroupConversationAvatar(
-                        color = colorsScheme()
-                            .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
-                    )
-                } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
-                    val connectionState: ConnectionState? = conversationSheetContent.conversationTypeDetail.blockingState.let {
-                        if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null
-                    }
-                    UserProfileAvatar(
-                        avatarData = UserAvatarData(
-                            asset = conversationSheetContent.conversationTypeDetail.avatarAsset,
-                            connectionState = connectionState,
-                            nameBasedAvatar = NameBasedAvatar(conversationSheetContent.title, accentColor = -1)
-                        )
-                    )
-                }
-            },
+            leadingIcon = { ConversationLeadingIcon(conversationSheetContent) },
             customVerticalPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
@@ -134,6 +116,7 @@ internal fun ConversationMainSheetContent(
                                 )
                             },
                             onItemClick = {
+                                onItemClick()
                                 changeFavoriteState(
                                     GroupDialogState(
                                         conversationSheetContent.conversationId,
@@ -157,6 +140,7 @@ internal fun ConversationMainSheetContent(
                         },
                         title = stringResource(R.string.label_move_to_folder),
                         onItemClick = {
+                            onItemClick()
                             moveConversationToFolder(
                                 ConversationFoldersNavArgs(
                                     conversationId = conversationSheetContent.conversationId,
@@ -179,6 +163,7 @@ internal fun ConversationMainSheetContent(
                         },
                         title = stringResource(R.string.label_remove_from_folder, conversationSheetContent.folder.name),
                         onItemClick = {
+                            onItemClick()
                             removeFromFolder(
                                 conversationSheetContent.conversationId,
                                 conversationSheetContent.title,
@@ -201,6 +186,7 @@ internal fun ConversationMainSheetContent(
                         else R.string.label_unarchive
                     ),
                     onItemClick = {
+                        onItemClick()
                         with(conversationSheetContent) {
                             updateConversationArchiveStatus(
                                 DialogState(
@@ -225,6 +211,7 @@ internal fun ConversationMainSheetContent(
                     },
                     title = stringResource(R.string.label_clear_content),
                     onItemClick = {
+                        onItemClick()
                         clearConversationContent(
                             DialogState(
                                 conversationId = conversationSheetContent.conversationId,
@@ -250,6 +237,7 @@ internal fun ConversationMainSheetContent(
                         title = stringResource(R.string.label_block),
                         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                         onItemClick = {
+                            onItemClick()
                             blockUserClick(
                                 BlockUserDialogState(
                                     userName = conversationSheetContent.title,
@@ -272,6 +260,7 @@ internal fun ConversationMainSheetContent(
                         itemProvidedColor = MaterialTheme.colorScheme.onBackground,
                         title = stringResource(R.string.label_unblock),
                         onItemClick = {
+                            onItemClick()
                             unblockUserClick(
                                 UnblockUserDialogState(
                                     userName = conversationSheetContent.title,
@@ -292,8 +281,9 @@ internal fun ConversationMainSheetContent(
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.error,
-                        title = stringResource(R.string.label_leave_group),
+                        title = stringResource(R.string.label_leave_conversation),
                         onItemClick = {
+                            onItemClick()
                             leaveGroup(
                                 LeaveGroupDialogState(
                                     conversationSheetContent.conversationId,
@@ -313,9 +303,10 @@ internal fun ConversationMainSheetContent(
                                 contentDescription = null
                             )
                         },
-                        title = stringResource(R.string.label_delete_group_locally),
+                        title = stringResource(R.string.label_delete_conversation_locally),
                         itemProvidedColor = MaterialTheme.colorScheme.error,
                         onItemClick = {
+                            onItemClick()
                             deleteGroupLocally(
                                 GroupDialogState(
                                     conversationSheetContent.conversationId,
@@ -335,9 +326,10 @@ internal fun ConversationMainSheetContent(
                                 contentDescription = null,
                             )
                         },
-                        title = stringResource(R.string.label_delete_group),
+                        title = stringResource(R.string.label_delete_conversation),
                         itemProvidedColor = MaterialTheme.colorScheme.error,
                         onItemClick = {
+                            onItemClick()
                             deleteGroup(
                                 GroupDialogState(
                                     conversationSheetContent.conversationId,
@@ -350,6 +342,36 @@ internal fun ConversationMainSheetContent(
             }
         }
     )
+}
+
+@Composable
+private fun ConversationLeadingIcon(
+    conversationSheetContent: ConversationSheetContent,
+) {
+    when (val typeDetail = conversationSheetContent.conversationTypeDetail) {
+        is ConversationTypeDetail.Group.Channel ->
+            ChannelConversationAvatar(typeDetail.conversationId, isPrivateChannel = typeDetail.isPrivate)
+
+        is ConversationTypeDetail.Group.Regular ->
+            RegularGroupConversationAvatar(typeDetail.conversationId)
+
+        is ConversationTypeDetail.Connection -> {
+            /** NO-OP for Connections **/
+        }
+
+        is ConversationTypeDetail.Private -> {
+            val connectionState: ConnectionState? = typeDetail.blockingState.let {
+                if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null
+            }
+            UserProfileAvatar(
+                avatarData = UserAvatarData(
+                    asset = typeDetail.avatarAsset,
+                    connectionState = connectionState,
+                    nameBasedAvatar = NameBasedAvatar(conversationSheetContent.title, accentColor = -1)
+                )
+            )
+        }
+    }
 }
 
 @Composable

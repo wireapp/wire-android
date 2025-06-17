@@ -39,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.window.DialogProperties
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -57,6 +56,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
+import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialog
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountAllowedDialogContent
@@ -69,6 +69,7 @@ import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -242,23 +243,27 @@ fun JoinConversationDialog(
 
 @Composable
 fun CustomBackendDialog(
-    globalAppState: GlobalAppState,
+    state: CustomServerDialogState?,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    onTryAgain: (String) -> Unit
+    onConfirm: (LoginType) -> Unit,
+    onTryAgain: (String, LoginType) -> Unit
 ) {
-    when (globalAppState.customBackendDialog) {
+    when (state) {
         is CustomServerDetailsDialogState -> {
             CustomServerDetailsDialog(
-                serverLinks = globalAppState.customBackendDialog.serverLinks,
+                serverLinks = state.serverLinks,
                 onDismiss = onDismiss,
-                onConfirm = onConfirm
+                onConfirm = {
+                    onConfirm(state.loginType)
+                }
             )
         }
 
         is CustomServerNoNetworkDialogState -> {
             CustomServerNoNetworkDialog(
-                onTryAgain = { onTryAgain(globalAppState.customBackendDialog.customServerUrl) },
+                onTryAgain = {
+                    onTryAgain(state.customServerUrl, state.loginType)
+                },
                 onDismiss = onDismiss
             )
         }
@@ -337,7 +342,7 @@ private fun AccountLoggedOutDialogContent(reason: CurrentSessionErrorState, navi
         title = stringResource(id = title),
         text = text,
         onDismiss = remember { { } },
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
+        properties = wireDialogPropertiesBuilder(dismissOnBackPress = false, dismissOnClickOutside = false),
         optionButton1Properties = WireDialogButtonProperties(
             text = stringResource(R.string.label_ok),
             onClick = navigateAway,
@@ -577,14 +582,10 @@ fun PreviewJoinConversationDialogError() {
 fun PreviewCustomBackendDialog() {
     WireTheme {
         CustomBackendDialog(
-            GlobalAppState(
-                customBackendDialog = CustomServerDetailsDialogState(
-                    ServerConfig.STAGING
-                )
-            ),
-            {},
-            {},
-            {}
+            state = CustomServerDetailsDialogState(ServerConfig.STAGING),
+            onDismiss = {},
+            onConfirm = {},
+            onTryAgain = { _, _ -> },
         )
     }
 }

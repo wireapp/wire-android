@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -38,8 +37,9 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.rememberTopBarElevationState
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
@@ -84,7 +84,7 @@ private fun GroupConversationAllParticipantsContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = lazyListState.rememberTopBarElevationState().value,
-                title = stringResource(R.string.conversation_details_group_participants_title),
+                title = stringResource(R.string.conversation_details_participants_title),
                 navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = onBackPressed
             ) {

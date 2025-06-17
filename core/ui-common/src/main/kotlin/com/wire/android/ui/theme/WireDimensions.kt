@@ -211,6 +211,15 @@ data class WireDimensions(
     val importedMediaAssetSize: Dp,
     // legal hold banner
     val legalHoldBannerMinHeight: Dp,
+    // Attachment draft
+    val attachmentDraftHeight: Dp,
+    val messageAttachmentGridCornerSize: Dp,
+    val messageAttachmentCornerSize: Dp,
+    val attachmentPdfMaxWidth: Dp,
+    val attachmentPdfMaxWidthLandscape: Dp,
+    val attachmentVideoMaxWidth: Dp,
+    val attachmentVideoMaxWidthLandscape: Dp,
+    val attachmentGridMaxHeight: Dp,
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -230,7 +239,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     avatarTemporaryUserBorderWidth = 2.dp,
     avatarBigTemporaryUserBorderWidth = 4.dp,
     avatarLegalHoldIndicatorBorderWidth = 4.dp,
-    groupAvatarCornerRadius = 10.dp,
+    groupAvatarCornerRadius = 8.dp,
     avatarConversationTopBarSize = 24.dp,
     groupAvatarConversationTopBarCornerRadius = 8.dp,
     groupAvatarConversationDetailsTopBarSize = 64.dp,
@@ -291,7 +300,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     welcomeTextHorizontalPadding = 24.dp,
     welcomeButtonHorizontalPadding = 16.dp,
     welcomeButtonVerticalPadding = 8.dp,
-    welcomeVerticalPadding = 56.dp,
+    welcomeVerticalPadding = 28.dp,
     welcomeVerticalSpacing = 40.dp,
     removeDeviceHorizontalPadding = 16.dp,
     removeDeviceMessageVerticalPadding = 24.dp,
@@ -370,6 +379,14 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     legalHoldBannerMinHeight = 26.dp,
     inCallReactionButtonSize = 48.dp,
     inCallReactionRecentReactionSize = 32.dp,
+    attachmentDraftHeight = 100.dp,
+    messageAttachmentGridCornerSize = 8.dp,
+    messageAttachmentCornerSize = 10.dp,
+    attachmentPdfMaxWidth = 240.dp,
+    attachmentPdfMaxWidthLandscape = 400.dp,
+    attachmentVideoMaxWidth = 240.dp,
+    attachmentVideoMaxWidthLandscape = 400.dp,
+    attachmentGridMaxHeight = 1000.dp,
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

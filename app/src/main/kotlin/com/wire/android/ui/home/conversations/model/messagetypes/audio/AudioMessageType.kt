@@ -66,6 +66,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
@@ -89,21 +90,25 @@ fun AudioMessage(
     audioMessageArgs: AudioMessageArgs,
     audioMessageDurationInMs: Long,
     assetTransferStatus: AssetTransferStatus,
+    extension: String,
+    size: Long,
     modifier: Modifier = Modifier,
 ) {
     if (assetTransferStatus == AssetTransferStatus.UPLOAD_IN_PROGRESS) {
-        UploadingAudioMessage(modifier)
+        UploadingAudioMessage(extension, size, modifier)
     } else {
-        UploadedAudioMessage(
-            audioMessageArgs = audioMessageArgs,
-            audioMessageDurationInMs = audioMessageDurationInMs,
-        )
+        UploadedAudioMessage(audioMessageArgs, audioMessageDurationInMs, extension, size, modifier)
     }
 }
 
 @Composable
-private fun AudioMessageLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Box(
+private fun AudioMessageLayout(
+    extension: String,
+    size: Long,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Column(
         modifier = modifier
             .padding(top = dimensions().spacing4x)
             .background(
@@ -115,24 +120,36 @@ private fun AudioMessageLayout(modifier: Modifier = Modifier, content: @Composab
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
-            .padding(dimensions().spacing8x)
-            .defaultMinSize(minHeight = MaterialTheme.wireDimensions.spacing72x)
+            .padding(dimensions().spacing8x),
+        verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
     ) {
-        content()
+        FileHeaderView(
+            extension = extension,
+            size = size,
+        )
+        Box(
+            modifier = Modifier.defaultMinSize(minHeight = MaterialTheme.wireDimensions.spacing72x)
+        ) {
+            content()
+        }
     }
 }
 
 @Composable
-private fun UploadingAudioMessage(modifier: Modifier = Modifier) {
-    AudioMessageLayout(modifier) {
-        UploadInProgressAssetMessage()
-    }
+private fun UploadingAudioMessage(
+    extension: String,
+    size: Long,
+    modifier: Modifier = Modifier
+) = AudioMessageLayout(extension, size, modifier) {
+    UploadInProgressAssetMessage()
 }
 
 @Composable
 private fun UploadedAudioMessage(
     audioMessageArgs: AudioMessageArgs,
     audioMessageDurationInMs: Long,
+    extension: String,
+    size: Long,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: AudioMessageViewModel =
@@ -145,6 +162,8 @@ private fun UploadedAudioMessage(
     UploadedAudioMessage(
         audioState = sanitizedAudioState,
         audioSpeed = viewModel.state.audioSpeed,
+        extension = extension,
+        size = size,
         onPlayButtonClick = viewModel::playAudio,
         onSliderPositionChange = viewModel::changeAudioPosition,
         onAudioSpeedChange = {
@@ -158,11 +177,13 @@ private fun UploadedAudioMessage(
 private fun UploadedAudioMessage(
     audioState: AudioState,
     audioSpeed: AudioSpeed,
+    extension: String,
+    size: Long,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
     onAudioSpeedChange: (() -> Unit)?,
     modifier: Modifier = Modifier,
-) = AudioMessageLayout(modifier) {
+) = AudioMessageLayout(extension, size, modifier) {
     if (audioState.audioMediaPlayingState is AudioMediaPlayingState.Failed) {
         FailedAudioMessageContent()
     } else {
@@ -314,12 +335,12 @@ fun SuccessfulAudioMessageContent(
 private fun AudioMessageSlider(
     audioDuration: AudioDuration,
     totalTimeInMs: AudioState.TotalTimeInMs,
-    waveMask: List<Int>,
+    waveMask: List<Int>?,
     onSliderPositionChange: (Float) -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxWidth()) {
         val totalMs = if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f
-        val waves = waveMask.ifEmpty { getDefaultWaveMask() }
+        val waves = waveMask?.ifEmpty { getDefaultWaveMask() } ?: getDefaultWaveMask()
         val wavesAmount = waves.size
 
         Row(
@@ -440,6 +461,8 @@ private fun PreviewUploadingAudioMessage() = WireTheme {
     AudioMessage(
         audioMessageArgs = AudioMessageArgs(ConversationId("convId", "domain"), "messageId"),
         audioMessageDurationInMs = 10000,
+        extension = "MP3",
+        size = 1024,
         assetTransferStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS
     )
 }
@@ -450,6 +473,8 @@ private fun PreviewUploadedAudioMessage() = WireTheme {
     AudioMessage(
         audioMessageArgs = AudioMessageArgs(ConversationId("convId", "domain"), "messageId"),
         audioMessageDurationInMs = 10000,
+        extension = "MP3",
+        size = 1024,
         assetTransferStatus = AssetTransferStatus.UPLOADED
     )
 }
@@ -460,6 +485,8 @@ private fun PreviewUploadedAudioMessageFetching() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching),
         audioSpeed = AudioSpeed.NORMAL,
+        extension = "MP3",
+        size = 1024,
         onPlayButtonClick = {},
         onSliderPositionChange = {},
         onAudioSpeedChange = {}
@@ -472,6 +499,8 @@ private fun PreviewUploadedAudioMessageFetched() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.SuccessfulFetching),
         audioSpeed = AudioSpeed.NORMAL,
+        extension = "MP3",
+        size = 1024,
         onPlayButtonClick = {},
         onSliderPositionChange = {},
         onAudioSpeedChange = {}
@@ -484,6 +513,8 @@ private fun PreviewUploadedAudioMessagePlaying() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Playing, currentPositionInMs = 5000),
         audioSpeed = AudioSpeed.NORMAL,
+        extension = "MP3",
+        size = 1024,
         onPlayButtonClick = {},
         onSliderPositionChange = {},
         onAudioSpeedChange = {}
@@ -496,6 +527,8 @@ private fun PreviewUploadedAudioMessageFailed() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Failed),
         audioSpeed = AudioSpeed.NORMAL,
+        extension = "MP3",
+        size = 1024,
         onPlayButtonClick = {},
         onSliderPositionChange = {},
         onAudioSpeedChange = {}

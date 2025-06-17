@@ -18,11 +18,11 @@
 package com.wire.android.ui.common.bottomsheet
 
 import androidx.compose.runtime.Composable
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.edit.ReactionOption
-import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
+import com.wire.kalium.logic.data.id.ConversationId
 
 @MultipleThemePreviews
 @Composable
@@ -39,7 +39,11 @@ fun PreviewMenuModalSheetContentWithHeader() {
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
             "Title",
-            { GroupConversationAvatar(colorsScheme().primary) },
+            {
+                RegularGroupConversationAvatar(
+                    conversationId = ConversationId("value", "domain")
+                )
+            },
             dimensions().spacing8x
         ),
         menuItems = listOf { ReactionOption({}) }

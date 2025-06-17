@@ -27,6 +27,7 @@ import com.wire.android.config.SnapshotExtension
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.newconversation.NewConversationViewModelArrangement.Companion.CONVERSATION
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
@@ -36,15 +37,20 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
 import io.mockk.coVerify
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.fail
 import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.internal.assertFalse
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldNotBeEqualTo
+import org.amshove.kluent.shouldNotBeInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -60,10 +66,10 @@ class NewConversationViewModelTest {
             .withSyncFailureOnCreatingGroup()
             .arrange()
 
-        viewModel.createGroup(arrangement.onGroupCreated)
+        viewModel.createGroup()
         advanceUntilIdle()
 
-        viewModel.createGroupState.error shouldBeEqualTo CreateGroupState.Error.LackingConnection
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.LackingConnection
     }
 
     @Test
@@ -73,10 +79,10 @@ class NewConversationViewModelTest {
             .withUnknownFailureOnCreatingGroup()
             .arrange()
 
-        viewModel.createGroup(arrangement.onGroupCreated)
+        viewModel.createGroup()
         advanceUntilIdle()
 
-        viewModel.createGroupState.error shouldBeEqualTo CreateGroupState.Error.Unknown
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.Unknown
     }
 
     @Test
@@ -85,10 +91,10 @@ class NewConversationViewModelTest {
             .withGetSelfUser(isTeamMember = true)
             .arrange()
 
-        viewModel.createGroup(arrangement.onGroupCreated)
+        viewModel.createGroup()
         advanceUntilIdle()
 
-        viewModel.createGroupState.error.shouldBeNull()
+        viewModel.createGroupState shouldNotBeInstanceOf CreateGroupState.Error::class
     }
 
     @Test
@@ -101,7 +107,7 @@ class NewConversationViewModelTest {
 
             viewModel.onCreateGroupErrorDismiss()
             advanceUntilIdle()
-            viewModel.createGroupState.error.shouldBeNull()
+            viewModel.createGroupState shouldBeEqualTo CreateGroupState.Default
         }
 
     @Test
@@ -110,21 +116,22 @@ class NewConversationViewModelTest {
             .withGetSelfUser(isTeamMember = false)
             .arrange()
 
-        viewModel.createGroup(arrangement.onGroupCreated)
+        viewModel.createGroup()
         advanceUntilIdle()
 
-        viewModel.createGroupState.error.shouldBeNull()
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Created(CONVERSATION.id)
 
         coVerify {
-            arrangement.createGroupConversation(
+            arrangement.createRegularGroup(
                 viewModel.newGroupNameTextState.text.toString(),
                 viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                 ConversationOptions(
-                    Conversation.defaultGroupAccess,
-                    Conversation.defaultGroupAccessRoles,
-                    false,
-                    ConversationOptions.Protocol.PROTEUS,
-                    null
+                    access = Conversation.defaultGroupAccess,
+                    accessRole = Conversation.defaultGroupAccessRoles,
+                    readReceiptsEnabled = false,
+                    wireCellEnabled = false,
+                    protocol = ConversationOptions.Protocol.PROTEUS,
+                    creatorClientId = null
                 )
             )
         }
@@ -139,21 +146,26 @@ class NewConversationViewModelTest {
 
             viewModel.onAllowServicesStatusChanged(false)
             viewModel.onAllowGuestStatusChanged(true)
-            viewModel.createGroup(arrangement.onGroupCreated)
+            viewModel.createGroup()
             advanceUntilIdle()
 
-            viewModel.createGroupState.error.shouldBeNull()
+            viewModel.createGroupState shouldBeEqualTo CreateGroupState.Created(CONVERSATION.id)
 
             coVerify {
-                arrangement.createGroupConversation(
+                arrangement.createRegularGroup(
                     viewModel.newGroupNameTextState.text.toString(),
                     viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                     ConversationOptions(
-                        setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
-                        setOf(Conversation.AccessRole.TEAM_MEMBER, Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-                        true,
-                        ConversationOptions.Protocol.PROTEUS,
-                        null
+                        access = setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
+                        accessRole = setOf(
+                            Conversation.AccessRole.TEAM_MEMBER,
+                            Conversation.AccessRole.NON_TEAM_MEMBER,
+                            Conversation.AccessRole.GUEST
+                        ),
+                        readReceiptsEnabled = true,
+                        wireCellEnabled = false,
+                        protocol = ConversationOptions.Protocol.PROTEUS,
+                        creatorClientId = null
                     )
                 )
             }
@@ -208,17 +220,23 @@ class NewConversationViewModelTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
             .arrange()
-        viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
-        advanceUntilIdle()
-        assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
 
-        viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd("name")
-        advanceUntilIdle()
-        assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
+        launch {
+            viewModel.observeGroupNameChanges()
+        }.also {
+            viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
+            advanceUntilIdle()
+            assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
 
-        viewModel.newGroupNameTextState.clearText()
-        advanceUntilIdle()
-        assertEquals(GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError, viewModel.newGroupState.error)
+            viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd("name")
+            advanceUntilIdle()
+            assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
+
+            viewModel.newGroupNameTextState.clearText()
+            advanceUntilIdle()
+            assertEquals(GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError, viewModel.newGroupState.error)
+            it.cancel()
+        }
     }
 
     @Test
@@ -247,12 +265,13 @@ class NewConversationViewModelTest {
 
         viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowGuestEnabled = false)
 
-        viewModel.createGroup { _ -> fail("group should not be created") }
+        viewModel.createGroup()
 
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Default
         assertTrue(viewModel.groupOptionsState.showAllowGuestsDialog)
 
         coVerify(exactly = 0) {
-            arrangement.createGroupConversation(any(), any(), any())
+            arrangement.createRegularGroup(any(), any(), any())
         }
     }
 
@@ -282,12 +301,66 @@ class NewConversationViewModelTest {
 
         viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowGuestEnabled = false)
 
-        viewModel.createGroup { _ -> fail("group should not be created") }
+        viewModel.createGroup()
 
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Default
         assertTrue(viewModel.groupOptionsState.showAllowGuestsDialog)
 
         coVerify(exactly = 0) {
-            arrangement.createGroupConversation(any(), any(), any())
+            arrangement.createRegularGroup(any(), any(), any())
         }
+    }
+
+    @Test
+    fun `given createChannel success, when creating channel, then state should be changed to Created`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withCreateChannelSuccess()
+            .arrange()
+
+        // When
+        viewModel.createChannel()
+
+        // Then
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Created(CONVERSATION.id)
+    }
+
+    @Test
+    fun `given createChannel failure, when creating channel, then state is not changed to Created but to Error`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withCreateChannelFailure()
+            .arrange()
+
+        // When
+        viewModel.createChannel()
+
+        // Then
+        viewModel.createGroupState shouldNotBeEqualTo CreateGroupState.Created(CONVERSATION.id)
+        viewModel.createGroupState shouldBeInstanceOf CreateGroupState.Error::class
+    }
+
+    @Test
+    fun `given user is allowed to create channel, when initializing viewModel, then state should reflect that`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withChannelCreationPermissionReturning(flowOf(ChannelCreationPermission.Allowed(false)))
+            .arrange()
+
+        assertTrue(viewModel.isChannelCreationPossible)
+    }
+
+    @Test
+    fun `given user is NOT allowed to create channel, when initializing viewModel, then state should reflect that`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withChannelCreationPermissionReturning(flowOf(ChannelCreationPermission.Forbidden))
+            .arrange()
+
+        assertFalse(viewModel.isChannelCreationPossible)
     }
 }

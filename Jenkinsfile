@@ -9,7 +9,7 @@ pipeline {
 
     environment { 
         CREDENTIALS = credentials('GITHUB_TOKEN_ANDROID')
-        WIRE_BOT_SECRET = credentials('JENKINSBOT_ANDROID_SMOKE')
+        WIRE_BOT_SECRET = credentials('JENKINSBOT_ANDROID_CRITICAL_FLOWS')
     }
 
     stages {
@@ -98,7 +98,7 @@ pipeline {
             }
         }
 
-        stage("Smoke Tests") {
+        stage("QA Tests") {
             when {
                 expression { BRANCH_NAME ==~ /PR-[0-9]+/ }
             }
@@ -113,14 +113,14 @@ pipeline {
                         error("Could not find any apk at provided location!")
                     } else {
                         def lastModifiedFileName = files[-1].name
-                        build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "artifacts/megazord/android/reloaded/staging/compat/$BRANCH_NAME/${lastModifiedFileName}"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
+                        build job: 'android_reloaded_critical_flows', parameters: [string(name: 'AppBuildNumber', value: "artifacts/megazord/android/reloaded/staging/compat/$BRANCH_NAME/${lastModifiedFileName}"), string(name: 'TAGS', value: '@CriticalFlows'), string(name: 'Branch', value: 'android_develop')]
                     }
                 }
             }
             post {
                 unsuccessful {
                     script {
-                        wireSend(secret: env.WIRE_BOT_SECRET, message: "❌ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke tests failed (see above report)")
+                        wireSend(secret: env.WIRE_BOT_SECRET, message: "❌ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Tests failed (see above report)")
                     }
                 }
             }
@@ -132,7 +132,7 @@ pipeline {
         success {
             script {
                 if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
-                    wireSend(secret: env.WIRE_BOT_SECRET, message: "✅ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke tests successful (see above report)")
+                    wireSend(secret: env.WIRE_BOT_SECRET, message: "✅ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Tests successful (see above report)")
                 }
             }
         }

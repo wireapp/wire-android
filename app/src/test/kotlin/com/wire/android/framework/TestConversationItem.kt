@@ -51,7 +51,7 @@ object TestConversationItem {
         playingAudio = null
     )
 
-    val GROUP = ConversationItem.GroupConversation(
+    val GROUP = ConversationItem.Group.Regular(
         "groupName looooooooooooooooooooooooooooooooooooong",
         conversationId = QualifiedID("value", "domain"),
         mutedStatus = MutedConversationStatus.AllAllowed,

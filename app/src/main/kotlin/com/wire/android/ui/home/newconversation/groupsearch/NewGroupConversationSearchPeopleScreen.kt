@@ -17,12 +17,14 @@
  */
 package com.wire.android.ui.home.newconversation.groupsearch
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.destinations.NewGroupNameScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
@@ -38,17 +40,33 @@ fun NewGroupConversationSearchPeopleScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel,
 ) {
+    val onBackClicked = remember(Unit) {
+        {
+            newConversationViewModel.resetState()
+            navigator.navigateBack()
+        }
+    }
+
+    BackHandler(true, onBackClicked)
+    val isSelfTeamMember = newConversationViewModel.newGroupState.isSelfTeamMember ?: false
+
+    val screenTitle = if (newConversationViewModel.newGroupState.isChannel) {
+        stringResource(id = R.string.label_new_channel)
+    } else {
+        stringResource(id = R.string.label_new_group)
+    }
     SearchUsersAndServicesScreen(
-        searchTitle = stringResource(id = R.string.label_new_group),
-        actionButtonTitle = stringResource(id = R.string.label_continue),
+        searchTitle = screenTitle,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
+        shouldShowChannelPromotion = !isSelfTeamMember,
+        isUserAllowedToCreateChannels = false,
         onContactChecked = newConversationViewModel::updateSelectedContacts,
-        onGroupSelectionSubmitAction = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
+        onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
-        onClose = navigator::navigateBack,
+        onClose = onBackClicked,
         onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_GROUP_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,

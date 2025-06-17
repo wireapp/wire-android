@@ -18,6 +18,7 @@
 
 package com.wire.android.util.deeplink
 
+import android.content.Intent
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import com.wire.android.di.KaliumCoreLogic
@@ -40,7 +41,7 @@ import javax.inject.Singleton
 
 sealed class DeepLinkResult {
     data object Unknown : DeepLinkResult()
-    data class CustomServerConfig(val url: String) : DeepLinkResult()
+    data class CustomServerConfig(val url: String, val loginType: LoginType = LoginType.Default) : DeepLinkResult()
 
     @Serializable
     sealed class SSOLogin : DeepLinkResult() {
@@ -71,9 +72,9 @@ sealed class DeepLinkResult {
 
     data object AuthorizationNeeded : DeepLinkResult()
 
-    sealed class Failure : DeepLinkResult() {
-        data object OngoingCall : Failure()
-        data object Unknown : Failure()
+    sealed class SwitchAccountFailure : DeepLinkResult() {
+        data object OngoingCall : SwitchAccountFailure()
+        data object Unknown : SwitchAccountFailure()
     }
 }
 
@@ -85,17 +86,14 @@ class DeepLinkProcessor @Inject constructor(
 ) {
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    suspend operator fun invoke(uri: Uri?, isSharingIntent: Boolean): DeepLinkResult {
+    suspend operator fun invoke(uri: Uri? = null, action: String? = null): DeepLinkResult {
         return when (val sessionResult = currentSession()) {
             is CurrentSessionResult.Failure.Generic,
             CurrentSessionResult.Failure.SessionNotFound -> uri?.let { handleNotAuthorizedDeepLinks(uri) } ?: DeepLinkResult.Unknown
 
-            is CurrentSessionResult.Success -> {
-                if (isSharingIntent) {
-                    return DeepLinkResult.SharingIntent
-                } else {
-                    uri?.let { handleDeepLinks(uri, sessionResult.accountInfo) } ?: DeepLinkResult.Unknown
-                }
+            is CurrentSessionResult.Success -> when (action) {
+                Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> DeepLinkResult.SharingIntent
+                else -> uri?.let { handleDeepLinks(uri, sessionResult.accountInfo) } ?: DeepLinkResult.Unknown
             }
         }
     }
@@ -121,8 +119,8 @@ class DeepLinkProcessor @Inject constructor(
                         deepLinkResult
                     }
 
-                    SwitchAccountStatus.FailedDueToCall -> DeepLinkResult.Failure.OngoingCall
-                    SwitchAccountStatus.FailedDueToUnknownError -> DeepLinkResult.Failure.Unknown
+                    SwitchAccountStatus.FailedDueToCall -> DeepLinkResult.SwitchAccountFailure.OngoingCall
+                    SwitchAccountStatus.FailedDueToUnknownError -> DeepLinkResult.SwitchAccountFailure.Unknown
                 }
             }
         }
@@ -147,23 +145,14 @@ class DeepLinkProcessor @Inject constructor(
         }
     }
 
-    private fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean, accountInfo: AccountInfo.Valid): DeepLinkResult {
-        // todo. handle with domain case, before lastPathSegment. format of deeplink wire://user/domain/user-id
-        return uri.lastPathSegment?.toDefaultQualifiedId(accountInfo.userId.domain)?.let {
-            DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
-        } ?: return DeepLinkResult.Unknown
-    }
-
     /**
-     * Converts the string to a [QualifiedID] with the current user domain or default, to preserve retro compatibility.
-     * When implementing Milestone 2 this should be replaced with a new qualifiedIdMapper, implementing wire://user/domain/user-id
-     *
-     * - new mapper should follow "domain/user-id" parsing.
+     * Format of deeplink to parse: wire://user/domain/user-id
      */
-    private fun String.toDefaultQualifiedId(currentUserDomain: String?): QualifiedID {
-        val domain = currentUserDomain ?: "wire.com"
-        // TODO. This lowercase is important, since web/iOS is sending/handling this as uppercase!!
-        return QualifiedID(this.lowercase(), domain)
+    private fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean, accountInfo: AccountInfo.Valid): DeepLinkResult {
+        return when (val result = UserLinkQRMapper.fromDeepLinkToQualifiedId(uri, accountInfo.userId.domain)) {
+            is UserLinkQRMapper.UserLinkQRResult.Failure -> DeepLinkResult.Unknown
+            is UserLinkQRMapper.UserLinkQRResult.Success -> DeepLinkResult.OpenOtherUserProfile(result.qualifiedUserId, switchedAccount)
+        }
     }
 
     private suspend fun switchAccountIfNeeded(uri: Uri, accountInfo: AccountInfo.Valid): SwitchAccountStatus =
@@ -213,7 +202,8 @@ class DeepLinkProcessor @Inject constructor(
 
     private fun getCustomServerConfigDeepLinkResult(uri: Uri) =
         uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
-            DeepLinkResult.CustomServerConfig(it)
+            val loginType = LoginType.getByName(uri.getQueryParameter(SERVER_CONFIG_LOGIN_TYPE_PARAM) ?: LoginType.Default.name)
+            DeepLinkResult.CustomServerConfig(it, loginType)
         } ?: DeepLinkResult.Unknown
 
     private fun getSSOLoginDeepLinkResult(uri: Uri): DeepLinkResult {
@@ -248,6 +238,7 @@ class DeepLinkProcessor @Inject constructor(
         const val E2EI_DEEPLINK_OAUTH_REDIRECT_PATH = "oauth2redirect"
         const val ACCESS_DEEPLINK_HOST = "access"
         const val SERVER_CONFIG_PARAM = "config"
+        const val SERVER_CONFIG_LOGIN_TYPE_PARAM = "login-type"
         const val SSO_LOGIN_DEEPLINK_HOST = "sso-login"
         const val SSO_LOGIN_FAILURE = "failure"
         const val SSO_LOGIN_SUCCESS = "success"
@@ -313,4 +304,12 @@ enum class SwitchAccountStatus {
     NoNeeded,
     FailedDueToCall,
     FailedDueToUnknownError
+}
+
+enum class LoginType {
+    Default, Old, New;
+
+    companion object {
+        fun getByName(value: String) = entries.firstOrNull { it.name.lowercase() == value.lowercase() } ?: Default
+    }
 }

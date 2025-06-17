@@ -36,13 +36,13 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Download and Extract Artifacts
-              uses: dawidd6/action-download-artifact@v8
+              uses: dawidd6/action-download-artifact@v9
               with:
                   run_id: ${{ github.event.workflow_run.id }}
                   path: artifacts
 
             - name: Publish Test Results
-              uses: EnricoMi/publish-unit-test-result-action@v2
+              uses: EnricoMi/publish-unit-test-result-action/linux@v2
               with:
                   commit: ${{ github.event.workflow_run.head_sha }}
                   event_file: artifacts/Event File/event.json

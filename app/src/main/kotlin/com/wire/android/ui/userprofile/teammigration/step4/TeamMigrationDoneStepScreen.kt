@@ -17,13 +17,9 @@
  */
 package com.wire.android.ui.userprofile.teammigration.step4
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,10 +32,8 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.SlideNavigationAnimation
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace.x32
@@ -48,13 +42,15 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
+import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.common.BulletList
+import com.wire.android.ui.userprofile.teammigration.common.TeamMigrationContainer
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
-    style = SlideNavigationAnimation::class
+    style = AuthSlideNavigationAnimation::class
 )
 @Composable
 fun TeamMigrationDoneStepScreen(
@@ -65,12 +61,7 @@ fun TeamMigrationDoneStepScreen(
 
     TeamMigrationDoneStepContent(
         onBackToWireClicked = {
-            navigator.navigate(
-                NavigationCommand(
-                    HomeScreenDestination,
-                    BackStackMode.CLEAR_WHOLE
-                )
-            )
+            navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
         onOpenTeamManagementClicked = {
             val teamManagementUrl = teamMigrationViewModel.teamMigrationState.teamUrl
@@ -83,8 +74,6 @@ fun TeamMigrationDoneStepScreen(
     LaunchedEffect(Unit) {
         teamMigrationViewModel.setCurrentStep(TeamMigrationViewModel.TEAM_MIGRATION_DONE_STEP)
     }
-
-    BackHandler { }
 }
 
 @Composable
@@ -95,19 +84,29 @@ private fun TeamMigrationDoneStepContent(
     teamName: String,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
+    TeamMigrationContainer(
+        onClose = onBackToWireClicked,
+        closeIconContentDescription = stringResource(R.string.personal_to_team_migration_close_team_created_content_description),
+        showConfirmationDialogWhenClosing = false,
+        bottomBar = {
+            BottomLineButtons(
+                isContinueButtonEnabled = true,
+                isBackButtonVisible = true,
+                backButtonContentDescription = stringResource(R.string.personal_to_team_migration_back_to_wire_button),
+                backButtonText = stringResource(R.string.personal_to_team_migration_back_to_wire_button),
+                onBack = onBackToWireClicked,
+                continueButtonText = stringResource(R.string.to_team_management_action),
+                onContinue = onOpenTeamManagementClicked
+            )
+        }
     ) {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .padding(
                     start = dimensions().spacing16x,
                     end = dimensions().spacing16x
                 )
-                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 modifier = Modifier
@@ -152,28 +151,6 @@ private fun TeamMigrationDoneStepContent(
             )
             BulletList(messages)
         }
-        WireSecondaryButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = dimensions().spacing16x,
-                    end = dimensions().spacing16x
-                ),
-            text = stringResource(R.string.personal_to_team_migration_back_to_wire_button),
-            onClick = onBackToWireClicked
-        )
-        WirePrimaryButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    top = dimensions().spacing6x,
-                    start = dimensions().spacing16x,
-                    end = dimensions().spacing16x,
-                    bottom = dimensions().spacing32x
-                ),
-            text = stringResource(R.string.to_team_management_action),
-            onClick = onOpenTeamManagementClicked
-        )
     }
 }
 

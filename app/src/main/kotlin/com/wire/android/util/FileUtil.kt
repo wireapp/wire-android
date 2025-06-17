@@ -28,6 +28,7 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -56,6 +57,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okio.Path
+import okio.Path.Companion.toOkioPath
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -179,6 +181,8 @@ private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataP
     return insertedUri
 }
 
+fun Context.fromNioPathToContentUri(nioPath: java.nio.file.Path): Uri = this.pathToUri(nioPath.toOkioPath(), null)
+
 fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
     FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile(), assetName ?: assetDataPath.name)
 
@@ -299,10 +303,16 @@ fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
     return files
 }
 
-fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetName: String?, onError: () -> Unit) {
+fun openAssetFileWithExternalApp(
+    assetDataPath: Path,
+    context: Context,
+    assetName: String?,
+    assetType: String? = null,
+    onError: () -> Unit
+) {
     try {
         val assetUri = context.pathToUri(assetDataPath, assetName)
-        val mimeType = assetUri.getMimeType(context)
+        val mimeType = assetType ?: assetUri.getMimeType(context)
         // Set intent and launch
         val intent = Intent()
         intent.apply {
@@ -310,6 +320,29 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetNam
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             setDataAndType(assetUri, mimeType)
+        }
+        context.startActivity(intent)
+    } catch (e: java.lang.IllegalArgumentException) {
+        appLogger.e("The file couldn't be found on the internal storage \n$e")
+        onError()
+    } catch (noActivityFoundException: ActivityNotFoundException) {
+        appLogger.e("Couldn't find a proper app to process the asset")
+        onError()
+    }
+}
+
+fun openAssetUrlWithExternalApp(
+    url: String,
+    mimeType: String,
+    context: Context,
+    onError: () -> Unit
+) {
+    try {
+        val intent = Intent()
+        intent.apply {
+            action = Intent.ACTION_VIEW
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            setDataAndType(Uri.parse(url), mimeType)
         }
         context.startActivity(intent)
     } catch (e: java.lang.IllegalArgumentException) {
@@ -390,6 +423,10 @@ fun isAudioFile(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("audio/")
 }
 
+fun isPdfFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType == "application/pdf"
+}
+
 fun isText(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("text/")
 }
@@ -442,7 +479,7 @@ fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(dataPath.toFile().absolutePath)
         val rawDuration = retriever
-            .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            .extractMetadata(METADATA_KEY_DURATION)
             ?.toLong() ?: 0L
         rawDuration.milliseconds.inWholeMilliseconds
     } else {

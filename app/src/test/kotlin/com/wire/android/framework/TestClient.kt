@@ -38,6 +38,7 @@ object TestClient {
         label = "label",
         model = null,
         isMLSCapable = false,
-        mlsPublicKeys = null
+        mlsPublicKeys = null,
+        isAsyncNotificationsCapable = false
     )
 }

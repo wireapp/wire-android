@@ -1,19 +1,9 @@
 New
-- Filter conversations by favorites or folders
-- Reactions in calls
-- Hit enter to send a message
-- Mentions on draft messages
-- Delete group conversations
-- Access team management from the app
-- Compliant with Audio Focus Request Restrictions (Android 15)
-
-Improvements
-- Play audio messages easily and adjust the speed
-- Show information during login when no network available
-
+ - Swipe left to add reactions to a message
+Improvement
+- Using QR codes with federation
 Fixes
-- Calling issues
-- Loading and decrypting issues
-- Crashes
-- MLS issues
-- Connection requests issues
+- Resolved a security issue when sharing files, pictures, or audio and video messages
+- Fixed an issue when people couldn't open conversations from a notification
+- Resolved a syncing issue on slow internet
+- Fix issue where app stuck processing commits

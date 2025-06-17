@@ -39,9 +39,10 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
@@ -63,7 +64,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
 
 @RootNavGraph
-@WireDestination
+@WireDestination(
+    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+)
 @Composable
 fun AvatarPickerScreen(
     navigator: Navigator,
@@ -108,17 +111,19 @@ fun AvatarPickerScreen(
         }
     }
 
+    LaunchedEffect(viewModel.pictureState) {
+        (viewModel.pictureState as? PictureState.Completed)?.let {
+            resultNavigator.setResult(it.assetId)
+            resultNavigator.navigateBack()
+        }
+    }
+
     AvatarPickerContent(
         pictureState = viewModel.pictureState,
         state = state,
         onCloseClick = navigator::navigateBack,
         onCancelClick = viewModel::loadInitialAvatarState,
-        onSaveClick = {
-            viewModel.uploadNewPickedAvatar { avatarAssetId ->
-                resultNavigator.setResult(avatarAssetId)
-                resultNavigator.navigateBack()
-            }
-        }
+        onSaveClick = viewModel::uploadNewPickedAvatar
     )
 
     PermissionPermanentlyDeniedDialog(

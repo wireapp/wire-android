@@ -17,14 +17,20 @@
  */
 package com.wire.android.ui.home.newconversation.common
 
-data class CreateGroupState(
-    val error: Error? = null
-) {
-    sealed interface Error {
-        object Unknown : Error
-        object LackingConnection : Error
+import com.wire.kalium.logic.data.id.ConversationId
+
+sealed interface CreateGroupState {
+
+    data object Default : CreateGroupState
+
+    sealed interface Error : CreateGroupState {
+        data object Unknown : Error
+        data object Forbidden : Error
+        data object LackingConnection : Error
         data class ConflictedBackends(val domains: List<String>) : Error
 
         val isConflictedBackends get() = this is ConflictedBackends
     }
+
+    data class Created(val conversationId: ConversationId) : CreateGroupState
 }

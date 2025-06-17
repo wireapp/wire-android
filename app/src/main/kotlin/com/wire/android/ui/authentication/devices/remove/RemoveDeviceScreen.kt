@@ -33,20 +33,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -58,6 +59,7 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
@@ -73,6 +75,7 @@ import com.wire.kalium.logic.data.conversation.ClientId
 @Composable
 fun RemoveDeviceScreen(
     navigator: Navigator,
+    loginTypeSelector: LoginTypeSelector,
     viewModel: RemoveDeviceViewModel = hiltViewModel(),
     clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
 ) {
@@ -90,18 +93,22 @@ fun RemoveDeviceScreen(
         state = viewModel.state,
         passwordTextState = viewModel.passwordTextState,
         clearSessionState = clearSessionViewModel.state,
-        onItemClicked = { viewModel.onItemClicked(it, ::navigateAfterSuccess) },
-        onRemoveConfirm = { viewModel.onRemoveConfirmed(::navigateAfterSuccess) },
+        onItemClicked = { viewModel.onItemClicked(it) },
+        onRemoveConfirm = { viewModel.onRemoveConfirmed() },
         onDialogDismiss = viewModel::onDialogDismissed,
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
-        onCancelLoginClicked = { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) },
+        onCancelLoginClicked = {
+            clearSessionViewModel.onCancelLoginClicked(
+                NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
+            )
+        },
         onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
     )
 
     if (viewModel.state.error is RemoveDeviceError.InitError) {
         WireDialog(
-            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
+            properties = wireDialogPropertiesBuilder(dismissOnBackPress = false, dismissOnClickOutside = false),
             title = stringResource(id = R.string.label_general_error),
             text = stringResource(id = R.string.devices_loading_error),
             onDismiss = viewModel::clearDeleteClientError,
@@ -116,6 +123,12 @@ fun RemoveDeviceScreen(
                 type = WireDialogButtonType.Primary,
             )
         )
+    }
+
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is OnComplete -> navigateAfterSuccess(action.initialSyncCompleted, action.isE2EIRequired)
+        }
     }
 }
 

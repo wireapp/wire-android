@@ -18,21 +18,25 @@
 package com.wire.android.ui.home.newconversation.common
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.DialogTextSuffixLink
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.stringWithStyledArgs
 
 @Composable
 fun CreateGroupErrorDialog(
     error: CreateGroupState.Error,
     onDismiss: () -> Unit,
-    onAccept: () -> Unit,
+    onEditParticipantsList: () -> Unit,
     onCancel: () -> Unit
 ) {
     val (dialogStrings, dialogSuffixLink) = when (error) {
@@ -47,16 +51,24 @@ fun CreateGroupErrorDialog(
         ) to null
 
         is CreateGroupState.Error.ConflictedBackends -> DialogErrorStrings(
-            title = stringResource(id = R.string.group_can_not_be_created_title),
-            message = stringResource(
-                    id = R.string.group_can_not_be_created_federation_conflict_description,
-                    error.domains.dropLast(1).joinToString(", "),
-                    error.domains.last()
-                ),
+            title = stringResource(id = R.string.conversation_can_not_be_created_title),
+            annotatedMessage = LocalContext.current.resources.stringWithStyledArgs(
+                stringResId = R.string.conversation_can_not_be_created_federation_conflict_description,
+                normalStyle = typography().body01,
+                argsStyle = typography().body02,
+                normalColor = colorsScheme().secondaryText,
+                argsColor = colorsScheme().onBackground,
+                error.domains.dropLast(1).joinToString(", "),
+                error.domains.last()
+            ),
         ) to DialogTextSuffixLink(
             linkText = stringResource(id = R.string.label_learn_more),
             linkUrl = stringResource(id = R.string.url_message_details_offline_backends_learn_more)
         )
+        is CreateGroupState.Error.Forbidden -> DialogErrorStrings(
+            title = stringResource(R.string.conversation_can_not_be_created_title),
+            message = stringResource(R.string.create_channel_error_forbidden_message),
+        ) to null
     }
 
     WireDialog(
@@ -66,10 +78,10 @@ fun CreateGroupErrorDialog(
         onDismiss = onDismiss,
         buttonsHorizontalAlignment = false,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = if (error.isConflictedBackends) onAccept else onDismiss,
+            onClick = if (error.isConflictedBackends) onEditParticipantsList else onDismiss,
             text = stringResource(
                 id = if (error.isConflictedBackends) {
-                    R.string.group_can_not_be_created_edit_participiant_list
+                    R.string.conversation_can_not_be_created_edit_participant_list
                 } else {
                     R.string.label_ok
                 }
@@ -79,7 +91,7 @@ fun CreateGroupErrorDialog(
         optionButton2Properties = if (error.isConflictedBackends) {
             WireDialogButtonProperties(
                 onClick = onCancel,
-                text = stringResource(R.string.group_can_not_be_created_discard_group_creation),
+                text = stringResource(R.string.conversation_can_not_be_created_discard_creation),
                 type = WireDialogButtonType.Secondary,
             )
         } else {

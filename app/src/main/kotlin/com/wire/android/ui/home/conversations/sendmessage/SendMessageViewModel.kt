@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -29,7 +30,6 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
@@ -46,6 +46,9 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
@@ -63,11 +66,9 @@ import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
+import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.onFailure
-import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -81,9 +82,10 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class SendMessageViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
+    private val sendMultipartMessage: SendMultipartMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
     private val retryFailedMessage: RetryFailedMessageUseCase,
     private val dispatchers: DispatcherProvider,
@@ -100,7 +102,7 @@ class SendMessageViewModel @Inject constructor(
     private val sendLocation: SendLocationUseCase,
     private val removeMessageDraft: RemoveMessageDraftUseCase,
     private val analyticsManager: AnonymousAnalyticsManager
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
@@ -152,7 +154,7 @@ class SendMessageViewModel @Inject constructor(
         trySendMessages(listOf(messageBundle))
     }
 
-    fun trySendMessages(messageBundleList: List<MessageBundle>) {
+    internal fun trySendMessages(messageBundleList: List<MessageBundle>) {
         if (messageBundleList.size > MAX_LIMIT_MESSAGE_SEND) {
             onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached)
         } else {
@@ -230,6 +232,21 @@ class SendMessageViewModel @Inject constructor(
                 sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
                 with(messageBundle) {
                     sendTextMessage(
+                        conversationId = conversationId,
+                        text = message,
+                        mentions = mentions.map { it.intoMessageMention() },
+                        quotedMessageId = quotedMessageId
+                    )
+                        .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                        .handleNonAssetContributionEvent(messageBundle)
+                }
+            }
+
+            is ComposableMessageBundle.SendMultipartMessageBundle -> {
+                removeMessageDraft(messageBundle.conversationId)
+                sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
+                with(messageBundle) {
+                    sendMultipartMessage(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
@@ -368,7 +385,8 @@ class SendMessageViewModel @Inject constructor(
                 is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location
                 is Ping -> AnalyticsEvent.Contributed.Ping
                 is ComposableMessageBundle.EditMessageBundle,
-                is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text
+                is ComposableMessageBundle.SendTextMessageBundle,
+                is ComposableMessageBundle.SendMultipartMessageBundle -> AnalyticsEvent.Contributed.Text
             }
             analyticsManager.sendEvent(event)
         }

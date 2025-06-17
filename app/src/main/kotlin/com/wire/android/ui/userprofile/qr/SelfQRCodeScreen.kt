@@ -61,7 +61,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -280,7 +280,8 @@ fun PreviewSelfQRCodeContent() {
             SelfQRCodeState(
                 userId = UserId("userId", "wire.com"),
                 handle = "userid",
-                userProfileLink = "https://account.wire.com/user-profile/?id=aaaaaaa-222-3333-4444-55555555"
+                userProfileLink = "wire://user/wire.com/aaaaaaa-222-3333-4444-55555555",
+                userAccountProfileLink = "https://account.wire.com/user-profile/?id=aaaaaaa-222-3333-4444-55555555@wire.com"
             ),
             { "".toUri() },
             { }

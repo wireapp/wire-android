@@ -44,7 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.selectableBackground
@@ -132,7 +132,7 @@ fun CustomizationOptionsContent(
         modifier = modifier
             .fillMaxWidth()
     ) {
-        FolderHeader(stringResource(R.string.custimization_options_header_title))
+        FolderHeader(stringResource(R.string.customization_options_header_title))
         GroupConversationOptionsItem(
             title = stringResource(R.string.press_enter_to_send_title),
             switchState = SwitchState.Enabled(value = enterToSendState, onCheckedChange = enterToSendClicked),

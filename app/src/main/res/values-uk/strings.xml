@@ -79,8 +79,6 @@
     <string name="content_description_unarchive">Розархівувати</string>
     <string name="content_description_block_the_user">Заблокувати</string>
     <string name="content_description_unblock_the_user">Розблокувати</string>
-    <string name="content_description_leave_the_group">Покинути групу</string>
-    <string name="content_description_delete_the_group">Видалити групу</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Згадати когось</string>
     <string name="content_description_send_button">Надіслати</string>
@@ -108,6 +106,7 @@
     <string name="welcome_button_create_team">Створити команду</string>
     <!-- API Versioning Dialogs -->
     <!-- Migration -->
+    <!-- Enterprise Login -->
     <!-- Login -->
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
@@ -125,6 +124,7 @@
     <string name="disable_guest_dialog_title">Вимкнути гостьовий доступ?</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->
+    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
@@ -152,6 +152,7 @@
     <!-- Conversation Media -->
     <string name="label_conversation_media">Медіа</string>
     <!-- Search Contact-->
+    <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
@@ -174,9 +175,7 @@
     <string name="allow_guests">Дозволити гостям</string>
     <string name="allow_guest_switch_description">Відкрийте цю бесіду людям, які не належать до вашої команди. Ви завжди можете змінити це пізніше.</string>
     <string name="allow_services">Дозволити служби</string>
-    <string name="allow_services_description">Відкрийте цю розмову для служб. Ви завжди можете змінити це пізніше.</string>
     <string name="read_receipts">Прочитати квитанції</string>
-    <string name="read_receipts_description">Коли цей параметр увімкнено, люди бачать, коли читаються їхні повідомлення в цій бесіді.</string>
     <!--block user dialog -->
     <!--Settings -->
     <!--Settings, Appearance -->
@@ -194,6 +193,7 @@
     <string name="label_code_commit_id">Здійснити хеш</string>
     <!--create and restore backup-->
     <!--    report bug-->
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Оновити</string>
     <!-- Analytics Usage dialog -->
@@ -225,4 +225,5 @@
     <string name="debug_settings_screen_title">Налаштування Debug</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!--    channel not available dialog-->
 </resources>

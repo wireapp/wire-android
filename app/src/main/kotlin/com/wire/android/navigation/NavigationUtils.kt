@@ -28,6 +28,7 @@ import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.spec.NavGraphSpec
+import com.ramcosta.composedestinations.utils.findDestination
 import com.ramcosta.composedestinations.utils.navGraph
 import com.ramcosta.composedestinations.utils.route
 import com.wire.android.appLogger
@@ -76,7 +77,7 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
             BackStackMode.NONE -> {
             }
         }
-        launchSingleTop = true
+        launchSingleTop = command.launchSingleTop
         restoreState = true
     }
 }
@@ -99,7 +100,7 @@ private fun NavOptionsBuilder.popUpTo(
 }
 
 internal fun NavDestination.toDestination(): DestinationSpec<*>? =
-    this.route?.let { currentRoute -> WireMainNavGraph.destinationsByRoute[currentRoute] }
+    this.route?.let { currentRoute -> WireMainNavGraph.findDestination(currentRoute) }
 
 fun String.getBaseRoute(): String =
     this.indexOfAny(listOf("?", "/")).let {
@@ -113,5 +114,8 @@ fun Direction.handleNavigation(context: Context, handleOtherDirection: (Directio
     is IntentDirection -> context.startActivity(this.intent(context))
     else -> handleOtherDirection(this)
 }
+
+@SuppressLint("RestrictedApi")
+fun NavController.startDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec<*> }
 
 private const val TAG = "NavigationUtils"

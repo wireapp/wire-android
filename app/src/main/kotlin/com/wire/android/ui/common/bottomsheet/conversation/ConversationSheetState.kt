@@ -63,16 +63,25 @@ fun rememberConversationSheetState(
     isConversationDeletionLocallyRunning: Boolean
 ): ConversationSheetState {
     val conversationSheetContent: ConversationSheetContent = when (conversationItem) {
-        is ConversationItem.GroupConversation -> {
+        is ConversationItem.Group -> {
             with(conversationItem) {
                 ConversationSheetContent(
                     conversationId = conversationId,
                     title = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
                     mutingConversationState = mutedStatus,
-                    conversationTypeDetail = ConversationTypeDetail.Group(
-                        conversationId = conversationId,
-                        isFromTheSameTeam = isFromTheSameTeam
-                    ),
+                    conversationTypeDetail = if (conversationItem is ConversationItem.Group.Channel) {
+                        ConversationTypeDetail.Group.Channel(
+                            conversationId = conversationId,
+                            isFromTheSameTeam = isFromTheSameTeam,
+                            isPrivate = conversationItem.isPrivate,
+                            isSelfUserTeamAdmin = false // TODO: Get actual value
+                        )
+                    } else {
+                        ConversationTypeDetail.Group.Regular(
+                            conversationId = conversationId,
+                            isFromTheSameTeam = isFromTheSameTeam
+                        )
+                    },
                     isTeamConversation = teamId != null,
                     selfRole = selfMemberRole,
                     isArchived = conversationItem.isArchived,

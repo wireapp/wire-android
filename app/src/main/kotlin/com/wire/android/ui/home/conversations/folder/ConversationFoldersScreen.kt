@@ -39,6 +39,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
@@ -64,7 +65,7 @@ import com.wire.kalium.logic.data.conversation.FolderType
 @RootNavGraph
 @WireDestination(
     navArgsDelegate = ConversationFoldersNavArgs::class,
-    style = PopUpNavigationAnimation::class
+    style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
 )
 @Composable
 fun ConversationFoldersScreen(

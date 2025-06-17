@@ -17,9 +17,13 @@
  */
 package com.wire.android.feature.cells.ui.movetofolder
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class MoveToFolderNavArgs(
     val currentPath: String,
     val nodeToMovePath: String,
     val uuid: String,
-    val screenName: String? = null
-)
+    val breadcrumbs: Array<String> = emptyArray()
+) : Parcelable

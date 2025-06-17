@@ -67,6 +67,7 @@ class MoveToFolderViewModel @Inject constructor(
     fun currentPath(): String = navArgs.currentPath
     fun nodeToMovePath(): String = navArgs.nodeToMovePath
     fun nodeUuid(): String = navArgs.uuid
+    fun breadcrumbs(): Array<String> = navArgs.breadcrumbs
 
     private fun sendAction(action: ActionUiEvent) {
         viewModelScope.launch { _actions.send(action) }

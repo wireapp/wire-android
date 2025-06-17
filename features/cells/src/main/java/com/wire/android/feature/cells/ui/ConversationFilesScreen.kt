@@ -223,7 +223,7 @@ fun ConversationFilesScreenContent(
                             MoveToFolderScreenDestination(
                                 currentPath = currentPath,
                                 nodeToMovePath = nodePath,
-                                uuid = uuid,
+                                uuid = uuid
                             )
                         )
                     )

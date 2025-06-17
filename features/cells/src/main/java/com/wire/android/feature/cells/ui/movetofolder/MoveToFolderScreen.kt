@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -85,9 +86,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@Destination(
-    navArgsDelegate = MoveToFolderNavArgs::class,
-)
+@Destination(navArgsDelegate = MoveToFolderNavArgs::class)
 @Composable
 fun MoveToFolderScreen(
     navigator: WireNavigator,
@@ -108,16 +107,30 @@ fun MoveToFolderScreen(
         moveToFolderViewModel.loadFolders()
     }
     Box(modifier = Modifier.fillMaxSize()) {
-
         WireScaffold(
             modifier = modifier,
             topBar = {
-                WireCenterAlignedTopAppBar(
-                    onNavigationPressed = { navigator.navigateBack() },
-                    title = moveToFolderNavArgs.screenName ?: stringResource(R.string.move_to_folder),
-                    navigationIconType = NavigationIconType.Back(),
-                    elevation = dimensions().spacing0x
-                )
+                Column {
+                    WireCenterAlignedTopAppBar(
+                        onNavigationPressed = { navigator.navigateBack() },
+                        title = stringResource(R.string.move_to_folder),
+                        navigationIconType = NavigationIconType.Back(),
+                        elevation = dimensions().spacing0x
+                    )
+                    if (moveToFolderViewModel.breadcrumbs().isNotEmpty()) {
+                        LazyRow(
+                            modifier = Modifier
+                                .height(dimensions().spacing40x)
+                                .fillMaxWidth(),
+                            contentPadding = PaddingValues(
+                                start = dimensions().spacing16x,
+                                end = dimensions().spacing16x
+                            ),
+                        ) {
+                            item { Breadcrumbs(moveToFolderViewModel.breadcrumbs()) }
+                        }
+                    }
+                }
             },
             bottomBar = {
                 AnimatedVisibility(
@@ -176,7 +189,7 @@ fun MoveToFolderScreen(
                                 currentPath = "${moveToFolderViewModel.currentPath()}/${folder.name}",
                                 nodeToMovePath = moveToFolderViewModel.nodeToMovePath(),
                                 uuid = moveToFolderViewModel.nodeUuid(),
-                                screenName = folder.name
+                                breadcrumbs = folder.name?.let { moveToFolderViewModel.breadcrumbs() + it } ?: emptyArray()
                             ),
                             launchSingleTop = false
                         )
@@ -322,8 +335,7 @@ fun PreviewMoveToFolderScreen() {
             moveToFolderNavArgs = MoveToFolderNavArgs(
                 currentPath = "some path",
                 nodeToMovePath = "some path",
-                uuid = "243567990900989897",
-                screenName = "some folder.pdf"
+                uuid = "243567990900989897"
             ),
             createFolderResultRecipient = PreviewResultRecipient as ResultRecipient<CreateFolderScreenDestination, Boolean>
         )

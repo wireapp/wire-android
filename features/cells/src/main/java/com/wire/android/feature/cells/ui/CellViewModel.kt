@@ -175,7 +175,7 @@ class CellViewModel @Inject constructor(
             sendAction(ShowError(CellError.OTHER_ERROR))
             return@launch
         }
-//
+
         val (nodeName, nodeRemotePath) = when (node) {
             is CellNodeUi.File -> Pair(node.name, node.remotePath)
             is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)

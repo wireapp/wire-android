@@ -108,17 +108,13 @@ class BackupAndRestoreViewModel @Inject constructor(
     }
 
     fun createBackup() = viewModelScope.launch {
-        // TODO: Find a way to update the creation progress more faithfully. For now we will just show this small delays to mimic the
-        //  progress also for small backups
-        updateCreationProgress(PROGRESS_25)
-        delay(SMALL_DELAY)
-        updateCreationProgress(PROGRESS_50)
-        delay(SMALL_DELAY)
 
         val password = createBackupPasswordState.text.toString()
 
         val result = if (mpBackupSettings is MPBackupSettings.Enabled) {
-            createMpBackupFile(password)
+            createMpBackupFile(password) { progress ->
+                updateCreationProgress(progress)
+            }
         } else {
             createBackupFile(password)
         }
@@ -197,7 +193,6 @@ class BackupAndRestoreViewModel @Inject constructor(
                 } else {
                     state = state.copy(
                         restoreFileValidation = RestoreFileValidation.ValidNonEncryptedBackup,
-                        backupRestoreProgress = BackupRestoreProgress.InProgress(PROGRESS_75)
                     )
                     restoreBackup(importedBackupPath, null)
                 }
@@ -227,7 +222,6 @@ class BackupAndRestoreViewModel @Inject constructor(
 
     fun restorePasswordProtectedBackup() = viewModelScope.launch(dispatcher.main()) {
         state = state.copy(
-            backupRestoreProgress = BackupRestoreProgress.InProgress(PROGRESS_50),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
         delay(SMALL_DELAY)
@@ -301,12 +295,12 @@ class BackupAndRestoreViewModel @Inject constructor(
     private fun restoreBackup(backupFilePath: Path, password: String?) = viewModelScope.launch {
         val result = when (state.backupFileFormat) {
             BackupFileFormat.ANDROID -> importBackup(backupFilePath, password)
-            BackupFileFormat.MULTIPLATFORM -> importMpBackup(backupFilePath, password)
+            BackupFileFormat.MULTIPLATFORM -> importMpBackup(backupFilePath, password) { progress ->
+                updateRestoreProgress(progress)
+            }
         }
         when (result) {
             RestoreBackupResult.Success -> {
-                updateCreationProgress(PROGRESS_75)
-                delay(SMALL_DELAY)
                 state = state.copy(
                     backupRestoreProgress = BackupRestoreProgress.Finished,
                     restorePasswordValidation = PasswordValidation.Valid
@@ -322,15 +316,16 @@ class BackupAndRestoreViewModel @Inject constructor(
         }
     }
 
-    private suspend fun updateCreationProgress(progress: Float) = withContext(dispatcher.main()) {
+    private fun updateCreationProgress(progress: Float) = viewModelScope.launch {
         state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(progress))
+    }
+
+    private fun updateRestoreProgress(progress: Float) = viewModelScope.launch {
+        state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(progress))
     }
 
     internal companion object {
         const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"
         const val SMALL_DELAY = 300L
-        const val PROGRESS_25 = 0.25f
-        const val PROGRESS_50 = 0.50f
-        const val PROGRESS_75 = 0.75f
     }
 }

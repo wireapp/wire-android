@@ -16,12 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -30,7 +26,6 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
-import com.wire.android.ui.common.dimensions
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @Composable

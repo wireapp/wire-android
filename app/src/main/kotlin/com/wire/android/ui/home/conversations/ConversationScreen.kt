@@ -1127,7 +1127,6 @@ private fun ConversationScreenContent(
         onAudioRecorded = onAudioRecorded,
     )
 
-
     EmojiPickerBottomSheet(
         sheetState = emojiPickerState,
         onEmojiSelected = { emoji, messageId ->

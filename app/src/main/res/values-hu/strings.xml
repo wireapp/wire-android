@@ -426,13 +426,11 @@
     <string name="label_quote_original_message_is_a_picture">Kép</string>
     <string name="label_quote_original_message_date">%s eredeti üzenete</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Készítsen személyes fiókot</string>
     <string name="create_personal_account_summary_title">Személyes fiók elkészítve</string>
     <string name="create_personal_account_text">Biztonságos csevegés barátokkal és családtagokkal a Wire nyilvános kiszolgálóját használva.</string>
     <string name="create_personal_account_email_text">Adja meg e-mail címét a legbiztonságosabb együttműködési felület használatához.</string>
     <string name="create_personal_account_details_text">Adja meg személyes adatait:</string>
     <string name="create_personal_account_summary_text">Sikeresen létrehozta személyes fiókját. Kezdjen biztonságosan kommunikálni – bárhol is legyen!</string>
-    <string name="create_team_title">Csapat létrehozása</string>
     <string name="create_team_summary_title">Csapat létrehozva</string>
     <string name="create_team_content_title">Ingyenes Wire</string>
     <string name="create_team_text">Üzenetküldés kis szervezetek vagy egyszemélyes tanácsadó cégek számára.\n</string>

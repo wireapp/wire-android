@@ -108,6 +108,7 @@ fun GroupConversationSettings(
             GroupNameItem(
                 groupName = state.groupName,
                 canBeChanged = state.isUpdatingNameAllowed,
+                isChannel = state.isChannel,
                 onClick = onEditGroupName,
             )
         }
@@ -243,10 +244,13 @@ fun ConversationProtocolDetails(
 private fun GroupNameItem(
     groupName: String,
     canBeChanged: Boolean,
+    isChannel: Boolean,
     onClick: () -> Unit = {},
 ) {
     GroupConversationOptionsItem(
-        label = stringResource(id = R.string.conversation_details_options_group_name),
+        label = stringResource(
+            id = if (isChannel) R.string.channel_name_title else R.string.conversation_details_options_group_name
+        ),
         title = groupName,
         clickable = Clickable(
             enabled = canBeChanged,

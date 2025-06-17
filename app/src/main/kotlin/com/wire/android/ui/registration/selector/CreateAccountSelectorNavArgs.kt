@@ -27,12 +27,16 @@ import kotlinx.parcelize.TypeParceler
 
 @Parcelize
 @TypeParceler<ServerConfig.Links?, ServerConfigLinksParceler>()
-data class CreateAccountSelectorNavArgs(val customServerConfig: ServerConfig.Links? = null) : Parcelable
+data class CreateAccountSelectorNavArgs(
+    val customServerConfig: ServerConfig.Links? = null,
+    val email: String? = null
+) : Parcelable
 
 object ServerConfigLinksParceler : Parceler<ServerConfig.Links?> {
     override fun create(parcel: Parcel) = parcel.readBundle()?.let {
         Bundlizer.unbundle(ServerConfig.Links.serializer(), it)
     }
+
     override fun ServerConfig.Links?.write(parcel: Parcel, flags: Int) {
         if (this != null) {
             parcel.writeBundle(Bundlizer.bundle(ServerConfig.Links.serializer(), this))

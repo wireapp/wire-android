@@ -24,8 +24,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
@@ -55,8 +55,8 @@ class EditConversationMetadataViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val renameConversation: RenameConversationUseCase,
-    override val savedStateHandle: SavedStateHandle
-) : SavedStateViewModel(savedStateHandle) {
+    val savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     private val editConversationNameNavArgs: EditConversationNameNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = editConversationNameNavArgs.conversationId
@@ -102,18 +102,17 @@ class EditConversationMetadataViewModel @Inject constructor(
         editConversationState = GroupNameValidator.onGroupNameErrorAnimated(editConversationState)
     }
 
-    fun saveNewGroupName(
-        onFailure: () -> Unit,
-        onSuccess: () -> Unit,
-    ) {
+    fun saveNewGroupName() {
         viewModelScope.launch {
             withContext(dispatcher.io()) {
                 renameConversation(conversationId, editConversationNameTextState.text.toString())
             }.let { renamingResult ->
-                when (renamingResult) {
-                    is RenamingResult.Failure -> onFailure()
-                    is RenamingResult.Success -> onSuccess()
-                }
+                editConversationState = editConversationState.copy(
+                    completed = when (renamingResult) {
+                        is RenamingResult.Failure -> GroupMetadataState.Completed.Failure
+                        is RenamingResult.Success -> GroupMetadataState.Completed.Success
+                    }
+                )
             }
         }
     }

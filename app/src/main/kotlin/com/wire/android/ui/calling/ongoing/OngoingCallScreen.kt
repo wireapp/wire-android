@@ -67,6 +67,7 @@ import com.wire.android.R
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.ConversationName
+import com.wire.android.ui.calling.SharedCallingViewActions
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
 import com.wire.android.ui.calling.controlbuttons.HangUpOngoingButton
@@ -85,6 +86,7 @@ import com.wire.android.ui.calling.ongoing.incallreactions.rememberInCallReactio
 import com.wire.android.ui.calling.ongoing.participantsview.FloatingSelfUserTile
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.ConversationVerificationIcons
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -160,12 +162,11 @@ fun OngoingCallScreen(
         }
     }
 
-    val hangUpCall = remember {
-        {
-            sharedCallingViewModel.hangUpCall { activity.finishAndRemoveTask() }
+    HandleActions(sharedCallingViewModel.actions) { action ->
+        when (action) {
+            is SharedCallingViewActions.HungUpCall -> activity.finishAndRemoveTask()
         }
     }
-
     val onCollapse = remember {
         {
             if (shouldUsePiPMode) {
@@ -197,7 +198,7 @@ fun OngoingCallScreen(
         shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
         toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
         toggleMute = sharedCallingViewModel::toggleMute,
-        hangUpCall = hangUpCall,
+        hangUpCall = sharedCallingViewModel::hangUpCall,
         toggleVideo = sharedCallingViewModel::toggleVideo,
         flipCamera = sharedCallingViewModel::flipCamera,
         setVideoPreview = sharedCallingViewModel::setVideoPreview,

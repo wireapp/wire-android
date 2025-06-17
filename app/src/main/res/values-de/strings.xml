@@ -392,6 +392,15 @@
     <string name="label_quote_original_message_is_a_picture">Bild</string>
     <string name="label_quote_original_message_date">Ursprüngliche Nachricht vom %s</string>
     <!-- Create Account -->
+    <string name="create_account_selector_title">Wie werden Sie Wire verwenden?</string>
+    <string name="create_account_selector_team_title">Für die Zusammenarbeit</string>
+    <string name="create_account_selector_team_subtitle">Arbeiten Sie sicher mit Ihrem Team.</string>
+    <string name="create_account_selector_team_highlight_one">Kommunizieren Sie mit Ihren Kollegen und teilen Sie Dokumente über eine einzige App</string>
+    <string name="create_account_selector_team_highlight_two">Kostenlos starten, jederzeit upgraden</string>
+    <string name="create_account_selector_personal_title">Für den privaten Gebrauch</string>
+    <string name="create_account_selector_personal_subtitle">Chatten Sie mit Freunden und Ihrer Familie.</string>
+    <string name="create_account_selector_personal_highlight_one">Senden Sie Nachrichten und teilen Sie Bilder</string>
+    <string name="create_account_selector_personal_highlight_two">Immer kostenlos</string>
     <string name="create_personal_account_title">Privates Benutzerkonto erstellen</string>
     <string name="create_personal_account_summary_title">Privates Benutzerkonto erstellt</string>
     <string name="create_personal_account_text">Chatten Sie sicher mit Freunden und Ihrer Familie.</string>
@@ -411,12 +420,20 @@
     <string name="create_account_email_footer_text">Haben Sie bereits ein Benutzerkonto? </string>
     <string name="create_account_email_terms_dialog_title">Nutzungsbedingungen</string>
     <string name="create_account_email_terms_dialog_text">Indem Sie \"Weiter\" auswählen, erklären Sie sich mit unseren Nutzungsbedingungen und unserer Datenschutzerklärung einverstanden.</string>
+    <string name="create_account_email_share_anonymous_data_label">Ich bin mit dem Teilen anonymer Nutzungsdaten einverstanden. Alle Details finden Sie in unserer</string>
+    <string name="create_account_email_share_anonymous_data_link_label">Datenschutzerklärung</string>
+    <string name="create_account_email_share_anonymous_data_optional_label">(Optional)</string>
+    <string name="create_account_email_backlink_to_team_label">Wollen Sie eher im Team zusammenarbeiten?</string>
     <string name="create_account_email_terms_dialog_view_policy">Nutzungsbedingungen und Datenschutzerklärung anzeigen</string>
     <string name="create_account_email_already_in_use_error">Die E-Mail-Adresse wird bereits verwendet.</string>
     <string name="create_account_email_blacklisted_error">Ihre E-Mail-Adresse wurde als nicht vertrauenswürdig identifiziert, zum Beispiel aufgrund einer Ablehnung durch einen Spam-Filter.</string>
     <string name="create_account_email_invalid_error">Bitte geben Sie ein gültiges Format für Ihre E-Mail-Adresse ein.</string>
     <string name="create_account_email_domain_blocked_error">Sie können dieses Benutzerkonto nicht einrichten, da Ihre E-Mail-Domain absichtlich blockiert ist.</string>
     <string name="create_account_details_first_name_placeholder">Max</string>
+    <string name="create_account_details_name_placeholder">Name eingeben</string>
+    <string name="create_account_details_password_placeholder">Passwort eingeben</string>
+    <string name="create_account_details_password_confirm_placeholder">Passwort bestätigen</string>
+    <string name="create_account_details_name_label">NAME</string>
     <string name="create_account_details_first_name_label">VORNAME</string>
     <string name="create_account_details_last_name_placeholder">Müller</string>
     <string name="create_account_details_last_name_label">NACHNAME</string>

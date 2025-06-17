@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -77,21 +78,23 @@ fun ChangeDisplayNameScreen(
     viewModel: ChangeDisplayNameViewModel = hiltViewModel()
 ) {
     with(viewModel) {
+        LaunchedEffect(viewModel.displayNameState.completed) {
+            when (viewModel.displayNameState.completed) {
+                DisplayNameState.Completed.Success -> {
+                    resultNavigator.setResult(true)
+                    resultNavigator.navigateBack()
+                }
+                DisplayNameState.Completed.Failure -> {
+                    resultNavigator.setResult(false)
+                    resultNavigator.navigateBack()
+                }
+                DisplayNameState.Completed.None -> Unit // No action needed
+            }
+        }
         ChangeDisplayNameContent(
             textState = viewModel.textState,
             state = viewModel.displayNameState,
-            onContinuePressed = {
-                saveDisplayName(
-                    onFailure = {
-                        resultNavigator.setResult(false)
-                        resultNavigator.navigateBack()
-                    },
-                    onSuccess = {
-                        resultNavigator.setResult(true)
-                        resultNavigator.navigateBack()
-                    }
-                )
-            },
+            onContinuePressed = ::saveDisplayName,
             onBackPressed = navigator::navigateBack
         )
     }

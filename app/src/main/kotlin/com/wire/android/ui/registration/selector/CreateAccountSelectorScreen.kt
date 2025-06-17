@@ -18,6 +18,9 @@
 
 package com.wire.android.ui.registration.selector
 
+import android.annotation.SuppressLint
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -38,33 +41,40 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.config.orDefault
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
+import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
-import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
+import com.wire.android.ui.destinations.CreateAccountDataDetailScreenDestination
+import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@RootNavGraph
+@CreateAccountNavGraph(start = true)
 @WireDestination(
     navArgsDelegate = CreateAccountSelectorNavArgs::class,
     style = AuthPopUpNavigationAnimation::class
@@ -74,31 +84,42 @@ fun CreateAccountSelectorScreen(
     navigator: Navigator,
     viewModel: CreateAccountSelectorViewModel = hiltViewModel()
 ) {
-
+    val context = LocalContext.current
     fun navigateToEmailScreen() {
-        val createAccountNavArgs = CreateAccountNavArgs(
-            flowType = CreateAccountFlowType.CreatePersonalAccount,
-            customServerConfig = viewModel.navArgs.customServerConfig
+        val createAccountNavArgs = CreateAccountDataNavArgs(
+            customServerConfig = viewModel.serverConfig.orDefault(),
+            userRegistrationInfo = UserRegistrationInfo(viewModel.email)
         )
-        navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
+        navigator.navigate(NavigationCommand(CreateAccountDataDetailScreenDestination(createAccountNavArgs)))
     }
 
-    fun navigateToEmailTeamScreen() {
-        val createAccountNavArgs = CreateAccountNavArgs(
-            flowType = CreateAccountFlowType.CreateTeam,
-            customServerConfig = viewModel.navArgs.customServerConfig
+    val startForResult = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+        navigator.navigate(
+            NavigationCommand(
+                NewLoginPasswordScreenDestination(PreFilledUserIdentifierType.PreFilled(viewModel.email)),
+                BackStackMode.REMOVE_CURRENT_NESTED_GRAPH
+            )
         )
-        navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
+    }
+
+    val teamAccountCreationUrl =
+        viewModel.teamAccountCreationUrl + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
+
+    fun navigateToTeamScreen() {
+        val customTabsIntent = CustomTabsHelper.buildCustomTabIntent(context)
+        customTabsIntent.intent.setData(teamAccountCreationUrl.toUri())
+        startForResult.launch(customTabsIntent.intent)
     }
 
     CreateAccountSelectorContent(
         customServerLinks = viewModel.serverConfig,
         onPersonalAccountCreationClicked = ::navigateToEmailScreen,
-        onTeamAccountCreationClicked = ::navigateToEmailTeamScreen,
+        onTeamAccountCreationClicked = ::navigateToTeamScreen,
         onNavigateBack = navigator::navigateBack,
     )
 }
 
+@SuppressLint("ComposeModifierMissing")
 @Composable
 fun CreateAccountSelectorContent(
     customServerLinks: ServerConfig.Links?,
@@ -161,7 +182,7 @@ fun CreateAccountSelectorContent(
 }
 
 /**
- * Metadata for the accounty type container styles.
+ * Metadata for the account type container styles.
  */
 data class AccountTypeStyling(
     val containerBorderColor: Color,

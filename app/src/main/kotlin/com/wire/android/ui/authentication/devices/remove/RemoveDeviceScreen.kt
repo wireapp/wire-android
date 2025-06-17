@@ -29,15 +29,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
@@ -51,6 +47,7 @@ import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -82,8 +79,6 @@ fun RemoveDeviceScreen(
     viewModel: RemoveDeviceViewModel = hiltViewModel(),
     clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
 ) {
-    val lifecycle = LocalLifecycleOwner.current
-
     fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
         NavigationCommand(
             destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
@@ -130,13 +125,9 @@ fun RemoveDeviceScreen(
         )
     }
 
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.actions.collect { action ->
-                when (action) {
-                    is OnComplete -> navigateAfterSuccess(action.initialSyncCompleted, action.isE2EIRequired)
-                }
-            }
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is OnComplete -> navigateAfterSuccess(action.initialSyncCompleted, action.isE2EIRequired)
         }
     }
 }

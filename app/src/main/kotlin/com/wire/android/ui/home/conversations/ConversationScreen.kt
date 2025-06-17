@@ -73,9 +73,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -103,6 +100,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
@@ -140,8 +138,8 @@ import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewM
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewActions
-import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
+import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
@@ -282,7 +280,6 @@ fun ConversationScreen(
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
-    val lifecycle = LocalLifecycleOwner.current
 
     LaunchedEffect(conversationScreenState.isAnySheetVisible) {
         with(messageComposerStateHolder) {
@@ -328,20 +325,16 @@ fun ConversationScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            conversationCallViewModel.actions.collect { action ->
-                when (action) {
-                    is ConversationCallViewActions.InitiatedCall -> {
-                        context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString()))
-                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
-                    }
+    HandleActions(conversationCallViewModel.actions) { action ->
+        when (action) {
+            is ConversationCallViewActions.InitiatedCall -> {
+                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString()))
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
+            }
 
-                    is ConversationCallViewActions.JoinedCall -> {
-                        context.startActivity(getOngoingCallIntent(context, action.conversationId.toString()))
-                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                    }
-                }
+            is ConversationCallViewActions.JoinedCall -> {
+                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString()))
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
             }
         }
     }

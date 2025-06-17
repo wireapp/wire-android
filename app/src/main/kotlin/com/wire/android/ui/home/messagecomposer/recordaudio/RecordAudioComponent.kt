@@ -34,8 +34,8 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
@@ -89,17 +89,13 @@ fun RecordAudioComponent(
         }
     }
 
-    LaunchedEffect(Unit) {
-        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.actions.collect { action ->
-                when (action) {
-                    RecordAudioViewActions.Discarded -> onCloseRecordAudio()
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            RecordAudioViewActions.Discarded -> onCloseRecordAudio()
 
-                    is RecordAudioViewActions.Recorded -> {
-                        onAudioRecorded(action.uriAsset)
-                        onCloseRecordAudio()
-                    }
-                }
+            is RecordAudioViewActions.Recorded -> {
+                onAudioRecorded(action.uriAsset)
+                onCloseRecordAudio()
             }
         }
     }

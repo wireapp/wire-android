@@ -200,7 +200,7 @@ class BackupAndRestoreViewModelTest {
         // Then
         assertEquals(BackupCreationProgress.Failed, backupAndRestoreViewModel.state.backupCreationProgress)
         assert(backupAndRestoreViewModel.latestCreatedBackup == null)
-        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = password, any())}
+        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = password, any()) }
     }
 
     @Test
@@ -504,7 +504,7 @@ class BackupAndRestoreViewModelTest {
             withGetLastBackupDateSeconds()
             every { Uri.parse("some-backup") } returns mockUri
             coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
-            coEvery { createMpBackupFile(any(), any())} returns CreateBackupResult.Success("".toPath(), "")
+            coEvery { createMpBackupFile(any(), any()) } returns CreateBackupResult.Success("".toPath(), "")
             coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success(BackupFileFormat.ANDROID, true)
         }
 

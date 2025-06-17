@@ -287,13 +287,11 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_quote_original_message_is_a_picture">Imagen</string>
     <string name="label_quote_original_message_date">Mensaje original de %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Crear una cuenta personal</string>
     <string name="create_personal_account_summary_title">Cuenta personal creada</string>
     <string name="create_personal_account_text">Chatea de manera segura con amigos y familiares utilizando el servidor en la nube p&#250;blica de Wire.</string>
     <string name="create_personal_account_email_text">Ingresa tu correo electr&#243;nico para empezar a utilizar la plataforma de colaboraci&#243;n m&#225;s segura.</string>
     <string name="create_personal_account_details_text">Ingresa tus detalles personales:</string>
     <string name="create_personal_account_summary_text">Has creado tu cuenta personal con &#233;xito. &#161;Empieza a comunicarte de manera segura - donde sea que est&#233;s!</string>
-    <string name="create_team_title">Crear un equipo</string>
     <string name="create_team_summary_title">Equipo creado</string>
     <string name="create_team_content_title">Wire gratis</string>
     <string name="create_team_text">Mensajer&#237;a para peque&#241;as organizaciones o empresas de consultor&#237;a personales.</string>

@@ -23,11 +23,11 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
@@ -40,13 +40,10 @@ import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -57,19 +54,13 @@ class RemoveDeviceViewModel @Inject constructor(
     private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val userDataStore: UserDataStore
-) : ViewModel() {
+) : ActionsViewModel<RemoveDeviceViewAction>() {
 
     val passwordTextState: TextFieldState = TextFieldState()
     var state: RemoveDeviceState by mutableStateOf(
         RemoveDeviceState(deviceList = listOf(), removeDeviceDialogState = RemoveDeviceDialogState.Hidden, isLoadingClientsList = true)
     )
         private set
-
-    private val _actions = Channel<RemoveDeviceViewAction>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    internal val actions = _actions.receiveAsFlow()
 
     init {
         loadClientsList()
@@ -207,14 +198,10 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private fun sendAction(action: RemoveDeviceViewAction) {
-        viewModelScope.launch { _actions.send(action) }
-    }
-
     private companion object {
         const val REGISTER_CLIENT_AFTER_DELETE_DELAY = 2000L
     }
 }
 
-internal sealed interface RemoveDeviceViewAction
+sealed interface RemoveDeviceViewAction
 internal data class OnComplete(val initialSyncCompleted: Boolean, val isE2EIRequired: Boolean) : RemoveDeviceViewAction

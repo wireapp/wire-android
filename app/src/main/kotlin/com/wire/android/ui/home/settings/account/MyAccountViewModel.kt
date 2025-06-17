@@ -22,20 +22,19 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import com.wire.kalium.common.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOn
@@ -49,7 +48,6 @@ import kotlin.properties.Delegates
 @Suppress("LongParameterList")
 @HiltViewModel
 class MyAccountViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val getSelf: ObserveSelfUserUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
     private val isSelfATeamMember: IsSelfATeamMemberUseCase,
@@ -58,7 +56,7 @@ class MyAccountViewModel @Inject constructor(
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
     private val dispatchers: DispatcherProvider,
     private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     var myAccountState by mutableStateOf(MyAccountState())
         private set

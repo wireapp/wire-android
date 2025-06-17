@@ -19,8 +19,8 @@ package com.wire.android.ui.home.conversations.messages.draft
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.toUiMention
@@ -37,10 +37,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MessageDraftViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val getMessageDraft: GetMessageDraftUseCase,
     private val getQuotedMessage: GetQuoteMessageForConversationUseCase,
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId

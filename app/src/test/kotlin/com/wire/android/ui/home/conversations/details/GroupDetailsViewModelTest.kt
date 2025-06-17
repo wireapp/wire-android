@@ -15,11 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
- @file:Suppress("LargeClass")
+@file:Suppress("LargeClass")
+
 package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.work.WorkManager
+import app.cash.turbine.test
+import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -35,10 +38,13 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
 import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -84,6 +90,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import com.wire.kalium.logic.feature.team.Result as DeleteTeamConversationResult
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -174,7 +181,7 @@ class GroupDetailsViewModelTest {
         viewModel.updateConversationArchiveStatus(
             dialogState = dialogState,
             timestamp = archivingEventTimestamp
-        ) { }
+        )
 
         // Then
         coVerify(exactly = 1) {
@@ -223,7 +230,7 @@ class GroupDetailsViewModelTest {
         viewModel.updateConversationArchiveStatus(
             dialogState = dialogState,
             timestamp = archivingEventTimestamp
-        ) {}
+        )
 
         // Then
         coVerify(exactly = 1) {
@@ -838,6 +845,70 @@ class GroupDetailsViewModelTest {
         assertEquals(params.expectedResult, viewModel.groupOptionsState.value.isServicesAllowed)
     }
 
+    @Test
+    fun `given success, when deleting group, then emit Deleted action`() = runTest {
+        // given
+        val groupDialogState = GroupDialogState(TestConversation.ID, "name")
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withDeleteTeamConversation(DeleteTeamConversationResult.Success)
+            .arrange()
+        viewModel.actions.test {
+            // when
+            viewModel.deleteGroup(groupDialogState)
+            advanceUntilIdle()
+            // then
+            assertIs<GroupConversationDetailsViewAction.Deleted>(awaitItem())
+        }
+    }
+
+    @Test
+    fun `given failure, when deleting group, then emit Message action`() = runTest {
+        // given
+        val groupDialogState = GroupDialogState(TestConversation.ID, "name")
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withDeleteTeamConversation(DeleteTeamConversationResult.Failure.GenericFailure(CoreFailure.Unknown(null)))
+            .arrange()
+        viewModel.actions.test {
+            // when
+            viewModel.deleteGroup(groupDialogState)
+            advanceUntilIdle()
+            // then
+            assertIs<GroupConversationDetailsViewAction.Message>(awaitItem())
+        }
+    }
+
+    @Test
+    fun `given success, when leaving group, then emit Left action`() = runTest {
+        // given
+        val groupDialogState = LeaveGroupDialogState(TestConversation.ID, "name", false)
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withRemoveMemberFromConversation(RemoveMemberFromConversationUseCase.Result.Success)
+            .arrange()
+        viewModel.actions.test {
+            // when
+            viewModel.leaveGroup(groupDialogState)
+            advanceUntilIdle()
+            // then
+            assertIs<GroupConversationDetailsViewAction.Left>(awaitItem())
+        }
+    }
+
+    @Test
+    fun `given failure, when leaving group, then emit Message action`() = runTest {
+        // given
+        val groupDialogState = LeaveGroupDialogState(TestConversation.ID, "name", false)
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withRemoveMemberFromConversation(RemoveMemberFromConversationUseCase.Result.Failure(CoreFailure.Unknown(null)))
+            .arrange()
+        viewModel.actions.test {
+            // when
+            viewModel.leaveGroup(groupDialogState)
+            advanceUntilIdle()
+            // then
+            assertIs<GroupConversationDetailsViewAction.Message>(awaitItem())
+        }
+    }
+
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         val testGroup = ConversationDetails.Group.Regular(
@@ -1023,6 +1094,14 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     fun withDefaultProtocol(protocol: SupportedProtocol) = apply {
         every { getDefaultProtocolUseCase() } returns protocol
+    }
+
+    fun withDeleteTeamConversation(result: DeleteTeamConversationResult) = apply {
+        coEvery { deleteTeamConversation(any()) } returns result
+    }
+
+    fun withRemoveMemberFromConversation(result: RemoveMemberFromConversationUseCase.Result) = apply {
+        coEvery { removeMemberFromConversation(any(), any()) } returns result
     }
 
     fun arrange() = this to viewModel

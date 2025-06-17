@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,14 +41,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.colorsScheme
@@ -59,7 +56,6 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.flow.collectLatest
 
 @WireDestination(
     navArgsDelegate = PublicLinkNavArgs::class,
@@ -73,7 +69,6 @@ fun PublicLinkScreen(
 ) {
 
     val context = LocalContext.current
-    val lifecycle = LocalLifecycleOwner.current
     val clipboardManager = LocalClipboardManager.current
     val state by viewModel.state.collectAsState()
 
@@ -126,18 +121,14 @@ fun PublicLinkScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.actions.collectLatest { action ->
-                when (action) {
-                    is ShowError -> {
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is ShowError -> {
 
-                        Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
 
-                        if (action.closeScreen) {
-                            resultNavigator.navigateBack()
-                        }
-                    }
+                if (action.closeScreen) {
+                    resultNavigator.navigateBack()
                 }
             }
         }

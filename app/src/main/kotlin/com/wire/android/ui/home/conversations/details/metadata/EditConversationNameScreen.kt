@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.details.metadata
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -44,22 +45,24 @@ fun EditConversationNameScreen(
     viewModel: EditConversationMetadataViewModel = hiltViewModel(),
 ) {
     with(viewModel) {
+        LaunchedEffect(editConversationState.completed) {
+            when (editConversationState.completed) {
+                GroupMetadataState.Completed.Success -> {
+                    resultNavigator.setResult(true)
+                    resultNavigator.navigateBack()
+                }
+                GroupMetadataState.Completed.Failure -> {
+                    resultNavigator.setResult(false)
+                    resultNavigator.navigateBack()
+                }
+                GroupMetadataState.Completed.None -> Unit // No action needed
+            }
+        }
         GroupNameScreen(
             newGroupState = editConversationState,
             newGroupNameTextState = editConversationNameTextState,
             onGroupNameErrorAnimated = ::onGroupNameErrorAnimated,
-            onContinuePressed = {
-                saveNewGroupName(
-                    onFailure = {
-                        resultNavigator.setResult(false)
-                        resultNavigator.navigateBack()
-                    },
-                    onSuccess = {
-                        resultNavigator.setResult(true)
-                        resultNavigator.navigateBack()
-                    }
-                )
-            },
+            onContinuePressed = ::saveNewGroupName,
             onBackPressed = navigator::navigateBack
         )
     }

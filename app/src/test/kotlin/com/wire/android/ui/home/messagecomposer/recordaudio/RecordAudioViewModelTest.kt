@@ -199,12 +199,17 @@ class RecordAudioViewModelTest {
                 .withFilterEnabled(false)
                 .arrange()
 
-            // when
-            viewModel.showDiscardRecordingDialog {
+            viewModel.actions.test {
+                // when
+                viewModel.showDiscardRecordingDialog()
                 // then
                 assertEquals(
                     RecordAudioDialogState.Hidden,
                     viewModel.state.discardDialogState
+                )
+                assertEquals(
+                    RecordAudioViewActions.Discarded,
+                    awaitItem()
                 )
             }
         }
@@ -219,13 +224,15 @@ class RecordAudioViewModelTest {
 
             viewModel.startRecording()
 
-            // when
-            viewModel.showDiscardRecordingDialog {
+            viewModel.actions.test {
+                // when
+                viewModel.showDiscardRecordingDialog()
                 // then
                 assertEquals(
                     RecordAudioDialogState.Shown,
                     viewModel.state.discardDialogState
                 )
+                expectNoEvents()
             }
         }
 
@@ -294,8 +301,9 @@ class RecordAudioViewModelTest {
             viewModel.startRecording()
             viewModel.stopRecording()
 
-            // when
-            viewModel.discardRecording {
+            viewModel.actions.test {
+                // when
+                viewModel.discardRecording()
                 // then
                 assertEquals(
                     RecordAudioButtonState.ENABLED,
@@ -309,10 +317,14 @@ class RecordAudioViewModelTest {
                     null,
                     viewModel.state.originalOutputFile
                 )
-            }
+                assertEquals(
+                    RecordAudioViewActions.Discarded,
+                    awaitItem()
+                )
 
-            verify(exactly = 1) { arrangement.audioFocusHelper.requestExclusive() }
-            verify(exactly = 2) { arrangement.audioFocusHelper.abandonExclusive() } // 1 before start recording, 1 after
+                verify(exactly = 1) { arrangement.audioFocusHelper.requestExclusive() }
+                verify(exactly = 2) { arrangement.audioFocusHelper.abandonExclusive() } // 1 before start recording, 1 after
+            }
         }
 
     @Test

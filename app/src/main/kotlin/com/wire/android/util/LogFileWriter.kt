@@ -38,6 +38,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.cancelAndJoin
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
@@ -110,11 +113,19 @@ class LogFileWriter(
             flushJob = fileWriterCoroutineScope.launch {
                 while (isActive) {
                     delay(config.flushIntervalMs)
-                    bufferMutex.withLock {
-                        if (logBuffer.isNotEmpty()) {
-                            flushBuffer()
-                            lastFlushTime = System.currentTimeMillis()
+                    try {
+                        withTimeout(config.bufferLockTimeoutMs) {
+                            bufferMutex.withLock {
+                                if (logBuffer.isNotEmpty()) {
+                                    flushBuffer()
+                                    lastFlushTime = System.currentTimeMillis()
+                                }
+                            }
                         }
+                    } catch (e: TimeoutCancellationException) {
+                        appLogger.w("Periodic flush timed out, buffer may be locked by another operation")
+                    } catch (e: Exception) {
+                        appLogger.e("Error during periodic flush", e)
                     }
                 }
             }
@@ -151,17 +162,58 @@ class LogFileWriter(
      */
     suspend fun stop() {
         appLogger.i("KaliumFileWritter.stop called; Stopping log collection.")
-        writingJob?.cancel()
-        flushJob?.cancel()
+        try {
+            // Cancel jobs with timeout to avoid hanging
+            writingJob?.let { job ->
+                try {
+                    withTimeout(config.flushTimeoutMs) {
+                        job.cancelAndJoin()
+                    }
+                } catch (e: TimeoutCancellationException) {
+                    appLogger.w("Writing job cancellation timed out, forcing cancellation")
+                    job.cancel()
+                }
+            }
 
-        // Flush any remaining buffered content
-        bufferMutex.withLock {
-            flushBuffer()
+            flushJob?.let { job ->
+                try {
+                    withTimeout(config.flushTimeoutMs) {
+                        job.cancelAndJoin()
+                    }
+                } catch (e: TimeoutCancellationException) {
+                    appLogger.w("Flush job cancellation timed out, forcing cancellation")
+                    job.cancel()
+                }
+            }
+
+            // Flush any remaining buffered content with timeout
+            try {
+                withTimeout(config.flushTimeoutMs) {
+                    bufferMutex.withLock {
+                        flushBuffer()
+                    }
+                }
+            } catch (e: TimeoutCancellationException) {
+                appLogger.w("Final buffer flush timed out, some logs may be lost")
+            } catch (e: Exception) {
+                appLogger.e("Error during final buffer flush", e)
+            }
+        } finally {
+            // Ensure resources are cleaned up regardless of exceptions
+            try {
+                bufferedWriter?.close()
+            } catch (e: Exception) {
+                appLogger.e("Error closing buffered writer", e)
+            } finally {
+                bufferedWriter = null
+            }
+
+            try {
+                clearActiveLoggingFileContent()
+            } catch (e: Exception) {
+                appLogger.e("Error clearing active logging file content", e)
+            }
         }
-
-        bufferedWriter?.close()
-        bufferedWriter = null
-        clearActiveLoggingFileContent()
     }
 
     /**
@@ -169,8 +221,18 @@ class LogFileWriter(
      * This is useful before sharing logs to ensure all recent entries are included.
      */
     suspend fun forceFlush() {
-        bufferMutex.withLock {
-            flushBuffer()
+        try {
+            withTimeout(config.flushTimeoutMs) {
+                bufferMutex.withLock {
+                    flushBuffer()
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            appLogger.w("Force flush operation timed out after ${config.flushTimeoutMs}ms")
+            throw e
+        } catch (e: Exception) {
+            appLogger.e("Error during force flush", e)
+            throw e
         }
     }
 
@@ -187,23 +249,34 @@ class LogFileWriter(
      * @return The length, in bytes, of the log file.
      */
     private suspend fun writeLineToFile(text: String): Long = withContext(Dispatchers.IO) {
-        bufferMutex.withLock {
-            logBuffer.add(text)
+        try {
+            withTimeout(config.bufferLockTimeoutMs) {
+                bufferMutex.withLock {
+                    logBuffer.add(text)
 
-            // Check memory pressure periodically
-            if (logBuffer.size % MEMORY_PRESSURE_CHECK_INTERVAL == 0) {
-                handleMemoryPressure()
+                    // Check memory pressure periodically
+                    if (logBuffer.size % MEMORY_PRESSURE_CHECK_INTERVAL == 0) {
+                        handleMemoryPressure()
+                    }
+
+                    val currentTime = System.currentTimeMillis()
+                    val shouldFlush = logBuffer.size >= config.maxBufferSize ||
+                        (config.enableAsyncFlushing && (currentTime - lastFlushTime) >= config.flushIntervalMs)
+
+                    if (shouldFlush) {
+                        flushBuffer()
+                        lastFlushTime = currentTime
+                    }
+
+                    return@withLock activeLoggingFile.length()
+                }
             }
-
-            val currentTime = System.currentTimeMillis()
-            val shouldFlush = logBuffer.size >= config.maxBufferSize ||
-                (config.enableAsyncFlushing && (currentTime - lastFlushTime) >= config.flushIntervalMs)
-
-            if (shouldFlush) {
-                flushBuffer()
-                lastFlushTime = currentTime
-            }
-
+        } catch (e: TimeoutCancellationException) {
+            appLogger.w("Buffer write operation timed out, log line may be lost: $text")
+            // Return current file length as fallback
+            return@withContext activeLoggingFile.length()
+        } catch (e: Exception) {
+            appLogger.e("Error writing to log buffer", e)
             return@withContext activeLoggingFile.length()
         }
     }

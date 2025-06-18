@@ -58,8 +58,8 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -107,7 +107,7 @@ class WireApplication : BaseApp() {
         super.onCreate()
 
         enableStrictMode()
-        
+
         setupGlobalExceptionHandler()
 
         startActivityLifecycleCallback()
@@ -167,19 +167,30 @@ class WireApplication : BaseApp() {
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun setupGlobalExceptionHandler() {
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
-        
         Thread.setDefaultUncaughtExceptionHandler { thread, exception ->
+            // Use fire-and-forget approach to avoid blocking the crash handler
+            // which could lead to ANRs. We attempt a quick flush but don't wait for it.
             try {
-                runBlocking(Dispatchers.IO) {
-                    logFileWriter.get().forceFlush()
+                globalAppScope.launch(Dispatchers.IO) {
+                    try {
+                        // Use a very short timeout to avoid delaying the crash
+                        withTimeout(CRASH_FLUSH_TIMEOUT_MS) {
+                            logFileWriter.get().forceFlush()
+                        }
+                        appLogger.i("Logs flushed before crash")
+                    } catch (e: Exception) {
+                        // Log errors but don't block the crash handler
+                        appLogger.e("Failed to flush logs before crash", e)
+                    }
                 }
-                appLogger.i("Logs flushed before crash")
             } catch (e: Exception) {
-                appLogger.e("Failed to flush logs before crash", e)
+                // Ignore any launch failures - we don't want to interfere with crash handling
             }
-            
+
+            // Immediately call the default handler without waiting for flush
             defaultHandler?.uncaughtException(thread, exception)
         }
 
@@ -187,11 +198,11 @@ class WireApplication : BaseApp() {
             try {
                 val activityManager = getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager
                 activityManager.setProcessStateSummary(ByteArray(0))
-                
+
                 // This will be called after the app exits, so we can't flush here,
                 // but we log it for diagnostics
                 globalAppScope.launch {
-                    activityManager.getHistoricalProcessExitReasons(packageName, 0, 5)
+                    activityManager.getHistoricalProcessExitReasons(packageName, 0, MAX_HISTORICAL_EXIT_REASONS)
                         .forEach { info ->
                             when (info.reason) {
                                 android.app.ApplicationExitInfo.REASON_ANR -> {
@@ -369,5 +380,7 @@ class WireApplication : BaseApp() {
         }
 
         private const val TAG = "WireApplication"
+        private const val CRASH_FLUSH_TIMEOUT_MS = 1000L
+        private const val MAX_HISTORICAL_EXIT_REASONS = 5
     }
 }

@@ -420,13 +420,11 @@
     <string name="label_quote_original_message_is_a_picture">ඡායාරූපය</string>
     <string name="label_quote_original_message_date">%s මුල් පණිවිඩය</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">පෞද්. ගිණුමක් සාදන්න</string>
     <string name="create_personal_account_summary_title">පෞද්. ගිණුම සෑදිණි</string>
     <string name="create_personal_account_text">වයර් සේවාදායකයක් හරහා යහළුවන් හා පවුලේ අය සමඟ ආරක්‍ෂිතව කතාබහ කරන්න.</string>
     <string name="create_personal_account_email_text">වඩාත් ආරක්‍ෂිතම සහයෝගිත්‍ව වේදිකාව භාවිතයට වි-තැපැල් ලිපිනය යොදන්න.</string>
     <string name="create_personal_account_details_text">ඔබගේ විස්තර යොදන්න:</string>
     <string name="create_personal_account_summary_text">ඔබගේ පෞද්ගලික ගිණුම සාර්ථකව සාදා ඇත. ඔබ කොතැනක සිටියත් – ආරක්‍ෂිතව සන්නිවේදනය කරන්න!</string>
-    <string name="create_team_title">කණ්ඩායමක් සාදන්න</string>
     <string name="create_team_summary_title">කණ්ඩායම සෑදිණි</string>
     <string name="create_team_content_title">නොමිලේ වයර්</string>
     <string name="create_team_text">කුඩා සංවිධාන හෝ තනි පුද්ගල උපදේශන ව්‍යාපාර සඳහා සන්නිවේදනය.\n</string>
@@ -1285,7 +1283,6 @@
     <string name="backup_label_conversation_restored">සංවාද ප්‍රත්‍යර්පණය වී ඇත</string>
     <string name="backup_label_loading_conversations">සංවාද පූරණය වෙමින්</string>
     <string name="backup_dialog_restore_backup_title">උපස්ථයකින් ප්‍රත්‍යර්පණය </string>
-    <string name="backup_dialog_restore_backup_message">උපස්ථයේ අන්තර්ගතය මෙම උපාංගයේ සංවාද ඉතිහාසය ප්‍රතිස්ථාපනය කරනු ඇත. සමාන වේදිකාවක උපස්ථයකින් පමණක් ඉතිහාසය ප්‍රත්‍යර්පණයට හැකිය.</string>
     <string name="backup_dialog_choose_backup_file_option">උපස්ථ ගොනුව තෝරන්න</string>
     <string name="backup_label_enter_password">මුරපදය යොදන්න</string>
     <string name="backup_dialog_restore_backup_password_message">මෙම උපස්ථය මුරපදයකින් ආරක්‍ෂිතයි.</string>

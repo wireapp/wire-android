@@ -32,6 +32,7 @@ data class MessageComposerViewState(
     val mentionSearchResult: List<Contact> = listOf(),
     val mentionSearchQuery: String = String.EMPTY,
     val enterToSend: Boolean = false,
+    val isCallOngoing: Boolean = false,
 )
 
 sealed class AssetTooLargeDialogState {

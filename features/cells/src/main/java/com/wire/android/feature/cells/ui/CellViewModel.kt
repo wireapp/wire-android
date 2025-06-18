@@ -31,7 +31,7 @@ import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
-import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
@@ -44,9 +44,6 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -55,9 +52,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
@@ -69,7 +64,7 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class CellViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
@@ -77,7 +72,7 @@ class CellViewModel @Inject constructor(
     private val fileHelper: FileHelper,
     private val kaliumFileSystem: KaliumFileSystem,
     @ApplicationContext val context: Context
-) : SavedStateViewModel(savedStateHandle) {
+) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
 
@@ -88,15 +83,6 @@ class CellViewModel @Inject constructor(
     // Show bottom sheet with download progress.
     private val _downloadFileSheet: MutableStateFlow<CellNodeUi.File?> = MutableStateFlow(null)
     internal val downloadFileSheet = _downloadFileSheet.asStateFlow()
-
-    private val _actions = Channel<CellViewAction>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    internal val actions = _actions
-        .receiveAsFlow()
-        .flowOn(Dispatchers.Main.immediate)
-
     val isLoading = MutableStateFlow(false)
 
     // Download progress value for each file being downloaded.
@@ -392,10 +378,6 @@ class CellViewModel @Inject constructor(
 
     private fun onDownloadMenuClosed() {
         _downloadFileSheet.update { null }
-    }
-
-    private fun sendAction(action: CellViewAction) {
-        viewModelScope.launch { _actions.send(action) }
     }
 
     private fun updateDownloadData(uuid: String, block: () -> DownloadData) {

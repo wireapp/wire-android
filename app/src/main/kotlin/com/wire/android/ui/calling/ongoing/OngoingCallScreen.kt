@@ -46,6 +46,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +67,7 @@ import com.wire.android.R
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.ConversationName
+import com.wire.android.ui.calling.SharedCallingViewActions
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
 import com.wire.android.ui.calling.controlbuttons.HangUpOngoingButton
@@ -84,6 +86,7 @@ import com.wire.android.ui.calling.ongoing.incallreactions.rememberInCallReactio
 import com.wire.android.ui.calling.ongoing.participantsview.FloatingSelfUserTile
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.ConversationVerificationIcons
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
@@ -158,12 +161,11 @@ fun OngoingCallScreen(
         }
     }
 
-    val hangUpCall = remember {
-        {
-            sharedCallingViewModel.hangUpCall { activity.finishAndRemoveTask() }
+    HandleActions(sharedCallingViewModel.actions) { action ->
+        when (action) {
+            is SharedCallingViewActions.HungUpCall -> activity.finishAndRemoveTask()
         }
     }
-
     val onCollapse = remember {
         {
             if (shouldUsePiPMode) {
@@ -195,7 +197,7 @@ fun OngoingCallScreen(
         shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
         toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
         toggleMute = sharedCallingViewModel::toggleMute,
-        hangUpCall = hangUpCall,
+        hangUpCall = sharedCallingViewModel::hangUpCall,
         toggleVideo = sharedCallingViewModel::toggleVideo,
         flipCamera = sharedCallingViewModel::flipCamera,
         setVideoPreview = sharedCallingViewModel::setVideoPreview,
@@ -268,17 +270,15 @@ private fun HandleSendingVideoFeed(
 ) {
     // Pause the video feed when the lifecycle is paused and resume it when the lifecycle is resumed.
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+    val currentCallState by rememberUpdatedState(callState)
     DisposableEffect(lifecycleOwner) {
-
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE && callState.callStatus == CallStatus.ESTABLISHED && callState.isCameraOn) {
-                pauseSendingVideoFeed()
-            }
-            if (event == Lifecycle.Event.ON_RESUME && callState.callStatus == CallStatus.ESTABLISHED && callState.isCameraOn) {
-                startSendingVideoFeed()
-            }
-            if (event == Lifecycle.Event.ON_DESTROY) {
-                clearVideoPreview()
+            with(currentCallState) {
+                when {
+                    event == Lifecycle.Event.ON_PAUSE && callStatus == CallStatus.ESTABLISHED && isCameraOn -> pauseSendingVideoFeed()
+                    event == Lifecycle.Event.ON_RESUME && callStatus == CallStatus.ESTABLISHED && isCameraOn -> startSendingVideoFeed()
+                    event == Lifecycle.Event.ON_DESTROY -> clearVideoPreview()
+                }
             }
         }
 

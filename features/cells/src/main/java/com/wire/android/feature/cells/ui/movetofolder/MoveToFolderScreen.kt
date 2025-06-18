@@ -53,10 +53,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.feature.cells.R
@@ -73,6 +69,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.PreviewResultRecipient
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -87,7 +85,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@Destination(navArgsDelegate = MoveToFolderNavArgs::class)
+@WireDestination(
+    navArgsDelegate = MoveToFolderNavArgs::class,
+)
 @Composable
 fun MoveToFolderScreen(
     navigator: WireNavigator,
@@ -101,7 +101,6 @@ fun MoveToFolderScreen(
         mutableStateOf(false)
     }
 
-    val lifecycle = LocalLifecycleOwner.current
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -204,22 +203,15 @@ fun MoveToFolderScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        context.resources.getString(R.string.item_move_success)
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            moveToFolderViewModel.actions.collect { action ->
-                when (action) {
-                    is ActionUiEvent.MoveItemUiEvent -> {
-                        if (action is ActionUiEvent.MoveItemUiEvent.Success) {
-                            Toast.makeText(context, context.resources.getString(R.string.item_move_success), Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, context.resources.getString(R.string.item_move_failure), Toast.LENGTH_SHORT).show()
-                        }
-                        navigator.navigateBackAndRemoveAllConsecutive(MoveToFolderScreenDestination.route)
-                    }
-                }
-            }
+    HandleActions(moveToFolderViewModel.actions) { action ->
+        when (action) {
+            is MoveToFolderViewAction.Success ->
+                Toast.makeText(context, context.resources.getString(R.string.item_move_success), Toast.LENGTH_SHORT).show()
+
+            is MoveToFolderViewAction.Failure ->
+                Toast.makeText(context, context.resources.getString(R.string.item_move_failure), Toast.LENGTH_SHORT).show()
         }
+        navigator.navigateBackAndRemoveAllConsecutive(MoveToFolderScreenDestination.route)
     }
 
     createFolderResultRecipient.onNavResult { result ->

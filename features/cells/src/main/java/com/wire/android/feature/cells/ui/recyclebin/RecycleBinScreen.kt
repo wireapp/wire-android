@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellScreenContent
@@ -38,6 +37,7 @@ import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestinatio
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -45,7 +45,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.theme.wireTypography
 
-@Destination(
+@WireDestination(
     navArgsDelegate = CellFilesNavArgs::class,
 )
 @Composable

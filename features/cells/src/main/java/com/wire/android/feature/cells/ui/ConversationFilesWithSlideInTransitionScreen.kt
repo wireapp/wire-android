@@ -20,16 +20,14 @@ package com.wire.android.feature.cells.ui
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.annotation.Destination
-import com.wire.android.navigation.WaitUntilTransitionEndsWrapper
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 
-@Destination(
+@WireDestination(
     style = SlideNavigationAnimation::class,
     navArgsDelegate = CellFilesNavArgs::class,
-    wrappers = [WaitUntilTransitionEndsWrapper::class],
 )
 @Composable
 fun ConversationFilesWithSlideInTransitionScreen(

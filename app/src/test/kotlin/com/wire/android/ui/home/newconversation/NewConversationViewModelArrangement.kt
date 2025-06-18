@@ -78,18 +78,15 @@ internal class NewConversationViewModelArrangement {
     @MockK
     lateinit var getSelf: GetSelfUserUseCase
 
-    @MockK(relaxed = true)
-    lateinit var onGroupCreated: (ConversationId) -> Unit
-
     @MockK
     lateinit var getDefaultProtocol: GetDefaultProtocolUseCase
 
     @MockK
     lateinit var globalDataStore: GlobalDataStore
 
-    private var createGroupState: CreateGroupState = CreateGroupState()
+    private var createGroupState: CreateGroupState = CreateGroupState.Default
 
-    private companion object {
+    internal companion object {
         val CONVERSATION_ID = ConversationId(value = "userId", domain = "domainId")
         val CONVERSATION = Conversation(
             id = CONVERSATION_ID,
@@ -187,9 +184,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withConflictingBackendsFailure() = apply {
-        createGroupState = createGroupState.copy(
-            error = CreateGroupState.Error.ConflictedBackends(listOf("bella.wire.link", "foma.wire.link"))
-        )
+        createGroupState = CreateGroupState.Error.ConflictedBackends(listOf("bella.wire.link", "foma.wire.link"))
     }
 
     fun withGetSelfUser(isTeamMember: Boolean, userType: UserType = UserType.INTERNAL) = apply {

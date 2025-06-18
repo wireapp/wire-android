@@ -50,7 +50,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
@@ -111,13 +111,14 @@ fun DeviceDetailsScreen(
     navigator: Navigator,
     viewModel: DeviceDetailsViewModel = hiltViewModel()
 ) {
-    if (viewModel.state.error is RemoveDeviceError.InitError) navigator.navigateBack()
-    else {
-        DeviceDetailsContent(
+    when {
+        viewModel.state.error is RemoveDeviceError.InitError -> navigator.navigateBack()
+        viewModel.state.deviceRemoved -> navigator.navigateBack()
+        else -> DeviceDetailsContent(
             state = viewModel.state,
             passwordTextState = viewModel.passwordTextState,
-            onDeleteDevice = { viewModel.removeDevice(navigator::navigateBack) },
-            onRemoveConfirm = { viewModel.onRemoveConfirmed(navigator::navigateBack) },
+            onDeleteDevice = viewModel::removeDevice,
+            onRemoveConfirm = viewModel::onRemoveConfirmed,
             onDialogDismiss = viewModel::onDialogDismissed,
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
             onNavigateBack = navigator::navigateBack,

@@ -24,7 +24,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
@@ -44,6 +44,9 @@ fun AddMembersSearchScreen(
     navArgs: AddMembersSearchNavArgs,
     addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel(),
 ) {
+    if (addMembersToConversationViewModel.newGroupState.isCompleted) {
+        navigator.navigateBack()
+    }
     SearchUsersAndServicesScreen(
         searchTitle = stringResource(id = R.string.label_add_participants),
         onOpenUserProfile = { contact: Contact ->
@@ -51,11 +54,7 @@ fun AddMembersSearchScreen(
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         onContactChecked = addMembersToConversationViewModel::updateSelectedContacts,
-        onContinue = {
-            addMembersToConversationViewModel.addMembersToConversation(
-                onCompleted = navigator::navigateBack // TODO: move the navigation to the screen not view model
-            )
-        },
+        onContinue = addMembersToConversationViewModel::addMembersToConversation,
         isGroupSubmitVisible = true,
         onClose = navigator::navigateBack,
         onServiceClicked = { contact: Contact ->

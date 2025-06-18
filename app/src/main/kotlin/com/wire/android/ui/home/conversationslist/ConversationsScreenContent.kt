@@ -41,6 +41,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
@@ -104,9 +105,9 @@ fun ConversationsScreenContent(
             }
         )
     },
-    conversationCallListViewModel: ConversationCallListViewModel = when {
-        LocalInspectionMode.current -> ConversationCallListViewModelPreview
-        else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_$conversationsSource")
+    conversationListCallViewModel: ConversationListCallViewModel = when {
+        LocalInspectionMode.current -> ConversationListCallViewModelPreview
+        else -> hiltViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
     },
     changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
         hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
@@ -137,6 +138,17 @@ fun ConversationsScreenContent(
         conversationListViewModel.searchQueryChanged(searchBarState.searchQueryTextState.text.toString())
     }
 
+    HandleActions(conversationListCallViewModel.actions) { action ->
+        when (action) {
+            is ConversationListCallViewActions.JoinedCall -> {
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
+                getOngoingCallIntent(context, action.conversationId.toString()).run {
+                    context.startActivity(this)
+                }
+            }
+        }
+    }
+
     fun showConfirmationDialogOrUnarchive(): (DialogState) -> Unit {
         return { dialogState ->
             if (dialogState.isArchived) {
@@ -165,17 +177,9 @@ fun ConversationsScreenContent(
                 navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(it)))
             }
         }
-        val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
-            {
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                getOngoingCallIntent(context, it.toString()).run {
-                    context.startActivity(this)
-                }
-            }
-        }
         val onJoinCall: (ConversationId) -> Unit = remember {
             {
-                conversationCallListViewModel.joinOngoingCall(it, onJoinedCall)
+                conversationListCallViewModel.joinOngoingCall(it)
             }
         }
         val onNewConversationClicked: () -> Unit = remember {
@@ -264,11 +268,11 @@ fun ConversationsScreenContent(
             }
         }
 
-        VisibilityState(conversationCallListViewModel.joinCallDialogState) { callConversationId ->
+        VisibilityState(conversationListCallViewModel.joinCallDialogState) { callConversationId ->
             appLogger.i("$TAG showing showJoinAnywayDialog..")
             JoinAnywayDialog(
-                onDismiss = conversationCallListViewModel.joinCallDialogState::dismiss,
-                onConfirm = { conversationCallListViewModel.joinAnyway(callConversationId, onJoinedCall) }
+                onDismiss = conversationListCallViewModel.joinCallDialogState::dismiss,
+                onConfirm = { conversationListCallViewModel.joinAnyway(callConversationId) }
             )
         }
 

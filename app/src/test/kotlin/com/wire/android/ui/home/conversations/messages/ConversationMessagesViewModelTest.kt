@@ -31,8 +31,8 @@ import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.Messag
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.composer.mockUITextMessage
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.message.MessageContent
@@ -249,9 +249,8 @@ class ConversationMessagesViewModelTest {
             viewModel.showDeleteMessageDialog("", true)
 
             // Then
-            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-                forYourself = DeleteMessageDialogActiveState.Hidden,
-                forEveryone = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId)
+            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
+                DeleteMessageDialogType.ForEveryone, "", viewModel.conversationId
             )
         }
 
@@ -267,9 +266,8 @@ class ConversationMessagesViewModelTest {
             viewModel.showDeleteMessageDialog("", false)
 
             // Then
-            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-                forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
-                forEveryone = DeleteMessageDialogActiveState.Hidden
+            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
+                DeleteMessageDialogType.ForYourself, "", viewModel.conversationId
             )
         }
 
@@ -285,9 +283,8 @@ class ConversationMessagesViewModelTest {
             viewModel.deleteMessageHelper.showDeleteMessageForYourselfDialog("")
 
             // Then
-            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-                forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
-                forEveryone = DeleteMessageDialogActiveState.Hidden
+            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
+                DeleteMessageDialogType.ForYourself, "", viewModel.conversationId
             )
         }
 
@@ -302,10 +299,7 @@ class ConversationMessagesViewModelTest {
         viewModel.deleteMessageHelper.onDeleteDialogDismissed()
 
         // Then
-        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Hidden,
-            forEveryone = DeleteMessageDialogActiveState.Hidden
-        )
+        viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Hidden
     }
 
     @Test
@@ -339,11 +333,7 @@ class ConversationMessagesViewModelTest {
             viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
 
             // Then
-            val expectedState = DeleteMessageDialogsState.States(
-                DeleteMessageDialogActiveState.Hidden,
-                DeleteMessageDialogActiveState.Hidden
-            )
-            assertEquals(expectedState, viewModel.deleteMessageDialogsState)
+            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Hidden
         }
 
     @Test

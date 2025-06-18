@@ -23,10 +23,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.mapper.ContactMapper
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.InvalidLinkDialogState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
@@ -44,6 +44,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
@@ -57,9 +58,11 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -68,7 +71,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class MessageComposerViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -82,8 +85,9 @@ class MessageComposerViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val currentSessionFlowUseCase: CurrentSessionFlowUseCase,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val globalDataStore: GlobalDataStore,
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
         private set
@@ -111,6 +115,7 @@ class MessageComposerViewModel @Inject constructor(
         observeIsTypingAvailable()
         setFileSharingStatus()
         getEnterToSendState()
+        observeCallState()
     }
 
     private fun getEnterToSendState() {
@@ -225,5 +230,14 @@ class MessageComposerViewModel @Inject constructor(
         viewModelScope.launch {
             saveMessageDraft(messageDraft)
         }
+    }
+
+    private fun observeCallState() = viewModelScope.launch {
+        observeEstablishedCalls()
+            .map { it.isNotEmpty() }
+            .distinctUntilChanged()
+            .collectLatest { hasOngoingCalls ->
+                messageComposerViewState.value = messageComposerViewState.value.copy(isCallOngoing = hasOngoingCalls)
+            }
     }
 }

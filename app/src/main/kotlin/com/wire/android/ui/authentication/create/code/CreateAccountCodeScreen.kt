@@ -45,12 +45,12 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
 import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
+import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.WireDialog
@@ -64,6 +64,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
+import com.wire.android.ui.registration.code.CreateAccountCodeResult
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -96,7 +97,7 @@ fun CreateAccountCodeScreen(
             serverConfig = serverConfig
         )
 
-        (codeState.result as? CreateAccountCodeViewState.Result.Error.DialogError)?.let {
+        (codeState.result as? CreateAccountCodeResult.Error.DialogError)?.let {
             val (title, message) = it.getResources(type = codeState.type)
             WireDialog(
                 title = title,
@@ -110,10 +111,10 @@ fun CreateAccountCodeScreen(
             )
         }
         LaunchedEffect(codeState.result) {
-            if (codeState.result is CreateAccountCodeViewState.Result.Success) {
+            if (codeState.result is CreateAccountCodeResult.Success) {
                 navigateToSummaryScreen()
             }
-            if (codeState.result is CreateAccountCodeViewState.Result.Error.TooManyDevicesError) {
+            if (codeState.result is CreateAccountCodeResult.Error.TooManyDevicesError) {
                 clearCodeError()
                 clearCodeField()
                 navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
@@ -171,7 +172,7 @@ private fun CodeContent(
                     codeLength = state.codeLength,
                     textState = textState,
                     state = when (state.result) {
-                        is CreateAccountCodeViewState.Result.Error.TextFieldError.InvalidActivationCodeError ->
+                        is CreateAccountCodeResult.Error.TextFieldError.InvalidActivationCodeError ->
                             WireTextFieldState.Error(stringResource(id = R.string.create_account_code_error))
 
                         else -> WireTextFieldState.Default
@@ -199,33 +200,33 @@ private fun CodeContent(
 }
 
 @Composable
-private fun CreateAccountCodeViewState.Result.Error.DialogError.getResources(type: CreateAccountFlowType) = when (this) {
-    CreateAccountCodeViewState.Result.Error.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
+private fun CreateAccountCodeResult.Error.DialogError.getResources(type: CreateAccountFlowType) = when (this) {
+    CreateAccountCodeResult.Error.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_already_in_use_error)
     )
 
-    CreateAccountCodeViewState.Result.Error.DialogError.BlackListedError -> DialogErrorStrings(
+    CreateAccountCodeResult.Error.DialogError.BlackListedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_blacklisted_error)
     )
 
-    CreateAccountCodeViewState.Result.Error.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
+    CreateAccountCodeResult.Error.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_domain_blocked_error)
     )
 
-    CreateAccountCodeViewState.Result.Error.DialogError.InvalidEmailError -> DialogErrorStrings(
+    CreateAccountCodeResult.Error.DialogError.InvalidEmailError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_invalid_error)
     )
 
-    CreateAccountCodeViewState.Result.Error.DialogError.TeamMembersLimitError -> DialogErrorStrings(
+    CreateAccountCodeResult.Error.DialogError.TeamMembersLimitError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_code_error_team_members_limit_reached)
     )
 
-    CreateAccountCodeViewState.Result.Error.DialogError.CreationRestrictedError -> DialogErrorStrings(
+    CreateAccountCodeResult.Error.DialogError.CreationRestrictedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(
             id = when (type) {
@@ -235,10 +236,10 @@ private fun CreateAccountCodeViewState.Result.Error.DialogError.getResources(typ
         )
     )
     // TODO: sync with design about the error message
-    CreateAccountCodeViewState.Result.Error.DialogError.UserAlreadyExistsError ->
+    CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError ->
         DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
 
-    is CreateAccountCodeViewState.Result.Error.DialogError.GenericError ->
+    is CreateAccountCodeResult.Error.DialogError.GenericError ->
         this.coreFailure.dialogErrorStrings(LocalContext.current.resources)
 }
 

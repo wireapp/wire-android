@@ -5,6 +5,8 @@ plugins {
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
     alias(libs.plugins.ksp)
+    id(libs.plugins.wire.android.navigation.get().pluginId)
+    alias(libs.plugins.compose.compiler)
 }
 
 dependencies {
@@ -12,7 +14,6 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-cells")
     implementation(project(":core:ui-common"))
-    implementation(project(":core:navigation"))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -31,9 +32,6 @@ dependencies {
     implementation(libs.compose.material.icons)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
-    implementation(libs.compose.navigation)
-    implementation(libs.compose.destinations.core)
-    ksp(libs.compose.destinations.ksp)
 
     implementation(libs.coil.core)
     implementation(libs.coil.gif)

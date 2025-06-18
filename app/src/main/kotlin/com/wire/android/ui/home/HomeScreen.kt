@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.repeatOnLifecycle
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
@@ -68,11 +67,13 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.adjustDestinationStylesForTablets
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -124,16 +125,11 @@ fun HomeScreen(
         )
 ) {
     val context = LocalContext.current
-    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
     homeViewModel.checkRequirements()
 
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            homeViewModel.actions.collect {
-                it.navigate(navigator::navigate)
-            }
-        }
+    HandleActions(homeViewModel.actions) { action ->
+        action.navigate(navigator::navigate)
     }
 
     val homeScreenState = rememberHomeScreenState(navigator)
@@ -175,11 +171,6 @@ fun HomeScreen(
     }
 
     val homeState = homeViewModel.homeState
-    if (homeViewModel.homeState.shouldDisplayWelcomeMessage) {
-        WelcomeNewUserDialog(
-            dismissDialog = homeViewModel::dismissWelcomeMessage
-        )
-    }
 
     if (analyticsUsageViewModel.state.shouldDisplayDialog) {
         AnalyticsUsageDialog(
@@ -387,6 +378,8 @@ fun HomeContent(
                             val navHostEngine = rememberAnimatedNavHostEngine(
                                 rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
                             )
+
+                            adjustDestinationStylesForTablets()
                             DestinationsNavHost(
                                 navGraph = NavGraphs.home,
                                 engine = navHostEngine,

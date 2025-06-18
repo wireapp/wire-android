@@ -28,18 +28,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.PreviewResultBackNavigator
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -56,7 +57,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import java.util.Locale
 
-@Destination(
+@WireDestination(
     style = PopUpNavigationAnimation::class,
     navArgsDelegate = CreateFolderScreenNavArgs::class,
 )
@@ -68,6 +69,19 @@ fun CreateFolderScreen(
     createFolderViewModel: CreateFolderViewModel = hiltViewModel()
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
+
+    LaunchedEffect(createFolderViewModel.createFolderState) {
+        when (createFolderViewModel.createFolderState) {
+            CreateFolderState.Success -> {
+                resultNavigator.setResult(true)
+                resultNavigator.navigateBack()
+            }
+
+            CreateFolderState.Failure -> showErrorDialog.value = true
+
+            else -> Unit // Default case, do nothing
+        }
+    }
 
     if (showErrorDialog.value) {
         WireDialog(
@@ -112,14 +126,7 @@ fun CreateFolderScreen(
                             text = stringResource(R.string.cells_create_folder),
                             onClick = {
                                 createFolderViewModel.createFolder(
-                                    folderName = createFolderViewModel.fileNameTextFieldState.text.toString(),
-                                    onFailure = {
-                                        showErrorDialog.value = true
-                                    },
-                                    onSuccess = {
-                                        resultNavigator.setResult(true)
-                                        resultNavigator.navigateBack()
-                                    }
+                                    folderName = createFolderViewModel.fileNameTextFieldState.text.toString()
                                 )
                             }
                         )

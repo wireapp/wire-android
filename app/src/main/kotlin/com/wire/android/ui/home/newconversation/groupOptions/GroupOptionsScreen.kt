@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -37,7 +38,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -51,7 +52,7 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.destinations.ChannelAccessOnCreateScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
+import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
@@ -73,6 +74,12 @@ fun GroupOptionScreen(
     fun navigateToGroup(conversationId: ConversationId): Unit =
         navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
 
+    LaunchedEffect(newConversationViewModel.createGroupState) {
+        (newConversationViewModel.createGroupState as? CreateGroupState.Created)?.let {
+            navigateToGroup(it.conversationId)
+        }
+    }
+
     GroupOptionScreenContent(
         groupOptionState = newConversationViewModel.groupOptionsState,
         createGroupState = newConversationViewModel.createGroupState,
@@ -84,20 +91,19 @@ fun GroupOptionScreen(
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
-        onContinuePressed = {
+        onContinuePressed =
             if (newConversationViewModel.newGroupState.isChannel) {
-                newConversationViewModel.createChannel(::navigateToGroup)
+                newConversationViewModel::createChannel
             } else {
-                newConversationViewModel.createGroup(::navigateToGroup)
-            }
-        },
+                newConversationViewModel::createGroup
+            },
         onBackPressed = navigator::navigateBack,
         onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
-        onNotAllowGuestsClicked = { newConversationViewModel.onNotAllowGuestClicked(::navigateToGroup) },
-        onAllowGuestsClicked = { newConversationViewModel.onAllowGuestsClicked(::navigateToGroup) },
+        onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked,
+        onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
         onEditParticipantsClick = {
             newConversationViewModel.onCreateGroupErrorDismiss()
-            navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
+            navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
         },
         onDiscardGroupCreationClick = {
             newConversationViewModel.onCreateGroupErrorDismiss()
@@ -161,7 +167,7 @@ fun GroupOptionScreenContent(
             )
         }
 
-        createGroupState.error?.let {
+        (createGroupState as? CreateGroupState.Error)?.let {
             CreateGroupErrorDialog(it, onErrorDismissed, onEditParticipantsClick, onDiscardGroupCreationClick)
         }
         if (showAllowGuestsDialog) {
@@ -374,7 +380,7 @@ private fun AllowGuestsDialog(
 fun PreviewGroupOptionScreen() {
     GroupOptionScreenContent(
         GroupOptionState(),
-        CreateGroupState(),
+        CreateGroupState.Default,
         accessTypeLabel = R.string.channel_private_label,
         isChannelsAllowed = false,
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}

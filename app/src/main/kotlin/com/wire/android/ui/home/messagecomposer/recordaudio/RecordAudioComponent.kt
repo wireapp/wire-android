@@ -35,6 +35,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
@@ -88,6 +89,17 @@ fun RecordAudioComponent(
         }
     }
 
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            RecordAudioViewActions.Discarded -> onCloseRecordAudio()
+
+            is RecordAudioViewActions.Recorded -> {
+                onAudioRecorded(action.uriAsset)
+                onCloseRecordAudio()
+            }
+        }
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -97,7 +109,7 @@ fun RecordAudioComponent(
     ) {
         WireDivider(color = MaterialTheme.wireColorScheme.outline)
         RecordAudioButtonClose(
-            onClick = { viewModel.showDiscardRecordingDialog(onCloseRecordAudio) },
+            onClick = viewModel::showDiscardRecordingDialog,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = dimensions().spacing0x, end = dimensions().spacing0x)
@@ -125,11 +137,7 @@ fun RecordAudioComponent(
                 applyAudioFilterState = viewModel.state.shouldApplyEffects,
                 applyAudioFilterClick = viewModel::setApplyEffectsAndPlayAudio,
                 audioState = viewModel.state.audioState,
-                onClick = {
-                    viewModel.sendRecording(onAudioRecorded = onAudioRecorded) {
-                        onCloseRecordAudio()
-                    }
-                },
+                onClick = viewModel::sendRecording,
                 modifier = buttonModifier,
                 outputFile = viewModel.getPlayableAudioFile(),
                 onPlayAudio = viewModel::onPlayAudio,
@@ -146,7 +154,7 @@ fun RecordAudioComponent(
     DiscardRecordedAudioDialog(
         dialogState = viewModel.state.discardDialogState,
         onDismiss = viewModel::onDismissDiscardDialog,
-        onDiscard = { viewModel.discardRecording(onCloseRecordAudio) }
+        onDiscard = viewModel::discardRecording,
     )
 
     MicrophonePermissionsDeniedDialog(

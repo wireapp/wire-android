@@ -105,7 +105,7 @@ fun ConversationFilesScreenContent(
     modifier: Modifier = Modifier,
     screenTitle: String? = null,
     isRecycleBin: Boolean? = false,
-    breadcrumbs: Array<String> = emptyArray(),
+    breadcrumbs: Array<String>? = emptyArray(),
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
@@ -162,7 +162,7 @@ fun ConversationFilesScreenContent(
                         )
                     }
                 )
-                if (breadcrumbs.isNotEmpty()) {
+                breadcrumbs?.let {
                     LazyRow(
                         modifier = Modifier
                             .height(dimensions().spacing40x)
@@ -172,7 +172,7 @@ fun ConversationFilesScreenContent(
                             end = dimensions().spacing16x
                         ),
                     ) {
-                        item { Breadcrumbs(breadcrumbs) }
+                        item { Breadcrumbs(it) }
                     }
                 }
             }
@@ -222,7 +222,7 @@ fun ConversationFilesScreenContent(
                             ConversationFilesWithSlideInTransitionScreenDestination(
                                 conversationId = folderPath,
                                 screenTitle = it.name,
-                                breadcrumbs = it.name?.let { name -> breadcrumbs + name } ?: emptyArray()
+                                breadcrumbs = it.name?.let { name -> (breadcrumbs ?: emptyArray()) + name }
                             ),
                             BackStackMode.NONE,
                             launchSingleTop = false

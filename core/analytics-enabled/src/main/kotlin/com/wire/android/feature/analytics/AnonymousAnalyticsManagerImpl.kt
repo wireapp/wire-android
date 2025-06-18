@@ -64,6 +64,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         this.anonymousAnalyticsRecorder = anonymousAnalyticsRecorder
         globalAnalyticsManager = this
 
+        println("YM. trying to enable countly before....")
         coroutineScope.launch {
             analyticsResultFlow
                 .collectLatest { analyticsResult ->
@@ -71,6 +72,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                         val result = analyticsResult.identifierResult
 
                         if (result is AnalyticsIdentifierResult.Enabled) {
+                            println("YM. enabling countly.... $result")
                             anonymousAnalyticsRecorder.configure(
                                 context = context,
                                 analyticsSettings = analyticsSettings,
@@ -79,6 +81,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                             startedActivities.forEach { activity ->
                                 anonymousAnalyticsRecorder.onStart(activity = activity)
                             }
+                            println("YM. enabling countly with.... $anonymousAnalyticsRecorder")
 
                             handleTrackingIdentifier(
                                 analyticsIdentifierResult = analyticsResult.identifierResult,
@@ -91,6 +94,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                                 }
                             )
                         } else {
+                            println("YM. disabling countly.... $result")
                             // immediately disable event tracking
                             anonymousAnalyticsRecorder.halt()
                         }
@@ -171,6 +175,14 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             }
 
             is AnalyticsIdentifierResult.Disabled -> {}
+            is AnalyticsIdentifierResult.RegistrationIdentifier -> {
+                anonymousAnalyticsRecorder?.setTrackingIdentifierWithoutMerge(
+                    identifier = analyticsIdentifierResult.identifier,
+                    shouldPropagateIdentifier = false,
+                    analyticsProfileProperties = analyticsProfileProperties,
+                    propagateIdentifier = {}
+                )
+            } //todo o something....
         }
     }
 

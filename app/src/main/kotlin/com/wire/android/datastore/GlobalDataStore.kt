@@ -29,6 +29,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
 import com.wire.android.feature.AppLockSource
 import com.wire.android.ui.theme.ThemeOption
+import com.wire.android.util.EMPTY
 import com.wire.android.util.sha256
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -38,6 +39,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Suppress("TooManyFunctions")
 @Singleton
@@ -55,6 +58,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val APP_LOCK_SOURCE = intPreferencesKey("app_lock_source")
         private val ENTER_TO_SENT = booleanPreferencesKey("enter_to_sent")
         private val WIRE_CELLS = booleanPreferencesKey("wire_cells")
+        private val ANONYMOUS_REGISTRATION_TRACK_ID = stringPreferencesKey("anonymous_registration_track_id")
+        private val IS_ANONYMOUS_REGISTRATION_ENABLED = booleanPreferencesKey("is_anonymous_registration_enabled")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -97,6 +102,36 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun setShouldShowDoubleTapToastStatus(userId: String, shouldShow: Boolean) {
         context.dataStore.edit { it[userDoubleTapToastStatusKey(userId)] = shouldShow }
+    }
+
+    fun isAnonymousRegistrationEnabled(): Flow<Boolean> =
+        getBooleanPreference(IS_ANONYMOUS_REGISTRATION_ENABLED, false)
+
+    suspend fun setAnonymousRegistrationEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[IS_ANONYMOUS_REGISTRATION_ENABLED] = enabled }
+    }
+
+    suspend fun clearAnonymousRegistrationTrackId() {
+        context.dataStore.edit {
+            it.remove(ANONYMOUS_REGISTRATION_TRACK_ID)
+        }
+    }
+
+    suspend fun setAnonymousRegistrationTrackId(trackId: String) {
+        context.dataStore.edit {
+            it[ANONYMOUS_REGISTRATION_TRACK_ID] = trackId
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    suspend fun getOrCreateAnonymousRegistrationTrackId(): String {
+        val trackId = getStringPreference(ANONYMOUS_REGISTRATION_TRACK_ID, String.EMPTY).firstOrNull()
+        if (trackId.isNullOrBlank()) {
+            val newTrackId = Uuid.random().toString()
+            setAnonymousRegistrationTrackId(newTrackId)
+            return newTrackId
+        }
+        return trackId
     }
 
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =

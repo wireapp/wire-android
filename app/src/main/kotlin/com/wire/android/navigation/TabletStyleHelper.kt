@@ -38,6 +38,7 @@ import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.NewConversationFolderScreenDestination
 import com.wire.android.ui.theme.isTablet
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun AdjustDestinationStylesForTablets() {
     ServiceDetailsScreenDestination.style = if (isTablet) DialogNavigation else PopUpNavigationAnimation

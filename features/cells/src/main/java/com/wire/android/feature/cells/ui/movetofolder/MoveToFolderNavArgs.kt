@@ -26,4 +26,26 @@ data class MoveToFolderNavArgs(
     val nodeToMovePath: String,
     val uuid: String,
     val breadcrumbs: Array<String> = emptyArray()
-) : Parcelable
+) : Parcelable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MoveToFolderNavArgs
+
+        if (currentPath != other.currentPath) return false
+        if (nodeToMovePath != other.nodeToMovePath) return false
+        if (uuid != other.uuid) return false
+        if (!breadcrumbs.contentEquals(other.breadcrumbs)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = currentPath.hashCode()
+        result = 31 * result + nodeToMovePath.hashCode()
+        result = 31 * result + uuid.hashCode()
+        result = 31 * result + breadcrumbs.contentHashCode()
+        return result
+    }
+}

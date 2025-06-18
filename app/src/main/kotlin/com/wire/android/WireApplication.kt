@@ -167,33 +167,44 @@ class WireApplication : BaseApp() {
         }
     }
 
-    @Suppress("TooGenericExceptionCaught")
     private fun setupGlobalExceptionHandler() {
+        setupUncaughtExceptionHandler()
+        setupHistoricalExitMonitoring()
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun setupUncaughtExceptionHandler() {
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, exception ->
-            // Use fire-and-forget approach to avoid blocking the crash handler
-            // which could lead to ANRs. We attempt a quick flush but don't wait for it.
-            try {
-                globalAppScope.launch(Dispatchers.IO) {
-                    try {
-                        // Use a very short timeout to avoid delaying the crash
-                        withTimeout(CRASH_FLUSH_TIMEOUT_MS) {
-                            logFileWriter.get().forceFlush()
-                        }
-                        appLogger.i("Logs flushed before crash")
-                    } catch (e: Exception) {
-                        // Log errors but don't block the crash handler
-                        appLogger.e("Failed to flush logs before crash", e)
-                    }
-                }
-            } catch (e: Exception) {
-                // Ignore any launch failures - we don't want to interfere with crash handling
-            }
-
-            // Immediately call the default handler without waiting for flush
+            flushLogsBeforeCrash()
             defaultHandler?.uncaughtException(thread, exception)
         }
+    }
 
+    @Suppress("TooGenericExceptionCaught")
+    private fun flushLogsBeforeCrash() {
+        // Use fire-and-forget approach to avoid blocking the crash handler
+        // which could lead to ANRs. We attempt a quick flush but don't wait for it.
+        try {
+            globalAppScope.launch(Dispatchers.IO) {
+                try {
+                    // Use a very short timeout to avoid delaying the crash
+                    withTimeout(CRASH_FLUSH_TIMEOUT_MS) {
+                        logFileWriter.get().forceFlush()
+                    }
+                    appLogger.i("Logs flushed before crash")
+                } catch (e: Exception) {
+                    // Log errors but don't block the crash handler
+                    appLogger.e("Failed to flush logs before crash", e)
+                }
+            }
+        } catch (e: Exception) {
+            // Ignore any launch failures - we don't want to interfere with crash handling
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun setupHistoricalExitMonitoring() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 val activityManager = getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager
@@ -204,24 +215,30 @@ class WireApplication : BaseApp() {
                 globalAppScope.launch {
                     activityManager.getHistoricalProcessExitReasons(packageName, 0, MAX_HISTORICAL_EXIT_REASONS)
                         .forEach { info ->
-                            when (info.reason) {
-                                android.app.ApplicationExitInfo.REASON_ANR -> {
-                                    appLogger.w("Previous app exit was due to ANR at ${info.timestamp}")
-                                }
-                                android.app.ApplicationExitInfo.REASON_CRASH -> {
-                                    appLogger.w("Previous app exit was due to crash at ${info.timestamp}")
-                                }
-                                android.app.ApplicationExitInfo.REASON_LOW_MEMORY -> {
-                                    appLogger.w("Previous app exit was due to low memory at ${info.timestamp}")
-                                }
-                                else -> {
-                                    appLogger.i("Previous app exit reason: ${info.reason} at ${info.timestamp}")
-                                }
-                            }
+                            logPreviousExitReason(info)
                         }
                 }
             } catch (e: Exception) {
                 appLogger.e("Failed to setup app exit monitoring", e)
+            }
+        }
+    }
+
+    private fun logPreviousExitReason(info: android.app.ApplicationExitInfo) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            when (info.reason) {
+                android.app.ApplicationExitInfo.REASON_ANR -> {
+                    appLogger.w("Previous app exit was due to ANR at ${info.timestamp}")
+                }
+                android.app.ApplicationExitInfo.REASON_CRASH -> {
+                    appLogger.w("Previous app exit was due to crash at ${info.timestamp}")
+                }
+                android.app.ApplicationExitInfo.REASON_LOW_MEMORY -> {
+                    appLogger.w("Previous app exit was due to low memory at ${info.timestamp}")
+                }
+                else -> {
+                    appLogger.i("Previous app exit reason: ${info.reason} at ${info.timestamp}")
+                }
             }
         }
     }

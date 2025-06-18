@@ -195,16 +195,16 @@ class CallNotificationBuilder @Inject constructor(
         val userIdString = data.userId.toString()
         val conversationIdString = data.conversationId.toString()
         val channelId = NotificationConstants.getOutgoingChannelId(data.userId)
-        val person = Person.Builder().setName(data.conversationName ?: "").build()
+        val person = Person.Builder().setName("Outgoing call").build() // Generic name
 
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
         return notificationBuilder
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setSmallIcon(R.drawable.notification_icon_small)
-            .setContentTitle(data.conversationName)
+            .setContentTitle("Outgoing call") // Generic title
             .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
-            .setSubText(data.userName)
+            .setSubText("Wire User") // Generic subtext
             .setAutoCancel(false)
             .setOngoing(true)
             .setSilent(true)
@@ -223,18 +223,18 @@ class CallNotificationBuilder @Inject constructor(
     fun getIncomingCallNotification(data: CallNotificationData, asFullScreenIntent: Boolean): Notification {
         val conversationIdString = data.conversationId.toString()
         val userIdString = data.userId.toString()
-        val title = getNotificationTitle(data)
-        val content = getNotificationBody(data)
+        val title = "Incoming call" // Generic title
+        val content = "You have an incoming call" // Generic content
         val channelId = NotificationConstants.getIncomingChannelId(data.userId)
-        val person = Person.Builder().setName(title).build()
+        val person = Person.Builder().setName(title).build() // Use generic title
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setSmallIcon(R.drawable.notification_icon_small)
-            .setContentTitle(title)
-            .setContentText(content)
-            .setSubText(data.userName)
+            .setContentTitle(title) // Use generic title
+            .setContentText(content) // Use generic content
+            .setSubText("Wire User") // Generic subtext, consistent with outgoing
             .setAutoCancel(false)
             .setOngoing(true)
             .setVibrate(VIBRATE_PATTERN)
@@ -269,13 +269,13 @@ class CallNotificationBuilder @Inject constructor(
         val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         val conversationIdString = data.conversationId.toString()
         val userIdString = data.userId.toString()
-        val title = getNotificationTitle(data)
-        val person = Person.Builder().setName(title).build()
+        val title = "Ongoing call" // Generic title
+        val person = Person.Builder().setName(title).build() // Use generic title
 
         return NotificationCompat.Builder(context, channelId)
-            .setContentTitle(title)
+            .setContentTitle(title) // Use generic title
             .setContentText(context.getString(R.string.notification_ongoing_call_content))
-            .setSubText(data.userName)
+            .setSubText("Wire User") // Generic subtext, consistent with others
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

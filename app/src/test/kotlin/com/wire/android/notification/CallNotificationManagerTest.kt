@@ -466,3 +466,105 @@ class CallNotificationManagerTest {
         }
     }
 }
+
+// New tests for CallNotificationBuilder content verification
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class CallNotificationBuilderTest { // Create a new class to avoid interference with CallNotificationManager mocks
+
+    private val dispatcherProvider = TestDispatcherProvider() // If needed, or remove
+
+    @MockK
+    private lateinit var mockContext: Context
+
+    private lateinit var callNotificationBuilder: CallNotificationBuilder
+
+    // Test data (can be moved to companion object or top level)
+    private val testUserId = UserId("testUserId", "domain")
+    private val testConversationId = ConversationId("testConvId", "domain")
+    private val testCallData = CallNotificationData(
+        userId = testUserId,
+        userName = "Original UserName",
+        conversationId = testConversationId,
+        conversationName = "Original Conversation Name",
+        conversationType = Conversation.Type.OneOnOne,
+        callerName = "Original Caller Name",
+        callerTeamName = "Original Team Name",
+        callStatus = CallStatus.INCOMING
+    )
+
+    @BeforeEach
+    fun setUp() {
+        MockKAnnotations.init(this, relaxUnitFun = true)
+        callNotificationBuilder = CallNotificationBuilder(mockContext)
+
+        // Mock string resources that might be used by the builder
+        every { mockContext.getString(R.string.notification_incoming_call_content) } returns "You have an incoming call" // Fallback if not hardcoded
+        every { mockContext.getString(R.string.notification_ongoing_call_content) } returns "Tap to return to call" // Fallback
+        every { mockContext.getString(R.string.notification_outgoing_call_tap_to_return) } returns "Tap to return to call"
+        // Add any other getString calls if they are made by the methods under test and not already replaced by generic values.
+    }
+
+    @Test
+    fun `getIncomingCallNotification produces Notification with generic content`() = runTest(dispatcherProvider.main()) {
+        // Arrange
+        // Mock for Person builder if it uses context, though it's direct now.
+        // every { mockContext.getString(R.string.notification_call_default_caller_name) } returns "Unknown Caller"
+
+        // Act
+        val notification = callNotificationBuilder.getIncomingCallNotification(testCallData, asFullScreenIntent = true)
+
+        // Assert
+        val extras = notification.extras
+        assertEquals("Incoming call", extras.getString(Notification.EXTRA_TITLE), "Title should be generic for incoming call.")
+        assertEquals("You have an incoming call", extras.getCharSequence(Notification.EXTRA_TEXT), "Text should be generic for incoming call.")
+        assertEquals("Wire User", extras.getCharSequence(Notification.EXTRA_SUB_TEXT), "SubText should be generic for incoming call.")
+
+        val personList = extras.getParcelableArrayList<android.app.Person>(Notification.EXTRA_PEOPLE_LIST)
+        assert(personList?.isNotEmpty() ?: false)
+        assertEquals("Incoming call", personList?.firstOrNull()?.name, "Person name should be the generic title.")
+    }
+
+    @Test
+    fun `getOngoingCallNotification produces Notification with generic content`() = runTest(dispatcherProvider.main()) {
+        // Arrange
+        val ongoingCallData = testCallData.copy(status = CallStatus.ESTABLISHED)
+        // every { mockContext.getString(R.string.notification_ongoing_call_content) } returns "Ongoing call content" // Already mocked in setup
+
+        // Act
+        val notification = callNotificationBuilder.getOngoingCallNotification(ongoingCallData)
+
+        // Assert
+        val extras = notification.extras
+        assertEquals("Ongoing call", extras.getString(Notification.EXTRA_TITLE), "Title should be generic for ongoing call.")
+        assertEquals("Wire User", extras.getCharSequence(Notification.EXTRA_SUB_TEXT), "SubText should be generic for ongoing call.")
+        // Content text for ongoing call is often specific (e.g. "Tap to return to call") - this was not part of the masking requirement for content itself.
+        // assertEquals(mockContext.getString(R.string.notification_ongoing_call_content), extras.getCharSequence(Notification.EXTRA_TEXT))
+
+
+        val personList = extras.getParcelableArrayList<android.app.Person>(Notification.EXTRA_PEOPLE_LIST)
+        assert(personList?.isNotEmpty() ?: false)
+        assertEquals("Ongoing call", personList?.firstOrNull()?.name, "Person name should be the generic title for ongoing call.")
+    }
+
+    @Test
+    fun `getOutgoingCallNotification produces Notification with generic content`() = runTest(dispatcherProvider.main()) {
+        // Arrange
+        val outgoingCallData = testCallData.copy(status = CallStatus.STARTED)
+        // every { mockContext.getString(R.string.notification_outgoing_call_tap_to_return) } returns "Tap to return" // Mocked in setup
+
+        // Act
+        val notification = callNotificationBuilder.getOutgoingCallNotification(outgoingCallData)
+
+        // Assert
+        val extras = notification.extras
+        assertEquals("Outgoing call", extras.getString(Notification.EXTRA_TITLE), "Title should be generic for outgoing call.")
+        assertEquals("Wire User", extras.getCharSequence(Notification.EXTRA_SUB_TEXT), "SubText should be generic for outgoing call.")
+        // Content text for outgoing call is often specific - this was not part of the masking requirement for content itself.
+        // assertEquals(mockContext.getString(R.string.notification_outgoing_call_tap_to_return), extras.getCharSequence(Notification.EXTRA_TEXT))
+
+        val personList = extras.getParcelableArrayList<android.app.Person>(Notification.EXTRA_PEOPLE_LIST)
+        assert(personList?.isNotEmpty() ?: false)
+        assertEquals("Outgoing call", personList?.firstOrNull()?.name, "Person name should be the generic title for outgoing call.")
+    }
+}

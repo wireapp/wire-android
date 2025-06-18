@@ -378,18 +378,28 @@ class MessageNotificationManager
 
         val notificationStyle = NotificationCompat.MessagingStyle(receiver)
 
-        notificationStyle.conversationTitle = activeStyledNotification.conversationTitle
+        notificationStyle.conversationTitle = "New message" // Mask conversation title
         notificationStyle.isGroupConversation = activeStyledNotification.isGroupConversation
 
-        messagesToShow.forEach { notificationMessage ->
-            notificationStyle.addMessage(notificationMessage)
+        messagesToShow.forEach { originalMessage ->
+            // Mask sender and content
+            val maskedMessage = NotificationCompat.MessagingStyle.Message(
+                "You have a new message",
+                originalMessage.timestamp,
+                Person.Builder().setName("Someone").build()
+            ).apply {
+                originalMessage.extras.getString(MESSAGE_ID_EXTRA)?.let {
+                    extras.putString(MESSAGE_ID_EXTRA, it)
+                }
+            }
+            notificationStyle.addMessage(maskedMessage)
         }
 
         return notificationStyle
     }
 
     private fun getConversationTitle(conversation: NotificationConversation): String? =
-        if (conversation.isOneToOneConversation) null else conversation.name
+        "New message"
 
     private fun italicTextFromResId(@StringRes stringResId: Int): Spannable {
         return context.getString(stringResId)
@@ -407,28 +417,10 @@ class MessageNotificationManager
 
     private fun NotificationMessage.intoStyledMessage(): NotificationCompat.MessagingStyle.Message {
         val sender = Person.Builder()
-            .apply {
-                if (this@intoStyledMessage is NotificationMessage.ObfuscatedMessage) {
-                    setName(context.getString(R.string.notification_obfuscated_message_title))
-                } else {
-                    author?.name.also {
-                        setName(it)
-                    }
-                }
-            }
+            .setName("Someone")
             .build()
 
-        val message = when (this@intoStyledMessage) {
-            is NotificationMessage.Text -> if (isQuotingSelfUser) context.getString(R.string.notification_reply, text) else text
-            is NotificationMessage.Comment -> italicTextFromResId(textResId.value)
-            is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
-            is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
-            is NotificationMessage.Knock -> italicTextFromResId(R.string.notification_knock)
-            is NotificationMessage.ObfuscatedMessage,
-            is NotificationMessage.ObfuscatedKnock -> italicTextFromResId(
-                R.string.notification_obfuscated_message_content
-            )
-        }
+        val message = "You have a new message"
         return NotificationCompat.MessagingStyle.Message(message, time, sender).apply {
             extras.putString(MESSAGE_ID_EXTRA, this@intoStyledMessage.messageId)
         }
@@ -480,11 +472,38 @@ class MessageNotificationManager
             val messagesStyle = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(currentNotification)
                 ?: return // if notification is not in MessagingStyle, then we can't update it
 
-            val sender = youPerson(context)
+            val user = youPerson(context) // Renamed to avoid conflict with sender in loop
+
+            // Create a new MessagingStyle to hold masked messages
+            val newMessagesStyle = NotificationCompat.MessagingStyle(user)
+            newMessagesStyle.conversationTitle = "New message" // Mask conversation title
+            newMessagesStyle.isGroupConversation = messagesStyle.isGroupConversation
+
+            // Mask existing messages
+            messagesStyle.messages.forEach { originalMessage ->
+                val maskedMessage = NotificationCompat.MessagingStyle.Message(
+                    "You have a new message",
+                    originalMessage.timestamp,
+                    Person.Builder().setName("Someone").build()
+                ).apply {
+                    originalMessage.extras.getString(MESSAGE_ID_EXTRA)?.let {
+                        extras.putString(MESSAGE_ID_EXTRA, it)
+                    }
+                }
+                newMessagesStyle.addMessage(maskedMessage)
+            }
 
             replyText?.let {
-                val replyMessage = NotificationCompat.MessagingStyle.Message(replyText, System.currentTimeMillis(), sender)
-                messagesStyle.addMessage(replyMessage)
+                // Add the new reply, also masked
+                val maskedReplyMessage = NotificationCompat.MessagingStyle.Message(
+                    "You have a new message", // Masked content for the reply
+                    System.currentTimeMillis(),
+                    Person.Builder().setName("Someone").build() // Masked sender for the reply ("Someone" or "You" as appropriate)
+                                                              // Using "Someone" for consistency with other messages.
+                                                              // If "You" is desired for replies, this could be youPerson(context)
+                )
+                // replyMessage.extras.putString(MESSAGE_ID_EXTRA, ...) // Consider if a message ID is needed for replies
+                newMessagesStyle.addMessage(maskedReplyMessage)
             }
 
             val notification = setUpNotificationBuilder(context, userId, true).apply {
@@ -495,7 +514,7 @@ class MessageNotificationManager
 
                 setLargeIcon((currentNotification.getLargeIcon()?.loadDrawable(context) as BitmapDrawable?)?.bitmap)
 
-                setStyle(messagesStyle)
+                setStyle(newMessagesStyle) // Use the new style with masked messages
             }.build()
 
             NotificationManagerCompat.from(context).notify(conversationNotificationId, notification)

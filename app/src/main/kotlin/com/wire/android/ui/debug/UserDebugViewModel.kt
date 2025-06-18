@@ -34,6 +34,8 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDatabaseLoggerStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -92,6 +94,12 @@ class UserDebugViewModel
 
     fun deleteLogs() {
         logFileWriter.deleteAllLogFiles()
+    }
+
+    fun flushLogs(): Deferred<Unit> {
+        return viewModelScope.async {
+            logFileWriter.forceFlush()
+        }
     }
 
     fun setLoggingEnabledState(isEnabled: Boolean) {

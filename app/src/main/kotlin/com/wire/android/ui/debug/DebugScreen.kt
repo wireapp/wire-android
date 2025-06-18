@@ -31,6 +31,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipboardManager
@@ -60,6 +61,9 @@ import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.launch
 import java.io.File
 
 @RootNavGraph
@@ -74,6 +78,7 @@ fun DebugScreen(
         state = userDebugViewModel.state,
         onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
         onDeleteLogs = userDebugViewModel::deleteLogs,
+        onFlushLogs = userDebugViewModel::flushLogs,
         onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState,
         onEnableWireCellsFeature = userDebugViewModel::enableWireCellsFeature,
     )
@@ -86,6 +91,7 @@ internal fun UserDebugContent(
     onLoggingEnabledChange: (Boolean) -> Unit,
     onDatabaseLoggerEnabledChanged: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
+    onFlushLogs: () -> Deferred<Unit>,
     onEnableWireCellsFeature: (Boolean) -> Unit,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
@@ -111,7 +117,7 @@ internal fun UserDebugContent(
                     isLoggingEnabled = isLoggingEnabled,
                     onLoggingEnabledChange = onLoggingEnabledChange,
                     onDeleteLogs = onDeleteLogs,
-                    onShareLogs = debugContentState::shareLogs,
+                    onShareLogs = { debugContentState.shareLogs(onFlushLogs) },
                     isDBLoggerEnabled = state.isDBLoggingEnabled,
                     onDBLoggerEnabledChange = onDatabaseLoggerEnabledChanged,
                     isPrivateBuild = BuildConfig.PRIVATE_BUILD,
@@ -182,13 +188,15 @@ fun rememberDebugContentState(logPath: String): DebugContentState {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
 
     return remember {
         DebugContentState(
             context,
             clipboardManager,
             logPath,
-            scrollState
+            scrollState,
+            coroutineScope
         )
     }
 }
@@ -197,7 +205,8 @@ data class DebugContentState(
     val context: Context,
     val clipboardManager: ClipboardManager,
     val logPath: String,
-    val scrollState: ScrollState
+    val scrollState: ScrollState,
+    val coroutineScope: CoroutineScope
 ) {
     fun copyToClipboard(text: String) {
         clipboardManager.setText(AnnotatedString(text))
@@ -208,18 +217,23 @@ data class DebugContentState(
         ).show()
     }
 
-    fun shareLogs() {
-        val dir = File(logPath).parentFile
-        val fileUris =
-            if (dir != null && dir.exists()) context.getUrisOfFilesInDirectory(dir) else arrayListOf()
-        val intent = context.multipleFileSharingIntent(fileUris)
-        // The first log file is simply text, not compressed. Get its mime type separately
-        // and set it as the mime type for the intent.
-        intent.type = fileUris.firstOrNull()?.getMimeType(context) ?: "text/plain"
-        // Get all other mime types and add them
-        val mimeTypes = fileUris.drop(1).mapNotNull { it.getMimeType(context) }
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toSet().toTypedArray())
-        context.startActivity(intent)
+    fun shareLogs(onFlushLogs: () -> Deferred<Unit>) {
+        coroutineScope.launch {
+            // Flush any buffered logs before sharing to ensure completeness
+            onFlushLogs().await()
+            
+            val dir = File(logPath).parentFile
+            val fileUris =
+                if (dir != null && dir.exists()) context.getUrisOfFilesInDirectory(dir) else arrayListOf()
+            val intent = context.multipleFileSharingIntent(fileUris)
+            // The first log file is simply text, not compressed. Get its mime type separately
+            // and set it as the mime type for the intent.
+            intent.type = fileUris.firstOrNull()?.getMimeType(context) ?: "text/plain"
+            // Get all other mime types and add them
+            val mimeTypes = fileUris.drop(1).mapNotNull { it.getMimeType(context) }
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toSet().toTypedArray())
+            context.startActivity(intent)
+        }
     }
 }
 
@@ -234,6 +248,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onNavigationPressed = {},
         onLoggingEnabledChange = {},
         onDeleteLogs = {},
+        onFlushLogs = { kotlinx.coroutines.CompletableDeferred(Unit) },
         onDatabaseLoggerEnabledChanged = {},
         onEnableWireCellsFeature = {},
     )

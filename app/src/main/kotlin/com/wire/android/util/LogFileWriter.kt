@@ -18,12 +18,14 @@
 
 package com.wire.android.util
 
+import android.app.ActivityManager
 import android.content.Context
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -33,6 +35,10 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
@@ -42,8 +48,12 @@ import java.util.Date
 import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
-@Suppress("TooGenericExceptionCaught")
-class LogFileWriter(private val logsDirectory: File) {
+@Suppress("TooGenericExceptionCaught", "TooManyFunctions")
+class LogFileWriter(
+    private val logsDirectory: File,
+    private val context: Context? = null,
+    private val config: LogFileWriterConfig = LogFileWriterConfig.default()
+) {
 
     private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
 
@@ -51,6 +61,13 @@ class LogFileWriter(private val logsDirectory: File) {
 
     private val fileWriterCoroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var writingJob: Job? = null
+    private var flushJob: Job? = null
+
+    // Buffering system
+    private val logBuffer = mutableListOf<String>()
+    private val bufferMutex = Mutex()
+    private var lastFlushTime = 0L
+    private var bufferedWriter: BufferedWriter? = null
 
     /**
      * Initializes logging, waiting until the logger is actually initialized before returning.
@@ -75,14 +92,34 @@ class LogFileWriter(private val logsDirectory: File) {
             }.onEach {
                 waitInitializationJob.complete()
             }.filter {
-                it > LOG_FILE_MAX_SIZE_THRESHOLD
+                it > config.maxFileSize
             }.collect {
                 ensureActive()
-                compress()
+                // Flush buffer before compression
+                bufferMutex.withLock {
+                    flushBuffer()
+                }
+                launch { compressAsync() }
                 clearActiveLoggingFileContent()
                 deleteOldCompressedFiles()
             }
         }
+
+        // Start periodic flush job
+        if (config.enableAsyncFlushing) {
+            flushJob = fileWriterCoroutineScope.launch {
+                while (isActive) {
+                    delay(config.flushIntervalMs)
+                    bufferMutex.withLock {
+                        if (logBuffer.isNotEmpty()) {
+                            flushBuffer()
+                            lastFlushTime = System.currentTimeMillis()
+                        }
+                    }
+                }
+            }
+        }
+
         appLogger.i("KaliumFileWritter.start: Starting log collection.")
         waitInitializationJob.join()
     }
@@ -112,10 +149,29 @@ class LogFileWriter(private val logsDirectory: File) {
     /**
      * Stops processing logs and writing to files
      */
-    fun stop() {
+    suspend fun stop() {
         appLogger.i("KaliumFileWritter.stop called; Stopping log collection.")
         writingJob?.cancel()
+        flushJob?.cancel()
+
+        // Flush any remaining buffered content
+        bufferMutex.withLock {
+            flushBuffer()
+        }
+
+        bufferedWriter?.close()
+        bufferedWriter = null
         clearActiveLoggingFileContent()
+    }
+
+    /**
+     * Manually flushes any buffered log entries to the file.
+     * This is useful before sharing logs to ensure all recent entries are included.
+     */
+    suspend fun forceFlush() {
+        bufferMutex.withLock {
+            flushBuffer()
+        }
     }
 
     private fun clearActiveLoggingFileContent() {
@@ -130,12 +186,26 @@ class LogFileWriter(private val logsDirectory: File) {
      * Writes the new [text] and other log entries in logcat to the [activeLoggingFile].
      * @return The length, in bytes, of the log file.
      */
-    private fun writeLineToFile(text: String): Long {
-        FileWriter(activeLoggingFile, true).use { fw ->
-            fw.appendLine(text)
-            fw.flush()
+    private suspend fun writeLineToFile(text: String): Long = withContext(Dispatchers.IO) {
+        bufferMutex.withLock {
+            logBuffer.add(text)
+
+            // Check memory pressure periodically
+            if (logBuffer.size % MEMORY_PRESSURE_CHECK_INTERVAL == 0) {
+                handleMemoryPressure()
+            }
+
+            val currentTime = System.currentTimeMillis()
+            val shouldFlush = logBuffer.size >= config.maxBufferSize ||
+                (config.enableAsyncFlushing && (currentTime - lastFlushTime) >= config.flushIntervalMs)
+
+            if (shouldFlush) {
+                flushBuffer()
+                lastFlushTime = currentTime
+            }
+
+            return@withContext activeLoggingFile.length()
         }
-        return activeLoggingFile.length()
     }
 
     private fun ensureLogDirectoryAndFileExistence() {
@@ -189,13 +259,74 @@ class LogFileWriter(private val logsDirectory: File) {
         return true
     }
 
+    private suspend fun compressAsync() = withContext(Dispatchers.IO) {
+        try {
+            val compressedFile = File(logsDirectory, compressedFileName())
+
+            GZIPOutputStream(compressedFile.outputStream().buffered()).use { gzipOut ->
+                activeLoggingFile.inputStream().buffered().use { input ->
+                    input.copyTo(gzipOut, config.bufferSizeBytes)
+                }
+            }
+
+            appLogger.i("Log file compressed: ${activeLoggingFile.name} -> ${compressedFile.name}")
+        } catch (e: Exception) {
+            appLogger.e("Failed to compress log file: ${activeLoggingFile.name}", e)
+        }
+    }
+
+    private fun flushBuffer() {
+        if (logBuffer.isEmpty()) return
+        try {
+            val linesToWrite = logBuffer.toList()
+            logBuffer.clear()
+
+            // Use BufferedWriter for efficient writing
+            val writer = bufferedWriter ?: BufferedWriter(
+                FileWriter(activeLoggingFile, true),
+                config.bufferSizeBytes
+            ).also { bufferedWriter = it }
+
+            linesToWrite.forEach { line ->
+                writer.appendLine(line)
+            }
+            writer.flush()
+        } catch (e: IOException) {
+            appLogger.e("Failed to flush log buffer", e)
+            // Re-add failed lines back to buffer for retry
+            logBuffer.addAll(0, logBuffer)
+        }
+    }
+
+    private fun handleMemoryPressure() {
+        context?.let {
+            val activityManager = it.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            activityManager?.let { am ->
+                val memoryInfo = ActivityManager.MemoryInfo()
+                am.getMemoryInfo(memoryInfo)
+
+                if (memoryInfo.availMem < memoryInfo.threshold * MEMORY_PRESSURE_MULTIPLIER) {
+                    appLogger.w("Low memory detected, forcing log buffer flush")
+                    // Force flush in a separate coroutine to avoid blocking
+                    fileWriterCoroutineScope.launch {
+                        bufferMutex.withLock {
+                            flushBuffer()
+                            lastFlushTime = System.currentTimeMillis()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     companion object {
         private const val LOG_FILE_PREFIX = "wire"
         private const val ACTIVE_LOGGING_FILE_NAME = "${LOG_FILE_PREFIX}_logs.txt"
-        private const val LOG_FILE_MAX_SIZE_THRESHOLD = 25 * 1024 * 1024
         private const val BYTE_ARRAY_SIZE = 1024
         private const val LOG_COMPRESSED_FILES_MAX_COUNT = 10
         private const val LOG_COMPRESSED_FILE_EXTENSION = "gz"
+        private const val MEMORY_PRESSURE_CHECK_INTERVAL = 50
+        private const val MEMORY_PRESSURE_MULTIPLIER = 2
 
         fun logsDirectory(context: Context) = File(context.cacheDir, "logs")
     }

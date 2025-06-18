@@ -20,6 +20,7 @@ package com.wire.android.di
 
 import android.content.Context
 import com.wire.android.util.LogFileWriter
+import com.wire.android.util.LogFileWriterConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,6 +36,7 @@ class LogWriterModule {
     @Provides
     fun provideKaliumFileWriter(@ApplicationContext context: Context): LogFileWriter {
         val logsDirectory = LogFileWriter.logsDirectory(context)
-        return LogFileWriter(logsDirectory)
+        val config = LogFileWriterConfig.default()
+        return LogFileWriter(logsDirectory, context, config)
     }
 }

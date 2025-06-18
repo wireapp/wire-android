@@ -81,7 +81,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                             startedActivities.forEach { activity ->
                                 anonymousAnalyticsRecorder.onStart(activity = activity)
                             }
-                            println("YM. enabling countly with.... $anonymousAnalyticsRecorder")
+                            println("YM. enabling countly with.... $anonymousAnalyticsRecorder and ${result.identifier}")
 
                             handleTrackingIdentifier(
                                 analyticsIdentifierResult = analyticsResult.identifierResult,

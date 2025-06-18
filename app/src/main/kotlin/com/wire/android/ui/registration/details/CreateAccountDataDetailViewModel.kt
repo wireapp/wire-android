@@ -25,6 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.config.orDefault
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -45,6 +46,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePassword: ValidatePasswordUseCase,
     private val validateEmail: ValidateEmailUseCase,
+    private val globalDataStore: GlobalDataStore,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
 
@@ -93,9 +95,20 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                 termsDialogVisible = !detailsState.termsAccepted && emailError is CreateAccountDataDetailViewState.DetailsError.None,
                 error = emailError
             )
-            if (detailsState.termsAccepted) onTermsAccept()
+            if (detailsState.termsAccepted) {
+                onTermsAccept()
+                println("ym. should to track terms accepted")
+            } else {
+                println("ym. should try to track terms dialog")
+            }
         }.invokeOnCompletion {
             detailsState = detailsState.copy(loading = false)
+        }
+    }
+
+    private fun updateTrackingStatusBasedOnPrivacyPolicyAccepted() {
+        viewModelScope.launch {
+            globalDataStore.setAnonymousRegistrationEnabled(detailsState.privacyPolicyAccepted)
         }
     }
 
@@ -132,6 +145,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     fun onDetailsContinue() {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
+            updateTrackingStatusBasedOnPrivacyPolicyAccepted()
             val detailsError = when {
                 !validatePassword(passwordTextState.text.toString()).isValid ->
                     CreateAccountDataDetailViewState.DetailsError.PasswordError.InvalidPasswordError

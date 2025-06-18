@@ -231,8 +231,15 @@ private fun WelcomeContent(
                             )
                         } else {
                             if (ENABLE_NEW_REGISTRATION) {
-                                val createAccountNavArgs = CreateAccountDataNavArgs(customServerConfig = state.orDefault())
-                                navigate(NavigationCommand(CreateAccountDataDetailScreenDestination(createAccountNavArgs)))
+                                navigate(
+                                    NavigationCommand(
+                                        CreateAccountDataDetailScreenDestination(
+                                            CreateAccountDataNavArgs(
+                                                customServerConfig = state.orDefault()
+                                            )
+                                        )
+                                    )
+                                )
                             } else {
                                 navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
                             }

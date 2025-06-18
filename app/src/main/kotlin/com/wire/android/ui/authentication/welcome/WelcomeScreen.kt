@@ -91,6 +91,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.CreateAccountDataDetailScreenDestination
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -208,7 +209,11 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            CustomTabsHelper.launchUrl(context, teamCreationUrl)
+                            if (ENABLE_NEW_REGISTRATION) {
+                                CustomTabsHelper.launchUrl(context, teamCreationUrl)
+                            } else {
+                                navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(state)))
+                            }
                         }
                     }
                 }

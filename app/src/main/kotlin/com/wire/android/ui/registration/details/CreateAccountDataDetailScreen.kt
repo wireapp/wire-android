@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.registration.details
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -201,10 +201,12 @@ private fun AccountDetailsContent(
                         .testTag("emailField")
                         .focusRequester(emailFocusRequester)
                 )
-                if (state.error.isEmailError()) {
-                    AnimatedVisibility(visible = state.error.isEmailError()) { EmailErrorDetailText(state.error) }
-                } else {
-                    VerticalSpace.x16()
+
+                AnimatedContent(state.error.isEmailError()) { isEmailError ->
+                    when (isEmailError) {
+                        true -> EmailErrorDetailText(state.error)
+                        false -> VerticalSpace.x16()
+                    }
                 }
 
                 WireTextField(

@@ -70,10 +70,12 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
+import com.wire.android.config.orDefault
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -87,9 +89,8 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.CreateAccountSelectorScreenDestination
+import com.wire.android.ui.destinations.CreateAccountDataDetailScreenDestination
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
-import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -132,6 +133,7 @@ private fun WelcomeContent(
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
 ) {
+    val teamCreationUrl = state.teams + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
     val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val context = LocalContext.current
@@ -206,7 +208,7 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(state)))
+                            CustomTabsHelper.launchUrl(context, teamCreationUrl)
                         }
                     }
                 }
@@ -224,7 +226,8 @@ private fun WelcomeContent(
                             )
                         } else {
                             if (ENABLE_NEW_REGISTRATION) {
-                                navigate(NavigationCommand(CreateAccountSelectorScreenDestination(state)))
+                                val createAccountNavArgs = CreateAccountDataNavArgs(customServerConfig = state.orDefault())
+                                navigate(NavigationCommand(CreateAccountDataDetailScreenDestination(createAccountNavArgs)))
                             } else {
                                 navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
                             }

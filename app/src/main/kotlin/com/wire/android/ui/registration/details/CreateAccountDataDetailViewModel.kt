@@ -42,7 +42,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 @OptIn(ExperimentalAtomicApi::class)
@@ -58,7 +57,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
 
     val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
 
-    private var withPasswordTries = AtomicBoolean(false)
+    private var withPasswordTries = false
     val emailTextState: TextFieldState = TextFieldState(createAccountNavArgs.userRegistrationInfo.email)
     val nameTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
@@ -112,7 +111,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                     anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.TermsOfUseDialog)
                 }
             }
-            anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.AccountSetup(withPasswordTries.load()))
+            anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.AccountSetup(withPasswordTries))
         }.invokeOnCompletion {
             detailsState = detailsState.copy(loading = false)
         }
@@ -175,7 +174,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
             if (detailsState.error is CreateAccountDataDetailViewState.DetailsError.None) {
                 onEmailContinue()
             } else {
-                withPasswordTries.exchange(true)
+                withPasswordTries = true
             }
         }
     }

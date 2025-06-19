@@ -58,7 +58,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
 
     val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
 
-    private var withPasswrodTries = AtomicBoolean(false)
+    private var withPasswordTries = AtomicBoolean(false)
     val emailTextState: TextFieldState = TextFieldState(createAccountNavArgs.userRegistrationInfo.email)
     val nameTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
@@ -112,7 +112,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                     anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.TermsOfUseDialog)
                 }
             }
-            anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.AccountSetup(withPasswrodTries.load()))
+            anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.AccountSetup(withPasswordTries.load()))
         }.invokeOnCompletion {
             detailsState = detailsState.copy(loading = false)
         }
@@ -175,7 +175,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
             if (detailsState.error is CreateAccountDataDetailViewState.DetailsError.None) {
                 onEmailContinue()
             } else {
-                withPasswrodTries.exchange(true)
+                withPasswordTries.exchange(true)
             }
         }
     }

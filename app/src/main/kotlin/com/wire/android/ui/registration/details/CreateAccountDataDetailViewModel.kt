@@ -27,6 +27,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.config.orDefault
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent.RegistrationPersonalAccount
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
@@ -40,18 +42,23 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
+@OptIn(ExperimentalAtomicApi::class)
 @HiltViewModel
 class CreateAccountDataDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePassword: ValidatePasswordUseCase,
     private val validateEmail: ValidateEmailUseCase,
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val globalDataStore: GlobalDataStore,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
 
     val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
 
+    private var withPasswrodTries = AtomicBoolean(false)
     val emailTextState: TextFieldState = TextFieldState(createAccountNavArgs.userRegistrationInfo.email)
     val nameTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
@@ -95,12 +102,17 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                 termsDialogVisible = !detailsState.termsAccepted && emailError is CreateAccountDataDetailViewState.DetailsError.None,
                 error = emailError
             )
-            if (detailsState.termsAccepted) {
-                onTermsAccept()
-                println("ym. should to track terms accepted")
-            } else {
-                println("ym. should try to track terms dialog")
+
+            when {
+                detailsState.termsAccepted -> {
+                    onTermsAccept()
+                }
+
+                else -> {
+                    anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.TermsOfUseDialog)
+                }
             }
+            anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.AccountSetup(withPasswrodTries.load()))
         }.invokeOnCompletion {
             detailsState = detailsState.copy(loading = false)
         }
@@ -162,6 +174,8 @@ class CreateAccountDataDetailViewModel @Inject constructor(
             )
             if (detailsState.error is CreateAccountDataDetailViewState.DetailsError.None) {
                 onEmailContinue()
+            } else {
+                withPasswrodTries.exchange(true)
             }
         }
     }

@@ -58,8 +58,12 @@ fun Breadcrumbs(
 
 @MultipleThemePreviews
 @Composable
-fun Breadcrumbs(
-    items: List<String>
-) {
-    Breadcrumbs(items.toTypedArray())
+fun PreviewBreadcrumbs() {
+    Breadcrumbs(
+        arrayOf(
+            "Folder 1",
+            "Folder 2",
+            "Folder 3",
+        )
+    )
 }

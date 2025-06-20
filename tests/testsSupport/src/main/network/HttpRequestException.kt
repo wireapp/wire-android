@@ -15,11 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package  user.utils
-import user.utils.AccessCookie
-import user.utils.AccessToken
+package network
 
-data class AccessCredentials(
-    val accessToken: AccessToken? = null,
-    val accessCookie: AccessCookie? = null,
-)
+/**
+ * For api/network errors
+ */
+class HttpRequestException(override val message: String, val returnCode: Int): RuntimeException()

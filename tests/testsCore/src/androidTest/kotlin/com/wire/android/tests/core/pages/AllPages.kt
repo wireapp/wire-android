@@ -15,6 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package backendConnections
+package com.wire.android.tests.core.pages
 
-class HttpRequestException(override val message: String, val returnCode: Int): RuntimeException()
+import androidx.test.uiautomator.UiDevice
+
+class AllPages(val device: UiDevice) {
+    val registrationPage = RegistrationPage(device)
+    val loginPage = LoginPage(device)
+    val settingsPage = SettingsPage(device)
+    val conversationPage = ConversationPage(device)
+}
+

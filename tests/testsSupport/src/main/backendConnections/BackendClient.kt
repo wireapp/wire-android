@@ -1,8 +1,12 @@
+
+package backendConnections
+
 import com.wire.android.testSupport.BuildConfig
 import logger.WireTestLogger
 import network.BackendClient
 import org.json.JSONObject
 import user.utils.AccessCookie
+import user.utils.AccessCredentials
 import user.utils.BasicAuth
 import user.utils.ClientUser
 import java.net.Authenticator
@@ -47,12 +51,17 @@ class Backend(
         Proxy(Proxy.Type.SOCKS, InetSocketAddress("socks.wire.link", 1080))
     } else null
 ) {
+
+    fun hasInbucketSetup() = inbucketUrl.isNotEmpty()
     companion object {
         private val log: Logger = Logger.getLogger(Backend::class.simpleName)
 
         const val PROFILE_PICTURE_JSON_ATTRIBUTE = "complete"
         const val PROFILE_PREVIEW_PICTURE_JSON_ATTRIBUTE = "preview"
 
+        fun getDefault():Backend?{
+            return loadBackend("Staging")
+        }
         fun loadBackend(connectionName: String): Backend? {
 
             fun field(name: String): String? =
@@ -121,7 +130,7 @@ class Backend(
         }
     }
 
-    fun createPersonalUserViaBackdoor(user: ClientUser): ClientUser {
+    fun createPersonalUserViaBackend(user: ClientUser): ClientUser {
         WireTestLogger.getLog(Backend::class.simpleName ?: "Null").info("user is ${user}")
         val url = URL(this.backendUrl + "register")
 
@@ -149,14 +158,14 @@ class Backend(
             user.email.orEmpty()
         )
         WireTestLogger.getLog(Backend::class.simpleName ?: "Null").info("code is ${activationCode}")
-        activateRegisteredEmailByBackdoorCode(
+        activateRegisteredEmailByBackendCode(
             user.email.orEmpty(), activationCode
         )
 
         return user
     }
 
-    fun createWirelessUserViaBackdoor(user: ClientUser): ClientUser {
+    fun createWirelessUserViaBackend(user: ClientUser): ClientUser {
         val url = URL(this.backendUrl)
 
         val requestBody = JSONObject().apply {
@@ -190,7 +199,7 @@ class Backend(
         )
         WireTestLogger.getLog(Backend::class.simpleName ?: "Null").info("code is ${activationCode}")
 
-        activateRegisteredEmailByBackdoorCode(user.email.orEmpty(), activationCode)
+        activateRegisteredEmailByBackendCode(user.email.orEmpty(), activationCode)
 
         return user
     }
@@ -244,7 +253,7 @@ class Backend(
 
 
     //Used to active a register user email
-    fun activateRegisteredEmailByBackdoorCode(email: String, code: String): String {
+    fun activateRegisteredEmailByBackendCode(email: String, code: String): String {
 
         val url = URL("${backendUrl}activate")
 

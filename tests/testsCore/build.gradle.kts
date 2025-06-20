@@ -22,5 +22,8 @@ android {
         androidTestImplementation(libs.androidx.espresso.core)
         androidTestImplementation(libs.androidx.test.uiAutomator)
         androidTestImplementation(project(":tests:testsSupport"))
+        implementation("io.insert-koin:koin-core:3.5.3")
+        androidTestImplementation("io.insert-koin:koin-test:3.5.3")
+        androidTestImplementation("io.insert-koin:koin-test-junit4:3.5.3")
     }
 

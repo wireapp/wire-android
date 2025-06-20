@@ -61,21 +61,20 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+
     fun assertAnalyticsInitializedIsSetToTrue(): SettingsPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        // Step 1: Wait for the "Analytics Initialized" label
+        val label = UiWaitUtils.waitElement(text = "Analytics Initialized")
 
-        // Step 1: Match full label text exactly as shown in UI
-        val container = device.findObject(
-            UiSelector().className("android.view.View")
-                .childSelector(UiSelector().text("Analytics Initialized"))
-        )
-        // Step 2: Look for the value next to it
-        val value = container.getFromParent(UiSelector().text("true"))
+        // Step 2: Get its parent and find sibling with text "true"
+        val parent = label.parent
+        val value = parent?.children?.find { it.text == "true" }
 
-        assertTrue("'Analytics Initialized' is not set to true", value.exists() && value.visibleBounds.width() > 0)
+        assertTrue("'Analytics Initialized' is not set to true", value != null && value.visibleBounds.width() > 0)
 
         return this
     }
+
 
     fun assertAnalyticsTrackingIdentifierIsDispayed(): SettingsPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())

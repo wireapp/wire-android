@@ -18,7 +18,7 @@
 
 package user.utils
 
-import AccessCredentials
+import user.utils.AccessCredentials
 import java.time.Duration
 import java.util.concurrent.Callable
 import java.util.HashSet

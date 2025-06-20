@@ -15,11 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package  user.utils
-import user.utils.AccessCookie
-import user.utils.AccessToken
+package user.usermanager.exceptions
 
-data class AccessCredentials(
-    val accessToken: AccessToken? = null,
-    val accessCookie: AccessCookie? = null,
-)
+
+
+class NoSuchUserException(val messagePayload:String): RuntimeException() {
+    companion object{
+        val serialVersionUID = 8400419658588574129L
+    }
+    override val message: String?
+        get() = messagePayload
+}
+

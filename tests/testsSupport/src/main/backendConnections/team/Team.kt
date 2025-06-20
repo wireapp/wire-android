@@ -15,11 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package  user.utils
-import user.utils.AccessCookie
-import user.utils.AccessToken
+package backendConnections.team
 
-data class AccessCredentials(
-    val accessToken: AccessToken? = null,
-    val accessCookie: AccessCookie? = null,
-)
+import org.json.JSONObject
+
+
+data class Team(
+    var id: String = "",
+    var name: String = ""
+) {
+    companion object {
+        fun fromJSON(team: JSONObject): Team {
+            return Team(
+                id = team.getString("id"),
+                name = team.getString("name")
+            )
+        }
+    }
+}

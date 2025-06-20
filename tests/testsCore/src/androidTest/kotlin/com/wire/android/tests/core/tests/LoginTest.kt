@@ -20,9 +20,15 @@ package com.wire.android.tests.core.tests
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
+import com.wire.android.tests.core.di.testModule
+import com.wire.android.tests.core.pages.AllPages
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 
 /*
@@ -31,8 +37,14 @@ This test works on the following conditions:
 */
 @RunWith(AndroidJUnit4::class)
 //@RC
-class LoginTest {
+class LoginTest : KoinTest {
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(testModule)
+    }
     private lateinit var device: UiDevice
+    private val pages: AllPages by inject()
+
 
     @Before
     fun setUp() {

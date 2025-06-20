@@ -17,14 +17,12 @@
  */
 package user
 
-import java.util.*
+import java.util.Locale
 import kotlin.random.Random
-import kotlin.*
-
 
 
 data class UserInfo(
-    val firstName: String,
+    val name: String,
     val lastName: String,
     val username: String,
     val password: String,
@@ -44,10 +42,10 @@ class UserClient {
             val time = System.currentTimeMillis()
             val userName = "smoketester$time"
             val domain = "wire.engineering"
-            val firstName = "Smoke"
+            val name = "Smoke   Tester$time"
             val lastName = "Tester$time"
             val staticPassword = "Aqa123456!"
-            return UserInfo(firstName = firstName, lastName = lastName, username = userName, password = password, domain = domain, staticPassword = staticPassword)
+            return UserInfo(name = name, lastName = lastName, username = userName, password = password, domain = domain, staticPassword = staticPassword)
         }
 
         fun generateRandomPassword(): String {

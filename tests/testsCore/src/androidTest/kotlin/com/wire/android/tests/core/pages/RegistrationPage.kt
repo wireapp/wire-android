@@ -60,6 +60,13 @@ data class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
+    fun clickCreatePersonalAccountButton(): RegistrationPage {
+        val createPersonalAccountButton = UiWaitUtils.waitElement(text = "Create Personal Account")
+        assertTrue("Button is not enabled", createPersonalAccountButton.isEnabled)
+        createPersonalAccountButton.click()
+        return this
+    }
+
 
     fun clickContinueButton(): RegistrationPage {
         val continueButton = UiWaitUtils.waitElement(text = "Continue")
@@ -112,7 +119,8 @@ data class RegistrationPage(private val device: UiDevice) {
         )
         assertTrue("Continue button is not visible", !continueButton.visibleBounds.isEmpty)
     }
-
+//Old Account Creation
+    /*
     fun enterFirstName(firstName: String): RegistrationPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
@@ -122,14 +130,20 @@ data class RegistrationPage(private val device: UiDevice) {
         // Find the EditText inside the parent and set the text
         device.findObject(
             UiSelector().resourceId("firstName")
-                .childSelector(UiSelector().className("android.widget.EditText"))
+             .childSelector(UiSelector().("android.widget.EditText"))
         ).setText(firstName)
 
         return this
     }
 
+     */
 
-
+    fun enterFirstName(firstName: String): RegistrationPage {
+        val parent = UiWaitUtils.waitElement(resourceId = "firstName")
+        val editText = parent.findObject(By.clazz("android.widget.EditText"))
+        editText.text = firstName
+        return this
+    }
 
     fun enterLastName(lastName: String): RegistrationPage {
         val parent = UiWaitUtils.waitElement(resourceId = "lastName")
@@ -243,20 +257,34 @@ data class RegistrationPage(private val device: UiDevice) {
         assertTrue("Conversations page is not visible", !conversationPage.visibleBounds.isEmpty)
     }
 
-
-    fun waitUntilLoginFlowIsComplete(timeoutMillis: Long = 30_000, pollingInterval: Long = 500) {
+    fun waitUntilLoginFlowIsComplete() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-        // First: wait for loginButton to disappear
+        // Wait for "loginButton" to disappear (timeout: 10s)
         val loginButtonSelector = UiSelector().resourceId("loginButton")
-        waitUntilElementGone(device, loginButtonSelector, timeoutMillis, pollingInterval)
+        waitUntilElementGone(device, loginButtonSelector, timeoutMillis = 20_000,)
 
-        // Then: wait for "Setting up Wire" TextView to disappear
-        val settingUpWireSelector = UiSelector().className("android.widget.TextView").text("Setting up Wire")
-        waitUntilElementGone(device, settingUpWireSelector, timeoutMillis, pollingInterval)
+        // Wait for "Setting up Wire" text to disappear (timeout: 30s)
+        val settingUpWireSelector = UiSelector()
+            .className("android.widget.TextView")
+            .text("Setting up Wire")
+        waitUntilElementGone(device, settingUpWireSelector, timeoutMillis = 30_000)
     }
 
+
+    fun waitUntilRegistrationFlowIsComplete() {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val loginButtonSelector = UiSelector().text("Confirm")
+        waitUntilElementGone(device, loginButtonSelector, timeoutMillis = 14_000)
+
+    }
+
+    fun checkIagreeToShareAnonymousUsageData() {
+        val checkbox = device.findObject(By.clazz("android.widget.CheckBox"))
+            ?: throw AssertionError("Checkbox not found in view hierarchy")
+        if (!checkbox.isChecked) {
+            checkbox.click()
+        }
+    }
 }
 
-
-//[@resource-id=\"PasswordInput\"]"

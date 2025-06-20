@@ -17,11 +17,10 @@
  */
 package network
 
-import AccessCredentials
-import backendConnections.HttpRequestException
 import logger.WireTestLogger
 import org.json.JSONObject
 import user.utils.AccessCookie
+import user.utils.AccessCredentials
 import user.utils.AccessToken
 import util.NumberSequence
 import java.io.ByteArrayOutputStream

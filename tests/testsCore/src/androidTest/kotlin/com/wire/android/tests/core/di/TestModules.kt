@@ -15,11 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package  user.utils
-import user.utils.AccessCookie
-import user.utils.AccessToken
+package com.wire.android.tests.core.di
 
-data class AccessCredentials(
-    val accessToken: AccessToken? = null,
-    val accessCookie: AccessCookie? = null,
-)
+
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
+import com.wire.android.tests.core.pages.AllPages
+import org.koin.dsl.module
+
+val testModule = module {
+    factory { UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()) }
+    factory { AllPages(get()) }
+}

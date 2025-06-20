@@ -17,12 +17,13 @@
  */
 package com.wire.android.tests.core.pages
 
-import Backend
+
 import android.content.Intent
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
+import backendConnections.Backend
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiWaitUtils
 
@@ -91,14 +92,4 @@ data class LoginPage(private val device: UiDevice) {
         confirmButton.click()
         return this
     }
-
-
-//    fun tapOnEmailField(): LoginPage {
-//        val emailSsoCodeField = device.findObject(UiSelector().resourceId("userIdentifierInput"))
-//        emailSsoCodeField.waitForExists(TIMEOUT_IN_MILLISECONDS)
-//        emailSsoCodeField.click()
-//        return this
-//    }
-
-
-    }
+}

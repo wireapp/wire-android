@@ -17,93 +17,121 @@
  */
 package com.wire.android.tests.core.tests
 
-import Backend
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import com.wire.android.testSupport.backendConnections.team.createTeamOwnerViaBackdoor
+import backendConnections.Backend
+import com.wire.android.testSupport.backendConnections.team.TeamRoles
+import com.wire.android.testSupport.backendConnections.team.getTeamByName
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
-import com.wire.android.tests.core.pages.ConversationPage
-import com.wire.android.tests.core.pages.LoginPage
-import com.wire.android.tests.core.pages.RegistrationPage
-import com.wire.android.tests.core.pages.SettingsPage
+import com.wire.android.tests.core.di.testModule
+import com.wire.android.tests.core.pages.AllPages
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
+import user.usermanager.ClientUsersManager
 import user.utils.ClientUser
 
 @RunWith(AndroidJUnit4::class)
 
-class ApplockTest {
+class ApplockTest : KoinTest {
 
-    private lateinit var device: UiDevice
-
-    lateinit var context: Context
-
-    @Before
-    fun setup() {
-        context = InstrumentationRegistry.getInstrumentation().context
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(testModule)
     }
+    private val pages: AllPages by inject()
+    private lateinit var device: UiDevice
+    lateinit var context: Context
+    var registeredUser: ClientUser? = null
+    var backendClient: Backend? = null
+    var teamMember: ClientUser? = null
+    var usersManager: ClientUsersManager? = null
+
 
     @Before
     fun setUp() {
+        context = InstrumentationRegistry.getInstrumentation().context
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGGING)
+        backendClient = Backend.loadBackend("STAGING")
+        usersManager = ClientUsersManager(true)
     }
 
     @After
     fun tearDown() {
         //  UiAutomatorSetup.stopApp()
+        //To delete team member
+        //registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
+        //To delete team
+        //  registeredUser?.deleteTeam(backendClient!!)
+
     }
+
+    fun userXAddsUsersToTeam(
+        ownerNameAlias: String,
+        userNameAliases: String,
+        teamName: String,
+        role: TeamRoles,
+        membersHaveHandles: Boolean
+    ) {
+        val admin = toClientUser(ownerNameAlias)
+        val dstTeam = runBlocking { backendClient!!.getTeamByName(admin, teamName) }
+
+        val membersToBeAdded = mutableListOf<ClientUser>()
+        val aliases = usersManager!!.splitAliases(userNameAliases)
+
+        for (userNameAlias in aliases) {
+            val user = toClientUser(userNameAlias)
+            if (usersManager!!.isUserCreated(user)) {
+                throw Exception(
+                    "Cannot add user with alias $userNameAlias to team because user is already created"
+                )
+            }
+            membersToBeAdded.add(user)
+        }
+
+        usersManager!!.createTeamMembers(
+            teamOwner = admin,
+            teamId = dstTeam.id,
+            members = membersToBeAdded,
+            membersHaveHandles = membersHaveHandles,
+            role = role,
+            backend = backendClient!!, context = context
+        )
+    }
+
+    private fun toClientUser(nameAlias: String): ClientUser {
+        return usersManager!!.findUserByNameOrNameAlias(nameAlias)
+    }
+
 
     @Test
     fun setAppLockForAppAndVerifyAppIsLockedAfter1MinuteInTheBackground() {
-        val registrationPage = RegistrationPage(device)
-        val conversationPage = ConversationPage(device)
-        val loginPage = LoginPage(device)
-        val settingsPage = SettingsPage(device)
-        val backendClient = Backend.loadBackend("STAGING")
-        val clientUser = ClientUser()
-//        val registeredUser = backendClient?.createPersonalUserViaBackdoor(clientUser)
-        val registeredUser = runBlocking {
-            backendClient?.createTeamOwnerViaBackdoor(
-                clientUser,
-                "FullTeam",
-                "en_US",
-                true,
-                context
-            )
-        }
 
-        println("---- Registered User -----")
-        println(registeredUser)
+        usersManager!!.createTeamOwnerByAlias("user1Name", "AppLock", "en_US", true, backendClient!!, context)
+        registeredUser = usersManager!!.findUserBy("user1Name", ClientUsersManager.FindBy.NAME_ALIAS)
 
-        registrationPage.assertEmailWelcomePage()
-        //loginPage.clickStagingDeepLink()
-        //loginPage.clickProceedButtonOnDeeplinkOverlay()
-        loginPage.enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
-        loginPage.clickLoginButton()
-        //loginPage.assertLoggingPageVisible()
-        loginPage.enterPersonalUserLoginPassword(registeredUser?.password ?: "")
-        loginPage.clickLoginButton()
+        userXAddsUsersToTeam("user1Name", "user2Name,user3Name,user4Name,user5Name", "AppLock", TeamRoles.Member, true)
 
+        pages.registrationPage.assertEmailWelcomePage()
+        pages.loginPage.enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
+        pages.loginPage.clickLoginButton()
+        pages.loginPage.enterPersonalUserLoginPassword(registeredUser?.password ?: "")
+        pages.loginPage.clickLoginButton()
         //Thread.sleep(3000)
-
-
-        registrationPage.waitUntilLoginFlowIsComplete()
-
-//Thread.sleep(10000)
-        registrationPage.clickAllowNotificationButton()
-      //  registrationPage.setUserName(registeredUser?.uniqueUsername ?: "")
-      //  loginPage.clickConfirmButtonOnUsernameSetupPage()
-        registrationPage.clickAgreeShareDataAlert()
-        registrationPage.assertConversationPageVisible()
-        Thread.sleep(20000)
+        pages.registrationPage.waitUntilLoginFlowIsComplete()
+        pages.registrationPage.clickAllowNotificationButton()
+        pages.registrationPage.clickAgreeShareDataAlert()
+        pages.registrationPage.assertConversationPageVisible()
 
     }
+
 }
-
-

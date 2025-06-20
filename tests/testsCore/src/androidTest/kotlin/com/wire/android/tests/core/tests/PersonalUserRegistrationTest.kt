@@ -23,13 +23,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.testSupport.BuildConfig
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
-import com.wire.android.tests.core.pages.RegistrationPage
+import com.wire.android.tests.core.di.testModule
+import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.suite.Tag
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 import user.UserClient
 
 /*
@@ -38,62 +43,77 @@ This test works on the following conditions:
 */
 @RunWith(AndroidJUnit4::class)
 @Tag("RC", "regression", "@TC-8694", "@registration")
-//@RC
-class PersonalUserRegistrationTest {
+class PersonalUserRegistrationTest : KoinTest {
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(testModule)
+    }
+
+    private val pages: AllPages by inject()
     private lateinit var device: UiDevice
 
     @Before
     fun setUp() {
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-       // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGGING)
+
+        //device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGGING)
     }
 
     @After
     fun tearDown() {
-        // This will always be called — even if test fails
-      //  UiAutomatorSetup.stopApp()
-    }
+        //  UiAutomatorSetup.stopApp()
 
+    }
 
     @Test
     fun personalUserRegistrationFlow() {
-        val registrationPage = RegistrationPage(device)
         val userInfo = UserClient.generateUniqueUserInfo()
 
 
-        registrationPage.assertEmailWelcomePage()
-        registrationPage.enterPersonalUserRegistrationEmail(userInfo.email)
-        registrationPage.assertAndClickLoginButton()
-        registrationPage.clickCreateAccountButton()
+        pages.registrationPage.assertEmailWelcomePage()
+        pages.registrationPage.enterPersonalUserRegistrationEmail(userInfo.email)
+        pages.registrationPage.assertAndClickLoginButton()
+        pages.registrationPage.clickCreateAccountButton()
+        pages.registrationPage.clickCreatePersonalAccountButton()
+        /*
+        //Existing personal registration flow(To be deleted soon)
         registrationPage.clickContinueButton()
         registrationPage.enterEmailOnCreatePersonalAccountPage(userInfo.email)
         registrationPage.assertAndClickContinueButtonOnCreatePersonalAccountPage()
         registrationPage.assertTermsOfUseModalVisible()  // Asserts all elements
         registrationPage.clickContinueButton()
         registrationPage.assertAndClickContinueButtonOnCreatePersonalAccountPage()
-        registrationPage.enterFirstName(userInfo.firstName)
-        registrationPage.enterLastName(userInfo.lastName)
-        registrationPage.enterPassword(userInfo.staticPassword)
-        registrationPage.enterConfirmPassword(userInfo.staticPassword)
-        registrationPage.clickShowPasswordEyeIcon()
-        registrationPage.verifyStaticPasswordIsCorrect()
-        registrationPage.clickHidePasswordEyeIcon()
-        registrationPage.clickContinueButton()
-
+       */
+        pages.registrationPage.enterFirstName(userInfo.name)
+        pages.registrationPage.enterPassword(userInfo.staticPassword)
+        pages.registrationPage.enterConfirmPassword(userInfo.staticPassword)
+        pages.registrationPage.clickShowPasswordEyeIcon()
+        pages.registrationPage.verifyStaticPasswordIsCorrect()
+        pages.registrationPage.clickHidePasswordEyeIcon()
+        pages.registrationPage.checkIagreeToShareAnonymousUsageData()
+        pages.registrationPage.clickContinueButton()
+        pages.registrationPage.assertTermsOfUseModalVisible()  // Asserts all elements
+        pages.registrationPage.clickContinueButton()
         // These values are pulled from BuildConfig injected from secrets.json)
-        val otp = runBlocking { InbucketClient.getVerificationCode(userInfo.email,BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETURL,BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETPASSWORD,BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETUSERNAME) }
-        registrationPage.enter2FAOnCreatePersonalAccountPage(otp)
-        registrationPage.assertAccountCreationSuccessMessage()
-        registrationPage.clickGetStartedButton()
-        registrationPage.assertUserNamePageIsVisible()
-        registrationPage.assertEnterYourUserNameInfoText()
-        registrationPage.assertUserNameHelpText()
-        registrationPage.setUserName(userInfo.username)
-        registrationPage.clickConfirmButton()
-        registrationPage.waitUntilLoginFlowIsComplete()
-        registrationPage.clickAllowNotificationButton()
-        registrationPage.clickDeclineShareDataAlert()
-        registrationPage.assertConversationPageVisible()
+        val otp = runBlocking {
+            InbucketClient.getVerificationCode(
+                userInfo.email,
+                BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETURL,
+                BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETPASSWORD,
+                BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETUSERNAME
+            )
+        }
+        pages.registrationPage.enter2FAOnCreatePersonalAccountPage(otp)
+        //Sleep to be removed when new registration implementation is done
+        Thread.sleep(4000)
+        pages.registrationPage.assertEnterYourUserNameInfoText()
+        pages.registrationPage.assertUserNameHelpText()
+        pages.registrationPage.setUserName(userInfo.username)
+        pages.registrationPage.clickConfirmButton()
+        pages.registrationPage.waitUntilRegistrationFlowIsComplete()
+        pages.registrationPage.clickAllowNotificationButton()
+        pages.registrationPage.clickDeclineShareDataAlert()
+        pages.registrationPage.assertConversationPageVisible()
 
     }
 

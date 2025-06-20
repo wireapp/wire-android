@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -67,7 +68,9 @@ fun <T : Any> WireModalSheetLayout(
             tonalElevation = tonalElevation,
             onDismissRequest = onDismissRequest,
             dragHandle = dragHandle,
-            modifier = modifier.absoluteOffset(y = 1.dp),
+            modifier = modifier
+                .absoluteOffset(y = 1.dp)
+                .statusBarsPadding(),
             contentWindowInsets = { WindowInsets.navigationBars },
             properties = ModalBottomSheetProperties(shouldDismissOnBackPress = shouldDismissOnBackPress)
         )

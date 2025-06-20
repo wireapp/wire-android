@@ -20,14 +20,13 @@ package com.wire.android.ui.home.conversationslist.filter
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -67,8 +66,9 @@ fun ConversationFoldersSheetContent(
             title = stringResource(R.string.label_folders),
             customVerticalPadding = dimensions().spacing8x,
             leadingIcon = {
-                ArrowLeftIcon(modifier = Modifier.clickable { onBackClick() })
-                Spacer(modifier = Modifier.width(dimensions().spacing8x))
+                IconButton(onClick = onBackClick) {
+                    ArrowLeftIcon()
+                }
             },
             includeDivider = sheetData.folders.isNotEmpty()
         ),

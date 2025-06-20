@@ -21,7 +21,8 @@
 
     <color name="background">#EDEFF0</color>
     <color name="default_icon_color">#34373D</color>
-    <color name="emoji_picker_icon_color">#34373D</color>
+    <color name="emoji_picker_icon_color">#9FA1A7</color>
+    <color name="emoji_picker_icon_color_selected">#34373D</color>
     <color name="emoji_picker_text_color">#34373D</color>
     <color name="emoji_picker_header_color">#FFFFFF</color>
 

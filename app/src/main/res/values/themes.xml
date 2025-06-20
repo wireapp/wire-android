@@ -25,7 +25,8 @@
     </style>
 
     <style name="EmojiPickerViewStyle" >
-        <item name="colorControlNormal">@color/emoji_picker_icon_color</item>
+        <item name="android:colorAccent">@color/emoji_picker_icon_color_selected</item>
+        <item name="android:colorControlNormal">@color/emoji_picker_icon_color</item>
         <item name="android:textColorPrimary">@color/emoji_picker_text_color</item>
     </style>
 

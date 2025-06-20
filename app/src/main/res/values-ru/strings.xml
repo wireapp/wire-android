@@ -336,7 +336,6 @@
     <string name="enterprise_login_user_identifier_label_placeholder">Введите email или код SSO</string>
     <string name="enterprise_login_error_invalid_user_identifier">Пожалуйста, введите действительный email или код доступа SSO</string>
     <string name="enterprise_login_create_account_label">У вас нет аккаунта Wire?</string>
-    <string name="enterprise_login_create_account_text_button">Создать аккаунт</string>
     <string name="enterprise_login_on_prem_welcome_title">Приветствуем вас в Wire Enterprise для %s!</string>
     <string name="enterprise_login_verification_code_title">Вам пришло письмо</string>
     <!-- Login -->

@@ -76,7 +76,7 @@ class PersonalUserRegistrationTest : KoinTest {
         pages.registrationPage.clickCreateAccountButton()
         pages.registrationPage.clickCreatePersonalAccountButton()
         /*
-        //Existing personal registration flow(To be deleted soon)
+        Existing personal registration flow(To be deleted soon)
         registrationPage.clickContinueButton()
         registrationPage.enterEmailOnCreatePersonalAccountPage(userInfo.email)
         registrationPage.assertAndClickContinueButtonOnCreatePersonalAccountPage()

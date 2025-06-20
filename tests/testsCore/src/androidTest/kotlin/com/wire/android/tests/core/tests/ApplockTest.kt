@@ -23,6 +23,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import backendConnections.Backend
 import com.wire.android.testSupport.backendConnections.team.TeamRoles
+import com.wire.android.testSupport.backendConnections.team.deleteTeam
 import com.wire.android.testSupport.backendConnections.team.getTeamByName
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
@@ -71,7 +72,7 @@ class ApplockTest : KoinTest {
         //To delete team member
         //registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
         //To delete team
-        //  registeredUser?.deleteTeam(backendClient!!)
+        registeredUser?.deleteTeam(backendClient!!)
 
     }
 

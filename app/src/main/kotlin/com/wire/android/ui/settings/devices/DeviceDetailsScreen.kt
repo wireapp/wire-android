@@ -46,6 +46,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -104,7 +105,8 @@ import kotlinx.datetime.Instant
 
 @RootNavGraph
 @WireDestination(
-    navArgsDelegate = DeviceDetailsNavArgs::class
+    navArgsDelegate = DeviceDetailsNavArgs::class,
+    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun DeviceDetailsScreen(

@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestUser
+import com.wire.android.model.DisplayNameState
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase

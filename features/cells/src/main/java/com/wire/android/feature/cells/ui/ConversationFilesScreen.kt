@@ -40,6 +40,7 @@ import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestinat
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
+import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -224,6 +225,18 @@ fun ConversationFilesScreenContent(
                                 currentPath = currentPath,
                                 nodeToMovePath = nodePath,
                                 uuid = uuid,
+                            )
+                        )
+                    )
+                },
+                showRenameScreen = { cellNodeUi ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            RenameNodeScreenDestination(
+                                uuid = cellNodeUi.uuid,
+                                currentPath = cellNodeUi.remotePath,
+                                isFolder = cellNodeUi is CellNodeUi.Folder,
+                                nodeName = cellNodeUi.name,
                             )
                         )
                     )

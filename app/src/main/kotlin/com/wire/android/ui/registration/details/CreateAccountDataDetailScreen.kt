@@ -176,7 +176,7 @@ private fun AccountDetailsContent(
         contentPadding = dimensions().spacing16x,
         content = {
             val keyboardController = LocalSoftwareKeyboardController.current
-            val emailFocusRequester = remember { FocusRequester() }
+            val nameFocusRequester = remember { FocusRequester() }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
@@ -197,7 +197,6 @@ private fun AccountDetailsContent(
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                         .testTag("emailField")
-                        .focusRequester(emailFocusRequester)
                 )
 
                 AnimatedContent(state.error.isEmailError()) { isEmailError ->
@@ -225,7 +224,8 @@ private fun AccountDetailsContent(
                             end = MaterialTheme.wireDimensions.spacing16x,
                             bottom = MaterialTheme.wireDimensions.spacing16x
                         )
-                        .testTag("firstName"),
+                        .focusRequester(nameFocusRequester)
+                        .testTag("name"),
                 )
 
                 WirePasswordTextField(
@@ -282,7 +282,7 @@ private fun AccountDetailsContent(
             }
 
             LaunchedEffect(Unit) {
-                emailFocusRequester.requestFocus()
+                nameFocusRequester.requestFocus()
                 keyboardController?.show()
             }
 

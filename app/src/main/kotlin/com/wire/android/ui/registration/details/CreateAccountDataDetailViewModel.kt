@@ -129,6 +129,10 @@ class CreateAccountDataDetailViewModel @Inject constructor(
         }
     }
 
+    fun onCodeSent() {
+        detailsState = detailsState.copy(success = false)
+    }
+
     fun onDetailsContinue() {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {

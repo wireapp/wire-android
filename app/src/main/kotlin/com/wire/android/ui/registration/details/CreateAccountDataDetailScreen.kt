@@ -115,7 +115,10 @@ fun CreateAccountDataDetailScreen(
         )
 
         LaunchedEffect(createAccountDataDetailViewModel.detailsState.success) {
-            if (createAccountDataDetailViewModel.detailsState.success) navigateToCodeScreen()
+            if (createAccountDataDetailViewModel.detailsState.success) {
+                createAccountDataDetailViewModel.onCodeSent()
+                navigateToCodeScreen()
+            }
         }
 
         AccountDetailsContent(

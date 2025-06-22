@@ -123,13 +123,18 @@ class CreateAccountDataDetailViewModel @Inject constructor(
             }
 
             val email = emailTextState.text.toString().trim().lowercase()
-            val emailError = authScope.registerScope.requestActivationCode(email).toEmailError()
+            val emailError = when (!detailsState.isCodeSent) {
+                false -> authScope.registerScope.requestActivationCode(email).toEmailError()
+                true -> detailsState.error
+            }
             detailsState = detailsState.copy(loading = false, continueEnabled = true, error = emailError)
-            if (emailError is CreateAccountDataDetailViewState.DetailsError.None) detailsState = detailsState.copy(success = true)
+            if (emailError is CreateAccountDataDetailViewState.DetailsError.None) {
+                detailsState = detailsState.copy(success = true, isCodeSent = true)
+            }
         }
     }
 
-    fun onCodeSent() {
+    fun onCodeSentHandled() {
         detailsState = detailsState.copy(success = false)
     }
 

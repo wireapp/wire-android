@@ -54,8 +54,8 @@ import java.util.zip.GZIPOutputStream
 @Suppress("TooGenericExceptionCaught", "TooManyFunctions")
 class LogFileWriterV2Impl(
     private val logsDirectory: File,
-    private val context: Context? = null,
-    private val config: LogFileWriterConfig = LogFileWriterConfig.default()
+    private val context: Context?,
+    private val config: LogFileWriterV2Config = LogFileWriterV2Config.default()
 ) : LogFileWriter {
 
     private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
@@ -278,11 +278,6 @@ class LogFileWriterV2Impl(
                 bufferMutex.withLock {
                     logBuffer.add(text)
 
-                    // Check memory pressure periodically
-                    if (logBuffer.size % MEMORY_PRESSURE_CHECK_INTERVAL == 0) {
-                        handleMemoryPressure()
-                    }
-
                     val currentTime = System.currentTimeMillis()
                     val shouldFlush = logBuffer.size >= config.maxBufferSize ||
                         (config.enableAsyncFlushing && (currentTime - lastFlushTime) >= config.flushIntervalMs)
@@ -378,33 +373,11 @@ class LogFileWriterV2Impl(
         }
     }
 
-    private fun handleMemoryPressure() {
-        context?.let {
-            val activityManager = it.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-            activityManager?.let { am ->
-                val memoryInfo = ActivityManager.MemoryInfo()
-                am.getMemoryInfo(memoryInfo)
-
-                if (memoryInfo.availMem < memoryInfo.threshold * MEMORY_PRESSURE_MULTIPLIER) {
-                    appLogger.w("Low memory detected, forcing log buffer flush")
-                    // Force flush in a separate coroutine to avoid blocking
-                    fileWriterCoroutineScope.launch {
-                        bufferMutex.withLock {
-                            flushBuffer()
-                            lastFlushTime = System.currentTimeMillis()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     companion object {
         private const val LOG_FILE_PREFIX = "wire"
         private const val ACTIVE_LOGGING_FILE_NAME = "${LOG_FILE_PREFIX}_logs.txt"
         private const val LOG_COMPRESSED_FILES_MAX_COUNT = 10
         private const val LOG_COMPRESSED_FILE_EXTENSION = "gz"
-        private const val MEMORY_PRESSURE_CHECK_INTERVAL = 50
         private const val MEMORY_PRESSURE_MULTIPLIER = 2
     }
 }

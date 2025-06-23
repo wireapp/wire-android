@@ -27,6 +27,7 @@ data class CreateAccountDataDetailViewState(
     val continueEnabled: Boolean = false,
     val loading: Boolean = false,
     val error: DetailsError = DetailsError.None,
+    val isCodeSent: Boolean = false,
     val success: Boolean = false,
 ) {
     sealed class DetailsError {

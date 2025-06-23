@@ -39,12 +39,12 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalAtomicApi::class)
 @HiltViewModel
 class CreateAccountDataDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -90,6 +90,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     private fun onEmailContinue() {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
+            delay(ANALYTICS_INIT_WARMUP_TIME)
             val email = emailTextState.text.toString().trim().lowercase()
             val emailError = when (validateEmail(email)) {
                 true -> CreateAccountDataDetailViewState.DetailsError.None
@@ -102,6 +103,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                 error = emailError
             )
 
+            anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.AccountSetup(withPasswordTries))
             when {
                 detailsState.termsAccepted -> {
                     onTermsAccept()
@@ -111,7 +113,6 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                     anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.TermsOfUseDialog)
                 }
             }
-            anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.AccountSetup(withPasswordTries))
         }.invokeOnCompletion {
             detailsState = detailsState.copy(loading = false)
         }
@@ -209,5 +210,9 @@ class CreateAccountDataDetailViewModel @Inject constructor(
 
         is RequestActivationCodeResult.Success ->
             CreateAccountDataDetailViewState.DetailsError.None
+    }
+
+    private companion object {
+        val ANALYTICS_INIT_WARMUP_TIME = 1.seconds
     }
 }

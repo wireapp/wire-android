@@ -182,7 +182,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                     analyticsProfileProperties = analyticsProfileProperties,
                     propagateIdentifier = {}
                 )
-            } //todo o something....
+            }
         }
     }
 

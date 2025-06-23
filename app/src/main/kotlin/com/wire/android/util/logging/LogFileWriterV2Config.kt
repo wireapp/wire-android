@@ -18,14 +18,11 @@
 
 package com.wire.android.util.logging
 
-import com.wire.android.BuildConfig
-
 data class LogFileWriterV2Config(
     val flushIntervalMs: Long = DEFAULT_FLUSH_INTERVAL_MS,
     val maxBufferSize: Int = DEFAULT_MAX_BUFFER_SIZE,
     val bufferSizeBytes: Int = DEFAULT_BUFFER_SIZE_BYTES,
     val maxFileSize: Long = DEFAULT_MAX_FILE_SIZE_BYTES,
-    val enableAsyncFlushing: Boolean = BuildConfig.USE_ASYNC_FLUSH_LOGGING,
     val flushTimeoutMs: Long = DEFAULT_FLUSH_TIMEOUT_MS,
     val bufferLockTimeoutMs: Long = DEFAULT_BUFFER_LOCK_TIMEOUT_MS
 ) {

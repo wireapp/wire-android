@@ -112,7 +112,6 @@ class LogFileWriterV2Impl(
         }
 
         // Start periodic flush job
-        if (config.enableAsyncFlushing) {
             flushJob = fileWriterCoroutineScope.launch {
                 while (isActive) {
                     delay(config.flushIntervalMs)
@@ -132,7 +131,6 @@ class LogFileWriterV2Impl(
                     }
                 }
             }
-        }
 
         appLogger.i("KaliumFileWritter.start: Starting log collection.")
         waitInitializationJob.join()
@@ -280,7 +278,7 @@ class LogFileWriterV2Impl(
 
                     val currentTime = System.currentTimeMillis()
                     val shouldFlush = logBuffer.size >= config.maxBufferSize ||
-                        (config.enableAsyncFlushing && (currentTime - lastFlushTime) >= config.flushIntervalMs)
+                        ((currentTime - lastFlushTime) >= config.flushIntervalMs)
 
                     if (shouldFlush) {
                         flushBuffer()

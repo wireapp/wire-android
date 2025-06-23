@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
@@ -62,7 +63,8 @@ import com.wire.android.util.extension.folderWithElements
 
 @RootNavGraph
 @WireDestination(
-    navArgsDelegate = EditSelfDeletingMessagesNavArgs::class
+    navArgsDelegate = EditSelfDeletingMessagesNavArgs::class,
+    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun EditSelfDeletingMessagesScreen(

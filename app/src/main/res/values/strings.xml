@@ -377,7 +377,7 @@
     <string name="enterprise_login_user_identifier_label_placeholder">Enter Email or SSO Code</string>
     <string name="enterprise_login_error_invalid_user_identifier">Please enter a valid email or SSO code</string>
     <string name="enterprise_login_create_account_label">Don\'t have a Wire account?</string>
-    <string name="enterprise_login_create_account_text_button">Create account</string>
+    <string name="enterprise_login_create_account_text_button">Create account or team</string>
     <string name="enterprise_login_on_prem_welcome_title">Welcome to Wire Enterprise for %s!</string>
     <string name="enterprise_login_verification_code_title">You have mail</string>
     <!-- Login -->
@@ -531,6 +531,7 @@
     <string name="create_account_username_title">Your Username</string>
     <string name="create_account_username_placeholder">jane.doe</string>
     <string name="create_account_username_label">USERNAME</string>
+    <string name="create_account_set_username_title">Set username</string>
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
     <string name="create_account_username_description">At least 2 characters, a-z, 0-9, “_”, “-” and “.”</string>

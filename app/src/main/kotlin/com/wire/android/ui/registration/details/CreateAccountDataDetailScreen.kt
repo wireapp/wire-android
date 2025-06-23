@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.registration.details
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -72,6 +72,7 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.DefaultEmailDone
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
@@ -196,16 +197,16 @@ private fun AccountDetailsContent(
                     keyboardOptions = KeyboardOptions.DefaultEmailDone,
                     onKeyboardAction = { keyboardController?.hide() },
                     modifier = Modifier
-                        .padding(
-                            start = MaterialTheme.wireDimensions.spacing16x,
-                            end = MaterialTheme.wireDimensions.spacing16x,
-                            bottom = MaterialTheme.wireDimensions.spacing16x
-                        )
+                        .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                         .testTag("emailField")
                         .focusRequester(emailFocusRequester)
                 )
-                AnimatedVisibility(visible = state.error.isEmailError()) {
-                    EmailErrorDetailText(state.error)
+
+                AnimatedContent(state.error.isEmailError()) { isEmailError ->
+                    when (isEmailError) {
+                        true -> EmailErrorDetailText(state.error)
+                        false -> VerticalSpace.x16()
+                    }
                 }
 
                 WireTextField(

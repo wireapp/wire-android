@@ -93,7 +93,7 @@ private fun UsernameContent(
             NewAuthHeader(
                 title = {
                     Text(
-                        text = stringResource(id = R.string.create_personal_account_title),
+                        text = stringResource(id = R.string.create_account_set_username_title),
                         style = MaterialTheme.wireTypography.title01,
                     )
                 },

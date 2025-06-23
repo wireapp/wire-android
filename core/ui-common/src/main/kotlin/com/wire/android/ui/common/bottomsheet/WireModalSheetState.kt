@@ -46,11 +46,12 @@ open class WireModalSheetState<T : Any>(
     private val scope: CoroutineScope,
     private val keyboardController: SoftwareKeyboardController? = null,
     private val onDismissAction: () -> Unit = {},
-    initialValue: WireSheetValue<T> = WireSheetValue.Hidden
+    initialValue: WireSheetValue<T> = WireSheetValue.Hidden,
+    skipPartiallyExpanded: Boolean = true,
 ) {
     val sheetState: SheetState = SheetState(
         density = density,
-        skipPartiallyExpanded = true,
+        skipPartiallyExpanded = skipPartiallyExpanded,
         initialValue = initialValue.originalValue,
         confirmValueChange = { true },
         skipHiddenState = false
@@ -161,6 +162,7 @@ sealed class WireSheetValue<out T : Any>(val originalValue: SheetValue) {
 @Composable
 inline fun <reified T : Any> rememberWireModalSheetState(
     initialValue: WireSheetValue<T> = WireSheetValue.Hidden,
+    skipPartiallyExpanded: Boolean = true,
     noinline onDismissAction: () -> Unit = {}
 ): WireModalSheetState<T> {
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
@@ -174,7 +176,8 @@ inline fun <reified T : Any> rememberWireModalSheetState(
             scope = scope,
             keyboardController = softwareKeyboardController,
             onDismissAction = onDismissAction,
-            initialValue = initialValue
+            initialValue = initialValue,
+            skipPartiallyExpanded = skipPartiallyExpanded,
         )
     }
 }

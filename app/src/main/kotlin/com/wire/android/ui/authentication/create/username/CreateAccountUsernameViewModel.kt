@@ -24,6 +24,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
@@ -39,7 +41,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateAccountUsernameViewModel @Inject constructor(
     private val validateUserHandleUseCase: ValidateUserHandleUseCase,
-    private val setUserHandleUseCase: SetUserHandleUseCase
+    private val setUserHandleUseCase: SetUserHandleUseCase,
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
 ) : ViewModel() {
 
     val textState: TextFieldState = TextFieldState()
@@ -48,6 +51,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            anonymousAnalyticsManager.sendEvent(AnalyticsEvent.RegistrationPersonalAccount.Username)
             textState.textAsFlow()
                 .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
                 .collectLatest { newHandle ->
@@ -79,7 +83,10 @@ class CreateAccountUsernameViewModel @Inject constructor(
                 is SetUserHandleResult.Failure.Generic -> HandleUpdateErrorState.DialogError.GenericError(result.error)
                 SetUserHandleResult.Failure.HandleExists -> HandleUpdateErrorState.TextFieldError.UsernameTakenError
                 SetUserHandleResult.Failure.InvalidHandle -> HandleUpdateErrorState.TextFieldError.UsernameInvalidError
-                SetUserHandleResult.Success -> HandleUpdateErrorState.None
+                SetUserHandleResult.Success -> {
+                    anonymousAnalyticsManager.sendEvent(AnalyticsEvent.RegistrationPersonalAccount.CreationCompleted)
+                    HandleUpdateErrorState.None
+                }
             }
             state = state.copy(
                 loading = false,

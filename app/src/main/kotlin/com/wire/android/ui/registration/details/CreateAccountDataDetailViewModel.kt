@@ -123,7 +123,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
             }
 
             val email = emailTextState.text.toString().trim().lowercase()
-            val emailError = when (!detailsState.isCodeSent) {
+            val emailError = when (detailsState.isCodeSent) {
                 false -> authScope.registerScope.requestActivationCode(email).toEmailError()
                 true -> detailsState.error
             }

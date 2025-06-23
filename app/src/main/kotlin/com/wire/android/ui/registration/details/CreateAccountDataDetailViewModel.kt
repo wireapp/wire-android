@@ -90,7 +90,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     private fun onEmailContinue() {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
-            delay(ANALYTICS_INIT_WARMUP_TIME)
+            delay(ANALYTICS_INIT_WARMUP_THRESHOLD)
             val email = emailTextState.text.toString().trim().lowercase()
             val emailError = when (validateEmail(email)) {
                 true -> CreateAccountDataDetailViewState.DetailsError.None
@@ -213,6 +213,6 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     }
 
     private companion object {
-        val ANALYTICS_INIT_WARMUP_TIME = 1.seconds
+        val ANALYTICS_INIT_WARMUP_THRESHOLD = 1.seconds
     }
 }

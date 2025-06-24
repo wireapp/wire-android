@@ -43,7 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
@@ -72,6 +72,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreateAccountNavGraph(start = true)
@@ -217,10 +218,18 @@ private fun AccountType(
                 text = title.uppercase(),
                 style = MaterialTheme.wireTypography.title03,
                 color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(horizontal = dimensions().spacing8x)
+                    .fillMaxWidth()
             )
             Text(
                 text = subtitle,
                 style = MaterialTheme.wireTypography.body01,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(horizontal = dimensions().spacing8x)
+                    .fillMaxWidth()
             )
             HorizontalDivider(modifier = Modifier.padding(horizontal = dimensions().spacing16x))
             highlights.forEach { highlight ->
@@ -272,7 +281,7 @@ private fun AccountType(
 }
 
 @Composable
-@Preview
+@PreviewMultipleThemes
 fun PreviewCreateAccountSelectorScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {

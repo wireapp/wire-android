@@ -38,7 +38,7 @@ import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
@@ -70,7 +70,7 @@ class NewConversationViewModel @Inject constructor(
     var newGroupNameTextState: TextFieldState = TextFieldState()
     var newGroupState: GroupMetadataState by mutableStateOf(
         GroupMetadataState().let {
-            val defaultProtocol = ConversationOptions
+            val defaultProtocol = CreateConversationParam
                 .Protocol
                 .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
             it.copy(groupProtocol = defaultProtocol)
@@ -79,7 +79,7 @@ class NewConversationViewModel @Inject constructor(
 
     var groupOptionsState: GroupOptionState by mutableStateOf(
         GroupOptionState().let {
-            val isMLS = newGroupState.groupProtocol == ConversationOptions.Protocol.MLS
+            val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
             it.copy(
                 isAllowServicesEnabled = !isMLS,
                 isAllowServicesPossible = !isMLS,
@@ -99,7 +99,7 @@ class NewConversationViewModel @Inject constructor(
     fun resetState() {
         newGroupNameTextState.clearText()
         newGroupState = GroupMetadataState().let {
-            val defaultProtocol = ConversationOptions
+            val defaultProtocol = CreateConversationParam
                 .Protocol
                 .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
             it.copy(
@@ -107,7 +107,7 @@ class NewConversationViewModel @Inject constructor(
             )
         }
         groupOptionsState = GroupOptionState().let {
-            val isMLS = newGroupState.groupProtocol == ConversationOptions.Protocol.MLS
+            val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
             it.copy(
                 isAllowServicesEnabled = !isMLS,
                 isAllowServicesPossible = !isMLS
@@ -255,7 +255,7 @@ class NewConversationViewModel @Inject constructor(
             val result = createChannel(
                 name = newGroupNameTextState.text.toString(),
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
-                options = ConversationOptions().copy(
+                options = CreateConversationParam().copy(
                     protocol = newGroupState.groupProtocol,
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
                     accessRole = Conversation.accessRolesFor(
@@ -277,8 +277,8 @@ class NewConversationViewModel @Inject constructor(
             val result = createRegularGroup(
                 name = newGroupNameTextState.text.toString(),
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
-                options = ConversationOptions().copy(
-                    protocol = ConversationOptions.Protocol.PROTEUS,
+                options = CreateConversationParam().copy(
+                    protocol = CreateConversationParam.Protocol.PROTEUS,
                     accessRole = Conversation.defaultGroupAccessRoles,
                     access = Conversation.defaultGroupAccess,
                     wireCellEnabled = groupOptionsState.isWireCellsEnabled ?: false,
@@ -296,7 +296,7 @@ class NewConversationViewModel @Inject constructor(
                 name = newGroupNameTextState.text.toString(),
                 // TODO: change the id in Contact to UserId instead of String
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
-                options = ConversationOptions().copy(
+                options = CreateConversationParam().copy(
                     protocol = newGroupState.groupProtocol,
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
                     wireCellEnabled = groupOptionsState.isWireCellsEnabled ?: false,

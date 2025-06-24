@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.config.orDefault
 import com.wire.android.datastore.UserDataStoreProvider
@@ -40,6 +39,7 @@ import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Compan
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
@@ -57,12 +57,9 @@ import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -77,7 +74,7 @@ class NewLoginViewModel(
     private val loginExtension: LoginViewModelExtension,
     private val ssoExtension: LoginSSOViewModelExtension,
     private val dispatchers: DispatcherProvider,
-) : ViewModel() {
+) : ActionsViewModel<NewLoginAction>() {
 
     @Inject
     constructor(
@@ -107,12 +104,6 @@ class NewLoginViewModel(
     var state by mutableStateOf(NewLoginScreenState())
         private set
     val userIdentifierTextState: TextFieldState = TextFieldState()
-
-    private val _actions = Channel<NewLoginAction>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    internal val actions = _actions.receiveAsFlow()
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
@@ -169,7 +160,7 @@ class NewLoginViewModel(
                     }
 
                     is EnterpriseLoginResult.Failure.NotSupported -> withContext(dispatchers.main()) {
-                        action(NewLoginAction.EnterpriseLoginNotSupported(email))
+                        sendAction(NewLoginAction.EnterpriseLoginNotSupported(email))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
 
@@ -185,7 +176,7 @@ class NewLoginViewModel(
 
                             is LoginRedirectPath.Default,
                             is LoginRedirectPath.NoRegistration -> withContext(dispatchers.main()) {
-                                action(
+                                sendAction(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = email,
                                         loginPasswordPath = LoginPasswordPath(
@@ -198,7 +189,7 @@ class NewLoginViewModel(
                             }
 
                             is LoginRedirectPath.ExistingAccountWithClaimedDomain -> withContext(dispatchers.main()) {
-                                action(
+                                sendAction(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = email,
                                         loginPasswordPath = LoginPasswordPath(
@@ -236,7 +227,7 @@ class NewLoginViewModel(
                         }
 
                         else -> withContext(dispatchers.main()) {
-                            action(NewLoginAction.CustomConfig(userIdentifierTextState.text.toString(), customServerConfig))
+                            sendAction(NewLoginAction.CustomConfig(userIdentifierTextState.text.toString(), customServerConfig))
                             updateLoginFlowState(NewLoginFlowState.Default)
                         }
                     }
@@ -256,7 +247,7 @@ class NewLoginViewModel(
                 onSuccess = { requestUrl, serverConfig ->
                     withContext(dispatchers.main()) {
                         updateLoginFlowState(NewLoginFlowState.Default)
-                        action(NewLoginAction.SSO(requestUrl, SSOUrlConfig(serverConfig, userIdentifierTextState.text.toString())))
+                        sendAction(NewLoginAction.SSO(requestUrl, SSOUrlConfig(serverConfig, userIdentifierTextState.text.toString())))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
                 }
@@ -285,19 +276,19 @@ class NewLoginViewModel(
                                     when (result) {
                                         is RegisterClientResult.Success -> {
                                             when (loginExtension.isInitialSyncCompleted(storedUserId)) {
-                                                true -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
-                                                false -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                                                true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
+                                                false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
                                             }
                                             updateLoginFlowState(NewLoginFlowState.Default)
                                         }
 
                                         is RegisterClientResult.E2EICertificateRequired -> {
-                                            action(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
+                                            sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
                                             updateLoginFlowState(NewLoginFlowState.Default)
                                         }
 
                                         is RegisterClientResult.Failure.TooManyClients -> {
-                                            action(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
+                                            sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
                                             updateLoginFlowState(NewLoginFlowState.Default)
                                         }
 
@@ -339,10 +330,6 @@ class NewLoginViewModel(
                 nextEnabled = newState !is NewLoginFlowState.Loading && currentUserLoginInput.isNotEmpty()
             )
         }
-
-    private fun action(action: NewLoginAction) {
-        viewModelScope.launch { _actions.send(action) }
-    }
 }
 
 private fun AutoVersionAuthScopeUseCase.Result.Failure.toLoginError() = when (this) {

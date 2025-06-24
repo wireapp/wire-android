@@ -22,9 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -33,10 +33,10 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class HomeDrawerViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val observeArchivedUnreadConversationsCountUseCase: ObserveArchivedUnreadConversationsCountUseCase,
     private val globalDataStore: GlobalDataStore,
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     var drawerState by mutableStateOf(
         HomeDrawerState(

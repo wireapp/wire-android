@@ -23,7 +23,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.wire.android.BuildConfig
@@ -40,6 +39,7 @@ import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
@@ -82,8 +82,6 @@ import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -94,7 +92,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -125,7 +122,7 @@ class WireActivityViewModel @Inject constructor(
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
     private val workManager: Lazy<WorkManager>
-) : ViewModel() {
+) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
         private set
@@ -148,12 +145,6 @@ class WireActivityViewModel @Inject constructor(
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     private lateinit var validSessions: StateFlow<List<AccountInfo>>
-
-    private val _actions = Channel<WireActivityViewAction>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    internal val actions = _actions.receiveAsFlow()
 
     init {
         observeSyncState()
@@ -533,10 +524,6 @@ class WireActivityViewModel @Inject constructor(
         is CurrentScreen.AuthRelated,
         is CurrentScreen.SomeOther -> true
     }
-
-    private fun sendAction(action: WireActivityViewAction) = viewModelScope.launch {
-        _actions.send(action)
-    }
 }
 
 sealed class CurrentSessionErrorState {
@@ -606,7 +593,7 @@ enum class InitialAppState {
     NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
 }
 
-internal sealed interface WireActivityViewAction
+sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
 internal data object OnShowImportMediaScreen : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction

@@ -70,7 +70,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.conversation.CreateConversationParam
 
 @Composable
 internal fun WireDropDown(
@@ -321,7 +321,7 @@ private fun RowScope.LeadingIcon(convent: @Composable () -> Unit) {
 @Preview
 fun PreviewWireDropdownPreviewWithLabel() {
     WireDropDown(
-        items = ConversationOptions.Protocol.entries.map { it.name },
+        items = CreateConversationParam.Protocol.entries.map { it.name },
         defaultItemIndex = 0,
         selectedItemIndex = 0,
         label = "Protocol",

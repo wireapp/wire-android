@@ -19,7 +19,6 @@ package com.wire.android.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.utils.findDestination
 
@@ -28,9 +27,6 @@ class Navigator(
     val navController: NavHostController,
     val isAllowedToNavigate: (NavigationCommand) -> Boolean = { true }
 ) : WireNavigator {
-    private val isResumed: Boolean
-        get() = navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED
-
     /**
      * Navigates to the specified screen if it is allowed to navigate.
      * @param navigationCommand command containing the destination and back stack mode

@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UICallParticipantMapper
@@ -34,9 +33,11 @@ import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions
 import com.wire.android.ui.calling.usecase.HangUpCallUseCase
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.util.ExpiringMap
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.withDelayAfterFirst
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.call.VideoState
@@ -50,6 +51,7 @@ import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
@@ -58,8 +60,6 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
-import com.wire.kalium.common.functional.onSuccess
-import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -106,7 +106,7 @@ class SharedCallingViewModel @AssistedInject constructor(
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider
-) : ViewModel() {
+) : ActionsViewModel<SharedCallingViewActions>() {
 
     var callState by mutableStateOf(CallState(conversationId))
 
@@ -220,9 +220,9 @@ class SharedCallingViewModel @AssistedInject constructor(
         }.collect()
     }
 
-    fun hangUpCall(onCompleted: () -> Unit) {
+    fun hangUpCall() {
         hangUpCall(conversationId)
-        onCompleted()
+        sendAction(SharedCallingViewActions.HungUpCall(conversationId))
     }
 
     fun toggleSpeaker() {
@@ -337,3 +337,7 @@ class SharedCallingViewModel @AssistedInject constructor(
 }
 
 private fun List<UICallParticipant>.senderName(userId: QualifiedID) = firstOrNull { it.id.value == userId.value }?.name
+
+sealed interface SharedCallingViewActions {
+    data class HungUpCall(val conversationId: ConversationId) : SharedCallingViewActions
+}

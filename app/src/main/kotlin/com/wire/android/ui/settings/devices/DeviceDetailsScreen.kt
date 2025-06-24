@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -102,7 +103,8 @@ import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import kotlinx.datetime.Instant
 
 @WireDestination(
-    navArgsDelegate = DeviceDetailsNavArgs::class
+    navArgsDelegate = DeviceDetailsNavArgs::class,
+    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun DeviceDetailsScreen(

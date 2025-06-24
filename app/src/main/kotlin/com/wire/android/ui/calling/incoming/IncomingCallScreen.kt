@@ -47,6 +47,7 @@ import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -79,11 +80,7 @@ fun IncomingCallScreen(
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val audioPermissionCheck = AudioPermissionCheckFlow(
-        onAcceptCall = {
-            incomingCallViewModel.acceptCall {
-                (activity as CallActivity).openAppLockActivity()
-            }
-        },
+        onAcceptCall = incomingCallViewModel::acceptCall,
         onPermanentPermissionDecline = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
@@ -98,11 +95,7 @@ fun IncomingCallScreen(
         if (incomingCallState.shouldShowJoinCallAnywayDialog) {
             JoinAnywayDialog(
                 onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = {
-                    acceptCallAnyway {
-                        (activity as CallActivity).openAppLockActivity()
-                    }
-                }
+                onConfirm = ::acceptCallAnyway,
             )
         }
     }
@@ -120,21 +113,19 @@ fun IncomingCallScreen(
             }
         }
     }
+    HandleActions(incomingCallViewModel.actions) { action ->
+        when (action) {
+            IncomingCallViewActions.AppLocked -> (activity as CallActivity).openAppLockActivity()
+            is IncomingCallViewActions.RejectedCall -> activity.finishAndRemoveTask()
+        }
+    }
+
     with(sharedCallingViewModel) {
         IncomingCallContent(
             callState = callState,
             toggleMute = { sharedCallingViewModel.toggleMute(true) },
             toggleVideo = ::toggleVideo,
-            declineCall = {
-                incomingCallViewModel.declineCall(
-                    onAppLocked = {
-                        (activity as CallActivity).openAppLockActivity()
-                    },
-                    onCallRejected = {
-                        activity.finishAndRemoveTask()
-                    }
-                )
-            },
+            declineCall = incomingCallViewModel::declineCall,
             acceptCall = audioPermissionCheck::launch,
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview,

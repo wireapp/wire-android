@@ -21,9 +21,9 @@ package com.wire.android.ui.calling.incoming
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.calling.incoming.IncomingCallState.WaitingUnlockState
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -54,7 +54,7 @@ class IncomingCallViewModel @AssistedInject constructor(
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase,
     private val lockCodeTimeManager: LockCodeTimeManager
-) : ViewModel() {
+) : ActionsViewModel<IncomingCallViewActions>() {
 
     private lateinit var observeIncomingCallJob: Job
     private var establishedCallConversationId: ConversationId? = null
@@ -84,9 +84,9 @@ class IncomingCallViewModel @AssistedInject constructor(
                         // do nothing
                     }
 
-                    WaitingUnlockState.JOIN_CALL -> acceptCall { }
-                    WaitingUnlockState.JOIN_CALL_ANYWAY -> acceptCallAnyway { }
-                    WaitingUnlockState.DECLINE_CALL -> declineCall({}, {})
+                    WaitingUnlockState.JOIN_CALL -> acceptCall()
+                    WaitingUnlockState.JOIN_CALL_ANYWAY -> acceptCallAnyway()
+                    WaitingUnlockState.DECLINE_CALL -> declineCall()
                 }
                 incomingCallState = incomingCallState.copy(waitingUnlockState = WaitingUnlockState.DEFAULT)
             }
@@ -116,15 +116,12 @@ class IncomingCallViewModel @AssistedInject constructor(
         }
     }
 
-    fun declineCall(
-        onAppLocked: () -> Unit,
-        onCallRejected: () -> Unit
-    ) {
+    fun declineCall() {
         viewModelScope.launch {
             lockCodeTimeManager.observeAppLock().first().let {
                 if (it) {
                     incomingCallState = incomingCallState.copy(waitingUnlockState = WaitingUnlockState.DECLINE_CALL)
-                    onAppLocked()
+                    sendAction(IncomingCallViewActions.AppLocked)
                 } else {
                     observeIncomingCallJob.cancel()
                     launch { rejectCall(conversationId = conversationId) }
@@ -132,7 +129,7 @@ class IncomingCallViewModel @AssistedInject constructor(
                         incomingCallState =
                             incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
                     }
-                    onCallRejected()
+                    sendAction(IncomingCallViewActions.RejectedCall(conversationId))
                 }
             }
         }
@@ -146,12 +143,12 @@ class IncomingCallViewModel @AssistedInject constructor(
         incomingCallState = incomingCallState.copy(shouldShowJoinCallAnywayDialog = false)
     }
 
-    fun acceptCallAnyway(onAppLocked: () -> Unit) {
+    fun acceptCallAnyway() {
         viewModelScope.launch {
             lockCodeTimeManager.observeAppLock().first().let {
                 if (it) {
                     incomingCallState = incomingCallState.copy(waitingUnlockState = WaitingUnlockState.JOIN_CALL_ANYWAY)
-                    onAppLocked()
+                    sendAction(IncomingCallViewActions.AppLocked)
                 } else {
                     establishedCallConversationId?.let {
                         endCall(it)
@@ -159,19 +156,19 @@ class IncomingCallViewModel @AssistedInject constructor(
                         muteCall(it, false)
                         delay(DELAY_END_CALL)
                     }
-                    acceptCall(onAppLocked)
+                    acceptCall()
                 }
             }
         }
     }
 
-    fun acceptCall(onAppLocked: () -> Unit) {
+    fun acceptCall() {
         viewModelScope.launch {
             lockCodeTimeManager.observeAppLock().first().let {
                 if (it) {
                     incomingCallState =
                         incomingCallState.copy(waitingUnlockState = WaitingUnlockState.JOIN_CALL)
-                    onAppLocked()
+                    sendAction(IncomingCallViewActions.AppLocked)
                 } else {
                     if (incomingCallState.hasEstablishedCall) {
                         showJoinCallAnywayDialog()
@@ -197,4 +194,9 @@ class IncomingCallViewModel @AssistedInject constructor(
     interface Factory {
         fun create(conversationId: ConversationId): IncomingCallViewModel
     }
+}
+
+sealed interface IncomingCallViewActions {
+    data object AppLocked : IncomingCallViewActions
+    data class RejectedCall(val conversationId: ConversationId) : IncomingCallViewActions
 }

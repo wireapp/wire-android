@@ -22,7 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.util.FileHelper
-import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
@@ -30,40 +30,25 @@ import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PublicLinkViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val createPublicLink: CreatePublicLinkUseCase,
     private val getPublicLinkUseCase: GetPublicLinkUseCase,
     private val deletePublicLinkUseCase: DeletePublicLinkUseCase,
     private val fileHelper: FileHelper,
-) : SavedStateViewModel(savedStateHandle) {
+) : ActionsViewModel<PublicLinkViewAction>() {
 
     private val navArgs: PublicLinkNavArgs = savedStateHandle.navArgs()
 
     private val _state = MutableStateFlow(PublicLinkViewState())
     internal val state = _state.asStateFlow()
-
-    private val _actions = Channel<PublicLinkViewAction>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-
-    internal val actions = _actions
-        .receiveAsFlow()
-        .flowOn(Dispatchers.Main.immediate)
-
     private var publicLink: PublicLink? = null
 
     init {
@@ -146,10 +131,6 @@ class PublicLinkViewModel @Inject constructor(
             }
         )
     }
-
-    private fun sendAction(action: PublicLinkViewAction) {
-        viewModelScope.launch { _actions.send(action) }
-    }
 }
 
 internal data class PublicLinkViewState(
@@ -157,5 +138,5 @@ internal data class PublicLinkViewState(
     val url: String? = null,
 )
 
-internal sealed interface PublicLinkViewAction
+sealed interface PublicLinkViewAction
 internal data class ShowError(val message: Int, val closeScreen: Boolean = false) : PublicLinkViewAction

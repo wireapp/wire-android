@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
@@ -60,7 +61,9 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 
-@WireDestination
+@WireDestination(
+    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+)
 @Composable
 fun NewConversationFolderScreen(
     navigator: Navigator,

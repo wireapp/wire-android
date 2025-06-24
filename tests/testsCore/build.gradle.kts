@@ -15,15 +15,16 @@ android {
         val composeBom = platform(libs.compose.bom)
         implementation(composeBom)
         implementation(libs.compose.ui)
-        implementation("net.datafaker:datafaker:2.4.2")
+
         //implementation("net.datafaker:datafaker:2.4.1")
         androidTestImplementation(libs.androidx.test.runner)
         androidTestImplementation(libs.androidx.test.extJunit)
         androidTestImplementation(libs.androidx.espresso.core)
         androidTestImplementation(libs.androidx.test.uiAutomator)
         androidTestImplementation(project(":tests:testsSupport"))
-        implementation("io.insert-koin:koin-core:3.5.3")
-        androidTestImplementation("io.insert-koin:koin-test:3.5.3")
-        androidTestImplementation("io.insert-koin:koin-test-junit4:3.5.3")
+        implementation(libs.koin.core)
+        androidTestImplementation(libs.koin.test)
+        androidTestImplementation(libs.koin.test.junit4)
+        implementation(libs.datafaker)
     }
 

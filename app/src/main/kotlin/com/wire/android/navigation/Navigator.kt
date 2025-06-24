@@ -34,26 +34,22 @@ class Navigator(
     /**
      * Navigates to the specified screen if it is allowed to navigate.
      * @param navigationCommand command containing the destination and back stack mode
-     * @param onlyIfResumed if true, will ignore the navigation action if the current `NavBackStackEntry`
      * is not in the RESUMED state. This avoids duplicate navigation actions and should be used when it's the user action
      * or when we simply don't want to make more than one navigation action at a time (skip some destinations instantly).
      * More here: https://composedestinations.rafaelcosta.xyz/navigation/basics#avoiding-duplicate-navigation
      */
-    override fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean) {
-        if (onlyIfResumed && !isResumed) return
+    override fun navigate(navigationCommand: NavigationCommand) {
         if (!isAllowedToNavigate(navigationCommand)) return
         navController.navigateToItem(navigationCommand)
     }
 
     /**
      * Navigates back to the previous screen.
-     * @param onlyIfResumed if true, will ignore the navigation action if the current `NavBackStackEntry`
      * is not in the RESUMED state. This avoids duplicate navigation actions and should be used when it's the user action
      * or when we simply don't want to make more than one navigation action at a time (skip some destinations instantly).
      * More here: https://composedestinations.rafaelcosta.xyz/navigation/basics#avoiding-duplicate-navigation
      */
-    override fun navigateBack(onlyIfResumed: Boolean) {
-        if (onlyIfResumed && !isResumed) return
+    override fun navigateBack() {
         if (!navController.popBackStack()) finish()
     }
 

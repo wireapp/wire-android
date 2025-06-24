@@ -37,7 +37,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
@@ -63,7 +62,6 @@ import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogS
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
 
-@RootNavGraph
 @WireDestination(
     style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )

@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -50,10 +49,9 @@ import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.settings.devices.model.SelfDevicesState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.folderWithElements
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.android.util.lifecycle.rememberLifecycleEvent
+import com.wire.kalium.logic.data.conversation.ClientId
 
-@RootNavGraph
 @WireDestination
 @Composable
 fun SelfDevicesScreen(

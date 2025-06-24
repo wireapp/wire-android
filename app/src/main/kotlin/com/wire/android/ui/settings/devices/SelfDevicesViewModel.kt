@@ -30,7 +30,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserMlsClientIdentitiesUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -46,7 +46,7 @@ class SelfDevicesViewModel @Inject constructor(
     private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val observeClientList: ObserveClientsByUserIdUseCase,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
-    private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
+    private val getUserMlsClientIdentities: GetUserMlsClientIdentitiesUseCase,
     private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : ViewModel() {
 
@@ -56,7 +56,7 @@ class SelfDevicesViewModel @Inject constructor(
         private set
 
     private val refreshE2eiCertificates: MutableSharedFlow<Unit> = MutableSharedFlow<Unit>()
-    private val observeUserE2eiCertificates = refreshE2eiCertificates.map { getUserE2eiCertificates(currentAccountId) }
+    private val observeMlsClientIdentities = refreshE2eiCertificates.map { getUserMlsClientIdentities(currentAccountId) }
 
     init {
         observeClientList()
@@ -81,8 +81,8 @@ class SelfDevicesViewModel @Inject constructor(
     private fun observeClientList() {
         viewModelScope.launch {
             observeClientList(currentAccountId)
-                .combine(observeUserE2eiCertificates, ::Pair)
-                .collect { (result, e2eiCertificates) ->
+                .combine(observeMlsClientIdentities, ::Pair)
+                .collect { (result, mlsClientIdentities) ->
                     state = when (result) {
                         is ObserveClientsByUserIdUseCase.Result.Failure -> state.copy(isLoadingClientsList = false)
                         is ObserveClientsByUserIdUseCase.Result.Success -> {
@@ -91,10 +91,10 @@ class SelfDevicesViewModel @Inject constructor(
                                 isLoadingClientsList = false,
                                 currentDevice = result.clients
                                     .firstOrNull { it.id == currentClientId }
-                                    ?.let { Device(it, e2eiCertificates[it.id.value]) },
+                                    ?.let { Device(it, mlsClientIdentities[it.id.value]) },
                                 deviceList = result.clients
                                     .filter { it.id != currentClientId }
-                                    .map { Device(it, e2eiCertificates[it.id.value]) }
+                                    .map { Device(it, mlsClientIdentities[it.id.value]) }
                             )
                         }
                     }

@@ -73,6 +73,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -109,6 +110,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase,
     private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
     private val mlsClientIdentity: GetMLSClientIdentityUseCase,
+    private val isE2EIEnabled: IsE2EIEnabledUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
@@ -137,11 +139,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         persistClients()
         getMLSVerificationStatus()
         getIfConversationExist()
+        getE2EIStatus()
     }
 
     private fun getIfConversationExist() {
         viewModelScope.launch {
-            state = state.copy(isConversationStarted = isOneToOneConversationCreated(userId))
+            val isOneToOneConversationCreated = isOneToOneConversationCreated(userId)
+            state = state.copy(isConversationStarted = isOneToOneConversationCreated)
         }
     }
 
@@ -150,6 +154,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             val isMLSVerified = getUserE2eiCertificateStatus(userId)
             state = state.copy(isMLSVerified = isMLSVerified)
         }
+    }
+
+    private fun getE2EIStatus() = viewModelScope.launch {
+        val isE2EIEnabled = isE2EIEnabled()
+        state = state.copy(isE2EIEnabled = isE2EIEnabled)
     }
 
     override fun observeClientList() {

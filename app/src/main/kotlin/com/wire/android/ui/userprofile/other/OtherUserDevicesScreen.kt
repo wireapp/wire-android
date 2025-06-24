@@ -64,6 +64,7 @@ fun OtherUserDevicesScreen(
             else -> OtherUserDevicesContent(
                 fullName = state.fullName,
                 devices = devices,
+                shouldShowE2EIInfo = state.isE2EIEnabled,
                 lazyListState = lazyListState,
                 onDeviceClick = onDeviceClick
             )
@@ -105,6 +106,7 @@ private fun OtherUserEmptyDevicesContent() {
 private fun OtherUserDevicesContent(
     fullName: String,
     devices: List<Device>,
+    shouldShowE2EIInfo: Boolean,
     lazyListState: LazyListState = rememberLazyListState(),
     onDeviceClick: (Device) -> Unit
 ) {
@@ -144,7 +146,7 @@ private fun OtherUserDevicesContent(
                 onClickAction = onDeviceClick,
                 icon = { ArrowRightIcon(contentDescription = R.string.content_description_empty) },
                 shouldShowVerifyLabel = true,
-                shouldShowE2EIInfo = item.mlsClientIdentity != null
+                shouldShowE2EIInfo = shouldShowE2EIInfo,
             )
             if (index < devices.lastIndex) WireDivider()
         }

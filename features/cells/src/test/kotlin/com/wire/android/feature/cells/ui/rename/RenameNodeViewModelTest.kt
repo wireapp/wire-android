@@ -90,7 +90,6 @@ class RenameNodeViewModelTest {
         }
     }
 
-
     private class Arrangement {
 
         @MockK

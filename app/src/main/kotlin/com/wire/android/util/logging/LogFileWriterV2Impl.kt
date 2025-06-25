@@ -18,8 +18,6 @@
 
 package com.wire.android.util.logging
 
-import android.app.ActivityManager
-import android.content.Context
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,7 +52,6 @@ import java.util.zip.GZIPOutputStream
 @Suppress("TooGenericExceptionCaught", "TooManyFunctions")
 class LogFileWriterV2Impl(
     private val logsDirectory: File,
-    private val context: Context?,
     private val config: LogFileWriterV2Config = LogFileWriterV2Config.default()
 ) : LogFileWriter {
 
@@ -71,7 +68,7 @@ class LogFileWriterV2Impl(
     private val bufferMutex = Mutex()
     private var lastFlushTime = 0L
     private var bufferedWriter: BufferedWriter? = null
-    
+
     // Process management
     private var logcatProcess: Process? = null
 
@@ -180,7 +177,6 @@ class LogFileWriterV2Impl(
         try {
             // Stop logcat process first to prevent new logs
             stopLogcatProcess()
-            
             // Cancel jobs with timeout to avoid hanging
             writingJob?.let { job ->
                 try {
@@ -219,7 +215,6 @@ class LogFileWriterV2Impl(
         } finally {
             // Ensure resources are cleaned up regardless of exceptions
             closeResources()
-            
             try {
                 clearActiveLoggingFileContent()
             } catch (e: Exception) {
@@ -227,7 +222,7 @@ class LogFileWriterV2Impl(
             }
         }
     }
-    
+
     private fun closeResources() {
         try {
             bufferedWriter?.close()
@@ -352,7 +347,6 @@ class LogFileWriterV2Impl(
         if (logBuffer.isEmpty()) return
         val linesToWrite = logBuffer.toList()
         logBuffer.clear()
-        
         try {
             // Use BufferedWriter for efficient writing
             val writer = bufferedWriter ?: BufferedWriter(

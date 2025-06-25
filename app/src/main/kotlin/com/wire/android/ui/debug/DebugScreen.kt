@@ -61,6 +61,7 @@ import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
@@ -221,7 +222,6 @@ data class DebugContentState(
         coroutineScope.launch {
             // Flush any buffered logs before sharing to ensure completeness
             onFlushLogs().await()
-            
             val dir = File(logPath).parentFile
             val fileUris =
                 if (dir != null && dir.exists()) context.getUrisOfFilesInDirectory(dir) else arrayListOf()
@@ -248,7 +248,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onNavigationPressed = {},
         onLoggingEnabledChange = {},
         onDeleteLogs = {},
-        onFlushLogs = { kotlinx.coroutines.CompletableDeferred(Unit) },
+        onFlushLogs = { CompletableDeferred(Unit) },
         onDatabaseLoggerEnabledChanged = {},
         onEnableWireCellsFeature = {},
     )

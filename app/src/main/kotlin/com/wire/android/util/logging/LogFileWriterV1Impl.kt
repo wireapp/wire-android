@@ -16,11 +16,9 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.util
+package com.wire.android.util.logging
 
-import android.content.Context
 import com.wire.android.appLogger
-import com.wire.android.util.logging.LogFileWriter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -44,7 +42,7 @@ import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
 @Suppress("TooGenericExceptionCaught")
-class LogFileWriterV1Impl(private val logsDirectory: File): LogFileWriter {
+class LogFileWriterV1Impl(private val logsDirectory: File) : LogFileWriter {
 
     private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
 

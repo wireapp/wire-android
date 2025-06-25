@@ -26,29 +26,30 @@ import java.io.File
  * between different implementations.
  */
 interface LogFileWriter {
-    
+
     /**
      * The active logging file where logs are currently being written
      */
     val activeLoggingFile: File
-    
+
     /**
      * Starts the log collection system
      */
     suspend fun start()
-    
+
     /**
      * Stops the log collection system
      */
     suspend fun stop()
-    
+
     /**
      * Forces a flush of any pending logs to ensure they are written to file
      */
     suspend fun forceFlush()
-    
+
     /**
      * Deletes all log files including active and compressed files
+     *
      */
     fun deleteAllLogFiles()
 

@@ -62,6 +62,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 @HiltAndroidApp
 class WireApplication : BaseApp() {
 

@@ -101,6 +101,7 @@ import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.PageLoadingIndicator
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
@@ -985,6 +986,7 @@ private fun ConversationScreen(
                         openDrawingCanvas = openDrawingCanvas,
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
+                        showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
                     )
                 }
             }
@@ -1066,6 +1068,7 @@ private fun ConversationScreenContent(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
+    showHistoryLoadingIndicator: Boolean = false,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -1108,7 +1111,8 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
-                currentTimeInMillisFlow = currentTimeInMillisFlow
+                currentTimeInMillisFlow = currentTimeInMillisFlow,
+                showHistoryLoadingIndicator = showHistoryLoadingIndicator,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1187,7 +1191,8 @@ fun MessageList(
     interactionAvailability: InteractionAvailability,
     clickActions: MessageClickActions.Content,
     modifier: Modifier = Modifier,
-    currentTimeInMillisFlow: Flow<Long> = flow { }
+    currentTimeInMillisFlow: Flow<Long> = flow { },
+    showHistoryLoadingIndicator: Boolean = false,
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1317,6 +1322,30 @@ fun MessageList(
                             )
                         }
                     }
+                }
+                // reverse layout, so prepend needs to be added after all messages to be displayed at the top of the list
+                if (showHistoryLoadingIndicator && lazyPagingMessages.itemCount > 0) {
+                    item(
+                        key = "prepend_loading_indicator",
+                        contentType = "prepend_loading_indicator",
+                        content = {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensions().spacing16x),
+                            ) {
+                                val (text, prefixIconResId) = when (lazyPagingMessages.loadState.prepend.endOfPaginationReached) {
+                                    true -> stringResource(R.string.conversation_history_loaded) to null
+                                    false -> stringResource(R.string.conversation_history_loading) to R.drawable.ic_undo
+                                }
+                                PageLoadingIndicator(
+                                    text = text,
+                                    prefixIconResId = prefixIconResId,
+                                )
+                            }
+                        }
+                    )
                 }
             }
             JumpToPlayingAudioButton(

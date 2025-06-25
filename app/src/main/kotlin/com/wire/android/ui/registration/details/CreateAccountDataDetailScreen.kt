@@ -64,8 +64,6 @@ import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -117,7 +115,10 @@ fun CreateAccountDataDetailScreen(
         )
 
         LaunchedEffect(createAccountDataDetailViewModel.detailsState.success) {
-            if (createAccountDataDetailViewModel.detailsState.success) navigateToCodeScreen()
+            if (createAccountDataDetailViewModel.detailsState.success) {
+                createAccountDataDetailViewModel.onCodeSentHandled()
+                navigateToCodeScreen()
+            }
         }
 
         AccountDetailsContent(
@@ -178,7 +179,7 @@ private fun AccountDetailsContent(
         contentPadding = dimensions().spacing16x,
         content = {
             val keyboardController = LocalSoftwareKeyboardController.current
-            val emailFocusRequester = remember { FocusRequester() }
+            val nameFocusRequester = remember { FocusRequester() }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
@@ -199,7 +200,6 @@ private fun AccountDetailsContent(
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                         .testTag("emailField")
-                        .focusRequester(emailFocusRequester)
                 )
 
                 AnimatedContent(state.error.isEmailError()) { isEmailError ->
@@ -227,7 +227,8 @@ private fun AccountDetailsContent(
                             end = MaterialTheme.wireDimensions.spacing16x,
                             bottom = MaterialTheme.wireDimensions.spacing16x
                         )
-                        .testTag("firstName"),
+                        .focusRequester(nameFocusRequester)
+                        .testTag("name"),
                 )
 
                 WirePasswordTextField(
@@ -284,7 +285,7 @@ private fun AccountDetailsContent(
             }
 
             LaunchedEffect(Unit) {
-                emailFocusRequester.requestFocus()
+                nameFocusRequester.requestFocus()
                 keyboardController?.show()
             }
 
@@ -385,12 +386,7 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
     WireDialog(
         title = stringResource(R.string.create_account_email_terms_dialog_title),
         text = stringResource(R.string.create_account_email_terms_dialog_text),
-        onDismiss = onDialogDismiss,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = onContinuePressed,
-            text = stringResource(id = R.string.label_continue),
-            type = WireDialogButtonType.Primary,
-        )
+        onDismiss = onDialogDismiss
     ) {
         Column {
             WireSecondaryButton(
@@ -408,7 +404,15 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
                 fillMaxWidth = true,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
                     .testTag("viewTC")
+            )
+            WirePrimaryButton(
+                text = stringResource(id = R.string.label_continue),
+                onClick = onContinuePressed,
+                fillMaxWidth = true,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
         }
     }
@@ -492,6 +496,16 @@ fun PreviewCreateAccountDetailsScreen() = WireTheme {
                 onErrorDismiss = {},
                 serverConfig = ServerConfig.DEFAULT
             )
+        }
+    }
+}
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewTosDialogsScreen() = WireTheme {
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout {
+            TermsConditionsDialog({}, {}, {})
         }
     }
 }

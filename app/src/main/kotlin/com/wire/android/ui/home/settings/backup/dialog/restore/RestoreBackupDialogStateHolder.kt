@@ -72,12 +72,14 @@ fun rememberRestoreDialogState(): RestoreDialogStateHolder {
     return rememberSaveable(saver = RestoreDialogStateHolder.saver()) { RestoreDialogStateHolder() }
 }
 
-@Parcelize
 sealed interface RestoreDialogStep : Parcelable {
-    data object ChooseBackupFile : RestoreDialogStep
-    data object EnterPassword : RestoreDialogStep
-    data object RestoreBackup : RestoreDialogStep
-    data class Failure(val restoreFailure: RestoreFailure) : RestoreDialogStep
+    @Parcelize data object ChooseBackupFile : RestoreDialogStep
+
+    @Parcelize data object EnterPassword : RestoreDialogStep
+
+    @Parcelize data object RestoreBackup : RestoreDialogStep
+
+    @Parcelize data class Failure(val restoreFailure: RestoreFailure) : RestoreDialogStep
 }
 
 enum class RestoreFailure(@StringRes val title: Int, @StringRes val message: Int) {

@@ -75,10 +75,12 @@ fun rememberBackUpDialogState(): CreateBackupDialogStateHolder {
     return rememberSaveable(saver = CreateBackupDialogStateHolder.saver()) { CreateBackupDialogStateHolder() }
 }
 
-@Parcelize
 sealed interface BackUpDialogStep : Parcelable {
-    data object SetPassword : BackUpDialogStep
-    data class CreatingBackup(val progress: Float) : BackUpDialogStep
-    data class Finished(val fileName: String) : BackUpDialogStep
-    data object Failure : BackUpDialogStep
+    @Parcelize data object SetPassword : BackUpDialogStep
+
+    @Parcelize data class CreatingBackup(val progress: Float) : BackUpDialogStep
+
+    @Parcelize data class Finished(val fileName: String) : BackUpDialogStep
+
+    @Parcelize data object Failure : BackUpDialogStep
 }

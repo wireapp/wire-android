@@ -62,7 +62,7 @@ fun MainNavHost(
         )
     )
 
-    adjustDestinationStylesForTablets()
+    AdjustDestinationStylesForTablets()
     DestinationsNavHost(
         modifier = modifier,
         navGraph = WireMainNavGraph,

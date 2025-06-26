@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.registration.code
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -127,6 +128,10 @@ fun CreateAccountVerificationCodeScreen(
                 )
             }
         }
+        BackHandler {
+            if (codeState.loading) return@BackHandler
+            navigator.navigateBack()
+        }
     }
 }
 
@@ -157,7 +162,10 @@ private fun CodeContent(
                     }
                 },
                 canNavigateBack = true,
-                onNavigateBack = onBackPressed
+                onNavigateBack = {
+                    if (state.loading) return@NewAuthHeader
+                    onBackPressed()
+                }
             )
         },
         contentPadding = dimensions().spacing16x,

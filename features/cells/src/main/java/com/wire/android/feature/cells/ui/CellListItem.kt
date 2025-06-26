@@ -38,6 +38,10 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +61,7 @@ import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.feature.cells.domain.model.previewSupported
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
+import com.wire.android.ui.common.chip.WireDisplayChip
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
@@ -69,6 +74,8 @@ internal fun CellListItem(
     onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var selected by remember { mutableStateOf(false) }
+
     Box(modifier = modifier) {
         Row(
             modifier = Modifier
@@ -97,15 +104,27 @@ internal fun CellListItem(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                cell.subtitle()?.let {
-                    Text(
-                        text = it,
-                        textAlign = TextAlign.Left,
-                        overflow = TextOverflow.Ellipsis,
-                        style = typography().label04,
-                        color = colorsScheme().secondaryText,
-                        maxLines = 1,
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (cell.tags.isNotEmpty()) {
+                        WireDisplayChip(
+                            label = cell.tags.first(),
+                            chipsCount = cell.tags.size - 1,
+                            modifier = Modifier.padding(end = dimensions().spacing4x)
+                        )
+                    }
+
+                    cell.subtitle()?.let {
+                        Text(
+                            text = it,
+                            textAlign = TextAlign.Left,
+                            overflow = TextOverflow.Ellipsis,
+                            style = typography().label04,
+                            color = colorsScheme().secondaryText,
+                            maxLines = 1,
+                        )
+                    }
                 }
             }
 

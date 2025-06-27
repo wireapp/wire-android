@@ -25,7 +25,8 @@ data class RemoveDeviceState(
     val deviceList: List<Device>,
     val removeDeviceDialogState: RemoveDeviceDialogState = RemoveDeviceDialogState.Hidden,
     val isLoadingClientsList: Boolean,
-    val error: RemoveDeviceError = RemoveDeviceError.None
+    val error: RemoveDeviceError = RemoveDeviceError.None,
+    val is2FAInProgress: Boolean = false,
 )
 
 sealed class RemoveDeviceDialogState {

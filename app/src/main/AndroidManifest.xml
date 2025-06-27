@@ -267,7 +267,12 @@
         -->
         <meta-data
             android:name="gcp.firebase.API_KEY"
-            android:value="${GCP_API_KEY}" />
+            android:value="${GOOGLE_API_KEY}" />
+
+        <!-- Analytics configuration from environment variables -->
+        <meta-data
+            android:name="analytics.app_key"
+            android:value="${ANALYTICS_APP_KEY}" />
 
         <provider
             android:name="com.google.firebase.provider.FirebaseInitProvider"

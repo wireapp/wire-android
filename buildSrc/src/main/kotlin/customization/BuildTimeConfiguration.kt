@@ -25,7 +25,7 @@ data class BuildTimeConfiguration(
 )
 
 data class NormalizedFlavorSettings(
-    val flavorMap: Map<String, Map<String, Any?>>
+    val flavorMap: Map<String, Map<String, ConfigValue>>
 )
 
 /**
@@ -35,15 +35,44 @@ data class NormalizedFlavorSettings(
  * Similar to [Map.plus], but this provides a more granular
  * exception handling and customisation of the override condition, if desired.
  */
-internal fun Map<String, Any?>.overwritingWith(
+internal fun Map<String, ConfigValue>.overwritingWith(
     flavorName: String, overrides: Map<*, *>
-): Map<String, Any?> {
+): Map<String, ConfigValue> {
     val copy = this.toMutableMap()
     overrides.forEach { overrideName, overrideValue ->
         require(overrideName is String) {
             "The entry named '$overrideName' for the flavor '$flavorName' is not a valid string ?!"
         }
-        copy[overrideName] = overrideValue
+        // If the override value is already a ConfigValue, use it directly
+        // Otherwise, check if it's a String that needs special handling
+        copy[overrideName] = when (overrideValue) {
+            is ConfigValue -> {
+                // Preserve existing ConfigValue objects (already resolved)
+                overrideValue
+            }
+            is String -> {
+                when {
+                    overrideValue.startsWith("MANIFEST:") -> {
+                        val envVarName = overrideValue.removePrefix("MANIFEST:")
+                        val resolvedValue = resolveEnvironmentVariableForOverride(envVarName, isOptional = false)
+                        ConfigValue.ManifestPlaceholderValue(resolvedValue)
+                    }
+                    overrideValue.startsWith("ENV:") -> {
+                        val envVarName = overrideValue.removePrefix("ENV:")
+                        val resolvedValue = resolveEnvironmentVariableForOverride(envVarName, isOptional = false)
+                        ConfigValue.BuildConfigValue(resolvedValue)
+                    }
+                    else -> ConfigValue.BuildConfigValue(overrideValue)
+                }
+            }
+            else -> ConfigValue.BuildConfigValue(overrideValue)
+        }
     }
     return copy
+}
+
+
+private fun resolveEnvironmentVariableForOverride(envVarName: String, isOptional: Boolean): Any? {
+    val importer = ConfigurationFileImporter()
+    return importer.resolveEnvironmentVariablePublic(envVarName, isOptional)
 }

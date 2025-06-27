@@ -41,6 +41,7 @@ import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
+import com.wire.android.util.extension.getMetadataByKey
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.workmanager.WireWorkerFactory
@@ -213,7 +214,7 @@ class WireApplication : BaseApp() {
 
         val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl(BuildConfig.VERSION_NAME, BuildConfig.APP_NAME)
         val analyticsSettings = AnalyticsSettings(
-            countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,
+            countlyAppKey = this.getMetadataByKey("analytics.app_key"),
             countlyServerUrl = BuildConfig.ANALYTICS_SERVER_URL,
             enableDebugLogging = BuildConfig.DEBUG
         )

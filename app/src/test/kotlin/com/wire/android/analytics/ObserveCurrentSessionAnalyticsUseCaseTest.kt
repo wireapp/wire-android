@@ -218,6 +218,25 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
         }
     }
 
+    @Test
+    fun givenRegistrationIdIsEnabled_whenObservingCurrentSessionAnalytics_thenEnableAnalyticsResultForRegistrationIsReturned() = runTest {
+        // given
+        val (_, useCase) = Arrangement().apply {
+            setCurrentSession(CurrentSessionResult.Failure.SessionNotFound)
+            withIsAnonymousRegistrationEnabledResult(true)
+            withAnonymousRegistrationTrackingId("trackId")
+        }.arrange()
+
+        // when
+        useCase.invoke().test {
+            // then
+            val item = awaitItem()
+            assertIs<AnalyticsIdentifierResult.RegistrationIdentifier>(item.identifierResult)
+            assertEquals(false, item.profileProperties().isTeamMember)
+            assertEquals(null, item.manager)
+        }
+    }
+
     private fun assertAnalyticsProfileProperties(expected: AnalyticsContactsData, actual: AnalyticsProfileProperties) {
         assertEquals(expected.teamId, actual.teamId)
         assertEquals(expected.isTeamMember, actual.isTeamMember)
@@ -255,10 +274,19 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
+            withIsAnonymousRegistrationEnabledResult(false)
         }
 
         suspend fun setCurrentSession(result: CurrentSessionResult) {
             currentSessionChannel.send(result)
+        }
+
+        fun withAnonymousRegistrationTrackingId(trackId: String) = apply {
+            coEvery { globalDataStore.getOrCreateAnonymousRegistrationTrackId() } returns trackId
+        }
+
+        fun withIsAnonymousRegistrationEnabledResult(result: Boolean) = apply {
+            every { globalDataStore.isAnonymousRegistrationEnabled() } returns flowOf(result)
         }
 
         fun setAnalyticsContactsData(userId: UserId, data: AnalyticsContactsData) {

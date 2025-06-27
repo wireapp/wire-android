@@ -21,7 +21,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.feature.analytics.model.AnalyticsResult
-import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.android.util.isHostValidForAnalytics
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.AnalyticsContactsData
@@ -104,10 +104,7 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                     previousAnalyticsResult = analyticsIdentifierResult
 
                     val isProdBackend = when (val serverConfig = currentBackend(userId)) {
-                        is SelfServerConfigUseCase.Result.Success ->
-                            serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
-                                    || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
-
+                        is SelfServerConfigUseCase.Result.Success -> serverConfig.serverLinks.isHostValidForAnalytics()
                         is SelfServerConfigUseCase.Result.Failure -> false
                     }
 

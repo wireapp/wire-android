@@ -29,6 +29,8 @@ import com.wire.android.BuildConfig
 import com.wire.android.config.orDefault
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
@@ -53,6 +55,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
 ) : ViewModel() {
 
@@ -67,6 +70,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            anonymousAnalyticsManager.sendEvent(AnalyticsEvent.RegistrationPersonalAccount.CodeVerification)
             codeTextState.textAsFlow().collectLatest {
                 if (it.length == codeState.codeLength) onCodeContinue()
             }
@@ -147,6 +151,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
             val registerResult = authScope.registerScope.register(registerParam).let {
                 when (it) {
                     is RegisterResult.Failure -> {
+                        anonymousAnalyticsManager.sendEvent(AnalyticsEvent.RegistrationPersonalAccount.CodeVerificationFailed)
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }

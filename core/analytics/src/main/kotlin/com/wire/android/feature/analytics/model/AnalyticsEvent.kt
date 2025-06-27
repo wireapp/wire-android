@@ -48,6 +48,10 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TO_TEAM_FLOW_TEAM_PLAN_EVENT
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_TEAM
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.REGISTRATION_ACCOUNT_CODE_VERIFICATION_EVENT
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.REGISTRATION_ACCOUNT_CODE_VERIFICATION_FAILED_EVENT
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.REGISTRATION_ACCOUNT_SETUP_PASSWORD_TRIES_SEGMENTATION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.REGISTRATION_ACCOUNT_TOU_EVENT
 import com.wire.kalium.logic.data.call.RecentlyEndedCallMetadata
 import com.wire.kalium.logic.data.conversation.Conversation
 
@@ -363,6 +367,38 @@ interface AnalyticsEvent {
             override val key: String = PERSONAL_TO_TEAM_FLOW_COMPLETED_EVENT
         }
     }
+
+    sealed interface RegistrationPersonalAccount : AnalyticsEvent {
+        override fun toSegmentation(): Map<String, Any> = mapOf(IS_TEAM_MEMBER to false)
+
+        data class AccountSetup(val withPasswordTries: Boolean) : RegistrationPersonalAccount {
+            override val key: String = AnalyticsEventConstants.REGISTRATION_ACCOUNT_SETUP_EVENT
+            override fun toSegmentation(): Map<String, Any> = mapOf(
+                IS_TEAM_MEMBER to false,
+                REGISTRATION_ACCOUNT_SETUP_PASSWORD_TRIES_SEGMENTATION to withPasswordTries
+            )
+        }
+
+        data object TermsOfUseDialog : RegistrationPersonalAccount {
+            override val key: String = REGISTRATION_ACCOUNT_TOU_EVENT
+        }
+
+        data object CodeVerification : RegistrationPersonalAccount {
+            override val key: String = REGISTRATION_ACCOUNT_CODE_VERIFICATION_EVENT
+        }
+
+        data object CodeVerificationFailed : RegistrationPersonalAccount {
+            override val key: String = REGISTRATION_ACCOUNT_CODE_VERIFICATION_FAILED_EVENT
+        }
+
+        data object Username : RegistrationPersonalAccount {
+            override val key: String = AnalyticsEventConstants.REGISTRATION_ACCOUNT_USERNAME_EVENT
+        }
+
+        data object CreationCompleted : RegistrationPersonalAccount {
+            override val key: String = AnalyticsEventConstants.REGISTRATION_ACCOUNT_COMPLETION_EVENT
+        }
+    }
 }
 
 object AnalyticsEventConstants {
@@ -458,4 +494,15 @@ object AnalyticsEventConstants {
     const val PERSONAL_TO_TEAM_FLOW_CONFIRM_EVENT = "user.personal-to-team-flow-confirm-3"
     const val PERSONAL_TO_TEAM_FLOW_COMPLETED_EVENT = "user.personal-to-team-flow-completed-4"
     const val MIGRATION_DOT_ACTIVE = "migration_dot_active"
+
+    /**
+     * New registration - Personal account creation
+     */
+    const val REGISTRATION_ACCOUNT_SETUP_EVENT = "registration.account_setup_screen_1"
+    const val REGISTRATION_ACCOUNT_SETUP_PASSWORD_TRIES_SEGMENTATION = "multiple_password_tries"
+    const val REGISTRATION_ACCOUNT_TOU_EVENT = "registration.account_ToU_screen_1.5"
+    const val REGISTRATION_ACCOUNT_CODE_VERIFICATION_EVENT = "registration.account_verification_screen_2"
+    const val REGISTRATION_ACCOUNT_CODE_VERIFICATION_FAILED_EVENT = "registration.account_verification_failed_screen_2.5"
+    const val REGISTRATION_ACCOUNT_USERNAME_EVENT = "registration.account_username_screen_3"
+    const val REGISTRATION_ACCOUNT_COMPLETION_EVENT = "registration.account_completion_screen_4"
 }

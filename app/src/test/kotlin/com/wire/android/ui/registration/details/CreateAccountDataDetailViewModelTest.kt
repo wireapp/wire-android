@@ -5,6 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
+import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.navArgs
@@ -139,6 +141,12 @@ class CreateAccountDataDetailViewModelTest {
         @MockK
         lateinit var validatePasswordUseCase: ValidatePasswordUseCase
 
+        @MockK
+        lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
+
+        @MockK
+        lateinit var globalDataStore: GlobalDataStore
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.navArgs<CreateAccountDataNavArgs>() } returns
@@ -171,7 +179,9 @@ class CreateAccountDataDetailViewModelTest {
             savedStateHandle = savedStateHandle,
             validateEmail = validateEmailUseCase,
             validatePassword = validatePasswordUseCase,
-            coreLogic = coreLogic
+            coreLogic = coreLogic,
+            anonymousAnalyticsManager = anonymousAnalyticsManager,
+            globalDataStore = globalDataStore
         )
     }
 }

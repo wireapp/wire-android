@@ -30,17 +30,18 @@ import javax.inject.Inject
  * Transfers the identifier to the logged in user and clean up the registration process.
  */
 class FinalizeRegistrationAnalyticsMetadataUseCase @Inject constructor(
-    private val dataStore: GlobalDataStore,
+    private val globalDataStore: GlobalDataStore,
     @CurrentAccount private val currentAccount: UserId,
     @KaliumCoreLogic private val coreLogic: CoreLogic
 ) {
     suspend operator fun invoke() {
-        if (dataStore.isAnonymousRegistrationEnabled().firstOrNull() == false) {
-            return
+        if (globalDataStore.isAnonymousRegistrationEnabled().firstOrNull() == false) return
+
+        val trackId = globalDataStore.getAnonymousRegistrationTrackId()
+        if (!trackId.isNullOrBlank()) {
+            coreLogic.getSessionScope(currentAccount).setNewTrackingIdentifier.invoke(trackId)
+            globalDataStore.clearAnonymousRegistrationTrackId()
+            globalDataStore.setAnonymousRegistrationEnabled(false)
         }
-        val trackId = dataStore.getOrCreateAnonymousRegistrationTrackId()
-        coreLogic.getSessionScope(currentAccount).setNewTrackingIdentifier.invoke(trackId)
-        dataStore.clearAnonymousRegistrationTrackId()
-        dataStore.setAnonymousRegistrationEnabled(false)
     }
 }

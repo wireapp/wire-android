@@ -121,6 +121,10 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         }
     }
 
+    suspend fun getAnonymousRegistrationTrackId(): String? {
+        return context.dataStore.data.firstOrNull()?.get(ANONYMOUS_REGISTRATION_TRACK_ID)
+    }
+
     suspend fun getOrCreateAnonymousRegistrationTrackId(): String {
         val trackId = context.dataStore.data.first()[ANONYMOUS_REGISTRATION_TRACK_ID]
         if (trackId.isNullOrBlank()) {

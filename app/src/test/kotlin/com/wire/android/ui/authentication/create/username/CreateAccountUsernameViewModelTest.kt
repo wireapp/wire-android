@@ -20,9 +20,11 @@ package com.wire.android.ui.authentication.create.username
 
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.android.util.EMPTY
 import com.wire.kalium.common.error.NetworkFailure
@@ -195,18 +197,34 @@ class CreateAccountUsernameViewModelTest {
         @MockK
         lateinit var setUserHandleUseCase: SetUserHandleUseCase
 
-        private val viewModel by lazy { CreateAccountUsernameViewModel(validateUserHandleUseCase, setUserHandleUseCase) }
+        @MockK
+        lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
+
+        @MockK
+        lateinit var finalizeRegistrationAnalyticsMetadataUseCase: FinalizeRegistrationAnalyticsMetadataUseCase
+
+        private val viewModel by lazy {
+            CreateAccountUsernameViewModel(
+                validateUserHandleUseCase,
+                setUserHandleUseCase,
+                anonymousAnalyticsManager,
+                finalizeRegistrationAnalyticsMetadataUseCase
+            )
+        }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
         }
+
         fun withValidateHandleResult(result: ValidateUserHandleResult, forSpecificHandle: String? = null) = apply {
             coEvery { validateUserHandleUseCase(forSpecificHandle?.let { eq(it) } ?: any()) } returns result
         }
+
         fun withSetUserHandle(result: SetUserHandleResult) = apply {
             coEvery { setUserHandleUseCase.invoke(any()) } returns result
         }
+
         fun arrange() = this to viewModel
     }
 }

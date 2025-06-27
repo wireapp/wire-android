@@ -19,6 +19,7 @@ package com.wire.android.analytics
 
 import app.cash.turbine.test
 import com.wire.android.assertIs
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
@@ -236,6 +237,9 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
         @MockK
         private lateinit var analyticsIdentifierManager: AnalyticsIdentifierManager
 
+        @MockK
+        lateinit var globalDataStore: GlobalDataStore
+
         private val currentSessionChannel = Channel<CurrentSessionResult>(Channel.UNLIMITED)
 
         private val analyticsTrackingIdentifierStatusChannel = Channel<AnalyticsIdentifierResult>(Channel.UNLIMITED)
@@ -286,7 +290,8 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             userDataStoreProvider = userDataStoreProvider,
             currentBackend = {
                 selfServerConfigChannel.receive()
-            }
+            },
+            globalDataStore = globalDataStore
         )
 
         fun arrange() = this to useCase

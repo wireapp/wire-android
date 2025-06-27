@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
@@ -43,6 +44,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
     private val validateUserHandleUseCase: ValidateUserHandleUseCase,
     private val setUserHandleUseCase: SetUserHandleUseCase,
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
+    private val finalizeRegistrationAnalyticsMetadata: FinalizeRegistrationAnalyticsMetadataUseCase
 ) : ViewModel() {
 
     val textState: TextFieldState = TextFieldState()
@@ -85,6 +87,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
                 SetUserHandleResult.Failure.InvalidHandle -> HandleUpdateErrorState.TextFieldError.UsernameInvalidError
                 SetUserHandleResult.Success -> {
                     anonymousAnalyticsManager.sendEvent(AnalyticsEvent.RegistrationPersonalAccount.CreationCompleted)
+                    finalizeRegistrationAnalyticsMetadata()
                     HandleUpdateErrorState.None
                 }
             }

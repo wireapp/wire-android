@@ -29,7 +29,6 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
 import com.wire.android.feature.AppLockSource
 import com.wire.android.ui.theme.ThemeOption
-import com.wire.android.util.EMPTY
 import com.wire.android.util.sha256
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -37,10 +36,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @Suppress("TooManyFunctions")
 @Singleton
@@ -117,17 +115,16 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         }
     }
 
-    suspend fun setAnonymousRegistrationTrackId(trackId: String) {
+    private suspend fun setAnonymousRegistrationTrackId(trackId: String) {
         context.dataStore.edit {
             it[ANONYMOUS_REGISTRATION_TRACK_ID] = trackId
         }
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     suspend fun getOrCreateAnonymousRegistrationTrackId(): String {
-        val trackId = getStringPreference(ANONYMOUS_REGISTRATION_TRACK_ID, String.EMPTY).firstOrNull()
+        val trackId = context.dataStore.data.first()[ANONYMOUS_REGISTRATION_TRACK_ID]
         if (trackId.isNullOrBlank()) {
-            val newTrackId = Uuid.random().toString()
+            val newTrackId = UUID.randomUUID().toString()
             setAnonymousRegistrationTrackId(newTrackId)
             return newTrackId
         }

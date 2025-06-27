@@ -56,7 +56,8 @@ data class OtherUserProfileState(
     val expiresAt: Instant? = null,
     val accentId: Int = -1,
     val errorLoadingUser: ErrorLoadingUser? = null,
-    val isDeletedUser: Boolean = false
+    val isDeletedUser: Boolean = false,
+    val isE2EIEnabled: Boolean = true,
 ) {
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {

@@ -804,6 +804,8 @@
     <string name="conversation_banner_guests_present">Guests are present</string>
     <string name="conversation_banner_externals_present">Externals are present</string>
     <string name="conversation_banner_services_active">Services are active</string>
+    <string name="conversation_history_loading">Loading conversation history...</string>
+    <string name="conversation_history_loaded">You made it to the top 🥳\nYou see all available messages.</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>

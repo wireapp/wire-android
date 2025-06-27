@@ -334,7 +334,6 @@
     <string name="enterprise_login_user_identifier_label_placeholder">ඊමේල් හෝ SSO කේතය ඇතුළත් කරන්න</string>
     <string name="enterprise_login_error_invalid_user_identifier">කරුණාකර වලංගු විද්‍යුත් තැපෑලක් හෝ SSO කේතයක් ඇතුළත් කරන්න.</string>
     <string name="enterprise_login_create_account_label">Wire ගිණුමක් නැද්ද?</string>
-    <string name="enterprise_login_create_account_text_button">ගිණුම තනන්න</string>
     <string name="enterprise_login_on_prem_welcome_title">%sසඳහා Wire Enterprise වෙත සාදරයෙන් පිළිගනිමු!</string>
     <string name="enterprise_login_verification_code_title">ඔබට තැපෑලක් තිබේ.</string>
     <!-- Login -->

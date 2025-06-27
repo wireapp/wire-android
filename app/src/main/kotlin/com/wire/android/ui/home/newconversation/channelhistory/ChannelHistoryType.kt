@@ -42,12 +42,13 @@ sealed interface ChannelHistoryType : Parcelable {
             enum class AmountType(@PluralsRes val nameResId: Int, @PluralsRes val nameWithAmountResId: Int) : Parcelable {
                 Days(R.plurals.days_label, R.plurals.days_long_label),
                 Weeks(R.plurals.weeks_label, R.plurals.weeks_long_label),
-                Months(R.plurals.months_label, R.plurals.months_long_label);
+                Months(R.plurals.months_label, R.plurals.months_long_label)
             }
         }
     }
 }
 
+@Suppress("MagicNumber")
 val defaultHistoryTypes: List<ChannelHistoryType> = listOf(
     ChannelHistoryType.Off,
     ChannelHistoryType.On.Specific(1, ChannelHistoryType.On.Specific.AmountType.Days),
@@ -62,9 +63,10 @@ fun ChannelHistoryType.isCustom(): Boolean = !defaultHistoryTypes.contains(this)
 fun ChannelHistoryType.name(useAmountForCustom: Boolean): String = when (this) {
     is ChannelHistoryType.Off -> stringResource(R.string.channel_history_off)
     is ChannelHistoryType.On.Unlimited -> stringResource(R.string.channel_history_unlimited)
-    is ChannelHistoryType.On.Specific ->
-        if (this.isCustom() && !useAmountForCustom) stringResource(R.string.channel_history_custom)
-        else this.amountAsString()
+    is ChannelHistoryType.On.Specific -> when {
+        this.isCustom() && !useAmountForCustom -> stringResource(R.string.channel_history_custom)
+        else -> this.amountAsString()
+    }
 }
 
 @Composable

@@ -50,35 +50,35 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @NewConversationNavGraph
 @WireDestination(
-    navArgsDelegate = ChannelHistoryCustomAmountArgs::class,
+    navArgsDelegate = ChannelHistoryCustomArgs::class,
     style = SlideNavigationAnimation::class,
 )
 @Composable
-fun ChannelHistoryCustomAmountScreen(
-    navArgs: ChannelHistoryCustomAmountArgs,
-    resultNavigator: ResultBackNavigator<ChannelHistoryCustomAmountNavBackArgs>,
+fun ChannelHistoryCustomScreen(
+    navArgs: ChannelHistoryCustomArgs,
+    resultNavigator: ResultBackNavigator<ChannelHistoryCustomNavBackArgs>,
     modifier: Modifier = Modifier,
 ) {
-    val amountState = rememberTextFieldState((navArgs.currentType as? ChannelHistoryType.On.Specific)?.amount?.toString() ?: String.EMPTY)
+    val specificCurrentType = navArgs.currentType as? ChannelHistoryType.On.Specific
+    val amountState = rememberTextFieldState(specificCurrentType?.amount?.toString().orEmpty())
     var timeState by rememberSaveable {
-        mutableStateOf((navArgs.currentType as? ChannelHistoryType.On.Specific)?.type ?: ChannelHistoryType.On.Specific.AmountType.Days)
+        mutableStateOf(specificCurrentType?.type ?: ChannelHistoryType.On.Specific.AmountType.Days)
     }
 
     fun navigateBack() {
         amountState.text.toString().toIntOrNull()?.let {
-            resultNavigator.setResult(ChannelHistoryCustomAmountNavBackArgs(ChannelHistoryType.On.Specific(it, timeState)))
+            resultNavigator.setResult(ChannelHistoryCustomNavBackArgs(ChannelHistoryType.On.Specific(it, timeState)))
         }
         resultNavigator.navigateBack()
     }
 
     BackHandler(enabled = true, onBack = ::navigateBack)
 
-    ChannelHistoryCustomAmountScreenContent(
+    ChannelHistoryCustomScreenContent(
         amountState = amountState,
         typeState = timeState,
         onTypeSelected = { timeState = it },
@@ -88,7 +88,7 @@ fun ChannelHistoryCustomAmountScreen(
 }
 
 @Composable
-fun ChannelHistoryCustomAmountScreenContent(
+fun ChannelHistoryCustomScreenContent(
     amountState: TextFieldState,
     typeState: ChannelHistoryType.On.Specific.AmountType,
     onTypeSelected: (ChannelHistoryType.On.Specific.AmountType) -> Unit,
@@ -145,8 +145,8 @@ private const val MAX_AMOUNT_LENGTH = 2
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewChannelHistoryCustomAmountScreen() = WireTheme {
-    ChannelHistoryCustomAmountScreenContent(
+fun PreviewChannelHistoryCustomScreen() = WireTheme {
+    ChannelHistoryCustomScreenContent(
         amountState = rememberTextFieldState("1"),
         typeState = ChannelHistoryType.On.Specific.AmountType.Days,
         onTypeSelected = {},

@@ -37,7 +37,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.destinations.ChannelHistoryCustomAmountScreenDestination
+import com.wire.android.ui.destinations.ChannelHistoryCustomScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
@@ -52,11 +52,11 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun ChannelHistoryScreen(
     navigator: WireNavigator,
-    cusstomAmountResultRecipient: ResultRecipient<ChannelHistoryCustomAmountScreenDestination, ChannelHistoryCustomAmountNavBackArgs>,
+    customResultRecipient: ResultRecipient<ChannelHistoryCustomScreenDestination, ChannelHistoryCustomNavBackArgs>,
     newConversationViewModel: NewConversationViewModel,
     modifier: Modifier = Modifier,
 ) {
-    cusstomAmountResultRecipient.onNavResult { result ->
+    customResultRecipient.onNavResult { result ->
         when (result) {
             is NavResult.Canceled -> {}
             is NavResult.Value -> newConversationViewModel.setChannelHistoryType(result.value.customType)
@@ -67,8 +67,8 @@ fun ChannelHistoryScreen(
         selectedHistoryOption = newConversationViewModel.newGroupState.channelHistoryType,
         onHistoryOptionSelected = newConversationViewModel::setChannelHistoryType,
         onOpenCustomChooser = {
-            val navArgs = ChannelHistoryCustomAmountArgs(newConversationViewModel.newGroupState.channelHistoryType)
-            navigator.navigate(NavigationCommand(ChannelHistoryCustomAmountScreenDestination(navArgs)))
+            val navArgs = ChannelHistoryCustomArgs(newConversationViewModel.newGroupState.channelHistoryType)
+            navigator.navigate(NavigationCommand(ChannelHistoryCustomScreenDestination(navArgs)))
         },
         onBackPressed = navigator::navigateBack,
         modifier = modifier,
@@ -97,8 +97,12 @@ fun ChannelHistoryScreenContent(
     ) { internalPadding ->
         LazyColumn(modifier = Modifier.padding(internalPadding)) {
             val items = defaultHistoryTypes.plus(
-                if (selectedHistoryOption.isCustom()) selectedHistoryOption // add the chosen custom option if it is selected
-                else ChannelHistoryType.On.Specific(0, ChannelHistoryType.On.Specific.AmountType.Days) // placeholder for custom option
+                when {
+                    // add the chosen custom option if it is selected
+                    selectedHistoryOption.isCustom() -> selectedHistoryOption
+                    // otherwise add a placeholder for custom option
+                    else -> ChannelHistoryType.On.Specific(0, ChannelHistoryType.On.Specific.AmountType.Days)
+                }
             )
 
             items(count = items.size) { index ->
@@ -106,14 +110,17 @@ fun ChannelHistoryScreenContent(
                 val isSelected = item == selectedHistoryOption
                 GroupConversationOptionsItem(
                     title = item.name(useAmountForCustom = false),
-                    arrowLabel =
-                        if (isSelected && item is ChannelHistoryType.On.Specific && item.isCustom()) item.amountAsString()
-                        else null,
+                    arrowLabel = when {
+                        isSelected && item is ChannelHistoryType.On.Specific && item.isCustom() -> item.amountAsString()
+                        else -> null
+                    },
                     arrowType = ArrowType.CENTER_ALIGNED,
                     selected = selectedHistoryOption == item,
                     clickable = Clickable {
-                        if (item is ChannelHistoryType.On.Specific && item.isCustom()) onOpenCustomChooser()
-                        else onHistoryOptionSelected(item)
+                        when {
+                            item is ChannelHistoryType.On.Specific && item.isCustom() -> onOpenCustomChooser()
+                            else -> onHistoryOptionSelected(item)
+                        }
                     },
                 )
             }

@@ -21,7 +21,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-class ChannelHistoryCustomAmountArgs(val currentType: ChannelHistoryType) : Parcelable
+class ChannelHistoryCustomArgs(val currentType: ChannelHistoryType) : Parcelable
 
 @Parcelize
-class ChannelHistoryCustomAmountNavBackArgs(val customType: ChannelHistoryType.On.Specific) : Parcelable
+class ChannelHistoryCustomNavBackArgs(val customType: ChannelHistoryType.On.Specific) : Parcelable

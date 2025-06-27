@@ -38,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
@@ -58,7 +57,6 @@ import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.kalium.logic.data.service.ServiceDetails
 
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = ServiceDetailsNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation

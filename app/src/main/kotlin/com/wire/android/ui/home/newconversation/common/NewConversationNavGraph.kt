@@ -19,9 +19,9 @@
 package com.wire.android.ui.home.newconversation.common
 
 import com.ramcosta.composedestinations.annotation.NavGraph
-import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.navigation.WireRootNavGraph
 
-@RootNavGraph
+@WireRootNavGraph
 @NavGraph
 annotation class NewConversationNavGraph(
     val start: Boolean = false

@@ -19,10 +19,12 @@
 package com.wire.android.navigation
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.ui.destinations.AllConversationsScreenDestination
 import com.wire.android.ui.destinations.ArchiveScreenDestination
+import com.wire.android.ui.destinations.GlobalCellsScreenDestination
 import com.wire.android.ui.destinations.SettingsScreenDestination
 import com.wire.android.ui.destinations.VaultScreenDestination
 import com.wire.android.ui.destinations.WhatsNewScreenDestination
@@ -32,15 +34,15 @@ import com.wire.android.util.ui.UIText
 sealed class HomeDestination(
     val title: UIText,
     @DrawableRes val icon: Int,
-    val isSearchable: Boolean = false,
     val withNewConversationFab: Boolean = false,
     val withUserAvatar: Boolean = true,
-    val direction: Direction
+    val direction: Direction,
+    val searchBar: SearchBarOptions? = null,
 ) {
     data object Conversations : HomeDestination(
         title = UIText.StringResource(R.string.conversations_screen_title),
         icon = R.drawable.ic_conversation,
-        isSearchable = true,
+        searchBar = SearchBarOptions(),
         withNewConversationFab = true,
         direction = AllConversationsScreenDestination
     )
@@ -61,7 +63,7 @@ sealed class HomeDestination(
     data object Archive : HomeDestination(
         title = UIText.StringResource(R.string.archive_screen_title),
         icon = R.drawable.ic_archive,
-        isSearchable = true,
+        searchBar = SearchBarOptions(),
         direction = ArchiveScreenDestination
     )
 
@@ -77,6 +79,18 @@ sealed class HomeDestination(
         direction = WhatsNewScreenDestination
     )
 
+    data object Cells : HomeDestination(
+        title = UIText.StringResource(R.string.cells_screen_title),
+        icon = R.drawable.ic_files,
+        searchBar = SearchBarOptions(R.string.cells_screen_search_hint),
+        direction = GlobalCellsScreenDestination
+    )
+
+    data class SearchBarOptions(
+        @StringRes
+        val hint: Int = R.string.search_bar_conversations_hint
+    )
+
     val itemName: String get() = ITEM_NAME_PREFIX + this
 
     companion object {
@@ -86,6 +100,6 @@ sealed class HomeDestination(
             values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
 
         fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Settings, Vault, Archive, Support, WhatsNew)
+            arrayOf(Conversations, Settings, Vault, Archive, Support, WhatsNew, Cells)
     }
 }

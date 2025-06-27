@@ -35,7 +35,6 @@ import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
-import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
@@ -47,8 +46,8 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.common.error.NetworkFailure
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.call.Call
@@ -84,7 +83,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -98,6 +96,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Assertions.assertInstanceOf
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -112,7 +111,7 @@ class WireActivityViewModelTest {
             .withSomeCurrentSession()
             .arrange()
 
-        viewModel.handleDeepLink(null, {}, {}, {}, {}, {}, {}, {}, {})
+        viewModel.handleDeepLink(null)
 
         assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
     }
@@ -123,7 +122,7 @@ class WireActivityViewModelTest {
             .withNoCurrentSession()
             .arrange()
 
-        viewModel.handleDeepLink(null, {}, {}, {}, {}, {}, {}, {}, {})
+        viewModel.handleDeepLink(null)
 
         assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
     }
@@ -137,248 +136,239 @@ class WireActivityViewModelTest {
             .withNoOngoingCall()
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
-        coVerify(exactly = 1) { arrangement.deepLinkProcessor.invoke(any(), any()) }
-        verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+        viewModel.actions.test {
+            viewModel.handleDeepLink(mockedIntent())
+            coVerify(exactly = 1) { arrangement.deepLinkProcessor.invoke(any(), any()) }
+            assertEquals(OnSSOLogin(result), expectMostRecentItem())
+        }
     }
 
     @Test
     fun `given intent with correct ServerConfig json, when no network is present, then initialAppState is LOGGED_IN and no network dialog is shown`() =
         runTest {
             val result = DeepLinkResult.CustomServerConfig("url")
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)
                 .withNoNetworkConnectionWhenGettingServerConfig()
                 .withNoOngoingCall()
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
+            viewModel.actions.test {
+                viewModel.handleDeepLink(mockedIntent())
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+                expectNoEvents()
+            }
         }
 
     @Test
     fun `given Intent with malformed ServerConfig json, when currentSessions is absent, then initialAppState is NOT_LOGGED_IN and no network dialog is shown`() =
         runTest {
             val result = DeepLinkResult.CustomServerConfig("url")
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withNoCurrentSession()
                 .withDeepLinkResult(result)
                 .withNoNetworkConnectionWhenGettingServerConfig()
                 .withNoOngoingCall()
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
-
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+            viewModel.actions.test {
+                viewModel.handleDeepLink(mockedIntent())
+                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+                expectNoEvents()
+            }
         }
 
     @Test
     fun `given Intent with ServerConfig, when currentSession is present, then initialAppState is LOGGED_IN and customBackEnd dialog is shown`() =
         runTest {
             val result = DeepLinkResult.CustomServerConfig("url")
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)
                 .withNoOngoingCall()
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
+            viewModel.actions.test {
+                viewModel.handleDeepLink(mockedIntent())
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
-            assertEquals(
-                newServerConfig(1).links,
-                (viewModel.globalAppState.customBackendDialog as CustomServerDetailsDialogState).serverLinks
-            )
+                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+                assertEquals(
+                    newServerConfig(1).links,
+                    (viewModel.globalAppState.customBackendDialog as CustomServerDetailsDialogState).serverLinks
+                )
+                expectNoEvents()
+            }
         }
 
     @Test
     fun `given Intent with ServerConfig, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and customBackEnd dialog is shown`() =
         runTest {
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withNoCurrentSession()
                 .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
                 .withNoOngoingCall()
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
-
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
-            assertEquals(
-                newServerConfig(1).links,
-                (viewModel.globalAppState.customBackendDialog as CustomServerDetailsDialogState).serverLinks
-            )
+            viewModel.actions.test {
+                viewModel.handleDeepLink(mockedIntent())
+                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+                assertEquals(
+                    newServerConfig(1).links,
+                    (viewModel.globalAppState.customBackendDialog as CustomServerDetailsDialogState).serverLinks
+                )
+                expectNoEvents()
+            }
         }
 
     @Test
-    fun `given Intent with ServerConfig during an ongoing call, when handling deep links, then onCannotLoginDuringACall is called `() =
+    fun `given Intent with ServerConfig during an ongoing call, when handling deep links, then error message shown `() =
         runTest {
             val result = DeepLinkResult.SwitchAccountFailure.OngoingCall
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)
                 .withOngoingCall()
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, {}, {}, {}, arrangement.onCannotLoginDuringACall, {})
-
-            verify(exactly = 1) { arrangement.onCannotLoginDuringACall() }
-        }
-
-    @Test
-    fun `given Intent with ServerConfig, when currentSession is absent and migration is required, then initialAppState is NOT_MIGRATED`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withMigrationRequired()
-                .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
-                .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home))
-                .arrange()
-
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
-
-            assertEquals(InitialAppState.NOT_MIGRATED, viewModel.initialAppState())
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertEquals(null, viewModel.globalAppState.customBackendDialog)
+            viewModel.actions.test {
+                viewModel.handleDeepLink(mockedIntent())
+                assertTrue(expectMostRecentItem() is ShowToast)
+            }
         }
 
     @Test
     fun `given Intent with SSOLogin, when currentSession is present, then initialAppState is LOGGED_IN and result SSOLogin`() = runTest {
         val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(ssoLogin)
             .withNoOngoingCall()
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
-
-        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
-        verify(exactly = 1) { arrangement.onDeepLinkResult(ssoLogin) }
+        viewModel.actions.test {
+            viewModel.handleDeepLink(mockedIntent())
+            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+            assertEquals(OnSSOLogin(ssoLogin), expectMostRecentItem())
+        }
     }
 
     @Test
     fun `given Intent with SSOLogin, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and result SSOLogin`() = runTest {
         val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(ssoLogin)
             .withNoOngoingCall()
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
+        viewModel.actions.test {
 
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
-        verify(exactly = 1) { arrangement.onDeepLinkResult(ssoLogin) }
+            viewModel.handleDeepLink(mockedIntent())
+            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+
+            assertEquals(OnSSOLogin(ssoLogin), expectMostRecentItem())
+        }
     }
 
     @Test
     fun `given Intent with MigrationLogin, when currentSession is present, then initialAppState is LOGGED_IN and result MigrationLogin`() =
         runTest {
             val result = DeepLinkResult.MigrationLogin("handle")
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+            viewModel.actions.test {
+                viewModel.handleDeepLink(mockedIntent())
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(OnMigrationLogin(result), expectMostRecentItem())
+            }
         }
 
     @Test
     fun `given Intent with MigrationLogin, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and result MigrationLogin`() =
         runTest {
             val result = DeepLinkResult.MigrationLogin("handle")
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withNoCurrentSession()
                 .withDeepLinkResult(result)
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+            viewModel.actions.test {
+                viewModel.handleDeepLink(mockedIntent())
 
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertEquals(OnMigrationLogin(result), expectMostRecentItem())
+            }
         }
 
     @Test
     fun `given Intent with OpenConversation, when currentSession is present, then initialAppState is LOGGED_IN and result OpenConversation`() =
         runTest {
             val result = DeepLinkResult.OpenConversation(ConversationId("val", "dom"))
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {}, {})
+            viewModel.actions.test {
+                viewModel.handleDeepLink(mockedIntent())
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(OpenConversation(result), expectMostRecentItem())
+            }
         }
-
-    @Test
-    fun `given Intent with OpenConversation, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
-        val result = DeepLinkResult.OpenConversation(ConversationId("val", "dom"))
-        val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
-            .withDeepLinkResult(result)
-            .arrange()
-
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
-
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
-        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-    }
 
     @Test
     fun `given Intent with OpenOtherUser, when currentSession is present, then then initialAppState is LOGGED_IN and result OpenOtherUserProfile`() =
         runTest {
             val userId = QualifiedID("val", "dom")
             val result = DeepLinkResult.OpenOtherUserProfile(userId)
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)
                 .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, {}, arrangement.onDeepLinkResult, {}, {}, {})
-
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+            viewModel.actions.test {
+                viewModel.handleDeepLink(mockedIntent())
+                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(OnOpenUserProfile(result), expectMostRecentItem())
+            }
         }
 
     @Test
-    fun `given Intent with OpenOtherUser, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
-        val result = DeepLinkResult.OpenOtherUserProfile(QualifiedID("val", "dom"))
-        val (arrangement, viewModel) = Arrangement()
+    fun `given no current session, when deep link is opened, then Authorization Needed result returned`() = runTest {
+        val result = DeepLinkResult.AuthorizationNeeded
+        val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(result)
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
-
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
-        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+        viewModel.actions.test {
+            viewModel.handleDeepLink(mockedIntent())
+            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+            assertEquals(OnAuthorizationNeeded, expectMostRecentItem())
+        }
     }
 
     @Test
-    fun `given Intent is null, when currentSession is present, then should not return any deeplink result`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+    fun `given Intent is null, when currentSession is present, then unknown deeplink result returned`() = runTest {
+        val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .arrange()
 
-        viewModel.handleDeepLink(null, {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
-
-        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+        viewModel.actions.test {
+            viewModel.handleDeepLink(null)
+            assertEquals(OnUnknownDeepLink, expectMostRecentItem())
+        }
     }
 
     @Test
@@ -396,7 +386,7 @@ class WireActivityViewModelTest {
         val (code, key, domain) = Triple("code", "key", "domain")
         val isPasswordRequired = false
         val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), false)
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
             .withCheckConversationCode(
@@ -412,16 +402,17 @@ class WireActivityViewModelTest {
             )
             .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {}, {})
-
-        viewModel.globalAppState.conversationJoinedDialog `should be equal to` JoinConversationViaCodeState.Show(
-            conversationName,
-            code,
-            key,
-            domain,
-            isPasswordRequired
-        )
-        coVerify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+        viewModel.actions.test {
+            viewModel.handleDeepLink(mockedIntent())
+            viewModel.globalAppState.conversationJoinedDialog `should be equal to` JoinConversationViaCodeState.Show(
+                conversationName,
+                code,
+                key,
+                domain,
+                isPasswordRequired
+            )
+            expectNoEvents()
+        }
     }
 
     @Test
@@ -430,7 +421,7 @@ class WireActivityViewModelTest {
         val isPasswordRequired = false
         val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), true)
         val result = DeepLinkResult.JoinConversation(code, key, domain)
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(result)
             .withCheckConversationCode(
@@ -445,43 +436,25 @@ class WireActivityViewModelTest {
                 )
             ).arrange()
 
-        viewModel.handleDeepLink(
-            intent = mockedIntent(),
-            onIsSharingIntent = {},
-            onOpenConversation = arrangement.onOpenConversation,
-            onSSOLogin = arrangement.onDeepLinkResult,
-            onMigrationLogin = {},
-            onOpenOtherUserProfile = {},
-            onAuthorizationNeeded = {},
-            onCannotLoginDuringACall = {},
-            onUnknown = {},
-        )
-
-        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
-        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-        verify(exactly = 1) { arrangement.onOpenConversation(DeepLinkResult.OpenConversation(conversationId, false)) }
+        viewModel.actions.test {
+            viewModel.handleDeepLink(mockedIntent())
+            viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
+            assertEquals(OpenConversation(DeepLinkResult.OpenConversation(conversationId, false)), expectMostRecentItem())
+            expectNoEvents()
+        }
     }
 
     @Test
     fun `given Intent with Unknown deep link, when handling deep links, then onUnknown is called `() = runTest {
         val result = DeepLinkResult.Unknown
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withDeepLinkResult(result)
             .arrange()
 
-        viewModel.handleDeepLink(
-            intent = mockedIntent(),
-            onIsSharingIntent = {},
-            onOpenConversation = {},
-            onSSOLogin = {},
-            onMigrationLogin = {},
-            onOpenOtherUserProfile = {},
-            onAuthorizationNeeded = {},
-            onCannotLoginDuringACall = {},
-            onUnknown = arrangement.onUnknown
-        )
-
-        verify(exactly = 1) { arrangement.onUnknown() }
+        viewModel.actions.test {
+            viewModel.handleDeepLink(mockedIntent())
+            assertEquals(OnUnknownDeepLink, expectMostRecentItem())
+        }
     }
 
     @Test
@@ -785,7 +758,6 @@ class WireActivityViewModelTest {
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
             coEvery { observeSessionsUseCase.invoke() } returns flowOf(GetAllSessionsResult.Failure.NoSessionFound)
-            coEvery { migrationManager.shouldMigrate() } returns false
             every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
             coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
@@ -818,9 +790,6 @@ class WireActivityViewModelTest {
 
         @MockK
         private lateinit var switchAccount: AccountSwitchUseCase
-
-        @MockK
-        private lateinit var migrationManager: MigrationManager
 
         @MockK
         private lateinit var observeSyncStateUseCase: ObserveSyncStateUseCase
@@ -864,18 +833,6 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
-        @MockK(relaxed = true)
-        lateinit var onDeepLinkResult: (DeepLinkResult) -> Unit
-
-        @MockK(relaxed = true)
-        lateinit var onCannotLoginDuringACall: () -> Unit
-
-        @MockK(relaxed = true)
-        lateinit var onOpenConversation: (DeepLinkResult.OpenConversation) -> Unit
-
-        @MockK(relaxed = true)
-        lateinit var onUnknown: () -> Unit
-
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = coreLogic,
@@ -886,7 +843,6 @@ class WireActivityViewModelTest {
                 deepLinkProcessor = { deepLinkProcessor },
                 observeSessions = { observeSessionsUseCase },
                 accountSwitch = { switchAccount },
-                migrationManager = { migrationManager },
                 servicesManager = { servicesManager },
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = { observeIfAppUpdateRequired },
@@ -974,10 +930,6 @@ class WireActivityViewModelTest {
 
         fun withIsPersistentWebSocketServiceRunning(isRunning: Boolean): Arrangement = apply {
             every { servicesManager.isPersistentWebSocketServiceRunning() } returns isRunning
-        }
-
-        fun withMigrationRequired(): Arrangement = apply {
-            coEvery { migrationManager.shouldMigrate() } returns true
         }
 
         fun withNewClient(result: NewClientResult) = apply {

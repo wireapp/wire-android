@@ -59,7 +59,11 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
     }
 
     fun openWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {
-        openAssetFileWithExternalApp(assetDataPath, context, assetName, onError)
+        openAssetFileWithExternalApp(assetDataPath, context, assetName, null, onError)
+    }
+
+    fun openWithExternalApp(assetDataPath: Path, assetName: String, mimeType: String?, onError: () -> Unit) {
+        openAssetFileWithExternalApp(assetDataPath, context, assetName, mimeType, onError)
     }
 
     fun shareWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {
@@ -113,6 +117,8 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     ): AssetBundle? = withContext(dispatcher.io()) {
         try {
+            // validate if the uri has a valid schema
+            checkValidSchema(attachmentUri)
             val assetKey = UUID.randomUUID().toString()
             val assetFileName = context.getFileName(attachmentUri)
                 ?: throw IOException("The selected asset has an invalid name")
@@ -137,8 +143,24 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         }
     }
 
+    fun openUrlWithExternalApp(url: String, mimeType: String, onError: () -> Unit) {
+        openAssetUrlWithExternalApp(url, mimeType, context, onError)
+    }
+
+    /**
+     * Validates the schema of the given Uri.
+     * We are excluding file, as we don't process file URIs.
+     *
+     * If invalid schema is found, an [IllegalArgumentException] is thrown.
+     */
+    fun checkValidSchema(uri: Uri) {
+        appLogger.d("Validating Uri schema for path: ${uri.path} with scheme: ${uri.scheme}")
+        if (INVALID_SCHEMA.equals(uri.scheme, ignoreCase = true)) throw IllegalArgumentException("File URI is not supported")
+    }
+
     companion object {
         private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
         private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "video_attachment.mp4"
+        private const val INVALID_SCHEMA = "file"
     }
 }

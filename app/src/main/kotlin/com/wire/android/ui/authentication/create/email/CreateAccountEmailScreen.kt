@@ -54,7 +54,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -108,14 +108,18 @@ fun CreateAccountEmailScreen(
             state = emailState,
             emailTextState = emailTextState,
             onBackPressed = navigator::navigateBack,
-            onContinuePressed = { onEmailContinue(::navigateToDetailsScreen) },
+            onContinuePressed = ::onEmailContinue,
             onLoginPressed = { navigator.navigate(NavigationCommand(LoginScreenDestination(), BackStackMode.CLEAR_TILL_START)) },
             onTermsDialogDismiss = ::onTermsDialogDismiss,
-            onTermsAccept = { onTermsAccept(::navigateToDetailsScreen) },
+            onTermsAccept = ::onTermsAccept,
             onErrorDismiss = ::onEmailErrorDismiss,
             tosUrl = tosUrl(),
             serverConfig = serverConfig
         )
+
+        LaunchedEffect(emailState.success) {
+            if (emailState.success) navigateToDetailsScreen()
+        }
     }
 }
 

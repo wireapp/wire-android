@@ -18,8 +18,13 @@
 
 package com.wire.android.ui.initialsync
 
+import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -27,6 +32,7 @@ import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,14 +46,24 @@ class InitialSyncViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
-    fun waitUntilSyncIsCompleted(onCompleted: () -> Unit) {
-        viewModelScope.launch {
+    internal var isSyncCompleted: Boolean by mutableStateOf(false)
+        private set
+
+    init {
+        waitUntilSyncIsCompleted()
+    }
+
+    private fun waitUntilSyncIsCompleted() =
+        viewModelScope.launch(dispatchers.io()) {
+            delay(DefaultDurationMillis.toLong()) // it can be triggered instantly so it's added to keep smooth transitions
             withContext(dispatchers.io()) {
-                observeSyncState().firstOrNull { it is SyncState.Live }
+                observeSyncState().firstOrNull { it is SyncState.Live }?.let {
+                    userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                }
             }?.let {
-                userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
-                onCompleted()
+                isSyncCompleted = true
+            } ?: run {
+                appLogger.e("InitialSyncViewModel: SyncState is null")
             }
         }
-    }
 }

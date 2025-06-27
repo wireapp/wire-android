@@ -39,7 +39,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import linc.com.amplituda.Amplituda
+import javax.inject.Named
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -87,9 +87,6 @@ object AppModule {
         }
     }
 
-    @Provides
-    fun provideAmplituda(appContext: Context): Amplituda = Amplituda(appContext)
-
     @Singleton
     @Provides
     fun provideCurrentTimestampProvider(): CurrentTimestampProvider = { System.currentTimeMillis() }
@@ -110,4 +107,8 @@ object AppModule {
     @Provides
     fun provideAudioManager(@ApplicationContext context: Context): AudioManager =
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+    @Provides
+    @Named("useNewLoginForDefaultBackend")
+    fun provideUseNewLoginForDefaultBackend(): Boolean = BuildConfig.USE_NEW_LOGIN_FOR_DEFAULT_BACKEND
 }

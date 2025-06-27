@@ -37,8 +37,12 @@ data class ConversationInfoViewState(
     val mlsVerificationStatus: Conversation.VerificationStatus? = null,
     val proteusVerificationStatus: Conversation.VerificationStatus? = null,
     val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.UNKNOWN,
-    val accentId: Int = -1
-)
+    val accentId: Int = -1,
+    val isWireCellEnabled: Boolean = false,
+    val notFound: Boolean = false,
+) {
+    val showHistoryLoadingIndicator: Boolean get() = conversationType == Conversation.Type.Group.Channel
+}
 
 sealed class ConversationDetailsData(open val conversationProtocol: Conversation.ProtocolInfo?) {
     data class None(override val conversationProtocol: Conversation.ProtocolInfo?) : ConversationDetailsData(conversationProtocol)
@@ -64,6 +68,6 @@ sealed interface ConversationAvatar {
         val conversationId: QualifiedID
 
         data class Regular(override val conversationId: QualifiedID) : Group
-        data class Channel(override val conversationId: QualifiedID) : Group
+        data class Channel(override val conversationId: QualifiedID, val isPrivate: Boolean) : Group
     }
 }

@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.model.messagetypes.audio
 
 import androidx.compose.foundation.background
@@ -26,6 +28,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,6 +43,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +66,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
@@ -70,52 +75,40 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.UploadInProgressAssetMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun AudioMessage(
     audioMessageArgs: AudioMessageArgs,
     audioMessageDurationInMs: Long,
+    assetTransferStatus: AssetTransferStatus,
+    extension: String,
+    size: Long,
     modifier: Modifier = Modifier,
-    viewModel: AudioMessageViewModel =
-        hiltViewModelScoped<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(audioMessageArgs),
 ) {
-    val totalTimeInMs = remember(viewModel.state.audioState.totalTimeInMs, audioMessageDurationInMs) {
-        viewModel.state.audioState.sanitizeTotalTime(audioMessageDurationInMs.toInt())
+    if (assetTransferStatus == AssetTransferStatus.UPLOAD_IN_PROGRESS) {
+        UploadingAudioMessage(extension, size, modifier)
+    } else {
+        UploadedAudioMessage(audioMessageArgs, audioMessageDurationInMs, extension, size, modifier)
     }
-    AudioMessage(
-        audioMediaPlayingState = viewModel.state.audioState.audioMediaPlayingState,
-        totalTimeInMs = totalTimeInMs,
-        currentPositionInMs = viewModel.state.audioState.currentPositionInMs,
-        audioSpeed = viewModel.state.audioSpeed,
-        waveMask = viewModel.state.audioState.wavesMask,
-        onPlayButtonClick = viewModel::playAudio,
-        onSliderPositionChange = viewModel::changeAudioPosition,
-        onAudioSpeedChange = {
-            viewModel.changeAudioSpeed(viewModel.state.audioSpeed.toggle())
-        },
-        modifier = modifier,
-    )
 }
 
 @Composable
-private fun AudioMessage(
-    audioMediaPlayingState: AudioMediaPlayingState,
-    totalTimeInMs: AudioState.TotalTimeInMs,
-    currentPositionInMs: Int,
-    audioSpeed: AudioSpeed,
-    waveMask: List<Int>,
-    onPlayButtonClick: () -> Unit,
-    onSliderPositionChange: (Float) -> Unit,
-    onAudioSpeedChange: () -> Unit,
+private fun AudioMessageLayout(
+    extension: String,
+    size: Long,
     modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
 ) {
-    Box(
+    Column(
         modifier = modifier
             .padding(top = dimensions().spacing4x)
             .background(
@@ -127,31 +120,86 @@ private fun AudioMessage(
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
-            .padding(dimensions().spacing8x)
+            .padding(dimensions().spacing8x),
+        verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
     ) {
-        if (audioMediaPlayingState is AudioMediaPlayingState.Failed) {
-            FailedAudioMessage()
-        } else {
-            SuccessfulAudioMessage(
-                audioMediaPlayingState = audioMediaPlayingState,
-                totalTimeInMs = totalTimeInMs,
-                currentPositionInMs = currentPositionInMs,
-                audioSpeed = audioSpeed,
-                waveMask = waveMask,
-                onPlayButtonClick = onPlayButtonClick,
-                onSliderPositionChange = onSliderPositionChange,
-                onAudioSpeedChange = onAudioSpeedChange
-            )
+        FileHeaderView(
+            extension = extension,
+            size = size,
+        )
+        Box(
+            modifier = Modifier.defaultMinSize(minHeight = MaterialTheme.wireDimensions.spacing72x)
+        ) {
+            content()
         }
     }
 }
 
 @Composable
+private fun UploadingAudioMessage(
+    extension: String,
+    size: Long,
+    modifier: Modifier = Modifier
+) = AudioMessageLayout(extension, size, modifier) {
+    UploadInProgressAssetMessage()
+}
+
+@Composable
+private fun UploadedAudioMessage(
+    audioMessageArgs: AudioMessageArgs,
+    audioMessageDurationInMs: Long,
+    extension: String,
+    size: Long,
+    modifier: Modifier = Modifier,
+) {
+    val viewModel: AudioMessageViewModel =
+        hiltViewModelScoped<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(audioMessageArgs)
+    val sanitizedAudioState by remember(viewModel.state.audioState, audioMessageDurationInMs) {
+        derivedStateOf {
+            viewModel.state.audioState.copy(totalTimeInMs = viewModel.state.audioState.sanitizeTotalTime(audioMessageDurationInMs.toInt()))
+        }
+    }
+    UploadedAudioMessage(
+        audioState = sanitizedAudioState,
+        audioSpeed = viewModel.state.audioSpeed,
+        extension = extension,
+        size = size,
+        onPlayButtonClick = viewModel::playAudio,
+        onSliderPositionChange = viewModel::changeAudioPosition,
+        onAudioSpeedChange = {
+            viewModel.changeAudioSpeed(viewModel.state.audioSpeed.toggle())
+        },
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun UploadedAudioMessage(
+    audioState: AudioState,
+    audioSpeed: AudioSpeed,
+    extension: String,
+    size: Long,
+    onPlayButtonClick: () -> Unit,
+    onSliderPositionChange: (Float) -> Unit,
+    onAudioSpeedChange: (() -> Unit)?,
+    modifier: Modifier = Modifier,
+) = AudioMessageLayout(extension, size, modifier) {
+    if (audioState.audioMediaPlayingState is AudioMediaPlayingState.Failed) {
+        FailedAudioMessageContent()
+    } else {
+        SuccessfulAudioMessageContent(
+            audioState = audioState,
+            audioSpeed = audioSpeed,
+            onPlayButtonClick = onPlayButtonClick,
+            onSliderPositionChange = onSliderPositionChange,
+            onAudioSpeedChange = onAudioSpeedChange,
+        )
+    }
+}
+
+@Composable
 fun RecordedAudioMessage(
-    audioMediaPlayingState: AudioMediaPlayingState,
-    totalTimeInMs: AudioState.TotalTimeInMs,
-    currentPositionInMs: Int,
-    waveMask: List<Int>,
+    audioState: AudioState,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
@@ -162,13 +210,10 @@ fun RecordedAudioMessage(
             padding(dimensions().spacing8x)
         }
     ) {
-        SuccessfulAudioMessage(
+        SuccessfulAudioMessageContent(
             modifier = Modifier.padding(horizontal = dimensions().spacing24x),
-            audioMediaPlayingState = audioMediaPlayingState,
-            totalTimeInMs = totalTimeInMs,
-            currentPositionInMs = currentPositionInMs,
+            audioState = audioState,
             audioSpeed = AudioSpeed.NORMAL,
-            waveMask = waveMask,
             onPlayButtonClick = onPlayButtonClick,
             onSliderPositionChange = onSliderPositionChange,
             onAudioSpeedChange = null
@@ -177,27 +222,24 @@ fun RecordedAudioMessage(
 }
 
 @Composable
-private fun SuccessfulAudioMessage(
-    audioMediaPlayingState: AudioMediaPlayingState,
-    totalTimeInMs: AudioState.TotalTimeInMs,
-    currentPositionInMs: Int,
+fun SuccessfulAudioMessageContent(
+    audioState: AudioState,
     audioSpeed: AudioSpeed,
-    waveMask: List<Int>,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
     onAudioSpeedChange: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
-    val audioDuration by remember(currentPositionInMs) {
+    val audioDuration by remember(audioState.currentPositionInMs) {
         mutableStateOf(
-            AudioDuration(totalTimeInMs, currentPositionInMs)
+            AudioDuration(audioState.totalTimeInMs, audioState.currentPositionInMs)
         )
     }
 
     Row(
         modifier = modifier.fillMaxWidth(),
     ) {
-        val (iconResource, contentDescriptionRes) = getPlayOrPauseIcon(audioMediaPlayingState)
+        val (iconResource, contentDescriptionRes) = getPlayOrPauseIcon(audioState.audioMediaPlayingState)
         WireSecondaryIconButton(
             minSize = DpSize(dimensions().spacing32x, dimensions().spacing32x),
             minClickableSize = dimensions().buttonMinClickableSize,
@@ -205,7 +247,10 @@ private fun SuccessfulAudioMessage(
             iconResource = iconResource,
             shape = CircleShape,
             contentDescription = contentDescriptionRes,
-            state = if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) WireButtonState.Disabled else WireButtonState.Default,
+            state = when (audioState.audioMediaPlayingState) {
+                is AudioMediaPlayingState.Fetching -> WireButtonState.Disabled
+                else -> WireButtonState.Default
+            },
             onButtonClicked = onPlayButtonClick
         )
 
@@ -215,8 +260,8 @@ private fun SuccessfulAudioMessage(
 
             AudioMessageSlider(
                 audioDuration = audioDuration,
-                totalTimeInMs = totalTimeInMs,
-                waveMask = waveMask,
+                totalTimeInMs = audioState.totalTimeInMs,
+                waveMask = audioState.wavesMask,
                 onSliderPositionChange = onSliderPositionChange
             )
 
@@ -231,7 +276,7 @@ private fun SuccessfulAudioMessage(
                     maxLines = 1
                 )
 
-                if (audioMediaPlayingState is AudioMediaPlayingState.Playing && onAudioSpeedChange != null) {
+                if (audioState.audioMediaPlayingState is AudioMediaPlayingState.Playing && onAudioSpeedChange != null) {
                     WirePrimaryButton(
                         onClick = onAudioSpeedChange,
                         text = stringResource(audioSpeed.titleRes),
@@ -255,7 +300,7 @@ private fun SuccessfulAudioMessage(
 
                 Spacer(Modifier.weight(1F))
 
-                if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) {
+                if (audioState.audioMediaPlayingState is AudioMediaPlayingState.Fetching) {
                     WireCircularProgressIndicator(
                         modifier = Modifier.align(Alignment.CenterVertically),
                         progressColor = MaterialTheme.wireColorScheme.secondaryButtonEnabled
@@ -290,12 +335,12 @@ private fun SuccessfulAudioMessage(
 private fun AudioMessageSlider(
     audioDuration: AudioDuration,
     totalTimeInMs: AudioState.TotalTimeInMs,
-    waveMask: List<Int>,
+    waveMask: List<Int>?,
     onSliderPositionChange: (Float) -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxWidth()) {
         val totalMs = if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f
-        val waves = waveMask.ifEmpty { getDefaultWaveMask() }
+        val waves = waveMask?.ifEmpty { getDefaultWaveMask() } ?: getDefaultWaveMask()
         val wavesAmount = waves.size
 
         Row(
@@ -343,7 +388,7 @@ private fun AudioMessageSlider(
 }
 
 @Composable
-private fun FailedAudioMessage() {
+private fun FailedAudioMessageContent() {
     var audioNotAvailableDialog by remember { mutableStateOf(false) }
 
     if (audioNotAvailableDialog) {
@@ -412,21 +457,92 @@ private data class AudioDuration(val totalDurationInMs: AudioState.TotalTimeInMs
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewSuccessfulAudioMessage() {
-    WireTheme {
-        SuccessfulAudioMessage(
-            audioMediaPlayingState = AudioMediaPlayingState.Completed,
-            totalTimeInMs = AudioState.TotalTimeInMs.Known(10000),
-            currentPositionInMs = 5000,
-            audioSpeed = AudioSpeed.NORMAL,
-            waveMask = listOf(
-                32, 1, 24, 23, 13, 16, 9, 0, 4, 30, 23, 12, 14, 1, 7, 8, 0, 12, 32, 23, 34, 4, 16, 9, 0, 4, 30, 23, 12,
-                14, 1, 7, 8, 0, 13, 16, 9, 0, 4, 30, 23, 12, 14, 1, 7, 8, 0, 12, 32, 23, 34, 4, 16, 13, 16, 9, 0, 4, 30, 23, 12, 14, 1,
-                7, 8, 0, 12, 32, 23, 34, 4, 16,
-            ),
-            onPlayButtonClick = {},
-            onSliderPositionChange = {},
-            onAudioSpeedChange = {}
-        )
-    }
+private fun PreviewUploadingAudioMessage() = WireTheme {
+    AudioMessage(
+        audioMessageArgs = AudioMessageArgs(ConversationId("convId", "domain"), "messageId"),
+        audioMessageDurationInMs = 10000,
+        extension = "MP3",
+        size = 1024,
+        assetTransferStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS
+    )
 }
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewUploadedAudioMessage() = WireTheme {
+    AudioMessage(
+        audioMessageArgs = AudioMessageArgs(ConversationId("convId", "domain"), "messageId"),
+        audioMessageDurationInMs = 10000,
+        extension = "MP3",
+        size = 1024,
+        assetTransferStatus = AssetTransferStatus.UPLOADED
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewUploadedAudioMessageFetching() = WireTheme {
+    UploadedAudioMessage(
+        audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching),
+        audioSpeed = AudioSpeed.NORMAL,
+        extension = "MP3",
+        size = 1024,
+        onPlayButtonClick = {},
+        onSliderPositionChange = {},
+        onAudioSpeedChange = {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewUploadedAudioMessageFetched() = WireTheme {
+    UploadedAudioMessage(
+        audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.SuccessfulFetching),
+        audioSpeed = AudioSpeed.NORMAL,
+        extension = "MP3",
+        size = 1024,
+        onPlayButtonClick = {},
+        onSliderPositionChange = {},
+        onAudioSpeedChange = {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewUploadedAudioMessagePlaying() = WireTheme {
+    UploadedAudioMessage(
+        audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Playing, currentPositionInMs = 5000),
+        audioSpeed = AudioSpeed.NORMAL,
+        extension = "MP3",
+        size = 1024,
+        onPlayButtonClick = {},
+        onSliderPositionChange = {},
+        onAudioSpeedChange = {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewUploadedAudioMessageFailed() = WireTheme {
+    UploadedAudioMessage(
+        audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Failed),
+        audioSpeed = AudioSpeed.NORMAL,
+        extension = "MP3",
+        size = 1024,
+        onPlayButtonClick = {},
+        onSliderPositionChange = {},
+        onAudioSpeedChange = {}
+    )
+}
+
+@Suppress("MagicNumber")
+private val PREVIEW_AUDIO_STATE = AudioState(
+    audioMediaPlayingState = AudioMediaPlayingState.SuccessfulFetching,
+    currentPositionInMs = 0,
+    totalTimeInMs = AudioState.TotalTimeInMs.Known(10000),
+    wavesMask = listOf(
+        32, 1, 24, 23, 13, 16, 9, 0, 4, 30, 23, 12, 14, 1, 7, 8, 0, 12, 32, 23, 34, 4, 16, 9, 0, 4, 30, 23, 12,
+        14, 1, 7, 8, 0, 13, 16, 9, 0, 4, 30, 23, 12, 14, 1, 7, 8, 0, 12, 32, 23, 34, 4, 16, 13, 16, 9, 0, 4, 30, 23, 12, 14, 1,
+        7, 8, 0, 12, 32, 23, 34, 4, 16,
+    ),
+)

@@ -37,8 +37,8 @@ internal fun DeleteConversationGroupDialog(
 ) {
     VisibilityState(dialogState) {
         WireDialog(
-            title = stringResource(id = R.string.delete_group_conversation_dialog_title, it.conversationName),
-            text = stringResource(id = R.string.delete_group_conversation_dialog_description),
+            title = stringResource(id = R.string.delete_conversation_conversation_dialog_title, it.conversationName),
+            text = stringResource(id = R.string.delete_conversation_conversation_dialog_description),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(

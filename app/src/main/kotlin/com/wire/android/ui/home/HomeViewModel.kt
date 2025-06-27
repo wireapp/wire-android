@@ -24,13 +24,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
@@ -48,15 +46,13 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
-    private val globalDataStore: GlobalDataStore,
+    val savedStateHandle: SavedStateHandle,
     private val dataStore: UserDataStore,
     private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
-) : SavedStateViewModel(savedStateHandle) {
+) : ActionsViewModel<HomeRequirement>() {
 
     @VisibleForTesting
     var homeState by mutableStateOf(HomeState())
@@ -114,36 +110,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun checkRequirements(onRequirement: (HomeRequirement) -> Unit) {
+    fun checkRequirements() {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
             when {
-                shouldTriggerMigrationForUser(selfUser.id) -> // check if the user needs to be migrated from scala app
-                    onRequirement(HomeRequirement.Migration(selfUser.id))
-
                 needsToRegisterClient() -> // check if the client needs to be registered
-                    onRequirement(HomeRequirement.RegisterDevice)
+                    sendAction(HomeRequirement.RegisterDevice)
 
                 !dataStore.initialSyncCompleted.first() -> // check if the initial sync needs to be completed
-                    onRequirement(HomeRequirement.InitialSync)
+                    sendAction(HomeRequirement.InitialSync)
 
                 selfUser.handle.isNullOrEmpty() -> // check if the user handle needs to be set
-                    onRequirement(HomeRequirement.CreateAccountUsername)
-
-                // check if the "welcome to the new app" screen needs to be displayed
-                shouldDisplayWelcomeToARScreen() ->
-                    homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
+                    sendAction(HomeRequirement.CreateAccountUsername)
             }
-        }
-    }
-
-    private suspend fun shouldDisplayWelcomeToARScreen() =
-        globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
-
-    fun dismissWelcomeMessage() {
-        viewModelScope.launch {
-            globalDataStore.setWelcomeScreenPresented()
-            homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
         }
     }
 }

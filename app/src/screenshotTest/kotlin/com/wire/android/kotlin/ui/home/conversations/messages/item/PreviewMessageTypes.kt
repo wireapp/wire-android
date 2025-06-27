@@ -23,9 +23,6 @@ package com.wire.android.kotlin.ui.home.conversations.messages.item
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import com.wire.android.R
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
-import com.wire.android.media.audiomessage.AudioSpeed
-import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
@@ -49,11 +46,11 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.UserId
 
 private val previewUserId = UserId("value", "domain")
@@ -72,8 +69,6 @@ fun PreviewMessage() {
                 )
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -94,8 +89,6 @@ fun PreviewMessageWithReactions() {
                 messageFooter = mockFooter
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -127,8 +120,6 @@ fun PreviewMessageWithReply() {
                 )
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -151,8 +142,6 @@ fun PreviewDeletedMessage() {
                 )
             },
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -175,8 +164,6 @@ fun PreviewFailedSendMessage() {
                 )
             },
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -199,8 +186,6 @@ fun PreviewFailedDecryptionMessage() {
                 )
             },
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -213,8 +198,6 @@ fun PreviewAssetMessageWithReactions() {
         RegularMessageItem(
             message = mockAssetMessage().copy(messageFooter = mockFooter),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -229,7 +212,8 @@ fun PreviewImportedMediaAssetMessageContent() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED
+            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+            assetDataPath = null,
         )
     }
 }
@@ -243,7 +227,8 @@ fun PreviewLoadingAssetMessage() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS
+            assetTransferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
+            assetDataPath = null,
         )
     }
 }
@@ -257,7 +242,8 @@ fun PreviewFailedDownloadAssetMessage() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.FAILED_DOWNLOAD
+            assetTransferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
+            assetDataPath = null,
         )
     }
 }
@@ -269,8 +255,6 @@ fun PreviewImageMessageUploaded() {
         RegularMessageItem(
             message = mockedImageUIMessage(messageId = "assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             assetStatus = AssetTransferStatus.UPLOADED,
             clickActions = MessageClickActions.Content(),
         )
@@ -284,8 +268,6 @@ fun PreviewImageMessageUploading() {
         RegularMessageItem(
             message = mockedImageUIMessage("assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             assetStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS,
             clickActions = MessageClickActions.Content(),
         )
@@ -305,8 +287,6 @@ fun PreviewImageMessageFailedUpload() {
                 )
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             assetStatus = AssetTransferStatus.FAILED_UPLOAD,
             clickActions = MessageClickActions.Content(),
         )
@@ -315,26 +295,11 @@ fun PreviewImageMessageFailedUpload() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewAudioMessageFetching() = WireTheme {
+fun PreviewAudioMessage() = WireTheme {
     RegularMessageItem(
         message = mockAssetAudioMessage(),
         conversationDetailsData = ConversationDetailsData.None(null),
-        audioState = AudioState(AudioMediaPlayingState.Fetching, 0, AudioState.TotalTimeInMs.NotKnown, listOf()),
         assetStatus = AssetTransferStatus.UPLOADED,
-        audioSpeed = AudioSpeed.NORMAL,
-        clickActions = MessageClickActions.Content(),
-    )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewAudioMessagePlaying() = WireTheme {
-    RegularMessageItem(
-        message = mockAssetAudioMessage(),
-        conversationDetailsData = ConversationDetailsData.None(null),
-        audioState = AudioState(AudioMediaPlayingState.Playing, 20_000, AudioState.TotalTimeInMs.Known(60_000), listOf()),
-        assetStatus = AssetTransferStatus.UPLOADED,
-        audioSpeed = AudioSpeed.NORMAL,
         clickActions = MessageClickActions.Content(),
     )
 }
@@ -347,8 +312,6 @@ fun PreviewMessageWithSystemMessage() {
             RegularMessageItem(
                 message = mockMessageWithText,
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioState = null,
-                audioSpeed = AudioSpeed.NORMAL,
                 clickActions = MessageClickActions.Content(),
             )
             SystemMessageItem(
@@ -384,8 +347,6 @@ fun PreviewMessagesWithUnavailableQuotedMessage() {
                 )
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -399,8 +360,6 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
             RegularMessageItem(
                 message = mockMessageWithText,
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioState = null,
-                audioSpeed = AudioSpeed.NORMAL,
                 clickActions = MessageClickActions.Content(),
             )
             RegularMessageItem(
@@ -414,8 +373,6 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 showAuthor = false,
-                audioState = null,
-                audioSpeed = AudioSpeed.NORMAL,
                 clickActions = MessageClickActions.Content(),
             )
             RegularMessageItem(
@@ -429,8 +386,6 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 showAuthor = true,
-                audioState = null,
-                audioSpeed = AudioSpeed.NORMAL,
                 clickActions = MessageClickActions.Content(),
             )
         }
@@ -444,8 +399,6 @@ fun PreviewMessageWithMarkdownTextAndLinks() {
         RegularMessageItem(
             message = mockMessageWithMarkdownTextAndLinks,
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -458,8 +411,6 @@ fun PreviewMessageWithMarkdownListAndImages() {
         RegularMessageItem(
             message = mockMessageWithMarkdownListAndImages,
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -472,8 +423,6 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
         RegularMessageItem(
             message = mockMessageWithMarkdownTablesAndBlocks,
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioState = null,
-            audioSpeed = AudioSpeed.NORMAL,
             clickActions = MessageClickActions.Content(),
         )
     }
@@ -488,40 +437,30 @@ fun PreviewMessageWithMarkdownQuery() {
                 message = mockMessageWithTextLoremIpsum,
                 searchQuery = "ed",
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioState = null,
-                audioSpeed = AudioSpeed.NORMAL,
                 clickActions = MessageClickActions.Content(),
             )
             RegularMessageItem(
                 message = mockMessageWithMarkdownTextAndLinks,
                 searchQuery = "code",
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioState = null,
-                audioSpeed = AudioSpeed.NORMAL,
                 clickActions = MessageClickActions.Content(),
             )
             RegularMessageItem(
                 message = mockMessageWithMarkdownTextAndLinks,
                 searchQuery = ".com",
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioState = null,
-                audioSpeed = AudioSpeed.NORMAL,
                 clickActions = MessageClickActions.Content(),
             )
             RegularMessageItem(
                 message = mockMessageWithMarkdownListAndImages,
                 searchQuery = "can",
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioState = null,
-                audioSpeed = AudioSpeed.NORMAL,
                 clickActions = MessageClickActions.Content(),
             )
             RegularMessageItem(
                 message = mockMessageWithMarkdownTablesAndBlocks,
                 searchQuery = "Joh",
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioState = null,
-                audioSpeed = AudioSpeed.NORMAL,
                 clickActions = MessageClickActions.Content(),
             )
         }
@@ -539,8 +478,6 @@ fun PreviewMessageWithAccents() = WireTheme {
                     messageContent = UIMessageContent.TextMessage(MessageBody(UIText.DynamicString("Text")))
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioState = null,
-                audioSpeed = AudioSpeed.NORMAL,
                 clickActions = MessageClickActions.Content(),
             )
         }

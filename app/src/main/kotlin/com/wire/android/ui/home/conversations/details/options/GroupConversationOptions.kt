@@ -75,7 +75,8 @@ fun GroupConversationOptions(
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
-        onEditGroupName = onEditGroupName
+        onEditGroupName = onEditGroupName,
+        onWireCellSwitchClicked = viewModel::onWireCellStateChange,
     )
 
     if (state.changeServiceOptionConfirmationRequired) {
@@ -94,6 +95,7 @@ fun GroupConversationSettings(
     onSelfDeletingClicked: () -> Unit,
     onServiceSwitchClicked: (Boolean) -> Unit,
     onReadReceiptSwitchClicked: (Boolean) -> Unit,
+    onWireCellSwitchClicked: (Boolean) -> Unit,
     onEditGroupName: () -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
@@ -106,6 +108,7 @@ fun GroupConversationSettings(
             GroupNameItem(
                 groupName = state.groupName,
                 canBeChanged = state.isUpdatingNameAllowed,
+                isChannel = state.isChannel,
                 onClick = onEditGroupName,
             )
         }
@@ -118,11 +121,11 @@ fun GroupConversationSettings(
                     GroupConversationOptionsItem(
                         title = stringResource(R.string.channel_access_label),
                         subtitle = stringResource(id = R.string.channel_access_short_description),
-                        arrowType = ArrowType.TITLE_ALIGNED,
+                        arrowType = if (state.isUpdatingChannelAccessAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
                         arrowLabel = stringResource(state.channelAccessType!!.label),
                         arrowLabelColor = colorsScheme().onBackground,
                         onClick = onChannelAccessItemClicked,
-                        isClickable = true,
+                        isClickable = state.isUpdatingChannelAccessAllowed,
                     )
                 }
             }
@@ -191,6 +194,15 @@ fun GroupConversationSettings(
                 protocolInfo = state.protocolInfo
             )
         }
+        if (state.isWireCellFeatureEnabled) {
+            item {
+                ConversationCellDetails(
+                    isWireCellEnabled = state.isWireCellEnabled,
+                    isLoading = state.loadingWireCellState,
+                    onCheckedChange = onWireCellSwitchClicked,
+                )
+            }
+        }
     }
 }
 
@@ -232,10 +244,13 @@ fun ConversationProtocolDetails(
 private fun GroupNameItem(
     groupName: String,
     canBeChanged: Boolean,
+    isChannel: Boolean,
     onClick: () -> Unit = {},
 ) {
     GroupConversationOptionsItem(
-        label = stringResource(id = R.string.conversation_details_options_group_name),
+        label = stringResource(
+            id = if (isChannel) R.string.channel_name_title else R.string.conversation_details_options_group_name
+        ),
         title = groupName,
         clickable = Clickable(
             enabled = canBeChanged,
@@ -345,6 +360,24 @@ fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onCon
     )
 }
 
+@Composable
+private fun ConversationCellDetails(
+    isWireCellEnabled: Boolean,
+    isLoading: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    FolderHeader(name = stringResource(R.string.folder_label_wire_cell))
+    GroupOptionWithSwitch(
+        switchClickable = true,
+        switchVisible = true,
+        switchState = isWireCellEnabled,
+        isLoading = isLoading,
+        onClick = onCheckedChange,
+        title = R.string.conversation_options_wire_cell_label,
+        subTitle = R.string.conversation_options_wire_cell_description
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
@@ -355,20 +388,22 @@ fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
             areAccessOptionsAvailable = true,
             isUpdatingNameAllowed = true,
             isUpdatingGuestAllowed = true,
+            isUpdatingChannelAccessAllowed = true,
             isUpdatingServicesAllowed = true,
             isUpdatingSelfDeletingAllowed = true,
             isUpdatingReadReceiptAllowed = true,
             isGuestAllowed = true,
             isServicesAllowed = true,
             isReadReceiptAllowed = true,
-            mlsEnabled = true
+            mlsEnabled = true,
         ),
         onGuestItemClicked = {},
         onSelfDeletingClicked = {},
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
-        onChannelAccessItemClicked = {}
+        onChannelAccessItemClicked = {},
+        onWireCellSwitchClicked = {},
     )
 }
 
@@ -394,7 +429,8 @@ fun PreviewGuestAdminTeamGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
-        onChannelAccessItemClicked = {}
+        onChannelAccessItemClicked = {},
+        onWireCellSwitchClicked = {},
     )
 }
 
@@ -420,7 +456,8 @@ fun PreviewExternalMemberAdminTeamGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
-        onChannelAccessItemClicked = {}
+        onChannelAccessItemClicked = {},
+        onWireCellSwitchClicked = {},
     )
 }
 
@@ -446,7 +483,8 @@ fun PreviewMemberTeamGroupConversationOptions() = WireTheme {
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
-        onChannelAccessItemClicked = {}
+        onChannelAccessItemClicked = {},
+        onWireCellSwitchClicked = {},
     )
 }
 
@@ -457,14 +495,15 @@ fun PreviewNormalGroupConversationOptions() = WireTheme {
         state = GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",
-            areAccessOptionsAvailable = false
+            areAccessOptionsAvailable = false,
         ),
         onGuestItemClicked = {},
         onSelfDeletingClicked = {},
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
-        onChannelAccessItemClicked = {}
+        onChannelAccessItemClicked = {},
+        onWireCellSwitchClicked = {},
     )
 }
 
@@ -477,13 +516,14 @@ fun PreviewNormalGroupConversationOptionsWithSelfDelet() = WireTheme {
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = false,
             selfDeletionTimer = SelfDeletionTimer.Enabled(3.days),
-            isUpdatingSelfDeletingAllowed = true
+            isUpdatingSelfDeletingAllowed = true,
         ),
         onGuestItemClicked = {},
         onSelfDeletingClicked = {},
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
-        onChannelAccessItemClicked = {}
+        onChannelAccessItemClicked = {},
+        onWireCellSwitchClicked = {},
     )
 }

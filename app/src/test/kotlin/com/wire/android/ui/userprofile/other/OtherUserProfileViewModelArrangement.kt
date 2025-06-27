@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
+import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
@@ -43,10 +44,12 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -105,10 +108,16 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase
 
     @MockK
-    lateinit var getUserE2eiCertificates: GetUserE2eiCertificatesUseCase
+    lateinit var isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase
 
     @MockK
-    lateinit var isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase
+    lateinit var mlsClientIdentity: GetMLSClientIdentityUseCase
+
+    @MockK
+    lateinit var mlsIdentity: MLSClientIdentity
+
+    @MockK
+    lateinit var isE2EIEnabled: IsE2EIEnabledUseCase
 
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
@@ -127,8 +136,9 @@ internal class OtherUserProfileViewModelArrangement {
             clearConversationContent,
             updateConversationArchivedStatus,
             getUserE2eiCertificateStatus,
-            getUserE2eiCertificates,
             isOneToOneConversationCreated,
+            mlsClientIdentity,
+            isE2EIEnabled,
             savedStateHandle,
         )
     }
@@ -158,8 +168,9 @@ internal class OtherUserProfileViewModelArrangement {
             GetOneToOneConversationDetailsUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION_ONE_ONE)
         )
         coEvery { getUserE2eiCertificateStatus.invoke(any()) } returns true
-        coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
+        coEvery { mlsClientIdentity.invoke(any()) } returns mlsIdentity.right()
         coEvery { isOneToOneConversationCreated.invoke(any()) } returns true
+        coEvery { isE2EIEnabled.invoke() } returns true
     }
 
     suspend fun withBlockUserResult(result: BlockUserResult) = apply {

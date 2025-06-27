@@ -18,13 +18,10 @@
 package com.wire.android.ui.userprofile.teammigration.step2
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,10 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
-import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
@@ -47,24 +45,23 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
+import com.wire.android.ui.userprofile.teammigration.common.TeamMigrationContainer
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @PersonalToTeamMigrationNavGraph
 @WireDestination(
-    style = SlideNavigationAnimation::class
+    style = AuthSlideNavigationAnimation::class
 )
 @Composable
 fun TeamMigrationTeamNameStepScreen(
-    navigator: DestinationsNavigator,
+    navigator: Navigator,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
     TeamMigrationTeamNameStepScreenContent(
         onContinueButtonClicked = {
-            navigator.navigate(TeamMigrationConfirmationStepScreenDestination)
+            navigator.navigate(NavigationCommand(TeamMigrationConfirmationStepScreenDestination))
         },
-        onBackButtonClicked = {
-            navigator.popBackStack()
-        },
+        onBackButtonClicked = navigator::navigateBack,
         teamNameTextFieldState = teamMigrationViewModel.teamMigrationState.teamNameTextState
     )
     LaunchedEffect(Unit) {
@@ -79,19 +76,29 @@ private fun TeamMigrationTeamNameStepScreenContent(
     onContinueButtonClicked: () -> Unit = { },
     onBackButtonClicked: () -> Unit = { }
 ) {
-
-    Column(
-        modifier = Modifier.fillMaxSize()
+    TeamMigrationContainer(
+        onClose = onBackButtonClicked,
+        closeIconContentDescription = stringResource(R.string.personal_to_team_migration_close_team_name_content_description),
+        showConfirmationDialogWhenClosing = true,
+        bottomBar = {
+            val isContinueButtonEnabled = teamNameTextFieldState.text.isNotEmpty() && teamNameTextFieldState.text.isNotBlank()
+            BottomLineButtons(
+                isContinueButtonEnabled = isContinueButtonEnabled,
+                onContinue = onContinueButtonClicked,
+                backButtonContentDescription = stringResource(
+                    R.string.personal_to_team_migration_back_button_team_name_content_description
+                ),
+                onBack = onBackButtonClicked
+            )
+        }
     ) {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .padding(
                     start = dimensions().spacing16x,
                     end = dimensions().spacing16x
                 )
-                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 modifier = Modifier
@@ -126,13 +133,6 @@ private fun TeamMigrationTeamNameStepScreenContent(
                 textFieldState = teamNameTextFieldState,
             )
         }
-        val isContinueButtonEnabled = teamNameTextFieldState.text.isNotEmpty() && teamNameTextFieldState.text.isNotBlank()
-        BottomLineButtons(
-            isContinueButtonEnabled = isContinueButtonEnabled,
-            onContinue = onContinueButtonClicked,
-            backButtonContentDescription = stringResource(R.string.personal_to_team_migration_back_button_team_name_content_description),
-            onBack = onBackButtonClicked
-        )
     }
 }
 

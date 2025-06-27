@@ -23,8 +23,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.common.topappbar.search.SearchBarState
-import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.common.search.SearchBarState
+import com.wire.android.ui.common.search.rememberSearchbarState
 import kotlinx.coroutines.CoroutineScope
 
 @Composable

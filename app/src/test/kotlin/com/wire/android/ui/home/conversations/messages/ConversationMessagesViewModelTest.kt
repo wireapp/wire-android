@@ -31,8 +31,8 @@ import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.Messag
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.composer.mockUITextMessage
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.message.MessageContent
@@ -47,6 +47,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -64,10 +65,50 @@ class ConversationMessagesViewModelTest {
             .withGetMessageByIdReturning(message)
             .arrange()
 
-        viewModel.downloadOrFetchAssetAndShowDialog(message.id)
+        viewModel.openOrFetchAsset(message.id)
 
         coVerify(exactly = 1) { arrangement.getMessageById(arrangement.conversationId, message.id) }
     }
+
+    @Test
+    fun `given an message ID and Wire Cell is Enabled, when downloading or fetching into internal storage, then download dialog is shown`() =
+        runTest {
+            val message = TestMessage.ASSET_MESSAGE
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetMessageAssetUseCaseReturning("path".toPath(), 42L)
+                .withGetMessageByIdReturning(message)
+                .withWireCellEnabled()
+                .arrange()
+
+            viewModel.openOrFetchAsset(message.id)
+
+            val state = viewModel.conversationViewState
+
+            advanceUntilIdle()
+
+            assertTrue(state.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
+        }
+
+    @Test
+    fun `given an message ID and Wire Cell is Disabled, when downloading or fetching into internal storage, then download dialog is shown`() =
+        runTest {
+            val message = TestMessage.ASSET_MESSAGE
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetMessageAssetUseCaseReturning("path".toPath(), 42L)
+                .withGetMessageByIdReturning(message)
+//                .withWireCellEnabled()
+                .arrange()
+
+            viewModel.openOrFetchAsset(message.id)
+
+            val state = viewModel.conversationViewState
+
+            advanceUntilIdle()
+
+            assertTrue(state.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
+        }
 
     @Test
     fun `given an asset message, when opening it, then the file manager open function gets invoked and closes the dialog`() = runTest {
@@ -208,9 +249,8 @@ class ConversationMessagesViewModelTest {
             viewModel.showDeleteMessageDialog("", true)
 
             // Then
-            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-                forYourself = DeleteMessageDialogActiveState.Hidden,
-                forEveryone = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId)
+            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
+                DeleteMessageDialogType.ForEveryone, "", viewModel.conversationId
             )
         }
 
@@ -226,9 +266,8 @@ class ConversationMessagesViewModelTest {
             viewModel.showDeleteMessageDialog("", false)
 
             // Then
-            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-                forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
-                forEveryone = DeleteMessageDialogActiveState.Hidden
+            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
+                DeleteMessageDialogType.ForYourself, "", viewModel.conversationId
             )
         }
 
@@ -244,9 +283,8 @@ class ConversationMessagesViewModelTest {
             viewModel.deleteMessageHelper.showDeleteMessageForYourselfDialog("")
 
             // Then
-            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-                forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
-                forEveryone = DeleteMessageDialogActiveState.Hidden
+            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
+                DeleteMessageDialogType.ForYourself, "", viewModel.conversationId
             )
         }
 
@@ -261,10 +299,7 @@ class ConversationMessagesViewModelTest {
         viewModel.deleteMessageHelper.onDeleteDialogDismissed()
 
         // Then
-        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Hidden,
-            forEveryone = DeleteMessageDialogActiveState.Hidden
-        )
+        viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Hidden
     }
 
     @Test
@@ -298,11 +333,7 @@ class ConversationMessagesViewModelTest {
             viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
 
             // Then
-            val expectedState = DeleteMessageDialogsState.States(
-                DeleteMessageDialogActiveState.Hidden,
-                DeleteMessageDialogActiveState.Hidden
-            )
-            assertEquals(expectedState, viewModel.deleteMessageDialogsState)
+            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Hidden
         }
 
     @Test
@@ -345,7 +376,7 @@ class ConversationMessagesViewModelTest {
             totalTimeInMs = AudioState.TotalTimeInMs.Known(10000),
             currentPositionInMs = 300
         )
-        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+        val (_, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withPlayingAudioMessageFlow(flowOf(PlayingAudioMessage.None))
             .withObservableAudioMessagesState(flowOf(mapOf(MessageIdWrapper(message.conversationId, message.id) to audioState)))

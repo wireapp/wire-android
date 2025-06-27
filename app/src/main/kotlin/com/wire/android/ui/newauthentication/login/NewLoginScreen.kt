@@ -51,7 +51,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginErrorDialog
@@ -62,6 +62,7 @@ import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -148,7 +149,7 @@ fun NewLoginScreen(
 
     LaunchedEffect(navArgs.ssoLoginResult) {
         if (navArgs.ssoLoginResult != null) {
-            viewModel.handleSSOResult(navArgs.ssoLoginResult, ssoUrlConfigHolder.get(), handleNewLoginAction)
+            viewModel.handleSSOResult(navArgs.ssoLoginResult, ssoUrlConfigHolder.get())
         }
     }
     (viewModel.state.flowState as? NewLoginFlowState.CustomConfigDialog)?.let { customServerDialogState ->
@@ -156,7 +157,7 @@ fun NewLoginScreen(
             serverLinks = customServerDialogState.serverLinks,
             onDismiss = viewModel::onDismissDialog,
             onConfirm = {
-                viewModel.onCustomServerDialogConfirm(customServerDialogState.serverLinks, handleNewLoginAction)
+                viewModel.onCustomServerDialogConfirm(customServerDialogState.serverLinks)
             }
         )
     }
@@ -168,11 +169,13 @@ fun NewLoginScreen(
         userIdentifierState = viewModel.userIdentifierTextState,
         serverConfig = viewModel.serverConfig,
         onNextClicked = {
-            viewModel.onLoginStarted(handleNewLoginAction)
+            viewModel.onLoginStarted()
         },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = navigator::navigateBack,
     )
+
+    HandleActions(viewModel.actions, handleNewLoginAction)
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -185,9 +188,9 @@ private fun LoginContent(
     canNavigateBack: Boolean,
     navigateBack: () -> Unit,
 ) {
-    NewLoginContainer(
+    NewAuthContainer(
         header = {
-            NewLoginHeader(
+            NewAuthHeader(
                 title = {
                     if (serverConfig.isOnPremises) {
                         ServerTitle(
@@ -197,7 +200,7 @@ private fun LoginContent(
                             titleResId = R.string.enterprise_login_on_prem_welcome_title,
                             modifier = Modifier.padding(bottom = dimensions().spacing24x),
                         )
-                        NewLoginSubtitle(
+                        NewAuthSubtitle(
                             title = stringResource(id = R.string.enterprise_login_credentials_title),
                         )
                     } else {
@@ -209,7 +212,7 @@ private fun LoginContent(
                                 .padding(horizontal = dimensions().spacing32x)
                                 .size(dimensions().spacing120x)
                         )
-                        NewLoginSubtitle(
+                        NewAuthSubtitle(
                             title = stringResource(R.string.enterprise_login_welcome),
                             modifier = Modifier.padding(top = dimensions().spacing16x)
                         )

@@ -19,21 +19,24 @@ package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
-import com.wire.android.config.NavigationTestExtension
+import com.wire.android.framework.TestConversationDetails
+import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -49,44 +52,38 @@ import kotlin.time.Duration.Companion.minutes
 class EditSelfDeletingMessagesViewModelTest {
 
     @Test
-    fun `given self deleting messages option enabled, when disabling it, then it updates proper state`() =
-        runTest {
-            // Given
-            val (arrangement, viewModel) = Arrangement()
-                .withSelfDeletingMessagesGroupSettings(SelfDeletionTimer.Enabled(5.minutes))
-                .withUpdateMessageTimerSuccess()
-                .arrange()
+    fun `given self deleting messages option enabled, when disabling it, then it updates proper state`() = runTest {
+        // Given
+        val (arrangement, viewModel) = Arrangement().withSelfDeletingMessagesGroupSettings(SelfDeletionTimer.Enabled(5.minutes))
+            .withUpdateMessageTimerSuccess().arrange()
 
-            // When
-            viewModel.updateSelfDeletingMessageOption(false)
-            viewModel.applyNewDuration(arrangement.onCompleted)
+        // When
+        viewModel.updateSelfDeletingMessageOption(false)
+        viewModel.applyNewDuration()
 
-            // Then
-            assertEquals(false, viewModel.state.isEnabled)
-            assertEquals(null, viewModel.state.locallySelected)
-            verify { arrangement.onCompleted() }
-        }
+        // Then
+        assertEquals(false, viewModel.state.isEnabled)
+        assertEquals(null, viewModel.state.locallySelected)
+        assertEquals(true, viewModel.state.isCompleted)
+    }
 
     @Test
-    fun `given self deleting messages option disabled, when enabling it, then it updates proper state`() =
-        runTest {
-            // Given
-            val newTimer = SelfDeletionDuration.FiveMinutes
-            val (arrangement, viewModel) = Arrangement()
-                .withSelfDeletingMessagesGroupSettings(SelfDeletionTimer.Enabled(Duration.ZERO))
-                .withUpdateMessageTimerSuccess()
-                .arrange()
+    fun `given self deleting messages option disabled, when enabling it, then it updates proper state`() = runTest {
+        // Given
+        val newTimer = SelfDeletionDuration.FiveMinutes
+        val (arrangement, viewModel) = Arrangement().withSelfDeletingMessagesGroupSettings(SelfDeletionTimer.Enabled(Duration.ZERO))
+            .withUpdateMessageTimerSuccess().arrange()
 
-            // When
-            viewModel.updateSelfDeletingMessageOption(true)
-            viewModel.onSelectDuration(newTimer)
-            viewModel.applyNewDuration(arrangement.onCompleted)
+        // When
+        viewModel.updateSelfDeletingMessageOption(true)
+        viewModel.onSelectDuration(newTimer)
+        viewModel.applyNewDuration()
 
-            // Then
-            assertEquals(newTimer, viewModel.state.remotelySelected)
-            assertEquals(newTimer, viewModel.state.locallySelected)
-            verify { arrangement.onCompleted() }
-        }
+        // Then
+        assertEquals(newTimer, viewModel.state.remotelySelected)
+        assertEquals(newTimer, viewModel.state.locallySelected)
+        assertEquals(true, viewModel.state.isCompleted)
+    }
 
     private class Arrangement {
 
@@ -102,8 +99,11 @@ class EditSelfDeletingMessagesViewModelTest {
         @MockK
         private lateinit var updateMessageTimer: UpdateMessageTimerUseCase
 
-        @MockK(relaxed = true)
-        lateinit var onCompleted: () -> Unit
+        @MockK
+        private lateinit var selfUser: ObserveSelfUserUseCase
+
+        @MockK
+        private lateinit var conversationDetails: ObserveConversationDetailsUseCase
 
         private val viewModel by lazy {
             EditSelfDeletingMessagesViewModel(
@@ -111,7 +111,9 @@ class EditSelfDeletingMessagesViewModelTest {
                 dispatcher = TestDispatcherProvider(),
                 observeConversationMembers = observerConversationMembers,
                 observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
-                updateMessageTimer = updateMessageTimer
+                updateMessageTimer = updateMessageTimer,
+                selfUser = selfUser,
+                conversationDetails = conversationDetails,
             )
         }
 
@@ -119,6 +121,11 @@ class EditSelfDeletingMessagesViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.navArgs<EditSelfDeletingMessagesNavArgs>() } returns EditSelfDeletingMessagesNavArgs(
                 conversationId = TestConversation.ID
+            )
+
+            coEvery { selfUser() } returns flowOf(TestUser.SELF_USER)
+            coEvery { conversationDetails(any()) } returns flowOf(
+                ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP)
             )
 
             coEvery { observerConversationMembers(any()) } returns flowOf(ConversationParticipantsData(isSelfAnAdmin = true))

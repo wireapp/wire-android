@@ -63,9 +63,9 @@ class AnonymousAnalyticsRecorderImpl(
         Countly.sharedInstance()?.init(countlyConfig)
 
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-        val globalSegmentations = mapOf<String, Any>(
+        val globalSegmentations = mapOf<String, String>(
             APP_NAME to AnalyticsEventConstants.APP_NAME_ANDROID,
-            APP_VERSION to packageInfo.versionName
+            APP_VERSION to packageInfo.versionName.orEmpty()
         )
         Countly.sharedInstance()?.views()?.setGlobalViewSegmentation(globalSegmentations)
         isConfigured = true

@@ -23,5 +23,6 @@ import com.wire.android.ui.authentication.create.common.handle.HandleUpdateError
 data class CreateAccountUsernameViewState(
     val continueEnabled: Boolean = false,
     val loading: Boolean = false,
-    val error: HandleUpdateErrorState = HandleUpdateErrorState.None
+    val error: HandleUpdateErrorState = HandleUpdateErrorState.None,
+    val success: Boolean = false,
 )

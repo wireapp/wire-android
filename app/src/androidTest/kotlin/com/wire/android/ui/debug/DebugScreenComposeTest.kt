@@ -35,11 +35,11 @@ class DebugScreenComposeTest {
                 WireTestTheme {
                     UserDebugContent(
                         onNavigationPressed = { },
-                        onManualMigrationPressed = {},
                         state = UserDebugState(logPath = "logPath"),
                         onLoggingEnabledChange = {},
                         onDeleteLogs = {},
                         onDatabaseLoggerEnabledChanged = {},
+                        onEnableWireCellsFeature = {},
                     )
             }
         }

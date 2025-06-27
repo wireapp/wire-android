@@ -39,6 +39,7 @@ dependencies {
 
     testImplementation(libs.junit4)
     testImplementation(libs.kluent.core)
+    implementation(libs.ksp.symbol.processing.plugin)
 }
 
 gradlePlugin {
@@ -62,6 +63,14 @@ gradlePlugin {
         register("appVersionPlugin") {
             id = libs.plugins.wire.versionizer.get().pluginId
             implementationClass = "AppVersionPlugin"
+        }
+        register("androidTestLibraryConventionPlugin") {
+            id = libs.plugins.wire.android.test.library.get().pluginId
+            implementationClass = "AndroidTestLibraryConventionPlugin"
+        }
+        register("androidNavigationConventionPlugin") {
+            id = libs.plugins.wire.android.navigation.get().pluginId
+            implementationClass = "AndroidNavigationConventionPlugin"
         }
     }
 }

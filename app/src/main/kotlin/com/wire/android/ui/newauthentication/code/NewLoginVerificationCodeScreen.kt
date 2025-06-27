@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
@@ -41,10 +41,10 @@ import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.textfield.clearAutofillTree
-import com.wire.android.ui.newauthentication.login.NewLoginContainer
-import com.wire.android.ui.newauthentication.login.NewLoginHeader
-import com.wire.android.ui.newauthentication.login.NewLoginSubtitle
-import com.wire.android.ui.newauthentication.login.NewLoginTitle
+import com.wire.android.ui.newauthentication.login.NewAuthContainer
+import com.wire.android.ui.newauthentication.login.NewAuthHeader
+import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
+import com.wire.android.ui.newauthentication.login.NewAuthTitle
 import com.wire.android.ui.newauthentication.login.password.LoginStateNavigationAndDialogs
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -97,15 +97,15 @@ private fun LoginVerificationCodeContent(
     canNavigateBack: Boolean,
     navigateBack: () -> Unit,
 ) {
-    NewLoginContainer(
+    NewAuthContainer(
         header = {
-            NewLoginHeader(
+            NewAuthHeader(
                 title = {
-                    NewLoginTitle(
+                    NewAuthTitle(
                         title = stringResource(R.string.enterprise_login_verification_code_title),
                         modifier = Modifier.padding(bottom = dimensions().spacing24x)
                     )
-                    NewLoginSubtitle(
+                    NewAuthSubtitle(
                         title = stringResource(R.string.second_factor_authentication_instructions_label, codeState.emailUsed),
                     )
                 },

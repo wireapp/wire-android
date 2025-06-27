@@ -18,7 +18,7 @@
 package com.wire.android.ui.common.bottomsheet.conversation
 
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelTest.Companion.testGroup
+import com.wire.android.ui.home.conversations.details.GroupDetailsViewModelTest.Companion.testGroup
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.TeamId
@@ -232,7 +232,7 @@ class ConversationSheetContentTest {
             title = title,
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
-            conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, false),
+            conversationTypeDetail = ConversationTypeDetail.Group.Regular(details.conversation.id, false),
             selfRole = selfRole,
             isTeamConversation = details.conversation.isTeamGroup(),
             isArchived = false,

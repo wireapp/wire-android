@@ -49,6 +49,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WEBSOCKET_ENABLED_BY_DEFAULT("websocket_enabled_by_default", ConfigType.BOOLEAN),
     TEAM_APP_LOCK("team_app_lock", ConfigType.BOOLEAN),
     TEAM_APP_LOCK_TIMEOUT("team_app_lock_timeout", ConfigType.INT),
+    ENABLE_CROSSPLATFORM_BACKUP("enable_crossplatform_backup", ConfigType.BOOLEAN),
+    ENABLE_NEW_REGISTRATION("enable_new_registration", ConfigType.BOOLEAN),
 
     /**
      * Security/Cryptography stuff
@@ -106,6 +108,9 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     PICTURE_IN_PICTURE_ENABLED("picture_in_picture_enabled", ConfigType.BOOLEAN),
     PAGINATED_CONVERSATION_LIST_ENABLED("paginated_conversation_list_enabled", ConfigType.BOOLEAN),
 
+    PUBLIC_CHANNELS_ENABLED("public_channels_enabled", ConfigType.BOOLEAN),
+
+    USE_NEW_LOGIN_FOR_DEFAULT_BACKEND("use_new_login_for_default_backend", ConfigType.BOOLEAN),
     /**
      * Anonymous Analytics
      */

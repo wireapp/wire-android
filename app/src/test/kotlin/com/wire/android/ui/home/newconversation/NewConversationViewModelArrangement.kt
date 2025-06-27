@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.newconversation
 
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.kalium.common.error.CoreFailure
@@ -59,6 +60,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.Success(CONVERSATION)
         coEvery { observeChannelsCreationPermissionUseCase() } returns flowOf(ChannelCreationPermission.Forbidden)
         every { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
+        every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
     }
 
     @MockK
@@ -76,15 +78,15 @@ internal class NewConversationViewModelArrangement {
     @MockK
     lateinit var getSelf: GetSelfUserUseCase
 
-    @MockK(relaxed = true)
-    lateinit var onGroupCreated: (ConversationId) -> Unit
-
     @MockK
     lateinit var getDefaultProtocol: GetDefaultProtocolUseCase
 
-    private var createGroupState: CreateGroupState = CreateGroupState()
+    @MockK
+    lateinit var globalDataStore: GlobalDataStore
 
-    private companion object {
+    private var createGroupState: CreateGroupState = CreateGroupState.Default
+
+    internal companion object {
         val CONVERSATION_ID = ConversationId(value = "userId", domain = "domainId")
         val CONVERSATION = Conversation(
             id = CONVERSATION_ID,
@@ -182,9 +184,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withConflictingBackendsFailure() = apply {
-        createGroupState = createGroupState.copy(
-            error = CreateGroupState.Error.ConflictedBackends(listOf("bella.wire.link", "foma.wire.link"))
-        )
+        createGroupState = CreateGroupState.Error.ConflictedBackends(listOf("bella.wire.link", "foma.wire.link"))
     }
 
     fun withGetSelfUser(isTeamMember: Boolean, userType: UserType = UserType.INTERNAL) = apply {
@@ -211,7 +211,8 @@ internal class NewConversationViewModelArrangement {
         createChannel = createChannel,
         isUserAllowedToCreateChannels = observeChannelsCreationPermissionUseCase,
         getSelfUser = getSelf,
-        getDefaultProtocol = getDefaultProtocol
+        getDefaultProtocol = getDefaultProtocol,
+        globalDataStore = globalDataStore,
     ).also {
         it.createGroupState = createGroupState
     }

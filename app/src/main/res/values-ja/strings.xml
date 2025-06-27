@@ -95,8 +95,6 @@
     <string name="content_description_unarchive">アーカイブを解除</string>
     <string name="content_description_block_the_user">ブロック</string>
     <string name="content_description_unblock_the_user">ブロック解除</string>
-    <string name="content_description_leave_the_group">グループから退出</string>
-    <string name="content_description_delete_the_group">グループを削除</string>
     <string name="content_description_conversation_phone_icon">音声通話を開始</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">検索アイコン</string>
@@ -146,7 +144,6 @@
     <string name="content_description_calling_turn_camera_off">カメラをオフにする</string>
     <string name="content_description_calling_turn_speaker_on">スピーカーをオンにする</string>
     <string name="content_description_calling_turn_speaker_off">スピーカーをオフにする</string>
-    <string name="content_description_show_more_options">詳細設定を表示</string>
     <string name="content_description_reply_to_messge">このメッセージに返信する</string>
     <string name="content_description_reply_cancel">返信をキャンセル</string>
     <string name="content_description_ping_message">pingメッセージ</string>
@@ -230,6 +227,7 @@
     <string name="migration_messages_failure">申し訳ありませんが、古いバージョンのWireとの互換性が無いため、一部のメッセージと会話は移行できませんでした(エラーコード: %s)</string>
     <string name="migration_cancel_title">移行をキャンセル</string>
     <string name="migration_cancel_message">アプリを閉じて進行中の移行をキャンセルしてもよろしいですか？</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">ログイン</string>
     <string name="login_forgot_password">パスワードをお忘れですか？</string>
@@ -239,9 +237,6 @@
     <string name="login_error_invalid_credentials_title">無効な情報</string>
     <string name="login_error_invalid_credentials_message">アカウントの認証情報が正しくありません。
         詳細を確認してもう一度お試しください。
-    </string>
-    <string name="login_error_invalid_user_identifier">このメールアドレスまたはユーザー名が無効です。
-        確認して再度お試しください。
     </string>
     <string name="login_error_user_already_logged_in_title">使用中のアカウント</string>
     <string name="login_error_user_already_logged_in_message">既にこのデバイスではこの認証情報でログインしています。</string>
@@ -307,13 +302,13 @@
     <string name="label_quote_original_message_is_a_picture">写真</string>
     <string name="label_quote_original_message_date">%sからの元のメッセージ</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">個人アカウントを作成</string>
     <string name="create_personal_account_summary_title">個人アカウントを作成しました</string>
     <string name="create_personal_account_text">Wireのパブリッククラウドサーバーを使用して、友人や家族と安全にチャットできます。</string>
     <string name="create_personal_account_email_text">メールアドレスを入力して、最も安全なコラボレーションプラットフォームを使い始めましょう。</string>
     <!-- Conversations -->
     <!-- Import/Export External Media -->
     <!--Read receipts -->
+    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
@@ -334,6 +329,7 @@
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
+    <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
@@ -359,6 +355,7 @@
     <!--max account reached dialog-->
     <!--create and restore backup-->
     <!--    report bug-->
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->

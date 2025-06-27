@@ -46,11 +46,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
@@ -62,7 +63,7 @@ import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.WireSwitch
+import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.wirePrimaryButtonColors
@@ -104,20 +105,22 @@ import kotlinx.datetime.Instant
 
 @RootNavGraph
 @WireDestination(
-    navArgsDelegate = DeviceDetailsNavArgs::class
+    navArgsDelegate = DeviceDetailsNavArgs::class,
+    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun DeviceDetailsScreen(
     navigator: Navigator,
     viewModel: DeviceDetailsViewModel = hiltViewModel()
 ) {
-    if (viewModel.state.error is RemoveDeviceError.InitError) navigator.navigateBack()
-    else {
-        DeviceDetailsContent(
+    when {
+        viewModel.state.error is RemoveDeviceError.InitError -> navigator.navigateBack()
+        viewModel.state.deviceRemoved -> navigator.navigateBack()
+        else -> DeviceDetailsContent(
             state = viewModel.state,
             passwordTextState = viewModel.passwordTextState,
-            onDeleteDevice = { viewModel.removeDevice(navigator::navigateBack) },
-            onRemoveConfirm = { viewModel.onRemoveConfirmed(navigator::navigateBack) },
+            onDeleteDevice = viewModel::removeDevice,
+            onRemoveConfirm = viewModel::onRemoveConfirmed,
             onDialogDismiss = viewModel::onDialogDismissed,
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
             onNavigateBack = navigator::navigateBack,

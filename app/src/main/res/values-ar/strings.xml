@@ -61,7 +61,6 @@
     <string name="content_description_unarchive">إزالة من الأرشيف</string>
     <string name="content_description_block_the_user">حظر</string>
     <string name="content_description_unblock_the_user">إلغاء حظر</string>
-    <string name="content_description_leave_the_group">غادر المجموعة</string>
     <string name="content_description_conversation_phone_icon">بدء مكالمة صوتية</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
@@ -72,6 +71,7 @@
     <!-- Welcome -->
     <!-- API Versioning Dialogs -->
     <!-- Migration -->
+    <!-- Enterprise Login -->
     <!-- Login -->
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
@@ -82,6 +82,7 @@
     <!-- Conversations -->
     <!-- Import/Export External Media -->
     <!--Read receipts -->
+    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
@@ -102,6 +103,7 @@
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
+    <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
@@ -127,6 +129,7 @@
     <!--max account reached dialog-->
     <!--create and restore backup-->
     <!--    report bug-->
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->

@@ -91,8 +91,6 @@
     <string name="content_description_unarchive">Ukloni iz arhive</string>
     <string name="content_description_block_the_user">Blokiraj</string>
     <string name="content_description_unblock_the_user">Odblokiraj</string>
-    <string name="content_description_leave_the_group">Napusti grupu</string>
-    <string name="content_description_delete_the_group">Izbriši grupu</string>
     <string name="content_description_conversation_phone_icon">Pokreni audio poziv</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Ikona pretraživanja</string>
@@ -141,7 +139,6 @@
     <string name="content_description_calling_turn_camera_off">Isključi kameru</string>
     <string name="content_description_calling_turn_speaker_on">Uključi zvučnik</string>
     <string name="content_description_calling_turn_speaker_off">Isključi zvučnik</string>
-    <string name="content_description_show_more_options">Pokaži više mogućnosti</string>
     <string name="content_description_reply_to_messge">Odgovori na poruku</string>
     <string name="content_description_reply_cancel">Otkaži odgovor na poruku</string>
     <string name="content_description_ping_message">Ping poruka</string>
@@ -223,6 +220,7 @@
     <string name="migration_messages_failure">Nažalost, poruke i razgovori nisu mogli biti migrirani zbog nekompatibilnosti sa starijom verzijom Wire-a (error code: %s)</string>
     <string name="migration_cancel_title">Otkaži migraciju</string>
     <string name="migration_cancel_message">Jeste li sigurni da želite zatvoriti aplikaciju i otkazati migraciju koja je u tijeku?</string>
+    <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Prijava</string>
     <string name="login_forgot_password">Zaboravili ste lozinku?</string>
@@ -232,9 +230,6 @@
     <string name="login_error_invalid_credentials_title">Nevažeća informacija</string>
     <string name="login_error_invalid_credentials_message">Ovi detalji računa nisu ispravni.
         Molimo provjerite svoje podatke i pokušajte ponovo.
-    </string>
-    <string name="login_error_invalid_user_identifier">Ova adresa e-pošte ili korisničko ime nije važeća. Molimo
-         potvrdite i pokušajte ponovo.
     </string>
     <string name="login_error_user_already_logged_in_title">Račun je već u upotrebi</string>
     <string name="login_error_user_already_logged_in_message">S ovim podacima računa na ovom uređaju, već ste prijavljeni.</string>
@@ -297,13 +292,11 @@
     <string name="label_quote_original_message_is_a_picture">Slika</string>
     <string name="label_quote_original_message_date">Originalna poruka od %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Stvorite osobni račun</string>
     <string name="create_personal_account_summary_title">Osobni račun kreiran</string>
     <string name="create_personal_account_text">Sigurno razgovarajte s prijateljima i obitelji koristeći Wireov javni poslužitelj.</string>
     <string name="create_personal_account_email_text">Unesite svoj email kako biste počeli koristiti najsigurniju platformu za suradnju.</string>
     <string name="create_personal_account_details_text">Unesite osobne podatke:</string>
     <string name="create_personal_account_summary_text">Uspješno ste kreirali svoj timski račun. Počnite komunicirati sigurno – gdje god bili!</string>
-    <string name="create_team_title">Stvorite tim</string>
     <string name="create_team_summary_title">Tim Kreiran</string>
     <string name="create_team_text">Slanje poruka za male organizacije ili konzultantske tvrtke za jednu osobu.\n</string>
     <string name="create_team_learn_more">Saznajte više o planovima i cijenama</string>
@@ -361,13 +354,10 @@
     <string name="new_group_title">Nova Grupa</string>
     <string name="new_group_description">Grupnom razgovoru može se pridružiti do 500 ljudi.</string>
     <string name="group_name_title">Naziv grupe</string>
-    <string name="group_name_placeholder">Unesite naziv</string>
     <string name="group_name_description">Dajte ovoj grupi smislen naziv.</string>
     <string name="protocol">Protokol</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
-    <string name="group_can_not_be_created_edit_participiant_list">Uredite Popis Sudionika</string>
-    <string name="group_can_not_be_created_discard_group_creation">Odbaci Stvaranje Grupe</string>
     <string name="asset_message_tap_to_download_text">Dodirni za preuzimanje</string>
     <string name="asset_message_upload_in_progress_text">Učitavanje…</string>
     <string name="asset_message_download_in_progress_text">Preuzimanje…</string>
@@ -382,24 +372,17 @@
     <string name="member_name_you_label_lowercase">ti</string>
     <string name="label_add_participants">Dodaj sudionike</string>
     <string name="username_unavailable_label">Ime nije dostupno</string>
-    <string name="group_unavailable_label">Ime grupe nije dostupno</string>
     <string name="conversation_details_title">Detalji razgovora</string>
     <string name="conversation_details_options_tab">OPCIJE</string>
     <string name="conversation_details_participants_tab">SUDIONICI</string>
     <string name="conversation_details_options_group_name">NAZIV GRUPE</string>
-    <string name="conversation_details_group_admins">ADMINISTRATORI GRUPE (%d)</string>
-    <string name="conversation_details_group_members">ČLANOVI GRUPE (%d)</string>
-    <string name="conversation_details_participants_info">Ova grupa ima %s sudionika.\nGrupnom razgovoru može se pridružiti do 500 ljudi.</string>
-    <string name="conversation_details_group_participants_add">Dodaj sudionike</string>
     <string name="conversation_participant_you_label">(Vi)</string>
     <string name="conversation_options_guests_label">Gosti</string>
     <string name="conversation_options_guest_not_editable_description">Ne možete onemogućiti opciju gosta u ovom razgovoru jer ju je kreirao netko iz drugog tima.</string>
-    <string name="leave_group_conversation_menu_item">Napusti grupu…</string>
-    <string name="leave_group_conversation_dialog_title">Napusti “%s”?</string>
-    <string name="delete_group_conversation_menu_item">Obriši Grupu…</string>
     <!-- Import/Export External Media -->
     <string name="import_media_send_button_title">Pošalji</string>
     <!--Read receipts -->
+    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Detalji o poruci</string>
     <!-- Messages Date and Time -->
@@ -414,15 +397,9 @@
     <string name="user_profile_status_none">Ništa</string>
     <string name="user_profile_details_tab">Detalji</string>
     <string name="user_profile_devices_tab">Uređaji</string>
-    <string name="user_profile_group_tab">Grupa</string>
-    <string name="user_profile_group_member">Član grupe ”%s”</string>
     <string name="user_profile_unblock_user">Odblokiraj korisnika</string>
-    <string name="user_profile_group_remove_button">Ukloni iz grupe</string>
     <string name="user_profile_logging_out_progress">Odjava...</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Ukloni iz grupe?</string>
-    <string name="group_role_admin">Admin</string>
-    <string name="group_role_member">Član</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Obriši podatke?</string>
     <string name="dialog_logout_wipe_data_checkbox">Izbriši sve osobne informacije i razgovore na ovom uređaju</string>
@@ -434,8 +411,6 @@
     <string name="label_move_to_archive">Premjesti u Arhivu</string>
     <string name="label_block">Blokiraj</string>
     <string name="label_unblock">Odblokiraj</string>
-    <string name="label_leave_group">Napusti grupu</string>
-    <string name="label_delete_group">Obriši Grupu</string>
     <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Sve</string>
@@ -466,6 +441,7 @@
     <!-- Conversation Media -->
     <!-- Search Contact-->
     <string name="label_new_group">Nova Grupa</string>
+    <!-- Search Channels -->
     <string name="label_new_conversation">Novi razgovor</string>
     <string name="label_learn_more_searching_user">Saznaj više</string>
     <string name="label_general_error">Nešto je pošlo po zlu</string>
@@ -478,8 +454,6 @@
     <string name="error_server_miscommunication_message">Molimo pokušajte ponovno</string>
     <string name="error_socket_title">Nevažeća informacija</string>
     <string name="error_conversation_deleting_message">Poruka se ne može izbrisati</string>
-    <string name="left_conversation_group_success">Napustili ste razgovor.</string>
-    <string name="delete_group_conversation_error">Došlo je do pogreške prilikom brisanja razgovora</string>
     <string name="error_limit_number_assets_imported_exceeded">Možete poslati najviše 20 datoteka odjednom</string>
     <!-- Archiving -->
     <string name="dialog_archive_conversation_option">Arhiviraj</string>
@@ -497,7 +471,6 @@
     <string name="notification_receiver_name">Vi</string>
     <string name="label_type_a_message">Napiši poruku</string>
     <string name="notification_ongoing_call_content">Poziv u tijeku…</string>
-    <string name="notification_group_call_content">%s zove...</string>
     <string name="notification_call_default_caller_name">Netko</string>
     <!-- Calling-->
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -531,15 +504,12 @@
     <string name="media_gallery_on_image_downloaded">Spremi u Download mapu</string>
     <!--sso dialog-->
     <string name="asset_download_dialog_default_title">Preuzmite datoteku</string>
-    <string name="empty_group_label">Neimenovani razgovor</string>
     <string name="label_show_more">Prikaži više</string>
     <!--prohibited asset messages -->
     <!--wire dropdown-->
     <string name="wire_dropdown_placeholder">Izaberi stavku</string>
     <string name="change">Promijeni</string>
     <string name="allow_guests">Dopustite goste</string>
-    <string name="service_details_add_service_label">Dodaj u grupu</string>
-    <string name="service_details_remove_service_label">Ukloni iz grupe</string>
     <!--block user dialog -->
     <string name="block_user_dialog_confirm_button">Blokiraj</string>
     <!--Settings -->
@@ -563,6 +533,7 @@
     <!--    report bug-->
     <string name="backup_dialog_restore_incompatible_version_error_message">Ova sigurnosna kopija je izrađena od novije ili starije verzije Wirea i kao takva nemože se obnovit ovdje.</string>
     <string name="group_label">grupa</string>
+    <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="cancel_login_button_label">Odustani</string>
     <string name="cancel_login_dialog_description">Ako sada odustanete, bit ćete odjavljeni.</string>

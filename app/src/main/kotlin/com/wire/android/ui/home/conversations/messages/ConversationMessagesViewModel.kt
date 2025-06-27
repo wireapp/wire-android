@@ -23,18 +23,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -49,6 +50,7 @@ import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
@@ -75,12 +77,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
+import okio.Path.Companion.toPath
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
@@ -88,7 +92,7 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationMessagesViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
@@ -104,11 +108,14 @@ class ConversationMessagesViewModel @Inject constructor(
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
-) : SavedStateViewModel(savedStateHandle) {
+    private val globalDataStore: GlobalDataStore,
+) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
+
+    private var isCellEnabledForConversation: Boolean = false
 
     var conversationViewState by mutableStateOf(
         ConversationMessagesViewState(
@@ -117,23 +124,18 @@ class ConversationMessagesViewModel @Inject constructor(
     )
         private set
 
-    var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
-        DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Hidden,
-            forEveryone = DeleteMessageDialogActiveState.Hidden
-        )
-    )
+    var deleteMessageDialogState: DeleteMessageDialogState by mutableStateOf(DeleteMessageDialogState.Hidden)
         private set
 
     val deleteMessageHelper = DeleteMessageDialogHelper(
         viewModelScope,
         conversationId,
         ::updateDeleteDialogState
-    ) { messageId, deleteForEveryone, _ ->
+    ) { messageId, deleteForEveryone ->
         deleteMessage(
             conversationId = conversationId,
             messageId = messageId,
-            deleteForEveryone = deleteForEveryone
+            deleteForEveryone = deleteForEveryone,
         )
             .onFailure { onSnackbarMessage(ConversationSnackbarMessages.ErrorDeletingMessage) }
     }
@@ -238,8 +240,12 @@ class ConversationMessagesViewModel @Inject constructor(
             .flowOn(dispatchers.io())
             .collect { conversationDetailsResult ->
                 if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
+                    isCellEnabledForConversation = isWireCellFeatureEnabled() &&
+                            conversationDetailsResult.conversationDetails.isWireCellEnabled()
                     val lastUnreadInstant = conversationDetailsResult.conversationDetails.conversation.lastReadDate
-                    conversationViewState = conversationViewState.copy(firstUnreadInstant = lastUnreadInstant)
+                    conversationViewState = conversationViewState.copy(
+                        firstUnreadInstant = lastUnreadInstant
+                    )
                 }
             }
     }
@@ -248,11 +254,19 @@ class ConversationMessagesViewModel @Inject constructor(
         _infoMessage.emit(type)
     }
 
-    // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
-    // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
-    fun downloadOrFetchAssetAndShowDialog(messageId: String) = viewModelScope.launch(dispatchers.io()) {
-        attemptDownloadOfAsset(messageId)?.let { (messageId, bundle) ->
-            showOnAssetDownloadedDialog(bundle, messageId)
+    fun openOrFetchAsset(messageId: String) = viewModelScope.launch(dispatchers.io()) {
+        if (isCellEnabledForConversation) {
+            val asset = getMessageByIdUseCase(conversationId, messageId).getAssetContent()
+
+            asset?.localAssetPath()?.let {
+                onOpenFileWithExternalApp(it.toPath(), asset.value.name)
+            } ?: run {
+                attemptDownloadOfAsset(messageId)
+            }
+        } else {
+            attemptDownloadOfAsset(messageId)?.let { (messageId, bundle) ->
+                showOnAssetDownloadedDialog(bundle, messageId)
+            }
         }
     }
 
@@ -379,10 +393,11 @@ class ConversationMessagesViewModel @Inject constructor(
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
-    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
-        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let {
-            deleteMessageDialogsState = newValue(it)
+    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogState) -> DeleteMessageDialogState) {
+        newValue(deleteMessageDialogState).also {
+            deleteMessageDialogState = it
         }
+    }
 
     fun updateImageOnFullscreenMode(message: UIMessage.Regular?) {
         lastImageMessageShownOnGallery = message
@@ -402,28 +417,27 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean) =
-        if (deleteForEveryone) {
-            updateDeleteDialogState {
-                it.copy(
-                    forEveryone = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId
-                    )
-                )
-            }
-        } else {
-            updateDeleteDialogState {
-                it.copy(
-                    forYourself = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId
-                    )
-                )
-            }
+        updateDeleteDialogState {
+            DeleteMessageDialogState.Visible(
+                type = if (deleteForEveryone) DeleteMessageDialogType.ForEveryone else DeleteMessageDialogType.ForYourself,
+                messageId = messageId,
+                conversationId = conversationId
+            )
         }
+
+    private suspend fun isWireCellFeatureEnabled() = globalDataStore.wireCellsEnabled().firstOrNull() ?: false
 
     private companion object {
         const val DEFAULT_ASSET_NAME = "Wire File"
         const val CURRENT_TIME_REFRESH_WINDOW_IN_MILLIS: Long = 60_000
     }
 }
+
+private fun GetMessageByIdUseCase.Result.getAssetContent(): MessageContent.Asset? = when (this) {
+    is GetMessageByIdUseCase.Result.Success -> this.message.content as? MessageContent.Asset
+    else -> null
+}
+
+private fun MessageContent.Asset.localAssetPath(): String? = value.localData?.assetDataPath
+
+private fun ConversationDetails.isWireCellEnabled() = (this as? ConversationDetails.Group)?.wireCell != null

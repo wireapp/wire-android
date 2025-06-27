@@ -43,6 +43,7 @@ import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -61,6 +62,7 @@ fun MainNavHost(
         )
     )
 
+    AdjustDestinationStylesForTablets()
     DestinationsNavHost(
         modifier = modifier,
         navGraph = WireMainNavGraph,
@@ -104,6 +106,14 @@ fun MainNavHost(
                     navController.getBackStackEntry(NavGraphs.newLogin.route)
                 }
                 SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
+            }
+
+            // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph, making it shared between all screens that belong to it
+            dependency(NavGraphs.personalToTeamMigration) {
+                val parentEntry = remember(navBackStackEntry) {
+                    navController.getBackStackEntry(NavGraphs.personalToTeamMigration.route)
+                }
+                hiltViewModel<TeamMigrationViewModel>(parentEntry)
             }
         },
         manualComposableCallsBuilder = {

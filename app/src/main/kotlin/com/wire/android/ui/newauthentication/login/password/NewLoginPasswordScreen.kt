@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,18 +37,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.BuildConfig
+import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
@@ -61,10 +66,8 @@ import com.wire.android.ui.authentication.login.email.ForgotPasswordLabel
 import com.wire.android.ui.authentication.login.email.LoginButton
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
-import com.wire.android.ui.authentication.login.email.PasswordInput
 import com.wire.android.ui.authentication.login.email.ProxyIdentifierInput
 import com.wire.android.ui.authentication.login.email.ProxyPasswordInput
-import com.wire.android.ui.authentication.login.email.UserIdentifierInput
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.authentication.welcome.isProxyEnabled
@@ -72,18 +75,25 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
+import com.wire.android.ui.common.textfield.DefaultEmailNext
+import com.wire.android.ui.common.textfield.DefaultPassword
+import com.wire.android.ui.common.textfield.WireAutoFillType
+import com.wire.android.ui.common.textfield.WirePasswordTextField
+import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.CreateAccountSelectorScreenDestination
+import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
-import com.wire.android.ui.newauthentication.login.NewLoginContainer
-import com.wire.android.ui.newauthentication.login.NewLoginHeader
-import com.wire.android.ui.newauthentication.login.NewLoginSubtitle
+import com.wire.android.ui.newauthentication.login.NewAuthContainer
+import com.wire.android.ui.newauthentication.login.NewAuthHeader
+import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -121,7 +131,18 @@ fun NewLoginPasswordScreen(
         passwordTextState = loginEmailViewModel.passwordTextState,
         onLoginButtonClick = loginEmailViewModel::login,
         onCreateAccount = {
-            navigator.navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
+            if (ENABLE_NEW_REGISTRATION) {
+                navigator.navigate(
+                    NavigationCommand(
+                        CreateAccountSelectorScreenDestination(
+                            customServerConfig = loginEmailViewModel.serverConfig,
+                            email = loginEmailViewModel.userIdentifierTextState.text.toString()
+                        )
+                    )
+                )
+            } else {
+                navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
+            }
         },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = loginEmailViewModel::cancelLogin,
@@ -148,9 +169,9 @@ internal fun LoginPasswordContent(
     navigateBack: () -> Unit,
     isCloudAccountCreationPossible: Boolean,
 ) {
-    NewLoginContainer(
+    NewAuthContainer(
         header = {
-            NewLoginHeader(
+            NewAuthHeader(
                 title = {
                     if (serverConfig.isOnPremises) {
                         ServerTitle(
@@ -161,7 +182,7 @@ internal fun LoginPasswordContent(
                             modifier = Modifier.padding(bottom = dimensions().spacing24x),
                         )
                     }
-                    NewLoginSubtitle(
+                    NewAuthSubtitle(
                         title = stringResource(id = R.string.enterprise_login_password_title),
                     )
                 },
@@ -176,13 +197,13 @@ internal fun LoginPasswordContent(
                     testTagsAsResourceId = true
                 }
             ) {
-                UserIdentifierInput(
+                EmailInput(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = dimensions().spacing8x),
                     userIdentifierState = userIdentifierTextState,
                     error = when (loginEmailState.flowState) {
-                        is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
+                        is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_email)
                         else -> null
                     },
                     isEnabled = loginEmailState.userIdentifierEnabled,
@@ -228,7 +249,10 @@ internal fun LoginPasswordContent(
                             .padding(bottom = dimensions().spacing24x)
                     )
                 }
-                if (!serverConfig.isOnPremises && !serverConfig.isProxyEnabled() && isCloudAccountCreationPossible) {
+                if (BuildConfig.ALLOW_ACCOUNT_CREATION &&
+                    !serverConfig.isProxyEnabled() &&
+                    isCloudAccountCreationPossible
+                ) {
                     CreateAccountContent(
                         onCreateAccountClicked = onCreateAccount,
                         modifier = Modifier.fillMaxWidth(),
@@ -237,6 +261,44 @@ internal fun LoginPasswordContent(
             }
         }
     }
+}
+
+@Composable
+fun EmailInput(
+    userIdentifierState: TextFieldState,
+    error: String?,
+    isEnabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    WireTextField(
+        autoFillType = WireAutoFillType.Login,
+        textState = userIdentifierState,
+        placeholderText = stringResource(R.string.login_email_placeholder),
+        labelText = stringResource(R.string.login_email_label),
+        state = when {
+            !isEnabled -> WireTextFieldState.Disabled
+            error != null -> WireTextFieldState.Error(error)
+            else -> WireTextFieldState.Default
+        },
+        semanticDescription = stringResource(R.string.content_description_login_email_field),
+        keyboardOptions = KeyboardOptions.DefaultEmailNext,
+        modifier = modifier.testTag("emailField"),
+        testTag = "userIdentifierInput"
+    )
+}
+
+@Composable
+fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    WirePasswordTextField(
+        textState = passwordState,
+        keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
+        onKeyboardAction = { keyboardController?.hide() },
+        semanticDescription = stringResource(R.string.content_description_login_password_field),
+        modifier = modifier.testTag("passwordField"),
+        autoFill = true,
+        testTag = "PasswordInput"
+    )
 }
 
 @Composable

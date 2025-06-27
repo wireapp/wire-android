@@ -23,39 +23,43 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.toRect
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.geometry.center
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
+import androidx.core.net.toUri
 import coil.compose.rememberAsyncImagePainter
-import com.wire.android.ui.common.dimensions
+import com.wire.android.R
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.toBitmap
+import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
+import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
+import com.wire.android.util.ui.PreviewMultipleThemesForSquare
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.math.min
 
 @Composable
 private fun loadBitMap(imageUri: Uri): State<Bitmap?> {
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     return produceState<Bitmap?>(initialValue = null, imageUri) {
-        coroutineScope.launch(Dispatchers.IO) {
-            value = imageUri.toBitmap(context)
+        value = withContext(Dispatchers.IO) {
+            imageUri.toBitmap(context)
         }
     }
 }
@@ -64,91 +68,61 @@ private fun loadBitMap(imageUri: Uri): State<Bitmap?> {
 fun BulletHoleImagePreview(
     imageUri: Uri,
     contentDescription: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scrimColor: Color = MaterialTheme.colorScheme.surface.copy(alpha = 0.65f)
 ) {
-    ConstraintLayout(
-        modifier
-            .aspectRatio(1f)
-            .height(dimensions().imagePreviewHeight)
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.fillMaxSize()
     ) {
-        val (avatarImage, semiTransparentBackground) = createRefs()
+        Image(
+            painter = when {
+                LocalInspectionMode.current -> painterResource(id = R.drawable.ic_create_team_success)
+                else -> rememberAsyncImagePainter(loadBitMap(imageUri).value)
+            },
+            contentScale = FillCenterSquare,
+            contentDescription = contentDescription,
+            modifier = Modifier.fillMaxSize(),
+        )
         Box(
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .constrainAs(avatarImage) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
+                .drawWithContent { // this cuts out the center circle
+                    with(drawContext.canvas.nativeCanvas) {
+                        val checkPoint = saveLayer(null, null)
+                        drawContent()
+                        drawCircle(
+                            color = Color.Black,
+                            radius = min(drawContext.size.width, drawContext.size.height) / 2f,
+                            center = drawContext.size.center,
+                            blendMode = BlendMode.Clear
+                        )
+                        restoreToCount(checkPoint)
+                    }
                 }
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(loadBitMap(imageUri).value),
-                contentScale = ContentScale.Crop,
-                contentDescription = contentDescription,
-                modifier = Modifier.fillMaxSize(),
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = scrimColor)
             )
         }
-        Box(
-            Modifier
-                .fillMaxSize()
-                .constrainAs(semiTransparentBackground) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                }
-                .graphicsLayer(
-                    shape = BulletHoleShape(),
-                    alpha = 0.65f,
-                    clip = true
-                )
-                .background(color = MaterialTheme.colorScheme.surface)
-        )
     }
 }
 
-// Custom Shape creating a "hole" around the shape of the provided Composable
-// in case of ImagePreview that would be a rectangular shape, creating an effect of the "hole" around the rectangle
-@Suppress("MagicNumber")
-class BulletHoleShape : Shape {
-
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
-        return Outline.Generic(
-            drawBulletHolePath(size)
-        )
+@Stable
+private val FillCenterSquare = object : ContentScale { // this scales the image to fill the center square
+    override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor {
+        val squareSize = min(dstSize.width, dstSize.height)
+        val scaleFactor = squareSize / min(srcSize.width, srcSize.height)
+        return ScaleFactor(scaleFactor, scaleFactor)
     }
+}
 
-    private fun drawBulletHolePath(size: Size): Path {
-        val backgroundWrappingRect = size.toRect()
-
-        val path = Path().apply {
-            reset()
-            // move the origin point to the middle of the backgroundWrappingRect on the left side
-            moveTo(x = 0f, y = backgroundWrappingRect.height / 2)
-            // draw a line to from the middle of backgroundWrappingRect to the top on the left side
-            lineTo(x = 0f, y = 0f)
-            // draw a line from the left edge to the right edge on the top side
-            lineTo(x = backgroundWrappingRect.width, y = 0f)
-            // draw a backgroundWrappingRect from the right edge to the middle of backgroundWrappingRect on the right side
-            lineTo(x = size.width, y = backgroundWrappingRect.height / 2)
-            // arc -180 degrees from the start point of backgroundWrappingRect -
-            arcTo(backgroundWrappingRect, 0f, -180f, true)
-            // draw a line from middle of backgroundWrappingRect to the bottom of backgroundWrappingRect on the left side
-            lineTo(x = 0f, y = backgroundWrappingRect.height)
-            // draw a line from the bottom edge of backgroundWrappingRect to the right edge on the bottom side
-            lineTo(x = backgroundWrappingRect.width, y = backgroundWrappingRect.height)
-            // draw a line from the bottom edge of the backgroundWrappingRect to the middle of backgroundWrappingRect on the right side
-            lineTo(x = backgroundWrappingRect.width, y = backgroundWrappingRect.height / 2)
-            // arc 180 degrees - we are back on middle of the backgroundWrappingRect on the left side now
-            arcTo(backgroundWrappingRect, 0f, 180f, true)
-            // we drew the outline, we can close the path now
-            close()
-        }
-        return path
-    }
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
+@PreviewMultipleThemesForSquare
+@Composable
+fun BulletHoleImagePreviewPreview() = WireTheme {
+    BulletHoleImagePreview(imageUri = "".toUri(), contentDescription = "")
 }

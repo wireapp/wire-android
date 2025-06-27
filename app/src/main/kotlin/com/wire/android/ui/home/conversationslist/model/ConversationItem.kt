@@ -33,47 +33,79 @@ import kotlinx.serialization.Serializable
 import com.wire.kalium.logic.data.conversation.ConversationFolder as CurrentFolder
 
 @Serializable
-sealed class ConversationItem : ConversationFolderItem {
-    abstract val conversationId: ConversationId
-    abstract val mutedStatus: MutedConversationStatus
-    abstract val showLegalHoldIndicator: Boolean
-    abstract val lastMessageContent: UILastMessageContent?
-    abstract val badgeEventType: BadgeEventType
-    abstract val teamId: TeamId?
-    abstract val isArchived: Boolean
-    abstract val isFavorite: Boolean
-    abstract val folder: CurrentFolder?
-    abstract val mlsVerificationStatus: Conversation.VerificationStatus
-    abstract val proteusVerificationStatus: Conversation.VerificationStatus
-    abstract val hasNewActivitiesToShow: Boolean
-    abstract val searchQuery: String
-    abstract val playingAudio: PlayingAudioInConversation?
+sealed interface ConversationItem : ConversationFolderItem {
+    val conversationId: ConversationId
+    val mutedStatus: MutedConversationStatus
+    val showLegalHoldIndicator: Boolean
+    val lastMessageContent: UILastMessageContent?
+    val badgeEventType: BadgeEventType
+    val teamId: TeamId?
+    val isArchived: Boolean
+    val isFavorite: Boolean
+    val folder: CurrentFolder?
+    val mlsVerificationStatus: Conversation.VerificationStatus
+    val proteusVerificationStatus: Conversation.VerificationStatus
+    val hasNewActivitiesToShow: Boolean
+    val searchQuery: String
+    val playingAudio: PlayingAudioInConversation?
 
     val isTeamConversation get() = teamId != null
 
     @Serializable
-    data class GroupConversation(
-        val groupName: String,
-        val hasOnGoingCall: Boolean = false,
-        val selfMemberRole: Conversation.Member.Role?,
-        val isFromTheSameTeam: Boolean,
-        val isChannel: Boolean,
-        val isSelfUserMember: Boolean = true,
-        override val conversationId: ConversationId,
-        override val mutedStatus: MutedConversationStatus,
-        override val showLegalHoldIndicator: Boolean = false,
-        override val lastMessageContent: UILastMessageContent?,
-        override val badgeEventType: BadgeEventType,
-        override val teamId: TeamId?,
-        override val isArchived: Boolean,
-        override val isFavorite: Boolean,
-        override val folder: CurrentFolder?,
-        override val mlsVerificationStatus: Conversation.VerificationStatus,
-        override val proteusVerificationStatus: Conversation.VerificationStatus,
-        override val hasNewActivitiesToShow: Boolean = false,
-        override val searchQuery: String = "",
-        override val playingAudio: PlayingAudioInConversation?
-    ) : ConversationItem()
+    sealed interface Group : ConversationItem {
+        val groupName: String
+        val hasOnGoingCall: Boolean
+        val selfMemberRole: Conversation.Member.Role?
+        val isFromTheSameTeam: Boolean
+        val isSelfUserMember: Boolean
+
+        @Serializable
+        data class Regular(
+            override val groupName: String,
+            override val hasOnGoingCall: Boolean = false,
+            override val selfMemberRole: Conversation.Member.Role?,
+            override val isFromTheSameTeam: Boolean,
+            override val isSelfUserMember: Boolean = true,
+            override val conversationId: ConversationId,
+            override val mutedStatus: MutedConversationStatus,
+            override val showLegalHoldIndicator: Boolean = false,
+            override val lastMessageContent: UILastMessageContent?,
+            override val badgeEventType: BadgeEventType,
+            override val teamId: TeamId?,
+            override val isArchived: Boolean,
+            override val isFavorite: Boolean,
+            override val folder: CurrentFolder?,
+            override val mlsVerificationStatus: Conversation.VerificationStatus,
+            override val proteusVerificationStatus: Conversation.VerificationStatus,
+            override val hasNewActivitiesToShow: Boolean = false,
+            override val searchQuery: String = "",
+            override val playingAudio: PlayingAudioInConversation?
+        ) : Group
+
+        @Serializable
+        data class Channel(
+            override val groupName: String,
+            override val hasOnGoingCall: Boolean = false,
+            override val selfMemberRole: Conversation.Member.Role?,
+            override val isFromTheSameTeam: Boolean,
+            override val isSelfUserMember: Boolean = true,
+            override val conversationId: ConversationId,
+            override val mutedStatus: MutedConversationStatus,
+            override val showLegalHoldIndicator: Boolean = false,
+            override val lastMessageContent: UILastMessageContent?,
+            override val badgeEventType: BadgeEventType,
+            override val teamId: TeamId?,
+            override val isArchived: Boolean,
+            override val isFavorite: Boolean,
+            override val folder: CurrentFolder?,
+            override val mlsVerificationStatus: Conversation.VerificationStatus,
+            override val proteusVerificationStatus: Conversation.VerificationStatus,
+            override val hasNewActivitiesToShow: Boolean = false,
+            override val searchQuery: String = "",
+            override val playingAudio: PlayingAudioInConversation?,
+            val isPrivate: Boolean,
+        ) : Group
+    }
 
     @Serializable
     data class PrivateConversation(
@@ -96,7 +128,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
         override val playingAudio: PlayingAudioInConversation?
-    ) : ConversationItem()
+    ) : ConversationItem
 
     @Serializable
     data class ConnectionConversation(
@@ -112,7 +144,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val folder: CurrentFolder? = null,
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
-    ) : ConversationItem() {
+    ) : ConversationItem {
         override val teamId: TeamId? = null
         override val mlsVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         override val proteusVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED

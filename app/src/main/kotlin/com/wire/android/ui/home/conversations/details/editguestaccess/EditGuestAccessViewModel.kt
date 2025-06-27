@@ -28,9 +28,12 @@ import com.wire.android.BuildConfig
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.SupportedProtocol
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -41,8 +44,8 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoom
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
-import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -71,6 +74,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private val canCreatePasswordProtectedLinks: CanCreatePasswordProtectedLinksUseCase,
     private val syncConversationCode: SyncConversationCodeUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
+    private val selfUser: ObserveSelfUserUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -142,13 +146,19 @@ class EditGuestAccessViewModel @Inject constructor(
 
             val isMLSTeam = getDefaultProtocol() == SupportedProtocol.MLS
 
+            // TODO(refactor): Move all this logic to a UseCase
             combine(
                 conversationDetailsFlow,
-                isSelfAdminFlow
-            ) { conversationDetails, isSelfAnAdmin ->
-                isSelfAnAdmin to conversationDetails
-            }.collect { (isSelfAnAdmin, conversationDetails) ->
-
+                isSelfAdminFlow,
+                selfUser()
+            ) { conversationDetails, isSelfAnAdmin, selfUser ->
+                Triple(isSelfAnAdmin, conversationDetails, selfUser)
+            }.collect { (isSelfAnAdmin, conversationDetails, selfUser) ->
+                val isTeamAdmin = selfUser.userType in setOf(UserType.ADMIN, UserType.OWNER)
+                val isSelfInConversationTeam = selfUser.teamId == conversationDetails.conversation.teamId
+                val isSelfChannelTeamAdmin =
+                    (conversationDetails is ConversationDetails.Group.Channel && isTeamAdmin && isSelfInConversationTeam)
+                val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
                 val isGuestAllowed =
                     conversationDetails.conversation.isGuestAllowed() || conversationDetails.conversation.isNonTeamMemberAllowed()
                 val isMLSConversation = conversationDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
@@ -156,7 +166,7 @@ class EditGuestAccessViewModel @Inject constructor(
                 editGuestAccessState = editGuestAccessState.copy(
                     isGuestAccessAllowed = isGuestAllowed,
                     isServicesAccessAllowed = conversationDetails.conversation.isServicesAllowed() && !isMLSTeam && !isMLSConversation,
-                    isUpdatingGuestAccessAllowed = isSelfAnAdmin
+                    isUpdatingGuestAccessAllowed = canSelfPerformAdminActions
                 )
 
                 if (isGuestAllowed) updateConversationCodeOnce()

@@ -46,7 +46,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -95,7 +95,7 @@ fun ConversationMediaScreen(
     val state: ConversationAssetMessagesViewState = conversationAssetMessagesViewModel.viewState
     val sheetState: WireModalSheetState<AssetOptionsData> = rememberWireModalSheetState()
     val onOpenAssetOptions: (messageId: String, isMyMessage: Boolean) -> Unit = { messageId, isMyMessage ->
-        sheetState.show(AssetOptionsData(messageId, isMyMessage))
+        sheetState.show(AssetOptionsData(messageId, isMyMessage, false))
     }
 
     Content(
@@ -114,7 +114,7 @@ fun ConversationMediaScreen(
                 )
             )
         },
-        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetOptions = remember { onOpenAssetOptions },
     )
 
@@ -122,11 +122,11 @@ fun ConversationMediaScreen(
         sheetState = sheetState,
         deleteAsset = conversationMessagesViewModel::showDeleteMessageDialog,
         shareAsset = remember { { conversationMessagesViewModel.shareAsset(context, it) } },
-        downloadAsset = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        downloadAsset = conversationMessagesViewModel::openOrFetchAsset,
     )
 
     DeleteMessageDialog(
-        state = conversationMessagesViewModel.deleteMessageDialogsState,
+        state = conversationMessagesViewModel.deleteMessageDialogState,
         actions = conversationMessagesViewModel.deleteMessageHelper,
     )
 
@@ -261,7 +261,7 @@ enum class ConversationMediaScreenTabItem(@StringRes val titleResId: Int) : TabI
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
-data class AssetOptionsData(val messageId: String, val isMyMessage: Boolean)
+data class AssetOptionsData(val messageId: String, val isMyMessage: Boolean, val isMultipart: Boolean)
 
 @PreviewMultipleThemes
 @Composable
@@ -301,7 +301,11 @@ fun PreviewConversationMediaScreenFilesContent() = WireTheme {
 @Composable
 fun PreviewAssetOptionsModalSheetLayout() = WireTheme {
     AssetOptionsModalSheetLayout(
-        sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded(AssetOptionsData("id", true))),
+        sheetState = rememberWireModalSheetState(
+            initialValue = WireSheetValue.Expanded(
+                AssetOptionsData(messageId = "id", isMyMessage = true, isMultipart = false)
+            )
+        ),
         deleteAsset = { _, _ -> },
         shareAsset = { },
         downloadAsset = { }

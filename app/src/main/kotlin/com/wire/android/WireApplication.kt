@@ -154,6 +154,7 @@ class WireApplication : BaseApp() {
             )
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder()
+                    .detectFileUriExposure()
                     .detectLeakedSqlLiteObjects()
                     .detectLeakedClosableObjects()
                     .penaltyLog()
@@ -244,8 +245,7 @@ class WireApplication : BaseApp() {
             },
             migrationHandler = { manager ->
                 manager.onMigrationComplete()
-            },
-            dispatcher = Dispatchers.IO
+            }
         )
 
         AnonymousAnalyticsManagerImpl.applicationOnCreate()

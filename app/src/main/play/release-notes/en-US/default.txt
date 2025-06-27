@@ -1,16 +1,9 @@
 New
-- Fresh design - completely rebuilt
-- Add Reactions to messages
-- Swipe left to reply
-- Scroll to end button
-- Navigate to original message from a reply
-- Accessible main navigation & updated conversation list with activity section
-- Improved conversation search
-- Easier 1:1 & group creation
-- Group chats have distinct colors
-- Call controls always accessible
-- Text field adjusts for longer messages
-
-Improved
-- Reliable notifications
-- Better visual contrast (WCAG 2.1 AA)
+ - Swipe left to add reactions to a message
+Improvement
+- Using QR codes with federation
+Fixes
+- Resolved a security issue when sharing files, pictures, or audio and video messages
+- Fixed an issue when people couldn't open conversations from a notification
+- Resolved a syncing issue on slow internet
+- Fix issue where app stuck processing commits

@@ -69,19 +69,16 @@ class ChangeHandleViewModel @Inject constructor(
         }
     }
 
-    fun onSaveClicked(onSuccess: () -> Unit) {
+    fun onSaveClicked() {
         viewModelScope.launch {
-            when (val result = updateHandle(textState.text.toString().trim())) {
-                is SetUserHandleResult.Failure.Generic -> state =
-                    state.copy(error = HandleUpdateErrorState.DialogError.GenericError(result.error))
+            state = when (val result = updateHandle(textState.text.toString().trim())) {
+                is SetUserHandleResult.Failure.Generic -> state.copy(error = HandleUpdateErrorState.DialogError.GenericError(result.error))
 
-                SetUserHandleResult.Failure.HandleExists -> state =
-                    state.copy(error = HandleUpdateErrorState.TextFieldError.UsernameTakenError)
+                SetUserHandleResult.Failure.HandleExists -> state.copy(error = HandleUpdateErrorState.TextFieldError.UsernameTakenError)
 
-                SetUserHandleResult.Failure.InvalidHandle -> state =
-                    state.copy(error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
+                SetUserHandleResult.Failure.InvalidHandle -> state.copy(error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
 
-                SetUserHandleResult.Success -> onSuccess()
+                SetUserHandleResult.Success -> state.copy(isSuccess = true)
             }
         }
     }

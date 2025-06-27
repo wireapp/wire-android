@@ -30,19 +30,21 @@ jobs:
         run: |
           latest_tag=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')
           echo "::set-output name=latest_tag::$latest_tag"
-
       - name: Compare versions
         id: compare_versions
         run: |
-          current_tag=${{ github.event.release.tag_name }}
-          latest_tag=${{ steps.get_latest_release.outputs.latest_tag }}
-
-          if [[ "$current_tag" != "$(echo -e "$current_tag\n$latest_tag" | sort -V | head -n1)" ]]; then
+          current_tag="${{ github.event.release.tag_name }}"
+          latest_tag="${{ steps.get_latest_release.outputs.latest_tag }}"
+          cur_ver="${current_tag#v}"
+          lat_ver="${latest_tag#v}"
+          highest="$(printf '%s\n%s' "$cur_ver" "$lat_ver" | sort -V | tail -n1)"
+          if [[ "$cur_ver" != "$lat_ver" && "$highest" != "$cur_ver" ]]; then
             echo "Current tag ($current_tag) is lower than latest tag ($latest_tag). Failing the workflow."
             exit 1
           else
-            echo "Current tag ($current_tag) is equal or higher than latest tag ($latest_tag). Continuing the workflow."
+            echo "Current tag ($current_tag) is equal or higher than $latest_tag. Continuing the workflow."
           fi
+
       - name: Set up JDK 17
         uses: buildjet/setup-java@v4
         with:
@@ -114,7 +116,7 @@ jobs:
           build-flavour: prod
           build-variant: compatrelease
       - name: Attach APK and version file to release
-        uses: softprops/action-gh-release@v2.2.0
+        uses: softprops/action-gh-release@v2.2.2
         with:
           files: |
             app/build/outputs/apk/prod/compatrelease/*.apk

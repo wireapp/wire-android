@@ -38,7 +38,7 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackBarMessage
-import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -103,7 +103,6 @@ import java.util.Date
 @Suppress("TooManyFunctions")
 interface ConversationListViewModel {
     val infoMessage: SharedFlow<SnackBarMessage> get() = MutableSharedFlow()
-    val closeBottomSheet: SharedFlow<Unit> get() = MutableSharedFlow()
     val requestInProgress: Boolean get() = false
     val conversationListState: ConversationListState get() = ConversationListState.Paginated(emptyFlow())
     suspend fun refreshMissingMetadata() {}
@@ -173,8 +172,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private var _requestInProgress: Boolean by mutableStateOf(false)
     override val requestInProgress: Boolean get() = _requestInProgress
-
-    override val closeBottomSheet = MutableSharedFlow<Unit>()
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
     private val isSelfUserUnderLegalHoldFlow = MutableSharedFlow<Boolean>(replay = 1)
@@ -361,7 +358,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
             when (val result = unblockUserUseCase(userId)) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
-                    closeBottomSheet.emit(Unit)
                 }
 
                 is UnblockUserResult.Failure -> {
@@ -412,7 +408,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     override fun deleteGroupLocally(groupDialogState: GroupDialogState) {
         viewModelScope.launch {
-            closeBottomSheet.emit(Unit)
             workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
                 .collect { status ->
                     when (status) {
@@ -540,7 +535,8 @@ private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUn
     when (isSelfUserUnderLegalHold) {
         true -> when (this) {
             is ConversationItem.ConnectionConversation -> this.copy(showLegalHoldIndicator = false)
-            is ConversationItem.GroupConversation -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.Group.Regular -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.Group.Channel -> this.copy(showLegalHoldIndicator = false)
             is ConversationItem.PrivateConversation -> this.copy(showLegalHoldIndicator = false)
         }
 
@@ -616,7 +612,7 @@ private fun List<ConversationItem>.unreadToReadConversationsItems(): Pair<List<C
                 }
 
             MutedConversationStatus.AllMuted -> false
-        } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
+        } || (it is ConversationItem.Group && it.hasOnGoingCall)
     }
 
     val remainingConversations = this - unreadConversations.toSet()
@@ -627,7 +623,7 @@ private fun searchConversation(conversationDetails: List<ConversationItem>, sear
     conversationDetails.filter { details ->
         when (details) {
             is ConversationItem.ConnectionConversation -> details.conversationInfo.name.contains(searchQuery, true)
-            is ConversationItem.GroupConversation -> details.groupName.contains(searchQuery, true)
+            is ConversationItem.Group -> details.groupName.contains(searchQuery, true)
             is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(searchQuery, true)
         }
     }

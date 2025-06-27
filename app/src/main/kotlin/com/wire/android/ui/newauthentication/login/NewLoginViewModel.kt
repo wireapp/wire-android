@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.config.orDefault
 import com.wire.android.datastore.UserDataStoreProvider
@@ -40,12 +39,13 @@ import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Compan
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.kalium.common.error.CoreFailure
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -69,13 +69,12 @@ class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     val coreLogic: CoreLogic,
     savedStateHandle: SavedStateHandle,
-    val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     val clientScopeProviderFactory: ClientScopeProvider.Factory,
     val userDataStoreProvider: UserDataStoreProvider,
     private val loginExtension: LoginViewModelExtension,
     private val ssoExtension: LoginSSOViewModelExtension,
     private val dispatchers: DispatcherProvider,
-) : ViewModel() {
+) : ActionsViewModel<NewLoginAction>() {
 
     @Inject
     constructor(
@@ -90,7 +89,6 @@ class NewLoginViewModel(
         validateEmailOrSSOCode,
         coreLogic,
         savedStateHandle,
-        addAuthenticatedUser,
         clientScopeProviderFactory,
         userDataStoreProvider,
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
@@ -129,7 +127,7 @@ class NewLoginViewModel(
     /**
      * Starts the login flow, this will check against BE if email or sso code and relay to the corresponding flow afterwards.
      */
-    fun onLoginStarted(action: (NewLoginAction) -> Unit) {
+    fun onLoginStarted() {
         viewModelScope.launch(dispatchers.io()) {
             updateLoginFlowState(NewLoginFlowState.Loading)
             val sanitizedInput = userIdentifierTextState.text.trim().toString()
@@ -140,18 +138,18 @@ class NewLoginViewModel(
                 }
 
                 ValidateEmailOrSSOCodeUseCase.Result.ValidEmail -> {
-                    getEnterpriseLoginFlow(sanitizedInput, action)
+                    getEnterpriseLoginFlow(sanitizedInput)
                 }
 
                 ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode -> {
-                    initiateSSO(serverConfig, sanitizedInput, action)
+                    initiateSSO(serverConfig, sanitizedInput)
                 }
             }
         }
     }
 
     @VisibleForTesting
-    internal suspend fun getEnterpriseLoginFlow(email: String, action: (NewLoginAction) -> Unit) = withContext(dispatchers.io()) {
+    internal suspend fun getEnterpriseLoginFlow(email: String) = withContext(dispatchers.io()) {
         ssoExtension.withAuthenticationScope(
             serverConfig = serverConfig,
             onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
@@ -162,14 +160,14 @@ class NewLoginViewModel(
                     }
 
                     is EnterpriseLoginResult.Failure.NotSupported -> withContext(dispatchers.main()) {
-                        action(NewLoginAction.EnterpriseLoginNotSupported(email))
+                        sendAction(NewLoginAction.EnterpriseLoginNotSupported(email))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
 
                     is EnterpriseLoginResult.Success -> {
                         when (val loginRedirectPath = loginFlowResult.loginRedirectPath) {
                             is LoginRedirectPath.SSO -> {
-                                initiateSSO(serverConfig, loginRedirectPath.ssoCode.ssoCodeWithPrefix(), action)
+                                initiateSSO(serverConfig, loginRedirectPath.ssoCode.ssoCodeWithPrefix())
                             }
 
                             is LoginRedirectPath.CustomBackend -> withContext(dispatchers.main()) {
@@ -178,7 +176,7 @@ class NewLoginViewModel(
 
                             is LoginRedirectPath.Default,
                             is LoginRedirectPath.NoRegistration -> withContext(dispatchers.main()) {
-                                action(
+                                sendAction(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = email,
                                         loginPasswordPath = LoginPasswordPath(
@@ -191,7 +189,7 @@ class NewLoginViewModel(
                             }
 
                             is LoginRedirectPath.ExistingAccountWithClaimedDomain -> withContext(dispatchers.main()) {
-                                action(
+                                sendAction(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = email,
                                         loginPasswordPath = LoginPasswordPath(
@@ -216,7 +214,7 @@ class NewLoginViewModel(
         updateLoginFlowState(NewLoginFlowState.Default)
     }
 
-    fun onCustomServerDialogConfirm(customServerConfig: ServerConfig.Links, action: (NewLoginAction) -> Unit) {
+    fun onCustomServerDialogConfirm(customServerConfig: ServerConfig.Links) {
         viewModelScope.launch(dispatchers.io()) {
             ssoExtension.fetchDefaultSSOCode(
                 serverConfig = customServerConfig,
@@ -225,11 +223,11 @@ class NewLoginViewModel(
                 onSuccess = { defaultSSOCode ->
                     when {
                         defaultSSOCode != null -> {
-                            initiateSSO(customServerConfig, defaultSSOCode, action)
+                            initiateSSO(customServerConfig, defaultSSOCode)
                         }
 
                         else -> withContext(dispatchers.main()) {
-                            action(NewLoginAction.CustomConfig(userIdentifierTextState.text.toString(), customServerConfig))
+                            sendAction(NewLoginAction.CustomConfig(userIdentifierTextState.text.toString(), customServerConfig))
                             updateLoginFlowState(NewLoginFlowState.Default)
                         }
                     }
@@ -239,7 +237,7 @@ class NewLoginViewModel(
     }
 
     @VisibleForTesting
-    internal suspend fun initiateSSO(serverConfig: ServerConfig.Links, ssoCode: String, action: (NewLoginAction) -> Unit) =
+    internal suspend fun initiateSSO(serverConfig: ServerConfig.Links, ssoCode: String) =
         withContext(dispatchers.io()) {
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
@@ -249,14 +247,14 @@ class NewLoginViewModel(
                 onSuccess = { requestUrl, serverConfig ->
                     withContext(dispatchers.main()) {
                         updateLoginFlowState(NewLoginFlowState.Default)
-                        action(NewLoginAction.SSO(requestUrl, SSOUrlConfig(serverConfig, userIdentifierTextState.text.toString())))
+                        sendAction(NewLoginAction.SSO(requestUrl, SSOUrlConfig(serverConfig, userIdentifierTextState.text.toString())))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
                 }
             )
         }
 
-    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin, config: SSOUrlConfig?, action: (NewLoginAction) -> Unit) {
+    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin, config: SSOUrlConfig?) {
         updateLoginFlowState(NewLoginFlowState.Loading)
         if (config != null) {
             serverConfig = config.serverConfig
@@ -278,19 +276,19 @@ class NewLoginViewModel(
                                     when (result) {
                                         is RegisterClientResult.Success -> {
                                             when (loginExtension.isInitialSyncCompleted(storedUserId)) {
-                                                true -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
-                                                false -> action(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                                                true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
+                                                false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
                                             }
                                             updateLoginFlowState(NewLoginFlowState.Default)
                                         }
 
                                         is RegisterClientResult.E2EICertificateRequired -> {
-                                            action(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
+                                            sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
                                             updateLoginFlowState(NewLoginFlowState.Default)
                                         }
 
                                         is RegisterClientResult.Failure.TooManyClients -> {
-                                            action(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
+                                            sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
                                             updateLoginFlowState(NewLoginFlowState.Default)
                                         }
 

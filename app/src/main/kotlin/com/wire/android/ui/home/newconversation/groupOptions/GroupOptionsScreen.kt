@@ -28,18 +28,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -49,10 +48,11 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.destinations.ChannelAccessOnCreateScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
+import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
@@ -74,6 +74,12 @@ fun GroupOptionScreen(
     fun navigateToGroup(conversationId: ConversationId): Unit =
         navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
 
+    LaunchedEffect(newConversationViewModel.createGroupState) {
+        (newConversationViewModel.createGroupState as? CreateGroupState.Created)?.let {
+            navigateToGroup(it.conversationId)
+        }
+    }
+
     GroupOptionScreenContent(
         groupOptionState = newConversationViewModel.groupOptionsState,
         createGroupState = newConversationViewModel.createGroupState,
@@ -85,26 +91,26 @@ fun GroupOptionScreen(
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
-        onContinuePressed = {
+        onContinuePressed =
             if (newConversationViewModel.newGroupState.isChannel) {
-                newConversationViewModel.createChannel(::navigateToGroup)
+                newConversationViewModel::createChannel
             } else {
-                newConversationViewModel.createGroup(::navigateToGroup)
-            }
-        },
+                newConversationViewModel::createGroup
+            },
         onBackPressed = navigator::navigateBack,
         onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
-        onNotAllowGuestsClicked = { newConversationViewModel.onNotAllowGuestClicked(::navigateToGroup) },
-        onAllowGuestsClicked = { newConversationViewModel.onAllowGuestsClicked(::navigateToGroup) },
+        onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked,
+        onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
         onEditParticipantsClick = {
             newConversationViewModel.onCreateGroupErrorDismiss()
-            navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
+            navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
         },
         onDiscardGroupCreationClick = {
             newConversationViewModel.onCreateGroupErrorDismiss()
             navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
-        onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss
+        onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss,
+        onEnableWireCellChanged = newConversationViewModel::onEnableWireCellChanged
     )
 }
 
@@ -118,6 +124,7 @@ fun GroupOptionScreenContent(
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
+    onEnableWireCellChanged: ((Boolean) -> Unit),
     onContinuePressed: () -> Unit,
     onAllowGuestsDialogDismissed: () -> Unit,
     onNotAllowGuestsClicked: () -> Unit,
@@ -155,11 +162,12 @@ fun GroupOptionScreenContent(
                 onAllowGuestChanged,
                 onAllowServicesChanged,
                 onReadReceiptChanged,
+                onEnableWireCellChanged,
                 onContinuePressed
             )
         }
 
-        createGroupState.error?.let {
+        (createGroupState as? CreateGroupState.Error)?.let {
             CreateGroupErrorDialog(it, onErrorDismissed, onEditParticipantsClick, onDiscardGroupCreationClick)
         }
         if (showAllowGuestsDialog) {
@@ -177,6 +185,7 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
     onAllowGuestChanged: (Boolean) -> Unit,
     onAllowServicesChanged: (Boolean) -> Unit,
     onReadReceiptChanged: (Boolean) -> Unit,
+    onEnableWireCellChanged: (Boolean) -> Unit,
     onContinuePressed: () -> Unit
 ) {
     Column(
@@ -193,6 +202,9 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
             AllowGuestsOptions(isChannel, onAllowGuestChanged)
             AllowServicesOptions(isChannel, onAllowServicesChanged)
             ReadReceiptsOptions(isChannel, onReadReceiptChanged)
+            isWireCellsEnabled?.let {
+                EnableWireCellOptions(onEnableWireCellChanged)
+            }
         }
         CreateGroupButton(isChannel, onContinuePressed)
     }
@@ -218,11 +230,10 @@ private fun GroupOptionState.ReadReceiptsOptions(isChannel: Boolean, onReadRecei
     }
     Text(
         text = stringResource(description),
-        fontWeight = FontWeight.Normal,
         color = MaterialTheme.wireColorScheme.secondaryText,
         modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
         textAlign = TextAlign.Left,
-        fontSize = 16.sp
+        style = typography().body01,
     )
 }
 
@@ -249,11 +260,10 @@ private fun GroupOptionState.AllowServicesOptions(isChannel: Boolean, onAllowSer
     }
     Text(
         text = stringResource(description),
-        fontWeight = FontWeight.Normal,
         color = MaterialTheme.wireColorScheme.secondaryText,
         modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
         textAlign = TextAlign.Left,
-        fontSize = 16.sp
+        style = typography().body01,
     )
 }
 
@@ -286,13 +296,35 @@ private fun GroupOptionState.AllowGuestsOptions(isChannel: Boolean, onAllowGuest
     if (!isChannel) {
         Text(
             text = stringResource(R.string.allow_guest_switch_description),
-            fontWeight = FontWeight.Normal,
             color = MaterialTheme.wireColorScheme.secondaryText,
             modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
             textAlign = TextAlign.Left,
-            fontSize = 16.sp
+            style = typography().body01,
         )
     }
+}
+
+@Composable
+private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -> Unit) {
+    GroupConversationOptionsItem(
+        title = stringResource(R.string.enable_wire_cell),
+        switchState = SwitchState.Enabled(
+            value = isWireCellsEnabled ?: false,
+            isOnOffVisible = false,
+            onCheckedChange = { onEnableWireCell.invoke(it) }
+        ),
+        arrowType = ArrowType.NONE,
+        clickable = Clickable(enabled = false, onClick = {}),
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+    )
+
+    Text(
+        text = stringResource(R.string.enable_wire_cell_switch_description),
+        color = MaterialTheme.wireColorScheme.secondaryText,
+        modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
+        textAlign = TextAlign.Left,
+        style = typography().body01,
+    )
 }
 
 @Composable
@@ -348,9 +380,9 @@ private fun AllowGuestsDialog(
 fun PreviewGroupOptionScreen() {
     GroupOptionScreenContent(
         GroupOptionState(),
-        CreateGroupState(),
+        CreateGroupState.Default,
         accessTypeLabel = R.string.channel_private_label,
         isChannelsAllowed = false,
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     )
 }

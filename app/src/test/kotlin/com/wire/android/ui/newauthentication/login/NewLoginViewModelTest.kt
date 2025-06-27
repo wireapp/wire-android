@@ -2,6 +2,7 @@ package com.wire.android.ui.newauthentication.login
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -40,12 +41,12 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -55,11 +56,11 @@ class NewLoginViewModelTest {
 
     @Test
     fun `given onLoginStarted is called, when valid input is SSO, then proceed to SSO flow`() = runTest(dispatchers.main()) {
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode)
             .arrange()
 
-        sut.onLoginStarted(action = arrangement.action)
+        viewModel.onLoginStarted()
         advanceUntilIdle()
 
         coVerify(exactly = 1) {
@@ -72,13 +73,13 @@ class NewLoginViewModelTest {
 
     @Test
     fun `given onLoginStarted is called, when valid input is email, then proceed to enterprise flow`() = runTest(dispatchers.main()) {
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.ValidEmail)
             .withAuthenticationScopeSuccess()
             .withGetLoginFlowForDomainReturning(EnterpriseLoginResult.Success(LoginRedirectPath.Default))
             .arrange()
 
-        sut.onLoginStarted(action = arrangement.action)
+        viewModel.onLoginStarted()
         advanceUntilIdle()
 
         coVerify(exactly = 0) {
@@ -91,148 +92,148 @@ class NewLoginViewModelTest {
 
     @Test
     fun `given onLoginStarted is called, when invalid input, then update error state`() = runTest(dispatchers.main()) {
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.InvalidInput)
             .arrange()
 
-        sut.onLoginStarted(action = arrangement.action)
+        viewModel.actions.test {
+            viewModel.onLoginStarted()
+            advanceUntilIdle()
 
-        coVerify(exactly = 0) {
-            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+            expectNoEvents()
+
+            coVerify(exactly = 0) {
+                arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+            }
+            coVerify(exactly = 0) {
+                arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
+            }
+            assertEquals(NewLoginFlowState.Error.TextFieldError.InvalidValue, viewModel.state.flowState)
         }
-        coVerify(exactly = 0) {
-            arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
-        }
-        verify(exactly = 0) {
-            arrangement.action(any())
-        }
-        assertEquals(NewLoginFlowState.Error.TextFieldError.InvalidValue, sut.state.flowState)
     }
 
     @Test
     fun `given success, when initiating SSO, then call SSO action with url`() = runTest(dispatchers.main()) {
         val redirectUrl = "https://redirect.url"
         val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode)
             .withInitiateSSOSuccess(redirectUrl, config.serverConfig)
             .arrange()
-        sut.userIdentifierTextState.setTextAndPlaceCursorAtEnd(config.userIdentifier)
+        viewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(config.userIdentifier)
 
-        sut.initiateSSO(config.serverConfig, config.userIdentifier, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.initiateSSO(config.serverConfig, config.userIdentifier)
+            advanceUntilIdle()
 
-        verify(exactly = 1) {
-            arrangement.action(eq(NewLoginAction.SSO(redirectUrl, config)))
+            assertEquals(NewLoginAction.SSO(redirectUrl, config), expectMostRecentItem())
         }
     }
 
     @Test
     fun `given failure, when initiating SSO, then update error state`() = runTest(dispatchers.main()) {
         val serverConfig = newServerConfig(1).links
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode)
             .withInitiateSSOFailure(SSOInitiateLoginResult.Failure.InvalidCode)
             .arrange()
 
-        sut.initiateSSO(serverConfig, SSO_CODE_WITH_PREFIX, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.initiateSSO(serverConfig, SSO_CODE_WITH_PREFIX)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+            expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.InvalidSSOCode, viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.InvalidSSOCode, sut.state.flowState)
     }
 
     @Test
     fun `given auth scope failure, when initiating SSO, then update error state`() = runTest(dispatchers.main()) {
         val serverConfig = newServerConfig(1).links
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode)
             .withInitiateSSOAuthScopeFailure(AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion)
             .arrange()
 
-        sut.initiateSSO(serverConfig, SSO_CODE_WITH_PREFIX, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.initiateSSO(serverConfig, SSO_CODE_WITH_PREFIX)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+            expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, sut.state.flowState)
     }
 
     @Test
     fun `given default SSO code, when confirming custom config dialog, then initiate SSO with that code`() = runTest(dispatchers.main()) {
         val serverConfig = newServerConfig(1).links
         val ssoCode = SSO_CODE_WITH_PREFIX
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withFetchDefaultSSOCodeSuccess(ssoCode)
             .arrange()
 
-        sut.onCustomServerDialogConfirm(serverConfig, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.onCustomServerDialogConfirm(serverConfig)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
-        }
-        coVerify(exactly = 1) {
-            arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, ssoCode, any(), any(), any())
+            expectNoEvents()
+            coVerify(exactly = 1) {
+                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, ssoCode, any(), any(), any())
+            }
         }
     }
 
     @Test
     fun `given no default SSO code, when confirming custom config dialog, then call CustomConfig action`() = runTest(dispatchers.main()) {
         val serverConfig = newServerConfig(1).links
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withFetchDefaultSSOCodeSuccess(null)
             .arrange()
 
-        sut.onCustomServerDialogConfirm(serverConfig, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.onCustomServerDialogConfirm(serverConfig)
+            advanceUntilIdle()
 
-        verify(exactly = 1) {
-            arrangement.action(
-                match {
-                    it is NewLoginAction.CustomConfig && it.customServerConfig == serverConfig
-                }
-            )
-        }
-        coVerify(exactly = 0) {
-            arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, any(), any(), any(), any())
+            assertInstanceOf<NewLoginAction.CustomConfig>(expectMostRecentItem()).let {
+                assertEquals(serverConfig, it.customServerConfig)
+            }
+            coVerify(exactly = 0) {
+                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, any(), any(), any(), any())
+            }
         }
     }
 
     @Test
     fun `given auth scope failure, when confirming custom config dialog, then update error state`() = runTest(dispatchers.main()) {
         val serverConfig = newServerConfig(1).links
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withFetchDefaultSSOCodeAuthScopeFailure(AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion)
             .arrange()
 
-        sut.onCustomServerDialogConfirm(serverConfig, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.onCustomServerDialogConfirm(serverConfig)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+            expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, sut.state.flowState)
     }
 
     @Test
     fun `given fetch default SSO failure, when confirming custom config dialog, then update error state`() = runTest(dispatchers.main()) {
         val serverConfig = newServerConfig(1).links
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withFetchDefaultSSOCodeFailure(FetchSSOSettingsUseCase.Result.Failure(failure))
             .arrange()
 
-        sut.onCustomServerDialogConfirm(serverConfig, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.onCustomServerDialogConfirm(serverConfig)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+            expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.GenericError(failure), viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.GenericError(failure), sut.state.flowState)
     }
 
     @Test
@@ -240,13 +241,13 @@ class NewLoginViewModelTest {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
         val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val userId = UserId("user-id", "domain")
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionSuccess(userId)
             .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
             .withIsInitialSyncCompletedReturning(true)
             .arrange()
 
-        sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
+        viewModel.handleSSOResult(ssoDeepLinkResult, config)
         advanceUntilIdle()
 
         coVerify(exactly = 1) {
@@ -258,51 +259,51 @@ class NewLoginViewModelTest {
     fun `given auth scope failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
         val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionAuthScopeFailure(AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion)
             .arrange()
 
-        sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+            expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, sut.state.flowState)
     }
 
     @Test
     fun `given SSO login failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
         val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionLoginFailure(SSOLoginSessionResult.Failure.InvalidCookie)
             .arrange()
 
-        sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+            expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.InvalidSSOCookie, viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.InvalidSSOCookie, sut.state.flowState)
     }
 
     @Test
     fun `given add user failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
         val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionAddUserFailure(AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists)
             .arrange()
 
-        sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+            expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.UserAlreadyExists, viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.UserAlreadyExists, sut.state.flowState)
     }
 
     private fun testHandleSSOResultRegisterClientResults(
@@ -313,16 +314,18 @@ class NewLoginViewModelTest {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
         val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val userId = UserId("user-id", "domain")
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionSuccess(userId)
             .withRegisterClientReturning(result)
             .withIsInitialSyncCompletedReturning(isInitialSyncCompleted)
             .arrange()
 
-        sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            advanceUntilIdle()
 
-        verify(exactly = 1) { arrangement.action(NewLoginAction.Success(expectedNextStep)) }
+            assertEquals(NewLoginAction.Success(expectedNextStep), expectMostRecentItem())
+        }
     }
 
     @Test
@@ -360,18 +363,18 @@ class NewLoginViewModelTest {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
         val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionSuccess(UserId("user-id", "domain"))
             .withRegisterClientReturning(RegisterClientResult.Failure.Generic(failure))
             .arrange()
 
-        sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+            expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.GenericError(failure), viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.GenericError(failure), sut.state.flowState)
     }
 
     private fun testCustomConfigWhenHandlingSSOResult(config: SSOUrlConfig?) = runTest(dispatchers.main()) {
@@ -379,13 +382,13 @@ class NewLoginViewModelTest {
         val defaultConfig = newServerConfig(1).links
         val expectedConfig = config?.serverConfig ?: defaultConfig
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withNavArgsServerConfig(defaultConfig)
             .withEstablishSSOSessionSuccess(UserId("user-id", "domain"))
             .withRegisterClientReturning(RegisterClientResult.Failure.Generic(failure))
             .arrange()
 
-        sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
+        viewModel.handleSSOResult(ssoDeepLinkResult, config)
         advanceUntilIdle()
 
         coVerify {
@@ -406,32 +409,32 @@ class NewLoginViewModelTest {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.NotFound)
         val config = SSOUrlConfig(newServerConfig(2).links, SSO_CODE_WITH_PREFIX)
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionSuccess(UserId("user-id", "domain"))
             .withRegisterClientReturning(RegisterClientResult.Failure.Generic(failure))
             .arrange()
 
-        sut.handleSSOResult(ssoDeepLinkResult, config, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+            expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.SSOResultFailure(ssoDeepLinkResult.ssoError), viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.SSOResultFailure(ssoDeepLinkResult.ssoError), sut.state.flowState)
     }
 
     private val email: String = "email@wire.com"
     private fun testEnterpriseLoginActions(result: EnterpriseLoginResult, expected: NewLoginAction) = runTest(dispatchers.main()) {
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withAuthenticationScopeSuccess()
             .withGetLoginFlowForDomainReturning(result)
             .arrange()
 
-        sut.getEnterpriseLoginFlow(email, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.getEnterpriseLoginFlow(email)
+            advanceUntilIdle()
 
-        verify(exactly = 1) {
-            arrangement.action(expected)
+            assertEquals(expected, expectMostRecentItem())
         }
     }
 
@@ -472,19 +475,19 @@ class NewLoginViewModelTest {
     @Test
     fun `given SSO path & code with prefix, when enterprise login, then initiate SSO with given SSO code`() = runTest(dispatchers.main()) {
         val ssoCode = SSO_CODE_WITH_PREFIX
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withAuthenticationScopeSuccess()
             .withGetLoginFlowForDomainReturning(EnterpriseLoginResult.Success(LoginRedirectPath.SSO(ssoCode)))
             .arrange()
 
-        sut.getEnterpriseLoginFlow(email, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.getEnterpriseLoginFlow(email)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
-        }
-        coVerify(exactly = 1) {
-            arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCode, any(), any(), any())
+            expectNoEvents()
+            coVerify(exactly = 1) {
+                arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCode, any(), any(), any())
+            }
         }
     }
 
@@ -493,69 +496,69 @@ class NewLoginViewModelTest {
         runTest(dispatchers.main()) {
             val ssoCodeWithoutPrefix = SSO_CODE_WITHOUT_PREFIX
             val ssoCodeWithPrefix = SSO_CODE_WITH_PREFIX
-            val (arrangement, sut) = Arrangement()
+            val (arrangement, viewModel) = Arrangement()
                 .withAuthenticationScopeSuccess()
                 .withGetLoginFlowForDomainReturning(EnterpriseLoginResult.Success(LoginRedirectPath.SSO(ssoCodeWithoutPrefix)))
                 .arrange()
 
-            sut.getEnterpriseLoginFlow(email, arrangement.action)
-            advanceUntilIdle()
+            viewModel.actions.test {
+                viewModel.getEnterpriseLoginFlow(email)
+                advanceUntilIdle()
 
-            verify(exactly = 0) {
-                arrangement.action(any())
-            }
-            coVerify(exactly = 1) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCodeWithPrefix, any(), any(), any())
+                expectNoEvents()
+                coVerify(exactly = 1) {
+                    arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCodeWithPrefix, any(), any(), any())
+                }
             }
         }
 
     @Test
     fun `given custom backend path, when enterprise login, then update custom backend state`() = runTest(dispatchers.main()) {
         val customServerConfig: ServerConfig.Links = newServerConfig(2).links
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withAuthenticationScopeSuccess()
             .withGetLoginFlowForDomainReturning(EnterpriseLoginResult.Success(LoginRedirectPath.CustomBackend(customServerConfig)))
             .arrange()
 
-        sut.getEnterpriseLoginFlow(email, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.getEnterpriseLoginFlow(email)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+            expectNoEvents()
+            assertEquals(NewLoginFlowState.CustomConfigDialog(customServerConfig), viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.CustomConfigDialog(customServerConfig), sut.state.flowState)
     }
 
     @Test
     fun `given failure, when enterprise login, then update error state`() = runTest(dispatchers.main()) {
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withAuthenticationScopeSuccess()
             .withGetLoginFlowForDomainReturning(EnterpriseLoginResult.Failure.Generic(failure))
             .arrange()
 
-        sut.getEnterpriseLoginFlow(email, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.getEnterpriseLoginFlow(email)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+         expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.GenericError(failure), viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.GenericError(failure), sut.state.flowState)
     }
 
     @Test
     fun `given auth scope failure, when enterprise login, then update error state`() = runTest(dispatchers.main()) {
-        val (arrangement, sut) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withAuthenticationScopeFailure(AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion)
             .arrange()
 
-        sut.getEnterpriseLoginFlow(email, arrangement.action)
-        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.getEnterpriseLoginFlow(email)
+            advanceUntilIdle()
 
-        verify(exactly = 0) {
-            arrangement.action(any())
+         expectNoEvents()
+            assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, viewModel.state.flowState)
         }
-        assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, sut.state.flowState)
     }
 
     inner class Arrangement {
@@ -564,9 +567,6 @@ class NewLoginViewModelTest {
 
         @MockK
         lateinit var loginViewModelExtension: LoginViewModelExtension
-
-        @MockK
-        lateinit var addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase
 
         @MockK
         lateinit var loginSSOViewModelExtension: LoginSSOViewModelExtension
@@ -585,8 +585,6 @@ class NewLoginViewModelTest {
 
         val validateEmailOrSSOCodeUseCase: ValidateEmailOrSSOCodeUseCase = mockk()
 
-        val action: (NewLoginAction) -> Unit = mockk()
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every {
@@ -594,9 +592,6 @@ class NewLoginViewModelTest {
             } returns null
             every {
                 savedStateHandle[any()] = any<String>()
-            } returns Unit
-            every {
-                action(any())
             } returns Unit
         }
 
@@ -730,7 +725,6 @@ class NewLoginViewModelTest {
             validateEmailOrSSOCodeUseCase,
             coreLogic,
             savedStateHandle,
-            addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             userDataStoreProvider,
             loginViewModelExtension,

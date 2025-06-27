@@ -21,8 +21,6 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.net.toUri
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
@@ -31,12 +29,14 @@ import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.AudioWavesMaskHelper
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.fileDateTime
+import com.wire.android.util.fromNioPathToContentUri
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -70,7 +70,7 @@ class RecordAudioViewModel @Inject constructor(
     private val audioFocusHelper: AudioFocusHelper,
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem
-) : ViewModel() {
+) : ActionsViewModel<RecordAudioViewActions>() {
 
     var state: RecordAudioState by mutableStateOf(RecordAudioState())
         private set
@@ -226,9 +226,9 @@ class RecordAudioViewModel @Inject constructor(
         }
     }
 
-    fun showDiscardRecordingDialog(onCloseRecordAudio: () -> Unit) {
+    fun showDiscardRecordingDialog() {
         when (state.buttonState) {
-            RecordAudioButtonState.ENABLED -> onCloseRecordAudio()
+            RecordAudioButtonState.ENABLED -> sendAction(RecordAudioViewActions.Discarded)
             RecordAudioButtonState.RECORDING,
             RecordAudioButtonState.READY_TO_SEND,
             RecordAudioButtonState.ENCODING -> {
@@ -263,29 +263,24 @@ class RecordAudioViewModel @Inject constructor(
         )
     }
 
-    fun discardRecording(onCloseRecordAudio: () -> Unit) {
+    fun discardRecording() {
         viewModelScope.launch {
             state.originalOutputFile?.toPath()?.deleteIfExists()
             state.effectsOutputFile?.toPath()?.deleteIfExists()
             recordAudioMessagePlayer.stop()
-            recordAudioMessagePlayer.close()
             state = state.copy(
                 buttonState = RecordAudioButtonState.ENABLED,
                 discardDialogState = RecordAudioDialogState.Hidden,
                 originalOutputFile = null,
                 effectsOutputFile = null
             )
-            onCloseRecordAudio()
+            sendAction(RecordAudioViewActions.Discarded)
         }
     }
 
-    fun sendRecording(
-        onAudioRecorded: (UriAsset) -> Unit,
-        onComplete: () -> Unit
-    ) {
+    fun sendRecording() {
         viewModelScope.launch {
             recordAudioMessagePlayer.stop()
-            recordAudioMessagePlayer.close()
 
             val outputFile = state.originalOutputFile
             val effectsFile = state.effectsOutputFile
@@ -319,27 +314,27 @@ class RecordAudioViewModel @Inject constructor(
             } catch (exception: IOException) {
                 appLogger.e("[$tag] -> Couldn't delete audio files")
             }
-
-            onAudioRecorded(
-                UriAsset(
-                    uri = if (didSucceed) {
-                        audioMediaRecorder.mp4OutputPath!!.toFile().toUri()
-                    } else {
-                        if (state.shouldApplyEffects) {
-                            state.effectsOutputFile!!.toUri()
+            sendAction(
+                RecordAudioViewActions.Recorded(
+                    UriAsset(
+                        uri = if (didSucceed) {
+                            context.fromNioPathToContentUri(nioPath = audioMediaRecorder.mp4OutputPath!!.toNioPath())
                         } else {
-                            state.originalOutputFile!!.toUri()
-                        }
-                    },
-                    mimeType = if (didSucceed) {
-                        "audio/mp4"
-                    } else {
-                        "audio/wav"
-                    },
-                    saveToDeviceIfInvalid = false
+                            if (state.shouldApplyEffects) {
+                                context.fromNioPathToContentUri(nioPath = state.effectsOutputFile!!.toPath())
+                            } else {
+                                context.fromNioPathToContentUri(nioPath = state.originalOutputFile!!.toPath())
+                            }
+                        },
+                        mimeType = if (didSucceed) {
+                            "audio/mp4"
+                        } else {
+                            "audio/wav"
+                        },
+                        saveToDeviceIfInvalid = false
+                    )
                 )
             )
-            onComplete()
         }
     }
 
@@ -418,4 +413,9 @@ class RecordAudioViewModel @Inject constructor(
     companion object {
         fun getRecordingAudioEffectsFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}-filter.wav"
     }
+}
+
+sealed interface RecordAudioViewActions {
+    data object Discarded : RecordAudioViewActions
+    data class Recorded(val uriAsset: UriAsset) : RecordAudioViewActions
 }

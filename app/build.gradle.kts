@@ -29,6 +29,7 @@ plugins {
     id(libs.plugins.wire.hilt.get().pluginId)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.compose.compiler)
 
     id(libs.plugins.aboutLibraries.get().pluginId)
 
@@ -40,6 +41,7 @@ plugins {
     id(libs.plugins.wire.kover.get().pluginId)
     id(libs.plugins.wire.versionizer.get().pluginId)
     alias(libs.plugins.screenshot)
+    id(libs.plugins.wire.android.navigation.get().pluginId)
 }
 
 repositories {
@@ -134,18 +136,20 @@ android {
 aboutLibraries {
     val isAboutLibrariesDisabled = System.getenv("DISABLE_ABOUT_LIBRARIES")?.equals("true", true) ?: false
     registerAndroidTasks = !isAboutLibrariesDisabled
+    excludeFields = arrayOf("generated")
 }
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
+    implementation("com.wire.kalium:kalium-cells")
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 
     // features
+    implementation(project(":features:cells"))
     implementation(project(":features:sketch"))
     implementation(project(":core:ui-common"))
-    implementation(project(":core:navigation"))
 
     // kover
     kover(project(":features:sketch"))
@@ -172,6 +176,7 @@ dependencies {
     // Image loading
     implementation(libs.coil.core)
     implementation(libs.coil.gif)
+    implementation(libs.coil.video)
     implementation(libs.coil.compose)
 
     // RSS feed loading
@@ -200,11 +205,8 @@ dependencies {
     implementation(libs.compose.material.ripple)
     implementation(libs.compose.ui.preview)
     implementation(libs.compose.activity)
-    implementation(libs.compose.navigation)
     implementation(libs.compose.constraintLayout)
     implementation(libs.compose.runtime.liveData)
-    implementation(libs.compose.destinations.core)
-    ksp(libs.compose.destinations.ksp)
 
     // Accompanist
     implementation(libs.accompanist.placeholder)

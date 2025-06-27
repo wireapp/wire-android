@@ -24,20 +24,22 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
-import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
+import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
+import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
+import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
@@ -45,11 +47,11 @@ import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -57,6 +59,7 @@ import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -206,6 +209,38 @@ class DebugDataOptionsViewModelTest {
         assertEquals("null", viewModel.state.currentApiVersion)
         assertEquals(false, viewModel.state.isFederationEnabled)
     }
+
+    @Test
+    fun `given async notifications is not enabled, when enabling, then start using async notifications is called`() = runTest {
+        // given
+        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+            .withObserveIsConsumableNotificationsEnabled(false)
+            .withStartUsingAsyncNotificationsResult()
+            .arrange()
+
+        assertEquals(false, viewModel.state.isAsyncNotificationsEnabled)
+
+        viewModel.enableAsyncNotifications(true)
+
+        assertEquals(true, viewModel.state.isAsyncNotificationsEnabled)
+        coVerify(exactly = 1) { arrangement.startUsingAsyncNotifications() }
+    }
+
+    @Test
+    fun `given async notifications is enabled, then start using async notifications is never called`() = runTest {
+        // given
+        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+            .withObserveIsConsumableNotificationsEnabled(true)
+            .withStartUsingAsyncNotificationsResult()
+            .arrange()
+
+        assertEquals(true, viewModel.state.isAsyncNotificationsEnabled)
+
+        viewModel.enableAsyncNotifications(false)
+
+        assertEquals(true, viewModel.state.isAsyncNotificationsEnabled)
+        coVerify(exactly = 0) { arrangement.startUsingAsyncNotifications() }
+    }
 }
 
 internal class DebugDataOptionsHiltArrangement {
@@ -214,9 +249,6 @@ internal class DebugDataOptionsHiltArrangement {
     lateinit var context: Context
 
     private val currentAccount: UserId = TestUser.SELF_USER_ID
-
-    @MockK
-    lateinit var globalDataStore: GlobalDataStore
 
     @MockK
     lateinit var updateApiVersions: UpdateApiVersionsScheduler
@@ -242,11 +274,16 @@ internal class DebugDataOptionsHiltArrangement {
     @MockK
     lateinit var sendFCMToken: SendFCMTokenUseCase
 
+    @MockK
+    lateinit var observeIsConsumableNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase
+
+    @MockK
+    lateinit var startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase
+
     private val viewModel by lazy {
         DebugDataOptionsViewModelImpl(
             context = context,
             currentAccount = currentAccount,
-            globalDataStore = globalDataStore,
             updateApiVersions = updateApiVersions,
             mlsKeyPackageCount = mlsKeyPackageCount,
             restartSlowSyncProcessForRecovery = restartSlowSyncProcessForRecovery,
@@ -256,31 +293,30 @@ internal class DebugDataOptionsHiltArrangement {
             dispatcherProvider = TestDispatcherProvider(),
             selfServerConfigUseCase = selfServerConfigUseCase,
             getDefaultProtocolUseCase = getDefaultProtocolUseCase,
+            startUsingAsyncNotifications = startUsingAsyncNotifications,
+            observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled
         )
     }
 
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(UnconfinedTestDispatcher())
-
-        coEvery {
-            mlsKeyPackageCount()
-        } returns MLSKeyPackageCountResult.Success(ClientId("clientId"), 1, false)
-        coEvery {
-            getCurrentAnalyticsTrackingIdentifier()
-        } returns "trackingId"
         mockkStatic("com.wire.android.util.FileUtilKt")
-        every {
-            context.getDeviceIdString()
-        } returns "deviceId"
-        every {
-            context.getGitBuildId()
-        } returns "gitBuildId"
-        coEvery {
-            globalDataStore.getUserMigrationStatus(TestUser.SELF_USER_ID.value)
-        } returns flowOf(UserMigrationStatus.NoNeed)
-        coEvery {
-            selfServerConfigUseCase()
+        runBlocking {
+            coEvery {
+                mlsKeyPackageCount()
+            } returns MLSKeyPackageCountResult.Success(ClientId("clientId"), 1, false)
+            coEvery {
+                getCurrentAnalyticsTrackingIdentifier()
+            } returns "trackingId"
+            every {
+                context.getDeviceIdString()
+            } returns "deviceId"
+            every {
+                context.getGitBuildId()
+            } returns "gitBuildId"
+            coEvery {
+                selfServerConfigUseCase()
         } returns SelfServerConfigUseCase.Result.Success(
             ServerConfig(
                 id = "id",
@@ -295,16 +331,28 @@ internal class DebugDataOptionsHiltArrangement {
         every {
             getDefaultProtocolUseCase()
         } returns SupportedProtocol.PROTEUS
+
+        withObserveIsConsumableNotificationsEnabled(false)
+        }
     }
 
-    fun arrange() = this to viewModel
+    suspend fun withObserveIsConsumableNotificationsEnabled(isEnabled: Boolean = false) = apply {
+        coEvery {
+            observeIsConsumableNotificationsEnabled()
+        } returns flowOf(isEnabled)
+    }
+
+    suspend fun withStartUsingAsyncNotificationsResult(
+        result: StartUsingAsyncNotificationsResult = StartUsingAsyncNotificationsResult.Success
+    ) = apply {
+        coEvery { startUsingAsyncNotifications() } returns result
+    }
 
     fun withSendFCMTokenSuccess() = apply {
         coEvery {
             sendFCMToken()
         } returns Either.Right(Unit)
     }
-
     suspend fun withSendFCMTokenClientIdFailure() = apply {
         coEvery {
             sendFCMToken()
@@ -406,4 +454,6 @@ internal class DebugDataOptionsHiltArrangement {
             CoreFailure.Unknown(IllegalStateException())
         )
     }
+
+    fun arrange() = this to viewModel
 }

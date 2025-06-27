@@ -23,10 +23,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.wire.android.BuildConfig
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
@@ -37,9 +37,9 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
-import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
@@ -106,13 +106,12 @@ import javax.inject.Inject
 class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
-    private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
+    currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
     private val deepLinkProcessor: Lazy<DeepLinkProcessor>,
     private val observeSessions: Lazy<ObserveSessionsUseCase>,
     private val accountSwitch: Lazy<AccountSwitchUseCase>,
-    private val migrationManager: Lazy<MigrationManager>,
     private val servicesManager: Lazy<ServicesManager>,
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: Lazy<ObserveIfAppUpdateRequiredUseCase>,
@@ -123,7 +122,7 @@ class WireActivityViewModel @Inject constructor(
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
     private val workManager: Lazy<WorkManager>
-) : ViewModel() {
+) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
         private set
@@ -256,7 +255,6 @@ class WireActivityViewModel @Inject constructor(
     suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
         when {
-            shouldMigrate() -> InitialAppState.NOT_MIGRATED
             shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
             shouldEnrollToE2ei() -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
@@ -310,42 +308,29 @@ class WireActivityViewModel @Inject constructor(
     }
 
     @Suppress("ComplexMethod")
-    fun handleDeepLink(
-        intent: Intent?,
-        onIsSharingIntent: () -> Unit,
-        onOpenConversation: (DeepLinkResult.OpenConversation) -> Unit,
-        onSSOLogin: (DeepLinkResult.SSOLogin) -> Unit,
-        onMigrationLogin: (DeepLinkResult.MigrationLogin) -> Unit,
-        onOpenOtherUserProfile: (DeepLinkResult.OpenOtherUserProfile) -> Unit,
-        onAuthorizationNeeded: () -> Unit,
-        onCannotLoginDuringACall: () -> Unit,
-        onUnknown: () -> Unit,
-    ) {
+    fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch(dispatchers.io()) {
-            if (shouldMigrate()) {
-                // means User is Logged in, but didn't finish the migration yet.
-                // so we need to finish migration first.
-                return@launch
-            }
             when (val result = deepLinkProcessor.get().invoke(intent?.data, intent?.action)) {
-                DeepLinkResult.AuthorizationNeeded -> onAuthorizationNeeded()
-                is DeepLinkResult.SSOLogin -> onSSOLogin(result)
+                DeepLinkResult.AuthorizationNeeded -> sendAction(OnAuthorizationNeeded)
+                is DeepLinkResult.SSOLogin -> sendAction(OnSSOLogin(result))
                 is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url, result.loginType)
-                is DeepLinkResult.SwitchAccountFailure.OngoingCall -> onCannotLoginDuringACall()
+                is DeepLinkResult.SwitchAccountFailure.OngoingCall -> sendAction(ShowToast(R.string.cant_switch_account_in_call))
                 is DeepLinkResult.SwitchAccountFailure.Unknown -> appLogger.e("unknown deeplink failure")
                 is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
                     result.code,
                     result.key,
                     result.domain
-                ) { conversationId -> onOpenConversation(DeepLinkResult.OpenConversation(conversationId, result.switchedAccount)) }
+                ) { conversationId ->
+                    sendAction(OpenConversation(DeepLinkResult.OpenConversation(conversationId, result.switchedAccount)))
+                }
 
-                is DeepLinkResult.MigrationLogin -> onMigrationLogin(result)
-                is DeepLinkResult.OpenConversation -> onOpenConversation(result)
-                is DeepLinkResult.OpenOtherUserProfile -> onOpenOtherUserProfile(result)
+                is DeepLinkResult.MigrationLogin -> sendAction(OnMigrationLogin(result))
+                is DeepLinkResult.OpenConversation -> sendAction(OpenConversation(result))
+                is DeepLinkResult.OpenOtherUserProfile -> sendAction(OnOpenUserProfile(result))
 
-                DeepLinkResult.SharingIntent -> onIsSharingIntent()
+                DeepLinkResult.SharingIntent -> sendAction(OnShowImportMediaScreen)
                 DeepLinkResult.Unknown -> {
-                    onUnknown()
+                    sendAction(OnUnknownDeepLink)
                     appLogger.e("unknown deeplink result $result")
                 }
             }
@@ -493,8 +478,6 @@ class WireActivityViewModel @Inject constructor(
 
     private suspend fun shouldLogIn(): Boolean = observeCurrentValidUserId.first() == null
 
-    private suspend fun shouldMigrate(): Boolean = migrationManager.get().shouldMigrate()
-
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
@@ -607,5 +590,15 @@ data class GlobalAppState(
 )
 
 enum class InitialAppState {
-    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
+    NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
 }
+
+sealed interface WireActivityViewAction
+internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
+internal data object OnShowImportMediaScreen : WireActivityViewAction
+internal data object OnAuthorizationNeeded : WireActivityViewAction
+internal data object OnUnknownDeepLink : WireActivityViewAction
+internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction
+internal data class OnOpenUserProfile(val result: DeepLinkResult.OpenOtherUserProfile) : WireActivityViewAction
+internal data class OnSSOLogin(val result: DeepLinkResult.SSOLogin) : WireActivityViewAction
+internal data class ShowToast(val messageResId: Int) : WireActivityViewAction

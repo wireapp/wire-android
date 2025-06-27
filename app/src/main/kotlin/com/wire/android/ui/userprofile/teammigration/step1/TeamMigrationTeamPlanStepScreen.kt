@@ -20,10 +20,7 @@ package com.wire.android.ui.userprofile.teammigration.step1
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,10 +41,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
-import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.TeamMigrationTeamNameStepScreenDestination
@@ -56,21 +54,23 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
+import com.wire.android.ui.userprofile.teammigration.common.TeamMigrationContainer
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @PersonalToTeamMigrationNavGraph(start = true)
 @WireDestination(
-    style = SlideNavigationAnimation::class
+    style = AuthPopUpNavigationAnimation::class
 )
 @Composable
 fun TeamMigrationTeamPlanStepScreen(
-    navigator: DestinationsNavigator,
+    navigator: Navigator,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
     TeamMigrationTeamPlanStepScreenContent(
+        onBackButtonClicked = navigator::navigateBack,
         onContinueButtonClicked = {
-            navigator.navigate(TeamMigrationTeamNameStepScreenDestination)
+            navigator.navigate(NavigationCommand(TeamMigrationTeamNameStepScreenDestination))
         }
     )
 
@@ -83,20 +83,27 @@ fun TeamMigrationTeamPlanStepScreen(
 private fun TeamMigrationTeamPlanStepScreenContent(
     modifier: Modifier = Modifier,
     onContinueButtonClicked: () -> Unit = { },
+    onBackButtonClicked: () -> Unit = { }
 ) {
-
-    Column(
-        modifier = Modifier.fillMaxSize()
+    TeamMigrationContainer(
+        onClose = onBackButtonClicked,
+        closeIconContentDescription = stringResource(R.string.personal_to_team_migration_close_team_account_content_description),
+        showConfirmationDialogWhenClosing = true,
+        bottomBar = {
+            BottomLineButtons(
+                isContinueButtonEnabled = true,
+                isBackButtonVisible = false,
+                onContinue = onContinueButtonClicked
+            )
+        }
     ) {
         Column(
             modifier = modifier
-                .fillMaxWidth()
-                .weight(1f)
+                .fillMaxSize()
                 .padding(
                     start = dimensions().spacing16x,
                     end = dimensions().spacing16x
                 )
-                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 modifier = Modifier
@@ -126,11 +133,6 @@ private fun TeamMigrationTeamPlanStepScreenContent(
             AdvantagesList()
             LearnMoreWirePlans()
         }
-        BottomLineButtons(
-            isContinueButtonEnabled = true,
-            isBackButtonVisible = false,
-            onContinue = onContinueButtonClicked
-        )
     }
 }
 

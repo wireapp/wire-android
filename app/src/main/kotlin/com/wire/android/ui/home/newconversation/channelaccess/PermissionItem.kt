@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -53,7 +54,7 @@ fun PermissionItem(
     ) {
         RadioButton(selected = isSelected, onClick = { onItemClicked(channelAddPermissionType) })
         Text(
-            text = stringResource(channelAddPermissionType.label),
+            text = stringResource(channelAddPermissionType.labelResId),
             style = MaterialTheme.wireTypography.body01,
             color = MaterialTheme.wireColorScheme.onBackground,
             modifier = Modifier.padding(vertical = dimensions().spacing16x)
@@ -63,7 +64,7 @@ fun PermissionItem(
 
 @Composable
 @PreviewMultipleThemes
-fun PreviewPermissionItem() {
+fun PreviewPermissionItem() = WireTheme {
     PermissionItem(
         channelAddPermissionType = ChannelAddPermissionType.ADMINS,
         selectedPermission = ChannelAddPermissionType.ADMINS,

@@ -21,7 +21,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.logic.feature.analytics.SetNewTrackingIdentifierUseCase
+import com.wire.kalium.logic.feature.analytics.SetNewUserTrackingIdentifierUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -72,12 +72,12 @@ class FinalizeRegistrationAnalyticsMetadataUseCaseTest {
         lateinit var userSessionScope: UserSessionScope
 
         @MockK
-        lateinit var setNewTrackingIdentifierUseCase: SetNewTrackingIdentifierUseCase
+        lateinit var setNewUserTrackingIdentifierUseCase: SetNewUserTrackingIdentifierUseCase
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { coreLogic.getSessionScope(any()) } returns userSessionScope
-            every { coreLogic.getSessionScope(any()).setNewTrackingIdentifier } returns setNewTrackingIdentifierUseCase
+            every { coreLogic.getSessionScope(any()).setNewUserTrackingIdentifier } returns setNewUserTrackingIdentifierUseCase
         }
 
         fun withIsAnonymousRegistrationEnabledResult(result: Boolean) = apply {

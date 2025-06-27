@@ -39,7 +39,7 @@ class FinalizeRegistrationAnalyticsMetadataUseCase @Inject constructor(
 
         val trackId = globalDataStore.getAnonymousRegistrationTrackId()
         if (!trackId.isNullOrBlank()) {
-            coreLogic.getSessionScope(currentAccount).setNewTrackingIdentifier.invoke(trackId)
+            coreLogic.getSessionScope(currentAccount).setNewUserTrackingIdentifier(trackId)
             globalDataStore.clearAnonymousRegistrationTrackId()
             globalDataStore.setAnonymousRegistrationEnabled(false)
         }

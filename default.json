@@ -11,7 +11,7 @@
             "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
             "analytics_server_url": "https://countly.wire.com/",
             "enable_crossplatform_backup": false,
-            "enable_new_registration": false
+            "enable_new_registration": true
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
@@ -70,7 +70,7 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://countly.wire.com/",
             "enable_crossplatform_backup": true,
-            "enable_new_registration": false
+            "enable_new_registration": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -95,7 +95,7 @@
             "analytics_app_key": "",
             "analytics_server_url": "",
             "enable_crossplatform_backup": false,
-            "enable_new_registration": false
+            "enable_new_registration": true
         }
     },
     "application_name": "Wire",

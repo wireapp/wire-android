@@ -343,6 +343,9 @@ fun HomeContent(
                                             folders = folders
                                         )
                                     )
+                                },
+                                onOpenFilesFilter = {
+                                    searchBarState.onFilterActiveChanged(true)
                                 }
                             )
                         }

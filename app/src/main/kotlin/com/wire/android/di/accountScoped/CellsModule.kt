@@ -25,9 +25,10 @@ import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
-import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
@@ -141,4 +142,8 @@ class CellsModule {
     @Provides
     fun provideRestoreNodeFromRecycleBinUseCase(cellsScope: CellsScope): RestoreNodeFromRecycleBinUseCase =
         cellsScope.restoreNodeFromRecycleBin
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetAllTagsUseCase(cellsScope: CellsScope): GetAllTagsUseCase = cellsScope.getAllTags
 }

@@ -22,7 +22,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 object PreviewResultBackNavigator : ResultBackNavigator<R> {
     override fun setResult(result: R) { /* No-op */ }
 
-    override fun navigateBack(result: R, onlyIfResumed: Boolean) { /* No-op */ }
+    override fun navigateBack(result: R) { /* No-op */ }
 
-    override fun navigateBack(onlyIfResumed: Boolean) { /* No-op */ }
+    override fun navigateBack() { /* No-op */ }
 }

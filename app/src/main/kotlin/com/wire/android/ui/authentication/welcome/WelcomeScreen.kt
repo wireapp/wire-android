@@ -66,7 +66,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
@@ -106,7 +105,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
-@RootNavGraph
 @WireDestination(
     style = PopUpNavigationAnimation::class,
     navArgsDelegate = WelcomeNavArgs::class

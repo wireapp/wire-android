@@ -52,7 +52,7 @@ compose-activity = "1.9.3"
 compose-compiler = "1.5.13"
 compose-constraint = "1.1.0"
 compose-navigation = "2.7.7" # adjusted to work with compose-destinations "1.9.54"
-compose-destinations = "1.10.2"
+compose-destinations = "1.11.9"
 screenshot = "0.0.1-alpha08"
 
 # Compose Preview

@@ -146,6 +146,7 @@ class CellViewModel @Inject constructor(
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
     internal fun screenTitle(): String? = navArgs.screenTitle
+    internal fun breadcrumbs(): Array<String>? = navArgs.breadcrumbs
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
@@ -161,7 +162,7 @@ class CellViewModel @Inject constructor(
             sendAction(ShowError(CellError.OTHER_ERROR))
             return@launch
         }
-//
+
         val (nodeName, nodeRemotePath) = when (node) {
             is CellNodeUi.File -> Pair(node.name, node.remotePath)
             is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)

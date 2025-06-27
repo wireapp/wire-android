@@ -7,6 +7,7 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.navArgs
@@ -23,6 +24,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -49,7 +51,6 @@ class CreateAccountDataDetailViewModelTest {
         coVerify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
     }
 
-    @Test
     fun `given passwords do not match, when executing, then show error`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withValidatePasswordResult(ValidatePasswordResult.Valid)
@@ -65,6 +66,40 @@ class CreateAccountDataDetailViewModelTest {
         )
         assertEquals(false, viewModel.detailsState.success)
         coVerify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
+        verify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(true)))
+        }
+    }
+
+    @Test
+    fun `given passwords do not match, when executing and fixed, then track error`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withValidatePasswordResult(ValidatePasswordResult.Valid)
+            .withValidateEmailResult(true)
+            .withActivationCodeResult(RequestActivationCodeResult.Success)
+            .arrange()
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("different-password")
+
+        viewModel.onDetailsContinue()
+        advanceUntilIdle()
+
+        // fix the password then continue
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.onDetailsContinue()
+        advanceUntilIdle()
+
+        assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
+        assertEquals(false, viewModel.detailsState.success)
+        coVerify(exactly = 1) { arrangement.validateEmailUseCase(any()) }
+        verify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.TermsOfUseDialog))
+        }
+        verify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(true)))
+        }
+        assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
+        assertEquals(true, viewModel.detailsState.termsDialogVisible)
     }
 
     @Test
@@ -83,6 +118,12 @@ class CreateAccountDataDetailViewModelTest {
         assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
         assertEquals(false, viewModel.detailsState.success)
         coVerify(exactly = 1) { arrangement.validateEmailUseCase(any()) }
+        verify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.TermsOfUseDialog))
+        }
+        verify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(false)))
+        }
         assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
         assertEquals(true, viewModel.detailsState.termsDialogVisible)
     }
@@ -161,6 +202,7 @@ class CreateAccountDataDetailViewModelTest {
             coEvery { autoVersionAuthScopeUseCase(any()) } returns
                     AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
             coEvery { authenticationScope.registerScope.requestActivationCode } returns requestActivationCodeUseCase
+            coEvery { anonymousAnalyticsManager.sendEvent(any()) } returns Unit
         }
 
         fun withActivationCodeResult(result: RequestActivationCodeResult) = apply {

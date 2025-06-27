@@ -35,6 +35,7 @@ sealed class CellNodeUi {
     abstract val remotePath: String?
     abstract val size: Long?
     abstract val downloadProgress: Float?
+    abstract val tags: List<String>
 
     data class Folder(
         override val name: String?,
@@ -46,6 +47,7 @@ sealed class CellNodeUi {
         override val remotePath: String? = null,
         override val size: Long?,
         override val downloadProgress: Float? = null,
+        override val tags: List<String> = emptyList(),
     ) : CellNodeUi()
 
     data class File(
@@ -64,6 +66,7 @@ sealed class CellNodeUi {
         val contentHash: String? = null,
         val contentUrl: String? = null,
         val previewUrl: String? = null,
+        override val tags: List<String> = emptyList(),
     ) : CellNodeUi()
 }
 
@@ -82,6 +85,7 @@ internal fun Node.File.toUiModel() = CellNodeUi.File(
     conversationName = conversationName,
     publicLinkId = publicLinkId,
     modifiedTime = formattedModifiedTime(),
+    tags = tags,
 )
 
 internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
@@ -91,7 +95,8 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     conversationName = conversationName,
     modifiedTime = formattedModifiedTime(),
     remotePath = remotePath,
-    size = size
+    size = size,
+    tags = tags,
 )
 
 private fun Node.File.formattedModifiedTime() = modifiedTime?.let {

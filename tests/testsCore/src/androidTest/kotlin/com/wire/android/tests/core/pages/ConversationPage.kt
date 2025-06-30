@@ -18,20 +18,16 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-
-
 data class ConversationPage(private val device: UiDevice) {
-
-
     fun clickMainMenuButtonOnConversationVeiwPage(): ConversationPage {
-        UiWaitUtils.waitElement(description = "Main navigation").click()
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Main navigation")).click()
         return this
     }
 
     fun clickSettingsButtonOnMenuEntry(): ConversationPage {
-        UiWaitUtils.waitElement(text = "Settings").click()
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Settings")).click()
         return this
     }
-
 }

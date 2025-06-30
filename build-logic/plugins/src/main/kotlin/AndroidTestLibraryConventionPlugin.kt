@@ -55,7 +55,6 @@ class AndroidTestLibraryConventionPlugin : Plugin<Project> {
                 }
                 sourceSets["test"].includeCommonTestSourceDir()
                 sourceSets["androidTest"].includeCommonTestSourceDir()
-
             }
 
             buildTypes {

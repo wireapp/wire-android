@@ -28,12 +28,12 @@ class AccessCookie(
 
     fun isExpired(): Boolean = Date().after(expirationDate)
 
- /**   constructor(cookieName: String, cookies: Map<String, NewCookie>) : this(
-        cookieName,
-        cookies[cookieName]?.expiry ?: throw RuntimeException("No cookie found with name '$cookieName'"),
-        cookies[cookieName]!!.value
+    /**   constructor(cookieName: String, cookies: Map<String, NewCookie>) : this(
+    cookieName,
+    cookies[cookieName]?.expiry ?: throw RuntimeException("No cookie found with name '$cookieName'"),
+    cookies[cookieName]!!.value
     )*/
-
+    @Suppress("MagicNumber")
     constructor(cookieName: String, cookies: List<HttpCookie>) : this(
         cookieName,
         Date(Date().time + (cookies.first { it.name == cookieName }.maxAge * 1000)),

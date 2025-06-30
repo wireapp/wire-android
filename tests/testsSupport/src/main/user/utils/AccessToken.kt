@@ -30,6 +30,7 @@ class AccessToken(
         private val log: Logger = WireTestLogger.getLog(AccessToken::class.simpleName.orEmpty())
     }
 
+    @Suppress("MagicNumber")
     private val expiresOnDate: LocalDateTime = LocalDateTime.now().plusSeconds(expiresIn - 15)
 
     fun isInvalid(): Boolean = (value.isEmpty() || type.isEmpty())
@@ -42,4 +43,3 @@ class AccessToken(
         return isExpired
     }
 }
-

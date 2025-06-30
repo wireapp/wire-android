@@ -26,16 +26,12 @@ import java.util.logging.LogRecord
 import java.io.PrintWriter
 import java.io.StringWriter
 
-class WireTestLogger {
-
-    companion object {
-        fun getLog(className: String): Logger {
-            Logger.getLogger("").getHandlers()[0].setFormatter(MinimalFormatter())
-            return Logger.getLogger(className)
-        }
+object WireTestLogger {
+    fun getLog(className: String): Logger {
+        Logger.getLogger("").getHandlers()[0].setFormatter(MinimalFormatter())
+        return Logger.getLogger(className)
     }
 }
-
 
 class MinimalFormatter : Formatter() {
     override fun format(record: LogRecord): String {

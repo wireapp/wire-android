@@ -21,10 +21,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import junit.framework.TestCase.assertTrue
+import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
 data class SettingsPage(private val device: UiDevice) {
-
 
     fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -40,41 +40,29 @@ data class SettingsPage(private val device: UiDevice) {
 
         return this
     }
-
-
     fun clickBackButtonOnPrivacySettingsPage() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.pressBack()
     }
-
-
     fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
-        UiWaitUtils.waitElement(text = "Privacy Settings").click()
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Privacy Settings")).click()
         return this
     }
-
-
     fun clickDebugSettingsButton(): SettingsPage {
-        //val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        UiWaitUtils.waitElement(text = "Debug Settings").click()
-        //device.findObject(UiSelector().text("Debug Settings")).click()
+        // val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Debug Settings")).click()
+        // device.findObject(UiSelector().text("Debug Settings")).click()
         return this
     }
-
-
     fun assertAnalyticsInitializedIsSetToTrue(): SettingsPage {
         // Step 1: Wait for the "Analytics Initialized" label
-        val label = UiWaitUtils.waitElement(text = "Analytics Initialized")
-
+        val label = UiWaitUtils.waitElement(UiSelectorParams(text = "Analytics Initialized"))
         // Step 2: Get its parent and find sibling with text "true"
         val parent = label.parent
         val value = parent?.children?.find { it.text == "true" }
-
         assertTrue("'Analytics Initialized' is not set to true", value != null && value.visibleBounds.width() > 0)
-
         return this
     }
-
 
     fun assertAnalyticsTrackingIdentifierIsDispayed(): SettingsPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())

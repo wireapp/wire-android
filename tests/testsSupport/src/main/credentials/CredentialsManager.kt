@@ -15,39 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-import com.wire.android.testSupport.BuildConfig
-import org.json.JSONObject
-import java.io.File
 
-class CredentialManager{
+object CredentialsManager {
 
-    companion object{
-fun getSecretFieldValue(
-    parentKey: String,
-    fieldKey: String
-): String? {
+    @Suppress("TooGenericExceptionCaught")
+    fun getSecretFieldValue(
+        parentKey: String,
+        fieldKey: String
+    ): String? {
 
-    return try {
-       return getBuildConfigValue("${parentKey}_$fieldKey")
-    } catch (e: Exception) {
-        println("❌ Error reading secret [$parentKey/$fieldKey]: ${e.message}")
-        null
-    }
-}
-
-fun getBuildConfigValue(fieldName: String): String? {
-    return try {
-        val buildConfigClass = Class.forName("com.wire.android.testSupport.BuildConfig")
-        val field = buildConfigClass.getDeclaredField(fieldName)
-        field.isAccessible = true
-        field.get(null)?.toString()
-    } catch (e: Exception) {
-        println("❌ Could not access BuildConfig field '$fieldName': ${e.message}")
-        null
-    }
-}
-
+        return try {
+            return getBuildConfigValue("${parentKey}_$fieldKey")
+        } catch (e: Exception) {
+            println("❌ Error reading secret [$parentKey/$fieldKey]: ${e.message}")
+            null
+        }
     }
 
-
+    @Suppress("TooGenericExceptionCaught")
+    fun getBuildConfigValue(fieldName: String): String? {
+        return try {
+            val buildConfigClass = Class.forName("com.wire.android.testSupport.BuildConfig")
+            val field = buildConfigClass.getDeclaredField(fieldName)
+            field.isAccessible = true
+            field.get(null)?.toString()
+        } catch (e: Exception) {
+            println("❌ Could not access BuildConfig field '$fieldName': ${e.message}")
+            null
+        }
+    }
 }

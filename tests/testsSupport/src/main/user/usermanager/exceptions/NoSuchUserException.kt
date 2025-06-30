@@ -17,13 +17,11 @@
  */
 package user.usermanager.exceptions
 
-
-
-class NoSuchUserException(val messagePayload:String): RuntimeException() {
-    companion object{
-        val serialVersionUID = 8400419658588574129L
+class NoSuchUserException(val messagePayload: String) : RuntimeException() {
+    companion object {
+       const val serialVersionUID = 8400419658588574129L
     }
+
     override val message: String?
         get() = messagePayload
 }
-

@@ -1,37 +1,20 @@
-/*
- * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
- */
 
 package user.utils
 
-import user.utils.AccessCredentials
-import java.time.Duration
-import java.util.concurrent.Callable
-import java.util.HashSet
 import net.datafaker.Faker
-import net.datafaker.*
 import net.datafaker.providers.base.Text
 import net.datafaker.providers.base.Text.DIGITS
 import net.datafaker.providers.base.Text.EN_LOWERCASE
 import net.datafaker.providers.base.Text.EN_UPPERCASE
-import user.RandomStringGenerator
+import user.UserClient
+import java.time.Duration
+import java.util.Objects
+import java.util.concurrent.Callable
 
 class ClientUser {
+
     var accessCredentials: AccessCredentials? = null
+
     var id: String? = null
     var name: String? = null
     var firstName: String? = null
@@ -50,8 +33,8 @@ class ClientUser {
     var teamId: String? = null
     var expiresIn: Duration? = null
     var serviceProviderId: String? = null
-    var SSO: Boolean = false
-    var SCIM: Boolean = false
+    var sso: Boolean = false
+    var scim: Boolean = false
     var backendName: String? = null
     var hardcoded: Boolean = false
     var getUserIdThroughOwner: Callable<String>? = null
@@ -61,6 +44,7 @@ class ClientUser {
     var activationCode: String? = null
     val customSpecialSymbols: String = "!@#$"
 
+    @Suppress("MagicNumber")
     constructor() {
         val faker = Faker()
         firstName = faker.name().firstName()
@@ -80,8 +64,8 @@ class ClientUser {
         )
         uniqueUsername = sanitizedRandomizedHandle(lastName)
         val domain = "wire.engineering"
-        email = "${uniqueUsername}@$domain"
-        emailPassword = RandomStringGenerator.randomWithSpecialChars(12)
+        email = "$uniqueUsername@$domain"
+        emailPassword = UserClient.RandomStringGenerator.randomWithSpecialChars(12)
     }
 
     constructor(firstName: String, lastName: String, email: String, password: String) {
@@ -92,70 +76,18 @@ class ClientUser {
         this.password = password
     }
 
-    fun getNameAliasess(): Set<String> = HashSet(nameAliases)
-    fun getFirstNameAliasess(): Set<String> = HashSet(firstNameAliases)
-    fun getPasswordAliasess(): Set<String> = HashSet(passwordAliases)
-    fun getUniqueUsernameAliasess(): Set<String> = HashSet(uniqueUsernameAliases)
-    fun getEmailAliasess(): Set<String> = HashSet(emailAliases)
-
-    fun addNameAlias(alias: String) = nameAliases.add(alias)
-    fun removeNameAlias(alias: String) = nameAliases.remove(alias)
-    fun clearNameAliases() = nameAliases.clear()
-
-    fun addFirstNameAlias(alias: String) = firstNameAliases.add(alias)
-    fun removeFirstNameAlias(alias: String) = firstNameAliases.remove(alias)
-    fun clearFirstNameAliases() = firstNameAliases.clear()
-
-    fun addPasswordAlias(alias: String) = passwordAliases.add(alias)
-    fun removePasswordAlias(alias: String) = passwordAliases.remove(alias)
-    fun clearPasswordAliases() = passwordAliases.clear()
-
-    fun addUniqueUsernameAlias(alias: String) = uniqueUsernameAliases.add(alias)
-    fun removeUniqueUsernameAlias(alias: String) = uniqueUsernameAliases.remove(alias)
-    fun clearUniqueUsernameAliases() = uniqueUsernameAliases.clear()
-
-    fun addEmailAlias(alias: String) = emailAliases.add(alias)
-    fun removeEmailAlias(alias: String) = emailAliases.remove(alias)
-    fun clearEmailAliases() = emailAliases.clear()
-
-    fun getAccessCredentialsWithoutRefresh(): AccessCredentials? = accessCredentials
-
-    fun getUserId(): String? {
-        if (id == null) {
-            id = if (SSO) {
-                try {
-                    getUserIdThroughOwner?.call()
-                } catch (e: Exception) {
-                    throw IllegalStateException("No owner id; $e")
-                }
-            } else {
-                ""
-                //  BackendConnections.get(backendName).getUserId(this)
-            }
-        }
-        return id
-    }
-
-    fun setManagedBySCIM() {
-        SCIM = true
-    }
-
-    fun forceTokenExpiration() {
-        accessCredentials = null
-    }
-
     override fun toString(): String =
         "Hello, my name is $name and my email is $email and password is $password and emailPassword is $emailPassword"
 
     override fun equals(other: Any?): Boolean =
         (other is ClientUser) && other.email == email
 
-    fun isSSOUser(): Boolean = SSO
+    fun isSSOUser(): Boolean = sso
     fun setUserIsSSOUser() {
-        SSO = true
+        sso = true
     }
 
-    fun isManagedBySCIM(): Boolean = SCIM
+    fun isManagedBySCIM(): Boolean = scim
     fun isHardcoded(): Boolean = hardcoded
     fun hasRegisteredLegalHoldService(): Boolean = registeredLegalHoldServices
     fun setRegisteredLegalHoldService(value: Boolean) {
@@ -165,8 +97,17 @@ class ClientUser {
     fun hasServiceProvider(): Boolean = serviceProviderId != null
 
     companion object {
+        @Suppress("MagicNumber")
         fun sanitizedRandomizedHandle(derivative: String?): String =
-            "${derivative}${RandomStringGenerator.randomAlphabetic(10)}"
+            "${derivative}${UserClient.RandomStringGenerator.randomAlphabetic(10)}"
                 .lowercase()
     }
+
+    override fun hashCode(): Int = Objects.hash(
+        sso, isTeamOwner, accessCredentials, id, name,
+        firstName, lastName, password, email, emailAliases,
+        emailPassword, nameAliases, firstNameAliases, uniqueUsername,
+        uniqueUsernameAliases, passwordAliases, teamId, expiresIn,
+        backendName, verificationCode, activationCode
+    )
 }

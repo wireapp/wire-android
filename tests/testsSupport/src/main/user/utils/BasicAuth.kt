@@ -28,6 +28,7 @@ class BasicAuth {
 
     private var encoded: String
 
+    @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
     constructor(user: String, password: String) {
         this.user = user
         this.password = password
@@ -41,7 +42,6 @@ class BasicAuth {
     constructor(encoded: String) {
         this.encoded = encoded
     }
-
 
     fun getEncoded(): String = "Basic $encoded"
 }

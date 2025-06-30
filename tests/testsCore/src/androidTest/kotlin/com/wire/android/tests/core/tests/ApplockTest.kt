@@ -21,7 +21,7 @@ import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import backendConnections.Backend
+import com.wire.android.testSupport.backendConnections.BackendClient
 import com.wire.android.testSupport.backendConnections.team.TeamRoles
 import com.wire.android.testSupport.backendConnections.team.deleteTeam
 import com.wire.android.testSupport.backendConnections.team.getTeamByName
@@ -37,11 +37,10 @@ import org.junit.runner.RunWith
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
-import user.usermanager.ClientUsersManager
+import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 
 @RunWith(AndroidJUnit4::class)
-
 class ApplockTest : KoinTest {
 
     @get:Rule
@@ -52,28 +51,26 @@ class ApplockTest : KoinTest {
     private lateinit var device: UiDevice
     lateinit var context: Context
     var registeredUser: ClientUser? = null
-    var backendClient: Backend? = null
+    var backendClient: BackendClient? = null
     var teamMember: ClientUser? = null
-    var usersManager: ClientUsersManager? = null
-
+    var usersManager: ClientUserManager? = null
 
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGGING)
-        backendClient = Backend.loadBackend("STAGING")
-        usersManager = ClientUsersManager(true)
+        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        backendClient = BackendClient.loadBackend("STAGING")
+        usersManager = ClientUserManager(true)
     }
 
     @After
     fun tearDown() {
         //  UiAutomatorSetup.stopApp()
-        //To delete team member
-        //registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
-        //To delete team
+        // To delete team member
+        // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
+        // To delete team
         registeredUser?.deleteTeam(backendClient!!)
-
     }
 
     fun userXAddsUsersToTeam(
@@ -105,7 +102,8 @@ class ApplockTest : KoinTest {
             members = membersToBeAdded,
             membersHaveHandles = membersHaveHandles,
             role = role,
-            backend = backendClient!!, context = context
+            backend = backendClient!!,
+            context = context
         )
     }
 
@@ -113,26 +111,27 @@ class ApplockTest : KoinTest {
         return usersManager!!.findUserByNameOrNameAlias(nameAlias)
     }
 
-
     @Test
     fun setAppLockForAppAndVerifyAppIsLockedAfter1MinuteInTheBackground() {
 
         usersManager!!.createTeamOwnerByAlias("user1Name", "AppLock", "en_US", true, backendClient!!, context)
-        registeredUser = usersManager!!.findUserBy("user1Name", ClientUsersManager.FindBy.NAME_ALIAS)
-
+        registeredUser = usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         userXAddsUsersToTeam("user1Name", "user2Name,user3Name,user4Name,user5Name", "AppLock", TeamRoles.Member, true)
-
-        pages.registrationPage.assertEmailWelcomePage()
-        pages.loginPage.enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
-        pages.loginPage.clickLoginButton()
-        pages.loginPage.enterPersonalUserLoginPassword(registeredUser?.password ?: "")
-        pages.loginPage.clickLoginButton()
-        //Thread.sleep(3000)
-        pages.registrationPage.waitUntilLoginFlowIsComplete()
-        pages.registrationPage.clickAllowNotificationButton()
-        pages.registrationPage.clickAgreeShareDataAlert()
-        pages.registrationPage.assertConversationPageVisible()
-
+        pages.registrationPage.apply {
+            assertEmailWelcomePage()
+        }
+        pages.loginPage.apply {
+            enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
+            clickLoginButton()
+            enterPersonalUserLoginPassword(registeredUser?.password ?: "")
+            clickLoginButton()
+        }
+        // Thread.sleep(3000)
+        pages.registrationPage.apply {
+            waitUntilLoginFlowIsComplete()
+            clickAllowNotificationButton()
+            clickAgreeShareDataAlert()
+            assertConversationPageVisible()
+        }
     }
-
 }

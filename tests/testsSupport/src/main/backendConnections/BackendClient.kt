@@ -1,9 +1,11 @@
+@file:Suppress("TooGenericExceptionCaught")
 
-package backendConnections
+package com.wire.android.testSupport.backendConnections
 
+import CredentialsManager
 import com.wire.android.testSupport.BuildConfig
 import logger.WireTestLogger
-import network.BackendClient
+import network.NetworkBackendClient
 import org.json.JSONObject
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
@@ -23,7 +25,8 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-class Backend(
+@Suppress("LongParameterList", "MagicNumber")
+class BackendClient(
     val name: String,
     val backendUrl: String,
     val webappUrl: String,
@@ -44,61 +47,102 @@ class Backend(
         Authenticator.setDefault(object : Authenticator() {
             override fun getPasswordAuthentication(): PasswordAuthentication {
                 return PasswordAuthentication(
-                    "qa", BuildConfig.SOCKS_PROXY_PASSWORD_PASSWORD?.toCharArray()
+                    "qa",
+                    BuildConfig.SOCKS_PROXY_PASSWORD_PASSWORD.toCharArray()
                 )
             }
         })
         Proxy(Proxy.Type.SOCKS, InetSocketAddress("socks.wire.link", 1080))
-    } else null
+    } else {
+        null
+    }
 ) {
 
     fun hasInbucketSetup() = inbucketUrl.isNotEmpty()
+
     companion object {
-        private val log: Logger = Logger.getLogger(Backend::class.simpleName)
+        private val log: Logger = Logger.getLogger(NetworkBackendClient::class.simpleName)
 
         const val PROFILE_PICTURE_JSON_ATTRIBUTE = "complete"
         const val PROFILE_PREVIEW_PICTURE_JSON_ATTRIBUTE = "preview"
 
-        fun getDefault():Backend?{
-            return loadBackend("Staging")
-        }
-        fun loadBackend(connectionName: String): Backend? {
+        data class BackendSecrets(
+            val backendUrl: String,
+            val backendWebsocket: String,
+            val webappUrl: String,
+            val basicAuthUsername: String?,
+            val basicAuthPassword: String?,
+            val basicAuthGeneral: String,
+            val inbucketUsername: String?,
+            val inbucketPassword: String?,
+            val domain: String,
+            val deeplink: String,
+            val inbucketUrl: String,
+            val keycloakUrl: String,
+            val acmeDiscoveryUrl: String,
+            val k8sNamespace: String,
+            val socksProxy: String
+        )
 
+        private fun loadSecrets(connectionName: String): BackendSecrets {
             fun field(name: String): String? =
-                CredentialManager.getSecretFieldValue("BACKENDCONNECTION_$connectionName", name.uppercase())
+                CredentialsManager.getSecretFieldValue("BACKENDCONNECTION_$connectionName", name.uppercase())
 
-            val backendUrl = field("backendUrl") ?: ""
-            val backendWebsocket = field("backendWebsocket") ?: ""
-            val basicAuthUsername = field("basicAuthUsername")
-            val basicAuthPassword = field("basicAuthPassword")
-            val basicAuthGeneral = field("basicAuth") ?: ""
-            val inbucketUsername = field("inbucketUsername")
-            val inbucketPassword = field("inbucketPassword")
-
-            WireTestLogger.getLog("This CLasss").info("Auths are $basicAuthUsername $basicAuthPassword $basicAuthGeneral $inbucketUsername")
-
-            return Backend(
-                name = connectionName,
-                backendUrl = backendUrl,
+            return BackendSecrets(
+                backendUrl = field("backendUrl") ?: "",
+                backendWebsocket = field("backendWebsocket") ?: "",
                 webappUrl = field("webappUrl") ?: "",
-                backendWebsocket = backendWebsocket,
-                basicAuth = if (basicAuthUsername.isNullOrEmpty() || basicAuthPassword.isNullOrEmpty()) BasicAuth(basicAuthGeneral) else BasicAuth(
-                    basicAuthUsername,
-                    basicAuthPassword
-                ),
-                inbucketAuth = if (!inbucketUsername.isNullOrEmpty() && !inbucketPassword.isNullOrEmpty()) BasicAuth(
-                    inbucketUsername,
-                    inbucketPassword
-                ) else BasicAuth(basicAuthGeneral),
+                basicAuthUsername = field("basicAuthUsername"),
+                basicAuthPassword = field("basicAuthPassword"),
+                basicAuthGeneral = field("basicAuth") ?: "",
+                inbucketUsername = field("inbucketUsername"),
+                inbucketPassword = field("inbucketPassword"),
                 domain = field("domain") ?: "",
                 deeplink = field("deeplink") ?: "",
                 inbucketUrl = field("inbucketUrl") ?: "",
-                inbucketUsername = inbucketUsername ?: "",
-                inbucketPassword = inbucketPassword ?: "",
                 keycloakUrl = field("keycloakUrl") ?: "",
                 acmeDiscoveryUrl = field("acmeDiscoveryUrl") ?: "",
                 k8sNamespace = field("k8sNamespace") ?: "",
                 socksProxy = field("socksProxy") ?: ""
+            )
+        }
+
+        private fun buildBasicAuth(username: String?, password: String?, fallback: String): BasicAuth {
+            return if (!username.isNullOrEmpty() && !password.isNullOrEmpty()) {
+                BasicAuth(username, password)
+            } else {
+                BasicAuth(fallback)
+            }
+        }
+
+        fun getDefault(): BackendClient? {
+            return loadBackend("Staging")
+        }
+
+        fun loadBackend(connectionName: String): BackendClient {
+            val secrets = loadSecrets(connectionName)
+
+            WireTestLogger.getLog("This CLasss").info(
+                "Auths are ${secrets.basicAuthUsername} ${secrets.basicAuthPassword} " +
+                        "${secrets.basicAuthGeneral} ${secrets.inbucketUsername}"
+            )
+
+            return BackendClient(
+                name = connectionName,
+                backendUrl = secrets.backendUrl,
+                webappUrl = secrets.webappUrl,
+                backendWebsocket = secrets.backendWebsocket,
+                basicAuth = buildBasicAuth(secrets.basicAuthUsername, secrets.basicAuthPassword, secrets.basicAuthGeneral),
+                inbucketAuth = buildBasicAuth(secrets.inbucketUsername, secrets.inbucketPassword, secrets.basicAuthGeneral),
+                domain = secrets.domain,
+                deeplink = secrets.deeplink,
+                inbucketUrl = secrets.inbucketUrl,
+                inbucketUsername = secrets.inbucketUsername.orEmpty(),
+                inbucketPassword = secrets.inbucketPassword.orEmpty(),
+                keycloakUrl = secrets.keycloakUrl,
+                acmeDiscoveryUrl = secrets.acmeDiscoveryUrl,
+                k8sNamespace = secrets.k8sNamespace,
+                socksProxy = secrets.socksProxy
             )
         }
     }
@@ -107,15 +151,21 @@ class Backend(
         val trustAllCerts = arrayOf<TrustManager>(
             object : X509TrustManager, TrustManager {
                 override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate>? = null
-                override fun checkClientTrusted(certs: Array<java.security.cert.X509Certificate>, authType: String) {}
-                override fun checkServerTrusted(certs: Array<java.security.cert.X509Certificate>, authType: String) {}
+                override fun checkClientTrusted(certs: Array<java.security.cert.X509Certificate>, authType: String) {
+                    true
+                }
+
+                override fun checkServerTrusted(certs: Array<java.security.cert.X509Certificate>, authType: String) {
+                    true
+                }
             }
         )
         if (!socksProxy.isNullOrEmpty()) {
             Authenticator.setDefault(object : Authenticator() {
                 override fun getPasswordAuthentication(): PasswordAuthentication {
                     return PasswordAuthentication(
-                        "qa", BuildConfig.SOCKS_PROXY_PASSWORD_PASSWORD?.toCharArray()
+                        "qa",
+                        BuildConfig.SOCKS_PROXY_PASSWORD_PASSWORD?.toCharArray()
                     )
                 }
             })
@@ -131,7 +181,7 @@ class Backend(
     }
 
     fun createPersonalUserViaBackend(user: ClientUser): ClientUser {
-        WireTestLogger.getLog(Backend::class.simpleName ?: "Null").info("user is ${user}")
+        WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("user is $user")
         val url = URL(this.backendUrl + "register")
 
         val requestBody = JSONObject().apply {
@@ -142,7 +192,7 @@ class Backend(
 
         val headers = mapOf("Content-Type" to "application/json")
 
-        val response = BackendClient.sendJsonRequestWithCookies(
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
             url = url,
             method = "POST",
             body = requestBody.toString(),
@@ -157,9 +207,11 @@ class Backend(
         val activationCode = getActivationCodeForEmail(
             user.email.orEmpty()
         )
-        WireTestLogger.getLog(Backend::class.simpleName ?: "Null").info("code is ${activationCode}")
+        WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null")
+            .info("code is $activationCode")
         activateRegisteredEmailByBackendCode(
-            user.email.orEmpty(), activationCode
+            user.email.orEmpty(),
+            activationCode
         )
 
         return user
@@ -173,12 +225,12 @@ class Backend(
         }
 
         if (user.expiresIn != null) {
-            requestBody.put("expires_in", user.expiresIn!!.getSeconds())
+            requestBody.put("expires_in", user.expiresIn!!.seconds)
         }
 
         val headers = mapOf("Content-Type" to "application/json")
 
-        val response = BackendClient.sendJsonRequest(
+        val response = NetworkBackendClient.sendJsonRequest(
             url = url,
             method = "POST",
             body = requestBody.toString(),
@@ -197,13 +249,12 @@ class Backend(
         val activationCode = getActivationCodeForEmail(
             user.email.orEmpty()
         )
-        WireTestLogger.getLog(Backend::class.simpleName ?: "Null").info("code is ${activationCode}")
+        WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("code is $activationCode")
 
         activateRegisteredEmailByBackendCode(user.email.orEmpty(), activationCode)
 
         return user
     }
-
 
     fun getActivationCodeForEmail(email: String): String {
         val encodedEmail = URLEncoder.encode(email, "UTF-8")
@@ -214,7 +265,7 @@ class Backend(
             "Accept" to "application/json"
         )
 
-        val response = BackendClient.sendJsonRequest(
+        val response = NetworkBackendClient.sendJsonRequest(
             url = url,
             method = "GET",
             body = null,
@@ -224,6 +275,7 @@ class Backend(
         return JSONObject(response).getString("code")
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun trigger2FA(email: String) {
         val url = URL("${backendUrl}v5/verification-code/send")
 
@@ -239,7 +291,7 @@ class Backend(
         )
 
         try {
-            BackendClient.sendJsonRequest(
+            NetworkBackendClient.sendJsonRequest(
                 url = url,
                 method = "POST",
                 body = requestBody.toString(),
@@ -247,12 +299,10 @@ class Backend(
             )
         } catch (e: Exception) {
             // Optional: Allow HTTP 429 as acceptable like in Java
-
         }
     }
 
-
-    //Used to active a register user email
+    // Used to active a register user email
     fun activateRegisteredEmailByBackendCode(email: String, code: String): String {
 
         val url = URL("${backendUrl}activate")
@@ -262,20 +312,21 @@ class Backend(
             put("code", code)
             put("dryrun", false)
         }
-        WireTestLogger.getLog(Backend::class.simpleName ?: "Null").info("JsonBody is ${requestBody}")
+        WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("JsonBody is $requestBody")
 
         val headers = mapOf(
             "Content-Type" to "application/json",
             "Accept" to "application/json"
         )
 
-        val response = BackendClient.sendJsonRequest(
+        val response = NetworkBackendClient.sendJsonRequest(
             url = url,
             method = "POST",
             body = requestBody.toString(),
             headers = headers
         )
-        WireTestLogger.getLog(Backend::class.simpleName ?: "Null").info("JsonBody response is ${requestBody}")
+
+        WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("JsonBody response is $requestBody")
 
         return "Email Registered"
     }

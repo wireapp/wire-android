@@ -25,4 +25,3 @@ class AllPages(val device: UiDevice) {
     val settingsPage = SettingsPage(device)
     val conversationPage = ConversationPage(device)
 }
-

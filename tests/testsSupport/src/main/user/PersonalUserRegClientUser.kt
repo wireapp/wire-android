@@ -17,9 +17,7 @@
  */
 package user
 
-import java.util.Locale
-import kotlin.random.Random
-
+import java.security.SecureRandom
 
 data class UserInfo(
     val name: String,
@@ -27,113 +25,110 @@ data class UserInfo(
     val username: String,
     val password: String,
     val domain: String,
-    val staticPassword: String
 ) {
     val email: String
         get() = "$username@$domain"
 }
 
+object UserClient {
 
-class UserClient {
+    val lowercase: List<Char> = ('a'..'z').shuffled()
+    val uppercase: List<Char> = ('A'..'Z').shuffled()
+    val digits: List<Char> = ('0'..'9').shuffled()
+    val specialChars: List<Char> = "!@#$%^&*()_+[]{}|;:,.<>?-".toList().shuffled()
+    val allCharacters: List<Char> = (lowercase + uppercase + digits + specialChars).shuffled()
+    const val MIN_LENGTH = 15
+    const val MAX_LENGTH = 20
+    const val FIXED_CHAR_COUNT = 4
 
-    companion object {
-        fun generateUniqueUserInfo(): UserInfo {
-            val password = generateRandomPassword()
-            val time = System.currentTimeMillis()
-            val userName = "smoketester$time"
-            val domain = "wire.engineering"
-            val name = "Smoke   Tester$time"
-            val lastName = "Tester$time"
-            val staticPassword = "Aqa123456!"
-            return UserInfo(name = name, lastName = lastName, username = userName, password = password, domain = domain, staticPassword = staticPassword)
-        }
+    fun generateUniqueUserInfo(): UserInfo {
+        val password = generateRandomPassword()
+        val time = System.currentTimeMillis()
+        val userName = "smoketester$time"
+        val domain = "wire.engineering"
+        val name = "Smoke   Tester$time"
+        val lastName = "Tester$time"
+        return UserInfo(
+            name = name,
+            lastName = lastName,
+            username = userName,
+            password = password,
+            domain = domain,
+        )
+    }
 
-        fun generateRandomPassword(): String {
-            val lowercase = "abcdefghijklmnopqrstuvwxyz"
-            val uppercase = lowercase.uppercase(Locale.getDefault())
-            val numbers = "0123456789"
-            val specials = "!@#$%^&*()"
-
-            val passwordBuilder = java.lang.StringBuilder()
-
-            repeat(5) {
-
-                passwordBuilder.append(randomCharacterFrom(lowercase))
+    @Suppress("MagicNumber")
+    fun generateRandomPassword(): String {
+        val secureRandom = SecureRandom()
+        val passwordLength = secureRandom.nextInt(MAX_LENGTH - MIN_LENGTH + 1) + MIN_LENGTH
+        return buildList<Char> {
+            add(lowercase[secureRandom.nextInt(lowercase.size)])
+            add(uppercase[secureRandom.nextInt(uppercase.size)])
+            add(digits[secureRandom.nextInt(digits.size)])
+            add(specialChars[secureRandom.nextInt(specialChars.size)])
+            repeat(passwordLength - FIXED_CHAR_COUNT) {
+                add(allCharacters[secureRandom.nextInt(allCharacters.size)])
             }
+        }.shuffled(secureRandom).joinToString("")
+    }
 
-            passwordBuilder.append(randomCharacterFrom(uppercase))
-            passwordBuilder.append(randomCharacterFrom(specials))
-            passwordBuilder.append(randomCharacterFrom(numbers))
+    object RandomStringGenerator { // Character pools
+        private const val NUMERIC = "0123456789"
+        private const val ALPHABETIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        private const val ALPHANUMERIC = ALPHABETIC + NUMERIC
+        private const val SPECIAL_CHARS = "!@#$%^&*()-_=+[]{}|;:',.<>/?`~"
+        private const val ALL_CHARS = ALPHANUMERIC + SPECIAL_CHARS
 
-            return passwordBuilder.toString()
-
+        /**
+         * Generates a random numeric string
+         * @param length Desired length of the string
+         * @return String containing random digits
+         */
+        fun randomNumeric(length: Int): String {
+            require(length >= 0) { "Length must be non-negative" }
+            return List(length) { NUMERIC.random() }.joinToString("")
         }
 
-        private fun randomCharacterFrom(characters: String): Char {
-            return characters[Random.nextInt(characters.length)]
+        /**
+         * Generates a random alphabetic string (upper and lower case)
+         * @param length Desired length of the string
+         * @return String containing random letters
+         */
+        fun randomAlphabetic(length: Int): String {
+            require(length >= 0) { "Length must be non-negative" }
+            return List(length) { ALPHABETIC.random() }.joinToString("")
+        }
+
+        /**
+         * Generates a random alphanumeric string
+         * @param length Desired length of the string
+         * @return String containing random letters and digits
+         */
+        fun randomAlphanumeric(length: Int): String {
+            require(length >= 0) { "Length must be non-negative" }
+            return List(length) { ALPHANUMERIC.random() }.joinToString("")
+        }
+
+        /**
+         * Generates a random string with special characters
+         * @param length Desired length of the string
+         * @return String containing random letters, digits, and special characters
+         */
+        fun randomWithSpecialChars(length: Int): String {
+            require(length >= 0) { "Length must be non-negative" }
+            return List(length) { ALL_CHARS.random() }.joinToString("")
+        }
+
+        /**
+         * Generates a random string from a custom character pool
+         * @param length Desired length of the string
+         * @param charPool Custom set of characters to choose from
+         * @return String containing random characters from the custom pool
+         */
+        fun randomCustom(length: Int, charPool: String): String {
+            require(length >= 0) { "Length must be non-negative" }
+            require(charPool.isNotEmpty()) { "Character pool must not be empty" }
+            return List(length) { charPool.random() }.joinToString("")
         }
     }
 }
-
-
-object RandomStringGenerator {
-    // Character pools
-    private const val NUMERIC = "0123456789"
-    private const val ALPHABETIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-    private const val ALPHANUMERIC = ALPHABETIC + NUMERIC
-    private const val SPECIAL_CHARS = "!@#$%^&*()-_=+[]{}|;:',.<>/?`~"
-    private const val ALL_CHARS = ALPHANUMERIC + SPECIAL_CHARS
-
-    /**
-     * Generates a random numeric string
-     * @param length Desired length of the string
-     * @return String containing random digits
-     */
-    fun randomNumeric(length: Int): String {
-        require(length >= 0) { "Length must be non-negative" }
-        return List(length) { NUMERIC.random() }.joinToString("")
-    }
-
-    /**
-     * Generates a random alphabetic string (upper and lower case)
-     * @param length Desired length of the string
-     * @return String containing random letters
-     */
-    fun randomAlphabetic(length: Int): String {
-        require(length >= 0) { "Length must be non-negative" }
-        return List(length) { ALPHABETIC.random() }.joinToString("")
-    }
-
-    /**
-     * Generates a random alphanumeric string
-     * @param length Desired length of the string
-     * @return String containing random letters and digits
-     */
-    fun randomAlphanumeric(length: Int): String {
-        require(length >= 0) { "Length must be non-negative" }
-        return List(length) { ALPHANUMERIC.random() }.joinToString("")
-    }
-
-    /**
-     * Generates a random string with special characters
-     * @param length Desired length of the string
-     * @return String containing random letters, digits, and special characters
-     */
-    fun randomWithSpecialChars(length: Int): String {
-        require(length >= 0) { "Length must be non-negative" }
-        return List(length) { ALL_CHARS.random() }.joinToString("")
-    }
-
-    /**
-     * Generates a random string from a custom character pool
-     * @param length Desired length of the string
-     * @param charPool Custom set of characters to choose from
-     * @return String containing random characters from the custom pool
-     */
-    fun randomCustom(length: Int, charPool: String): String {
-        require(length >= 0) { "Length must be non-negative" }
-        require(charPool.isNotEmpty()) { "Character pool must not be empty" }
-        return List(length) { charPool.random() }.joinToString("")
-    }
-}
-

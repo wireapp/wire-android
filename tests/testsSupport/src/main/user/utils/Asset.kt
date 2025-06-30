@@ -21,8 +21,8 @@ import org.json.JSONObject
 
 data class Asset(val key: String, val type: String, val size: String) {
     fun toJson() = JSONObject().apply {
-        put("key", key);
-        put("type", type);
-        put("size", size);
+        put("key", key)
+        put("type", type)
+        put("size", size)
     }
 }

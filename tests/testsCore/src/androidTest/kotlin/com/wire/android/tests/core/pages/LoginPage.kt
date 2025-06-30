@@ -17,20 +17,18 @@
  */
 package com.wire.android.tests.core.pages
 
-
 import android.content.Intent
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
-import backendConnections.Backend
+import com.wire.android.testSupport.backendConnections.BackendClient
 import org.junit.Assert.assertTrue
+import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
-
 data class LoginPage(private val device: UiDevice) {
-    val backendClient = Backend.loadBackend("STAGING")
-
+    val backendClient = BackendClient.loadBackend("STAGING")
 
     fun enterPersonalUserLoggingEmail(email: String): LoginPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -44,19 +42,16 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
-
     fun enterPersonalUserLoginPassword(password: String): LoginPage {
-        val passwordInputField = UiWaitUtils.waitElement(resourceId = "PasswordInput")
+        val passwordInputField = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "PasswordInput"))
         passwordInputField.click()
         passwordInputField.text = password
         return this
     }
 
-
     fun clickStagingDeepLink(): LoginPage {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val deepLinkUrl = "wire://access/?config=${backendClient?.deeplink}"
-
         val intent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse(deepLinkUrl)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -66,29 +61,26 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
-
     fun assertLoggingPageVisible(): LoginPage {
-        val loginPage = UiWaitUtils.waitElement(resourceId = "loginButton")
+        val loginPage = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "loginButton"))
         assertTrue("Login page is not visible", !loginPage.visibleBounds.isEmpty)
         return this
-
     }
-
     fun clickLoginButton(): LoginPage {
-        val nextButton = UiWaitUtils.waitElement(resourceId = "loginButton")
+        val nextButton = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "loginButton"))
         assertTrue("Login button is not clickable", nextButton.isClickable)
         nextButton.click()
         return this
     }
 
     fun clickProceedButtonOnDeeplinkOverlay(): LoginPage {
-        val proceedButton = UiWaitUtils.waitElement(text = "Proceed")
+        val proceedButton = UiWaitUtils.waitElement(UiSelectorParams(text = "Proceed"))
         proceedButton.click()
         return this
     }
 
     fun clickConfirmButtonOnUsernameSetupPage(): LoginPage {
-        val confirmButton = UiWaitUtils.waitElement(text = "Confirm")
+        val confirmButton = UiWaitUtils.waitElement(UiSelectorParams(text = "Confirm"))
         confirmButton.click()
         return this
     }

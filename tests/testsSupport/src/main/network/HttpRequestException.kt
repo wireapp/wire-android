@@ -20,4 +20,4 @@ package network
 /**
  * For api/network errors
  */
-class HttpRequestException(override val message: String, val returnCode: Int): RuntimeException()
+class HttpRequestException(override val message: String, val returnCode: Int) : RuntimeException()

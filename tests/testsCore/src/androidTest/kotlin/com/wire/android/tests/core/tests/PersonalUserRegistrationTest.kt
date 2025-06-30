@@ -17,7 +17,6 @@
  */
 package com.wire.android.tests.core.tests
 
-
 import InbucketClient
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
@@ -25,7 +24,7 @@ import com.wire.android.testSupport.BuildConfig
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
-import com.wire.android.tests.support.suite.Tag
+import com.wire.android.tests.support.suite.RC
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -42,82 +41,74 @@ This test works on the following conditions:
 1) The dev/staging app is installed on the device/emulator.
 */
 @RunWith(AndroidJUnit4::class)
-@Tag("RC", "regression", "@TC-8694", "@registration")
+@RC("RC", "regression", "@TC-8694", "@registration")
 class PersonalUserRegistrationTest : KoinTest {
     @get:Rule
     val koinTestRule = KoinTestRule.create {
         modules(testModule)
     }
-
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
 
     @Before
     fun setUp() {
-
-        //device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGGING)
+        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
     }
 
     @After
     fun tearDown() {
         //  UiAutomatorSetup.stopApp()
-
     }
 
     @Test
     fun personalUserRegistrationFlow() {
         val userInfo = UserClient.generateUniqueUserInfo()
+        pages.registrationPage.apply {
+            assertEmailWelcomePage()
+            enterPersonalUserRegistrationEmail(userInfo.email)
+            assertAndClickLoginButton()
+            clickCreateAccountButton()
+            clickCreatePersonalAccountButton()
 
-
-        pages.registrationPage.assertEmailWelcomePage()
-        pages.registrationPage.enterPersonalUserRegistrationEmail(userInfo.email)
-        pages.registrationPage.assertAndClickLoginButton()
-        pages.registrationPage.clickCreateAccountButton()
-        pages.registrationPage.clickCreatePersonalAccountButton()
-        /*
-        Existing personal registration flow(To be deleted soon)
-        registrationPage.clickContinueButton()
-        registrationPage.enterEmailOnCreatePersonalAccountPage(userInfo.email)
-        registrationPage.assertAndClickContinueButtonOnCreatePersonalAccountPage()
-        registrationPage.assertTermsOfUseModalVisible()  // Asserts all elements
-        registrationPage.clickContinueButton()
-        registrationPage.assertAndClickContinueButtonOnCreatePersonalAccountPage()
-       */
-        pages.registrationPage.enterFirstName(userInfo.name)
-        pages.registrationPage.enterPassword(userInfo.staticPassword)
-        pages.registrationPage.enterConfirmPassword(userInfo.staticPassword)
-        pages.registrationPage.clickShowPasswordEyeIcon()
-        pages.registrationPage.verifyStaticPasswordIsCorrect()
-        pages.registrationPage.clickHidePasswordEyeIcon()
-        pages.registrationPage.checkIagreeToShareAnonymousUsageData()
-        pages.registrationPage.clickContinueButton()
-        pages.registrationPage.assertTermsOfUseModalVisible()  // Asserts all elements
-        pages.registrationPage.clickContinueButton()
-        // These values are pulled from BuildConfig injected from secrets.json)
-        val otp = runBlocking {
-            InbucketClient.getVerificationCode(
-                userInfo.email,
-                BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETURL,
-                BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETPASSWORD,
-                BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETUSERNAME
-            )
+            // Existing personal registration flow(To be deleted soon)
+//           registrationPage.clickContinueButton()
+//            registrationPage.enterEmailOnCreatePersonalAccountPage(userInfo.email)
+//            registrationPage.assertAndClickContinueButtonOnCreatePersonalAccountPage()
+//            registrationPage.assertTermsOfUseModalVisible()  // Asserts all elements
+//            registrationPage.clickContinueButton()
+//            registrationPage.assertAndClickContinueButtonOnCreatePersonalAccountPage()
+//
+            enterFirstName(userInfo.name)
+            enterPassword(userInfo.password)
+            enterConfirmPassword(userInfo.password)
+            clickShowPasswordEyeIcon()
+            verifyStaticPasswordIsCorrect(userInfo.password)
+            clickHidePasswordEyeIcon()
+            checkIagreeToShareAnonymousUsageData()
+            clickContinueButton()
+            assertTermsOfUseModalVisible() // Asserts all elements
+            clickContinueButton()
+            // These values are pulled from BuildConfig injected from secrets.json)
+            val otp = runBlocking {
+                InbucketClient.getVerificationCode(
+                    userInfo.email,
+                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETURL,
+                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETPASSWORD,
+                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETUSERNAME
+                )
+            }
+            enter2FAOnCreatePersonalAccountPage(otp)
+            // Sleep to be removed when new registration implementation is done
+            Thread.sleep(4000)
+            assertEnterYourUserNameInfoText()
+            assertUserNameHelpText()
+            setUserName(userInfo.username)
+            clickConfirmButton()
+            waitUntilRegistrationFlowIsComplete()
+            clickAllowNotificationButton()
+            clickDeclineShareDataAlert()
+            assertConversationPageVisible()
         }
-        pages.registrationPage.enter2FAOnCreatePersonalAccountPage(otp)
-        //Sleep to be removed when new registration implementation is done
-        Thread.sleep(4000)
-        pages.registrationPage.assertEnterYourUserNameInfoText()
-        pages.registrationPage.assertUserNameHelpText()
-        pages.registrationPage.setUserName(userInfo.username)
-        pages.registrationPage.clickConfirmButton()
-        pages.registrationPage.waitUntilRegistrationFlowIsComplete()
-        pages.registrationPage.clickAllowNotificationButton()
-        pages.registrationPage.clickDeclineShareDataAlert()
-        pages.registrationPage.assertConversationPageVisible()
-
     }
-
 }
-
-
-

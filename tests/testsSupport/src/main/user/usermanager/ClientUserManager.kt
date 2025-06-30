@@ -17,9 +17,8 @@
  */
 package user.usermanager
 
-
 import android.content.Context
-import backendConnections.Backend
+import com.wire.android.testSupport.backendConnections.BackendClient
 import com.wire.android.testSupport.backendConnections.team.TeamRoles
 import com.wire.android.testSupport.backendConnections.team.createTeamOwnerViaBackend
 import com.wire.android.testSupport.backendConnections.team.createTeamUserViaBackend
@@ -27,14 +26,33 @@ import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
 import user.usermanager.exceptions.NoSuchUserException
 import user.utils.ClientUser
-import java.util.*
+import user.utils.component.addEmailAlias
+import user.utils.component.addFirstNameAlias
+import user.utils.component.addNameAlias
+import user.utils.component.addPasswordAlias
+import user.utils.component.addUniqueUsernameAlias
+import user.utils.component.clearEmailAliases
+import user.utils.component.clearFirstNameAliases
+import user.utils.component.clearNameAliases
+import user.utils.component.clearPasswordAliases
+import user.utils.component.clearUniqueUsernameAliases
+import user.utils.component.removeEmailAlias
+import user.utils.component.removeNameAlias
+import user.utils.component.removePasswordAlias
+import user.utils.component.removeUniqueUsernameAlias
+import java.util.Collections
+import java.util.Optional
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Function
 import java.util.logging.Logger
 import java.util.stream.Collectors
 
-class ClientUsersManager {
-    private val usersMap: MutableMap<UserState, MutableList<ClientUser>> = ConcurrentHashMap<UserState, MutableList<ClientUser>>()
+@Suppress("TooManyFunctions")
+class ClientUserManager {
+
+    private val usersMap: MutableMap<UserState, MutableList<ClientUser>> =
+        ConcurrentHashMap<UserState, MutableList<ClientUser>>()
     private var useSpecialEmail: Boolean = false
     private var selfUser: ClientUser? = null
 
@@ -42,20 +60,23 @@ class ClientUsersManager {
         private val NAME_ALIAS_TEMPLATE: Function<Int, String> = Function { idx -> "user${idx}Name" }
         private val FIRSTNAME_ALIAS_TEMPLATE: Function<Int, String> = Function { idx -> "user${idx}FirstName" }
         private val PASSWORD_ALIAS_TEMPLATE: Function<Int, String> = Function { idx -> "user${idx}Password" }
-        private val EMAIL_ALIAS_TEMPLATE: Function<Int, String> = Function { idx -> "user${idx}Email" }
-        val STR_UNIQUE_USERNAME_ALIAS_TEMPLATE: Function<String, String> = Function { idx -> "user${idx}UniqueUsername" }
+        private val EMAIL_ALIAS_TEMPLATE: Function<Int, String> =
+            Function { idx -> "user${idx}Email" }
+        val STR_UNIQUE_USERNAME_ALIAS_TEMPLATE: Function<String, String> =
+            Function { idx -> "user${idx}UniqueUsername" }
         private val UNIQUE_USERNAME_ALIAS_TEMPLATE: Function<Int, String> =
             Function { idx -> STR_UNIQUE_USERNAME_ALIAS_TEMPLATE.apply("$idx") }
         const val MAX_USERS = 101
         const val MAX_USERS_IN_TEAM = 4000
         const val ALIASES_SEPARATOR = ","
-        private val log: Logger = WireTestLogger.getLog(ClientUsersManager::class.java.simpleName)
+        private val log: Logger = WireTestLogger.getLog(ClientUserManager::class.java.simpleName)
         private const val OTHER_USERS_ALIAS = "all other"
         private val SELF_USER_NAME_ALIASES = arrayOf("I", "Me", "Myself")
         private val SELF_USER_PASSWORD_ALIASES = arrayOf("myPassword")
         private val SELF_USER_EMAIL_ALIASES = arrayOf("myEmail")
         private val SELF_USER_UNIQUE_USERNAME_ALIASES = arrayOf("myUniqueUsername")
 
+        @Suppress("LongParameterList")
         private fun setClientUserAliases(
             user: ClientUser,
             nameAliases: Array<String>?,
@@ -97,7 +118,7 @@ class ClientUsersManager {
         usersMap[UserState.Created] = ArrayList()
         usersMap[UserState.NotCreated] = ArrayList()
         // Workaround for federation tests (can be deleted when inbucket is rolled out completely)
-        this.useSpecialEmail = if (Backend.getDefault() == null || Backend.getDefault()?.hasInbucketSetup()==true) {
+        this.useSpecialEmail = if (BackendClient.getDefault() == null || BackendClient.getDefault()?.hasInbucketSetup() == true) {
             false
         } else {
             useSpecialEmail
@@ -109,16 +130,14 @@ class ClientUsersManager {
         }
     }
 
-
     /**
      * Generates an email in the format username+{index}@wire.com
      * @param userNumber The 1-based index of the user
      * @return The generated email address
      */
-    private fun generateIndexedEmail(uniqueUserName:String,userNumber: Int): String {
+    private fun generateIndexedEmail(uniqueUserName: String, userNumber: Int): String {
         return "$uniqueUserName+$userNumber@wire.com"
     }
-
 
     /**
      * Sets default values and aliases for a user based on their index.
@@ -128,7 +147,7 @@ class ClientUsersManager {
     private fun setUserDefaults(user: ClientUser, userIdx: Int) {
         // If special email flag is set, generate a unique email and password
         if (useSpecialEmail) {
-            user.email = generateIndexedEmail(user.uniqueUsername?:user.email.orEmpty(),userIdx+1)
+            user.email = generateIndexedEmail(user.uniqueUsername ?: user.email.orEmpty(), userIdx + 1)
             user.emailPassword = UUID.randomUUID().toString()
         }
 
@@ -184,7 +203,6 @@ class ClientUsersManager {
         // Return immutable view of all users
         return Collections.unmodifiableList(allUsers)
     }
-
 
     /**
      * Retrieves all users who are team owners.
@@ -280,30 +298,31 @@ class ClientUsersManager {
         )
     }
 
-
     @Throws(NoSuchUserException::class)
     fun findUserBy(searchStr: String, findByCriteria: FindBy): ClientUser {
-        val trimmedSearchStr = searchStr.trim()
-        for (user in getAllUsers()) {
-            val aliases = when (findByCriteria) {
-                FindBy.NAME_ALIAS -> user.nameAliases
-                FindBy.EMAIL_ALIAS -> user.emailAliases
-                FindBy.PASSWORD_ALIAS -> user.passwordAliases
-                FindBy.UNIQUE_USERNAME_ALIAS -> user.uniqueUsernameAliases
-                FindBy.NAME -> if (user.name.equals(trimmedSearchStr, ignoreCase = true)) return user else emptySet()
-                FindBy.FIRSTNAME -> if (user.firstName.equals(trimmedSearchStr, ignoreCase = true)) return user else emptySet()
-                FindBy.EMAIL -> if (user.email.equals(trimmedSearchStr, ignoreCase = true)) return user else emptySet()
-                FindBy.PASSWORD -> if (user.password == searchStr) return user else emptySet()
-                FindBy.UNIQUE_USERNAME -> if (user.uniqueUsername.equals(trimmedSearchStr, ignoreCase = true)) return user else emptySet()
-                else -> throw RuntimeException("Unknown FindBy criteria $findByCriteria")
-            }
-            if (aliases.any { it.equals(trimmedSearchStr, ignoreCase = true) }) {
-                return user
-            }
-        }
-        throw NoSuchUserException("User '$searchStr' could not be found by '${findByCriteria}'")
+        return getAllUsers().firstOrNull { user ->
+            matchesUser(user, searchStr, findByCriteria)
+        } ?: throw NoSuchUserException("User '$searchStr' could not be found by '$findByCriteria'")
     }
 
+    @Suppress("TooGenericExceptionThrown")
+    private fun matchesUser(user: ClientUser, searchStr: String, findBy: FindBy): Boolean {
+        val trimmed = searchStr.trim()
+        return when (findBy) {
+            FindBy.NAME_ALIAS -> user.nameAliases.any { it.equals(trimmed, ignoreCase = true) }
+            FindBy.EMAIL_ALIAS -> user.emailAliases.any { it.equals(trimmed, ignoreCase = true) }
+            FindBy.PASSWORD_ALIAS -> user.passwordAliases.any { it.equals(trimmed, ignoreCase = true) }
+            FindBy.UNIQUE_USERNAME_ALIAS -> user.uniqueUsernameAliases.any { it.equals(trimmed, ignoreCase = true) }
+
+            FindBy.NAME -> user.name.equals(trimmed, ignoreCase = true)
+            FindBy.FIRSTNAME -> user.firstName.equals(trimmed, ignoreCase = true)
+            FindBy.EMAIL -> user.email.equals(trimmed, ignoreCase = true)
+            FindBy.PASSWORD -> user.password == searchStr
+            FindBy.UNIQUE_USERNAME -> user.uniqueUsername.equals(trimmed, ignoreCase = true)
+
+            else -> throw RuntimeException("Unknown FindBy criteria $findBy")
+        }
+    }
 
     /**
      * Finds all replacement values for aliases found in the source string.
@@ -347,25 +366,22 @@ class ClientUsersManager {
      */
     fun getListByAliases(srcStr: String, vararg findByAliasTypes: FindBy): List<String> {
         require(findByAliasTypes.isNotEmpty()) { "At least one replacement type should be provided" }
-        val result = ArrayList<String>()
-        for (dstUser in getAllUsers()) {
-            for (aliasType in findByAliasTypes) {
+
+        val srcList = srcStr.split(", ")
+        return getAllUsers().flatMap { user ->
+            findByAliasTypes.flatMap { aliasType ->
                 val (aliases, replacement) = when (aliasType) {
-                    FindBy.NAME_ALIAS -> dstUser.nameAliases to dstUser.name
-                    FindBy.EMAIL_ALIAS -> dstUser.emailAliases to dstUser.email
-                    FindBy.PASSWORD_ALIAS -> dstUser.passwordAliases to dstUser.password
-                    FindBy.UNIQUE_USERNAME_ALIAS -> dstUser.uniqueUsernameAliases to dstUser.uniqueUsername
+                    FindBy.NAME_ALIAS -> user.nameAliases to user.name
+                    FindBy.EMAIL_ALIAS -> user.emailAliases to user.email
+                    FindBy.PASSWORD_ALIAS -> user.passwordAliases to user.password
+                    FindBy.UNIQUE_USERNAME_ALIAS -> user.uniqueUsernameAliases to user.uniqueUsername
                     else -> throw IllegalArgumentException("Unsupported alias type '${aliasType.name}'")
                 }
-                val srcList = srcStr.split(", ")
-                for (alias in srcList) {
-                    if (aliases.contains(alias)) {
-                        result.add(replacement.orEmpty())
-                    }
-                }
+
+                srcList.filter { it in aliases }
+                    .map { replacement.orEmpty() }
             }
         }
-        return result
     }
 
     /**
@@ -388,40 +404,40 @@ class ClientUsersManager {
     }
 
     /**
-     * Generates personal users in parallel by creating them in the specified backend system.
+     * Generates personal users in parallel by creating them in the specified BackendClient system.
      *
      * This function mutates the input users by setting their backendName property before creation.
      * Uses parallel processing for better performance with large user lists.
      *
      * @param usersToCreate List of ClientUser objects to be created as personal users
-     * @param backend The backend system where users will be created
-     * @return Unmodifiable list of the created users with updated backend information
+     * @param BackendClient The BackendClient system where users will be created
+     * @return Unmodifiable list of the created users with updated BackendClient information
      */
-    private fun generatePersonalUsers(usersToCreate: List<ClientUser>, backend: Backend): List<ClientUser> =
-        performParallelUsersCreation(usersToCreate, Function { usr ->
+    private fun generatePersonalUsers(usersToCreate: List<ClientUser>, backend: BackendClient): List<ClientUser> =
+        performParallelUsersCreation(usersToCreate) { usr ->
             usr.backendName = backend.name
             backend.createPersonalUserViaBackend(usr)
-        })
+        }
 
     /**
-     * Generates wireless users in parallel by creating them in the specified backend system.
+     * Generates wireless users in parallel by creating them in the specified BackendClient system.
      *
      * Note: Currently uses the same implementation as personal user creation (createPersonalUserViaBackend).
      * Mutates the input users by setting their backendName property before creation.
      * Uses parallel processing for better performance with large user lists.
      *
      * @param usersToCreate List of ClientUser objects to be created as wireless users
-     * @param backend The backend system where users will be created
-     * @return Unmodifiable list of the created users with updated backend information
+     * @param BackendClient The BackendClient system where users will be created
+     * @return Unmodifiable list of the created users with updated BackendClient information
      */
-    private fun generateWirelessUsers(usersToCreate: List<ClientUser>, backend:Backend): List<ClientUser> =
-        performParallelUsersCreation(usersToCreate, Function { usr ->
+    private fun generateWirelessUsers(usersToCreate: List<ClientUser>, backend: BackendClient): List<ClientUser> =
+        performParallelUsersCreation(usersToCreate) { usr ->
             usr.backendName = backend.name
             backend.createPersonalUserViaBackend(usr)
-        })
+        }
 
     /**
-     * Generates team members in parallel by creating them in the specified backend system.
+     * Generates team members in parallel by creating them in the specified BackendClient system.
      *
      * This function mutates the input users by setting their backendName property before creation.
      * Uses parallel processing for efficient bulk creation of team members.
@@ -431,27 +447,39 @@ class ClientUsersManager {
      * @param teamId Unique identifier of the team
      * @param membersHaveHandles Flag indicating if members should have unique handles/identifiers
      * @param role Team role to assign to all new members (e.g., ADMIN, MEMBER)
-     * @param backend The backend system where team members will be created
+     * @param BackendClient The BackendClient system where team members will be created
      * @param context Additional context information for the creation process
-     * @return Unmodifiable list of the created team members with updated backend information
+     * @return Unmodifiable list of the created team members with updated BackendClient information
      */
+    @Suppress("LongParameterList")
     private fun generateTeamMembers(
         membersToAdd: List<ClientUser>,
         teamOwner: ClientUser,
         teamId: String,
         membersHaveHandles: Boolean,
         role: TeamRoles,
-        backend: Backend,
+        backend: BackendClient,
         context: Context
-    ): List<ClientUser> = performParallelUsersCreation(membersToAdd, Function { usr ->
+    ): List<ClientUser> = performParallelUsersCreation(
+        membersToAdd
+    ) { usr ->
         usr.backendName = backend.name
-        backend.createTeamUserViaBackend(teamOwner, teamId, usr, true, membersHaveHandles, role,context)
-    })
-
-    private fun fetchCreatedUsers():List<ClientUser> {
-        return Collections.unmodifiableList(this.usersMap.get(UserState.Created));
+        backend.createTeamUserViaBackend(
+            teamOwner,
+            teamId,
+            usr,
+            true,
+            membersHaveHandles,
+            role,
+            context
+        )
     }
-    val createdUsers:List<ClientUser>
+
+    private fun fetchCreatedUsers(): List<ClientUser> {
+        return Collections.unmodifiableList(this.usersMap[UserState.Created])
+    }
+
+    val createdUsers: List<ClientUser>
         get() = fetchCreatedUsers()
 
     private fun verifyUsersCountSatisfiesConstraints(countOfUsersToBeCreated: Int) {
@@ -487,11 +515,11 @@ class ClientUsersManager {
      * Creates wireless users in bulk after verifying count constraints.
      *
      * @param users List of user objects to create as wireless users
-     * @param backend Target backend system for user creation
+     * @param BackendClient Target BackendClient system for user creation
      * @return List of created users (unmodifiable)
      * @throws ConstraintViolationException if user count exceeds system limits
      */
-    fun createWirelessUsers(users: List<ClientUser>, backend: Backend): List<ClientUser> {
+    fun createWirelessUsers(users: List<ClientUser>, backend: BackendClient): List<ClientUser> {
         verifyUsersCountSatisfiesConstraints(users.size)
         return generateWirelessUsers(users, backend)
     }
@@ -504,30 +532,31 @@ class ClientUsersManager {
      * @param members List of users to add as team members
      * @param membersHaveHandles Whether members should have unique handles
      * @param role Team role to assign to all members
-     * @param backend Target backend system
+     * @param BackendClient Target BackendClient system
      * @param context Additional operation context
      * @return List of created team members (unmodifiable)
      * @throws ConstraintViolationException if member count exceeds system limits
      */
+    @Suppress("LongParameterList")
     fun createTeamMembers(
         teamOwner: ClientUser,
         teamId: String,
         members: List<ClientUser>,
         membersHaveHandles: Boolean,
         role: TeamRoles,
-        backend: Backend,
-        context:Context
+        backend: BackendClient,
+        context: Context
     ): List<ClientUser> {
         verifyUsersCountSatisfiesConstraints(members.size)
-        return generateTeamMembers(members, teamOwner, teamId, membersHaveHandles, role, backend,context)
+        return generateTeamMembers(members, teamOwner, teamId, membersHaveHandles, role, backend, context)
     }
 
-    fun createXPersonalUsers(count: Int, backend: Backend) {
+    fun createXPersonalUsers(count: Int, backend: BackendClient) {
         verifyUsersCountSatisfiesConstraints(count)
         generatePersonalUsers(syncCreatedState(count), backend)
     }
 
-    fun createPersonalUsersByAliases(nameAliases: List<String>, backend: Backend): List<ClientUser> {
+    fun createPersonalUsersByAliases(nameAliases: List<String>, backend: BackendClient): List<ClientUser> {
         val usersToBeCreated = nameAliases.stream()
             .map { findUserByNameOrNameAlias(it) }
             .collect(Collectors.toList())
@@ -536,18 +565,26 @@ class ClientUsersManager {
         return Collections.unmodifiableList(usersToBeCreated)
     }
 
-    fun createTeamOwnerByAlias(nameAlias: String, teamName: String, locale: String, updateHandle: Boolean, backend: Backend, context:Context) {
+    @Suppress("LongParameterList")
+    fun createTeamOwnerByAlias(
+        nameAlias: String,
+        teamName: String,
+        locale: String,
+        updateHandle: Boolean,
+        backend: BackendClient,
+        context: Context
+    ) {
         verifyUsersCountSatisfiesConstraints(1)
         var owner = findUserByNameOrNameAlias(nameAlias)
-        WireTestLogger.getLog("Hello").info(owner.toString()+"innnnn")
-        owner = runBlocking {   backend.createTeamOwnerViaBackend(owner, teamName, locale, updateHandle, context)}
+        WireTestLogger.getLog("Hello").info(owner.toString() + "innnnn")
+        owner = runBlocking { backend.createTeamOwnerViaBackend(owner, teamName, locale, updateHandle, context) }
         owner.backendName = backend.name
         // remember all owners to later be able to delete all created teams
         owner.isTeamOwner = true
     }
 
-    fun getSelfUserOrThrowError(): ClientUser = selfUser ?:
-    throw SelfUserNotDefinedException("Self user should be defined in some previous step!")
+    fun getSelfUserOrThrowError(): ClientUser =
+        selfUser ?: throw SelfUserNotDefinedException("Self user should be defined in some previous step!")
 
     fun getSelfUser(): Optional<ClientUser> = Optional.ofNullable(selfUser)
 
@@ -593,11 +630,11 @@ class ClientUsersManager {
     fun isUserCreated(user: ClientUser): Boolean = usersMap[UserState.Created]?.contains(user) ?: false
 
     fun appendCustomUser(user: ClientUser): Int {
-        usersMap[UserState.Created]?.let { createdUsers ->
-            if (createdUsers.contains(user)) {
-                return createdUsers.indexOf(user)
+        usersMap[UserState.Created]?.let { safeCreatedUsers ->
+            if (safeCreatedUsers.contains(user)) {
+                return safeCreatedUsers.indexOf(user)
             }
-            createdUsers.add(user)
+            safeCreatedUsers.add(user)
         }
         usersMap[UserState.NotCreated]?.remove(user)
         return createdUsers.size - 1

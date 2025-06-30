@@ -15,48 +15,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package backendConnections.user
+package com.wire.android.testSupport.backendConnections.user
 
-
-import backendConnections.Backend
+import com.wire.android.testSupport.backendConnections.BackendClient
 import com.wire.android.testSupport.backendConnections.team.defaultheaders
 import com.wire.android.testSupport.backendConnections.team.getAuthToken
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
-import network.BackendClient
+import network.NetworkBackendClient
+import network.RequestOptions
 import org.json.JSONObject
 import user.utils.ClientUser
 import java.net.URL
 
-suspend fun ClientUser.deleteUser(backend: Backend){
+suspend fun ClientUser.deleteUser(backend: BackendClient) {
     val token = runBlocking {
         backend.getAuthToken(this@deleteUser)
     }
-    val connection = BackendClient.sendJsonRequest(
-        url = with(backend){URL("self".composeCompleteUrl())},
+    val connection = NetworkBackendClient.sendJsonRequest(
+        url = with(backend) { URL("self".composeCompleteUrl()) },
         method = "DELETE",
         body = JSONObject().apply {
             put("password", password)
         }.toString(),
-        accessToken = accessCredentials?.accessToken,
-        cookie = accessCredentials?.accessCookie,
+        options = RequestOptions(
+            accessToken = accessCredentials?.accessToken,
+            cookie = accessCredentials?.accessCookie
+        ),
+
         headers = defaultheaders.toMutableMap().apply {
             this.put("Authorization", "Bearer $token")
         },
     )
-
 }
 
-fun ClientUser.triggerDeleteEmail(backend:Backend){
-    val connection = BackendClient.makeRequest(
-        url = with(backend){URL("self".composeCompleteUrl())},
+fun ClientUser.triggerDeleteEmail(backend: BackendClient) {
+    val connection = NetworkBackendClient.makeRequest(
+        url = with(backend) { URL("self".composeCompleteUrl()) },
         method = "DELETE",
         body = JSONObject(),
-        accessToken = accessCredentials?.accessToken,
-        cookie = accessCredentials?.accessCookie,
+        options = RequestOptions(
+            accessToken = accessCredentials?.accessToken,
+            cookie = accessCredentials?.accessCookie
+        ),
+
         headers = defaultheaders,
     )
     WireTestLogger.getLog("UserClient").info(connection.responseMessage)
-
 }
-

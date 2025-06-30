@@ -22,7 +22,6 @@ import org.json.JSONObject
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
 import user.utils.AccessToken
-import util.NumberSequence
 import java.io.ByteArrayOutputStream
 import java.net.HttpCookie
 import java.net.HttpURLConnection
@@ -31,23 +30,56 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.Base64
 
-object BackendClient {
+sealed interface NumberSequence {
+    data class Range(val range: IntRange) : NumberSequence
+    data class Array(val array: IntArray) : NumberSequence {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
 
-    /**
-    This is the base api class for making post and get request
-    @Param url the api url
-    @Param method: the method GET or  POST
-    @Param body: the body json string
-    @Param header: the headers
-     */
+            other as Array
+
+            if (!array.contentEquals(other.array)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return array.contentHashCode()
+        }
+    }
+}
+
+object WireTestLogger {
+    fun getLog(tag: String): Logger {
+        return object : Logger {
+            override fun info(message: String) {
+                println("INFO [$tag]: $message")
+            }
+        }
+    }
+
+    interface Logger {
+        fun info(message: String)
+    }
+}
+
+@Suppress("MagicNumber")
+data class RequestOptions(
+    val expectedResponseCodes: NumberSequence = NumberSequence.Range(200..299),
+    val accessToken: AccessToken? = null,
+    val cookie: AccessCookie? = null
+)
+
+object NetworkBackendClient {
+
+    @Suppress("MagicNumber")
     fun makeRequest(
         url: URL,
         method: String,
         body: Any? = null,
         headers: Map<String, String>,
-        expectedResponseCodes: NumberSequence = NumberSequence.Range(200..299),
-        accessToken: AccessToken? = null,
-        cookie: AccessCookie? = null
+        options: RequestOptions = RequestOptions()
     ): HttpURLConnection {
         print(url.toURI().toString())
 
@@ -57,20 +89,32 @@ object BackendClient {
             if (method != "GET") {
                 doOutput = true
             }
+
             for ((key, value) in headers) {
                 setRequestProperty(key, value)
             }
-            if (accessToken != null) {
-                setRequestProperty("Authorization", String.format("%s %s", accessToken.type, accessToken.value))
+
+            options.accessToken?.let { token ->
+                setRequestProperty("Authorization", String.format("%s %s", token.type, token.value))
             }
-            if (cookie != null) {
+
+            options.cookie?.let { cookie ->
                 setRequestProperty("Cookie", cookie.name + "=" + cookie.value)
             }
+
             connectTimeout = 5000
             readTimeout = 5000
         }
 
-        if (method != "GET" && body != null) {
+        writeRequestBody(connection, body)
+
+        handleResponseError(connection, options.expectedResponseCodes)
+
+        return connection
+    }
+
+    private fun writeRequestBody(connection: HttpURLConnection, body: Any?) {
+        if (connection.requestMethod != "GET" && body != null) {
             connection.outputStream.use { os ->
                 when (body) {
                     is String -> os.write(body.toByteArray())
@@ -80,9 +124,10 @@ object BackendClient {
                 os.flush()
             }
         }
+    }
 
+    private fun handleResponseError(connection: HttpURLConnection, expectedResponseCodes: NumberSequence) {
         val responseCode = connection.responseCode
-
         WireTestLogger.getLog("Null").info("Response is $responseCode")
 
         val hasError = when (expectedResponseCodes) {
@@ -94,48 +139,26 @@ object BackendClient {
             val error = connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
             throw HttpRequestException(error, responseCode)
         }
-
-        return connection
     }
 
-    /**
-    This is the base api class for making post and get request
-    @Param url the api url
-    @Param method: the method GET or  POST
-    @Param body: the body json string
-    @Param header: the headers
-     */
     @Throws(Exception::class)
     fun sendJsonRequest(
         url: URL,
         method: String,
         body: Any? = null,
         headers: Map<String, String>,
-        expectedResponseCodes: NumberSequence = NumberSequence.Range(200..299),
-        accessToken: AccessToken? = null,
-        cookie: AccessCookie? = null
-    ) = makeRequest(url, method, body, headers, expectedResponseCodes, accessToken, cookie).response()
+        options: RequestOptions = RequestOptions()
+    ) = makeRequest(url, method, body, headers, options).response()
 
-
-    /**
-     * Sends an HTTP GET or POST request with optional JSON body and headers.
-     * Returns the response body and any cookies from the "Set-Cookie" header.
-    @Param url the api url
-    @Param method: the method GET or  POST
-    @Param body: the body json string
-    @Param header: the headers
-     */
     @Throws(Exception::class)
     fun sendJsonRequestWithCookies(
         url: URL,
         method: String,
         body: String? = null,
         headers: Map<String, String>,
-        expectedResponseCodes: NumberSequence = NumberSequence.Range(200..299),
-        accessToken: AccessToken? = null,
-        cookie: AccessCookie? = null
+        options: RequestOptions = RequestOptions()
     ): HttpResponseWithCookies {
-        val connection = makeRequest(url, method, body, headers, expectedResponseCodes, accessToken, cookie)
+        val connection = makeRequest(url, method, body, headers, options)
 
         return HttpResponseWithCookies(
             body = connection.response(),
@@ -145,7 +168,7 @@ object BackendClient {
         )
     }
 
-
+    @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
     @Throws(Exception::class)
     fun uploadAsset(url: URL, token: AccessToken?, isPublic: Boolean, retention: String, content: ByteArray): String {
         val boundary = "frontier"
@@ -170,23 +193,22 @@ object BackendClient {
             append("--").append(boundary).append("\r\n")
             append("Content-Type: application/json; charset=utf-8\r\n")
             append("Content-length: ").append(metadata.toString().length).append("\r\n")
-            append("\r\n") // Empty line separates header from body
+            append("\r\n")
         }.toString().toByteArray()
         multipartBodyBuilder.write(metadataPartHeader)
         multipartBodyBuilder.write(metadata.toString().toByteArray())
-        multipartBodyBuilder.write("\r\n".toByteArray()) // CRLF after body content
+        multipartBodyBuilder.write("\r\n".toByteArray())
 
-        // Add the second part: Content (application/octet-stream)
         val contentPartHeader = StringBuilder().apply {
             append("--").append(boundary).append("\r\n")
             append("Content-Type: application/octet-stream\r\n")
             append("Content-length: ").append(content.size).append("\r\n")
             append("Content-MD5: ").append(md5).append("\r\n")
-            append("\r\n") // Empty line separates header from body
+            append("\r\n")
         }.toString().toByteArray()
         multipartBodyBuilder.write(contentPartHeader)
-        multipartBodyBuilder.write(content) // Write the actual binary content
-        multipartBodyBuilder.write("\r\n".toByteArray()) // CRLF after body content
+        multipartBodyBuilder.write(content)
+        multipartBodyBuilder.write("\r\n".toByteArray())
 
         val footer = "--$boundary--\r\n"
         multipartBodyBuilder.write(footer.toByteArray())
@@ -198,12 +220,14 @@ object BackendClient {
         )
 
         try {
+            val requestOptions = RequestOptions(accessToken = token)
+
             val output = sendJsonRequest(
                 url = url,
                 method = "POST",
                 body = fullRequestBodyBytes,
                 headers = headers,
-                accessToken = token
+                options = requestOptions
             )
 
             val jsonOutput = JSONObject(output)
@@ -215,7 +239,14 @@ object BackendClient {
 
     fun HttpURLConnection.accessCredentials(response: String): AccessCredentials {
         val json = JSONObject(response)
-        val cookie = getHeaderField("Set-Cookie")?.let { HttpCookie.parse(it) }?.let { AccessCookie("zuid", it) }
+        val cookie = getHeaderField("Set-Cookie")?.let {
+            val parsedCookies = HttpCookie.parse(it)
+            if (parsedCookies.isNotEmpty()) {
+                AccessCookie("zuid", parsedCookies)
+            } else {
+                null
+            }
+        }
         val token = AccessToken(
             json.getString("access_token"),
             json.getString("token_type"),
@@ -231,4 +262,3 @@ data class HttpResponseWithCookies(
     val body: String,
     val cookies: List<HttpCookie>
 )
-

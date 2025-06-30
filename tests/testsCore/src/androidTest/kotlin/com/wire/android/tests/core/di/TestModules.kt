@@ -17,7 +17,6 @@
  */
 package com.wire.android.tests.core.di
 
-
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.tests.core.pages.AllPages

@@ -57,6 +57,8 @@ object SupportScreenDestination : ExternalUriStringResDirection {
         get() = R.string.url_support
 }
 
+data class TeamManagementScreenDestination(override val uri: Uri) : ExternalUriDirection
+
 object PrivacyPolicyScreenDestination : ExternalUriStringResDirection {
     override val uriStringRes: Int
         get() = R.string.url_privacy_policy

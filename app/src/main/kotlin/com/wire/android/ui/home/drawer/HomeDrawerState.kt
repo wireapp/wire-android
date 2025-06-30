@@ -18,7 +18,10 @@
 
 package com.wire.android.ui.home.drawer
 
+import com.wire.android.util.EMPTY
+
 data class HomeDrawerState(
     val unreadArchiveConversationsCount: Int,
     val showFilesOption: Boolean,
+    val teamManagementUrl: String = String.EMPTY
 )

@@ -25,7 +25,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
+import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,6 +39,8 @@ import javax.inject.Inject
 class HomeDrawerViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val observeArchivedUnreadConversationsCountUseCase: ObserveArchivedUnreadConversationsCountUseCase,
+    private val observeSelfUser: ObserveSelfUserUseCase,
+    private val getTeamUrl: GetTeamUrlUseCase,
     private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
 
@@ -49,6 +55,28 @@ class HomeDrawerViewModel @Inject constructor(
     init {
         observeUnreadArchiveConversationsCount()
         observeWireCellsFeatureState()
+        observeTeamManagementUrlForUser()
+    }
+
+    private fun observeTeamManagementUrlForUser() = viewModelScope.launch {
+        observeSelfUser().collect {
+            when (it.userType) {
+                UserType.ADMIN,
+                UserType.OWNER -> {
+                    val teamManagementUrl = getTeamUrl()
+                    drawerState = drawerState.copy(teamManagementUrl = teamManagementUrl)
+                }
+
+                UserType.INTERNAL,
+                UserType.EXTERNAL,
+                UserType.FEDERATED,
+                UserType.GUEST,
+                UserType.SERVICE,
+                UserType.NONE -> {
+                    drawerState = drawerState.copy(teamManagementUrl = String.EMPTY)
+                }
+            }
+        }
     }
 
     private fun observeWireCellsFeatureState() = viewModelScope.launch {

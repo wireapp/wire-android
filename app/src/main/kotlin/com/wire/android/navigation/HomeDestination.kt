@@ -20,6 +20,7 @@ package com.wire.android.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.core.net.toUri
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.ui.destinations.AllConversationsScreenDestination
@@ -38,6 +39,7 @@ sealed class HomeDestination(
     val withUserAvatar: Boolean = true,
     val direction: Direction,
     val searchBar: SearchBarOptions? = null,
+    val isExternalDestination: Boolean = false
 ) {
     data object Conversations : HomeDestination(
         title = UIText.StringResource(R.string.conversations_screen_title),
@@ -70,13 +72,21 @@ sealed class HomeDestination(
     data object Support : HomeDestination(
         title = UIText.StringResource(R.string.support_screen_title),
         icon = R.drawable.ic_support,
-        direction = SupportScreenDestination
+        direction = SupportScreenDestination,
+        isExternalDestination = true
     )
 
     data object WhatsNew : HomeDestination(
         title = UIText.StringResource(R.string.whats_new_screen_title),
         icon = R.drawable.ic_star,
         direction = WhatsNewScreenDestination
+    )
+
+    data class TeamManagement(val teamUrl: String) : HomeDestination(
+        title = UIText.StringResource(R.string.team_management_screen_title),
+        icon = R.drawable.ic_team_management,
+        direction = TeamManagementScreenDestination(uri = teamUrl.toUri()),
+        isExternalDestination = true
     )
 
     data object Cells : HomeDestination(

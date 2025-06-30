@@ -27,8 +27,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.Logo
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.spacers.HorizontalSpace
@@ -109,12 +114,19 @@ fun HomeDrawer(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val bottomItems = listOf(HomeDestination.WhatsNew, HomeDestination.Settings, HomeDestination.Support)
+        val bottomItems = buildList {
+            add(HomeDestination.WhatsNew)
+            add(HomeDestination.Settings)
+            if (homeDrawerState.teamManagementUrl.isNotBlank()) add(HomeDestination.TeamManagement(homeDrawerState.teamManagementUrl))
+            add(HomeDestination.Support)
+        }
+
         bottomItems.forEach { item ->
             DrawerItem(
                 destination = item,
                 selected = currentRoute == item.direction.route,
-                onItemClick = remember { { navigateAndCloseDrawer(item) } }
+                onItemClick = remember { { navigateAndCloseDrawer(item) } },
+                isExternalDestination = item.isExternalDestination
             )
         }
     }
@@ -127,6 +139,7 @@ fun DrawerItem(
     onItemClick: () -> Unit,
     modifier: Modifier = Modifier,
     unreadCount: Int = 0,
+    isExternalDestination: Boolean = false
 ) {
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
@@ -157,6 +170,15 @@ fun DrawerItem(
                 .weight(1F)
         )
         UnreadMessageEventBadge(unreadMessageCount = unreadCount)
+        if (isExternalDestination) {
+            HorizontalSpace.x8()
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                contentDescription = null,
+                tint = colorsScheme().secondaryText,
+                modifier = Modifier.size(dimensions().spacing16x)
+            )
+        }
         HorizontalSpace.x12()
     }
 }
@@ -183,6 +205,19 @@ fun PreviewUnSelectedArchivedItemWithUnreadCount() {
             selected = false,
             onItemClick = {},
             unreadCount = 100
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewItemWithExternalDestination() {
+    Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
+        DrawerItem(
+            destination = HomeDestination.Archive,
+            selected = false,
+            onItemClick = {},
+            isExternalDestination = true
         )
     }
 }

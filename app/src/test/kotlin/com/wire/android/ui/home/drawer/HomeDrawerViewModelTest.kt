@@ -21,7 +21,12 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.framework.TestUser
+import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
+import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -55,6 +60,21 @@ class HomeDrawerViewModelTest {
 
         // Then
         assertEquals(unreadCount.toInt(), viewModel.drawerState.unreadArchiveConversationsCount)
+        assertEquals(String.EMPTY, viewModel.drawerState.teamManagementUrl)
+    }
+
+    @Test
+    fun `given userIsAdmin, when starts observing, then set team url`() = runTest {
+        // Given
+        val (_, viewModel) = Arrangement()
+            .withSelfUserType(UserType.ADMIN)
+            .arrange()
+
+        // When
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(Arrangement.TEAM_URL, viewModel.drawerState.teamManagementUrl)
     }
 
     private class Arrangement {
@@ -68,18 +88,37 @@ class HomeDrawerViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
+        @MockK
+        lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
+
+        @MockK
+        lateinit var getTeamUrlUseCase: GetTeamUrlUseCase
+
         val unreadArchivedConversationsCountChannel = Channel<Long>(capacity = Channel.UNLIMITED)
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeArchivedUnreadConversationsCount() } returns unreadArchivedConversationsCountChannel.consumeAsFlow()
             every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
+            every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
+            withSelfUserType()
+            coEvery { getTeamUrlUseCase() } returns TEAM_URL
+        }
+
+        fun withSelfUserType(type: UserType = UserType.INTERNAL) = apply {
+            coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(userType = type))
         }
 
         fun arrange() = this to HomeDrawerViewModel(
             savedStateHandle = savedStateHandle,
             observeArchivedUnreadConversationsCountUseCase = observeArchivedUnreadConversationsCount,
-            globalDataStore = globalDataStore
+            globalDataStore = globalDataStore,
+            observeSelfUser = observeSelfUserUseCase,
+            getTeamUrl = getTeamUrlUseCase
         )
+
+        companion object {
+            const val TEAM_URL = "some-url"
+        }
     }
 }

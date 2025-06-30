@@ -39,7 +39,6 @@ sealed class HomeDestination(
     val withUserAvatar: Boolean = true,
     val direction: Direction,
     val searchBar: SearchBarOptions? = null,
-    val isExternalDestination: Boolean = false
 ) {
     data object Conversations : HomeDestination(
         title = UIText.StringResource(R.string.conversations_screen_title),
@@ -72,8 +71,7 @@ sealed class HomeDestination(
     data object Support : HomeDestination(
         title = UIText.StringResource(R.string.support_screen_title),
         icon = R.drawable.ic_support,
-        direction = SupportScreenDestination,
-        isExternalDestination = true
+        direction = SupportScreenDestination
     )
 
     data object WhatsNew : HomeDestination(
@@ -85,8 +83,7 @@ sealed class HomeDestination(
     data class TeamManagement(val teamUrl: String) : HomeDestination(
         title = UIText.StringResource(R.string.team_management_screen_title),
         icon = R.drawable.ic_team_management,
-        direction = TeamManagementScreenDestination(uri = teamUrl.toUri()),
-        isExternalDestination = true
+        direction = TeamManagementScreenDestination(uri = teamUrl.toUri())
     )
 
     data object Cells : HomeDestination(

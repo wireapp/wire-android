@@ -48,6 +48,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.navigation.ExternalUriDirection
+import com.wire.android.navigation.ExternalUriStringResDirection
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.colorsScheme
@@ -125,8 +127,7 @@ fun HomeDrawer(
             DrawerItem(
                 destination = item,
                 selected = currentRoute == item.direction.route,
-                onItemClick = remember { { navigateAndCloseDrawer(item) } },
-                isExternalDestination = item.isExternalDestination
+                onItemClick = remember { { navigateAndCloseDrawer(item) } }
             )
         }
     }
@@ -139,7 +140,6 @@ fun DrawerItem(
     onItemClick: () -> Unit,
     modifier: Modifier = Modifier,
     unreadCount: Int = 0,
-    isExternalDestination: Boolean = false
 ) {
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
@@ -170,14 +170,16 @@ fun DrawerItem(
                 .weight(1F)
         )
         UnreadMessageEventBadge(unreadMessageCount = unreadCount)
-        if (isExternalDestination) {
-            HorizontalSpace.x8()
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                contentDescription = null,
-                tint = colorsScheme().secondaryText,
-                modifier = Modifier.size(dimensions().spacing16x)
-            )
+        with(destination) {
+            if (direction is ExternalUriDirection || direction is ExternalUriStringResDirection) {
+                HorizontalSpace.x8()
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                    contentDescription = null,
+                    tint = colorsScheme().secondaryText,
+                    modifier = Modifier.size(dimensions().spacing16x)
+                )
+            }
         }
         HorizontalSpace.x12()
     }
@@ -214,10 +216,9 @@ fun PreviewUnSelectedArchivedItemWithUnreadCount() {
 fun PreviewItemWithExternalDestination() {
     Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
         DrawerItem(
-            destination = HomeDestination.Archive,
+            destination = HomeDestination.Support,
             selected = false,
             onItemClick = {},
-            isExternalDestination = true
         )
     }
 }

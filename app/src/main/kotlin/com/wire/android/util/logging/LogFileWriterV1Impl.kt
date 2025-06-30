@@ -16,9 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.util
+package com.wire.android.util.logging
 
-import android.content.Context
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,11 +42,11 @@ import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
 @Suppress("TooGenericExceptionCaught")
-class LogFileWriter(private val logsDirectory: File) {
+class LogFileWriterV1Impl(private val logsDirectory: File) : LogFileWriter {
 
     private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
 
-    val activeLoggingFile = File(logsDirectory, ACTIVE_LOGGING_FILE_NAME)
+    override val activeLoggingFile = File(logsDirectory, ACTIVE_LOGGING_FILE_NAME)
 
     private val fileWriterCoroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var writingJob: Job? = null
@@ -59,7 +58,7 @@ class LogFileWriter(private val logsDirectory: File) {
      * logger.i("something") // Is guaranteed to be recorded in the log file
      * ```
      */
-    suspend fun start() {
+    override suspend fun start() {
         appLogger.i("KaliumFileWritter.start called")
         val isWriting = writingJob?.isActive ?: false
         if (isWriting) {
@@ -112,10 +111,14 @@ class LogFileWriter(private val logsDirectory: File) {
     /**
      * Stops processing logs and writing to files
      */
-    fun stop() {
+    override suspend fun stop() {
         appLogger.i("KaliumFileWritter.stop called; Stopping log collection.")
         writingJob?.cancel()
         clearActiveLoggingFileContent()
+    }
+
+    override suspend fun forceFlush() {
+        /* no-op */
     }
 
     private fun clearActiveLoggingFileContent() {
@@ -151,7 +154,7 @@ class LogFileWriter(private val logsDirectory: File) {
         }
     }
 
-    fun deleteAllLogFiles() {
+    override fun deleteAllLogFiles() {
         clearActiveLoggingFileContent()
         logsDirectory.listFiles()?.filter {
             it.extension.lowercase(Locale.ROOT) == LOG_COMPRESSED_FILE_EXTENSION
@@ -196,7 +199,5 @@ class LogFileWriter(private val logsDirectory: File) {
         private const val BYTE_ARRAY_SIZE = 1024
         private const val LOG_COMPRESSED_FILES_MAX_COUNT = 10
         private const val LOG_COMPRESSED_FILE_EXTENSION = "gz"
-
-        fun logsDirectory(context: Context) = File(context.cacheDir, "logs")
     }
 }

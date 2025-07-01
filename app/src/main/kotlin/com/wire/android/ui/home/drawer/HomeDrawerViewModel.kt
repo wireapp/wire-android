@@ -48,6 +48,7 @@ class HomeDrawerViewModel @Inject constructor(
         HomeDrawerState(
             unreadArchiveConversationsCount = 0,
             showFilesOption = false,
+            teamManagementUrl = ""
         )
     )
         private set

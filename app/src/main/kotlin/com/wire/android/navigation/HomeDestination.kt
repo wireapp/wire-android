@@ -80,10 +80,10 @@ sealed class HomeDestination(
         direction = WhatsNewScreenDestination
     )
 
-    data class TeamManagement(val teamUrl: String) : HomeDestination(
+    data object TeamManagement : HomeDestination(
         title = UIText.StringResource(R.string.team_management_screen_title),
         icon = R.drawable.ic_team_management,
-        direction = TeamManagementScreenDestination(uri = teamUrl.toUri())
+        direction = TeamManagementScreenDestination
     )
 
     data object Cells : HomeDestination(
@@ -107,6 +107,6 @@ sealed class HomeDestination(
             values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
 
         fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Settings, Vault, Archive, Support, WhatsNew, Cells)
+            arrayOf(Conversations, Settings, Vault, Archive, Support, TeamManagement, WhatsNew, Cells)
     }
 }

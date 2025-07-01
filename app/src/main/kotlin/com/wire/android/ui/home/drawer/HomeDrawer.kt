@@ -43,11 +43,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.navigation.ExternalDirectionLess
 import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.ExternalUriStringResDirection
 import com.wire.android.navigation.HomeDestination
@@ -59,6 +61,7 @@ import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversationslist.common.UnreadMessageEventBadge
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -69,6 +72,7 @@ fun HomeDrawer(
     onCloseDrawer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Column(
         modifier = modifier
             .padding(
@@ -119,7 +123,7 @@ fun HomeDrawer(
         val bottomItems = buildList {
             add(HomeDestination.WhatsNew)
             add(HomeDestination.Settings)
-            if (homeDrawerState.teamManagementUrl.isNotBlank()) add(HomeDestination.TeamManagement(homeDrawerState.teamManagementUrl))
+            if (homeDrawerState.teamManagementUrl.isNotBlank()) add(HomeDestination.TeamManagement)
             add(HomeDestination.Support)
         }
 
@@ -127,7 +131,18 @@ fun HomeDrawer(
             DrawerItem(
                 destination = item,
                 selected = currentRoute == item.direction.route,
-                onItemClick = remember { { navigateAndCloseDrawer(item) } }
+                onItemClick = when (item) {
+                    is HomeDestination.TeamManagement -> remember {
+                        {
+                            CustomTabsHelper.launchUrl(context, homeDrawerState.teamManagementUrl)
+                            onCloseDrawer()
+                        }
+                    }
+
+                    else -> {
+                        remember { { navigateAndCloseDrawer(item) } }
+                    }
+                }
             )
         }
     }
@@ -171,7 +186,7 @@ fun DrawerItem(
         )
         UnreadMessageEventBadge(unreadMessageCount = unreadCount)
         with(destination) {
-            if (direction is ExternalUriDirection || direction is ExternalUriStringResDirection) {
+            if (direction is ExternalUriDirection || direction is ExternalUriStringResDirection || direction is ExternalDirectionLess) {
                 HorizontalSpace.x8()
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.OpenInNew,

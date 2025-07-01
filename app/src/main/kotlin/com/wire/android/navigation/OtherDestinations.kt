@@ -33,6 +33,14 @@ import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
 import com.wire.android.util.sha256
 
+/**
+ * The route is not relevant as an action is triggered by the navigation
+ */
+interface ExternalDirectionLess : Direction {
+    override val route: String
+        get() = this::class.qualifiedName.orEmpty()
+}
+
 interface ExternalUriDirection : Direction {
     val uri: Uri
     override val route: String
@@ -57,7 +65,7 @@ object SupportScreenDestination : ExternalUriStringResDirection {
         get() = R.string.url_support
 }
 
-data class TeamManagementScreenDestination(override val uri: Uri) : ExternalUriDirection
+data object TeamManagementScreenDestination : ExternalDirectionLess
 
 object PrivacyPolicyScreenDestination : ExternalUriStringResDirection {
     override val uriStringRes: Int

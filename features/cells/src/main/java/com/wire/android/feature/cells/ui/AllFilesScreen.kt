@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
 import com.wire.android.navigation.NavigationCommand
@@ -41,6 +42,7 @@ fun AllFilesScreen(
     searchBarState: SearchBarState,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
+    navigator.navigate(NavigationCommand(AddRemoveTagsScreenDestination))
 
     val sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
 

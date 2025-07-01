@@ -19,6 +19,7 @@ package com.wire.android.navigation
 
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.NavGraphSpec
+import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
@@ -39,6 +40,7 @@ object WireMainNavGraph : NavGraphSpec {
         .plus(CreateFolderScreenDestination)
         .plus(MoveToFolderScreenDestination)
         .plus(RecycleBinScreenDestination)
+        .plus(AddRemoveTagsScreenDestination)
     override val destinationsByRoute = destinations.associateBy { it.route }
     override val nestedNavGraphs = NavGraphs.root.nestedNavGraphs
 }

@@ -34,7 +34,7 @@ import com.wire.android.util.multipleFileSharingIntent
 import com.wire.android.util.sha256
 
 /**
- * The route is not relevant as an action is triggered by the navigation
+ * The route is not that relevant the route will not be used for navigation, it will be overridden by a direct custom tab launch.
  */
 interface ExternalDirectionLess : Direction {
     override val route: String

@@ -20,7 +20,6 @@ package com.wire.android.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.core.net.toUri
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.ui.destinations.AllConversationsScreenDestination

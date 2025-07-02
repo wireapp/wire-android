@@ -578,6 +578,7 @@ fun PersonalSelfUserProfileScreenPreview() {
                 fullName = "Some User",
                 userName = "some-user",
                 teamName = null,
+                teamUrl = "some-url",
                 otherAccounts = listOf(
                     OtherAccount(
                         id = UserId("id1", "domain"),

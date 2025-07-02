@@ -20,10 +20,15 @@ package com.wire.android.feature.cells.ui.tags
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.delete
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.cells.ui.navArgs
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
+import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
 import com.wire.kalium.common.functional.getOrElse
+import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,11 +39,15 @@ import javax.inject.Inject
 class AddRemoveTagsViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val getAllTagsUseCase: GetAllTagsUseCase,
-) : ViewModel() {
+    private val updateNodeTagsUseCase: UpdateNodeTagsUseCase,
+    private val removeNodeTagsUseCase: RemoveNodeTagsUseCase,
+) : ActionsViewModel<AddRemoveTagsViewModelAction>() {
+
+    private val navArgs: AddRemoveTagsNavArgs = savedStateHandle.navArgs()
 
     val tagsTextState = TextFieldState()
 
-    private val _addedTags: MutableStateFlow<List<String>> = MutableStateFlow(listOf("Android", "Kotlin", "Compose"))
+    private val _addedTags: MutableStateFlow<List<String>> = MutableStateFlow(navArgs.tags)
     internal val addedTags = _addedTags.asStateFlow()
 
     private val _suggestedTags: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
@@ -46,7 +55,8 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _suggestedTags.value = getAllTagsUseCase().getOrElse(emptyList())
+            val allTags = getAllTagsUseCase().getOrElse(emptyList())
+            _suggestedTags.value = allTags.filterNot { it in _addedTags.value }
         }
     }
 
@@ -63,4 +73,32 @@ class AddRemoveTagsViewModel @Inject constructor(
     fun removeTag(tag: String) {
         _addedTags.value = _addedTags.value.filter { it != tag }
     }
+
+    fun updateTags() {
+        viewModelScope.launch {
+            if (_addedTags.value.isEmpty()) {
+                removeNodeTagsUseCase(navArgs.uuid)
+                    .onSuccess {
+                        sendAction(AddRemoveTagsViewModelAction.Success)
+                    }
+                    .onFailure {
+                        sendAction(AddRemoveTagsViewModelAction.Failure)
+                    }
+            } else {
+                updateNodeTagsUseCase(navArgs.uuid, _addedTags.value)
+                    .onSuccess {
+                        sendAction(AddRemoveTagsViewModelAction.Success)
+                    }
+                    .onFailure {
+                        sendAction(AddRemoveTagsViewModelAction.Failure)
+                    }
+            }
+        }
+    }
 }
+
+sealed interface AddRemoveTagsViewModelAction {
+    data object Success : AddRemoveTagsViewModelAction
+    data object Failure : AddRemoveTagsViewModelAction
+}
+

@@ -27,6 +27,7 @@
     <string name="public_link">Copy public link</string>
     <string name="delete_permanently">Delete permanently</string>
     <string name="restore_label">Restore</string>
+    <string name="add_remove_tags_label">Add or remove tags</string>
     <string name="move_label">Move</string>
     <string name="download_label">Download</string>
     <string name="copy_link">Copy Link</string>
@@ -91,4 +92,6 @@
     <string name="add_tag_label">Add tag</string>
     <string name="enter_name_label">Enter tag name</string>
     <string name="no_tags_message">No tags has been added this file.</string>
+    <string name="tags_edited">Tags were edited</string>
+    <string name="failed_edit_tags">Failed to edit tags</string>
 </resources>

@@ -289,6 +289,7 @@ class CellViewModel @Inject constructor(
                             add(NodeBottomSheetAction.SHARE)
                             add(NodeBottomSheetAction.PUBLIC_LINK)
                         }
+                        add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
                         add(NodeBottomSheetAction.MOVE)
                         add(NodeBottomSheetAction.DELETE)
                     }
@@ -307,6 +308,7 @@ class CellViewModel @Inject constructor(
                     } else {
                         add(NodeBottomSheetAction.SHARE)
                         add(NodeBottomSheetAction.DOWNLOAD)
+                        add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
                         add(NodeBottomSheetAction.MOVE)
                         add(NodeBottomSheetAction.DELETE)
                     }
@@ -333,6 +335,7 @@ class CellViewModel @Inject constructor(
             }
 
             NodeBottomSheetAction.PUBLIC_LINK -> sendAction(ShowPublicLinkScreen(node))
+            NodeBottomSheetAction.ADD_REMOVE_TAGS -> sendAction(ShowAddRemoveTagsScreen(node))
             NodeBottomSheetAction.MOVE -> navArgs.conversationId?.let {
                 sendAction(
                     ShowMoveToFolderScreen(
@@ -435,6 +438,7 @@ internal data class ShowDeleteConfirmation(val node: CellNodeUi, val isPermanent
 internal data class ShowRestoreConfirmation(val node: CellNodeUi) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
 internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
+internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
 internal data object RefreshData : CellViewAction
 

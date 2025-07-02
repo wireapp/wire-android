@@ -118,7 +118,8 @@ fun RecycleBinScreen(
                                 )
                             )
                         )
-                    }
+                    },
+                    showAddRemoveTagsScreen = {}
                 )
             }
         }

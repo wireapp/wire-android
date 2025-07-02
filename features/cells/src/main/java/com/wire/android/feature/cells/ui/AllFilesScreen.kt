@@ -42,8 +42,6 @@ fun AllFilesScreen(
     searchBarState: SearchBarState,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-    navigator.navigate(NavigationCommand(AddRemoveTagsScreenDestination))
-
     val sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
 
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
@@ -87,7 +85,14 @@ fun AllFilesScreen(
                 )
             )
         },
-        showMoveToFolderScreen = { _, _, _ -> }
+        showMoveToFolderScreen = { _, _, _ -> },
+        showAddRemoveTagsScreen = { node ->
+            navigator.navigate(
+                NavigationCommand(
+                    AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
+                )
+            )
+        },
     )
 
     if (searchBarState.isFilterActive) {

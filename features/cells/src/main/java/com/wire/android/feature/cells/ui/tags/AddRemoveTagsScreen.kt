@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.tags
 
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -50,6 +52,8 @@ import com.wire.android.feature.cells.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.chip.WireFilterChip
@@ -67,13 +71,18 @@ import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-@WireDestination
+@WireDestination(
+    navArgsDelegate = AddRemoveTagsNavArgs::class,
+    style = PopUpNavigationAnimation::class,
+)
 @Composable
 fun AddRemoveTagsScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: AddRemoveTagsViewModel = hiltViewModel(),
+    addRemoveTagsViewModel: AddRemoveTagsViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+
     WireScaffold(
         modifier = modifier,
         snackbarHost = {},
@@ -101,7 +110,7 @@ fun AddRemoveTagsScreen(
                     WirePrimaryButton(
                         text = stringResource(R.string.save_label),
                         onClick = {
-
+                            addRemoveTagsViewModel.updateTags()
                         },
                         state = WireButtonState.Default,
                         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
@@ -113,17 +122,30 @@ fun AddRemoveTagsScreen(
 
         AddRemoveTagsScreenContent(
             internalPadding = internalPadding,
-            textFieldState = viewModel.tagsTextState,
-            addedTags = viewModel.addedTags,
-            suggestedTags = viewModel.suggestedTags,
+            textFieldState = addRemoveTagsViewModel.tagsTextState,
+            addedTags = addRemoveTagsViewModel.addedTags,
+            suggestedTags = addRemoveTagsViewModel.suggestedTags,
             onAddTag = { tag ->
-                viewModel.addTag(tag)
+                addRemoveTagsViewModel.addTag(tag)
             },
             onRemoveTag = { tag ->
-                viewModel.removeTag(tag)
+                addRemoveTagsViewModel.removeTag(tag)
             },
             modifier = Modifier.fillMaxSize()
         )
+    }
+
+    HandleActions(addRemoveTagsViewModel.actions) { action ->
+        when (action) {
+            is AddRemoveTagsViewModelAction.Success -> {
+                Toast.makeText(context, context.resources.getString(R.string.tags_edited), Toast.LENGTH_SHORT).show()
+            }
+
+            is AddRemoveTagsViewModelAction.Failure -> {
+                Toast.makeText(context, context.resources.getString(R.string.failed_edit_tags), Toast.LENGTH_SHORT).show()
+            }
+        }
+        navigator.navigateBack()
     }
 }
 

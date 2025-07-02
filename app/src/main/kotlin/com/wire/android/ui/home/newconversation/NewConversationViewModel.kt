@@ -88,6 +88,7 @@ class NewConversationViewModel @Inject constructor(
         }
     )
     var isChannelCreationPossible: Boolean by mutableStateOf(true)
+    var isFreemiumAccount: Boolean by mutableStateOf(false) // TODO: implement logic to determine if the account is freemium
 
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState.Default)
 
@@ -270,6 +271,7 @@ class NewConversationViewModel @Inject constructor(
                     ),
                     access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),
                     channelAddPermission = newGroupState.channelAddPermissionType.toDomainEnum()
+                    // TODO: include channel history type
                 )
             )
             handleNewGroupCreationResult(result)

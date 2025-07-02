@@ -31,6 +31,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.ui.common.WirePromotionCard
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -71,6 +72,7 @@ fun ChannelHistoryScreen(
             navigator.navigate(NavigationCommand(ChannelHistoryCustomScreenDestination(navArgs)))
         },
         onBackPressed = navigator::navigateBack,
+        onUpgradeNowClicked = { /* TODO: Implement upgrade action */ },
         modifier = modifier,
     )
 }
@@ -81,7 +83,9 @@ fun ChannelHistoryScreenContent(
     onHistoryOptionSelected: (ChannelHistoryType) -> Unit,
     onOpenCustomChooser: () -> Unit,
     onBackPressed: () -> Unit,
+    onUpgradeNowClicked: () -> Unit,
     modifier: Modifier = Modifier,
+    isFreemiumAccount: Boolean = false
 ) {
     WireScaffold(
         modifier = modifier,
@@ -96,14 +100,17 @@ fun ChannelHistoryScreenContent(
         }
     ) { internalPadding ->
         LazyColumn(modifier = Modifier.padding(internalPadding)) {
-            val items = defaultHistoryTypes.plus(
-                when {
-                    // add the chosen custom option if it is selected
-                    selectedHistoryOption.isCustom() -> selectedHistoryOption
-                    // otherwise add a placeholder for custom option
-                    else -> ChannelHistoryType.On.Specific(0, ChannelHistoryType.On.Specific.AmountType.Days)
-                }
-            )
+            val items = when (isFreemiumAccount) {
+                true -> defaultFreemiumHistoryTypes
+                false -> defaultHistoryTypes.plus(
+                    when {
+                        // add the chosen custom option if it is selected
+                        selectedHistoryOption.isCustom() -> selectedHistoryOption
+                        // otherwise add a placeholder for custom option
+                        else -> ChannelHistoryType.On.Specific(0, ChannelHistoryType.On.Specific.AmountType.Days)
+                    }
+                )
+            }
 
             items(count = items.size) { index ->
                 val item = items[index]
@@ -114,7 +121,10 @@ fun ChannelHistoryScreenContent(
                         isSelected && item is ChannelHistoryType.On.Specific && item.isCustom() -> item.amountAsString()
                         else -> null
                     },
-                    arrowType = ArrowType.CENTER_ALIGNED,
+                    arrowType = when {
+                        item.isCustom() -> ArrowType.CENTER_ALIGNED
+                        else -> ArrowType.NONE
+                    },
                     selected = selectedHistoryOption == item,
                     clickable = Clickable {
                         when {
@@ -137,17 +147,53 @@ fun ChannelHistoryScreenContent(
                     )
                 )
             }
+            if (isFreemiumAccount) {
+                item {
+                    ChannelHistoryFreemiumUpgradeCard(
+                        onUpgradeNowClicked = onUpgradeNowClicked,
+                    )
+                }
+            }
         }
     }
 }
 
+@Composable
+private fun ChannelHistoryFreemiumUpgradeCard(
+    onUpgradeNowClicked: () -> Unit,
+) {
+    WirePromotionCard(
+        title = stringResource(id = R.string.channel_history_freemium_upgrade_title),
+        description = stringResource(id = R.string.channel_history_freemium_upgrade_description),
+        buttonLabel = stringResource(id = R.string.channel_history_freemium_upgrade_now),
+        onButtonClick = onUpgradeNowClicked,
+        modifier = Modifier.padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
-fun PreviewChannelHistoryScreen() = WireTheme {
+fun PreviewChannelHistoryScreenPremium() = WireTheme {
     ChannelHistoryScreenContent(
+        isFreemiumAccount = false,
         selectedHistoryOption = ChannelHistoryType.On.Specific(2, ChannelHistoryType.On.Specific.AmountType.Weeks),
         onHistoryOptionSelected = {},
         onOpenCustomChooser = {},
+        onUpgradeNowClicked = {},
         onBackPressed = {},
     )
 }
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewChannelHistoryScreenFreemium() = WireTheme {
+    ChannelHistoryScreenContent(
+        isFreemiumAccount = true,
+        selectedHistoryOption = ChannelHistoryType.On.Specific(1, ChannelHistoryType.On.Specific.AmountType.Days),
+        onHistoryOptionSelected = {},
+        onOpenCustomChooser = {},
+        onUpgradeNowClicked = {},
+        onBackPressed = {},
+    )
+}
+

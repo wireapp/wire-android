@@ -70,7 +70,7 @@ fun ChannelHistoryCustomScreen(
     }
 
     fun navigateBack() {
-        amountState.text.toString().toIntOrNull()?.let {
+        amountState.text.toString().toIntOrNull()?.takeIf { it > 0 }?.let {
             resultNavigator.setResult(ChannelHistoryCustomNavBackArgs(ChannelHistoryType.On.Specific(it, timeState)))
         }
         resultNavigator.navigateBack()

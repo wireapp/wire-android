@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui.tags
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -208,40 +209,42 @@ fun AddRemoveTagsScreenContent(
                 color = colorsScheme().secondaryText,
             )
         )
-        if (addedTags.collectAsState().value.isEmpty()) {
-            Text(
-                modifier = Modifier.padding(
-                    start = dimensions().spacing16x,
-                    end = dimensions().spacing16x,
-                    bottom = dimensions().spacing16x,
-                    top = dimensions().spacing10x
-                ),
-                text = stringResource(R.string.no_tags_message),
-                style = MaterialTheme.wireTypography.body01
-            )
-        } else {
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(colorsScheme().surfaceVariant)
-                    .padding(
-                        top = dimensions().spacing16x,
+        AnimatedContent(addedTags.collectAsState().value.isEmpty()) { isEmpty ->
+            if (isEmpty) {
+                Text(
+                    modifier = Modifier.padding(
                         start = dimensions().spacing16x,
                         end = dimensions().spacing16x,
-                        bottom = dimensions().spacing8x
-                    )
-                    .animateContentSize()
-            ) {
-                addedTags.collectAsState().value.forEach { tag ->
-                    WireFilterChip(
-                        modifier = Modifier.padding(
-                            end = dimensions().spacing8x,
+                        bottom = dimensions().spacing16x,
+                        top = dimensions().spacing10x
+                    ),
+                    text = stringResource(R.string.no_tags_message),
+                    style = MaterialTheme.wireTypography.body01
+                )
+            } else {
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(colorsScheme().surfaceVariant)
+                        .padding(
+                            top = dimensions().spacing16x,
+                            start = dimensions().spacing16x,
+                            end = dimensions().spacing16x,
                             bottom = dimensions().spacing8x
-                        ),
-                        label = tag,
-                        isSelected = true,
-                        onSelectChip = onRemoveTag
-                    )
+                        )
+                        .animateContentSize()
+                ) {
+                    addedTags.collectAsState().value.forEach { tag ->
+                        WireFilterChip(
+                            modifier = Modifier.padding(
+                                end = dimensions().spacing8x,
+                                bottom = dimensions().spacing8x
+                            ),
+                            label = tag,
+                            isSelected = true,
+                            onSelectChip = onRemoveTag
+                        )
+                    }
                 }
             }
         }

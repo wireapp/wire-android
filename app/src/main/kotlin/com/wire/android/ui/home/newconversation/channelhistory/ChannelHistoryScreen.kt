@@ -77,6 +77,7 @@ fun ChannelHistoryScreen(
     )
 }
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun ChannelHistoryScreenContent(
     selectedHistoryOption: ChannelHistoryType,
@@ -196,4 +197,3 @@ fun PreviewChannelHistoryScreenFreemium() = WireTheme {
         onBackPressed = {},
     )
 }
-

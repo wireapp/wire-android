@@ -56,6 +56,7 @@ val defaultHistoryTypes: List<ChannelHistoryType> = listOf(
     ChannelHistoryType.On.Specific(4, ChannelHistoryType.On.Specific.AmountType.Weeks),
     ChannelHistoryType.On.Unlimited,
 )
+
 @Suppress("MagicNumber")
 val defaultFreemiumHistoryTypes: List<ChannelHistoryType> = listOf(
     ChannelHistoryType.Off,

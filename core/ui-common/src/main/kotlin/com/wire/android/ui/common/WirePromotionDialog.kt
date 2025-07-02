@@ -76,8 +76,7 @@ fun WirePromotionCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(contentPadding)
-                    ,
+                        .padding(contentPadding),
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(

@@ -63,7 +63,8 @@ class HomeDrawerViewModelTest {
             listOf(
                 viewModel.drawerState.items.first,
                 viewModel.drawerState.items.second
-            ).filterIsInstance<DrawerUiItem.UnreadCounterItem>()
+            ).flatten()
+                .filterIsInstance<DrawerUiItem.UnreadCounterItem>()
                 .first().unreadCount
         )
     }
@@ -84,7 +85,8 @@ class HomeDrawerViewModelTest {
             listOf(
                 viewModel.drawerState.items.first,
                 viewModel.drawerState.items.second
-            ).filterIsInstance<DrawerUiItem.DynamicExternalNavigationItem>()
+            ).flatten()
+                .filterIsInstance<DrawerUiItem.DynamicExternalNavigationItem>()
                 .first().url
         )
     }
@@ -111,7 +113,6 @@ class HomeDrawerViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeArchivedUnreadConversationsCount() } returns unreadArchivedConversationsCountChannel.consumeAsFlow()
-            every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
             every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
             withSelfUserType()
             coEvery { getTeamUrlUseCase() } returns TEAM_URL

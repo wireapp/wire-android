@@ -1486,6 +1486,9 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+
+    <string name="restricted_asset_error_toast_message">Das Versenden von Dateien ist aufgrund von Firmenbeschränkungen verboten</string>
+
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Ping senden</string>
     <string name="ping_confirm_sending_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anpingen möchten?</string>

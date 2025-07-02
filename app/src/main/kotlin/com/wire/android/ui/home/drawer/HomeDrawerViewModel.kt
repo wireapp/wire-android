@@ -96,12 +96,14 @@ class HomeDrawerViewModel @Inject constructor(
                 } to buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.WhatsNew))
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Settings))
-                    if (teamManagementUrl.isNotBlank()) add(
-                        DrawerUiItem.DynamicExternalNavigationItem(
-                            destination = HomeDestination.TeamManagement,
-                            url = teamManagementUrl
+                    if (teamManagementUrl.isNotBlank()) {
+                        add(
+                            DrawerUiItem.DynamicExternalNavigationItem(
+                                destination = HomeDestination.TeamManagement,
+                                url = teamManagementUrl
+                            )
                         )
-                    )
+                    }
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Support))
                 }
             }.collect {

@@ -22,7 +22,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
-import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
@@ -59,8 +58,14 @@ class HomeDrawerViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals(unreadCount.toInt(), viewModel.drawerState.unreadArchiveConversationsCount)
-        assertEquals(String.EMPTY, viewModel.drawerState.teamManagementUrl)
+        assertEquals(
+            unreadCount.toInt(),
+            listOf(
+                viewModel.drawerState.items.first,
+                viewModel.drawerState.items.second
+            ).filterIsInstance<DrawerUiItem.UnreadCounterItem>()
+                .first().unreadCount
+        )
     }
 
     @Test
@@ -74,7 +79,14 @@ class HomeDrawerViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals(Arrangement.TEAM_URL, viewModel.drawerState.teamManagementUrl)
+        assertEquals(
+            Arrangement.TEAM_URL,
+            listOf(
+                viewModel.drawerState.items.first,
+                viewModel.drawerState.items.second
+            ).filterIsInstance<DrawerUiItem.DynamicExternalNavigationItem>()
+                .first().url
+        )
     }
 
     private class Arrangement {
@@ -111,7 +123,7 @@ class HomeDrawerViewModelTest {
 
         fun arrange() = this to HomeDrawerViewModel(
             savedStateHandle = savedStateHandle,
-            observeArchivedUnreadConversationsCountUseCase = observeArchivedUnreadConversationsCount,
+            observeArchivedUnreadConversationsCount = observeArchivedUnreadConversationsCount,
             globalDataStore = globalDataStore,
             observeSelfUser = observeSelfUserUseCase,
             getTeamUrl = getTeamUrlUseCase

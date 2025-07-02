@@ -353,6 +353,18 @@
                 android:name=".services.PlayingAudioMessageService"
                 android:exported="false"
                 android:foregroundServiceType="mediaPlayback" />
+
+        <meta-data
+            android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_restrictions" />
+
+        <receiver
+            android:name=".mdm.MdmConfigurationReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_RESTRICTIONS_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

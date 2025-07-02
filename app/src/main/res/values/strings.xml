@@ -48,6 +48,8 @@
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
+    <string name="restriction_certificate_pinning_title">Certificate Pinning Configuration</string>
+    <string name="restriction_certificate_pinning_description">JSON map of certificate hashes to domain lists</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_try_again">Try Again</string>
     <string name="label_done">Done</string>

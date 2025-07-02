@@ -21,6 +21,7 @@ package com.wire.android.di
 import android.content.Context
 import android.os.Build
 import com.wire.android.BuildConfig
+import com.wire.android.mdm.MdmConfigurationManager
 import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.kalium.logic.featureFlags.BuildFileRestrictionState
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
@@ -34,7 +35,10 @@ import dagger.hilt.components.SingletonComponent
 class KaliumConfigsModule {
 
     @Provides
-    fun provideKaliumConfigs(context: Context): KaliumConfigs {
+    fun provideKaliumConfigs(
+        context: Context,
+        mdmConfigurationManager: MdmConfigurationManager
+    ): KaliumConfigs {
         val fileRestriction: BuildFileRestrictionState = if (BuildConfig.FILE_RESTRICTION_ENABLED) {
             BuildConfig.FILE_RESTRICTION_LIST.split(",").map { it.trim() }.let {
                 BuildFileRestrictionState.AllowSome(it)
@@ -42,6 +46,13 @@ class KaliumConfigsModule {
         } else {
             BuildFileRestrictionState.NoRestriction
         }
+
+        val mdmCertPinningConfig = mdmConfigurationManager.getCertificatePinningConfig()
+        
+        val finalCertPinningConfig = mdmConfigurationManager.mergeCertificatePinningConfigs(
+            defaultConfig = BuildConfig.CERTIFICATE_PINNING_CONFIG,
+            mdmConfig = mdmCertPinningConfig
+        )
 
         return KaliumConfigs(
             fileRestrictionState = fileRestriction,
@@ -58,7 +69,7 @@ class KaliumConfigsModule {
             wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL,
             wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
             isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context),
-            certPinningConfig = BuildConfig.CERTIFICATE_PINNING_CONFIG,
+            certPinningConfig = finalCertPinningConfig,
             maxRemoteSearchResultCount = BuildConfig.MAX_REMOTE_SEARCH_RESULT_COUNT,
             limitTeamMembersFetchDuringSlowSync = BuildConfig.LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC
         )

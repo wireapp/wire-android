@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<restrictions xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Certificate Pinning Configuration -->
+    <restriction
+        android:key="certificate_pinning_config"
+        android:title="@string/restriction_certificate_pinning_title"
+        android:description="@string/restriction_certificate_pinning_description"
+        android:restrictionType="string"
+        android:defaultValue="{}" />
+    
+    <!-- Other MDM configurations can be added here in the future -->
+    
+</restrictions>

@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -59,7 +59,7 @@ class HomeDrawerViewModelTest {
 
         // Then
         assertEquals(
-            unreadCount.toInt(),
+            unreadCount,
             listOf(
                 viewModel.drawerState.items.first,
                 viewModel.drawerState.items.second
@@ -72,11 +72,12 @@ class HomeDrawerViewModelTest {
     @Test
     fun `given userIsAdmin, when starts observing, then set team url`() = runTest {
         // Given
-        val (_, viewModel) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withSelfUserType(UserType.ADMIN)
             .arrange()
 
         // When
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
         advanceUntilIdle()
 
         // Then

@@ -47,7 +47,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.navigation.ExternalDirectionLess
 import com.wire.android.navigation.ExternalUriDirection
@@ -61,7 +60,6 @@ import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversationslist.common.UnreadMessageEventBadge
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -72,7 +70,6 @@ fun HomeDrawer(
     onCloseDrawer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     Column(
         modifier = modifier
             .padding(
@@ -92,57 +89,56 @@ fun HomeDrawer(
                 .height(MaterialTheme.wireDimensions.homeDrawerLogoHeight)
         )
 
-        fun navigateAndCloseDrawer(item: HomeDestination) {
-            navigateToHomeItem(item)
-            onCloseDrawer()
+        val (topItems, bottomItems) = homeDrawerState.items
+        topItems.forEach { item ->
+            MapToDrawerItem(navigateToHomeItem, onCloseDrawer, currentRoute, item)
         }
-
-        DrawerItem(
-            destination = HomeDestination.Conversations,
-            selected = currentRoute == HomeDestination.Conversations.direction.route,
-            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Conversations) } }
-        )
-
-        if (homeDrawerState.showFilesOption) {
-            DrawerItem(
-                destination = HomeDestination.Cells,
-                selected = currentRoute == HomeDestination.Cells.direction.route,
-                onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Cells) } }
-            )
-        }
-
-        DrawerItem(
-            destination = HomeDestination.Archive,
-            unreadCount = homeDrawerState.unreadArchiveConversationsCount,
-            selected = currentRoute == HomeDestination.Archive.direction.route,
-            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Archive) } }
-        )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val bottomItems = buildList {
-            add(HomeDestination.WhatsNew)
-            add(HomeDestination.Settings)
-            if (homeDrawerState.teamManagementUrl.isNotBlank()) add(HomeDestination.TeamManagement)
-            add(HomeDestination.Support)
-        }
-
         bottomItems.forEach { item ->
-            DrawerItem(
-                destination = item,
-                selected = currentRoute == item.direction.route,
-                onItemClick = when (item) {
-                    is HomeDestination.TeamManagement -> remember {
-                        {
-                            CustomTabsHelper.launchUrl(context, homeDrawerState.teamManagementUrl)
-                            onCloseDrawer()
-                        }
-                    }
+            MapToDrawerItem(navigateToHomeItem, onCloseDrawer, currentRoute, item)
+        }
+    }
+}
 
-                    else -> {
-                        remember { { navigateAndCloseDrawer(item) } }
+@Composable
+fun MapToDrawerItem(
+    navigateToHomeItem: (HomeDestination) -> Unit,
+    onCloseDrawer: () -> Unit,
+    currentRoute: String?,
+    drawerUiItem: DrawerUiItem
+) {
+    val context = LocalContext.current
+    fun navigateAndCloseDrawer(item: HomeDestination) {
+        navigateToHomeItem(item)
+        onCloseDrawer()
+    }
+
+    with(drawerUiItem) {
+        when (this) {
+            is DrawerUiItem.DynamicExternalNavigationItem -> DrawerItem(
+                destination = destination,
+                selected = currentRoute == destination.direction.route,
+                onItemClick = remember {
+                    {
+                        com.wire.android.util.CustomTabsHelper.launchUrl(context, url)
+                        onCloseDrawer()
                     }
                 }
+            )
+
+            is DrawerUiItem.RegularItem -> DrawerItem(
+                destination = destination,
+                selected = currentRoute == destination.direction.route,
+                onItemClick = remember { { navigateAndCloseDrawer(destination) } }
+            )
+
+            is DrawerUiItem.UnreadCounterItem -> DrawerItem(
+                destination = destination,
+                unreadCount = this.unreadCount.toInt(),
+                selected = currentRoute == destination.direction.route,
+                onItemClick = remember { { navigateAndCloseDrawer(destination) } }
             )
         }
     }
@@ -161,10 +157,10 @@ fun DrawerItem(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .padding(bottom = 8.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .padding(bottom = dimensions().spacing8x)
+            .clip(RoundedCornerShape(dimensions().spacing12x))
             .fillMaxWidth()
-            .height(40.dp)
+            .height(dimensions().spacing40x)
             .background(backgroundColor)
             .selectableBackground(selected, stringResource(R.string.content_description_open_label), onItemClick),
     ) {

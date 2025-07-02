@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.RestrictionsManager
 import android.os.Bundle
 import com.wire.android.mdm.model.MdmCertificatePinningConfig
+import com.wire.android.mdm.model.MdmServerConfig
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -44,6 +45,7 @@ class MdmConfigurationManager @Inject constructor(
     val configurationEvents: SharedFlow<MdmConfigurationEvent> = _configurationEvents.asSharedFlow()
     
     private var lastKnownConfig: Map<String, List<String>> = emptyMap()
+    private var lastKnownServerConfig: MdmServerConfig? = null
     
     fun getCertificatePinningConfig(): Map<String, List<String>> {
         val restrictions = restrictionsManager.applicationRestrictions
@@ -107,7 +109,113 @@ class MdmConfigurationManager @Inject constructor(
         return mergedConfig
     }
     
+    fun getServerConfig(): MdmServerConfig? {
+        val restrictions = restrictionsManager.applicationRestrictions
+        
+        if (restrictions == null || restrictions.isEmpty) {
+            return null
+        }
+        
+        val serverConfigJson = restrictions.getString(KEY_SERVER_CONFIG)
+        
+        return if (!serverConfigJson.isNullOrEmpty()) {
+            try {
+                json.decodeFromString<MdmServerConfig>(serverConfigJson)
+            } catch (e: Exception) {
+                null
+            }
+        } else {
+            extractServerConfigFromIndividualKeys(restrictions)
+        }
+    }
+    
+    private fun extractServerConfigFromIndividualKeys(restrictions: Bundle): MdmServerConfig? {
+        val serverTitle = restrictions.getString(KEY_SERVER_TITLE)
+        val serverUrl = restrictions.getString(KEY_SERVER_URL)
+        val federationUrl = restrictions.getString(KEY_FEDERATION_URL)
+        val websocketUrl = restrictions.getString(KEY_WEBSOCKET_URL)
+        val blacklistUrl = restrictions.getString(KEY_BLACKLIST_URL)
+        val teamsUrl = restrictions.getString(KEY_TEAMS_URL)
+        val accountsUrl = restrictions.getString(KEY_ACCOUNTS_URL)
+        val websiteUrl = restrictions.getString(KEY_WEBSITE_URL)
+        val isOnPremises = restrictions.getBoolean(KEY_IS_ON_PREMISES, false)
+        
+        return if (serverUrl != null || serverTitle != null) {
+            MdmServerConfig(
+                serverTitle = serverTitle,
+                serverUrl = serverUrl,
+                federationUrl = federationUrl,
+                websocketUrl = websocketUrl,
+                blacklistUrl = blacklistUrl,
+                teamsUrl = teamsUrl,
+                accountsUrl = accountsUrl,
+                websiteUrl = websiteUrl,
+                isOnPremises = isOnPremises
+            )
+        } else {
+            null
+        }
+    }
+    
+    suspend fun getServerConfigAndNotify(): MdmServerConfig? {
+        val currentConfig = getServerConfig()
+        
+        if (currentConfig != lastKnownServerConfig) {
+            val event = if (currentConfig == null && lastKnownServerConfig != null) {
+                MdmConfigurationEvent.ServerConfigCleared
+            } else if (currentConfig != null) {
+                MdmConfigurationEvent.ServerConfigChanged(
+                    newConfig = currentConfig,
+                    previousConfig = lastKnownServerConfig
+                )
+            } else {
+                return currentConfig
+            }
+            
+            lastKnownServerConfig = currentConfig
+            _configurationEvents.emit(event)
+        }
+        
+        return currentConfig
+    }
+    
+    fun validateServerConfig(config: MdmServerConfig): Boolean {
+        return try {
+            config.serverUrl?.let { url ->
+                if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                    return false
+                }
+            }
+            
+            config.federationUrl?.let { url ->
+                if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                    return false
+                }
+            }
+            
+            config.websocketUrl?.let { url ->
+                if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
+                    return false
+                }
+            }
+            
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
     companion object {
         private const val KEY_CERTIFICATE_PINNING_CONFIG = "certificate_pinning_config"
+        private const val KEY_SERVER_CONFIG = "server_config"
+        private const val KEY_SERVER_TITLE = "server_title"
+        private const val KEY_SERVER_URL = "server_url"
+        private const val KEY_FEDERATION_URL = "federation_url"
+        private const val KEY_WEBSOCKET_URL = "websocket_url"
+        private const val KEY_BLACKLIST_URL = "blacklist_url"
+        private const val KEY_TEAMS_URL = "teams_url"
+        private const val KEY_ACCOUNTS_URL = "accounts_url"
+        private const val KEY_WEBSITE_URL = "website_url"
+        private const val KEY_IS_ON_PREMISES = "is_on_premises"
     }
 }

@@ -20,6 +20,8 @@ package com.wire.android.ui.authentication.login.sso
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.DefaultServerConfig
+import com.wire.android.config.createServerConfigWithMdm
+import com.wire.android.mdm.MdmConfigurationManager
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.serialization.Serializable
@@ -27,6 +29,16 @@ import kotlinx.serialization.Serializable
 interface SSOUrlConfigHolder {
     fun get(): SSOUrlConfig? = SSOUrlConfig(DefaultServerConfig)
     fun set(data: SSOUrlConfig) {}
+}
+
+class MdmAwareSSOUrlConfigHolder(
+    private val mdmConfigurationManager: MdmConfigurationManager
+) : SSOUrlConfigHolder {
+    override fun get(): SSOUrlConfig? {
+        val mdmServerConfig = mdmConfigurationManager.getServerConfig()
+        val serverConfig = createServerConfigWithMdm(mdmServerConfig)
+        return SSOUrlConfig(serverConfig)
+    }
 }
 
 object SSOUrlConfigHolderPreview : SSOUrlConfigHolder

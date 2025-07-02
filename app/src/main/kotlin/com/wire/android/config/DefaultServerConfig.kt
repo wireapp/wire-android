@@ -18,6 +18,7 @@
 package com.wire.android.config
 
 import com.wire.android.BuildConfig
+import com.wire.android.mdm.model.MdmServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 val DefaultServerConfig = ServerConfig.Links(
@@ -33,3 +34,24 @@ val DefaultServerConfig = ServerConfig.Links(
 )
 
 fun ServerConfig.Links?.orDefault() = this ?: DefaultServerConfig
+
+fun ServerConfig.Links.withMdmConfig(mdmConfig: MdmServerConfig?): ServerConfig.Links {
+    return if (mdmConfig != null) {
+        copy(
+            api = mdmConfig.serverUrl ?: api,
+            accounts = mdmConfig.accountsUrl ?: accounts,
+            webSocket = mdmConfig.websocketUrl ?: webSocket,
+            teams = mdmConfig.teamsUrl ?: teams,
+            blackList = mdmConfig.blacklistUrl ?: blackList,
+            website = mdmConfig.websiteUrl ?: website,
+            title = mdmConfig.serverTitle ?: title,
+            isOnPremises = mdmConfig.isOnPremises
+        )
+    } else {
+        this
+    }
+}
+
+fun createServerConfigWithMdm(mdmConfig: MdmServerConfig?): ServerConfig.Links {
+    return DefaultServerConfig.withMdmConfig(mdmConfig)
+}

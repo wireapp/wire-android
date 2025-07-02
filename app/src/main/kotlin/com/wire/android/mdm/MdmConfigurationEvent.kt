@@ -18,6 +18,8 @@
 
 package com.wire.android.mdm
 
+import com.wire.android.mdm.model.MdmServerConfig
+
 sealed class MdmConfigurationEvent {
     data class CertificatePinningChanged(
         val newConfig: Map<String, List<String>>,
@@ -25,6 +27,13 @@ sealed class MdmConfigurationEvent {
     ) : MdmConfigurationEvent()
     
     data object CertificatePinningCleared : MdmConfigurationEvent()
+    
+    data class ServerConfigChanged(
+        val newConfig: MdmServerConfig,
+        val previousConfig: MdmServerConfig?
+    ) : MdmConfigurationEvent()
+    
+    data object ServerConfigCleared : MdmConfigurationEvent()
     
     data class ConfigurationError(
         val error: Throwable,
@@ -34,6 +43,7 @@ sealed class MdmConfigurationEvent {
     enum class ErrorType {
         INVALID_JSON,
         NETWORK_REFRESH_FAILED,
-        SERVICE_RESTART_FAILED
+        SERVICE_RESTART_FAILED,
+        INVALID_SERVER_CONFIG
     }
 }

@@ -19,13 +19,18 @@
 package com.wire.android.di
 
 import android.content.Context
+import com.wire.android.config.createServerConfigWithMdm
 import com.wire.android.mdm.MdmConfigurationManager
+import com.wire.android.ui.authentication.login.sso.MdmAwareSSOUrlConfigHolder
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -48,5 +53,22 @@ object MdmModule {
         json: Json
     ): MdmConfigurationManager {
         return MdmConfigurationManager(context, json)
+    }
+    
+    @Provides
+    @Named("mdmAwareServerConfig")
+    fun provideMdmAwareServerConfig(
+        mdmConfigurationManager: MdmConfigurationManager
+    ): ServerConfig.Links {
+        val mdmServerConfig = mdmConfigurationManager.getServerConfig()
+        return createServerConfigWithMdm(mdmServerConfig)
+    }
+    
+    @Provides
+    @Named("mdmAwareSSOUrlConfigHolder")
+    fun provideMdmAwareSSOUrlConfigHolder(
+        mdmConfigurationManager: MdmConfigurationManager
+    ): SSOUrlConfigHolder {
+        return MdmAwareSSOUrlConfigHolder(mdmConfigurationManager)
     }
 }

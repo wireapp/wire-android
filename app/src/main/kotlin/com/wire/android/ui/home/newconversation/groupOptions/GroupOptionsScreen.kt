@@ -68,6 +68,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
@@ -142,6 +143,7 @@ private fun GroupOptionScreenContent(
     onDiscardGroupCreationClick: () -> Unit,
     onBackPressed: () -> Unit,
     channelsHistoryOptionsEnabled: Boolean = BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED,
+    mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
 ) {
     with(groupOptionState) {
         WireScaffold(topBar = {
@@ -166,6 +168,7 @@ private fun GroupOptionScreenContent(
             GroupOptionsScreenMainContent(
                 groupMetadataState = groupMetadataState,
                 channelsHistoryOptionsEnabled = channelsHistoryOptionsEnabled,
+                mlsReadReceiptsEnabled = mlsReadReceiptsEnabled,
                 onAccessClicked = onAccessClicked,
                 onHistoryClicked = onHistoryClicked,
                 onAllowGuestChanged = onAllowGuestChanged,
@@ -193,6 +196,7 @@ private fun GroupOptionScreenContent(
 private fun GroupOptionState.GroupOptionsScreenMainContent(
     groupMetadataState: GroupMetadataState,
     channelsHistoryOptionsEnabled: Boolean,
+    mlsReadReceiptsEnabled: Boolean,
     onAccessClicked: () -> Unit,
     onHistoryClicked: () -> Unit,
     onAllowGuestChanged: (Boolean) -> Unit,
@@ -216,7 +220,7 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
             }
             AllowGuestsOptions(groupMetadataState.isChannel, onAllowGuestChanged)
             AllowServicesOptions(groupMetadataState.isChannel, onAllowServicesChanged)
-            if (BuildConfig.MLS_READ_RECEIPTS_ENABLED) {
+            if (groupMetadataState.groupProtocol != CreateConversationParam.Protocol.MLS || mlsReadReceiptsEnabled) {
                 ReadReceiptsOptions(groupMetadataState.isChannel, onReadReceiptChanged)
             }
             isWireCellsEnabled?.let {
@@ -411,6 +415,7 @@ private fun AllowGuestsDialog(
 private fun PreviewGroupOptionScreen(
     groupMetadataState: GroupMetadataState,
     channelsHistoryOptionsEnabled: Boolean = BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED,
+    mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
 ) = WireTheme {
     GroupOptionScreenContent(
         groupOptionState = GroupOptionState(),
@@ -431,6 +436,7 @@ private fun PreviewGroupOptionScreen(
         onDiscardGroupCreationClick = {},
         onBackPressed = {},
         channelsHistoryOptionsEnabled = channelsHistoryOptionsEnabled,
+        mlsReadReceiptsEnabled = mlsReadReceiptsEnabled,
     )
 }
 
@@ -452,4 +458,14 @@ fun PreviewGroupOptionScreen_Channel() = PreviewGroupOptionScreen(
 fun PreviewGroupOptionScreen_ChannelWithHistoryOptionsDisabled() = PreviewGroupOptionScreen(
     groupMetadataState = GroupMetadataState(isChannel = true),
     channelsHistoryOptionsEnabled = false,
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_MlsGroupWithMlsReadReceiptsDisabled() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(
+        isChannel = false,
+        groupProtocol = CreateConversationParam.Protocol.MLS,
+    ),
+    mlsReadReceiptsEnabled = false,
 )

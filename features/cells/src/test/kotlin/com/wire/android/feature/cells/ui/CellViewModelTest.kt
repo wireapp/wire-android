@@ -31,6 +31,7 @@ import com.wire.android.feature.cells.util.FileHelper
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -366,6 +367,9 @@ class CellViewModelTest {
         lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
 
         @MockK
+        lateinit var getAllTagsUseCase: GetAllTagsUseCase
+
+        @MockK
         lateinit var deleteCellAssetUseCase: DeleteCellAssetUseCase
 
         @MockK
@@ -427,6 +431,7 @@ class CellViewModelTest {
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
+                getAllTagsUseCase = getAllTagsUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,

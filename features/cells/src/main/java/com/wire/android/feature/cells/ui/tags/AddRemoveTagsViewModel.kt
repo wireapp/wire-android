@@ -76,23 +76,15 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     fun updateTags() {
         viewModelScope.launch {
-            if (_addedTags.value.isEmpty()) {
+            val result = if (_addedTags.value.isEmpty()) {
                 removeNodeTagsUseCase(navArgs.uuid)
-                    .onSuccess {
-                        sendAction(AddRemoveTagsViewModelAction.Success)
-                    }
-                    .onFailure {
-                        sendAction(AddRemoveTagsViewModelAction.Failure)
-                    }
             } else {
                 updateNodeTagsUseCase(navArgs.uuid, _addedTags.value)
-                    .onSuccess {
-                        sendAction(AddRemoveTagsViewModelAction.Success)
-                    }
-                    .onFailure {
-                        sendAction(AddRemoveTagsViewModelAction.Failure)
-                    }
             }
+
+            result
+                .onSuccess { sendAction(AddRemoveTagsViewModelAction.Success) }
+                .onFailure { sendAction(AddRemoveTagsViewModelAction.Failure) }
         }
     }
 }

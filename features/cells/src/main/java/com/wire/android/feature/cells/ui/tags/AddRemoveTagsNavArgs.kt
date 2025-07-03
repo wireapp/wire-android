@@ -17,9 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.tags
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
 data class AddRemoveTagsNavArgs(
     val uuid: String,
     val tags: ArrayList<String>

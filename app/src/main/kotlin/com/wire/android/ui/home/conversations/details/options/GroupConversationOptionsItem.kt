@@ -37,18 +37,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.home.settings.SettingsOptionSwitch
 import com.wire.android.ui.home.settings.SwitchState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun GroupConversationOptionsItem(
@@ -57,9 +59,7 @@ fun GroupConversationOptionsItem(
         .fillMaxWidth()
         .background(MaterialTheme.wireColorScheme.surface)
         .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight),
-    isClickable: Boolean = false,
-    onClick: () -> Unit = {},
-    clickable: Clickable = Clickable(enabled = isClickable, onClick = onClick),
+    clickable: Clickable = Clickable(enabled = false, onClick = {}),
     arrowLabel: String? = null,
     arrowLabelColor: Color = MaterialTheme.wireColorScheme.secondaryText,
     subtitle: String? = null,
@@ -70,7 +70,8 @@ fun GroupConversationOptionsItem(
     switchState: SwitchState = SwitchState.None,
     titleStyle: TextStyle = MaterialTheme.wireTypography.body02,
     arrowType: ArrowType = ArrowType.CENTER_ALIGNED,
-    contentDescription: String? = null
+    contentDescription: String? = null,
+    selected: Boolean? = null,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -96,6 +97,12 @@ fun GroupConversationOptionsItem(
                 )
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
+                if (selected != null) {
+                    WireRadioButton(
+                        checked = selected,
+                        modifier = Modifier.padding(end = MaterialTheme.wireDimensions.spacing8x),
+                    )
+                }
                 Text(
                     text = title,
                     style = titleStyle,
@@ -142,7 +149,6 @@ private fun ArrowRight() {
     Box(
         modifier = Modifier.padding(
             start = MaterialTheme.wireDimensions.spacing8x,
-            end = MaterialTheme.wireDimensions.spacing8x
         )
     ) { ArrowRightIcon(contentDescription = R.string.content_description_empty) }
 }
@@ -152,14 +158,14 @@ enum class ArrowType {
 }
 
 @Composable
-@Preview(name = "Item with label and title")
-fun PreviewGroupConversationOptionsWithLabelAndTitle() {
+@PreviewMultipleThemes
+fun PreviewGroupConversationOptionsWithLabelAndTitle() = WireTheme {
     GroupConversationOptionsItem(title = "Conversation group title", label = "GROUP NAME")
 }
 
 @Composable
-@Preview(name = "Item with title and switch clickable")
-fun PreviewGroupConversationOptionsWithTitleAndSwitchClickable() {
+@PreviewMultipleThemes
+fun PreviewGroupConversationOptionsWithTitleAndSwitchClickable() = WireTheme {
     GroupConversationOptionsItem(
         title = "Services",
         switchState = SwitchState.Enabled(value = true, onCheckedChange = {}),
@@ -168,8 +174,18 @@ fun PreviewGroupConversationOptionsWithTitleAndSwitchClickable() {
 }
 
 @Composable
-@Preview(name = "Item with title and text only switch")
-fun PreviewGroupConversationOptionsWithTitleAndTextOnlySwitch() {
+@PreviewMultipleThemes
+fun PreviewGroupConversationOptionsWithTitleAndSwitchWithoutArrow() = WireTheme {
+    GroupConversationOptionsItem(
+        title = "Services",
+        switchState = SwitchState.Enabled(value = true, onCheckedChange = {}),
+        arrowType = ArrowType.NONE
+    )
+}
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupConversationOptionsWithTitleAndTextOnlySwitch() = WireTheme {
     GroupConversationOptionsItem(
         title = "Services",
         switchState = SwitchState.TextOnly(value = true),
@@ -178,8 +194,8 @@ fun PreviewGroupConversationOptionsWithTitleAndTextOnlySwitch() {
 }
 
 @Composable
-@Preview(name = "Item with title, subtitle and icon")
-fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndIcon() {
+@PreviewMultipleThemes
+fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndIcon() = WireTheme {
     GroupConversationOptionsItem(
         title = "Group Color",
         subtitle = "Red",
@@ -195,8 +211,8 @@ fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndIcon() {
 }
 
 @Composable
-@Preview(name = "Item with title, subtitle, switch and footer button")
-fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButton() {
+@PreviewMultipleThemes
+fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButton() = WireTheme {
     GroupConversationOptionsItem(
         title = "Guests",
         subtitle = "Turn this option ON to open this conversation to people outside your team, even if they don't have Wire.",
@@ -207,12 +223,23 @@ fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButton(
 }
 
 @Composable
-@Preview(name = "Item with title and subtitle without arrow")
-fun PreviewGroupConversationOptionsWithTitleAndSubtitleWithoutArrow() {
+@PreviewMultipleThemes
+fun PreviewGroupConversationOptionsWithTitleAndSubtitleWithoutArrow() = WireTheme {
     GroupConversationOptionsItem(
         label = "Cipher Suite",
         title = "MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519(0x0001)",
         titleStyle = MaterialTheme.wireTypography.body01,
         arrowType = ArrowType.NONE
+    )
+}
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupConversationOptionsWithTitleAndArrowLabelAndRadioButton() = WireTheme {
+    GroupConversationOptionsItem(
+        title = "Custom",
+        arrowLabel = "12 weeks",
+        arrowType = ArrowType.TITLE_ALIGNED,
+        selected = true,
     )
 }

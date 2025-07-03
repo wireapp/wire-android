@@ -15,21 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.newconversation.channelaccess
+package com.wire.android.ui.home.newconversation.channelhistory
 
 import android.os.Parcelable
-import androidx.annotation.StringRes
-import com.wire.android.R
-import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAccess
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-enum class ChannelAccessType(@StringRes val labelResId: Int) : Parcelable {
-    PUBLIC(R.string.channel_public_label),
-    PRIVATE(R.string.channel_private_label)
-}
+class ChannelHistoryCustomArgs(val currentType: ChannelHistoryType) : Parcelable
 
-fun ChannelAccess.toUiEnum(): ChannelAccessType = when (this) {
-    ChannelAccess.PUBLIC -> ChannelAccessType.PUBLIC
-    ChannelAccess.PRIVATE -> ChannelAccessType.PRIVATE
-}
+@Parcelize
+class ChannelHistoryCustomNavBackArgs(val customType: ChannelHistoryType.On.Specific) : Parcelable

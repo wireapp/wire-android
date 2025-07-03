@@ -237,6 +237,10 @@
     <string name="content_description_new_group_name_field">Type group name</string>
     <string name="content_description_new_channel_name_field">Type channel name</string>
     <string name="content_description_new_conversation_options_heading">Conversation options</string>
+    <string name="content_description_new_conversation_history_heading">Conversation history options</string>
+    <string name="content_description_new_conversation_history_custom_heading">Conversation history custom</string>
+    <string name="content_description_new_conversation_history_back_btn">Go back to conversation history options</string>
+    <string name="content_description_new_conversation_history_custom_change_time">Change time option</string>
     <string name="content_description_new_group_options_back_btn">Go back to new group creation</string>
     <string name="content_description_new_channel_options_back_btn">Go back to new channel creation</string>
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
@@ -318,6 +322,7 @@
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
+    <string name="team_management_screen_title">Team Management</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">What\'s new</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire\'s New Android App!</string>
@@ -561,6 +566,19 @@
     <string name="channel_add_permission_description">Select who can add participants to a private channel</string>
     <string name="channel_add_permission_admin_label">Admins</string>
     <string name="channel_add_permission_admin_members_label">Admins and members</string>
+    <string name="channel_history_label">Conversation history</string>
+    <string name="channel_history_description">Select a period. When participants join this channel, they can follow the history for this time frame.</string>
+    <string name="channel_history_freemium_upgrade_title">Show older messages?</string>
+    <string name="channel_history_freemium_upgrade_description">Upgrade to a paid plan to offer channel members the whole history.</string>
+    <string name="channel_history_freemium_upgrade_now">Upgrade now</string>
+    <string name="channel_history_off">Off</string>
+    <string name="channel_history_unlimited">Unlimited</string>
+    <string name="channel_history_custom">Custom</string>
+    <string name="channel_history_days">days</string>
+    <string name="channel_history_weeks">weeks</string>
+    <string name="channel_history_months">months</string>
+    <string name="channel_history_custom_amount_label">AMOUNT</string>
+    <string name="channel_history_custom_time_label">TIME</string>
     <string name="create_regular_group_button_label">Create Group</string>
     <string name="create_channel_button_label">Create Channel</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
@@ -790,6 +808,8 @@
     <string name="conversation_banner_guests_present">Guests are present</string>
     <string name="conversation_banner_externals_present">Externals are present</string>
     <string name="conversation_banner_services_active">Services are active</string>
+    <string name="conversation_history_loading">Loading conversation history...</string>
+    <string name="conversation_history_loaded">You made it to the top 🥳\nYou see all available messages.</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>
@@ -1534,6 +1554,10 @@ In group conversations, the group admin can overwrite this setting.</string>
         <item quantity="one">1 week</item>
         <item quantity="other">%1$d weeks</item>
     </plurals>
+    <plurals name="months_long_label">
+        <item quantity="one">1 month</item>
+        <item quantity="other">%1$d months</item>
+    </plurals>
     <plurals name="days_long_label">
         <item quantity="one">1 day</item>
         <item quantity="other">%1$d days</item>
@@ -1549,6 +1573,18 @@ In group conversations, the group admin can overwrite this setting.</string>
     <plurals name="seconds_long_label">
         <item quantity="one">1 second</item>
         <item quantity="other">%1$d seconds</item>
+    </plurals>
+    <plurals name="days_label">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+    <plurals name="weeks_label">
+        <item quantity="one">week</item>
+        <item quantity="other">weeks</item>
+    </plurals>
+    <plurals name="months_label">
+        <item quantity="one">month</item>
+        <item quantity="other">months</item>
     </plurals>
     <string name="four_weeks_short_label">4w</string>
     <string name="one_week_short_label">1w</string>

@@ -50,7 +50,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -108,7 +107,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
-@RootNavGraph
 @WireDestination(
     style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
 )
@@ -580,6 +578,7 @@ fun PersonalSelfUserProfileScreenPreview() {
                 fullName = "Some User",
                 userName = "some-user",
                 teamName = null,
+                teamUrl = "some-url",
                 otherAccounts = listOf(
                     OtherAccount(
                         id = UserId("id1", "domain"),

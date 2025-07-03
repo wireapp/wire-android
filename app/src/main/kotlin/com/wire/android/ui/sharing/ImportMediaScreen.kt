@@ -57,7 +57,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -79,10 +78,10 @@ import com.wire.android.ui.common.error.ErrorIcon
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.remove.RemoveIcon
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
@@ -120,7 +119,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import okio.Path.Companion.toPath
 
-@RootNavGraph
 @WireDestination
 @Composable
 fun ImportMediaScreen(

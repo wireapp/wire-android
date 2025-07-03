@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -63,7 +62,6 @@ import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.shareViaIntent
 
 @Suppress("ComplexMethod")
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = EditGuestAccessNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +44,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -50,6 +52,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.destinations.ChannelAccessOnCreateScreenDestination
+import com.wire.android.ui.destinations.ChannelHistoryScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
@@ -57,6 +60,8 @@ import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
+import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryType
+import com.wire.android.ui.home.newconversation.channelhistory.name
 import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
@@ -90,6 +95,9 @@ fun GroupOptionScreen(
         onAccessClicked = {
             navigator.navigate(NavigationCommand(ChannelAccessOnCreateScreenDestination))
         },
+        onHistoryClicked = {
+            navigator.navigate(NavigationCommand(ChannelHistoryScreenDestination))
+        },
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
@@ -122,6 +130,7 @@ private fun GroupOptionScreenContent(
     createGroupState: CreateGroupState,
     groupMetadataState: GroupMetadataState,
     onAccessClicked: () -> Unit,
+    onHistoryClicked: () -> Unit,
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
@@ -158,12 +167,16 @@ private fun GroupOptionScreenContent(
             GroupOptionsScreenMainContent(
                 groupMetadataState = groupMetadataState,
                 onAccessClicked = onAccessClicked,
+                onHistoryClicked = onHistoryClicked,
                 onAllowGuestChanged = onAllowGuestChanged,
                 onAllowServicesChanged = onAllowServicesChanged,
                 onReadReceiptChanged = onReadReceiptChanged,
                 onEnableWireCellChanged = onEnableWireCellChanged,
                 onContinuePressed = onContinuePressed,
-                modifier = Modifier.padding(internalPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(internalPadding)
+                    .background(MaterialTheme.colorScheme.background)
             )
         }
 
@@ -180,6 +193,7 @@ private fun GroupOptionScreenContent(
 private fun GroupOptionState.GroupOptionsScreenMainContent(
     groupMetadataState: GroupMetadataState,
     onAccessClicked: () -> Unit,
+    onHistoryClicked: () -> Unit,
     onAllowGuestChanged: (Boolean) -> Unit,
     onAllowServicesChanged: (Boolean) -> Unit,
     onReadReceiptChanged: (Boolean) -> Unit,
@@ -188,14 +202,15 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+        modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
             if (groupMetadataState.isChannel) {
                 AccessOptions(groupMetadataState.channelAccessType.label, onAccessClicked)
+                if (BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED) {
+                    HistoryOptions(groupMetadataState.channelHistoryType, onHistoryClicked)
+                }
             }
             AllowGuestsOptions(groupMetadataState.isChannel, onAllowGuestChanged)
             AllowServicesOptions(groupMetadataState.isChannel, onAllowServicesChanged)
@@ -271,15 +286,27 @@ private fun GroupOptionState.AllowServicesOptions(isChannel: Boolean, onAllowSer
 
 @Composable
 fun AccessOptions(
-    accessTypeLabel: Int,
+    accessType: ChannelAccessType,
     onAccessClicked: () -> Unit
 ) {
     GroupConversationOptionsItem(
         title = stringResource(R.string.channel_access_label),
         arrowType = ArrowType.TITLE_ALIGNED,
-        arrowLabel = stringResource(accessTypeLabel),
-        onClick = onAccessClicked,
-        isClickable = true,
+        arrowLabel = stringResource(accessType.labelResId),
+        clickable = Clickable(enabled = true, onClick = onAccessClicked),
+    )
+}
+
+@Composable
+fun HistoryOptions(
+    historyType: ChannelHistoryType,
+    onClicked: () -> Unit
+) {
+    GroupConversationOptionsItem(
+        title = stringResource(R.string.channel_history_label),
+        arrowType = ArrowType.TITLE_ALIGNED,
+        arrowLabel = historyType.name(useAmountForCustom = true),
+        clickable = Clickable(enabled = true, onClick = onClicked),
     )
 }
 
@@ -382,12 +409,22 @@ private fun AllowGuestsDialog(
 @PreviewMultipleThemes
 fun PreviewGroupOptionScreen() = WireTheme {
     GroupOptionScreenContent(
-        GroupOptionState(),
-        CreateGroupState.Default,
-        GroupMetadataState(
-            channelAccessType = ChannelAccessType.PRIVATE,
-            isChannel = false,
-        ),
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        groupOptionState = GroupOptionState(),
+        createGroupState = CreateGroupState.Default,
+        groupMetadataState = GroupMetadataState(isChannel = true),
+        onAccessClicked = {},
+        onHistoryClicked = {},
+        onAllowGuestChanged = {},
+        onAllowServicesChanged = {},
+        onReadReceiptChanged = {},
+        onEnableWireCellChanged = {},
+        onContinuePressed = {},
+        onAllowGuestsDialogDismissed = {},
+        onNotAllowGuestsClicked = {},
+        onAllowGuestsClicked = {},
+        onErrorDismissed = {},
+        onEditParticipantsClick = {},
+        onDiscardGroupCreationClick = {},
+        onBackPressed = {}
     )
 }

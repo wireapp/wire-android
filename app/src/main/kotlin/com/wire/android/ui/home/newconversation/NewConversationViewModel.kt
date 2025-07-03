@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.channelaccess.toDomainEnum
+import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryType
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -87,6 +88,7 @@ class NewConversationViewModel @Inject constructor(
         }
     )
     var isChannelCreationPossible: Boolean by mutableStateOf(true)
+    var isFreemiumAccount: Boolean by mutableStateOf(false) // TODO: implement logic to determine if the account is freemium
 
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState.Default)
 
@@ -137,6 +139,10 @@ class NewConversationViewModel @Inject constructor(
 
     fun setIsChannel(isChannel: Boolean) {
         newGroupState = newGroupState.copy(isChannel = isChannel)
+    }
+
+    fun setChannelHistoryType(channelHistoryType: ChannelHistoryType) {
+        newGroupState = newGroupState.copy(channelHistoryType = channelHistoryType)
     }
 
     private fun setConversationCreationParam() {
@@ -265,6 +271,7 @@ class NewConversationViewModel @Inject constructor(
                     ),
                     access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),
                     channelAddPermission = newGroupState.channelAddPermissionType.toDomainEnum()
+                    // TODO: include channel history type
                 )
             )
             handleNewGroupCreationResult(result)

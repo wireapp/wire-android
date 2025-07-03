@@ -1580,7 +1580,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <plurals name="weeks_label">
         <item quantity="one">week</item>
         <item quantity="other">weeks</item>
-    </plurals>https://nginz-https.bund-next-column-1.wire.link/deeplink.html
+    </plurals>
     <plurals name="months_label">
         <item quantity="one">month</item>
         <item quantity="other">months</item>

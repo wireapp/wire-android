@@ -21,7 +21,11 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.framework.TestUser
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
+import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -32,7 +36,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -54,7 +58,38 @@ class HomeDrawerViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals(unreadCount.toInt(), viewModel.drawerState.unreadArchiveConversationsCount)
+        assertEquals(
+            unreadCount,
+            listOf(
+                viewModel.drawerState.items.first,
+                viewModel.drawerState.items.second
+            ).flatten()
+                .filterIsInstance<DrawerUiItem.UnreadCounterItem>()
+                .first().unreadCount
+        )
+    }
+
+    @Test
+    fun `given userIsAdmin, when starts observing, then set team url`() = runTest {
+        // Given
+        val (arrangement, viewModel) = Arrangement()
+            .withSelfUserType(UserType.ADMIN)
+            .arrange()
+
+        // When
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(
+            Arrangement.TEAM_URL,
+            listOf(
+                viewModel.drawerState.items.first,
+                viewModel.drawerState.items.second
+            ).flatten()
+                .filterIsInstance<DrawerUiItem.DynamicExternalNavigationItem>()
+                .first().url
+        )
     }
 
     private class Arrangement {
@@ -68,18 +103,36 @@ class HomeDrawerViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
+        @MockK
+        lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
+
+        @MockK
+        lateinit var getTeamUrlUseCase: GetTeamUrlUseCase
+
         val unreadArchivedConversationsCountChannel = Channel<Long>(capacity = Channel.UNLIMITED)
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeArchivedUnreadConversationsCount() } returns unreadArchivedConversationsCountChannel.consumeAsFlow()
             every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
+            withSelfUserType()
+            coEvery { getTeamUrlUseCase() } returns TEAM_URL
+        }
+
+        fun withSelfUserType(type: UserType = UserType.INTERNAL) = apply {
+            coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(userType = type))
         }
 
         fun arrange() = this to HomeDrawerViewModel(
             savedStateHandle = savedStateHandle,
-            observeArchivedUnreadConversationsCountUseCase = observeArchivedUnreadConversationsCount,
-            globalDataStore = globalDataStore
+            observeArchivedUnreadConversationsCount = observeArchivedUnreadConversationsCount,
+            globalDataStore = globalDataStore,
+            observeSelfUser = observeSelfUserUseCase,
+            getTeamUrl = getTeamUrlUseCase
         )
+
+        companion object {
+            const val TEAM_URL = "some-url"
+        }
     }
 }

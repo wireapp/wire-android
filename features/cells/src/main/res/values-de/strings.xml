@@ -16,4 +16,26 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="retry">Wiederholen</string>
+    <string name="share_label">Teilen</string>
+    <string name="delete_label">Löschen</string>
+    <string name="delete_permanently">Endgültig löschen</string>
+    <string name="restore_label">Wiederherstellen</string>
+    <string name="download_label">Herunterladen</string>
+    <string name="copy_link">Link kopieren</string>
+    <string name="share_link">Link teilen</string>
+    <string name="copied_to_clipboard_message">Link in Zwischenablage kopiert</string>
+    <string name="create_public_link">Öffentlichen Link erstellen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="download">Herunterladen</string>
+    <string name="conversation_files_title">Dateien</string>
+    <string name="creating_link">Öffentlicher Link wird erstellt…</string>
+    <string name="cells_new_label">Neu</string>
+    <string name="cells_new_label_content_description">Neu</string>
+    <string name="cells_create_folder">Ordner erstellen</string>
+    <string name="cells_folder_name">Ordnername</string>
+    <string name="loading_files">Dateien werden geladen…</string>
+    <string name="open_recycle_bin">Papierkorb öffnen</string>
+    <string name="dialog_restore_button_label">Wiederherstellen</string>
+</resources>

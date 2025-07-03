@@ -45,6 +45,8 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     private val navArgs: AddRemoveTagsNavArgs = savedStateHandle.navArgs()
 
+    val isLoading = MutableStateFlow(false)
+
     val tagsTextState = TextFieldState()
 
     private val _addedTags: MutableStateFlow<List<String>> = MutableStateFlow(navArgs.tags)
@@ -76,6 +78,7 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     fun updateTags() {
         viewModelScope.launch {
+            isLoading.value = true
             val result = if (_addedTags.value.isEmpty()) {
                 removeNodeTagsUseCase(navArgs.uuid)
             } else {
@@ -85,6 +88,7 @@ class AddRemoveTagsViewModel @Inject constructor(
             result
                 .onSuccess { sendAction(AddRemoveTagsViewModelAction.Success) }
                 .onFailure { sendAction(AddRemoveTagsViewModelAction.Failure) }
+                .also { isLoading.value = false }
         }
     }
 }

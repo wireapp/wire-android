@@ -61,7 +61,7 @@ import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.feature.cells.domain.model.previewSupported
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
-import com.wire.android.ui.common.chip.WireDisplayChip
+import com.wire.android.ui.common.chip.WireDisplayChipWithOverFlow
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
@@ -108,7 +108,7 @@ internal fun CellListItem(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (cell.tags.isNotEmpty()) {
-                        WireDisplayChip(
+                        WireDisplayChipWithOverFlow(
                             label = cell.tags.first(),
                             chipsCount = cell.tags.size - 1,
                             modifier = Modifier.padding(end = dimensions().spacing4x)

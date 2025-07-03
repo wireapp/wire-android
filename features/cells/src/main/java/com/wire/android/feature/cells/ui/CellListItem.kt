@@ -74,8 +74,6 @@ internal fun CellListItem(
     onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var selected by remember { mutableStateOf(false) }
-
     Box(modifier = modifier) {
         Row(
             modifier = Modifier

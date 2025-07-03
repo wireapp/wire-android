@@ -62,6 +62,22 @@ fun WireTheme(
     }
 }
 
+@Composable
+fun WireColorScheme(
+    wireColorScheme: WireColorScheme = WireColorSchemeTypes.currentTheme,
+    content: @Composable () -> Unit
+) {
+    CompositionLocalProvider(
+        LocalWireColors provides wireColorScheme
+    ) {
+        MaterialTheme(
+            colorScheme = wireColorScheme.toColorScheme()
+        ) {
+            content()
+        }
+    }
+}
+
 private val LocalWireColors = staticCompositionLocalOf { WireColorSchemeTypes.light }
 private val LocalWireFixedColors = staticCompositionLocalOf { DefaultWireFixedColorScheme }
 private val LocalWireTypography = staticCompositionLocalOf { WireTypographyTypes.defaultPhone }

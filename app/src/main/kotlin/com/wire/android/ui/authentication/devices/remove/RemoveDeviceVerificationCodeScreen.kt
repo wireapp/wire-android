@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.authentication.devices.remove
 
-package com.wire.android.ui.home.drawer
+import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.authentication.verificationcode.VerificationCodeScreenContent
 
-data class HomeDrawerState(
-    /**
-     * The items to be displayed in the drawer [Pair] of "top" and "bottom" items.
-     */
-    val items: Pair<List<DrawerUiItem>, List<DrawerUiItem>> = emptyList<DrawerUiItem>() to emptyList<DrawerUiItem>()
+@Composable
+fun RemoveDeviceVerificationCodeScreen(
+    viewModel: RemoveDeviceViewModel = hiltViewModel()
+) = VerificationCodeScreenContent(
+    viewModel.secondFactorVerificationCodeTextState,
+    viewModel.secondFactorVerificationCodeState,
+    viewModel.state.is2FAInProgress,
+    viewModel::onCodeResend,
+    viewModel::onCodeVerificationBackPress
 )

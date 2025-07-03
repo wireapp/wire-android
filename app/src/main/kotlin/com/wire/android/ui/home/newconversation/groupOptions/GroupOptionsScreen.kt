@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +43,6 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -143,6 +141,7 @@ private fun GroupOptionScreenContent(
     onEditParticipantsClick: () -> Unit,
     onDiscardGroupCreationClick: () -> Unit,
     onBackPressed: () -> Unit,
+    channelsHistoryOptionsEnabled: Boolean = BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED,
 ) {
     with(groupOptionState) {
         WireScaffold(topBar = {
@@ -166,6 +165,7 @@ private fun GroupOptionScreenContent(
         }) { internalPadding ->
             GroupOptionsScreenMainContent(
                 groupMetadataState = groupMetadataState,
+                channelsHistoryOptionsEnabled = channelsHistoryOptionsEnabled,
                 onAccessClicked = onAccessClicked,
                 onHistoryClicked = onHistoryClicked,
                 onAllowGuestChanged = onAllowGuestChanged,
@@ -192,6 +192,7 @@ private fun GroupOptionScreenContent(
 @Composable
 private fun GroupOptionState.GroupOptionsScreenMainContent(
     groupMetadataState: GroupMetadataState,
+    channelsHistoryOptionsEnabled: Boolean,
     onAccessClicked: () -> Unit,
     onHistoryClicked: () -> Unit,
     onAllowGuestChanged: (Boolean) -> Unit,
@@ -200,6 +201,7 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
     onEnableWireCellChanged: (Boolean) -> Unit,
     onContinuePressed: () -> Unit,
     modifier: Modifier = Modifier,
+
 ) {
     Column(
         modifier = modifier,
@@ -207,8 +209,8 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
     ) {
         Column {
             if (groupMetadataState.isChannel) {
-                AccessOptions(groupMetadataState.channelAccessType.label, onAccessClicked)
-                if (BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED) {
+                AccessOptions(groupMetadataState.channelAccessType, onAccessClicked)
+                if (channelsHistoryOptionsEnabled) {
                     HistoryOptions(groupMetadataState.channelHistoryType, onHistoryClicked)
                 }
             }
@@ -406,12 +408,14 @@ private fun AllowGuestsDialog(
 }
 
 @Composable
-@PreviewMultipleThemes
-fun PreviewGroupOptionScreen() = WireTheme {
+private fun PreviewGroupOptionScreen(
+    groupMetadataState: GroupMetadataState,
+    channelsHistoryOptionsEnabled: Boolean = BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED,
+) = WireTheme {
     GroupOptionScreenContent(
         groupOptionState = GroupOptionState(),
         createGroupState = CreateGroupState.Default,
-        groupMetadataState = GroupMetadataState(isChannel = true),
+        groupMetadataState = groupMetadataState,
         onAccessClicked = {},
         onHistoryClicked = {},
         onAllowGuestChanged = {},
@@ -425,6 +429,27 @@ fun PreviewGroupOptionScreen() = WireTheme {
         onErrorDismissed = {},
         onEditParticipantsClick = {},
         onDiscardGroupCreationClick = {},
-        onBackPressed = {}
+        onBackPressed = {},
+        channelsHistoryOptionsEnabled = channelsHistoryOptionsEnabled,
     )
 }
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_Group() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(isChannel = false)
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_Channel() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(isChannel = true),
+    channelsHistoryOptionsEnabled = true,
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_ChannelWithHistoryOptionsDisabled() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(isChannel = true),
+    channelsHistoryOptionsEnabled = false,
+)

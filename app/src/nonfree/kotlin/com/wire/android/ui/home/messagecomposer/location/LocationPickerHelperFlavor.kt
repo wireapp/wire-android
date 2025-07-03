@@ -52,6 +52,7 @@ class LocationPickerHelperFlavor @Inject constructor(
      * https://developer.android.com/develop/sensors-and-location/location/retrieve-current#BestEstimate
      */
     @SuppressLint("MissingPermission")
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun getLocationWithGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
         if (locationPickerHelper.isLocationServicesEnabled()) {
             AppJsonStyledLogger.log(

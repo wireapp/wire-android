@@ -20,10 +20,9 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-import kotlin.test.DefaultAsserter.assertTrue
 
 data class ConversationPage(private val device: UiDevice) {
-    fun clickMainMenuButtonOnConversationVeiwPage(): ConversationPage {
+    fun clickMainMenuButtonOnConversationViewPage(): ConversationPage {
         UiWaitUtils.waitElement(UiSelectorParams(description = "Main navigation")).click()
         return this
     }
@@ -32,10 +31,4 @@ data class ConversationPage(private val device: UiDevice) {
         UiWaitUtils.waitElement(UiSelectorParams(text = "Settings")).click()
         return this
     }
-
-    fun assertConversationVisible(conversationName: String) {
-        val conversation = UiWaitUtils.waitElement(UiSelectorParams(text = conversationName))
-        assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
-    }
-
 }

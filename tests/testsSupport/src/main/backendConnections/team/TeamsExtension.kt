@@ -512,7 +512,6 @@ private fun BackendClient.access(credentials: AccessCredentials): AccessCredenti
             accessToken = credentials.accessToken,
             cookie = credentials.accessCookie
         ),
-
         )
     return connection.accessCredentials(connection.response())
 }

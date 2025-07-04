@@ -55,8 +55,8 @@ class GdprTest : KoinTest {
 
     @Before
     fun setUp() {
-        //device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+       // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
         backendClient = BackendClient.loadBackend("STAGING")
     }
 
@@ -87,7 +87,6 @@ class GdprTest : KoinTest {
         }
         pages.registrationPage.apply {
             waitUntilLoginFlowIsComplete()
-// Thread.sleep(5000)
             clickAllowNotificationButton()
             setUserName(registeredUser?.uniqueUsername ?: "")
         }
@@ -97,7 +96,7 @@ class GdprTest : KoinTest {
             assertConversationPageVisible()
         }
         pages.conversationPage.apply {
-            clickMainMenuButtonOnConversationVeiwPage()
+            clickMainMenuButtonOnConversationViewPage()
             clickSettingsButtonOnMenuEntry()
         }
         pages.settingsPage.apply {

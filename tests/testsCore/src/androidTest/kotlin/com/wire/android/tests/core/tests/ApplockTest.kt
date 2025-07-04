@@ -126,7 +126,6 @@ class ApplockTest : KoinTest {
             enterPersonalUserLoginPassword(registeredUser?.password ?: "")
             clickLoginButton()
         }
-        // Thread.sleep(3000)
         pages.registrationPage.apply {
             waitUntilLoginFlowIsComplete()
             clickAllowNotificationButton()

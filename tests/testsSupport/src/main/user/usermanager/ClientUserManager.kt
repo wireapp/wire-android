@@ -433,23 +433,6 @@ class ClientUserManager {
         }
 
     /**
-     * Generates wireless users in parallel by creating them in the specified BackendClient system.
-     *
-     * Note: Currently uses the same implementation as personal user creation (createPersonalUserViaBackend).
-     * Mutates the input users by setting their backendName property before creation.
-     * Uses parallel processing for better performance with large user lists.
-     *
-     * @param usersToCreate List of ClientUser objects to be created as wireless users
-     * @param BackendClient The BackendClient system where users will be created
-     * @return Unmodifiable list of the created users with updated BackendClient information
-     */
-    private fun generateWirelessUsers(usersToCreate: List<ClientUser>, backend: BackendClient): List<ClientUser> =
-        performParallelUsersCreation(usersToCreate) { usr ->
-            usr.backendName = backend.name
-            backend.createPersonalUserViaBackend(usr)
-        }
-
-    /**
      * Generates team members in parallel by creating them in the specified BackendClient system.
      *
      * This function mutates the input users by setting their backendName property before creation.
@@ -522,19 +505,6 @@ class ClientUserManager {
             unactivatedMails.add(user.email.orEmpty())
         }
         return unactivatedMails
-    }
-
-    /**
-     * Creates wireless users in bulk after verifying count constraints.
-     *
-     * @param users List of user objects to create as wireless users
-     * @param BackendClient Target BackendClient system for user creation
-     * @return List of created users (unmodifiable)
-     * @throws ConstraintViolationException if user count exceeds system limits
-     */
-    fun createWirelessUsers(users: List<ClientUser>, backend: BackendClient): List<ClientUser> {
-        verifyUsersCountSatisfiesConstraints(users.size)
-        return generateWirelessUsers(users, backend)
     }
 
     /**

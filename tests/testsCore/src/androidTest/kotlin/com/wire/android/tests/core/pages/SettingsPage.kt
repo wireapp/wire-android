@@ -29,18 +29,15 @@ data class SettingsPage(private val device: UiDevice) {
 
     fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
         val container = device.findObject(
             UiSelector().className("android.view.View")
                 .childSelector(UiSelector().text("Send anonymous usage data"))
         )
-
         val toggle = container.getFromParent(UiSelector().text("ON"))
-
         assertTrue("'Send anonymous usage data' label is not visible", !toggle.visibleBounds.isEmpty)
-
         return this
     }
+
     fun clickBackButtonOnPrivacySettingsPage() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.pressBack()
@@ -50,9 +47,7 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
     fun clickDebugSettingsButton(): SettingsPage {
-        // val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         UiWaitUtils.waitElement(UiSelectorParams(text = "Debug Settings")).click()
-        // device.findObject(UiSelector().text("Debug Settings")).click()
         return this
     }
     fun assertAnalyticsInitializedIsSetToTrue(): SettingsPage {

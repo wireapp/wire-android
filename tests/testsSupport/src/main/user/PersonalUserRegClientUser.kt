@@ -44,9 +44,9 @@ object UserClient {
     fun generateUniqueUserInfo(): UserInfo {
         val password = generateRandomPassword()
         val time = System.currentTimeMillis()
-        val userName = "smoketester$time"
+        val userName = "smoke$time"
         val domain = "wire.engineering"
-        val name = "Smoke   Tester$time"
+        val name = "Smoke$time"
         val lastName = "Tester$time"
         return UserInfo(
             name = name,

@@ -160,7 +160,6 @@ class BackendClient(
                 override fun checkClientTrusted(certs: Array<java.security.cert.X509Certificate>, authType: String) {
                     true
                 }
-
                 override fun checkServerTrusted(certs: Array<java.security.cert.X509Certificate>, authType: String) {
                     true
                 }
@@ -256,28 +255,23 @@ class BackendClient(
             user.email.orEmpty()
         )
         WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("code is $activationCode")
-
         activateRegisteredEmailByBackendCode(user.email.orEmpty(), activationCode)
-
         return user
     }
 
     fun getActivationCodeForEmail(email: String): String {
         val encodedEmail = URLEncoder.encode(email, "UTF-8")
         val url = URL("${backendUrl}i/users/activation-code?email=$encodedEmail")
-
         val headers = mapOf(
             "Authorization" to basicAuth.getEncoded(),
             "Accept" to "application/json"
         )
-
         val response = NetworkBackendClient.sendJsonRequest(
             url = url,
             method = "GET",
             body = null,
             headers = headers
         )
-
         return JSONObject(response).getString("code")
     }
 

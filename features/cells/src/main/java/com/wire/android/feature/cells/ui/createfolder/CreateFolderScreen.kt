@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -68,6 +69,19 @@ fun CreateFolderScreen(
     createFolderViewModel: CreateFolderViewModel = hiltViewModel()
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
+
+    LaunchedEffect(createFolderViewModel.createFolderState) {
+        when (createFolderViewModel.createFolderState) {
+            CreateFolderState.Success -> {
+                resultNavigator.setResult(true)
+                resultNavigator.navigateBack()
+            }
+
+            CreateFolderState.Failure -> showErrorDialog.value = true
+
+            else -> Unit // Default case, do nothing
+        }
+    }
 
     if (showErrorDialog.value) {
         WireDialog(
@@ -112,14 +126,7 @@ fun CreateFolderScreen(
                             text = stringResource(R.string.cells_create_folder),
                             onClick = {
                                 createFolderViewModel.createFolder(
-                                    folderName = createFolderViewModel.fileNameTextFieldState.text.toString(),
-                                    onFailure = {
-                                        showErrorDialog.value = true
-                                    },
-                                    onSuccess = {
-                                        resultNavigator.setResult(true)
-                                        resultNavigator.navigateBack()
-                                    }
+                                    folderName = createFolderViewModel.fileNameTextFieldState.text.toString()
                                 )
                             }
                         )

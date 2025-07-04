@@ -23,14 +23,17 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
+import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
@@ -38,26 +41,27 @@ import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class RemoveDeviceViewModel @Inject constructor(
     private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val deleteClientUseCase: DeleteClientUseCase,
     private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
-    private val userDataStore: UserDataStore
-) : ViewModel() {
+    private val userDataStore: UserDataStore,
+    private val getSelfUser: GetSelfUserUseCase,
+    private val requestSecondFactorVerificationCodeUseCase: RequestSecondFactorVerificationCodeUseCase,
+) : ActionsViewModel<RemoveDeviceViewAction>() {
 
     val passwordTextState: TextFieldState = TextFieldState()
     var state: RemoveDeviceState by mutableStateOf(
@@ -65,15 +69,26 @@ class RemoveDeviceViewModel @Inject constructor(
     )
         private set
 
-    private val _actions = Channel<RemoveDeviceViewAction>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    internal val actions = _actions.receiveAsFlow()
+    val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
+    var secondFactorVerificationCodeState: VerificationCodeState by mutableStateOf(VerificationCodeState())
+        private set
 
     init {
         loadClientsList()
         observePasswordTextChanges()
+
+        viewModelScope.launch {
+            secondFactorVerificationCodeTextState.textAsFlow().collectLatest {
+                secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCurrentCodeInvalid = false)
+                if (it.length == VerificationCodeState.DEFAULT_VERIFICATION_CODE_LENGTH) {
+                    state = state.copy(
+                        is2FAInProgress = true,
+                        removeDeviceDialogState = RemoveDeviceDialogState.Hidden
+                    )
+                    registerClient(passwordTextState.text.toString(), it.toString())
+                }
+            }
+        }
     }
 
     private fun observePasswordTextChanges() {
@@ -140,10 +155,12 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private suspend fun registerClient(password: String?) {
+    private suspend fun registerClient(password: String?, secondFactorVerificationCode: String? = null) {
         registerClientUseCase(
             RegisterClientUseCase.RegisterClientParam(
-                password, null,
+                password = password,
+                secondFactorVerificationCode = secondFactorVerificationCode,
+                capabilities = null,
                 modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
         ).also { result ->
@@ -153,6 +170,14 @@ class RemoveDeviceViewModel @Inject constructor(
                 }
 
                 is RegisterClientResult.Failure.Generic -> state = state.copy(error = RemoveDeviceError.GenericError(result.genericFailure))
+                is RegisterClientResult.Failure.InvalidCredentials.Missing2FA -> request2FACode()
+                is RegisterClientResult.Failure.InvalidCredentials.Invalid2FA -> {
+                    state = state.copy(is2FAInProgress = false)
+                    secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
+                        isCodeInputNecessary = true,
+                        isCurrentCodeInvalid = true,
+                    )
+                }
                 is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
                 is RegisterClientResult.Failure.TooManyClients -> loadClientsList()
                 is RegisterClientResult.Success -> sendAction(OnComplete(userDataStore.initialSyncCompleted.first(), false))
@@ -207,14 +232,47 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private fun sendAction(action: RemoveDeviceViewAction) {
-        viewModelScope.launch { _actions.send(action) }
-    }
-
     private companion object {
         const val REGISTER_CLIENT_AFTER_DELETE_DELAY = 2000L
     }
+
+    fun onCodeResend() {
+        viewModelScope.launch {
+            request2FACode()
+        }
+    }
+
+    fun onCodeVerificationBackPress() {
+        secondFactorVerificationCodeTextState.clearText()
+        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
+            isCodeInputNecessary = false,
+            emailUsed = "",
+        )
+    }
+
+    private suspend fun request2FACode() {
+        getSelfUser()?.email?.let { email ->
+            requestSecondFactorVerificationCodeUseCase(
+                email = email,
+                verifiableAction = VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION
+            ).let { result ->
+                when (result) {
+                    is RequestSecondFactorVerificationCodeUseCase.Result.Success,
+                    is RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests -> {
+                        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
+                            isCodeInputNecessary = true,
+                            emailUsed = email,
+                        )
+                    }
+
+                    is RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic -> {
+                        state = state.copy(error = RemoveDeviceError.GenericError(result.cause))
+                    }
+                }
+            }
+        }
+    }
 }
 
-internal sealed interface RemoveDeviceViewAction
+sealed interface RemoveDeviceViewAction
 internal data class OnComplete(val initialSyncCompleted: Boolean, val isE2EIRequired: Boolean) : RemoveDeviceViewAction

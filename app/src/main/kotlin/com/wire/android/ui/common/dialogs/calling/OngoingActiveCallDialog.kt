@@ -26,7 +26,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 
 @Composable
-fun OngoingActiveCallDialog(onJoinAnyways: () -> Unit, onDialogDismiss: () -> Unit) {
+fun OngoingActiveCallDialog(onInitiateCallAnyway: () -> Unit, onDialogDismiss: () -> Unit) {
     WireDialog(
         title = stringResource(id = R.string.calling_ongoing_call_title_alert),
         text = stringResource(id = R.string.calling_ongoing_call_start_message_alert),
@@ -37,7 +37,7 @@ fun OngoingActiveCallDialog(onJoinAnyways: () -> Unit, onDialogDismiss: () -> Un
             type = WireDialogButtonType.Secondary
         ),
         optionButton2Properties = WireDialogButtonProperties(
-            onClick = onJoinAnyways,
+            onClick = onInitiateCallAnyway,
             text = stringResource(id = R.string.calling_ongoing_call_start_anyway),
             type = WireDialogButtonType.Primary
         )

@@ -21,8 +21,9 @@
 
     <color name="background">#17181A</color>
     <color name="default_icon_color">#EDEFF0</color>
-    <color name="emoji_picker_icon_color">#C5C6CF</color>
-    <color name="emoji_picker_text_color">#C5C6CF</color>
+    <color name="emoji_picker_icon_color">#9FA1A7</color>
+    <color name="emoji_picker_icon_color_selected">#EDEFF0</color>
+    <color name="emoji_picker_text_color">#EDEFF0</color>
     <color name="emoji_picker_header_color">#17181A</color>
 
     <!-- Color palette for Composable Themes is in com.wire.android.ui.theme.WireColorPalette.kt -->

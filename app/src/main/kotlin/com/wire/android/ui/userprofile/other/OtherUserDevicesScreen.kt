@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.userprofile.other
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -42,6 +43,7 @@ import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -55,10 +57,31 @@ fun OtherUserDevicesScreen(
     lazyListState: LazyListState = rememberLazyListState(),
     onDeviceClick: (Device) -> Unit
 ) {
-    if (state.otherUserDevices.isEmpty()) {
-        OtherUserEmptyDevicesContent()
-    } else {
-        OtherUserDevicesContent(state, lazyListState, onDeviceClick)
+    AnimatedContent(state.otherUserDevices) { devices ->
+        when {
+            devices == null -> OtherUserDevicesProgress()
+            devices.isEmpty() -> OtherUserEmptyDevicesContent()
+            else -> OtherUserDevicesContent(
+                fullName = state.fullName,
+                devices = devices,
+                shouldShowE2EIInfo = state.isE2EIEnabled,
+                lazyListState = lazyListState,
+                onDeviceClick = onDeviceClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun OtherUserDevicesProgress() {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = dimensions().spacing56x),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.Top
+    ) {
+        WireCircularProgressIndicator(progressColor = colorsScheme().primary)
     }
 }
 
@@ -81,50 +104,51 @@ private fun OtherUserEmptyDevicesContent() {
 
 @Composable
 private fun OtherUserDevicesContent(
-    state: OtherUserProfileState,
+    fullName: String,
+    devices: List<Device>,
+    shouldShowE2EIInfo: Boolean,
     lazyListState: LazyListState = rememberLazyListState(),
     onDeviceClick: (Device) -> Unit
 ) {
     val context = LocalContext.current
     val supportUrl = stringResource(id = R.string.url_why_verify_conversation)
-    with(state) {
-        LazyColumn(
-            state = lazyListState,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = MaterialTheme.wireColorScheme.surface)
-        ) {
-            item {
-                LinkText(
-                    linkTextData = listOf(
-                        LinkTextData(
-                            text = stringResource(R.string.other_user_devices_description, fullName)
-                        ),
-                        LinkTextData(
-                            text = stringResource(id = R.string.label_learn_more),
-                            tag = "learn_more",
-                            annotation = supportUrl,
-                            onClick = { CustomTabsHelper.launchUrl(context, supportUrl) }
-                        )
-                    ),
-                    modifier = Modifier.padding(all = dimensions().spacing16x),
-                    textColor = colorsScheme().onSurface
-                )
-            }
 
-            itemsIndexed(otherUserDevices) { index, item ->
-                DeviceItem(
-                    device = item,
-                    placeholder = false,
-                    modifier = Modifier.background(MaterialTheme.wireColorScheme.surface),
-                    isWholeItemClickable = true,
-                    onClickAction = onDeviceClick,
-                    icon = { ArrowRightIcon(contentDescription = R.string.content_description_empty) },
-                    shouldShowVerifyLabel = true,
-                    shouldShowE2EIInfo = item.mlsClientIdentity != null
-                )
-                if (index < otherUserDevices.lastIndex) WireDivider()
-            }
+    LazyColumn(
+        state = lazyListState,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.wireColorScheme.surface)
+    ) {
+        item {
+            LinkText(
+                linkTextData = listOf(
+                    LinkTextData(
+                        text = stringResource(R.string.other_user_devices_description, fullName)
+                    ),
+                    LinkTextData(
+                        text = stringResource(id = R.string.label_learn_more),
+                        tag = "learn_more",
+                        annotation = supportUrl,
+                        onClick = { CustomTabsHelper.launchUrl(context, supportUrl) }
+                    )
+                ),
+                modifier = Modifier.padding(all = dimensions().spacing16x),
+                textColor = colorsScheme().onSurface
+            )
+        }
+
+        itemsIndexed(devices) { index, item ->
+            DeviceItem(
+                device = item,
+                placeholder = false,
+                modifier = Modifier.background(MaterialTheme.wireColorScheme.surface),
+                isWholeItemClickable = true,
+                onClickAction = onDeviceClick,
+                icon = { ArrowRightIcon(contentDescription = R.string.content_description_empty) },
+                shouldShowVerifyLabel = true,
+                shouldShowE2EIInfo = shouldShowE2EIInfo,
+            )
+            if (index < devices.lastIndex) WireDivider()
         }
     }
 }

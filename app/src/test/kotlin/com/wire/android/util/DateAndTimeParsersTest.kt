@@ -59,7 +59,14 @@ class DateAndTimeParsersTest {
     inner class DateTimeFormatters {
 
         private val baseDateString = "2020-01-20T07:00:00.000Z"
-        private val baseDate = Date(Calendar.getInstance().apply { set(2020, 1, 20) }.timeInMillis)
+        private val baseDate = Date(
+            Calendar.getInstance(
+                TimeZone.getTimeZone("UTC")
+            ).apply {
+                set(2020, 0, 20, 7, 0, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+        )
         private val baseInstant = baseDate.toInstant().toKotlinInstant()
 
         @Test

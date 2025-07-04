@@ -334,7 +334,6 @@
     <string name="enterprise_login_user_identifier_label_placeholder">ඊමේල් හෝ SSO කේතය ඇතුළත් කරන්න</string>
     <string name="enterprise_login_error_invalid_user_identifier">කරුණාකර වලංගු විද්‍යුත් තැපෑලක් හෝ SSO කේතයක් ඇතුළත් කරන්න.</string>
     <string name="enterprise_login_create_account_label">Wire ගිණුමක් නැද්ද?</string>
-    <string name="enterprise_login_create_account_text_button">ගිණුම තනන්න</string>
     <string name="enterprise_login_on_prem_welcome_title">%sසඳහා Wire Enterprise වෙත සාදරයෙන් පිළිගනිමු!</string>
     <string name="enterprise_login_verification_code_title">ඔබට තැපෑලක් තිබේ.</string>
     <!-- Login -->
@@ -420,13 +419,11 @@
     <string name="label_quote_original_message_is_a_picture">ඡායාරූපය</string>
     <string name="label_quote_original_message_date">%s මුල් පණිවිඩය</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">පෞද්. ගිණුමක් සාදන්න</string>
     <string name="create_personal_account_summary_title">පෞද්. ගිණුම සෑදිණි</string>
     <string name="create_personal_account_text">වයර් සේවාදායකයක් හරහා යහළුවන් හා පවුලේ අය සමඟ ආරක්‍ෂිතව කතාබහ කරන්න.</string>
     <string name="create_personal_account_email_text">වඩාත් ආරක්‍ෂිතම සහයෝගිත්‍ව වේදිකාව භාවිතයට වි-තැපැල් ලිපිනය යොදන්න.</string>
     <string name="create_personal_account_details_text">ඔබගේ විස්තර යොදන්න:</string>
     <string name="create_personal_account_summary_text">ඔබගේ පෞද්ගලික ගිණුම සාර්ථකව සාදා ඇත. ඔබ කොතැනක සිටියත් – ආරක්‍ෂිතව සන්නිවේදනය කරන්න!</string>
-    <string name="create_team_title">කණ්ඩායමක් සාදන්න</string>
     <string name="create_team_summary_title">කණ්ඩායම සෑදිණි</string>
     <string name="create_team_content_title">නොමිලේ වයර්</string>
     <string name="create_team_text">කුඩා සංවිධාන හෝ තනි පුද්ගල උපදේශන ව්‍යාපාර සඳහා සන්නිවේදනය.\n</string>

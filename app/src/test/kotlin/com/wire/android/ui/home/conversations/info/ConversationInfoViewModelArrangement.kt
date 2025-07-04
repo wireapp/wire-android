@@ -62,9 +62,6 @@ class ConversationInfoViewModelArrangement {
     @MockK
     lateinit var globalDataStore: GlobalDataStore
 
-    @MockK(relaxed = true)
-    lateinit var onNotFound: () -> Unit
-
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
             qualifiedIdMapper = qualifiedIdMapper,

@@ -39,7 +39,10 @@ data class ConversationInfoViewState(
     val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.UNKNOWN,
     val accentId: Int = -1,
     val isWireCellEnabled: Boolean = false,
-)
+    val notFound: Boolean = false,
+) {
+    val showHistoryLoadingIndicator: Boolean get() = conversationType == Conversation.Type.Group.Channel
+}
 
 sealed class ConversationDetailsData(open val conversationProtocol: Conversation.ProtocolInfo?) {
     data class None(override val conversationProtocol: Conversation.ProtocolInfo?) : ConversationDetailsData(conversationProtocol)

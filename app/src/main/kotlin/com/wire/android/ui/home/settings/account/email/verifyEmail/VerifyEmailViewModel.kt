@@ -41,7 +41,7 @@ class VerifyEmailViewModel @Inject constructor(
     private val verifyEmailNavArgs: VerifyEmailNavArgs = savedStateHandle.navArgs()
     val newEmail: String = verifyEmailNavArgs.newEmail
 
-    fun onResendVerificationEmailClicked(onNoChange: () -> Unit) {
+    fun onResendVerificationEmailClicked() {
         newEmail.let {
             state = state.copy(isResendEmailEnabled = false)
             viewModelScope.launch {
@@ -52,7 +52,7 @@ class VerifyEmailViewModel @Inject constructor(
                     UpdateEmailUseCase.Result.Success.VerificationEmailSent -> { /*no-op*/
                     }
 
-                    UpdateEmailUseCase.Result.Success.NoChange -> onNoChange()
+                    UpdateEmailUseCase.Result.Success.NoChange -> state = state.copy(noChange = true)
                 }
                 state = state.copy(isResendEmailEnabled = true)
             }

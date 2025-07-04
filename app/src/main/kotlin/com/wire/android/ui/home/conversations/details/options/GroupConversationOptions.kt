@@ -108,6 +108,7 @@ fun GroupConversationSettings(
             GroupNameItem(
                 groupName = state.groupName,
                 canBeChanged = state.isUpdatingNameAllowed,
+                isChannel = state.isChannel,
                 onClick = onEditGroupName,
             )
         }
@@ -121,10 +122,12 @@ fun GroupConversationSettings(
                         title = stringResource(R.string.channel_access_label),
                         subtitle = stringResource(id = R.string.channel_access_short_description),
                         arrowType = if (state.isUpdatingChannelAccessAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
-                        arrowLabel = stringResource(state.channelAccessType!!.label),
+                        arrowLabel = stringResource(state.channelAccessType!!.labelResId),
                         arrowLabelColor = colorsScheme().onBackground,
-                        onClick = onChannelAccessItemClicked,
-                        isClickable = state.isUpdatingChannelAccessAllowed,
+                        clickable = Clickable(
+                            enabled = state.isUpdatingChannelAccessAllowed,
+                            onClick = onChannelAccessItemClicked,
+                        ),
                     )
                 }
             }
@@ -243,10 +246,13 @@ fun ConversationProtocolDetails(
 private fun GroupNameItem(
     groupName: String,
     canBeChanged: Boolean,
+    isChannel: Boolean,
     onClick: () -> Unit = {},
 ) {
     GroupConversationOptionsItem(
-        label = stringResource(id = R.string.conversation_details_options_group_name),
+        label = stringResource(
+            id = if (isChannel) R.string.channel_name_title else R.string.conversation_details_options_group_name
+        ),
         title = groupName,
         clickable = Clickable(
             enabled = canBeChanged,

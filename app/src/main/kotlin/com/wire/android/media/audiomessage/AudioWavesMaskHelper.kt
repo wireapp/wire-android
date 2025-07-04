@@ -18,10 +18,10 @@
 package com.wire.android.media.audiomessage
 
 import android.content.Context
-import dagger.Lazy
-import com.linc.amplituda.Amplituda
-import com.linc.amplituda.Cache
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
+import linc.com.amplituda.Amplituda
+import linc.com.amplituda.Cache
 import okio.Path
 import java.io.File
 import javax.inject.Inject
@@ -29,23 +29,25 @@ import kotlin.math.roundToInt
 
 @Reusable
 class AudioWavesMaskHelper @Inject constructor(
-    private val amplituda: Lazy<Amplituda>
+    @ApplicationContext private val appContext: Context,
 ) {
 
-    lateinit var context: Context
     companion object {
         private const val WAVES_AMOUNT = 75
         private const val WAVE_MAX = 32
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun getAmplituda(): Amplituda? = try {
-        amplituda.get()
-    } catch (e: UnsatisfiedLinkError) {
-        null
-    } catch (e: NullPointerException) {
-        null
+    private val amplituda: Lazy<Amplituda?> = lazy {
+        try {
+            Amplituda(appContext)
+        } catch (e: Throwable) {
+            null
+        }
     }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun getAmplituda(): Amplituda? = amplituda.value
 
     fun getWaveMask(decodedAssetPath: Path): List<Int>? = getWaveMask(File(decodedAssetPath.toString()))
 

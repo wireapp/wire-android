@@ -65,6 +65,7 @@ internal fun CellScreenContent(
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
+    showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
     isAllFiles: Boolean,
     isSearchResult: Boolean = false,
 ) {
@@ -166,6 +167,7 @@ internal fun CellScreenContent(
             )
 
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
+            is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
             is RefreshData -> pagingListItems.refresh()
         }
     }

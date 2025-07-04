@@ -15,22 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.cell
+package com.wire.android.feature.cells.ui.tags
 
-import androidx.compose.runtime.Composable
-import com.wire.android.feature.cells.ui.AllFilesScreen
-import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.annotation.app.WireDestination
-import com.wire.android.ui.home.HomeStateHolder
-
-@HomeNavGraph
-@WireDestination
-@Composable
-fun GlobalCellsScreen(
-    homeStateHolder: HomeStateHolder,
-) {
-    AllFilesScreen(
-        navigator = homeStateHolder.navigator,
-        searchBarState = homeStateHolder.searchBarState
-    )
-}
+data class AddRemoveTagsNavArgs(
+    val uuid: String,
+    val tags: ArrayList<String>
+)

@@ -70,26 +70,8 @@ data class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun enterEmailOnCreatePersonalAccountPage(email: String): RegistrationPage {
-        val emailInputField = UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText"))
-        // timeout = 10000L // optional, if EditText takes longer to load
-        emailInputField.click()
-        emailInputField.text = email
-        return this
-    }
-
-    fun assertAndClickContinueButtonOnCreatePersonalAccountPage(): RegistrationPage {
-        val continueButton = UiWaitUtils.waitElement(UiSelectorParams(text = "Continue"))
-        continueButton.click()
-        return this
-    }
-
     fun assertTermsOfUseModalVisible() {
-        val termsTitle = UiWaitUtils.waitElement(
-            UiSelectorParams(
-                text = "Terms of Use"
-            )
-        )
+        val termsTitle = UiWaitUtils.waitElement(UiSelectorParams(text = "Terms of Use"))
 
         val infoText = UiWaitUtils.waitElement(
             UiSelectorParams(
@@ -98,21 +80,15 @@ data class RegistrationPage(private val device: UiDevice) {
         )
 
         val cancelButton = UiWaitUtils.waitElement(
-            UiSelectorParams(
-                text = "Cancel"
-            )
+            UiSelectorParams(text = "Cancel")
         )
 
         val viewButton = UiWaitUtils.waitElement(
-            UiSelectorParams(
-                text = "View ToU and Privacy Policy"
-            )
+            UiSelectorParams(text = "View ToU and Privacy Policy")
         )
 
         val continueButton = UiWaitUtils.waitElement(
-            UiSelectorParams(
-                text = "Continue"
-            )
+            UiSelectorParams(text = "Continue")
         )
 
         assertTrue("Terms of Use title is not visible", !termsTitle.visibleBounds.isEmpty)
@@ -129,13 +105,6 @@ data class RegistrationPage(private val device: UiDevice) {
         val parent = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "name"))
         val editText = parent.findObject(By.clazz("android.widget.EditText"))
         editText.text = firstName
-        return this
-    }
-
-    fun enterLastName(lastName: String): RegistrationPage {
-        val parent = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "lastName"))
-        val editText = parent.findObject(By.clazz("android.widget.EditText"))
-        editText.text = lastName
         return this
     }
 
@@ -158,7 +127,7 @@ data class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun verifyStaticPasswordIsCorrect(expectedPassword: String): RegistrationPage {
+    fun verifyConfirmPasswordIsCorrect(expectedPassword: String): RegistrationPage {
         val parent = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "confirmPassword"))
         val passwordField = parent.findObject(By.clazz("android.widget.EditText"))
         val actualPassword = passwordField.text
@@ -178,27 +147,17 @@ data class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertAccountCreationSuccessMessage() {
-        val successMessage = UiWaitUtils.waitElement(
+    fun assertEnterYourUserNameInfoText() {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        // Wait until "Resend code" is gone before continuing
+        val resendCodeSelector = UiSelector().text("Resend code")
+        waitUntilElementGone(device, resendCodeSelector, timeoutMillis = 10_000)
+        // Now assert the presence of the username info text
+        val infoText = UiWaitUtils.waitElement(
             UiSelectorParams(
-                textContains = "You have successfully created your personal account. Start communicating"
+                textContains = "Enter your username. It helps others to find"
             )
         )
-        assertTrue("Account creation success message is not visible", !successMessage.visibleBounds.isEmpty)
-    }
-
-    fun clickGetStartedButton(): RegistrationPage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Get Started")).click()
-        return this
-    }
-
-    fun assertUserNamePageIsVisible() {
-        val userNamePage = UiWaitUtils.waitElement(UiSelectorParams(text = "Your Username"))
-        assertTrue("Your Username is not visible", !userNamePage.visibleBounds.isEmpty)
-    }
-
-    fun assertEnterYourUserNameInfoText() {
-        val infoText = UiWaitUtils.waitElement(UiSelectorParams(textContains = "Enter your username. It helps others to find"))
         assertTrue("Username info text is not visible", !infoText.visibleBounds.isEmpty)
     }
 
@@ -244,7 +203,7 @@ data class RegistrationPage(private val device: UiDevice) {
 
         // Wait for "loginButton" to disappear (timeout: 10s)
         val loginButtonSelector = UiSelector().resourceId("loginButton")
-        waitUntilElementGone(device, loginButtonSelector, timeoutMillis = 20_000)
+        waitUntilElementGone(device, loginButtonSelector, timeoutMillis = 10_000)
 
         // Wait for "Setting up Wire" text to disappear (timeout: 30s)
         val settingUpWireSelector = UiSelector()
@@ -252,6 +211,7 @@ data class RegistrationPage(private val device: UiDevice) {
             .text("Setting up Wire")
         waitUntilElementGone(device, settingUpWireSelector, timeoutMillis = 30_000)
     }
+
     fun waitUntilRegistrationFlowIsComplete() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val loginButtonSelector = UiSelector().text("Confirm")

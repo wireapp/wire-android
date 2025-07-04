@@ -70,20 +70,11 @@ class PersonalUserRegistrationTest : KoinTest {
             assertAndClickLoginButton()
             clickCreateAccountButton()
             clickCreatePersonalAccountButton()
-
-            // Existing personal registration flow(To be deleted soon)
-//           registrationPage.clickContinueButton()
-//            registrationPage.enterEmailOnCreatePersonalAccountPage(userInfo.email)
-//            registrationPage.assertAndClickContinueButtonOnCreatePersonalAccountPage()
-//            registrationPage.assertTermsOfUseModalVisible()  // Asserts all elements
-//            registrationPage.clickContinueButton()
-//            registrationPage.assertAndClickContinueButtonOnCreatePersonalAccountPage()
-//
             enterFirstName(userInfo.name)
             enterPassword(userInfo.password)
             enterConfirmPassword(userInfo.password)
             clickShowPasswordEyeIcon()
-            verifyStaticPasswordIsCorrect(userInfo.password)
+            verifyConfirmPasswordIsCorrect(userInfo.password)
             clickHidePasswordEyeIcon()
             checkIagreeToShareAnonymousUsageData()
             clickContinueButton()
@@ -99,8 +90,6 @@ class PersonalUserRegistrationTest : KoinTest {
                 )
             }
             enter2FAOnCreatePersonalAccountPage(otp)
-            // Sleep to be removed when new registration implementation is done
-            Thread.sleep(4000)
             assertEnterYourUserNameInfoText()
             assertUserNameHelpText()
             setUserName(userInfo.username)

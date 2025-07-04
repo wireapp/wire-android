@@ -1,18 +1,17 @@
 @file:Suppress("TooManyFunctions")
 package com.wire.android.testSupport.backendConnections.team
 
-import user.utils.AccessCredentials
 import ImageUtil
 import InbucketClient.getInbucketVerificationCode
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import network.HttpRequestException
 import com.wire.android.testSupport.R
 import com.wire.android.testSupport.backendConnections.BackendClient
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
+import network.HttpRequestException
 import network.NetworkBackendClient
 import network.NetworkBackendClient.accessCredentials
 import network.NetworkBackendClient.response
@@ -21,6 +20,7 @@ import network.RequestOptions
 import org.json.JSONArray
 import org.json.JSONObject
 import user.utils.AccessCookie
+import user.utils.AccessCredentials
 import user.utils.AccessToken
 import user.utils.Asset
 import user.utils.ClientUser
@@ -511,7 +511,6 @@ private fun BackendClient.access(credentials: AccessCredentials): AccessCredenti
             accessToken = credentials.accessToken,
             cookie = credentials.accessCookie
         ),
-
         )
     return connection.accessCredentials(connection.response())
 }

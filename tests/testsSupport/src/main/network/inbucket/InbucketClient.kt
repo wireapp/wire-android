@@ -18,6 +18,7 @@
 import android.util.Base64
 import com.wire.android.testSupport.backendConnections.BackendClient
 import kotlinx.coroutines.delay
+import logger.WireTestLogger
 import network.NetworkBackendClient.sendJsonRequest
 import org.json.JSONObject
 import java.io.IOException
@@ -31,6 +32,7 @@ object InbucketClient {
     suspend fun getVerificationCode(email: String, inbucketUrl: String, password: String, username: String): String {
 
         val url = URL("$inbucketUrl/api/v1/mailbox/$email/latest")
+        WireTestLogger.getLog("Inbucket").info("Url is :  "+url.toString())
         val loginString = "$username:$password"
         val base64Login = Base64.encodeToString(loginString.toByteArray(), Base64.NO_WRAP)
 

@@ -20,6 +20,7 @@ package com.wire.android.tests.core.pages
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
+import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
@@ -82,4 +83,78 @@ data class SettingsPage(private val device: UiDevice) {
 
         return this
     }
+
+    fun tapEnableLoggingToggle() {
+        val label = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .findObject(UiSelector().text("Enable Logging"))
+        val toggle = label.getFromParent(UiSelector().className("android.view.View"))
+        toggle.click()
+    }
+
+//    fun assertEnableLoggingToggleIsOff() {
+//        val toggle = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+//            .findObject(
+//                UiSelector().text("Enable Logging")
+//                    .fromParent(UiSelector().className("android.view.View").clickable(true))
+//            )
+//
+//        assertFalse("Enable Logging toggle should be OFF", toggle.isChecked)
+//    }
+
+//    fun assertToggleCheckedState(expectedChecked: Boolean) {
+//        val toggle = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+//            .findObject(
+//                UiSelector()
+//                    .className("android.view.View")
+//                    .clickable(true)
+//                    .checkable(true)
+//                    .checked(expectedChecked)
+//            )
+//
+//        assertTrue("Toggle should be ${if (expectedChecked) "ON" else "OFF"}", toggle.exists())
+//    }
+
+
+//    fun assertToggleIsOn() {
+//        val toggle = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+//            .findObject(
+//                UiSelector()
+//                    .className("android.view.View")
+//                    .clickable(true)
+//                    .checkable(true)
+//                    .checked(true)
+//            )
+//
+//        assertTrue("Toggle should be ON", toggle.exists())
+//    }
+
+
+
+    fun assertToggleIsOff() {
+        val toggle = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .findObject(
+                UiSelector()
+                    .className("android.view.View")
+                    .clickable(true)
+                    .checked(false)
+            )
+
+        assertFalse("Toggle should be OFF", toggle.isChecked)
+    }
+
+    fun assertToggleIsOn() {
+        val toggle = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .findObject(
+                UiSelector()
+                    .className("android.view.View")
+                    .clickable(true)
+                    .checked(true)
+            )
+
+        assertTrue("Toggle should be OFF", toggle.isChecked)
+
+    }
+
+
+
 }

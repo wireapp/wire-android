@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.tests
+package com.wire.android.tests.core.criticalFlows
 
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -23,7 +23,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.testSupport.backendConnections.BackendClient
 import com.wire.android.testSupport.backendConnections.team.TeamRoles
-import com.wire.android.testSupport.backendConnections.team.deleteTeam
 import com.wire.android.testSupport.backendConnections.team.getTeamByName
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
@@ -37,14 +36,15 @@ import org.junit.runner.RunWith
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
+import service.TestServiceHelper
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 
 @RunWith(AndroidJUnit4::class)
-class ApplockTest : KoinTest {
+class AccountManagement : KoinTest {
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
+    val koinTestRule = KoinTestRule.Companion.create {
         modules(testModule)
     }
     private val pages: AllPages by inject()
@@ -52,16 +52,15 @@ class ApplockTest : KoinTest {
     lateinit var context: Context
     var registeredUser: ClientUser? = null
     var backendClient: BackendClient? = null
-    var teamMember: ClientUser? = null
     var usersManager: ClientUserManager? = null
 
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
         //device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
-        backendClient = BackendClient.loadBackend("STAGING")
-        usersManager = ClientUserManager(true)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        backendClient = BackendClient.Companion.loadBackend("STAGING")
+        usersManager = ClientUserManager.Companion.getInstance()
     }
 
     @After
@@ -70,7 +69,7 @@ class ApplockTest : KoinTest {
         // To delete team member
         // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
         // To delete team
-        registeredUser?.deleteTeam(backendClient!!)
+        // registeredUser?.deleteTeam(backendClient!!)
     }
 
     fun userXAddsUsersToTeam(
@@ -112,26 +111,44 @@ class ApplockTest : KoinTest {
     }
 
     @Test
-    fun setAppLockForAppAndVerifyAppIsLockedAfter1MinuteInTheBackground() {
-
-        usersManager!!.createTeamOwnerByAlias("user1Name", "AppLock", "en_US", true, backendClient!!, context)
+    fun accountManagement() {
+        usersManager!!.createTeamOwnerByAlias("user1Name", "AccountManagement", "en_US", true, backendClient!!, context)
         registeredUser = usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-        userXAddsUsersToTeam("user1Name", "user2Name,user3Name,user4Name,user5Name", "AppLock", TeamRoles.Member, true)
+        userXAddsUsersToTeam("user1Name", "user2Name,user3Name,user4Name,user5Name", "AccountManagement", TeamRoles.Member, true)
+        val teamMember = usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+        TestServiceHelper().userHasGroupConversationInTeam("user1Name", "MyTeam", "user2Name", "AccountManagement")
+
         pages.registrationPage.apply {
             assertEmailWelcomePage()
         }
         pages.loginPage.apply {
-            enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
+            enterPersonalUserLoggingEmail(teamMember.email ?: "")
             clickLoginButton()
-            enterPersonalUserLoginPassword(registeredUser?.password ?: "")
+            enterPersonalUserLoginPassword(teamMember.password ?: "")
             clickLoginButton()
         }
-        // Thread.sleep(3000)
+
         pages.registrationPage.apply {
             waitUntilLoginFlowIsComplete()
             clickAllowNotificationButton()
-            clickAgreeShareDataAlert()
-            assertConversationPageVisible()
+            clickDeclineShareDataAlert()
+        }
+        pages.conversationPage.apply {
+            assertConversationVisible("MyTeam")
+
+            clickMainMenuButtonOnConversationVeiwPage()
+            clickSettingsButtonOnMenuEntry()
+            pages.settingsPage.apply {
+                clickDebugSettingsButton()
+                tapEnableLoggingToggle()
+                assertToggleIsOff()
+                tapEnableLoggingToggle()
+                assertToggleIsOn()
+
+
+            }
+
         }
     }
+
 }

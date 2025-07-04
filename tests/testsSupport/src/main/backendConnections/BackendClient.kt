@@ -3,9 +3,15 @@
 package com.wire.android.testSupport.backendConnections
 
 import CredentialsManager
+import android.net.Uri
 import com.wire.android.testSupport.BuildConfig
+import com.wire.android.testSupport.backendConnections.team.defaultheaders
+import com.wire.android.testSupport.backendConnections.team.getAuthToken
+import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
 import network.NetworkBackendClient
+import network.NumberSequence
+import network.RequestOptions
 import org.json.JSONObject
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
@@ -302,6 +308,33 @@ class BackendClient(
         }
     }
 
+    @Suppress("TooGenericExceptionThrown")
+    fun getVerificationCode(user: ClientUser): String {
+        trigger2FA(user.email.orEmpty())
+
+        val encodedUserId = Uri.encode(user.id)
+        val url = URL("${backendUrl}i/users/$encodedUserId/verification-code/login")
+
+        val headers = mapOf(
+            "Authorization" to basicAuth.getEncoded(),
+            "Accept" to "application/json"
+        )
+
+        return try {
+            val response = NetworkBackendClient.sendJsonRequest(
+                url = url,
+                method = "GET",
+                headers = headers,
+                options = RequestOptions(
+                    expectedResponseCodes = NumberSequence.Range(200..299)
+                )
+            )
+            response.replace("\"", "")
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to get verification code: ${e.message}", e)
+        }
+    }
+
     // Used to active a register user email
     fun activateRegisteredEmailByBackendCode(email: String, code: String): String {
 
@@ -329,6 +362,34 @@ class BackendClient(
         WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("JsonBody response is $requestBody")
 
         return "Email Registered"
+    }
+
+    private fun getFeatureConfig(feature: String, user: ClientUser): JSONObject {
+        val token = runBlocking {
+            getAuthToken(user)
+        }
+        val url = URL(String.format("feature-configs/%s", feature).composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(
+                accessToken = token
+            )
+        )
+
+        val objectResponse = JSONObject(response.body)
+        return objectResponse
+    }
+
+    fun isDevelopmentApiEnabled(user: ClientUser): Boolean {
+
+        return getFeatureConfig("mls", user).get("status").equals("enabled")
     }
 
     fun String.composeCompleteUrl(): String {

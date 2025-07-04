@@ -76,6 +76,19 @@ class ClientUserManager {
         private val SELF_USER_EMAIL_ALIASES = arrayOf("myEmail")
         private val SELF_USER_UNIQUE_USERNAME_ALIASES = arrayOf("myUniqueUsername")
 
+        @Volatile
+        private var INSTANCE : ClientUserManager?=null
+
+
+        @Synchronized
+        fun getInstance(): ClientUserManager {
+            if(INSTANCE==null){
+                INSTANCE = ClientUserManager(true)
+            }
+            return INSTANCE!!
+        }
+
+
         @Suppress("LongParameterList")
         private fun setClientUserAliases(
             user: ClientUser,
@@ -136,7 +149,7 @@ class ClientUserManager {
      * @return The generated email address
      */
     private fun generateIndexedEmail(uniqueUserName: String, userNumber: Int): String {
-        return "$uniqueUserName+$userNumber@wire.com"
+        return "$uniqueUserName+$userNumber@wire.engineering"
     }
 
     /**

@@ -80,10 +80,6 @@ class WireColorScheme(
     val tertiaryButtonSelected: Color, val onTertiaryButtonSelected: Color,
     val tertiaryButtonSelectedOutline: Color,
     val tertiaryButtonRipple: Color,
-    val secondaryButtonEnabledPromotion: Color,
-    val onSecondaryButtonEnabledPromotion: Color,
-    val secondaryButtonEnabledOutlinePromotion: Color,
-    val secondaryButtonRipplePromotion: Color,
 
     // strokes and shadows
     val outline: Color,
@@ -171,10 +167,6 @@ private val LightWireColorScheme = WireColorScheme(
     tertiaryButtonSelected = WireColorPalette.LightBlue50, onTertiaryButtonSelected = WireColorPalette.LightBlue500,
     tertiaryButtonSelectedOutline = WireColorPalette.LightBlue300,
     tertiaryButtonRipple = Color.Black,
-    secondaryButtonEnabledPromotion = WireColorPalette.Gray90,
-    onSecondaryButtonEnabledPromotion = Color.White,
-    secondaryButtonEnabledOutlinePromotion = WireColorPalette.Gray100,
-    secondaryButtonRipplePromotion = Color.White,
 
     // strokes and shadows
     outline = WireColorPalette.Gray40,
@@ -268,10 +260,6 @@ private val DarkWireColorScheme = WireColorScheme(
     tertiaryButtonSelected = WireColorPalette.DarkBlue800, onTertiaryButtonSelected = WireColorPalette.DarkBlue500,
     tertiaryButtonSelectedOutline = WireColorPalette.DarkBlue800,
     tertiaryButtonRipple = Color.White,
-    secondaryButtonEnabledPromotion = WireColorPalette.Gray90,
-    onSecondaryButtonEnabledPromotion = Color.White,
-    secondaryButtonEnabledOutlinePromotion = WireColorPalette.Gray100,
-    secondaryButtonRipplePromotion = Color.White,
 
     // strokes and shadows
     outline = WireColorPalette.Gray90,

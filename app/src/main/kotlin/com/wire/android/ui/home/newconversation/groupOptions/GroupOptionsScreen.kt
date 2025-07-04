@@ -21,10 +21,10 @@ package com.wire.android.ui.home.newconversation.groupOptions
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
@@ -44,24 +44,32 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.destinations.ChannelAccessOnCreateScreenDestination
+import com.wire.android.ui.destinations.ChannelHistoryScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
+import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryType
+import com.wire.android.ui.home.newconversation.channelhistory.name
 import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.home.settings.SwitchState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
@@ -83,10 +91,12 @@ fun GroupOptionScreen(
     GroupOptionScreenContent(
         groupOptionState = newConversationViewModel.groupOptionsState,
         createGroupState = newConversationViewModel.createGroupState,
-        accessTypeLabel = newConversationViewModel.newGroupState.channelAccessType.label,
-        isChannelsAllowed = newConversationViewModel.newGroupState.isChannel,
+        groupMetadataState = newConversationViewModel.newGroupState,
         onAccessClicked = {
             navigator.navigate(NavigationCommand(ChannelAccessOnCreateScreenDestination))
+        },
+        onHistoryClicked = {
+            navigator.navigate(NavigationCommand(ChannelHistoryScreenDestination))
         },
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
@@ -118,9 +128,9 @@ fun GroupOptionScreen(
 fun GroupOptionScreenContent(
     groupOptionState: GroupOptionState,
     createGroupState: CreateGroupState,
-    accessTypeLabel: Int,
-    isChannelsAllowed: Boolean,
+    groupMetadataState: GroupMetadataState,
     onAccessClicked: () -> Unit,
+    onHistoryClicked: () -> Unit,
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
@@ -136,12 +146,12 @@ fun GroupOptionScreenContent(
 ) {
     with(groupOptionState) {
         WireScaffold(topBar = {
-            val screenTitle = if (isChannelsAllowed) {
+            val screenTitle = if (groupMetadataState.isChannel) {
                 R.string.new_channel_title
             } else {
                 R.string.new_group_title
             }
-            val navigationIconType = if (isChannelsAllowed) {
+            val navigationIconType = if (groupMetadataState.isChannel) {
                 NavigationIconType.Back(R.string.content_description_new_channel_options_back_btn)
             } else {
                 NavigationIconType.Back(R.string.content_description_new_group_options_back_btn)
@@ -155,15 +165,18 @@ fun GroupOptionScreenContent(
             )
         }) { internalPadding ->
             GroupOptionsScreenMainContent(
-                accessTypeLabel,
-                isChannelsAllowed,
-                internalPadding,
+                groupMetadataState,
                 onAccessClicked,
+                onHistoryClicked,
                 onAllowGuestChanged,
                 onAllowServicesChanged,
                 onReadReceiptChanged,
                 onEnableWireCellChanged,
-                onContinuePressed
+                onContinuePressed,
+                Modifier
+                    .fillMaxSize()
+                    .padding(internalPadding)
+                    .background(MaterialTheme.colorScheme.background)
             )
         }
 
@@ -178,35 +191,38 @@ fun GroupOptionScreenContent(
 
 @Composable
 private fun GroupOptionState.GroupOptionsScreenMainContent(
-    accessTypeLabel: Int,
-    isChannel: Boolean,
-    internalPadding: PaddingValues,
+    groupMetadataState: GroupMetadataState,
     onAccessClicked: () -> Unit,
+    onHistoryClicked: () -> Unit,
     onAllowGuestChanged: (Boolean) -> Unit,
     onAllowServicesChanged: (Boolean) -> Unit,
     onReadReceiptChanged: (Boolean) -> Unit,
     onEnableWireCellChanged: (Boolean) -> Unit,
-    onContinuePressed: () -> Unit
+    onContinuePressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(internalPadding)
-            .background(MaterialTheme.colorScheme.background),
+        modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            if (isChannel) {
-                AccessOptions(accessTypeLabel, onAccessClicked)
+            if (groupMetadataState.isChannel) {
+                AccessOptions(groupMetadataState.channelAccessType, onAccessClicked)
+                HorizontalDivider(color = colorsScheme().divider)
+                if (BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED) {
+                    HistoryOptions(groupMetadataState.channelHistoryType, onHistoryClicked)
+                    HorizontalDivider(color = colorsScheme().divider)
+                }
             }
-            AllowGuestsOptions(isChannel, onAllowGuestChanged)
-            AllowServicesOptions(isChannel, onAllowServicesChanged)
-            ReadReceiptsOptions(isChannel, onReadReceiptChanged)
+            AllowGuestsOptions(groupMetadataState.isChannel, onAllowGuestChanged)
+            HorizontalDivider(color = colorsScheme().divider)
+            AllowServicesOptions(groupMetadataState.isChannel, onAllowServicesChanged)
+            ReadReceiptsOptions(groupMetadataState.isChannel, onReadReceiptChanged)
             isWireCellsEnabled?.let {
                 EnableWireCellOptions(onEnableWireCellChanged)
             }
         }
-        CreateGroupButton(isChannel, onContinuePressed)
+        CreateGroupButton(groupMetadataState.isChannel, onContinuePressed)
     }
 }
 
@@ -269,15 +285,27 @@ private fun GroupOptionState.AllowServicesOptions(isChannel: Boolean, onAllowSer
 
 @Composable
 fun AccessOptions(
-    accessTypeLabel: Int,
+    accessType: ChannelAccessType,
     onAccessClicked: () -> Unit
 ) {
     GroupConversationOptionsItem(
         title = stringResource(R.string.channel_access_label),
         arrowType = ArrowType.TITLE_ALIGNED,
-        arrowLabel = stringResource(accessTypeLabel),
-        onClick = onAccessClicked,
-        isClickable = true,
+        arrowLabel = stringResource(accessType.labelResId),
+        clickable = Clickable(enabled = true, onClick = onAccessClicked),
+    )
+}
+
+@Composable
+fun HistoryOptions(
+    historyType: ChannelHistoryType,
+    onClicked: () -> Unit
+) {
+    GroupConversationOptionsItem(
+        title = stringResource(R.string.channel_history_label),
+        arrowType = ArrowType.TITLE_ALIGNED,
+        arrowLabel = historyType.name(useAmountForCustom = true),
+        clickable = Clickable(enabled = true, onClick = onClicked),
     )
 }
 
@@ -376,13 +404,25 @@ private fun AllowGuestsDialog(
 }
 
 @Composable
-@Preview
-fun PreviewGroupOptionScreen() {
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen() = WireTheme {
     GroupOptionScreenContent(
-        GroupOptionState(),
-        CreateGroupState.Default,
-        accessTypeLabel = R.string.channel_private_label,
-        isChannelsAllowed = false,
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        groupOptionState = GroupOptionState(),
+        createGroupState = CreateGroupState.Default,
+        groupMetadataState = GroupMetadataState(isChannel = true),
+        onAccessClicked = {},
+        onHistoryClicked = {},
+        onAllowGuestChanged = {},
+        onAllowServicesChanged = {},
+        onReadReceiptChanged = {},
+        onEnableWireCellChanged = {},
+        onContinuePressed = {},
+        onAllowGuestsDialogDismissed = {},
+        onNotAllowGuestsClicked = {},
+        onAllowGuestsClicked = {},
+        onErrorDismissed = {},
+        onEditParticipantsClick = {},
+        onDiscardGroupCreationClick = {},
+        onBackPressed = {}
     )
 }

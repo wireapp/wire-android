@@ -171,6 +171,14 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             }
 
             is AnalyticsIdentifierResult.Disabled -> {}
+            is AnalyticsIdentifierResult.RegistrationIdentifier -> {
+                anonymousAnalyticsRecorder?.setTrackingIdentifierWithoutMerge(
+                    identifier = analyticsIdentifierResult.identifier,
+                    shouldPropagateIdentifier = false,
+                    analyticsProfileProperties = analyticsProfileProperties,
+                    propagateIdentifier = {}
+                )
+            }
         }
     }
 

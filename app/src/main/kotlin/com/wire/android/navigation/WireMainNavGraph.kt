@@ -17,6 +17,7 @@
  */
 package com.wire.android.navigation
 
+import com.ramcosta.composedestinations.annotation.NavGraph
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
@@ -31,8 +32,8 @@ import com.wire.android.ui.NavGraphs
 
 object WireMainNavGraph : NavGraphSpec {
     override val route = "wire.main"
-    override val startRoute = NavGraphs.root.startRoute
-    val destinations: List<DestinationSpec<*>> = NavGraphs.root.destinations
+    override val startRoute = NavGraphs.wireRoot.startRoute
+    val destinations: List<DestinationSpec<*>> = NavGraphs.wireRoot.destinations
         .plus(DrawingCanvasScreenDestination)
         .plus(PublicLinkScreenDestination)
         .plus(ConversationFilesScreenDestination)
@@ -42,5 +43,10 @@ object WireMainNavGraph : NavGraphSpec {
         .plus(RecycleBinScreenDestination)
         .plus(AddRemoveTagsScreenDestination)
     override val destinationsByRoute = destinations.associateBy { it.route }
-    override val nestedNavGraphs = NavGraphs.root.nestedNavGraphs
+    override val nestedNavGraphs = NavGraphs.wireRoot.nestedNavGraphs
 }
+
+@NavGraph(default = true)
+annotation class WireRootNavGraph(
+    val start: Boolean = false
+)

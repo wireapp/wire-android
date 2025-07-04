@@ -18,12 +18,12 @@
 package com.wire.android.ui.authentication.login
 
 import com.ramcosta.composedestinations.annotation.NavGraph
-import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.navigation.WireRootNavGraph
 
-@RootNavGraph
+@WireRootNavGraph
 @NavGraph
 annotation class LoginNavGraph(val start: Boolean = false)
 
-@RootNavGraph
+@WireRootNavGraph
 @NavGraph
 annotation class NewLoginNavGraph(val start: Boolean = false)

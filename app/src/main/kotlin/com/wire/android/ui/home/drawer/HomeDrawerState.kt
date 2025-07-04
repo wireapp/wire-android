@@ -19,6 +19,8 @@
 package com.wire.android.ui.home.drawer
 
 data class HomeDrawerState(
-    val unreadArchiveConversationsCount: Int,
-    val showFilesOption: Boolean,
+    /**
+     * The items to be displayed in the drawer [Pair] of "top" and "bottom" items.
+     */
+    val items: Pair<List<DrawerUiItem>, List<DrawerUiItem>> = emptyList<DrawerUiItem>() to emptyList<DrawerUiItem>()
 )

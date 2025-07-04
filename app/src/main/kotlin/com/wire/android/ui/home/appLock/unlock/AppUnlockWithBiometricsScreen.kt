@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.biometric.showBiometricPrompt
@@ -46,7 +45,6 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 
-@RootNavGraph
 @WireDestination
 @Composable
 fun AppUnlockWithBiometricsScreen(

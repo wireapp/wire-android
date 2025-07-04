@@ -241,6 +241,7 @@
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
+    <string name="team_management_screen_title">Team-Management</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neue Funktionen</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Willkommen bei Wires neuer Android App!</string>
@@ -300,7 +301,7 @@
     <string name="enterprise_login_user_identifier_label_placeholder">E-Mail-Adresse oder SSO-Code eingeben</string>
     <string name="enterprise_login_error_invalid_user_identifier">Bitte eine gültige E-Mail-Adresse oder den SSO-Code eingeben</string>
     <string name="enterprise_login_create_account_label">Sie haben kein Benutzerkonto?</string>
-    <string name="enterprise_login_create_account_text_button">Konto erstellen</string>
+    <string name="enterprise_login_create_account_text_button">Konto oder Team erstellen</string>
     <string name="enterprise_login_on_prem_welcome_title">Willkommen bei Wire Enterprise für %s!</string>
     <string name="enterprise_login_verification_code_title">Du hast eine Mail bekommen</string>
     <!-- Login -->
@@ -453,6 +454,7 @@
     <string name="create_account_username_title">Ihr Benutzername</string>
     <string name="create_account_username_placeholder">max.müller</string>
     <string name="create_account_username_label">BENUTZERNAME</string>
+    <string name="create_account_set_username_title">Benutzernamen festlegen</string>
     <string name="create_account_username_text">Geben Sie Ihren Benutzernamen ein. Andere können Sie so leichter in Wire finden und sich mit Ihnen verbinden.</string>
     <string name="create_account_username_taken_error">Dieser Benutzername ist bereits vergeben. Bitte wählen Sie einen anderen.</string>
     <string name="create_account_username_description">Mindestens 2 Zeichen, a-z, 0-9, “_”, “-” und “.”</string>
@@ -702,6 +704,8 @@
     <string name="conversation_banner_guests_present">Gäste anwesend</string>
     <string name="conversation_banner_externals_present">Externe anwesend</string>
     <string name="conversation_banner_services_active">Dienste aktiv</string>
+    <string name="conversation_history_loading">Gesprächsverlauf wird geladen…</string>
+    <string name="conversation_history_loaded">🥳 Sie können jetzt alle verfügbaren Nachrichten lesen.</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s haben %2$s zu der Unterhaltung hinzugefügt</string>
     <string name="label_system_message_removed_by_self">%1$s haben %2$s aus der Unterhaltung entfernt</string>
@@ -729,6 +733,9 @@
         <item quantity="other">%1$s wurden aus dem Team entfernt</item>
     </plurals>
     <string name="label_system_message_user_not_available">Dieser Benutzer ist nicht mehr verfügbar</string>
+    <string name="label_system_message_unsupported_protocol">Die Unterhaltung verwendet ein Verschlüsselungsprotokoll, das
+        von diesem Gerät nicht unterstützt wird. Einige Teilnehmer müssen eventuell Ihre Geräte aktualisieren.
+    </string>
     <string name="label_system_message_new_conversation_receipt_mode">Lesebestätigungen sind %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s haben Lesebestätigungen für alle %2$sgeschaltet</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s hat Lesebestätigungen für alle %2$sgeschaltet</string>
@@ -960,6 +967,7 @@
     <string name="notification_action_reply">Antworten</string>
     <string name="notification_receiver_name">Sie</string>
     <string name="label_type_a_message">Eine Nachricht schreiben</string>
+    <string name="notification_action_decline_call">Ablehnen</string>
     <string name="notification_incoming_call_content">Ruft an…</string>
     <string name="notification_ongoing_call_content">Aktiver Anruf…</string>
     <string name="notification_group_channel_call_content">%s ruft an...</string>
@@ -1580,6 +1588,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <string name="restricted_asset_error_toast_message">Das Versenden von Dateien ist aufgrund von Firmenbeschränkungen verboten</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Ping senden</string>
     <string name="ping_confirm_sending_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anpingen möchten?</string>

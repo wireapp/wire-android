@@ -29,7 +29,7 @@ import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversatio
 import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserMlsClientIdentitiesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
@@ -234,8 +234,8 @@ class UserModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetUserE2eiCertificates(userScope: UserScope): GetUserE2eiCertificatesUseCase =
-        userScope.getUserE2eiCertificates
+    fun provideGetUserMlsClientIdentities(userScope: UserScope): GetUserMlsClientIdentitiesUseCase =
+        userScope.getUserMlsClientIdentities
 
     @ViewModelScoped
     @Provides

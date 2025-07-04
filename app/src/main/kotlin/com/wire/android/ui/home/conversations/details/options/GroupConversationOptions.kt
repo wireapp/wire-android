@@ -444,6 +444,7 @@ private val StateAdmin = StateMember.copy(
     isUpdatingReadReceiptAllowed = true,
 )
 
+@Suppress("MagicNumber")
 private val ProtocolInfoMLS = Conversation.ProtocolInfo.MLS(
     groupId = GroupID("groupId"),
     groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,

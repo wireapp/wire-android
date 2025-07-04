@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.home.newconversation.groupOptions
 
@@ -205,7 +206,6 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
     onEnableWireCellChanged: (Boolean) -> Unit,
     onContinuePressed: () -> Unit,
     modifier: Modifier = Modifier,
-
 ) {
     Column(
         modifier = modifier,
@@ -238,7 +238,8 @@ private fun GroupOptionState.ReadReceiptsOptions(isChannel: Boolean, onReadRecei
         switchState = SwitchState.Enabled(
             value = isReadReceiptEnabled,
             isOnOffVisible = false,
-            onCheckedChange = { onReadReceiptChanged.invoke(it) }),
+            onCheckedChange = onReadReceiptChanged,
+        ),
         arrowType = ArrowType.NONE,
         clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier
@@ -268,7 +269,8 @@ private fun GroupOptionState.AllowServicesOptions(isChannel: Boolean, onAllowSer
         switchState = SwitchState.Enabled(
             value = isAllowServicesEnabled,
             isOnOffVisible = false,
-            onCheckedChange = { onAllowServicesChanged.invoke(it) }),
+            onCheckedChange = onAllowServicesChanged,
+        ),
         arrowType = ArrowType.NONE,
         clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier
@@ -323,7 +325,8 @@ private fun GroupOptionState.AllowGuestsOptions(isChannel: Boolean, onAllowGuest
         switchState = SwitchState.Enabled(
             value = isAllowGuestEnabled,
             isOnOffVisible = false,
-            onCheckedChange = { onAllowGuestChanged.invoke(it) }),
+            onCheckedChange = onAllowGuestChanged
+        ),
         arrowType = ArrowType.NONE,
         clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier.background(MaterialTheme.colorScheme.surface)

@@ -25,7 +25,7 @@ jobs:
 
   # Build matrix job - only runs if quality gates pass
   build:
-    name: "Build ${{ matrix.flavor }}${{ matrix.variant }}"
+    name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
     needs: quality-gates
     if: needs.quality-gates.outputs.quality-passed == 'success'
     runs-on: ubuntu-latest

@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.home.newconversation.groupOptions
 
@@ -24,7 +25,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +44,6 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -70,6 +69,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
@@ -125,7 +125,7 @@ fun GroupOptionScreen(
 }
 
 @Composable
-fun GroupOptionScreenContent(
+private fun GroupOptionScreenContent(
     groupOptionState: GroupOptionState,
     createGroupState: CreateGroupState,
     groupMetadataState: GroupMetadataState,
@@ -143,6 +143,8 @@ fun GroupOptionScreenContent(
     onEditParticipantsClick: () -> Unit,
     onDiscardGroupCreationClick: () -> Unit,
     onBackPressed: () -> Unit,
+    channelsHistoryOptionsEnabled: Boolean = BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED,
+    mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
 ) {
     with(groupOptionState) {
         WireScaffold(topBar = {
@@ -165,15 +167,17 @@ fun GroupOptionScreenContent(
             )
         }) { internalPadding ->
             GroupOptionsScreenMainContent(
-                groupMetadataState,
-                onAccessClicked,
-                onHistoryClicked,
-                onAllowGuestChanged,
-                onAllowServicesChanged,
-                onReadReceiptChanged,
-                onEnableWireCellChanged,
-                onContinuePressed,
-                Modifier
+                groupMetadataState = groupMetadataState,
+                channelsHistoryOptionsEnabled = channelsHistoryOptionsEnabled,
+                mlsReadReceiptsEnabled = mlsReadReceiptsEnabled,
+                onAccessClicked = onAccessClicked,
+                onHistoryClicked = onHistoryClicked,
+                onAllowGuestChanged = onAllowGuestChanged,
+                onAllowServicesChanged = onAllowServicesChanged,
+                onReadReceiptChanged = onReadReceiptChanged,
+                onEnableWireCellChanged = onEnableWireCellChanged,
+                onContinuePressed = onContinuePressed,
+                modifier = Modifier
                     .fillMaxSize()
                     .padding(internalPadding)
                     .background(MaterialTheme.colorScheme.background)
@@ -192,6 +196,8 @@ fun GroupOptionScreenContent(
 @Composable
 private fun GroupOptionState.GroupOptionsScreenMainContent(
     groupMetadataState: GroupMetadataState,
+    channelsHistoryOptionsEnabled: Boolean,
+    mlsReadReceiptsEnabled: Boolean,
     onAccessClicked: () -> Unit,
     onHistoryClicked: () -> Unit,
     onAllowGuestChanged: (Boolean) -> Unit,
@@ -208,16 +214,15 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
         Column {
             if (groupMetadataState.isChannel) {
                 AccessOptions(groupMetadataState.channelAccessType, onAccessClicked)
-                HorizontalDivider(color = colorsScheme().divider)
-                if (BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED) {
+                if (channelsHistoryOptionsEnabled) {
                     HistoryOptions(groupMetadataState.channelHistoryType, onHistoryClicked)
-                    HorizontalDivider(color = colorsScheme().divider)
                 }
             }
             AllowGuestsOptions(groupMetadataState.isChannel, onAllowGuestChanged)
-            HorizontalDivider(color = colorsScheme().divider)
             AllowServicesOptions(groupMetadataState.isChannel, onAllowServicesChanged)
-            ReadReceiptsOptions(groupMetadataState.isChannel, onReadReceiptChanged)
+            if (groupMetadataState.groupProtocol != CreateConversationParam.Protocol.MLS || mlsReadReceiptsEnabled) {
+                ReadReceiptsOptions(groupMetadataState.isChannel, onReadReceiptChanged)
+            }
             isWireCellsEnabled?.let {
                 EnableWireCellOptions(onEnableWireCellChanged)
             }
@@ -230,9 +235,11 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
 private fun GroupOptionState.ReadReceiptsOptions(isChannel: Boolean, onReadReceiptChanged: (Boolean) -> Unit) {
     GroupConversationOptionsItem(
         title = stringResource(R.string.read_receipts),
-        switchState = SwitchState.Enabled(value = isReadReceiptEnabled,
+        switchState = SwitchState.Enabled(
+            value = isReadReceiptEnabled,
             isOnOffVisible = false,
-            onCheckedChange = { onReadReceiptChanged.invoke(it) }),
+            onCheckedChange = onReadReceiptChanged,
+        ),
         arrowType = ArrowType.NONE,
         clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier
@@ -259,9 +266,11 @@ private fun GroupOptionState.AllowServicesOptions(isChannel: Boolean, onAllowSer
 
     GroupConversationOptionsItem(
         title = stringResource(R.string.allow_services),
-        switchState = SwitchState.Enabled(value = isAllowServicesEnabled,
+        switchState = SwitchState.Enabled(
+            value = isAllowServicesEnabled,
             isOnOffVisible = false,
-            onCheckedChange = { onAllowServicesChanged.invoke(it) }),
+            onCheckedChange = onAllowServicesChanged,
+        ),
         arrowType = ArrowType.NONE,
         clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier
@@ -313,9 +322,11 @@ fun HistoryOptions(
 private fun GroupOptionState.AllowGuestsOptions(isChannel: Boolean, onAllowGuestChanged: (Boolean) -> Unit) {
     GroupConversationOptionsItem(
         title = stringResource(R.string.allow_guests),
-        switchState = SwitchState.Enabled(value = isAllowGuestEnabled,
+        switchState = SwitchState.Enabled(
+            value = isAllowGuestEnabled,
             isOnOffVisible = false,
-            onCheckedChange = { onAllowGuestChanged.invoke(it) }),
+            onCheckedChange = onAllowGuestChanged
+        ),
         arrowType = ArrowType.NONE,
         clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
@@ -404,12 +415,15 @@ private fun AllowGuestsDialog(
 }
 
 @Composable
-@PreviewMultipleThemes
-fun PreviewGroupOptionScreen() = WireTheme {
+private fun PreviewGroupOptionScreen(
+    groupMetadataState: GroupMetadataState,
+    channelsHistoryOptionsEnabled: Boolean = BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED,
+    mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
+) = WireTheme {
     GroupOptionScreenContent(
         groupOptionState = GroupOptionState(),
         createGroupState = CreateGroupState.Default,
-        groupMetadataState = GroupMetadataState(isChannel = true),
+        groupMetadataState = groupMetadataState,
         onAccessClicked = {},
         onHistoryClicked = {},
         onAllowGuestChanged = {},
@@ -423,6 +437,38 @@ fun PreviewGroupOptionScreen() = WireTheme {
         onErrorDismissed = {},
         onEditParticipantsClick = {},
         onDiscardGroupCreationClick = {},
-        onBackPressed = {}
+        onBackPressed = {},
+        channelsHistoryOptionsEnabled = channelsHistoryOptionsEnabled,
+        mlsReadReceiptsEnabled = mlsReadReceiptsEnabled,
     )
 }
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_Group() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(isChannel = false)
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_Channel() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(isChannel = true),
+    channelsHistoryOptionsEnabled = true,
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_ChannelWithHistoryOptionsDisabled() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(isChannel = true),
+    channelsHistoryOptionsEnabled = false,
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_MlsGroupWithMlsReadReceiptsDisabled() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(
+        isChannel = false,
+        groupProtocol = CreateConversationParam.Protocol.MLS,
+    ),
+    mlsReadReceiptsEnabled = false,
+)

@@ -51,6 +51,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     TEAM_APP_LOCK_TIMEOUT("team_app_lock_timeout", ConfigType.INT),
     ENABLE_CROSSPLATFORM_BACKUP("enable_crossplatform_backup", ConfigType.BOOLEAN),
     ENABLE_NEW_REGISTRATION("enable_new_registration", ConfigType.BOOLEAN),
+    MLS_READ_RECEIPTS_ENABLED("mls_read_receipts_enabled", ConfigType.BOOLEAN),
 
     /**
      * Security/Cryptography stuff

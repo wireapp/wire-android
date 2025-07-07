@@ -16,12 +16,13 @@ This script automates the process of modifying Wire APK files by moving the `com
 
 #### 1. Java Development Kit (JDK)
 - **Required**: Java 11 or higher
-- **Download**: [OpenJDK](https://openjdk.org/)
-- **Purpose**: Needed for running apktool and jarsigner
 - **Installation**:
-  - **Windows**: Download installer from Oracle/OpenJDK website
+  - **Windows**: `winget install Microsoft.OpenJDK.17` or download from [OpenJDK](https://openjdk.org/)
   - **macOS**: `brew install openjdk` or download from website
-  - **Linux**: `sudo apt install default-jdk` (Ubuntu/Debian) or `sudo yum install java-1.8.0-openjdk` (CentOS/RHEL)
+  - **Linux**: 
+    - **Using SDKMAN** (recommended): `sdk install java 17.0.8-tem` ([SDKMAN](https://sdkman.io/))
+    - **Ubuntu/Debian**: `sudo apt install default-jdk`
+    - **CentOS/RHEL**: `sudo yum install java-17-openjdk`
 
 #### 2. Apktool
 - **Required**: Latest version (2.7.0 or higher recommended)

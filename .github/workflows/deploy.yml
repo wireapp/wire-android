@@ -29,6 +29,10 @@ on:
       SERVICE_ACCOUNT_JSON:
         required: false
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   deploy:
     strategy:

@@ -5,6 +5,10 @@ on:
     branches:
       - develop
 
+  permissions:
+  contents: read
+  actions: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.sha }}
   cancel-in-progress: true

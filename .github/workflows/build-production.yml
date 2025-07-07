@@ -4,6 +4,10 @@ on:
   release:
     types: [ published ]
 
+permissions:
+  contents: read
+  actions: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
   cancel-in-progress: true

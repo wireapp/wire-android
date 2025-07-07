@@ -2,11 +2,11 @@ package com.wire.android.ui.registration.details
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
@@ -24,7 +24,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -66,8 +65,8 @@ class CreateAccountDataDetailViewModelTest {
         )
         assertEquals(false, viewModel.detailsState.success)
         coVerify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
-        verify(exactly = 1) {
-            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(true)))
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(true)))
         }
     }
 
@@ -92,11 +91,11 @@ class CreateAccountDataDetailViewModelTest {
         assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
         assertEquals(false, viewModel.detailsState.success)
         coVerify(exactly = 1) { arrangement.validateEmailUseCase(any()) }
-        verify(exactly = 1) {
-            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.TermsOfUseDialog))
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.TermsOfUseDialog))
         }
-        verify(exactly = 1) {
-            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(true)))
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(true)))
         }
         assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
         assertEquals(true, viewModel.detailsState.termsDialogVisible)
@@ -118,11 +117,11 @@ class CreateAccountDataDetailViewModelTest {
         assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
         assertEquals(false, viewModel.detailsState.success)
         coVerify(exactly = 1) { arrangement.validateEmailUseCase(any()) }
-        verify(exactly = 1) {
-            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.TermsOfUseDialog))
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.TermsOfUseDialog))
         }
-        verify(exactly = 1) {
-            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(false)))
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(false)))
         }
         assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
         assertEquals(true, viewModel.detailsState.termsDialogVisible)
@@ -183,7 +182,7 @@ class CreateAccountDataDetailViewModelTest {
         lateinit var validatePasswordUseCase: ValidatePasswordUseCase
 
         @MockK
-        lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
+        lateinit var anonymousAnalyticsManager: RegistrationAnalyticsManagerUseCase
 
         @MockK
         lateinit var globalDataStore: GlobalDataStore
@@ -202,7 +201,7 @@ class CreateAccountDataDetailViewModelTest {
             coEvery { autoVersionAuthScopeUseCase(any()) } returns
                     AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
             coEvery { authenticationScope.registerScope.requestActivationCode } returns requestActivationCodeUseCase
-            coEvery { anonymousAnalyticsManager.sendEvent(any()) } returns Unit
+            coEvery { anonymousAnalyticsManager.sendEventIfEnabled(any()) } returns Unit
         }
 
         fun withActivationCodeResult(result: RequestActivationCodeResult) = apply {

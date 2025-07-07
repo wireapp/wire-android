@@ -234,9 +234,7 @@ keytool -genkey -v -keystore my-release-key.jks -keyalg RSA -keysize 2048 -valid
 **Issue**: `Failed to sign APK`
 - **Solution**: Check that the keystore password and key password are correct
 
-## Technical Details
-
-### What the Script Does Internally
+## What the Script Does Internally
 
 1. **Creates a temporary work directory** for decompilation
 2. **Runs apktool decode** to decompile the APK into smali code
@@ -252,18 +250,3 @@ keytool -genkey -v -keystore my-release-key.jks -keyalg RSA -keysize 2048 -valid
 8. **Optionally signs the APK** using apksigner
 9. **Verifies the signature** if signing was performed
 10. **Cleans up temporary files** and directories
-
-### Why Move com/wire to smali_classes2?
-
-This modification is typically done for:
-- **Code organization**: Separating Wire-specific code from other app code
-- **Reverse engineering**: Making it easier to analyze Wire's implementation
-- **Custom modifications**: Preparing the APK for further modifications
-
-## License
-
-This script is provided as-is for educational and research purposes. Please ensure you comply with Wire's terms of service and applicable laws when using this tool.
-
-## Contributing
-
-If you encounter issues or have suggestions for improvements, please feel free to modify the script or create an issue report.

@@ -217,6 +217,7 @@ fun PreviewFilterBottomSheet() {
             MutableStateFlow(emptyList()),
             onApply = {},
             onClearAll = {},
-            onDismiss = {})
+            onDismiss = {}
+        )
     }
 }

@@ -1,0 +1,37 @@
+name: "Release Candidate Push"
+
+on:
+  push:
+    branches:
+      - release/candidate
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  # Build for direct pushes to release/candidate (includes production deployment)
+  build-release-candidate:
+    uses: ./.github/workflows/build-unified.yml
+    with:
+      build-config: |
+        [
+          {
+            "flavor": "Staging",
+            "variant": "Compat",
+            "keystore-type": "internal",
+            "build-type": "apk",
+            "generate-version-file": false,
+            "deployment-targets": "[{\"type\": \"s3\"}]"
+          },
+          {
+            "flavor": "Internal",
+            "variant": "Compat",
+            "keystore-type": "internal",
+            "build-type": "both",
+            "generate-version-file": false,
+            "deployment-targets": "[{\"type\": \"s3\"}, {\"type\": \"google-play\", \"package-name\": \"com.wire.internal\", \"track\": \"production\", \"status\": \"completed\"}]"
+          }
+        ]
+      enable-deployment: true
+    secrets: inherit

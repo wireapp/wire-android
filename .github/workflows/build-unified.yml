@@ -126,7 +126,7 @@ jobs:
           name: ${{ matrix.flavor }}-${{ matrix.variant }}-artifacts
           path: |
             app/build/outputs/
-            ${{ matrix.generate-version-file == true ? 'app/version.txt' : '' }}
+            ${{ matrix.generate-version-file == true && 'app/version.txt' || '' }}
           retention-days: 7
 
       - name: Build summary

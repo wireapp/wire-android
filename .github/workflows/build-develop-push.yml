@@ -22,7 +22,11 @@ jobs:
             "keystore-type": "debug",
             "build-type": "apk",
             "generate-version-file": false,
-            "deployment-targets": "[{\"type\": \"s3\"}]"
+            "deployment-targets": [
+              {
+                "type": "s3"
+              }
+            ]
           },
           {
             "flavor": "Internal",
@@ -30,7 +34,17 @@ jobs:
             "keystore-type": "internal",
             "build-type": "bundle",
             "generate-version-file": false,
-            "deployment-targets": "[{\"type\": \"s3\"}, {\"type\": \"google-play\", \"package-name\": \"com.wire.internal\", \"track\": \"internal\", \"status\": \"completed\"}]"
+            "deployment-targets": [
+              {
+                "type": "s3"
+              },
+              {
+                "type": "google-play",
+                "package-name": "com.wire.internal",
+                "track": "internal",
+                "status": "completed"
+              }
+            ]
           }
         ]
       enable-deployment: true

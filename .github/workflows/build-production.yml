@@ -44,7 +44,20 @@ jobs:
             "keystore-type": "public",
             "build-type": "both",
             "generate-version-file": true,
-            "deployment-targets": "[{\"type\": \"s3\"}, {\"type\": \"google-play\", \"package-name\": \"com.wire\", \"track\": \"alpha\"}, {\"type\": \"github-release\", \"additional-files\": \"app/version.txt\"}]"
+            "deployment-targets": [
+              {
+                "type": "s3"
+              },
+              {
+                "type": "google-play",
+                "package-name": "com.wire",
+                "track": "alpha"
+              },
+              {
+                "type": "github-release",
+                "additional-files": "app/version.txt"
+              }
+            ]
           }
         ]
       enable-deployment: true
@@ -62,7 +75,14 @@ jobs:
             "keystore-type": "public",
             "build-type": "apk",
             "generate-version-file": false,
-            "deployment-targets": "[{\"type\": \"s3\"}, {\"type\": \"github-release\"}]"
+            "deployment-targets": [
+              {
+                "type": "s3"
+              },
+              {
+                "type": "github-release"
+              }
+            ]
           }
         ]
       enable-deployment: true

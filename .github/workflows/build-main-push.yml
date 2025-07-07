@@ -22,7 +22,16 @@ jobs:
             "keystore-type": "prerelease",
             "build-type": "both",
             "generate-version-file": false,
-            "deployment-targets": "[{\"type\": \"s3\"}, {\"type\": \"google-play\", \"package-name\": \"com.wire.android.internal\", \"track\": \"internal\"}]"
+            "deployment-targets": [
+              {
+                "type": "s3"
+              },
+              {
+                "type": "google-play",
+                "package-name": "com.wire.android.internal",
+                "track": "internal"
+              }
+            ]
           }
         ]
       enable-deployment: true

@@ -216,7 +216,7 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     with:
       artifacts-path: app/build/outputs/
-      deployment-targets: ${{ matrix.deployment-targets }}
+      deployment-targets: ${{ toJSON(matrix.deployment-targets) }}
       build-flavor: ${{ matrix.flavor }}
       build-variant: ${{ matrix.variant }}
     secrets:

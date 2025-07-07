@@ -79,6 +79,12 @@ sealed class HomeDestination(
         direction = WhatsNewScreenDestination
     )
 
+    data object TeamManagement : HomeDestination(
+        title = UIText.StringResource(R.string.team_management_screen_title),
+        icon = R.drawable.ic_team_management,
+        direction = TeamManagementScreenDestination
+    )
+
     data object Cells : HomeDestination(
         title = UIText.StringResource(R.string.cells_screen_title),
         icon = R.drawable.ic_files,
@@ -100,6 +106,6 @@ sealed class HomeDestination(
             values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
 
         fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Settings, Vault, Archive, Support, WhatsNew, Cells)
+            arrayOf(Conversations, Settings, Vault, Archive, Support, TeamManagement, WhatsNew, Cells)
     }
 }

@@ -27,8 +27,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,13 +43,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.navigation.ExternalDirectionLess
+import com.wire.android.navigation.ExternalUriDirection
+import com.wire.android.navigation.ExternalUriStringResDirection
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.Logo
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.spacers.HorizontalSpace
@@ -81,40 +89,56 @@ fun HomeDrawer(
                 .height(MaterialTheme.wireDimensions.homeDrawerLogoHeight)
         )
 
-        fun navigateAndCloseDrawer(item: HomeDestination) {
-            navigateToHomeItem(item)
-            onCloseDrawer()
+        val (topItems, bottomItems) = homeDrawerState.items
+        topItems.forEach { item ->
+            MapToDrawerItem(navigateToHomeItem, onCloseDrawer, currentRoute, item)
         }
-
-        DrawerItem(
-            destination = HomeDestination.Conversations,
-            selected = currentRoute == HomeDestination.Conversations.direction.route,
-            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Conversations) } }
-        )
-
-        if (homeDrawerState.showFilesOption) {
-            DrawerItem(
-                destination = HomeDestination.Cells,
-                selected = currentRoute == HomeDestination.Cells.direction.route,
-                onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Cells) } }
-            )
-        }
-
-        DrawerItem(
-            destination = HomeDestination.Archive,
-            unreadCount = homeDrawerState.unreadArchiveConversationsCount,
-            selected = currentRoute == HomeDestination.Archive.direction.route,
-            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Archive) } }
-        )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val bottomItems = listOf(HomeDestination.WhatsNew, HomeDestination.Settings, HomeDestination.Support)
         bottomItems.forEach { item ->
-            DrawerItem(
-                destination = item,
-                selected = currentRoute == item.direction.route,
-                onItemClick = remember { { navigateAndCloseDrawer(item) } }
+            MapToDrawerItem(navigateToHomeItem, onCloseDrawer, currentRoute, item)
+        }
+    }
+}
+
+@Composable
+fun MapToDrawerItem(
+    navigateToHomeItem: (HomeDestination) -> Unit,
+    onCloseDrawer: () -> Unit,
+    currentRoute: String?,
+    drawerUiItem: DrawerUiItem
+) {
+    val context = LocalContext.current
+    fun navigateAndCloseDrawer(item: HomeDestination) {
+        navigateToHomeItem(item)
+        onCloseDrawer()
+    }
+
+    with(drawerUiItem) {
+        when (this) {
+            is DrawerUiItem.DynamicExternalNavigationItem -> DrawerItem(
+                destination = destination,
+                selected = currentRoute == destination.direction.route,
+                onItemClick = remember {
+                    {
+                        com.wire.android.util.CustomTabsHelper.launchUrl(context, url)
+                        onCloseDrawer()
+                    }
+                }
+            )
+
+            is DrawerUiItem.RegularItem -> DrawerItem(
+                destination = destination,
+                selected = currentRoute == destination.direction.route,
+                onItemClick = remember { { navigateAndCloseDrawer(destination) } }
+            )
+
+            is DrawerUiItem.UnreadCounterItem -> DrawerItem(
+                destination = destination,
+                unreadCount = this.unreadCount.toInt(),
+                selected = currentRoute == destination.direction.route,
+                onItemClick = remember { { navigateAndCloseDrawer(destination) } }
             )
         }
     }
@@ -133,10 +157,10 @@ fun DrawerItem(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .padding(bottom = 8.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .padding(bottom = dimensions().spacing8x)
+            .clip(RoundedCornerShape(dimensions().spacing12x))
             .fillMaxWidth()
-            .height(40.dp)
+            .height(dimensions().spacing40x)
             .background(backgroundColor)
             .selectableBackground(selected, stringResource(R.string.content_description_open_label), onItemClick),
     ) {
@@ -157,6 +181,17 @@ fun DrawerItem(
                 .weight(1F)
         )
         UnreadMessageEventBadge(unreadMessageCount = unreadCount)
+        with(destination) {
+            if (direction is ExternalUriDirection || direction is ExternalUriStringResDirection || direction is ExternalDirectionLess) {
+                HorizontalSpace.x8()
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                    contentDescription = null,
+                    tint = colorsScheme().secondaryText,
+                    modifier = Modifier.size(dimensions().spacing16x)
+                )
+            }
+        }
         HorizontalSpace.x12()
     }
 }
@@ -183,6 +218,18 @@ fun PreviewUnSelectedArchivedItemWithUnreadCount() {
             selected = false,
             onItemClick = {},
             unreadCount = 100
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewItemWithExternalDestination() {
+    Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
+        DrawerItem(
+            destination = HomeDestination.Support,
+            selected = false,
+            onItemClick = {},
         )
     }
 }

@@ -65,6 +65,7 @@ internal fun CellScreenContent(
     downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
+    showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
     isAllFiles: Boolean,
     isSearchResult: Boolean = false,
@@ -165,7 +166,7 @@ internal fun CellScreenContent(
                     isFolder = action.cellNode is CellNodeUi.Folder
                 )
             )
-
+            is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is RefreshData -> pagingListItems.refresh()
         }

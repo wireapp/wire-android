@@ -19,25 +19,22 @@
 package com.wire.android.ui.userprofile.avatarpicker
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
@@ -60,10 +57,14 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
+import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
+import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
+import com.wire.android.util.ui.PreviewMultipleThemesForSquare
 
-@RootNavGraph
 @WireDestination(
     style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
@@ -143,30 +144,25 @@ private fun AvatarPickerContent(
     WireScaffold(
         topBar = { AvatarPickerTopBar(onCloseClick = onCloseClick) }
     ) { internalPadding ->
-        Box(
-            Modifier
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(internalPadding)
+                .background(MaterialTheme.wireColorScheme.background)
         ) {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.wireColorScheme.background)
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.weight(1f)
             ) {
-                Box(Modifier.weight(1f)) {
-                    Box(Modifier.align(Alignment.Center)) {
-                        AvatarPreview(pictureState)
-                    }
-                }
-                HorizontalDivider()
-                Spacer(Modifier.height(4.dp))
-                AvatarPickerActionButtons(
-                    pictureState = pictureState,
-                    onSaveClick = onSaveClick,
-                    onCancelClick = onCancelClick,
-                    onChangeImage = state::showModalBottomSheet,
-                )
+                AvatarPreview(pictureState)
             }
+            AvatarPickerActionButtons(
+                pictureState = pictureState,
+                onSaveClick = onSaveClick,
+                onCancelClick = onCancelClick,
+                onChangeImage = state::showModalBottomSheet,
+            )
         }
     }
 
@@ -223,36 +219,41 @@ private fun AvatarPickerActionButtons(
     onCancelClick: () -> Unit,
     onChangeImage: () -> Unit
 ) {
-    when (pictureState) {
-        is PictureState.Uploading, is PictureState.Picked -> {
-            val isUploading = pictureState is PictureState.Uploading
+    Surface(
+        shadowElevation = dimensions().bottomNavigationShadowElevation,
+        color = MaterialTheme.wireColorScheme.background
+    ) {
+        Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
+            when (pictureState) {
+                is PictureState.Uploading, is PictureState.Picked -> {
+                    val isUploading = pictureState is PictureState.Uploading
 
-            Row(Modifier.fillMaxWidth()) {
-                WireSecondaryButton(
-                    modifier = Modifier
-                        .padding(dimensions().spacing16x)
-                        .weight(1f),
-                    text = stringResource(R.string.label_cancel),
-                    onClick = onCancelClick
-                )
-                WirePrimaryButton(
-                    modifier = Modifier
-                        .padding(dimensions().spacing16x)
-                        .weight(1f),
-                    text = stringResource(R.string.label_confirm),
-                    onClick = onSaveClick,
-                    loading = isUploading,
-                    state = if (isUploading) WireButtonState.Disabled else WireButtonState.Default
-                )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing16x),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        WireSecondaryButton(
+                            modifier = Modifier.weight(1f),
+                            text = stringResource(R.string.label_cancel),
+                            onClick = onCancelClick
+                        )
+                        WirePrimaryButton(
+                            modifier = Modifier.weight(1f),
+                            text = stringResource(R.string.label_confirm),
+                            onClick = onSaveClick,
+                            loading = isUploading,
+                            state = if (isUploading) WireButtonState.Disabled else WireButtonState.Default
+                        )
+                    }
+                }
+
+                else -> {
+                    WirePrimaryButton(
+                        text = stringResource(R.string.profile_image_change_image_button_label),
+                        onClick = onChangeImage
+                    )
+                }
             }
-        }
-
-        else -> {
-            WirePrimaryButton(
-                modifier = Modifier.padding(dimensions().spacing16x),
-                text = stringResource(R.string.profile_image_change_image_button_label),
-                onClick = onChangeImage
-            )
         }
     }
 }
@@ -263,5 +264,25 @@ private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
         onNavigationPressed = onCloseClick,
         navigationIconType = NavigationIconType.Back(R.string.content_description_change_picture_back_btn),
         title = stringResource(R.string.profile_image_top_bar_label),
+    )
+}
+
+@PreviewMultipleThemesForPortrait
+@PreviewMultipleThemesForLandscape
+@PreviewMultipleThemesForSquare
+@Composable
+fun AvatarPickerPreview() = WireTheme {
+    AvatarPickerContent(
+        pictureState = PictureState.Picked("https://example.com/avatar.jpg".toUri()),
+        state = rememberAvatarPickerState(
+            onImageSelected = {},
+            onCameraPermissionPermanentlyDenied = {},
+            onGalleryPermissionPermanentlyDenied = {},
+            onPictureTaken = {},
+            targetPictureFileUri = "https://example.com/avatar.jpg".toUri(),
+        ),
+        onCloseClick = {},
+        onCancelClick = {},
+        onSaveClick = {}
     )
 }

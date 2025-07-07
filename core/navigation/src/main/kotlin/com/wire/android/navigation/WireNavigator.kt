@@ -18,7 +18,7 @@
 package com.wire.android.navigation
 
 interface WireNavigator {
-    fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean = false)
-    fun navigateBack(onlyIfResumed: Boolean = false)
+    fun navigate(navigationCommand: NavigationCommand)
+    fun navigateBack()
     fun navigateBackAndRemoveAllConsecutive(currentRoute: String)
 }

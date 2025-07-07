@@ -76,6 +76,7 @@ internal annotation class PreviewMultipleThemes
 )
 internal annotation class PreviewMultipleThemesForPortrait
 
+@SuppressLint("ComposePreviewNaming")
 @Preview(
     name = "Landscape Dark theme",
     group = "Landscape",
@@ -96,6 +97,7 @@ internal annotation class PreviewMultipleThemesForPortrait
 )
 internal annotation class PreviewMultipleThemesForLandscape
 
+@SuppressLint("ComposePreviewNaming")
 @Preview(
     name = "Square Dark theme",
     group = "Square",

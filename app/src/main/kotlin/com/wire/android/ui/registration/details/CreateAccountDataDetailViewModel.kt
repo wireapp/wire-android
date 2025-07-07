@@ -25,7 +25,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.config.orDefault
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent.RegistrationPersonalAccount
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
@@ -36,20 +39,25 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class CreateAccountDataDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePassword: ValidatePasswordUseCase,
     private val validateEmail: ValidateEmailUseCase,
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
+    private val globalDataStore: GlobalDataStore,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
 
     val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
 
+    private var withPasswordTries = false
     val emailTextState: TextFieldState = TextFieldState(createAccountNavArgs.userRegistrationInfo.email)
     val nameTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
@@ -82,6 +90,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     private fun onEmailContinue() {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
+            delay(ANALYTICS_INIT_WARMUP_THRESHOLD)
             val email = emailTextState.text.toString().trim().lowercase()
             val emailError = when (validateEmail(email)) {
                 true -> CreateAccountDataDetailViewState.DetailsError.None
@@ -93,9 +102,25 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                 termsDialogVisible = !detailsState.termsAccepted && emailError is CreateAccountDataDetailViewState.DetailsError.None,
                 error = emailError
             )
-            if (detailsState.termsAccepted) onTermsAccept()
+
+            anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.AccountSetup(withPasswordTries))
+            when {
+                detailsState.termsAccepted -> {
+                    onTermsAccept()
+                }
+
+                else -> {
+                    anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.TermsOfUseDialog)
+                }
+            }
         }.invokeOnCompletion {
             detailsState = detailsState.copy(loading = false)
+        }
+    }
+
+    private fun updateTrackingStatusBasedOnPrivacyPolicyAccepted() {
+        viewModelScope.launch {
+            globalDataStore.setAnonymousRegistrationEnabled(detailsState.privacyPolicyAccepted)
         }
     }
 
@@ -125,13 +150,20 @@ class CreateAccountDataDetailViewModel @Inject constructor(
             val email = emailTextState.text.toString().trim().lowercase()
             val emailError = authScope.registerScope.requestActivationCode(email).toEmailError()
             detailsState = detailsState.copy(loading = false, continueEnabled = true, error = emailError)
-            if (emailError is CreateAccountDataDetailViewState.DetailsError.None) detailsState = detailsState.copy(success = true)
+            if (emailError is CreateAccountDataDetailViewState.DetailsError.None) {
+                detailsState = detailsState.copy(success = true)
+            }
         }
+    }
+
+    fun onCodeSentHandled() {
+        detailsState = detailsState.copy(success = false)
     }
 
     fun onDetailsContinue() {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
+            updateTrackingStatusBasedOnPrivacyPolicyAccepted()
             val detailsError = when {
                 !validatePassword(passwordTextState.text.toString()).isValid ->
                     CreateAccountDataDetailViewState.DetailsError.PasswordError.InvalidPasswordError
@@ -148,6 +180,8 @@ class CreateAccountDataDetailViewModel @Inject constructor(
             )
             if (detailsState.error is CreateAccountDataDetailViewState.DetailsError.None) {
                 onEmailContinue()
+            } else {
+                withPasswordTries = true
             }
         }
     }
@@ -182,5 +216,9 @@ class CreateAccountDataDetailViewModel @Inject constructor(
 
         is RequestActivationCodeResult.Success ->
             CreateAccountDataDetailViewState.DetailsError.None
+    }
+
+    private companion object {
+        val ANALYTICS_INIT_WARMUP_THRESHOLD = 1.seconds
     }
 }

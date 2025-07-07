@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -55,6 +56,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val APP_LOCK_SOURCE = intPreferencesKey("app_lock_source")
         private val ENTER_TO_SENT = booleanPreferencesKey("enter_to_sent")
         private val WIRE_CELLS = booleanPreferencesKey("wire_cells")
+        private val ANONYMOUS_REGISTRATION_TRACK_ID = stringPreferencesKey("anonymous_registration_track_id")
+        private val IS_ANONYMOUS_REGISTRATION_ENABLED = booleanPreferencesKey("is_anonymous_registration_enabled")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -97,6 +100,39 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun setShouldShowDoubleTapToastStatus(userId: String, shouldShow: Boolean) {
         context.dataStore.edit { it[userDoubleTapToastStatusKey(userId)] = shouldShow }
+    }
+
+    fun isAnonymousRegistrationEnabled(): Flow<Boolean> =
+        getBooleanPreference(IS_ANONYMOUS_REGISTRATION_ENABLED, false)
+
+    suspend fun setAnonymousRegistrationEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[IS_ANONYMOUS_REGISTRATION_ENABLED] = enabled }
+    }
+
+    suspend fun clearAnonymousRegistrationTrackId() {
+        context.dataStore.edit {
+            it.remove(ANONYMOUS_REGISTRATION_TRACK_ID)
+        }
+    }
+
+    private suspend fun setAnonymousRegistrationTrackId(trackId: String) {
+        context.dataStore.edit {
+            it[ANONYMOUS_REGISTRATION_TRACK_ID] = trackId
+        }
+    }
+
+    suspend fun getAnonymousRegistrationTrackId(): String? {
+        return context.dataStore.data.firstOrNull()?.get(ANONYMOUS_REGISTRATION_TRACK_ID)
+    }
+
+    suspend fun getOrCreateAnonymousRegistrationTrackId(): String {
+        val trackId = context.dataStore.data.first()[ANONYMOUS_REGISTRATION_TRACK_ID]
+        if (trackId.isNullOrBlank()) {
+            val newTrackId = UUID.randomUUID().toString()
+            setAnonymousRegistrationTrackId(newTrackId)
+            return newTrackId
+        }
+        return trackId
     }
 
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =

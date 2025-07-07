@@ -334,7 +334,6 @@ URL do Backend:
     <string name="enterprise_login_user_identifier_label_placeholder">Digite o e-mail ou código SSO</string>
     <string name="enterprise_login_error_invalid_user_identifier">Por favor, insira um e-mail ou código SSO válido</string>
     <string name="enterprise_login_create_account_label">Não tem uma conta Wire?</string>
-    <string name="enterprise_login_create_account_text_button">Criar conta</string>
     <string name="enterprise_login_on_prem_welcome_title">Bem-vindo ao Wire Enterprise para %s!</string>
     <string name="enterprise_login_verification_code_title">Você tem um e-mail</string>
     <!-- Login -->

@@ -44,7 +44,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
@@ -61,7 +60,6 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = MessageDetailsNavArgs::class,
     style = PopUpNavigationAnimation::class,

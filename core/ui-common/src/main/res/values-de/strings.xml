@@ -16,4 +16,12 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="login_password_placeholder">Passwort</string>
+    <string name="login_password_label">Passwort</string>
+    <string name="content_description_reveal_password">Passwort anzeigen</string>
+    <string name="content_description_hide_password">Passwort ausblenden</string>
+    <string name="content_description_left_arrow">Zurück</string>
+    <string name="content_description_close">Schließen</string>
+    <string name="content_description_menu_button">Hauptnavigation</string>
+</resources>

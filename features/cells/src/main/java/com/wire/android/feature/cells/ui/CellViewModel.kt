@@ -290,6 +290,7 @@ class CellViewModel @Inject constructor(
                             add(NodeBottomSheetAction.PUBLIC_LINK)
                         }
                         add(NodeBottomSheetAction.MOVE)
+                        add(NodeBottomSheetAction.RENAME)
                         add(NodeBottomSheetAction.DELETE)
                     }
                 }
@@ -308,6 +309,7 @@ class CellViewModel @Inject constructor(
                         add(NodeBottomSheetAction.SHARE)
                         add(NodeBottomSheetAction.DOWNLOAD)
                         add(NodeBottomSheetAction.MOVE)
+                        add(NodeBottomSheetAction.RENAME)
                         add(NodeBottomSheetAction.DELETE)
                     }
                 }
@@ -343,6 +345,7 @@ class CellViewModel @Inject constructor(
                 )
             }
 
+            NodeBottomSheetAction.RENAME -> sendAction(ShowRenameScreen(node))
             NodeBottomSheetAction.DOWNLOAD -> downloadNode(node)
             NodeBottomSheetAction.RESTORE -> sendAction(ShowRestoreConfirmation(node = node))
             NodeBottomSheetAction.DELETE -> sendAction(ShowDeleteConfirmation(node = node, isPermanentDelete = false))
@@ -435,6 +438,7 @@ internal data class ShowDeleteConfirmation(val node: CellNodeUi, val isPermanent
 internal data class ShowRestoreConfirmation(val node: CellNodeUi) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
 internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
+internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
 internal data object RefreshData : CellViewAction
 

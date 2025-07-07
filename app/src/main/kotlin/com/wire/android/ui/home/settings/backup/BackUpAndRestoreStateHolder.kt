@@ -18,13 +18,25 @@
 
 package com.wire.android.ui.home.settings.backup
 
+import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.parcelize.Parcelize
 
 class BackUpAndRestoreStateHolder {
+
+    companion object {
+        fun saver(): Saver<BackUpAndRestoreStateHolder, *> {
+            return Saver(
+                save = { it.dialogState },
+                restore = { BackUpAndRestoreStateHolder().apply { dialogState = it } }
+            )
+        }
+    }
 
     var dialogState: BackupAndRestoreDialog by mutableStateOf(
         BackupAndRestoreDialog.None
@@ -45,12 +57,13 @@ class BackUpAndRestoreStateHolder {
 
 @Composable
 fun rememberBackUpAndRestoreStateHolder(): BackUpAndRestoreStateHolder {
-    return remember {
+    return rememberSaveable(saver = BackUpAndRestoreStateHolder.saver()) {
         BackUpAndRestoreStateHolder()
     }
 }
 
-sealed class BackupAndRestoreDialog {
+@Parcelize
+sealed class BackupAndRestoreDialog : Parcelable {
     object None : BackupAndRestoreDialog()
     object CreateBackup : BackupAndRestoreDialog()
     object RestoreBackup : BackupAndRestoreDialog()

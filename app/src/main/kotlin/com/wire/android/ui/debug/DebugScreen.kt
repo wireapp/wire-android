@@ -40,7 +40,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
@@ -62,7 +61,6 @@ import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
 import java.io.File
 
-@RootNavGraph
 @WireDestination
 @Composable
 fun DebugScreen(

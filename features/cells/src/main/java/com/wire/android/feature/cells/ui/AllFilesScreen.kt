@@ -85,7 +85,8 @@ fun AllFilesScreen(
                 )
             )
         },
-        showMoveToFolderScreen = { _, _, _ -> }
+        showMoveToFolderScreen = { _, _, _ -> },
+        showRenameScreen = {}
     )
 
     if (searchBarState.isFilterActive) {

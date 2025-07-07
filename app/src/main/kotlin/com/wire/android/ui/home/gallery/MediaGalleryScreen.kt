@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
@@ -61,7 +60,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.openDownloadFolder
 
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = MediaGalleryNavArgs::class,
     style = PopUpNavigationAnimation::class,

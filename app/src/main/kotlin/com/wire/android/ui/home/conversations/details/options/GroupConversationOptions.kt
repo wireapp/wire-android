@@ -271,7 +271,7 @@ private fun conversationProtocolDetailsItems(
             )
         }
 
-        if (BuildConfig.PRIVATE_BUILD) {
+        addIf(BuildConfig.PRIVATE_BUILD) {
             add {
                 ProtocolDetails(
                     label = UIText.StringResource(R.string.last_key_material_update_label),

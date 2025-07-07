@@ -120,7 +120,6 @@ class CreateAccountDataDetailViewModel @Inject constructor(
 
     private fun updateTrackingStatusBasedOnPrivacyPolicyAccepted() {
         viewModelScope.launch {
-            println("ym. is privacy policy accepted: ${detailsState.privacyPolicyAccepted}")
             globalDataStore.setAnonymousRegistrationEnabled(detailsState.privacyPolicyAccepted)
         }
     }
@@ -196,7 +195,6 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     }
 
     fun onPrivacyPolicyAccepted(isAccepted: Boolean) {
-        println("ym. changing privacy policy accepted: $isAccepted")
         detailsState = detailsState.copy(privacyPolicyAccepted = isAccepted)
     }
 

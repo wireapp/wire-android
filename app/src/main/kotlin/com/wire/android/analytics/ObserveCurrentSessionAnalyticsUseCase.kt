@@ -69,7 +69,6 @@ fun ObserveCurrentSessionAnalyticsUseCase(
             currentSession to isAnonymousRegistrationEnabled
         }.flatMapLatest { (currentSession, isAnonymousRegistrationEnabled) ->
             if (isAnonymousRegistrationEnabled) {
-                println("ym. getting anonymous registration track id")
                 val anonymousRegistrationTrackId = globalDataStore.getOrCreateAnonymousRegistrationTrackId()
                 return@flatMapLatest flowOf(
                     AnalyticsResult<AnalyticsIdentifierManager>(
@@ -89,7 +88,6 @@ fun ObserveCurrentSessionAnalyticsUseCase(
             }
 
             if (currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid()) {
-                println("ym. getting current session track id")
                 val userId = currentSession.accountInfo.userId
                 val analyticsIdentifierManager = analyticsIdentifierManagerProvider(userId)
                 combine(
@@ -133,7 +131,6 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                     )
                 }
             } else {
-                println("ym. no trackid for this guy")
                 flowOf(
                     AnalyticsResult<AnalyticsIdentifierManager>(
                         identifierResult = AnalyticsIdentifierResult.Disabled,

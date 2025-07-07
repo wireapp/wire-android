@@ -18,16 +18,79 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Run quality gates first - builds only proceed if ALL quality gates pass
-  quality-gates:
-    name: "Quality Gates"
-    uses: ./.github/workflows/quality-gates.yml
+  # Inline simple quality check jobs for better check names
+  lint:
+    runs-on: buildjet-4vcpu-ubuntu-2204
+    # Add a bit more Metaspace size as it tends to fail on GH runner when running linter,
+    # Reduce a bit the memory allocation pool, as the 8GB set in gradle.properties is too much for CI
+    # AboutLibraries seems to go crazy when running lint checks. So we explicitly don't run it.
+    env:
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xmx2G"'
+      DISABLE_ABOUT_LIBRARIES: TRUE
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@f9c9c575b8b21b6485636a91ffecd10e558c62f6
+      - name: Run Linter
+        run: |
+          ./gradlew lint
+      - name: Cleanup Gradle Cache
+        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
 
-  # Build matrix job - only runs if quality gates pass
+  style:
+    runs-on: buildjet-2vcpu-ubuntu-2204
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@f9c9c575b8b21b6485636a91ffecd10e558c62f6
+      - name: Run Detekt
+        run: |
+          ./gradlew detektAll
+      - name: Cleanup Gradle Cache
+        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
+
+  # Keep complex workflows as reusable but call them directly
+  ui-tests:
+    name: "UI Tests"
+    uses: ./.github/workflows/gradle-run-ui-tests.yml
+
+  unit-tests:
+    name: "Unit Tests"
+    uses: ./.github/workflows/gradle-run-unit-tests.yml
+    secrets: inherit
+
+  # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
-    needs: quality-gates
-    if: needs.quality-gates.outputs.quality-passed == 'success'
+    needs: [lint, style, ui-tests, unit-tests]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false  # Continue building other flavors even if one fails

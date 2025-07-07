@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -58,9 +57,9 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.FileIconPreview
 import com.wire.android.feature.cells.ui.FolderIconPreview
+import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.common.FullScreenLoading
 import com.wire.android.feature.cells.ui.common.LoadingScreen
-import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -118,17 +117,12 @@ fun MoveToFolderScreen(
                         elevation = dimensions().spacing0x
                     )
                     if (moveToFolderViewModel.breadcrumbs().isNotEmpty()) {
-                        LazyRow(
+                        Breadcrumbs(
+                            pathSegments = moveToFolderViewModel.breadcrumbs(),
                             modifier = Modifier
                                 .height(dimensions().spacing40x)
                                 .fillMaxWidth(),
-                            contentPadding = PaddingValues(
-                                start = dimensions().spacing16x,
-                                end = dimensions().spacing16x
-                            ),
-                        ) {
-                            item { Breadcrumbs(moveToFolderViewModel.breadcrumbs()) }
-                        }
+                        )
                     }
                 }
             },

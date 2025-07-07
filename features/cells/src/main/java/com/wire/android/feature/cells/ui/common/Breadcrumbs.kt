@@ -17,40 +17,49 @@
  */
 package com.wire.android.feature.cells.ui.common
 
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun Breadcrumbs(
-    items: Array<String>
-) {
-    Row {
-        items.forEachIndexed { index, item ->
-            if (index != items.lastIndex) {
-                Text(
-                    text = item,
-                    style = MaterialTheme.wireTypography.button02.copy(
-                        color = colorsScheme().secondaryText
-                    ),
-                )
-                Text(
-                    text = " > ",
-                    style = MaterialTheme.wireTypography.button02.copy(
-                        color = colorsScheme().onBackground
-                    ),
-                )
-            } else {
-                Text(
-                    text = item,
-                    style = MaterialTheme.wireTypography.button02.copy(
-                        color = colorsScheme().onBackground
+fun Breadcrumbs(pathSegments: Array<String>, modifier: Modifier = Modifier) {
+    LazyRow(
+        modifier = modifier,
+        contentPadding = PaddingValues(
+            start = dimensions().spacing16x,
+            end = dimensions().spacing16x
+        ),
+    ) {
+        pathSegments.forEachIndexed { index, item ->
+            item {
+                if (index != pathSegments.lastIndex) {
+                    Text(
+                        text = item,
+                        style = MaterialTheme.wireTypography.button02.copy(
+                            color = colorsScheme().secondaryText
+                        ),
                     )
-                )
+                    Text(
+                        text = " > ",
+                        style = MaterialTheme.wireTypography.button02.copy(
+                            color = colorsScheme().onBackground
+                        ),
+                    )
+                } else {
+                    Text(
+                        text = item,
+                        style = MaterialTheme.wireTypography.button02.copy(
+                            color = colorsScheme().onBackground
+                        )
+                    )
+                }
             }
         }
     }

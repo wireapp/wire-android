@@ -164,17 +164,12 @@ fun ConversationFilesScreenContent(
                     }
                 )
                 breadcrumbs?.let {
-                    LazyRow(
+                    Breadcrumbs(
                         modifier = Modifier
                             .height(dimensions().spacing40x)
                             .fillMaxWidth(),
-                        contentPadding = PaddingValues(
-                            start = dimensions().spacing16x,
-                            end = dimensions().spacing16x
-                        ),
-                    ) {
-                        item { Breadcrumbs(it) }
-                    }
+                        pathSegments = it
+                    )
                 }
             }
         },

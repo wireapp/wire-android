@@ -222,7 +222,7 @@ class CreateAccountDataDetailViewModelTest {
             validateEmail = validateEmailUseCase,
             validatePassword = validatePasswordUseCase,
             coreLogic = coreLogic,
-            anonymousAnalyticsManager = anonymousAnalyticsManager,
+            registrationAnalyticsManager = anonymousAnalyticsManager,
             globalDataStore = globalDataStore
         )
     }

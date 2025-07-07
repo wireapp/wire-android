@@ -90,7 +90,6 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun MoveToFolderScreen(
     navigator: WireNavigator,
-    moveToFolderNavArgs: MoveToFolderNavArgs,
     createFolderResultRecipient: ResultRecipient<CreateFolderScreenDestination, Boolean>,
     modifier: Modifier = Modifier,
     moveToFolderViewModel: MoveToFolderViewModel = hiltViewModel()

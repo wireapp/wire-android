@@ -23,7 +23,7 @@ data class CellFilesNavArgs(
     val isRecycleBin: Boolean? = false,
     val breadcrumbs: Array<String>? = null
 ) {
-    
+
     override fun hashCode(): Int {
         var result = isRecycleBin?.hashCode() ?: 0
         result = 31 * result + (conversationId?.hashCode() ?: 0)

@@ -195,6 +195,10 @@
     <string name="content_description_new_group_name_field">Gruppen-Name eingeben</string>
     <string name="content_description_new_channel_name_field">Gruppen-Name eingeben</string>
     <string name="content_description_new_conversation_options_heading">Unterhaltungsoptionen</string>
+    <string name="content_description_new_conversation_history_heading">Optionen für den Gesprächsverlauf</string>
+    <string name="content_description_new_conversation_history_custom_heading">Benutzerdefinierter Gesprächsverlauf</string>
+    <string name="content_description_new_conversation_history_back_btn">Zurück zu Optionen für den Gesprächsverlauf</string>
+    <string name="content_description_new_conversation_history_custom_change_time">Zeitoption ändern</string>
     <string name="content_description_new_group_options_back_btn">Zurück zur neuen Gruppenerstellung</string>
     <string name="content_description_new_channel_options_back_btn">Zurück zur neuen Channel-Erstellung</string>
     <string name="content_description_pending_connection_badge">Ausstehende Genehmigung der Kontaktanfrage</string>
@@ -484,6 +488,19 @@
     <string name="channel_add_permission_description">Wählen Sie, wer Teilnehmer zu einem privaten Channel hinzufügen kann</string>
     <string name="channel_add_permission_admin_label">Admins</string>
     <string name="channel_add_permission_admin_members_label">Admins und Mitglieder</string>
+    <string name="channel_history_label">Gesprächsverlauf</string>
+    <string name="channel_history_description">Wählen Sie einen Zeitraum. Wenn Teilnehmer diesem Channel beitreten, können sie den Verlauf für diese Zeitspanne verfolgen.</string>
+    <string name="channel_history_freemium_upgrade_title">Ältere Nachrichten anzeigen?</string>
+    <string name="channel_history_freemium_upgrade_description">Upgraden Sie auf eine kostenpflichtige Version, um Channel-Mitgliedern den gesamten Gesprächsverlauf zu bieten.</string>
+    <string name="channel_history_freemium_upgrade_now">Jetzt upgraden</string>
+    <string name="channel_history_off">Aus</string>
+    <string name="channel_history_unlimited">Unbegrenzt</string>
+    <string name="channel_history_custom">Benutzerdefiniert</string>
+    <string name="channel_history_days">Tage</string>
+    <string name="channel_history_weeks">Wochen</string>
+    <string name="channel_history_months">Monate</string>
+    <string name="channel_history_custom_amount_label">ANZAHL</string>
+    <string name="channel_history_custom_time_label">ZEITRAUM</string>
     <string name="create_regular_group_button_label">Gruppe erstellen</string>
     <string name="create_channel_button_label">Channel erstellen</string>
     <string name="new_group_description">Bis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
@@ -1425,6 +1442,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="one">1 Woche</item>
         <item quantity="other">%1$d Wochen</item>
     </plurals>
+    <plurals name="months_long_label">
+        <item quantity="one">1 Monat</item>
+        <item quantity="other">%1$d Monate</item>
+    </plurals>
     <plurals name="days_long_label">
         <item quantity="one">1 Tag</item>
         <item quantity="other">%1$d Tage</item>
@@ -1440,6 +1461,18 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <plurals name="seconds_long_label">
         <item quantity="one">1 Sekunde</item>
         <item quantity="other">%1$d Sekunden</item>
+    </plurals>
+    <plurals name="days_label">
+        <item quantity="one">Tag</item>
+        <item quantity="other">Tage</item>
+    </plurals>
+    <plurals name="weeks_label">
+        <item quantity="one">Woche</item>
+        <item quantity="other">Wochen</item>
+    </plurals>
+    <plurals name="months_label">
+        <item quantity="one">Monat</item>
+        <item quantity="other">Monate</item>
     </plurals>
     <string name="four_weeks_short_label">4 Wo</string>
     <string name="one_week_short_label">1 Wo</string>

@@ -79,4 +79,16 @@
     <string name="dialog_restore_file_description">This file %1$s will be restored and available again to everyone in this conversation.</string>
     <string name="dialog_restore_folder_description">This folder %1$s will be restored and available again to everyone in this conversation.</string>
     <string name="dialog_restore_button_label">Restore</string>
+    <string name="rename_file_label">Rename file</string>
+    <string name="rename_folder_label">Rename folder</string>
+    <string name="rename_label">Rename</string>
+    <string name="rename_file_name_label">File name</string>
+    <string name="rename_folder_name_label">Folder name</string>
+    <string name="rename_long_file_name_error">Use a shorter file name (most 64 characters)</string>
+    <string name="rename_long_folder_name_error">Use a shorter folder name (most 64 characters)</string>
+    <string name="rename_enter_file_name">Enter a file name</string>
+    <string name="rename_enter_folder_name">Enter a folder name</string>
+    <string name="rename_file_renamed">File was renamed</string>
+    <string name="rename_folder_renamed">Folder was renamed</string>
+    <string name="rename_failure">Failed to rename</string>
 </resources>

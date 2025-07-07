@@ -1,4 +1,4 @@
-name: "Build Wire Android (Unified)"
+name: "Build"
 
 on:
   workflow_call:

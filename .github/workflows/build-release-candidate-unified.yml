@@ -1,4 +1,4 @@
-name: "Release Candidate build (Unified)"
+name: "Release Candidate"
 
 on:
   push:

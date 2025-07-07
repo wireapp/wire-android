@@ -1,4 +1,4 @@
-name: "Main build (Unified)"
+name: "Main"
 
 on:
   push:

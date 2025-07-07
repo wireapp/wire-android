@@ -1,4 +1,4 @@
-name: "Develop build (Unified)"
+name: "Develop"
 
 on:
   push:

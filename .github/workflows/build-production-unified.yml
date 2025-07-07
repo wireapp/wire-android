@@ -1,4 +1,4 @@
-name: "Production build (Unified)"
+name: "Production"
 
 on:
   release:

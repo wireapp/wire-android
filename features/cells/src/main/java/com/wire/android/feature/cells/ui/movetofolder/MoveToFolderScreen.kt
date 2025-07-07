@@ -318,11 +318,6 @@ fun PreviewMoveToFolderScreen() {
     WireTheme {
         MoveToFolderScreen(
             navigator = PreviewNavigator,
-            moveToFolderNavArgs = MoveToFolderNavArgs(
-                currentPath = "some path",
-                nodeToMovePath = "some path",
-                uuid = "243567990900989897"
-            ),
             createFolderResultRecipient = PreviewResultRecipient as ResultRecipient<CreateFolderScreenDestination, Boolean>
         )
     }

@@ -38,7 +38,6 @@ data class CreateAccountNavArgs(
 data class CreateAccountDataNavArgs(
     val userRegistrationInfo: UserRegistrationInfo = UserRegistrationInfo(),
     val customServerConfig: ServerConfig.Links? = null,
-    val canTrackRegistration: Boolean = false
 ) : Parcelable
 
 @Parcelize

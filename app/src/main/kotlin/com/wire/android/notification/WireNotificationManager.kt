@@ -538,6 +538,6 @@ class WireNotificationManager @Inject constructor(
 
     companion object {
         private const val TAG = "WireNotificationManager"
-        private val STAY_ALIVE_TIME_ON_PUSH_DURATION = 1.seconds
+        private val STAY_ALIVE_TIME_ON_PUSH_DURATION = 5.seconds
     }
 }

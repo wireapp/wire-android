@@ -102,7 +102,7 @@ class GdprTest : KoinTest {
         pages.settingsPage.apply {
             clickPrivacySettingsButtonOnSettingsPage()
             assertSendAnonymousUsageDataToggleIsOn()
-            clickBackButtonOnPrivacySettingsPage()
+            clickBackButtonOnSettingsPage()
             clickDebugSettingsButton()
             assertAnalyticsInitializedIsSetToTrue()
             assertAnalyticsTrackingIdentifierIsDispayed()

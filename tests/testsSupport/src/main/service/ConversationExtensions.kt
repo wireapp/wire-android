@@ -42,28 +42,44 @@ suspend fun BackendClient.createTeamConversation(
 
     val requestBody = JSONObject().apply {
         put("users", JSONArray().apply { ids.forEach { put(it.id) } })
-        put("qualified_users", JSONArray().apply {
-            qids.forEach {
-                put(QualifiedID(it.id.orEmpty(), BackendClient.loadBackend(it.backendName.orEmpty()).domain).toJSON())
+        put(
+            "qualified_users",
+            JSONArray().apply {
+                qids.forEach {
+                    put(
+                        QualifiedID(
+                            it.id.orEmpty(),
+                            BackendClient.loadBackend(it.backendName.orEmpty()).domain
+                        ).toJSON()
+                    )
+                }
             }
-        })
+        )
         put("conversation_role", "wire_member")
         conversationName?.let { put("name", it) }
-        put("team", JSONObject().apply {
-            put("teamid", team.id)
-            put("managed", false)
-        })
-        put("access", JSONArray().apply {
-            listOf("invite", "code").forEach {
-                this.put(it)
+        put(
+            "team",
+            JSONObject().apply {
+                put("teamid", team.id)
+                put("managed", false)
             }
-
-        })
-        put("access_role_v2", JSONArray().apply {
-            listOf("team_member", "non_team_member", "guest", "service").forEach {
-                this.put(it)
+        )
+        put(
+            "access",
+            JSONArray().apply {
+                listOf("invite", "code").forEach {
+                    this.put(it)
+                }
             }
-        })
+        )
+        put(
+            "access_role_v2",
+            JSONArray().apply {
+                listOf("team_member", "non_team_member", "guest", "service").forEach {
+                    this.put(it)
+                }
+            }
+        )
     }
 
     val response = NetworkBackendClient.sendJsonRequest(
@@ -74,8 +90,5 @@ suspend fun BackendClient.createTeamConversation(
             put("Authorization", "Bearer ${token?.value}")
         }
     )
-
-
-
     return JSONObject(response).getString("id")
 }

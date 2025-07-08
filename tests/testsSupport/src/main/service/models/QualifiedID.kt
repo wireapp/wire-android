@@ -19,7 +19,6 @@ package service.models
 
 import org.json.JSONObject
 
-
 data class QualifiedID(
     var id: String = "",
     var domain: String = ""

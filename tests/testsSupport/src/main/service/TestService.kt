@@ -29,17 +29,7 @@ import service.HttpStatus
 import service.enums.TypingStatus
 import service.models.Mentions
 import user.utils.ClientUser
-import java.io.BufferedReader
-import java.io.BufferedWriter
-import java.io.ByteArrayOutputStream
-import java.io.DataOutputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.OutputStream
-import java.io.OutputStreamWriter
+import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
@@ -233,7 +223,17 @@ class TestService(private val baseUri: String, private val testName: String) {
         expectsReadConfirmation: Boolean,
         text: String,
         legalHoldStatus: Int
-    ) = sendTextBase(owner, deviceName, convoDomain, convoId, timeout, expectsReadConfirmation, text, null, legalHoldStatus)
+    ) = sendTextBase(
+        owner,
+        deviceName,
+        convoDomain,
+        convoId,
+        timeout,
+        expectsReadConfirmation,
+        text,
+        null,
+        legalHoldStatus
+    )
 
     @Suppress("LongParameterList")
     fun sendCompositeText(
@@ -246,7 +246,17 @@ class TestService(private val baseUri: String, private val testName: String) {
         text: String,
         buttons: JSONArray,
         legalHoldStatus: Int
-    ) = sendTextBase(owner, deviceName, convoDomain, convoId, timeout, expectsReadConfirmation, text, buttons, legalHoldStatus)
+    ) = sendTextBase(
+        owner,
+        deviceName,
+        convoDomain,
+        convoId,
+        timeout,
+        expectsReadConfirmation,
+        text,
+        buttons,
+        legalHoldStatus
+    )
 
     @Suppress("LongParameterList")
     private fun sendTextBase(
@@ -461,7 +471,6 @@ class TestService(private val baseUri: String, private val testName: String) {
         sendHttpRequest(connection, requestBody)
     }
 
-
     @Suppress("LongParameterList")
     fun sendFile(
         owner: ClientUser,
@@ -506,7 +515,6 @@ class TestService(private val baseUri: String, private val testName: String) {
         }
         sendHttpRequest(connection, requestBody)
     }
-
 
     @Suppress("LongParameterList")
     fun sendAudioFile(
@@ -810,7 +818,6 @@ class TestService(private val baseUri: String, private val testName: String) {
         }
     }
 
-
     fun sendReply(
         owner: ClientUser,
         deviceName: String?,
@@ -824,7 +831,10 @@ class TestService(private val baseUri: String, private val testName: String) {
         val instanceId = getInstanceId(owner, deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendText", "POST")
         val requestBody = JSONObject().apply {
-            put("conversationId", convoId)
+            put(
+                "conversationId",
+                convoId
+            )
             if (convoDomain != "staging.zinfra.io") {
                 put("conversationDomain", convoDomain)
             }

@@ -1,7 +1,8 @@
-import java.util.Properties
+
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import java.io.ByteArrayOutputStream
+import java.util.Properties
 
 // Apply your test library plugin
 plugins {

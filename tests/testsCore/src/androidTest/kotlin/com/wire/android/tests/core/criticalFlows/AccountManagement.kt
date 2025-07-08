@@ -37,6 +37,7 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
+import user.UserClient
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 
@@ -57,7 +58,7 @@ class AccountManagement : KoinTest {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        //device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
+        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
         backendClient = BackendClient.Companion.loadBackend("STAGING")
         usersManager = ClientUserManager.Companion.getInstance()
@@ -111,11 +112,20 @@ class AccountManagement : KoinTest {
     }
 
     @Test
-    fun accountManagement() {
+    fun accountManagementFeature() {
+        val userInfo = UserClient.generateUniqueUserInfo()
         usersManager!!.createTeamOwnerByAlias("user1Name", "AccountManagement", "en_US", true, backendClient!!, context)
         registeredUser = usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-        userXAddsUsersToTeam("user1Name", "user2Name,user3Name,user4Name,user5Name", "AccountManagement", TeamRoles.Member, true)
+        userXAddsUsersToTeam(
+            "user1Name",
+            "user2Name,user3Name",
+            "AccountManagement",
+            TeamRoles.Member,
+            true
+        )
         val teamMember = usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+        val newEmail = usersManager!!.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
+
         TestServiceHelper().userHasGroupConversationInTeam("user1Name", "MyTeam", "user2Name", "AccountManagement")
 
         pages.registrationPage.apply {
@@ -127,28 +137,40 @@ class AccountManagement : KoinTest {
             enterPersonalUserLoginPassword(teamMember.password ?: "")
             clickLoginButton()
         }
-
         pages.registrationPage.apply {
             waitUntilLoginFlowIsComplete()
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
         }
         pages.conversationPage.apply {
-            assertConversationVisible("MyTeam")
-
-            clickMainMenuButtonOnConversationVeiwPage()
+            assertGroupConversationVisible("MyTeam")
+            clickMainMenuButtonOnConversationViewPage()
             clickSettingsButtonOnMenuEntry()
             pages.settingsPage.apply {
                 clickDebugSettingsButton()
                 tapEnableLoggingToggle()
-                assertToggleIsOff()
+                assertLoggingToggleIsOff()
                 tapEnableLoggingToggle()
-                assertToggleIsOn()
+                assertLoggingToggleIsOn()
+                clickBackButtonOnSettingsPage()
+                assertLockWithPasswordToggleIsOff()
+                turnOnLockWithPasscodeToggle()
+                assertAppLockDescriptionText()
+                enterPasscode(userInfo.password)
+                tapSetPasscodeButton()
+                //Thread.sleep(3000)
+                assertLockWithPasswordToggleIsOn()
+                tapAccountDetailsButton()
+                verifyDisplayedEmailAddress(teamMember.email ?: "")
+                verifyDisplayedDomain("staging.zinfra.io")
+                clickDisplayedEmailAddress()
+                changeToNewEmailAddress(newEmail.email ?: "")
+                clickSaveButton()
+                assertNotificationWithNewEmail(newEmail.email ?: "")
+                clickBackButtonOnSettingsPage()
 
 
             }
-
         }
     }
-
 }

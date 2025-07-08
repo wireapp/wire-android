@@ -77,17 +77,15 @@ class ClientUserManager {
         private val SELF_USER_UNIQUE_USERNAME_ALIASES = arrayOf("myUniqueUsername")
 
         @Volatile
-        private var INSTANCE : ClientUserManager?=null
-
+        private var INSTANCE: ClientUserManager? = null
 
         @Synchronized
         fun getInstance(): ClientUserManager {
-            if(INSTANCE==null){
+            if (INSTANCE == null) {
                 INSTANCE = ClientUserManager(true)
             }
             return INSTANCE!!
         }
-
 
         @Suppress("LongParameterList")
         private fun setClientUserAliases(

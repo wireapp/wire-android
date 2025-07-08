@@ -35,16 +35,19 @@ class TestServiceHelper {
         otherParticipantsNameAlises: String? = null,
         teamName: String
     ) {
-        var participants: List<ClientUser>? = null;
-        val chatOwner = toClientUser(chatOwnerNameAlias);
+        var participants: List<ClientUser>? = null
+        val chatOwner = toClientUser(chatOwnerNameAlias)
         if (otherParticipantsNameAlises != null) {
             participants = usersManager
                 .splitAliases(otherParticipantsNameAlises)
                 .map(this::toClientUser)
         }
-        val backend =
-            if (chatOwner.backendName.isNullOrEmpty()) BackendClient.getDefault()
-            else BackendClient.loadBackend(chatOwner.backendName.orEmpty())
+
+        val backend = if (chatOwner.backendName.isNullOrEmpty()) {
+            BackendClient.getDefault()
+        } else {
+            BackendClient.loadBackend(chatOwner.backendName.orEmpty())
+        }
 
         runBlocking {
             val dstTeam = backend?.getTeamByName(chatOwner, teamName)
@@ -53,6 +56,6 @@ class TestServiceHelper {
     }
 
     fun toClientUser(nameAlias: String): ClientUser {
-        return usersManager.findUserByNameOrNameAlias(nameAlias);
+        return usersManager.findUserByNameOrNameAlias(nameAlias)
     }
 }

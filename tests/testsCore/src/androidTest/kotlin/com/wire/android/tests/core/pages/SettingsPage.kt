@@ -17,43 +17,79 @@
  */
 package com.wire.android.tests.core.pages
 
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.espresso.matcher.ViewMatchers.assertThat
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
+import org.hamcrest.CoreMatchers.`is`
+import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import kotlin.test.DefaultAsserter.assertTrue
 
 data class SettingsPage(private val device: UiDevice) {
 
+    private val privacySettingsButton = UiSelectorParams(text = "Privacy Settings")
+    private val debugSettingsButton = UiSelectorParams(text = "Debug Settings")
+    private val analyticsInitializedLabel = UiSelectorParams(text = "Analytics Initialized")
+    private val enableLoggingText = UiSelector().text("Enable Logging")
+
+    private val lockWithPasscodeText = UiSelector().text("Lock with passcode")
+    private val appLockPassCode = UiSelectorParams(text = "Set a passcode")
+
+    private val accountDetails = UiSelectorParams(text = "Account Details")
+    private val toggle = UiSelector().className("android.view.View")
+
+    private val analyticsTrackingLabel = UiSelector().text("Analytics Tracking Identifier")
+    private val anonymousUsageDataText = UiSelector().text("Send anonymous usage data")
+
+    private val setAppLockInfoText = UiSelectorParams(textContains = "The app will lock itself after 1 minute of inactivity")
+
+    private val passcodeField = UiSelectorParams(resourceId = "password")
+
+    private val displayedEmail = UiSelectorParams(textContains = "@wire.engineering")
+
+    private val displayedDomain = UiSelectorParams(textContains = "staging.zinfra")
+
+    private val editTextClass = By.clazz("android.widget.EditText")
+    private val toggleOn = UiSelector()
+        .className("android.view.View")
+        .clickable(true)
+        .checked(true)
+
+    private val toggleOff = UiSelector()
+        .className("android.view.View")
+        .clickable(true)
+        .checked(false)
+
+    private val saveButton = UiSelectorParams(text = "Save")
+    private val emailInputField = UiSelector().description( "EMAIL")
     fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val container = device.findObject(
-            UiSelector().className("android.view.View")
-                .childSelector(UiSelector().text("Send anonymous usage data"))
+            UiSelector().className("android.view.View").childSelector(anonymousUsageDataText)
         )
         val toggle = container.getFromParent(UiSelector().text("ON"))
         assertTrue("'Send anonymous usage data' label is not visible", !toggle.visibleBounds.isEmpty)
         return this
     }
 
-    fun clickBackButtonOnPrivacySettingsPage() {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    fun clickBackButtonOnSettingsPage() {
         device.pressBack()
     }
+
     fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Privacy Settings")).click()
+        UiWaitUtils.waitElement(privacySettingsButton).click()
         return this
     }
+
     fun clickDebugSettingsButton(): SettingsPage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Debug Settings")).click()
+        UiWaitUtils.waitElement(debugSettingsButton).click()
         return this
     }
+
     fun assertAnalyticsInitializedIsSetToTrue(): SettingsPage {
-        // Step 1: Wait for the "Analytics Initialized" label
-        val label = UiWaitUtils.waitElement(UiSelectorParams(text = "Analytics Initialized"))
-        // Step 2: Get its parent and find sibling with text "true"
+        val label = UiWaitUtils.waitElement(analyticsInitializedLabel)
         val parent = label.parent
         val value = parent?.children?.find { it.text == "true" }
         assertTrue("'Analytics Initialized' is not set to true", value != null && value.visibleBounds.width() > 0)
@@ -61,95 +97,171 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun assertAnalyticsTrackingIdentifierIsDispayed(): SettingsPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Step 1: Find the container with the label text
         val container = device.findObject(
-            UiSelector().className("android.view.View")
-                .childSelector(UiSelector().text("Analytics Tracking Identifier"))
+            UiSelector().className("android.view.View").childSelector(analyticsTrackingLabel)
         )
-        // Step 2: Use fromParent to locate the sibling TextView that holds the identifier
         val identifierView = container.getFromParent(
-            UiSelector().className("android.widget.TextView")
-                .instance(1) // Typically the second TextView under the same parent
+            UiSelector().className("android.widget.TextView").instance(1)
         )
-        // Step 3: Assert it's visible and not empty
         val value = identifierView.text
         assertTrue("Analytics tracking ID is missing or blank", value.isNotBlank())
-
         return this
     }
 
-    fun tapEnableLoggingToggle() {
-        val label = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-            .findObject(UiSelector().text("Enable Logging"))
-        val toggle = label.getFromParent(UiSelector().className("android.view.View"))
+    fun tapEnableLoggingToggle(): SettingsPage {
+        val label = device.findObject(enableLoggingText)
+        val toggle = label.getFromParent(toggle)
         toggle.click()
+        return this
     }
 
-//    fun assertEnableLoggingToggleIsOff() {
-//        val toggle = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//            .findObject(
-//                UiSelector().text("Enable Logging")
-//                    .fromParent(UiSelector().className("android.view.View").clickable(true))
-//            )
-//
-//        assertFalse("Enable Logging toggle should be OFF", toggle.isChecked)
+//    fun assertToggleIsOff(): SettingsPage {
+//        val toggle = device.findObject(
+//            UiSelector().className("android.view.View").clickable(true).checked(false)
+//        )
+//        assertFalse("Toggle should be OFF", toggle.isChecked)
+//        return this
 //    }
 
-//    fun assertToggleCheckedState(expectedChecked: Boolean) {
-//        val toggle = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//            .findObject(
-//                UiSelector()
-//                    .className("android.view.View")
-//                    .clickable(true)
-//                    .checkable(true)
-//                    .checked(expectedChecked)
-//            )
-//
-//        assertTrue("Toggle should be ${if (expectedChecked) "ON" else "OFF"}", toggle.exists())
-//    }
-
-
-//    fun assertToggleIsOn() {
-//        val toggle = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//            .findObject(
-//                UiSelector()
-//                    .className("android.view.View")
-//                    .clickable(true)
-//                    .checkable(true)
-//                    .checked(true)
-//            )
-//
-//        assertTrue("Toggle should be ON", toggle.exists())
-//    }
-
-
-
-    fun assertToggleIsOff() {
-        val toggle = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-            .findObject(
-                UiSelector()
-                    .className("android.view.View")
-                    .clickable(true)
-                    .checked(false)
-            )
-
+    fun assertLoggingToggleIsOff(): SettingsPage {
+        val toggle = device.findObject(toggleOff)
         assertFalse("Toggle should be OFF", toggle.isChecked)
-    }
-
-    fun assertToggleIsOn() {
-        val toggle = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-            .findObject(
-                UiSelector()
-                    .className("android.view.View")
-                    .clickable(true)
-                    .checked(true)
-            )
-
-        assertTrue("Toggle should be OFF", toggle.isChecked)
-
+        return this
     }
 
 
+//    fun assertToggleIsOn(): SettingsPage {
+//        val toggle = device.findObject(
+//            UiSelector().className("android.view.View").clickable(true).checked(true)
+//        )
+//        assertTrue("Toggle should be ON", toggle.isChecked)
+//        return this
+//    }
 
+    fun assertLoggingToggleIsOn(): SettingsPage {
+        val toggle = device.findObject(toggleOn)
+        assertTrue("Toggle should be ON", toggle.isChecked)
+        return this
+    }
+
+
+    fun assertLockWithPasswordToggleIsOff(): SettingsPage {
+        val toggle = device.findObject(toggleOff)
+        assertFalse("Lock with passcode toggle should be OFF", toggle.isChecked)
+        return this
+    }
+
+    fun turnOnLockWithPasscodeToggle(): SettingsPage {
+        val label = device.findObject(lockWithPasscodeText)
+        val toggle = label.getFromParent(toggle)
+        toggle.click()
+        return this
+    }
+
+    fun assertAppLockDescriptionText(): SettingsPage {
+        val appLockInfo = UiWaitUtils.waitElement(setAppLockInfoText)
+        Assert.assertTrue("Username help text is not visible", !appLockInfo.visibleBounds.isEmpty)
+        return this
+    }
+
+
+    fun enterPasscode(passcode: String): SettingsPage {
+        val parent = UiWaitUtils.waitElement(passcodeField)
+        val codeInputField = parent.findObject(editTextClass)
+        codeInputField.click()
+        codeInputField.text = passcode
+        return this
+    }
+
+    fun tapSetPasscodeButton(): SettingsPage {
+        val passcodeButton = UiWaitUtils.waitElement(appLockPassCode)
+        passcodeButton.click()
+        return this
+    }
+
+    fun assertLockWithPasswordToggleIsOn(): SettingsPage {
+        val toggle = device.findObject(toggleOn)
+        assertTrue("Lock with passcode toggle should be ON", toggle.isChecked)
+        return this
+    }
+
+    fun tapAccountDetailsButton(): SettingsPage {
+        val accountDetailsButton = UiWaitUtils.waitElement(accountDetails)
+        accountDetailsButton.click()
+        return this
+    }
+
+    fun verifyDisplayedEmailAddress(expectedEmail: String): SettingsPage {
+        val emailElement = UiWaitUtils.waitElement(displayedEmail)
+        val actualEmail = emailElement.text
+        assertThat("Displayed email does not match expected", actualEmail, `is`(expectedEmail))
+        return this
+    }
+
+    fun verifyDisplayedDomain(expectedDomain: String): SettingsPage {
+        val domainElement = UiWaitUtils.waitElement(displayedDomain)
+        val actualDomain = domainElement.text
+        assertThat("Displayed domain does not match expected", actualDomain, `is`(expectedDomain))
+        return this
+    }
+
+    fun clickDisplayedEmailAddress(): SettingsPage {
+        val emailElement = UiWaitUtils.waitElement(displayedEmail)
+        emailElement.click()
+        return this
+    }
+
+    fun changeToNewEmailAddress(newEmail: String): SettingsPage {
+        val emailElement = UiWaitUtils.waitElement(displayedEmail)
+        emailElement.click()
+        emailElement.text = ""  // Clear the input field
+        emailElement.text = newEmail
+        return this
+    }
+
+    fun clickSaveButton(): SettingsPage {
+        val button = UiWaitUtils.waitElement(saveButton)
+        button.click()
+        return this
+    }
+
+//    private val emailVerificationNotification = UiSelectorParams(
+//        textContains = "A verification email has been sent to your email"
+//    )
+//
+//    fun assertNotificationWithNewEmail(expectedEmail: String): SettingsPage {
+//        val expectedText = "A verification email has been sent to your email $expectedEmail"
+//
+//        val emailNotificationTextView = UiWaitUtils.waitElement(emailVerificationNotification)
+//        val actualText = emailNotificationTextView.text ?: ""
+//
+//        assertTrue(
+//            "Expected verification message to contain: $expectedText\nBut got: $actualText",
+//            actualText.contains(expectedText)
+//        )
+//
+//        return this
+//    }
+
+
+
+
+    fun assertNotificationWithNewEmail(expectedEmail: String): SettingsPage {
+        val expectedText = "A verification email has been sent to your email $expectedEmail"
+
+        val emailNotificationTextView = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = "A verification email has been sent to your email")
+        )
+
+        val actualText = emailNotificationTextView.text ?: ""
+
+        assertTrue(
+            "Expected verification message to contain: $expectedText\nBut got: $actualText",
+            actualText.contains(expectedText)
+        )
+
+        return this
+    }
 }
+
+

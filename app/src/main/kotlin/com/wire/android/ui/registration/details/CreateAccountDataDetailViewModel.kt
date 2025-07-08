@@ -24,10 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.config.orDefault
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent.RegistrationPersonalAccount
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -50,8 +50,8 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePassword: ValidatePasswordUseCase,
     private val validateEmail: ValidateEmailUseCase,
-    private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val globalDataStore: GlobalDataStore,
+    private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
 
@@ -103,14 +103,14 @@ class CreateAccountDataDetailViewModel @Inject constructor(
                 error = emailError
             )
 
-            anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.AccountSetup(withPasswordTries))
+            registrationAnalyticsManager.sendEventIfEnabled(RegistrationPersonalAccount.AccountSetup(withPasswordTries))
             when {
                 detailsState.termsAccepted -> {
                     onTermsAccept()
                 }
 
                 else -> {
-                    anonymousAnalyticsManager.sendEvent(RegistrationPersonalAccount.TermsOfUseDialog)
+                    registrationAnalyticsManager.sendEventIfEnabled(RegistrationPersonalAccount.TermsOfUseDialog)
                 }
             }
         }.invokeOnCompletion {

@@ -19,9 +19,11 @@ package com.wire.android.feature.cells.ui.common
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -30,8 +32,17 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun Breadcrumbs(pathSegments: Array<String>, modifier: Modifier = Modifier) {
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(pathSegments) {
+        if (pathSegments.isNotEmpty()) {
+            listState.animateScrollToItem(pathSegments.lastIndex)
+        }
+    }
+
     LazyRow(
         modifier = modifier,
+        state = listState,
         contentPadding = PaddingValues(
             start = dimensions().spacing16x,
             end = dimensions().spacing16x

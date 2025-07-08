@@ -138,30 +138,70 @@ jobs:
         run: |
           echo "Building ${{ matrix.flavor }}${{ matrix.variant }}"
           
-          # Set keystore environment variables based on keystore type
+          # Load only the required secrets for this keystore type
           case "${{ matrix.keystore-type }}" in
             debug)
-              echo "KEYSTORE_KEY_NAME_DEBUG=${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}" >> $GITHUB_ENV
-              echo "KEYPWD_DEBUG=${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}" >> $GITHUB_ENV
-              echo "KEYSTOREPWD_DEBUG=${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}" >> $GITHUB_ENV
+              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}"
+              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}"
+              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}"
+              
+              # Mask sensitive values immediately
+              echo "::add-mask::${SIGNING_KEY_PASSWORD}"
+              echo "::add-mask::${SIGNING_STORE_PASSWORD}"
+              
+              # Set environment variables for this keystore type only
+              echo "KEYSTORE_KEY_NAME_DEBUG=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
+              echo "KEYPWD_DEBUG=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_DEBUG=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
               ;;
             prerelease)
-              echo "KEYSTORE_KEY_NAME_RELEASE=${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}" >> $GITHUB_ENV
-              echo "KEYPWD_RELEASE=${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}" >> $GITHUB_ENV
-              echo "KEYSTOREPWD_RELEASE=${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}" >> $GITHUB_ENV
+              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}"
+              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}"
+              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}"
+              
+              # Mask sensitive values immediately
+              echo "::add-mask::${SIGNING_KEY_PASSWORD}"
+              echo "::add-mask::${SIGNING_STORE_PASSWORD}"
+              
+              # Set environment variables for this keystore type only
+              echo "KEYSTORE_KEY_NAME_RELEASE=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
+              echo "KEYPWD_RELEASE=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_RELEASE=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
               ;;
             internal)
-              echo "KEYSTORE_KEY_NAME_COMPAT=${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}" >> $GITHUB_ENV
-              echo "KEYPWD_COMPAT=${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}" >> $GITHUB_ENV
-              echo "KEYSTOREPWD_COMPAT=${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}" >> $GITHUB_ENV
-              echo "KEYSTORE_KEY_NAME_COMPAT_RELEASE=${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}" >> $GITHUB_ENV
-              echo "KEYPWD_COMPAT_RELEASE=${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}" >> $GITHUB_ENV
-              echo "KEYSTOREPWD_COMPAT_RELEASE=${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}" >> $GITHUB_ENV
+              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}"
+              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}"
+              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}"
+              
+              # Mask sensitive values immediately
+              echo "::add-mask::${SIGNING_KEY_PASSWORD}"
+              echo "::add-mask::${SIGNING_STORE_PASSWORD}"
+              
+              # Set environment variables for this keystore type only
+              echo "KEYSTORE_KEY_NAME_COMPAT=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
+              echo "KEYPWD_COMPAT=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_COMPAT=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTORE_KEY_NAME_COMPAT_RELEASE=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
+              echo "KEYPWD_COMPAT_RELEASE=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_COMPAT_RELEASE=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
               ;;
             public)
-              echo "KEYSTORE_KEY_NAME_COMPAT_RELEASE=${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}" >> $GITHUB_ENV
-              echo "KEYPWD_COMPAT_RELEASE=${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}" >> $GITHUB_ENV
-              echo "KEYSTOREPWD_COMPAT_RELEASE=${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}" >> $GITHUB_ENV
+              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}"
+              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}"
+              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}"
+              
+              # Mask sensitive values immediately
+              echo "::add-mask::${SIGNING_KEY_PASSWORD}"
+              echo "::add-mask::${SIGNING_STORE_PASSWORD}"
+              
+              # Set environment variables for this keystore type only
+              echo "KEYSTORE_KEY_NAME_COMPAT_RELEASE=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
+              echo "KEYPWD_COMPAT_RELEASE=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_COMPAT_RELEASE=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Error: Invalid keystore type '${{ matrix.keystore-type }}'"
+              exit 1
               ;;
           esac
 

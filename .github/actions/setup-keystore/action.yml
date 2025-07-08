@@ -67,14 +67,26 @@ runs:
           exit 1
         fi
         
-        # Decode keystore to file
+        # Mask the encoded keystore value
+        echo "::add-mask::${ENCODED_KEYSTORE}"
+        
+        # Decode keystore to file with secure permissions
         KEYSTORE_FILE="${KEYSTORE_PATH}/the.keystore"
         echo "${ENCODED_KEYSTORE}" | base64 -d > "${KEYSTORE_FILE}"
         
-        # Verify file was created
+        # Set secure file permissions (owner read/write only)
+        chmod 600 "${KEYSTORE_FILE}"
+        
+        # Verify file was created and has correct permissions
         if [ ! -f "${KEYSTORE_FILE}" ]; then
           echo "Error: Failed to create keystore file"
           exit 1
+        fi
+        
+        # Verify file permissions
+        PERMS=$(stat -c "%a" "${KEYSTORE_FILE}" 2>/dev/null || stat -f "%A" "${KEYSTORE_FILE}" 2>/dev/null || echo "unknown")
+        if [ "$PERMS" != "600" ]; then
+          echo "Warning: Keystore file permissions are not 600 (got: $PERMS)"
         fi
         
         echo "Keystore decoded successfully to: ${KEYSTORE_FILE}"

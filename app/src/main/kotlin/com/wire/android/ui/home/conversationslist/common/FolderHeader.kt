@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -45,10 +46,14 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun FolderHeader(name: String, modifier: Modifier = Modifier) {
+fun FolderHeader(
+    name: String,
+    modifier: Modifier = Modifier,
+    padding: PaddingValues = PaddingValues(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
+) {
     Text(
         text = name.uppercase(),
-        modifier = modifier.padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
+        modifier = modifier.padding(padding),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         style = MaterialTheme.wireTypography.title03,

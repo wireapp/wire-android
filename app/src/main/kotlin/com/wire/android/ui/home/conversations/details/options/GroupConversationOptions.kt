@@ -21,11 +21,14 @@
 package com.wire.android.ui.home.conversations.details.options
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -33,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -42,10 +46,11 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -53,7 +58,10 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.GroupID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.data.mls.CipherSuite
+import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
 
 @Composable
@@ -99,9 +107,11 @@ fun GroupConversationSettings(
     onEditGroupName: () -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
+    mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
 ) {
     LazyColumn(
         state = lazyListState,
+        verticalArrangement = Arrangement.spacedBy(DividerDefaults.Thickness),
         modifier = modifier.fillMaxSize()
     ) {
         item {
@@ -113,126 +123,163 @@ fun GroupConversationSettings(
             )
         }
         if (state.areAccessOptionsAvailable) {
-            if (!state.isChannel) {
-                item { FolderHeader(name = stringResource(R.string.folder_label_access)) }
-            }
-            if (state.isChannel) {
-                item {
+            folderWithItems(
+                folderTitleResId = R.string.folder_label_access,
+                showFolder = !state.isChannel,
+                items = buildList {
+                    addIf(state.isChannel) {
+                        GroupConversationOptionsItem(
+                            title = stringResource(R.string.channel_access_label),
+                            subtitle = stringResource(id = R.string.channel_access_short_description),
+                            arrowType = if (state.isUpdatingChannelAccessAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
+                            arrowLabel = stringResource(state.channelAccessType!!.labelResId),
+                            arrowLabelColor = colorsScheme().onBackground,
+                            clickable = Clickable(
+                                enabled = state.isUpdatingChannelAccessAllowed,
+                                onClick = onChannelAccessItemClicked,
+                            ),
+                        )
+                    }
+                    add {
+                        GroupConversationOptionsItem(
+                            title = stringResource(id = R.string.conversation_options_guests_label),
+                            subtitle = stringResource(id = R.string.conversation_details_guest_description),
+                            switchState = SwitchState.TextOnly(value = state.isGuestAllowed),
+                            arrowType = if (state.isUpdatingGuestAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
+                            clickable = Clickable(
+                                enabled = state.isUpdatingGuestAllowed,
+                                onClick = onGuestItemClicked,
+                                onClickDescription = stringResource(id = R.string.content_description_conversation_details_guests_action)
+                            ),
+                        )
+                    }
+                    add {
+                        ServicesOption(
+                            isSwitchEnabledAndVisible = state.isUpdatingServicesAllowed,
+                            switchState = state.isServicesAllowed,
+                            isLoading = state.loadingServicesOption,
+                            onCheckedChange = onServiceSwitchClicked
+                        )
+                    }
+                }
+            )
+        }
+
+        folderWithItems(
+            folderTitleResId = R.string.folder_label_messaging,
+            items = buildList {
+                addIf(!state.selfDeletionTimer.isDisabled) {
                     GroupConversationOptionsItem(
-                        title = stringResource(R.string.channel_access_label),
-                        subtitle = stringResource(id = R.string.channel_access_short_description),
-                        arrowType = if (state.isUpdatingChannelAccessAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
-                        arrowLabel = stringResource(state.channelAccessType!!.labelResId),
-                        arrowLabelColor = colorsScheme().onBackground,
+                        title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
+                        subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_description),
+                        trailingOnText = if (state.selfDeletionTimer.isEnforced) {
+                            "(${state.selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel.asString()})"
+                        } else {
+                            null
+                        },
+                        switchState = SwitchState.TextOnly(value = state.selfDeletionTimer.isEnforced),
+                        arrowType = if (state.isUpdatingSelfDeletingAllowed && !state.selfDeletionTimer.isEnforcedByTeam) {
+                            ArrowType.TITLE_ALIGNED
+                        } else {
+                            ArrowType.NONE
+                        },
                         clickable = Clickable(
-                            enabled = state.isUpdatingChannelAccessAllowed,
-                            onClick = onChannelAccessItemClicked,
-                        ),
+                            enabled = state.isUpdatingSelfDeletingAllowed && !state.selfDeletionTimer.isEnforcedByTeam,
+                            onClick = onSelfDeletingClicked,
+                            onClickDescription = stringResource(id = R.string.content_description_conversation_details_self_deleting_action)
+                        )
+                    )
+                }
+                addIf(state.protocolInfo !is Conversation.ProtocolInfo.MLS || mlsReadReceiptsEnabled) {
+                    ReadReceiptOption(
+                        isSwitchEnabled = state.isUpdatingReadReceiptAllowed,
+                        switchState = state.isReadReceiptAllowed,
+                        isLoading = state.loadingReadReceiptOption,
+                        onCheckedChange = onReadReceiptSwitchClicked
                     )
                 }
             }
-            item {
-                GroupConversationOptionsItem(
-                    title = stringResource(id = R.string.conversation_options_guests_label),
-                    subtitle = stringResource(id = R.string.conversation_details_guest_description),
-                    switchState = SwitchState.TextOnly(value = state.isGuestAllowed),
-                    arrowType = if (state.isUpdatingGuestAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
-                    clickable = Clickable(
-                        enabled = state.isUpdatingGuestAllowed,
-                        onClick = onGuestItemClicked,
-                        onClickDescription = stringResource(id = R.string.content_description_conversation_details_guests_action)
-                    ),
-                )
-            }
+        )
 
-            item { WireDivider(color = colorsScheme().divider) }
+        folderWithItems(
+            folderTitleResId = R.string.folder_label_protocol_details,
+            items = conversationProtocolDetailsItems(protocolInfo = state.protocolInfo),
+        )
 
-            item {
-                ServicesOption(
-                    isSwitchEnabledAndVisible = state.isUpdatingServicesAllowed,
-                    switchState = state.isServicesAllowed,
-                    isLoading = state.loadingServicesOption,
-                    onCheckedChange = onServiceSwitchClicked
-                )
-            }
-        }
-        item { FolderHeader(name = stringResource(id = R.string.folder_label_messaging)) }
-
-        if (!state.selfDeletionTimer.isDisabled) {
-            item {
-                GroupConversationOptionsItem(
-                    title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
-                    subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_description),
-                    trailingOnText = if (state.selfDeletionTimer.isEnforced) {
-                        "(${state.selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel.asString()})"
-                    } else {
-                        null
-                    },
-                    switchState = SwitchState.TextOnly(value = state.selfDeletionTimer.isEnforced),
-                    arrowType = if (state.isUpdatingSelfDeletingAllowed && !state.selfDeletionTimer.isEnforcedByTeam) {
-                        ArrowType.TITLE_ALIGNED
-                    } else {
-                        ArrowType.NONE
-                    },
-                    clickable = Clickable(
-                        enabled = state.isUpdatingSelfDeletingAllowed && !state.selfDeletionTimer.isEnforcedByTeam,
-                        onClick = onSelfDeletingClicked,
-                        onClickDescription = stringResource(id = R.string.content_description_conversation_details_self_deleting_action)
-                    )
-                )
-            }
-        }
-        item { WireDivider(color = colorsScheme().divider) }
-        item {
-            ReadReceiptOption(
-                isSwitchEnabled = state.isUpdatingReadReceiptAllowed,
-                switchState = state.isReadReceiptAllowed,
-                isLoading = state.loadingReadReceiptOption,
-                onCheckedChange = onReadReceiptSwitchClicked
-            )
-        }
-        item {
-            ConversationProtocolDetails(
-                protocolInfo = state.protocolInfo
-            )
-        }
         if (state.isWireCellFeatureEnabled) {
-            item {
-                ConversationCellDetails(
-                    isWireCellEnabled = state.isWireCellEnabled,
-                    isLoading = state.loadingWireCellState,
-                    onCheckedChange = onWireCellSwitchClicked,
-                )
-            }
+            folderWithItems(
+                folderTitleResId = R.string.folder_label_wire_cell,
+                items = listOf {
+                    ConversationCellDetails(
+                        isWireCellEnabled = state.isWireCellEnabled,
+                        isLoading = state.loadingWireCellState,
+                        onCheckedChange = onWireCellSwitchClicked
+                    )
+                }
+            )
         }
     }
 }
 
-@Composable
-fun ConversationProtocolDetails(
-    protocolInfo: Conversation.ProtocolInfo,
-    modifier: Modifier = Modifier
+/**
+ * Adds a new section to the LazyListScope with a header and items.
+ * @param folderTitleResId The resource ID for the folder title.
+ * @param showFolder Whether to show the folder header. Defaults to true.
+ * @param items A list of composable functions representing the items to be displayed in the section.
+ *              If the list is empty, the whole section will be skipped, so that there will be no header with empty section.
+ */
+private fun LazyListScope.folderWithItems(
+    @StringRes folderTitleResId: Int,
+    showFolder: Boolean = true,
+    items: List<@Composable () -> Unit> = emptyList(),
 ) {
-    Column(modifier = modifier) {
-        FolderHeader(name = stringResource(R.string.folder_label_protocol_details))
+    if (items.isNotEmpty() && showFolder) {
+        item {
+            FolderHeader(
+                name = stringResource(folderTitleResId),
+                padding = PaddingValues(
+                    horizontal = dimensions().spacing16x,
+                    vertical = dimensions().spacing8x - (2 * DividerDefaults.Thickness),
+                )
+            )
+        }
+    }
+    items(count = items.size) { index ->
+        items[index].invoke()
+    }
+}
 
+private fun <E> MutableList<E>.addIf(condition: Boolean, element: E) {
+    if (condition) add(element)
+}
+
+private fun conversationProtocolDetailsItems(
+    protocolInfo: Conversation.ProtocolInfo,
+): List<@Composable () -> Unit> = buildList {
+    add {
         ProtocolDetails(
             label = UIText.StringResource(R.string.protocol),
             text = UIText.DynamicString(protocolInfo.name())
         )
+    }
 
-        if (protocolInfo is Conversation.ProtocolInfo.MLS) {
+    if (protocolInfo is Conversation.ProtocolInfo.MLS) {
+        add {
             ProtocolDetails(
                 label = UIText.StringResource(R.string.cipher_suite),
                 text = UIText.DynamicString(protocolInfo.cipherSuite.toString())
             )
+        }
 
-            if (BuildConfig.PRIVATE_BUILD) {
+        addIf(BuildConfig.PRIVATE_BUILD) {
+            add {
                 ProtocolDetails(
                     label = UIText.StringResource(R.string.last_key_material_update_label),
                     text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
                 )
+            }
 
+            add {
                 ProtocolDetails(
                     label = UIText.StringResource(R.string.group_state_label),
                     text = UIText.DynamicString(protocolInfo.groupState.name)
@@ -368,7 +415,6 @@ private fun ConversationCellDetails(
     isLoading: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    FolderHeader(name = stringResource(R.string.folder_label_wire_cell))
     GroupOptionWithSwitch(
         switchClickable = true,
         switchVisible = true,
@@ -380,152 +426,135 @@ private fun ConversationCellDetails(
     )
 }
 
-@PreviewMultipleThemes
+private val StateMember = GroupConversationOptionsState(
+    conversationId = ConversationId("someValue", "someDomain"),
+    groupName = "Conversation Name",
+    areAccessOptionsAvailable = true,
+    isGuestAllowed = true,
+    isServicesAllowed = true,
+    isReadReceiptAllowed = true,
+)
+
+private val StateAdmin = StateMember.copy(
+    isUpdatingNameAllowed = true,
+    isUpdatingGuestAllowed = true,
+    isUpdatingChannelAccessAllowed = true,
+    isUpdatingServicesAllowed = true,
+    isUpdatingSelfDeletingAllowed = true,
+    isUpdatingReadReceiptAllowed = true,
+)
+
+@Suppress("MagicNumber")
+private val ProtocolInfoMLS = Conversation.ProtocolInfo.MLS(
+    groupId = GroupID("groupId"),
+    groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
+    epoch = ULong.MIN_VALUE,
+    keyingMaterialLastUpdate = Instant.fromEpochMilliseconds(1648654560000),
+    cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
+)
+
 @Composable
-fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
+private fun PreviewGroupConversationOptions(state: GroupConversationOptionsState) = WireTheme {
     GroupConversationSettings(
-        state = GroupConversationOptionsState(
-            conversationId = ConversationId("someValue", "someDomain"),
-            groupName = "Team Group Conversation",
-            areAccessOptionsAvailable = true,
-            isUpdatingNameAllowed = true,
-            isUpdatingGuestAllowed = true,
-            isUpdatingChannelAccessAllowed = true,
-            isUpdatingServicesAllowed = true,
-            isUpdatingSelfDeletingAllowed = true,
-            isUpdatingReadReceiptAllowed = true,
-            isGuestAllowed = true,
-            isServicesAllowed = true,
-            isReadReceiptAllowed = true,
-            mlsEnabled = true,
-        ),
+        state = state,
+        onChannelAccessItemClicked = {},
         onGuestItemClicked = {},
         onSelfDeletingClicked = {},
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
-        onEditGroupName = {},
-        onChannelAccessItemClicked = {},
         onWireCellSwitchClicked = {},
+        onEditGroupName = {},
+        modifier = Modifier,
+        lazyListState = rememberLazyListState(),
+        mlsReadReceiptsEnabled = false,
     )
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewGuestAdminTeamGroupConversationOptions() = WireTheme {
-    GroupConversationSettings(
-        state = GroupConversationOptionsState(
-            conversationId = ConversationId("someValue", "someDomain"),
-            groupName = "Team Group Conversation",
-            areAccessOptionsAvailable = true,
-            isUpdatingNameAllowed = true,
-            isUpdatingGuestAllowed = false,
-            isUpdatingServicesAllowed = true,
-            isUpdatingSelfDeletingAllowed = true,
-            isUpdatingReadReceiptAllowed = true,
-            isGuestAllowed = true,
-            isServicesAllowed = true,
-            isReadReceiptAllowed = true,
-        ),
-        onGuestItemClicked = {},
-        onSelfDeletingClicked = {},
-        onServiceSwitchClicked = {},
-        onReadReceiptSwitchClicked = {},
-        onEditGroupName = {},
-        onChannelAccessItemClicked = {},
-        onWireCellSwitchClicked = {},
-    )
-}
+fun PreviewAdminTeamGroupConversationOptions() = PreviewGroupConversationOptions(
+    state = StateAdmin
+)
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewExternalMemberAdminTeamGroupConversationOptions() = WireTheme {
-    GroupConversationSettings(
-        state = GroupConversationOptionsState(
-            conversationId = ConversationId("someValue", "someDomain"),
-            groupName = "Team Group Conversation",
-            areAccessOptionsAvailable = true,
-            isUpdatingNameAllowed = false,
-            isUpdatingGuestAllowed = false,
-            isUpdatingServicesAllowed = true,
-            isUpdatingSelfDeletingAllowed = true,
-            isUpdatingReadReceiptAllowed = true,
-            isGuestAllowed = true,
-            isServicesAllowed = true,
-            isReadReceiptAllowed = true,
-        ),
-        onGuestItemClicked = {},
-        onSelfDeletingClicked = {},
-        onServiceSwitchClicked = {},
-        onReadReceiptSwitchClicked = {},
-        onEditGroupName = {},
-        onChannelAccessItemClicked = {},
-        onWireCellSwitchClicked = {},
+fun PreviewGuestAdminTeamGroupConversationOptions() = PreviewGroupConversationOptions(
+    state = StateAdmin.copy(
+        isUpdatingGuestAllowed = false
     )
-}
+)
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMemberTeamGroupConversationOptions() = WireTheme {
-    GroupConversationSettings(
-        state = GroupConversationOptionsState(
-            conversationId = ConversationId("someValue", "someDomain"),
-            groupName = "Normal Group Conversation",
-            areAccessOptionsAvailable = true,
-            isUpdatingNameAllowed = false,
-            isUpdatingGuestAllowed = false,
-            isUpdatingServicesAllowed = false,
-            isUpdatingSelfDeletingAllowed = false,
-            isUpdatingReadReceiptAllowed = false,
-            isGuestAllowed = true,
-            isServicesAllowed = true,
-            isReadReceiptAllowed = true,
-        ),
-        onGuestItemClicked = {},
-        onSelfDeletingClicked = {},
-        onServiceSwitchClicked = {},
-        onReadReceiptSwitchClicked = {},
-        onEditGroupName = {},
-        onChannelAccessItemClicked = {},
-        onWireCellSwitchClicked = {},
+fun PreviewExternalMemberAdminTeamGroupConversationOptions() = PreviewGroupConversationOptions(
+    state = StateAdmin.copy(
+        isUpdatingNameAllowed = false,
+        isUpdatingGuestAllowed = false,
     )
-}
+)
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewNormalGroupConversationOptions() = WireTheme {
-    GroupConversationSettings(
-        state = GroupConversationOptionsState(
-            conversationId = ConversationId("someValue", "someDomain"),
-            groupName = "Normal Group Conversation",
-            areAccessOptionsAvailable = false,
-        ),
-        onGuestItemClicked = {},
-        onSelfDeletingClicked = {},
-        onServiceSwitchClicked = {},
-        onReadReceiptSwitchClicked = {},
-        onEditGroupName = {},
-        onChannelAccessItemClicked = {},
-        onWireCellSwitchClicked = {},
-    )
-}
+fun PreviewMemberTeamGroupConversationOptions() = PreviewGroupConversationOptions(
+    state = StateMember
+)
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewNormalGroupConversationOptionsWithSelfDelet() = WireTheme {
-    GroupConversationSettings(
-        state = GroupConversationOptionsState(
-            conversationId = ConversationId("someValue", "someDomain"),
-            groupName = "Normal Group Conversation",
-            areAccessOptionsAvailable = false,
-            selfDeletionTimer = SelfDeletionTimer.Enabled(3.days),
-            isUpdatingSelfDeletingAllowed = true,
-        ),
-        onGuestItemClicked = {},
-        onSelfDeletingClicked = {},
-        onServiceSwitchClicked = {},
-        onReadReceiptSwitchClicked = {},
-        onEditGroupName = {},
-        onChannelAccessItemClicked = {},
-        onWireCellSwitchClicked = {},
+fun PreviewNormalGroupConversationOptions() = PreviewGroupConversationOptions(
+    state = StateMember.copy(
+        areAccessOptionsAvailable = false,
     )
-}
+)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewNormalGroupConversationOptionsWithSelfDeleting() = PreviewGroupConversationOptions(
+    state = StateMember.copy(
+        areAccessOptionsAvailable = false,
+        selfDeletionTimer = SelfDeletionTimer.Enabled(3.days),
+        isUpdatingSelfDeletingAllowed = true,
+    )
+)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewAdminMlsGroup() = PreviewGroupConversationOptions(
+    state = StateAdmin.copy(
+        protocolInfo = ProtocolInfoMLS,
+        mlsEnabled = true,
+    ),
+)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMemberMlsGroup() = PreviewGroupConversationOptions(
+    state = StateMember.copy(
+        isChannel = true,
+        channelAccessType = ChannelAccessType.PRIVATE,
+        protocolInfo = ProtocolInfoMLS,
+        mlsEnabled = true,
+    ),
+)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewAdminChannel() = PreviewGroupConversationOptions(
+    state = StateAdmin.copy(
+        isChannel = true,
+        channelAccessType = ChannelAccessType.PRIVATE,
+        protocolInfo = ProtocolInfoMLS,
+        mlsEnabled = true,
+    ),
+)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMemberChannel() = PreviewGroupConversationOptions(
+    state = StateMember.copy(
+        isChannel = true,
+        channelAccessType = ChannelAccessType.PRIVATE,
+        protocolInfo = ProtocolInfoMLS,
+        mlsEnabled = true,
+    ),
+)

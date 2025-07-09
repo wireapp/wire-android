@@ -121,6 +121,7 @@ fun CreateAccountSelectorScreen(
     )
 
     LaunchedEffect(Unit) {
+        // reset registration enabled analytics state when coming from navigation from child
         viewModel.onPageLoaded()
     }
 }

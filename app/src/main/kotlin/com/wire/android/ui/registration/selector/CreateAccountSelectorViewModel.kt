@@ -39,7 +39,6 @@ class CreateAccountSelectorViewModel @Inject constructor(
     val teamAccountCreationUrl = serverConfig.teams
 
     fun onPageLoaded() = viewModelScope.launch {
-        println("ym. resetting analytics state")
         globalDataStore.setAnonymousRegistrationEnabled(false)
     }
 }

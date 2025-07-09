@@ -18,7 +18,9 @@
 package com.wire.android.ui.userprofile.teammigration
 
 import com.ramcosta.composedestinations.annotation.NavGraph
+import com.wire.android.navigation.WireRootNavGraph
 
+@WireRootNavGraph
 @NavGraph
 annotation class PersonalToTeamMigrationNavGraph(
     val start: Boolean = false

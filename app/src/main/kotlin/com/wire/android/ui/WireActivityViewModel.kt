@@ -153,6 +153,7 @@ class WireActivityViewModel @Inject constructor(
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
         observeLogoutState()
+        resetNewRegistrationAnalyticsState()
     }
 
     private suspend fun shouldEnrollToE2ei(): Boolean = observeCurrentValidUserId.first()?.let {
@@ -248,7 +249,7 @@ class WireActivityViewModel @Inject constructor(
     @VisibleForTesting
     internal suspend fun initValidSessionsFlowIfNeeded() {
         if (::validSessions.isInitialized.not()) { // initialise valid sessions flow if not already initialised
-                validSessions = validSessionsFlow().stateIn(viewModelScope, SharingStarted.Eagerly, validSessionsFlow().first())
+            validSessions = validSessionsFlow().stateIn(viewModelScope, SharingStarted.Eagerly, validSessionsFlow().first())
         }
     }
 
@@ -511,6 +512,13 @@ class WireActivityViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    /**
+     * Reset any unfinished registration process analytics where the user aborted and enabled the registration analytics.
+     */
+    private fun resetNewRegistrationAnalyticsState() = viewModelScope.launch {
+        globalDataStore.get().setAnonymousRegistrationEnabled(false)
     }
 
     private fun CurrentScreen.isGlobalDialogAllowed(): Boolean = when (this) {

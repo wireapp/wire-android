@@ -19,18 +19,27 @@ package com.wire.android.ui.registration.selector
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.android.config.orDefault
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CreateAccountSelectorViewModel @Inject constructor(
+    private val globalDataStore: GlobalDataStore,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     val navArgs: CreateAccountSelectorNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig.orDefault()
     val email: String = navArgs.email.orEmpty()
     val teamAccountCreationUrl = serverConfig.teams
+
+    fun onPageLoaded() = viewModelScope.launch {
+        println("ym. resetting analytics state")
+        globalDataStore.setAnonymousRegistrationEnabled(false)
+    }
 }

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.userprofile.teammigration
+package com.wire.android.feature.cells.ui.rename
 
-import com.ramcosta.composedestinations.annotation.NavGraph
-import com.wire.android.navigation.WireRootNavGraph
-
-@WireRootNavGraph
-@NavGraph
-annotation class PersonalToTeamMigrationNavGraph(
-    val start: Boolean = false
+data class RenameNodeNavArgs(
+    val uuid: String? = null,
+    val currentPath: String? = null,
+    val isFolder: Boolean? = null,
+    val nodeName: String? = null
 )

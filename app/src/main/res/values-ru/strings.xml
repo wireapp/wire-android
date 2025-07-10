@@ -230,6 +230,10 @@
     <string name="content_description_new_group_name_field">Введите имя группы</string>
     <string name="content_description_new_channel_name_field">Введите название канала</string>
     <string name="content_description_new_conversation_options_heading">Настройки беседы</string>
+    <string name="content_description_new_conversation_history_heading">Настройки истории бесед</string>
+    <string name="content_description_new_conversation_history_custom_heading">Пользовательская история бесед</string>
+    <string name="content_description_new_conversation_history_back_btn">Вернуться к настройкам истории бесед</string>
+    <string name="content_description_new_conversation_history_custom_change_time">Изменить временные опции</string>
     <string name="content_description_new_group_options_back_btn">Вернуться к созданию новой группы</string>
     <string name="content_description_new_channel_options_back_btn">Вернуться к созданию нового канала</string>
     <string name="content_description_pending_connection_badge">ожидание подтверждения запроса</string>
@@ -519,6 +523,19 @@
     <string name="channel_add_permission_description">Выберите, кто может добавлять участников в приватный канал</string>
     <string name="channel_add_permission_admin_label">Администраторы</string>
     <string name="channel_add_permission_admin_members_label">Администраторы и члены</string>
+    <string name="channel_history_label">История беседы</string>
+    <string name="channel_history_description">Выберите период. Когда участники присоединяются к этому каналу, они могут просматривать историю за этот период времени.</string>
+    <string name="channel_history_freemium_upgrade_title">Показывать старые сообщения?</string>
+    <string name="channel_history_freemium_upgrade_description">Перейдите на платный план, чтобы открыть участникам канала всю историю.</string>
+    <string name="channel_history_freemium_upgrade_now">Перейти сейчас</string>
+    <string name="channel_history_off">Выкл.</string>
+    <string name="channel_history_unlimited">Неограничено</string>
+    <string name="channel_history_custom">Пользовательская</string>
+    <string name="channel_history_days">дн.</string>
+    <string name="channel_history_weeks">нед.</string>
+    <string name="channel_history_months">мес.</string>
+    <string name="channel_history_custom_amount_label">СУММА</string>
+    <string name="channel_history_custom_time_label">ВРЕМЯ</string>
     <string name="create_regular_group_button_label">Создать группу</string>
     <string name="create_channel_button_label">Создать канал</string>
     <string name="new_group_description">К групповой беседе могут присоединиться до 500 участников.</string>
@@ -1545,6 +1562,12 @@
         <item quantity="many">%1$d недель</item>
         <item quantity="other">%1$d недели</item>
     </plurals>
+    <plurals name="months_long_label">
+        <item quantity="one">1 мес.</item>
+        <item quantity="few">%1$d мес.</item>
+        <item quantity="many">%1$d мес.</item>
+        <item quantity="other">%1$d мес.</item>
+    </plurals>
     <plurals name="days_long_label">
         <item quantity="one">1 день</item>
         <item quantity="few">%1$d дня</item>
@@ -1568,6 +1591,24 @@
         <item quantity="few">%1$d секунды</item>
         <item quantity="many">%1$d секунд</item>
         <item quantity="other">%1$d секунды</item>
+    </plurals>
+    <plurals name="days_label">
+        <item quantity="one">день</item>
+        <item quantity="few">дн.</item>
+        <item quantity="many">дн.</item>
+        <item quantity="other">дн.</item>
+    </plurals>
+    <plurals name="weeks_label">
+        <item quantity="one">неделя</item>
+        <item quantity="few">нед.</item>
+        <item quantity="many">нед.</item>
+        <item quantity="other">нед.</item>
+    </plurals>
+    <plurals name="months_label">
+        <item quantity="one">месяц</item>
+        <item quantity="few">мес.</item>
+        <item quantity="many">мес.</item>
+        <item quantity="other">мес.</item>
     </plurals>
     <string name="four_weeks_short_label">4 нед</string>
     <string name="one_week_short_label">1 нед.</string>

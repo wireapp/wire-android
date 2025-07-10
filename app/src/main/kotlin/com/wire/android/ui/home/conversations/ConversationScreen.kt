@@ -73,6 +73,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -1342,7 +1343,18 @@ fun MessageList(
                                     .fillMaxWidth()
                                     .padding(dimensions().spacing16x),
                             ) {
-                                val (text, prefixIconResId) = when (lazyPagingMessages.loadState.prepend.endOfPaginationReached) {
+                                var allMessagesPrepended by remember { mutableStateOf(false) }
+                                LaunchedEffect(lazyPagingMessages.loadState) {
+                                    // When the list is being refreshed, the load state for prepend is cleared so the app doesn't know if
+                                    // the end of pagination is reached or not for prepend until the refresh is done, so we don't want to
+                                    // update the allMessagesPrepended state while refreshing and in that case keep the last updated state,
+                                    // otherwise the indicator will flicker while refreshing.
+                                    if (lazyPagingMessages.loadState.refresh is LoadState.NotLoading) {
+                                        allMessagesPrepended = lazyPagingMessages.loadState.prepend.endOfPaginationReached
+                                    }
+                                }
+
+                                val (text, prefixIconResId) = when (allMessagesPrepended) {
                                     true -> stringResource(R.string.conversation_history_loaded) to null
                                     false -> stringResource(R.string.conversation_history_loading) to R.drawable.ic_undo
                                 }

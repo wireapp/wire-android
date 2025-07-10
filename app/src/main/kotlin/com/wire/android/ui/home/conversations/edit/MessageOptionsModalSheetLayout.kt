@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.edit
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Suppress("CyclomaticComplexMethod")
 @Composable
+@SuppressLint("ComposeModifierMissing")
 fun MessageOptionsModalSheetLayout(
     conversationId: ConversationId,
     sheetState: WireModalSheetState<String>,

@@ -30,6 +30,7 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 import kotlinx.serialization.serializerOrNull
 
+@Suppress("CyclomaticComplexMethod", "TooGenericExceptionCaught")
 @OptIn(InternalSerializationApi::class)
 inline fun <reified T : Any> WireModalSheetState.Companion.saver(
     density: Density,
@@ -101,6 +102,7 @@ inline fun <reified T : Any> WireModalSheetState.Companion.saver(
 sealed interface SavedData : Parcelable {
     @Parcelize
     data object Hidden : SavedData
+
     @Parcelize
     data class Expanded(val value: @RawValue Any?) : SavedData
 }

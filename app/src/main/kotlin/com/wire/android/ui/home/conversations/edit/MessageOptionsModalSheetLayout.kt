@@ -46,7 +46,6 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
-@Suppress("CyclomaticComplexMethod")
 @Composable
 @SuppressLint("ComposeModifierMissing")
 fun MessageOptionsModalSheetLayout(
@@ -99,6 +98,7 @@ fun MessageOptionsModalSheetLayout(
     )
 }
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 private fun MessageOptionsModalContent(
     message: UIMessage.Regular,

@@ -174,6 +174,7 @@ class CellViewModel @Inject constructor(
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
     internal fun screenTitle(): String? = navArgs.screenTitle
+    internal fun breadcrumbs(): Array<String>? = navArgs.breadcrumbs
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {

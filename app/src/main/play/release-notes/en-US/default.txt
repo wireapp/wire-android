@@ -1,6 +1,5 @@
 New
 - Flows for account and team creation
-- Restore backups from Android also on other platforms (macOS, Windows, or iOS)
 - Access team management from the main navigation
 - Landscape support for tablets (Android 16)
 

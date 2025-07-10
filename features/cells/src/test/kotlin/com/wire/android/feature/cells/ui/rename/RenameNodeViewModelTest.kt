@@ -26,6 +26,7 @@ import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -56,11 +57,11 @@ class RenameNodeViewModelTest {
 
     @Test
     fun `given renameNodeUseCase success, when rename is called, then send success action`() = runTest {
-        val (_, viewModel) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withRenameNodeUseCaseReturning(Either.Right(Unit))
             .arrange()
 
-        viewModel.renameNode()
+        viewModel.renameNode("newFileName")
 
         advanceUntilIdle()
         viewModel.actions.test {
@@ -68,17 +69,18 @@ class RenameNodeViewModelTest {
                 assertEquals(false, viewModel.displayNameState.loading)
                 assertEquals(DisplayNameState.Completed.Success, viewModel.displayNameState.completed)
                 assertTrue(this is RenameNodeViewModelAction.Success)
+                coVerify(exactly = 1) { arrangement.renameNodeUseCase(eq(UUID), eq(CURRENT_PATH), eq("newFileName.txt")) }
             }
         }
     }
 
     @Test
     fun `given renameNodeUseCase failure, when rename is called, then send failure action`() = runTest {
-        val (_, viewModel) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withRenameNodeUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
             .arrange()
 
-        viewModel.renameNode()
+        viewModel.renameNode("")
 
         advanceUntilIdle()
         viewModel.actions.test {
@@ -86,6 +88,7 @@ class RenameNodeViewModelTest {
                 assertEquals(false, viewModel.displayNameState.loading)
                 assertEquals(DisplayNameState.Completed.Failure, viewModel.displayNameState.completed)
                 assertTrue(this is RenameNodeViewModelAction.Failure)
+                coVerify(exactly = 1) { arrangement.renameNodeUseCase(any(), any(), any()) }
             }
         }
     }
@@ -130,8 +133,7 @@ class RenameNodeViewModelTest {
 
     companion object {
         const val CURRENT_PATH = "currentPath"
-        const val NODE_TO_MOVE_PATH = "nodeToMovePath"
         const val UUID = "uuid"
-        const val NODE_NAME = "nodeName"
+        const val NODE_NAME = "nodeName.txt"
     }
 }

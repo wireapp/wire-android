@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
 
-
 @Composable
 fun wireChipColors() = SelectableChipColors(
     containerColor = Color.Transparent,

@@ -142,6 +142,7 @@ import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
@@ -258,17 +259,21 @@ fun ConversationScreen(
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult
     )
     val conversationScreenState = rememberConversationScreenState(
-        selfDeletingSheetState = rememberWireModalSheetState(onDismissAction = {
-            messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
-        }),
+        selfDeletingSheetState = rememberWireModalSheetState(
+            onDismissAction = {
+                messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
+            }
+        ),
         locationSheetState = rememberWireModalSheetState(
             onDismissAction = {
                 messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
             }
         ),
-        editSheetState = rememberWireModalSheetState(onDismissAction = {
-            messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
-        }),
+        editSheetState = rememberWireModalSheetState(
+            onDismissAction = {
+                messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
+            },
+        ),
     )
 
     val permissionPermanentlyDeniedDialogState =
@@ -525,7 +530,10 @@ fun ConversationScreen(
                 sendMessageViewModel.trySendMessage(bundle)
             }
         },
-        onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
+        onDeleteMessage = { messageId, deleteForEveryone ->
+            conversationMessagesViewModel.deleteMessageDialogState
+                .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
+        },
         onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
         onImageFullScreenMode = { message, isSelfMessage ->
             with(conversationMessagesViewModel) {
@@ -640,8 +648,8 @@ fun ConversationScreen(
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
     DeleteMessageDialog(
-        state = conversationMessagesViewModel.deleteMessageDialogState,
-        actions = conversationMessagesViewModel.deleteMessageHelper
+        dialogState = conversationMessagesViewModel.deleteMessageDialogState,
+        deleteMessage = conversationMessagesViewModel::deleteMessage,
     )
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
@@ -991,6 +999,7 @@ private fun ConversationScreen(
         )
 
         MessageOptionsModalSheetLayout(
+            conversationId = conversationInfoViewState.conversationId,
             sheetState = conversationScreenState.editSheetState,
             onCopyClick = conversationScreenState::copyMessage,
             onDeleteClick = onDeleteMessage,

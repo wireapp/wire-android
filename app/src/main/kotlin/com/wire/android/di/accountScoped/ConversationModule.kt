@@ -36,6 +36,7 @@ import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
@@ -103,6 +104,12 @@ class ConversationModule {
     @Provides
     fun provideObserveConversationDetailsUseCase(conversationScope: ConversationScope): ObserveConversationDetailsUseCase =
         conversationScope.observeConversationDetails
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveConversationDetailsWithEventsUseCase(
+        conversationScope: ConversationScope
+    ): ObserveConversationDetailsWithEventsUseCase = conversationScope.observeConversationDetailsWithEvents
 
     @ViewModelScoped
     @Provides

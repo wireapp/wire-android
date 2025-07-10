@@ -336,9 +336,7 @@ private fun GroupConversationDetailsContent(
             ChangeConversationFavoriteStateArgs
         ),
     removeConversationFromFolderVM: RemoveConversationFromFolderVM =
-        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
-            RemoveConversationFromFolderArgs
-        ),
+        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM>(),
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }

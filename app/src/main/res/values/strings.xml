@@ -469,6 +469,7 @@
     <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
     <string name="deleted_message_text">Deleted message</string>
+    <string name="deleted_message_options_closed">The options have been closed as this message is no longer available.</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">You can not see this message</string>
     <string name="label_quote_original_message_is_a_picture">Picture</string>

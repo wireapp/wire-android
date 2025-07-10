@@ -91,7 +91,7 @@ fun RenameNodeScreen(
             ) {
                 WirePrimaryButton(
                     text = stringResource(R.string.rename_label),
-                    onClick = { renameNodeViewModel.renameNode() },
+                    onClick = { renameNodeViewModel.renameNode(renameNodeViewModel.textState.text.toString()) },
                     state = if (renameNodeViewModel.displayNameState.saveEnabled) Default else Disabled,
                     clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                 )

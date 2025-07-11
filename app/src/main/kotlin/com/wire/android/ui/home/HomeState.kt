@@ -23,25 +23,20 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
-import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
-import com.wire.kalium.logic.data.user.UserId
 
 data class HomeState(
     val userAvatarData: UserAvatarData = UserAvatarData(null),
-    val shouldDisplayWelcomeMessage: Boolean = false,
     val shouldDisplayLegalHoldIndicator: Boolean = false,
     val shouldShowCreateTeamUnreadIndicator: Boolean = false,
 )
 
 sealed class HomeRequirement {
-    data class Migration(val userId: UserId) : HomeRequirement()
     data object RegisterDevice : HomeRequirement()
     data object CreateAccountUsername : HomeRequirement()
     data object InitialSync : HomeRequirement()
 
     fun navigate(navigate: (NavigationCommand) -> Unit) = when (this) {
-        is Migration -> navigate(NavigationCommand(MigrationScreenDestination(this.userId), BackStackMode.CLEAR_WHOLE))
         is RegisterDevice -> navigate(NavigationCommand(RegisterDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
         is CreateAccountUsername -> navigate(NavigationCommand(CreateAccountUsernameScreenDestination, BackStackMode.CLEAR_WHOLE))
         is InitialSync -> navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))

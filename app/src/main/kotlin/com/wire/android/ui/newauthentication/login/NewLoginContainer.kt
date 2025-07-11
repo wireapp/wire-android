@@ -56,7 +56,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun NewLoginContainer(
+fun NewAuthContainer(
     header: @Composable () -> Unit = {},
     contentPadding: Dp = dimensions().spacing24x,
     content: @Composable () -> Unit
@@ -90,7 +90,7 @@ fun NewLoginContainer(
 }
 
 @Composable
-fun NewLoginHeader(
+fun NewAuthHeader(
     title: @Composable ColumnScope.() -> Unit,
     canNavigateBack: Boolean = false,
     onNavigateBack: () -> Unit = {},
@@ -127,7 +127,7 @@ fun NewLoginHeader(
 }
 
 @Composable
-fun NewLoginTitle(
+fun NewAuthTitle(
     title: String,
     verticalPadding: Dp = dimensions().spacing2x,
     modifier: Modifier = Modifier
@@ -143,7 +143,7 @@ fun NewLoginTitle(
 }
 
 @Composable
-fun NewLoginSubtitle(
+fun NewAuthSubtitle(
     title: String,
     verticalPadding: Dp = dimensions().spacing2x,
     modifier: Modifier = Modifier
@@ -173,9 +173,9 @@ private fun NavigationBarBackground() = Box(
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginHeader() = WireTheme {
-    NewLoginHeader(
+    NewAuthHeader(
         title = {
-            NewLoginSubtitle("Enter your password to log in")
+            NewAuthSubtitle("Enter your password to log in")
         },
         canNavigateBack = true
     )
@@ -184,9 +184,9 @@ private fun PreviewNewLoginHeader() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginHeaderNoNavigateBack() = WireTheme {
-    NewLoginHeader(
+    NewAuthHeader(
         title = {
-            NewLoginSubtitle("Enter your password to log in")
+            NewAuthSubtitle("Enter your password to log in")
         },
         canNavigateBack = false
     )
@@ -195,10 +195,10 @@ private fun PreviewNewLoginHeaderNoNavigateBack() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginHeaderTwoLines() = WireTheme {
-    NewLoginHeader(
+    NewAuthHeader(
         title = {
-            NewLoginSubtitle("Enter your password to log in")
-            NewLoginSubtitle("Enter your password to log in")
+            NewAuthSubtitle("Enter your password to log in")
+            NewAuthSubtitle("Enter your password to log in")
         },
         canNavigateBack = true
     )
@@ -209,11 +209,11 @@ private fun PreviewNewLoginHeaderTwoLines() = WireTheme {
 private fun PreviewNewLoginContent() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
-            NewLoginContainer(
+            NewAuthContainer(
                 header = {
-                    NewLoginHeader(
+                    NewAuthHeader(
                         title = {
-                            NewLoginSubtitle("Enter your password to log in")
+                            NewAuthSubtitle("Enter your password to log in")
                         },
                         canNavigateBack = true
                     )

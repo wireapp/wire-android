@@ -47,6 +47,7 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Rem
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.UnblockingUserOperationError
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -69,11 +70,14 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -104,8 +108,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase,
-    private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
     private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
+    private val mlsClientIdentity: GetMLSClientIdentityUseCase,
+    private val isE2EIEnabled: IsE2EIEnabledUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
@@ -134,11 +139,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         persistClients()
         getMLSVerificationStatus()
         getIfConversationExist()
+        getE2EIStatus()
     }
 
     private fun getIfConversationExist() {
         viewModelScope.launch {
-            state = state.copy(isConversationStarted = isOneToOneConversationCreated(userId))
+            val isOneToOneConversationCreated = isOneToOneConversationCreated(userId)
+            state = state.copy(isConversationStarted = isOneToOneConversationCreated)
         }
     }
 
@@ -149,20 +156,31 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
+    private fun getE2EIStatus() = viewModelScope.launch {
+        val isE2EIEnabled = isE2EIEnabled()
+        state = state.copy(isE2EIEnabled = isE2EIEnabled)
+    }
+
     override fun observeClientList() {
         viewModelScope.launch(dispatchers.io()) {
             observeClientList(userId)
-                .collect {
-                    val e2eiCertificates = getUserE2eiCertificates(userId)
-                    when (it) {
+                .collect { result ->
+                    when (result) {
                         is ObserveClientsByUserIdUseCase.Result.Failure -> {
-                            /* no-op */
+                            state = state.copy(otherUserDevices = emptyList())
                         }
 
                         is ObserveClientsByUserIdUseCase.Result.Success -> {
-                            state = state.copy(otherUserDevices = it.clients.map { item ->
-                                Device(item, e2eiCertificates[item.id.value])
-                            })
+                            val devices = result.clients.map { client ->
+                                async {
+                                    Device(
+                                        client = client,
+                                        mlsClientIdentity = mlsClientIdentity(client.id).getOrNull()
+                                    )
+                                }
+                            }.awaitAll()
+
+                            state = state.copy(otherUserDevices = devices)
                         }
                     }
                 }

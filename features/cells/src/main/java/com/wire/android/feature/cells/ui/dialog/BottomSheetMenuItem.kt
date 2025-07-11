@@ -30,14 +30,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.feature.cells.ui.model.BottomSheetAction
+import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 
 @Composable
 fun BottomSheetMenuItem(
-    action: BottomSheetAction,
+    action: NodeBottomSheetAction,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -48,17 +48,18 @@ fun BottomSheetMenuItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
+
         Image(
-            painter = painterResource(action.data.icon),
+            painter = painterResource(action.icon),
             contentDescription = null,
             colorFilter = ColorFilter.tint(
-                color = if (action.data.isHighlighted) colorsScheme().error else colorsScheme().onSurface
+                color = if (action.isHighlighted) colorsScheme().error else colorsScheme().onSurface
             )
         )
         Text(
-            text = stringResource(action.data.title),
+            text = stringResource(action.title),
             style = typography().body01,
-            color = if (action.data.isHighlighted) colorsScheme().error else typography().body01.color
+            color = if (action.isHighlighted) colorsScheme().error else typography().body01.color
         )
     }
 }

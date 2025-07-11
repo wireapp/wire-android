@@ -32,9 +32,13 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.toDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.CreateAccountDataDetailScreenDestination
 import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
 import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
+import com.wire.android.ui.destinations.CreateAccountSelectorScreenDestination
 import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
+import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
+import com.wire.android.ui.destinations.CreateAccountVerificationCodeScreenDestination
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
@@ -43,7 +47,6 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
-import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
@@ -252,11 +255,14 @@ sealed class CurrentScreen {
                 is CreateAccountEmailScreenDestination,
                 is CreateAccountDetailsScreenDestination,
                 is CreateAccountSummaryScreenDestination,
-                is MigrationScreenDestination,
                 is InitialSyncScreenDestination,
                 is E2EIEnrollmentScreenDestination,
                 is E2eiCertificateDetailsScreenDestination,
                 is RegisterDeviceScreenDestination,
+                is CreateAccountUsernameScreenDestination,
+                is CreateAccountVerificationCodeScreenDestination,
+                is CreateAccountDataDetailScreenDestination,
+                is CreateAccountSelectorScreenDestination,
                 is RemoveDeviceScreenDestination -> AuthRelated(destination.baseRoute)
 
                 else -> SomeOther(destination?.baseRoute)

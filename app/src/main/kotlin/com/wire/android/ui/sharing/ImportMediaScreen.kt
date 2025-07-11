@@ -57,7 +57,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -67,7 +66,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -79,10 +78,10 @@ import com.wire.android.ui.common.error.ErrorIcon
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.remove.RemoveIcon
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
@@ -91,6 +90,7 @@ import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
+import com.wire.android.ui.home.conversations.media.RestrictionCheckState
 import com.wire.android.ui.home.conversations.media.preview.AssetTilePreview
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
@@ -119,7 +119,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import okio.Path.Companion.toPath
 
-@RootNavGraph
 @WireDestination
 @Composable
 fun ImportMediaScreen(
@@ -203,6 +202,26 @@ private fun ImportMediaAuthenticatedContent(
             navigateBack = navigator.finish
         )
     } else {
+        LaunchedEffect(checkAssetRestrictionsViewModel.state) {
+            with(checkAssetRestrictionsViewModel.state) {
+                if (this is RestrictionCheckState.Success) {
+                    importMediaViewModel.importMediaState.selectedConversationItem.firstOrNull()?.let { conversationItem ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                ConversationScreenDestination(
+                                    ConversationNavArgs(
+                                        conversationId = conversationItem,
+                                        pendingBundles = ArrayList(this.assetBundleList),
+                                        pendingTextBundle = importMediaViewModel.importMediaState.importedText,
+                                    )
+                                ),
+                                BackStackMode.REMOVE_CURRENT_AND_REPLACE
+                            ),
+                        )
+                    }
+                }
+            }
+        }
         ImportMediaRegularContent(
             importMediaAuthenticatedState = importMediaViewModel.importMediaState,
             searchQueryTextState = importMediaViewModel.searchQueryTextState,
@@ -210,26 +229,8 @@ private fun ImportMediaAuthenticatedContent(
             onConversationClicked = importMediaViewModel::onConversationClicked,
             checkRestrictionsAndSendImportedMedia = {
                 with(importMediaViewModel.importMediaState) {
-                    selectedConversationItem.firstOrNull()?.let { conversationItem ->
-                        checkAssetRestrictionsViewModel.checkRestrictions(
-                            importedMediaList = importedAssets,
-                            onSuccess = {
-                                navigator.navigate(
-                                    NavigationCommand(
-                                        ConversationScreenDestination(
-                                            ConversationNavArgs(
-                                                conversationId = conversationItem,
-                                                pendingBundles = ArrayList(it),
-                                                pendingTextBundle = importedText
-                                            )
-                                        ),
-                                        BackStackMode.REMOVE_CURRENT_AND_REPLACE
-                                    ),
-                                )
-                            }
-                        )
+                        checkAssetRestrictionsViewModel.checkRestrictions(importedMediaList = importedAssets)
                     }
-                }
             },
             onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
             infoMessage = importMediaViewModel.infoMessage,
@@ -237,7 +238,7 @@ private fun ImportMediaAuthenticatedContent(
             onRemoveAsset = importMediaViewModel::onRemove
         )
         AssetTooLargeDialog(
-            dialogState = checkAssetRestrictionsViewModel.assetTooLargeDialogState,
+            dialogState = checkAssetRestrictionsViewModel.state.assetTooLargeDialogState,
             hideDialog = checkAssetRestrictionsViewModel::hideDialog
         )
 

@@ -21,6 +21,7 @@
     <string name="build_variant_name">Variante</string>
     <string name="label_new">Nuevo</string>
     <string name="label_login">Iniciar sesión</string>
+    <string name="label_ok">Aceptar</string>
     <string name="label_open">Abrir</string>
     <string name="label_cancel">Cancelar</string>
     <string name="label_confirm">Confirmar</string>
@@ -39,13 +40,18 @@
     <string name="label_membership_external">Externo</string>
     <string name="label_membership_service">Servicio</string>
     <string name="label_user_deleted">Eliminado</string>
+    <string name="label_try_again">Intentar de nuevo</string>
+    <string name="label_done">Listo</string>
     <string name="label_message_sent_failure">No se pudo enviar el mensaje debido a problemas de conectividad.</string>
     <string name="label_message_edit_sent_failure">El mensaje editado no se pudo enviar debido a problemas de conectividad.</string>
     <string name="label_message_sent_remotely_failure">No se pudo enviar el mensaje, ya que el servidor %s parece estar fuera de línea.</string>
     <string name="label_message_edit_sent_remotely_failure">El mensaje editado no pudo ser enviado, ya que el servidor %s parece estar fuera de línea.</string>
     <string name="label_message_receive_failure">Errores en la descarga</string>
     <string name="label_message_decryption_failure_message">El mensaje no se pudo descifrar.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">El mensaje no se pudo descifrar (Error %s).</string>
     <string name="label_message_decryption_failure_informative_message">Intenta restablecer la sesión para generar nuevas claves de cifrado.</string>
+    <string name="label_system_message_self_user_knock">%s hizo ping</string>
+    <string name="label_system_message_other_user_knock">%s hizo ping</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participantes no recibieron tu mensaje.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s no recibirá tu mensaje.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s recibirá tu mensaje más tarde.</string>
@@ -72,10 +78,12 @@
     <string name="label_value_copied">%s copiado</string>
     <string name="label_disable">Desactivar</string>
     <string name="folder_label_access">Acceso</string>
+    <string name="folder_label_protocol_details">Detalles del protocolo</string>
     <string name="folder_label_messaging">Mensajería</string>
     <string name="label_user_blocked">Bloqueado</string>
     <string name="label_and">y</string>
     <string name="label_retry">Reintentar</string>
+    <string name="label_draft">*Borrador*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_reveal_password">Mostrar contraseña</string>
     <string name="content_description_hide_password">Ocultar contraseña</string>
@@ -83,23 +91,35 @@
     <string name="content_description_clear_content">Borrar contenido</string>
     <string name="content_description_user_avatar">Foto de perfil</string>
     <string name="content_description_muted_conversation">Conversación silenciada</string>
-    <string name="content_description_check">Marca de verificaci&#243;n</string>
+    <string name="content_description_check">Marca de verificación</string>
     <string name="content_description_download_icon">Icono de descarga</string>
     <string name="content_description_open_asset_icon">Icono de abrir</string>
     <string name="content_description_add_to_favourite">Agregar a Favoritos</string>
     <string name="content_description_move_to_folder">Mover a carpeta</string>
-    <string name="content_description_move_to_archive">Mover a archivo</string>
+    <string name="content_description_move_to_archive">Mover al archivo</string>
+    <string name="content_description_unarchive">Recuperar</string>
     <string name="content_description_block_the_user">Bloquear</string>
     <string name="content_description_unblock_the_user">Desbloquear</string>
+    <string name="content_description_leave_the_conversation">Abandonar la conversación</string>
+    <string name="content_description_delete_the_conversation">Eliminar la conversación</string>
     <string name="content_description_conversation_phone_icon">Iniciar una llamada</string>
     <string name="content_description_welcome_wire_logo">Logo de Wire</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Bot&#243;n de modo de texto enriquecido</string>
-    <string name="content_description_conversation_send_emoticon">Botón Enviar Emoticon</string>
+    <string name="content_description_conversation_search_icon">Ícono de búsqueda</string>
+    <string name="content_description_conversation_search_input">Campo de búsqueda</string>
+    <string name="content_description_conversation_enable_rich_text_mode">Botón de modo de texto enriquecido</string>
+    <string name="content_description_conversation_enable_drawing_mode">Botón activar modo de dibujo</string>
+    <string name="content_description_conversation_rich_text_header">Encabezado de formato de texto enriquecido</string>
+    <string name="content_description_conversation_rich_text_bold">Formato de texto enriquecido en negritas</string>
+    <string name="content_description_conversation_rich_text_italic">Formato de texto enriquecido cursivo</string>
+    <string name="content_description_conversation_send_emoticon">Botón Enviar Emoticono</string>
     <string name="content_description_conversation_send_gif">Botón de enviar GIF</string>
     <string name="content_description_conversation_mention_someone">Mencionar a alguien</string>
+    <string name="content_description_conversation_back_btn">Volver a la lista de conversaciones</string>
+    <string name="content_description_conversation_open_details_label">abrir detalles de conversación</string>
+    <string name="content_description_new_conversation">Buscar personas o crear una nueva conversación</string>
     <string name="content_description_back_button">Botón atrás</string>
     <string name="content_description_send_button">Enviar</string>
-    <string name="content_description_timed_message_button">Mensaje con autoborrado, botón</string>
+    <string name="content_description_timed_message_button">Botón, mensaje con autoborrado</string>
     <string name="content_description_close_button">Botón de Cerrar</string>
     <string name="content_description_menu_button">Navegación principal</string>
     <string name="content_description_drop_down_icon">Flecha hacia abajo</string>
@@ -120,7 +140,11 @@
     <string name="content_description_more_options">M&#225;s opciones</string>
     <string name="content_description_add_contact">Agregar contacto</string>
     <string name="content_description_image_message">Mensaje de imagen</string>
+    <string name="content_description_pause_audio">Pausar el sonido</string>
+    <string name="content_description_play_audio">Reproducir sonido</string>
     <string name="content_description_file_message">Mensaje de archivo</string>
+    <string name="content_description_ping_everyone">Ping</string>
+    <string name="content_description_self_deleting_message_timer">Establecer temporizador para los mensajes autoborrados</string>
     <string name="content_description_calling_hang_up_call">Colgar llamada</string>
     <string name="content_description_calling_accept_call">Aceptar llamada</string>
     <string name="content_description_calling_flip_camera_on">Cambiar a c&#225;mara frontal</string>
@@ -132,7 +156,8 @@
     <string name="content_description_calling_turn_camera_off">Apagar c&#225;mara</string>
     <string name="content_description_calling_turn_speaker_on">Encender altavoz</string>
     <string name="content_description_calling_turn_speaker_off">Apagar altavoz</string>
-    <string name="content_description_show_more_options">Mostrar m&#225;s opciones</string>
+    <string name="content_description_calling_in_call_reactions_show">Mostrar el panel de reacciones de la llamada</string>
+    <string name="content_description_calling_in_call_reactions_hide">Ocultar en el panel de reacciones de llamadas</string>
     <string name="content_description_reply_to_messge">Responder al mensaje</string>
     <string name="content_description_reply_cancel">Cancelar respuesta al mensaje</string>
     <string name="content_description_ping_message">Ping al mensaje</string>
@@ -143,53 +168,50 @@
     <string name="content_description_calling_call_paused_camera">C&#225;mara pausada</string>
     <string name="content_description_more_emojis">M&#225;s emojis</string>
     <string name="content_description_self_deletion_selector_button">Cambiar modo de autoborrado, botón</string>
+    <string name="content_description_message_sending_status">Estado de envío del mensaje</string>
+    <string name="content_description_message_sent_status">Estado del mensaje enviado</string>
+    <string name="content_description_message_error_status">Estado de error del mensaje</string>
     <string name="content_description_location_icon">Compartir ubicación</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
-    <string name="vault_screen_title">Caja fuerte</string>
+    <string name="vault_screen_title">Bóveda</string>
     <string name="archive_screen_title">Archivo</string>
     <string name="user_profile_screen_title">Perfil de usuario</string>
-    <string name="settings_screen_title">Configuraci&#243;n</string>
-    <string name="app_settings_screen_title">Configuraci&#243;n de la aplicaci&#243;n</string>
-    <string name="give_feedback_screen_title">Enviar comentarios</string>
-    <string name="report_bug_screen_title">Informar de un error</string>
-    <string name="support_screen_title">Soporte</string>
-    <string name="backup_and_restore_screen_title">Copia de seguridad y restauraci&#243;n de conversaciones</string>
-    <string name="search_bar_conversations_hint">Buscar conversaciones</string>
+    <string name="settings_screen_title">Ajustes</string>
+    <string name="app_settings_screen_title">Ajustes de la aplicación</string>
+    <string name="give_feedback_screen_title">Danos tu opinión</string>
+    <string name="report_bug_screen_title">Informar de un fallo</string>
+    <string name="support_screen_title">Asistencia</string>
+    <string name="backup_and_restore_screen_title">Respaldar y restaurar conversaciones</string>
+    <string name="search_bar_conversations_hint">Buscar conversación</string>
     <string name="search_no_results">No se encontraron resultados</string>
     <!--Whats New -->
     <!-- Settings -->
     <string name="settings_backups_group_title">Copias de seguridad</string>
-    <string name="settings_other_group_title">Otras</string>
-    <string name="settings_backup_info">Crea una copia de seguridad para preservar el historial de tus conversaciones. Puedes usarla para restaurar el historial si pierdes tu dispositivo o cambias a uno nuevo.
-
-Elige una contrase&#241;a segura para proteger el archivo de copia de seguridad.</string>
-    <string name="settings_backup_create">Crear una copia de seguridad</string>
-    <string name="settings_backup_restore">Restaurar desde una copia de seguridad</string>
+    <string name="settings_other_group_title">Misceláneo</string>
+    <string name="settings_backup_info">Crea una copia de seguridad para preservar el historial de tus conversaciones. Puedes usarla para restaurar el historial si pierdes tu dispositivo o cambias a uno nuevo.\n\nElige una contraseña segura para proteger el archivo de copia de seguridad.</string>
+    <string name="settings_backup_create">Crear un respaldo</string>
+    <string name="settings_backup_restore">Restablecer un respaldo</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">&#191;Quieres chatear con amigos y familiares?</string>
+    <string name="welcome_footer_text">¿Quieres chatear con amigos y familias?</string>
     <string name="welcome_footer_link">Crea una cuenta privada gratis</string>
     <string name="welcome_button_create_personal_account">Crear una cuenta personal</string>
-    <string name="welcome_screen_carousel_item_message_1">&#161;Bienvenido a Wire, la plataforma de colaboraci&#243;n m&#225;s segura!</string>
-    <string name="welcome_screen_carousel_item_message_2">Absoluta confianza en la seguridad de su informaci&#243;n</string>
-    <string name="welcome_screen_carousel_item_message_3">Conferencias de audio y video cifradas con hasta 50 participantes</string>
+    <string name="welcome_screen_carousel_item_message_1">¡Bienvenido a Wire, la plataforma de colaboración más segura!</string>
+    <string name="welcome_screen_carousel_item_message_2">Absoluta confianza en la seguridad de su información</string>
+    <string name="welcome_screen_carousel_item_message_3">Conferencias de audio y video cifradas con hasta \u00A050\u00A0 participantes</string>
     <string name="welcome_screen_carousel_item_message_4">Compartir archivos de forma segura con equipos y clientes</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire est&#225; auditado de forma independiente y cumple con ISO, CCPA, GDPR y SOX</string>
+    <string name="welcome_screen_carousel_item_message_5">Wire es auditado independientemente y cumple con ISO, CCPA, GDPR y SOX</string>
     <string name="welcome_button_create_team">Crear un equipo</string>
-    <string name="server_details_dialog_body">Nombre del backend:
-%1$s
-
-URL del backend:
-%2$s</string>
-    <string name="server_details_dialog_title">Backend local</string>
-    <string name="welcome_migration_dialog_title">Bienvenido a nuestra nueva aplicaci&#243;n para Android &#128075;</string>
+    <string name="server_details_dialog_body">Nombre del servidor:\n%1$s\n\nURL del servidor:\n%2$s</string>
+    <string name="server_details_dialog_title">Servidor On-premises</string>
+    <string name="welcome_migration_dialog_title">Bienvenido a nuestra nueva aplicación Android 👋</string>
     <string name="welcome_migration_dialog_continue">Comenzar a usar Wire</string>
     <!-- API Versioning Dialogs -->
-    <string name="api_versioning_client_update_required_title">Actualizaci&#243;n requerida</string>
-    <string name="api_versioning_client_update_required_message">Est&#225;s perdiendo nuevas funciones. Actual&#237;zate a la &#250;ltima versi&#243;n de Wire para seguir usando la aplicaci&#243;n con esta cuenta.</string>
-    <string name="api_versioning_server_version_not_supported_title">Versi&#243;n del servidor no compatible</string>
+    <string name="api_versioning_client_update_required_title">Actualización Requerida</string>
+    <string name="api_versioning_client_update_required_message">Te estás perdiendo nuevas funciones. Actualiza a la última versión de Wire para seguir usando la aplicación con esta cuenta.</string>
+    <string name="api_versioning_server_version_not_supported_title">Versión del servidor no soportada</string>
     <string name="api_versioning_server_version_not_supported_message">Su servidor de Wire debe actualizarse. Por favor, informe a su administrador del sistema.</string>
     <!-- Migration -->
     <string name="migration_title">Configurando Wire</string>
@@ -198,19 +220,19 @@ URL del backend:
     <string name="migration_accounts_message">Migrando sus cuentas...</string>
     <string name="migration_messages_message">Migrando sus mensajes...</string>
     <string name="migration_title_step">Paso %1$d/%2$d</string>
-    <string name="migration_title_almost_done">&#161;Casi lista!</string>
+    <string name="migration_title_almost_done">¡Casi hemos terminado!</string>
     <string name="migration_title_updated">Configurando Wire</string>
-    <string name="migration_login_required">Para migrar sus mensajes desde la versi&#243;n anterior de Wire, debe iniciar sesi&#243;n en su cuenta.</string>
+    <string name="migration_login_required">Para migrar tus mensajes desde la versión antigua de Wire, necesitas iniciar sesión en tu cuenta.</string>
     <string name="migration_login_required_specific_account">Para migrar tus mensajes desde la versión anterior de Wire, debes iniciar sesión en tu cuenta %s.</string>
     <string name="migration_login_required_specific_account_name">%1$s (@%2$s)</string>
-    <string name="migration_messages_failure">Lamentablemente, no todos los mensajes y conversaciones pudieron migrarse debido a incompatibilidades con la versi&#243;n anterior de Wire (c&#243;digo de error: %s)</string>
-    <string name="migration_cancel_title">Cancelar migraci&#243;n</string>
+    <string name="migration_messages_failure">Desafortunadamente, no se han podido migrar todos los mensajes y conversaciones debido a la incompatibilidad con la versión anterior de Wire (código de error: %s)</string>
+    <string name="migration_cancel_title">Cancelar migración</string>
     <string name="migration_cancel_message">&#191;Est&#225;s seguro de que quieres cerrar la aplicaci&#243;n y cancelar la migraci&#243;n en curso?</string>
     <!-- Enterprise Login -->
     <!-- Login -->
     <string name="login_title">Iniciar sesi&#243;n</string>
     <string name="login_forgot_password">&#191;Olvidaste tu contrase&#241;a?</string>
-    <string name="login_user_identifier_placeholder">jane@example.com o jane.doe</string>
+    <string name="login_user_identifier_placeholder">jane@correo.com o jane.doe</string>
     <string name="login_user_identifier_label">CORREO ELECTR&#211;NICO O NOMBRE DE USUARIO</string>
     <string name="login_proxy_identifier_label">CORREO ELECTR&#211;NICO O NOMBRE DE USUARIO DE PROXY</string>
     <string name="login_error_invalid_credentials_title">Informaci&#243;n no v&#225;lida</string>
@@ -265,13 +287,11 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_quote_original_message_is_a_picture">Imagen</string>
     <string name="label_quote_original_message_date">Mensaje original de %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Crear una cuenta personal</string>
     <string name="create_personal_account_summary_title">Cuenta personal creada</string>
     <string name="create_personal_account_text">Chatea de manera segura con amigos y familiares utilizando el servidor en la nube p&#250;blica de Wire.</string>
     <string name="create_personal_account_email_text">Ingresa tu correo electr&#243;nico para empezar a utilizar la plataforma de colaboraci&#243;n m&#225;s segura.</string>
     <string name="create_personal_account_details_text">Ingresa tus detalles personales:</string>
     <string name="create_personal_account_summary_text">Has creado tu cuenta personal con &#233;xito. &#161;Empieza a comunicarte de manera segura - donde sea que est&#233;s!</string>
-    <string name="create_team_title">Crear un equipo</string>
     <string name="create_team_summary_title">Equipo creado</string>
     <string name="create_team_content_title">Wire gratis</string>
     <string name="create_team_text">Mensajer&#237;a para peque&#241;as organizaciones o empresas de consultor&#237;a personales.</string>
@@ -752,6 +772,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="cant_switch_account_in_call">No puedes cambiar de cuenta mientras est&#225;s en una llamada</string>
     <string name="custom_backend_dialog_title">&#191;Redirigir a un backend local?</string>
     <string name="custom_backend_dialog_body">Si continúa, su cliente será redirigido al siguiente servidor local:</string>
+    <string name="custom_backend_dialog_body_backend_name"></string>
     <string name="label_fetching_your_messages">Recibiendo nuevos mensajes</string>
     <string name="label_text_copied">Texto copiado al portapapeles</string>
     <string name="label_logs_option_title">Registros</string>
@@ -788,7 +809,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="backup_label_conversation_restored">Conversaciones restauradas</string>
     <string name="backup_label_loading_conversations">Cargando conversaciones</string>
     <string name="backup_dialog_restore_backup_title">Restaurar desde copia de seguridad</string>
-    <string name="backup_dialog_restore_backup_message">El contenido de la copia de seguridad reemplazar&#225; el historial de conversaciones en este dispositivo. Solo puedes restaurar un historial desde una copia de seguridad de la misma plataforma.</string>
     <string name="backup_dialog_choose_backup_file_option">Seleccionar archivo de copia de seguridad</string>
     <string name="backup_label_enter_password">Ingresa una contrase&#241;a</string>
     <string name="backup_dialog_restore_backup_password_message">Esta copia de seguridad est&#225; protegida por contrase&#241;a.</string>

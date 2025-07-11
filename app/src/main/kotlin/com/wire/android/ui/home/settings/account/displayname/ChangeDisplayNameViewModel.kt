@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.model.DisplayNameState
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -62,19 +63,18 @@ class ChangeDisplayNameViewModel @Inject constructor(
         }
     }
 
-    fun saveDisplayName(
-        onFailure: () -> Unit,
-        onSuccess: () -> Unit,
-    ) {
+    fun saveDisplayName() {
         displayNameState = displayNameState.copy(loading = true)
         viewModelScope.launch {
             updateDisplayName(textState.text.toString().trim())
-                .also { displayNameState = displayNameState.copy(loading = false) }
                 .let {
-                    when (it) {
-                        is DisplayNameUpdateResult.Failure -> onFailure()
-                        is DisplayNameUpdateResult.Success -> onSuccess()
-                    }
+                    displayNameState = displayNameState.copy(
+                        loading = false,
+                        completed = when (it) {
+                            is DisplayNameUpdateResult.Failure -> DisplayNameState.Completed.Failure
+                            is DisplayNameUpdateResult.Success -> DisplayNameState.Completed.Success
+                        }
+                    )
                 }
         }
     }

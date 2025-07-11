@@ -1,5 +1,6 @@
 plugins {
     id(libs.plugins.wire.android.test.library.get().pluginId)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {

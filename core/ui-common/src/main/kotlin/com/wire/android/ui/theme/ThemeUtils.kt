@@ -59,3 +59,6 @@ data class ScreenSizeDependent<T>(
             }
         }
 }
+
+val isTablet
+    @Composable get() = LocalConfiguration.current.smallestScreenWidthDp >= 600

@@ -23,7 +23,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.TestUser
-import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
@@ -38,7 +37,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -96,25 +94,9 @@ class HomeViewModelTest {
         }
 
     @Test
-    fun `given migration not completed, when checking requirements, then return HomeRequirement Migration`() = runTest {
-        // given
-        val (arrangement, viewModel) = Arrangement()
-            .withShouldTriggerMigrationForUserReturning(true)
-            .arrange()
-        viewModel.actions.test {
-            // when
-            viewModel.checkRequirements()
-            advanceUntilIdle()
-            // then
-            assertEquals(HomeRequirement.Migration(TestUser.SELF_USER.id), expectMostRecentItem())
-        }
-    }
-
-    @Test
     fun `given client not registered, when checking requirements, then return HomeRequirement RegisterDevice`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withShouldTriggerMigrationForUserReturning(false)
             .withNeedsToRegisterClientReturning(true)
             .arrange()
         viewModel.actions.test {
@@ -129,7 +111,6 @@ class HomeViewModelTest {
     fun `given initial sync not completed, when checking requirements, then return HomeRequirement InitialSync`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withShouldTriggerMigrationForUserReturning(false)
             .withNeedsToRegisterClientReturning(false)
             .withInitialSyncCompletedReturning(flowOf(false))
             .arrange()
@@ -145,7 +126,6 @@ class HomeViewModelTest {
     fun `given handle not set, when checking requirements, then return HomeRequirement CreateAccountUsername`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withShouldTriggerMigrationForUserReturning(false)
             .withNeedsToRegisterClientReturning(false)
             .withInitialSyncCompletedReturning(flowOf(true))
             .withSelfUser(flowOf(TestUser.SELF_USER.copy(handle = null)))
@@ -156,40 +136,6 @@ class HomeViewModelTest {
             // then
             assertEquals(HomeRequirement.CreateAccountUsername, expectMostRecentItem())
         }
-    }
-
-    @Test
-    fun `given migration completed and welcome not yet shown, when checking requirements, then show welcome message`() = runTest {
-        // given
-        val (arrangement, viewModel) = Arrangement()
-            .withShouldTriggerMigrationForUserReturning(false)
-            .withNeedsToRegisterClientReturning(false)
-            .withInitialSyncCompletedReturning(flowOf(true))
-            .withSelfUser(flowOf(TestUser.SELF_USER.copy(handle = "handle")))
-            .withMigrationCompletedReturning(true)
-            .withWelcomeScreenPresentedReturning(false)
-            .arrange()
-        // when
-        viewModel.checkRequirements()
-        // then
-        assertEquals(true, viewModel.homeState.shouldDisplayWelcomeMessage)
-    }
-
-    @Test
-    fun `given migration completed and welcome already shown, when checking requirements, then do not show welcome message`() = runTest {
-        // given
-        val (arrangement, viewModel) = Arrangement()
-            .withShouldTriggerMigrationForUserReturning(false)
-            .withNeedsToRegisterClientReturning(false)
-            .withInitialSyncCompletedReturning(flowOf(true))
-            .withSelfUser(flowOf(TestUser.SELF_USER.copy(handle = "handle")))
-            .withMigrationCompletedReturning(true)
-            .withWelcomeScreenPresentedReturning(true)
-            .arrange()
-        // when
-        viewModel.checkRequirements()
-        // then
-        assertEquals(false, viewModel.homeState.shouldDisplayWelcomeMessage)
     }
 
     internal class Arrangement {
@@ -213,20 +159,15 @@ class HomeViewModelTest {
         lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase
 
         @MockK
-        lateinit var shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
-
-        @MockK
         lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
         private val viewModel by lazy {
             HomeViewModel(
                 savedStateHandle = savedStateHandle,
-                globalDataStore = globalDataStore,
                 dataStore = dataStore,
                 observeSelf = observeSelfUser,
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
-                shouldTriggerMigrationForUser = shouldTriggerMigrationForUser,
                 canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
             )
         }
@@ -251,20 +192,12 @@ class HomeViewModelTest {
             coEvery { observeLegalHoldStatusForSelfUser.invoke() } returns result
         }
 
-        fun withShouldTriggerMigrationForUserReturning(result: Boolean) = apply {
-            coEvery { shouldTriggerMigrationForUser(any()) } returns result
-        }
-
         fun withNeedsToRegisterClientReturning(result: Boolean) = apply {
             coEvery { needsToRegisterClient() } returns result
         }
 
         fun withInitialSyncCompletedReturning(result: Flow<Boolean>) = apply {
             coEvery { dataStore.initialSyncCompleted } returns result
-        }
-
-        fun withMigrationCompletedReturning(result: Boolean) = apply {
-            coEvery { globalDataStore.isMigrationCompleted() } returns result
         }
 
         fun withWelcomeScreenPresentedReturning(result: Boolean) = apply {

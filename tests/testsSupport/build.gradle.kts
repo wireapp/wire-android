@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream
 // Apply your test library plugin
 plugins {
     id(libs.plugins.wire.android.test.library.get().pluginId)
+    alias(libs.plugins.compose.compiler)
 }
 
 // Map to store environment variables (secrets)

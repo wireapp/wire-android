@@ -71,7 +71,8 @@ internal fun ConversationMainSheetContent(
     leaveGroup: (LeaveGroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
     deleteGroupLocally: (GroupDialogState) -> Unit,
-    navigateToNotification: () -> Unit
+    navigateToNotification: () -> Unit,
+    onItemClick: () -> Unit,
 ) {
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
@@ -115,6 +116,7 @@ internal fun ConversationMainSheetContent(
                                 )
                             },
                             onItemClick = {
+                                onItemClick()
                                 changeFavoriteState(
                                     GroupDialogState(
                                         conversationSheetContent.conversationId,
@@ -138,6 +140,7 @@ internal fun ConversationMainSheetContent(
                         },
                         title = stringResource(R.string.label_move_to_folder),
                         onItemClick = {
+                            onItemClick()
                             moveConversationToFolder(
                                 ConversationFoldersNavArgs(
                                     conversationId = conversationSheetContent.conversationId,
@@ -160,6 +163,7 @@ internal fun ConversationMainSheetContent(
                         },
                         title = stringResource(R.string.label_remove_from_folder, conversationSheetContent.folder.name),
                         onItemClick = {
+                            onItemClick()
                             removeFromFolder(
                                 conversationSheetContent.conversationId,
                                 conversationSheetContent.title,
@@ -182,6 +186,7 @@ internal fun ConversationMainSheetContent(
                         else R.string.label_unarchive
                     ),
                     onItemClick = {
+                        onItemClick()
                         with(conversationSheetContent) {
                             updateConversationArchiveStatus(
                                 DialogState(
@@ -206,6 +211,7 @@ internal fun ConversationMainSheetContent(
                     },
                     title = stringResource(R.string.label_clear_content),
                     onItemClick = {
+                        onItemClick()
                         clearConversationContent(
                             DialogState(
                                 conversationId = conversationSheetContent.conversationId,
@@ -231,6 +237,7 @@ internal fun ConversationMainSheetContent(
                         title = stringResource(R.string.label_block),
                         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                         onItemClick = {
+                            onItemClick()
                             blockUserClick(
                                 BlockUserDialogState(
                                     userName = conversationSheetContent.title,
@@ -253,6 +260,7 @@ internal fun ConversationMainSheetContent(
                         itemProvidedColor = MaterialTheme.colorScheme.onBackground,
                         title = stringResource(R.string.label_unblock),
                         onItemClick = {
+                            onItemClick()
                             unblockUserClick(
                                 UnblockUserDialogState(
                                     userName = conversationSheetContent.title,
@@ -275,6 +283,7 @@ internal fun ConversationMainSheetContent(
                         itemProvidedColor = MaterialTheme.colorScheme.error,
                         title = stringResource(R.string.label_leave_conversation),
                         onItemClick = {
+                            onItemClick()
                             leaveGroup(
                                 LeaveGroupDialogState(
                                     conversationSheetContent.conversationId,
@@ -297,6 +306,7 @@ internal fun ConversationMainSheetContent(
                         title = stringResource(R.string.label_delete_conversation_locally),
                         itemProvidedColor = MaterialTheme.colorScheme.error,
                         onItemClick = {
+                            onItemClick()
                             deleteGroupLocally(
                                 GroupDialogState(
                                     conversationSheetContent.conversationId,
@@ -319,6 +329,7 @@ internal fun ConversationMainSheetContent(
                         title = stringResource(R.string.label_delete_conversation),
                         itemProvidedColor = MaterialTheme.colorScheme.error,
                         onItemClick = {
+                            onItemClick()
                             deleteGroup(
                                 GroupDialogState(
                                     conversationSheetContent.conversationId,

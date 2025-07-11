@@ -25,16 +25,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.WireRootNavGraph
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthNoNavigationAnimation
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 
-@RootNavGraph(start = true)
+@WireRootNavGraph(start = true)
 @WireDestination
 @Composable
 fun WelcomeChooserScreen(
@@ -48,7 +48,6 @@ fun WelcomeChooserScreen(
 }
 
 // this is completely empty initial screen that allows to show just BackgroundType.Auth until any potential deep link is handled
-@RootNavGraph
 @WireDestination(
     style = AuthNoNavigationAnimation::class,
 )

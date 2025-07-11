@@ -22,8 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.sharing.ImportedMediaAsset
@@ -36,10 +36,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ImagesPreviewViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val dispatchers: DispatcherProvider
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     private val navArgs: ImagesPreviewNavArgs = savedStateHandle.navArgs()
     var viewState by mutableStateOf(

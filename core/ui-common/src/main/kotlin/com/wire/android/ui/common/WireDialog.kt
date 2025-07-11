@@ -55,15 +55,17 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.theme.isTablet
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Stable
+@Composable
 fun wireDialogPropertiesBuilder(
     dismissOnBackPress: Boolean = true,
     dismissOnClickOutside: Boolean = true,
-    usePlatformDefaultWidth: Boolean = false
+    usePlatformDefaultWidth: Boolean = isTablet
 ): DialogProperties = DialogProperties(
     dismissOnBackPress = dismissOnBackPress,
     dismissOnClickOutside = dismissOnClickOutside,
@@ -83,7 +85,7 @@ fun WireDialog(
     buttonsHorizontalAlignment: Boolean = true,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
-    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    properties: DialogProperties = wireDialogPropertiesBuilder(),
     centerContent: Boolean = false,
     titleLoading: Boolean = false,
     dialogDescription: String = stringResource(R.string.content_description_alert),
@@ -131,7 +133,7 @@ fun WireDialog(
     buttonsHorizontalAlignment: Boolean = true,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
-    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    properties: DialogProperties = wireDialogPropertiesBuilder(),
     centerContent: Boolean = false,
     titleLoading: Boolean = false,
     dialogDescription: String = stringResource(R.string.content_description_alert),

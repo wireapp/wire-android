@@ -120,7 +120,8 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     suspend fun checkIfUserAbleToMigrateToTeamAccount() {
-        userProfileState = userProfileState.copy(isAbleToMigrateToTeamAccount = canMigrateFromPersonalToTeam())
+        val canMigrate = canMigrateFromPersonalToTeam()
+        userProfileState = userProfileState.copy(isAbleToMigrateToTeamAccount = canMigrate)
     }
 
     private suspend fun fetchIsReadOnlyAccount() {
@@ -171,13 +172,15 @@ class SelfUserProfileViewModel @Inject constructor(
                         // Load user avatar raw image data
                         completePicture?.let { updateUserAvatar(it) }
 
+                        val teamUrl = getTeamUrl().takeIf { userType == UserType.OWNER || userType == UserType.ADMIN }
+
                         // Update user data state
                         userProfileState = userProfileState.copy(
                             status = availabilityStatus,
                             fullName = name.orEmpty(),
                             userName = handle.orEmpty(),
                             teamName = selfTeam?.name,
-                            teamUrl = getTeamUrl().takeIf { userType == UserType.OWNER || userType == UserType.ADMIN },
+                            teamUrl = teamUrl,
                             otherAccounts = otherAccounts,
                             avatarAsset = userProfileState.avatarAsset,
                             isAvatarLoading = false,

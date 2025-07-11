@@ -49,7 +49,7 @@ fun UserNotFoundDialog(
 fun UserNotFoundDialogContent(
     @StringRes buttonText: Int,
     onConfirm: () -> Unit,
-    dialogProperties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    dialogProperties: DialogProperties = wireDialogPropertiesBuilder(),
     onDismiss: () -> Unit
 ) {
     WireDialog(

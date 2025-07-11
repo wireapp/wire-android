@@ -34,11 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -140,7 +140,6 @@ fun E2EISnoozeDialog(
             text = stringResource(id = R.string.label_ok),
             type = WireDialogButtonType.Primary,
         ),
-        properties = DialogProperties(usePlatformDefaultWidth = false)
     )
 }
 
@@ -166,7 +165,6 @@ fun E2EISuccessDialog(
         ),
         buttonsHorizontalAlignment = false,
         centerContent = true,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
         content = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -250,7 +248,6 @@ private fun E2EIErrorWithDismissDialog(
             type = WireDialogButtonType.Secondary,
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
     )
 }
 
@@ -276,7 +273,6 @@ private fun E2EIErrorWithSnoozeDialog(
             type = WireDialogButtonType.Secondary,
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
     )
 }
 
@@ -295,10 +291,9 @@ private fun E2EIErrorNoSnoozeDialog(
             type = WireDialogButtonType.Primary,
             loading = isE2EILoading
         ),
-        properties = DialogProperties(
+        properties = wireDialogPropertiesBuilder(
             usePlatformDefaultWidth = false,
             dismissOnBackPress = false,
-            dismissOnClickOutside = false
         )
     )
 }
@@ -325,7 +320,6 @@ private fun E2EIRequiredWithSnoozeDialog(
             type = WireDialogButtonType.Secondary,
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
     )
 }
 
@@ -342,10 +336,9 @@ private fun E2EIRequiredNoSnoozeDialog(isLoading: Boolean, getCertificate: () ->
             loading = isLoading
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(
+        properties = wireDialogPropertiesBuilder(
             usePlatformDefaultWidth = false,
             dismissOnBackPress = false,
-            dismissOnClickOutside = false
         )
     )
 }
@@ -372,7 +365,6 @@ private fun E2EIRenewWithSnoozeDialog(
             type = WireDialogButtonType.Secondary,
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
     )
 }
 
@@ -389,10 +381,9 @@ private fun E2EIRenewNoSnoozeDialog(isLoading: Boolean, updateCertificate: () ->
             loading = isLoading
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(
+        properties = wireDialogPropertiesBuilder(
             usePlatformDefaultWidth = false,
             dismissOnBackPress = false,
-            dismissOnClickOutside = false
         )
     )
 }
@@ -417,10 +408,9 @@ fun E2EICertificateRevokedDialog(
             type = WireDialogButtonType.Secondary,
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(
+        properties = wireDialogPropertiesBuilder(
             usePlatformDefaultWidth = false,
             dismissOnBackPress = false,
-            dismissOnClickOutside = false
         )
     )
 }

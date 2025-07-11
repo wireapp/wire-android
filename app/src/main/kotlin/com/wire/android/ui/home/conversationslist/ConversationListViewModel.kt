@@ -103,7 +103,6 @@ import java.util.Date
 @Suppress("TooManyFunctions")
 interface ConversationListViewModel {
     val infoMessage: SharedFlow<SnackBarMessage> get() = MutableSharedFlow()
-    val closeBottomSheet: SharedFlow<Unit> get() = MutableSharedFlow()
     val requestInProgress: Boolean get() = false
     val conversationListState: ConversationListState get() = ConversationListState.Paginated(emptyFlow())
     suspend fun refreshMissingMetadata() {}
@@ -173,8 +172,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private var _requestInProgress: Boolean by mutableStateOf(false)
     override val requestInProgress: Boolean get() = _requestInProgress
-
-    override val closeBottomSheet = MutableSharedFlow<Unit>()
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
     private val isSelfUserUnderLegalHoldFlow = MutableSharedFlow<Boolean>(replay = 1)
@@ -361,7 +358,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
             when (val result = unblockUserUseCase(userId)) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
-                    closeBottomSheet.emit(Unit)
                 }
 
                 is UnblockUserResult.Failure -> {
@@ -412,7 +408,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     override fun deleteGroupLocally(groupDialogState: GroupDialogState) {
         viewModelScope.launch {
-            closeBottomSheet.emit(Unit)
             workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
                 .collect { status ->
                     when (status) {

@@ -42,11 +42,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -79,7 +78,6 @@ import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.launch
 
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = ConversationMediaNavArgs::class,
     style = PopUpNavigationAnimation::class
@@ -126,7 +124,7 @@ fun ConversationMediaScreen(
     )
 
     DeleteMessageDialog(
-        state = conversationMessagesViewModel.deleteMessageDialogsState,
+        state = conversationMessagesViewModel.deleteMessageDialogState,
         actions = conversationMessagesViewModel.deleteMessageHelper,
     )
 

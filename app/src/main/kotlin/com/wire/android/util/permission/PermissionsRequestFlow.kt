@@ -46,18 +46,20 @@ fun rememberCheckPermissionsRequestFlow(
 
     val permissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { areGranted ->
-            if (areGranted.all { it.value }) {
-                onAllPermissionsGranted()
-            } else {
-                context.getActivity()?.let { activity ->
-                    val shouldShowRequestPermissionRationaleForAnyPermission = permissions
-                        .map { permission -> shouldShowRequestPermissionRationale(activity, permission) }
-                        .any { it }
+            if (areGranted.isNotEmpty()) {
+                if (areGranted.all { it.value }) {
+                    onAllPermissionsGranted()
+                } else {
+                    context.getActivity()?.let { activity ->
+                        val shouldShowRequestPermissionRationaleForAnyPermission = permissions
+                            .map { permission -> shouldShowRequestPermissionRationale(activity, permission) }
+                            .any { it }
 
-                    if (shouldShowRequestPermissionRationaleForAnyPermission) {
-                        onAnyPermissionDenied()
-                    } else {
-                        onAnyPermissionPermanentlyDenied()
+                        if (shouldShowRequestPermissionRationaleForAnyPermission) {
+                            onAnyPermissionDenied()
+                        } else {
+                            onAnyPermissionPermanentlyDenied()
+                        }
                     }
                 }
             }

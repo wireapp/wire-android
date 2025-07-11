@@ -19,25 +19,61 @@ package com.wire.android.feature.cells.ui.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 
 @Composable
 fun DeleteConfirmationDialog(
+    itemName: String,
+    isFolder: Boolean,
+    isPermanentDelete: Boolean,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val description = stringResource(
+        id = when {
+            isFolder && isPermanentDelete -> R.string.confirm_permanent_delete_folder_text
+            isFolder && !isPermanentDelete -> R.string.confirm_delete_folder_text
+            !isFolder && isPermanentDelete -> R.string.confirm_permanent_delete_file_text
+            else -> R.string.confirm_delete_file_text
+        },
+        itemName
+    )
     WireDialog(
-        title = stringResource(id = R.string.confirm_delete_title),
-        text = stringResource(id = R.string.confirm_delete_text),
+        title = stringResource(
+            id = if (isFolder) {
+                R.string.confirm_delete_folder_title
+            } else {
+                R.string.confirm_delete_file_title
+            }
+        ),
+        text = buildAnnotatedString {
+            // We look for the position of %1$s and make that part bold
+            val startIndex = description.indexOf(itemName)
+            val endIndex = startIndex + itemName.length
+
+            // Append the part before the folder name
+            append(description.substring(0, startIndex))
+
+            // Make the folder name bold
+            pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+            append(itemName)
+            pop()
+
+            // Append the part after the folder name (if any)
+            append(description.substring(endIndex))
+        },
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onConfirm,
-            text = stringResource(id = R.string.delete_file),
+            text = stringResource(id = R.string.delete_label),
             type = WireDialogButtonType.Primary,
             state = WireButtonState.Error
         ),
@@ -45,6 +81,7 @@ fun DeleteConfirmationDialog(
             text = stringResource(id = R.string.cancel),
             onClick = onDismiss
         ),
-        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true, dismissOnClickOutside = true)
+        buttonsHorizontalAlignment = false,
+        properties = wireDialogPropertiesBuilder(dismissOnBackPress = true, dismissOnClickOutside = true)
     )
 }

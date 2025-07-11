@@ -50,7 +50,8 @@ fun ConversationSheetContent(
     leaveGroup: (LeaveGroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
     deleteGroupLocally: (GroupDialogState) -> Unit,
-    isBottomSheetVisible: () -> Boolean = { true }
+    isBottomSheetVisible: () -> Boolean = { true },
+    onItemClick: () -> Unit = {},
 ) {
     // it may be null as initial state
     if (conversationSheetState.conversationSheetContent == null) return
@@ -69,7 +70,8 @@ fun ConversationSheetContent(
                 leaveGroup = leaveGroup,
                 deleteGroup = deleteGroup,
                 deleteGroupLocally = deleteGroupLocally,
-                navigateToNotification = conversationSheetState::toMutingNotificationOption
+                navigateToNotification = conversationSheetState::toMutingNotificationOption,
+                onItemClick = onItemClick,
             )
         }
 

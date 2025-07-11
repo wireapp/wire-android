@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,10 +40,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireButtonState
@@ -59,9 +60,9 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.folderWithElements
 
-@RootNavGraph
 @WireDestination(
-    navArgsDelegate = EditSelfDeletingMessagesNavArgs::class
+    navArgsDelegate = EditSelfDeletingMessagesNavArgs::class,
+    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun EditSelfDeletingMessagesScreen(
@@ -83,6 +84,9 @@ fun EditSelfDeletingMessagesScreen(
         }
     ) { internalPadding ->
         with(editSelfDeletingMessagesViewModel) {
+            LaunchedEffect(state.isCompleted) {
+                if (state.isCompleted) navigator.navigateBack()
+            }
             Column(modifier = Modifier.padding(internalPadding)) {
                 SelfDeletingMessageOption(
                     switchState = state.isEnabled,
@@ -128,7 +132,7 @@ fun EditSelfDeletingMessagesScreen(
                 WireButton(
                     loading = state.isLoading,
                     state = if (state.didDurationChange()) WireButtonState.Default else WireButtonState.Disabled,
-                    onClick = { applyNewDuration(navigator::navigateBack) },
+                    onClick = ::applyNewDuration,
                     text = stringResource(id = R.string.label_apply),
                     modifier = Modifier.padding(all = MaterialTheme.wireDimensions.spacing16x)
                 )

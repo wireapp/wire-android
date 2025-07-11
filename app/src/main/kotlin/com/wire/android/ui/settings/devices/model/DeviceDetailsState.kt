@@ -39,4 +39,5 @@ data class DeviceDetailsState(
     val isE2EIEnabled: Boolean = false,
     val startGettingE2EICertificate: Boolean = false,
     val mlsCipherSuiteSignature: String? = null,
+    val deviceRemoved: Boolean = false,
 )

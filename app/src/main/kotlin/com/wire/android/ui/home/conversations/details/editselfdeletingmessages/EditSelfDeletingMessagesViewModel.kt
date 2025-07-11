@@ -118,7 +118,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
         state = state.copy(locallySelected = duration)
     }
 
-    fun applyNewDuration(onCompleted: () -> Unit) {
+    fun applyNewDuration() {
         viewModelScope.launch {
             val currentSelectedDuration = state.locallySelected
             state = when (updateMessageTimer(conversationId, currentSelectedDuration?.value?.inWholeMilliseconds)) {
@@ -141,7 +141,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
                     )
                 }
             }
-            onCompleted()
+            state = state.copy(isCompleted = true)
         }
     }
 }

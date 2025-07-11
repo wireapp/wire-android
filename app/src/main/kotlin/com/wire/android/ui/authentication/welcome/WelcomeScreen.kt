@@ -66,13 +66,15 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
+import com.wire.android.config.orDefault
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -86,6 +88,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.CreateAccountDataDetailScreenDestination
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
@@ -102,7 +105,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
-@RootNavGraph
 @WireDestination(
     style = PopUpNavigationAnimation::class,
     navArgsDelegate = WelcomeNavArgs::class
@@ -130,6 +132,7 @@ private fun WelcomeContent(
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
 ) {
+    val teamCreationUrl = state.teams + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
     val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val context = LocalContext.current
@@ -204,7 +207,11 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(state)))
+                            if (ENABLE_NEW_REGISTRATION) {
+                                CustomTabsHelper.launchUrl(context, teamCreationUrl)
+                            } else {
+                                navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(state)))
+                            }
                         }
                     }
                 }
@@ -221,7 +228,19 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
+                            if (ENABLE_NEW_REGISTRATION) {
+                                navigate(
+                                    NavigationCommand(
+                                        CreateAccountDataDetailScreenDestination(
+                                            CreateAccountDataNavArgs(
+                                                customServerConfig = state.orDefault()
+                                            )
+                                        )
+                                    )
+                                )
+                            } else {
+                                navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
+                            }
                         }
                     }
                 )

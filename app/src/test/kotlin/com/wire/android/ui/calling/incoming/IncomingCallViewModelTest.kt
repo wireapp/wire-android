@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.calling.incoming
 
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
@@ -126,9 +127,12 @@ class IncomingCallViewModelTest {
             .withAppLocked()
             .arrange()
 
-        viewModel.declineCall({}, {})
+        viewModel.actions.test {
+            viewModel.declineCall()
 
-        coVerify(inverse = true) { arrangement.rejectCall(conversationId = any()) }
+            coVerify(inverse = true) { arrangement.rejectCall(conversationId = any()) }
+            assertEquals(IncomingCallViewActions.AppLocked, awaitItem())
+        }
     }
 
     @Test
@@ -137,10 +141,13 @@ class IncomingCallViewModelTest {
             .withAppNotLocked()
             .arrange()
 
-        viewModel.declineCall({}, {})
+        viewModel.actions.test {
+            viewModel.declineCall()
 
-        coVerify(exactly = 1) { arrangement.rejectCall(conversationId = any()) }
-        assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.CallClosed }
+            coVerify(exactly = 1) { arrangement.rejectCall(conversationId = any()) }
+            assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.CallClosed }
+            assertEquals(IncomingCallViewActions.RejectedCall(dummyConversationId), awaitItem())
+        }
     }
 
     @Test
@@ -149,9 +156,12 @@ class IncomingCallViewModelTest {
             .withAppLocked()
             .arrange()
 
-        viewModel.acceptCall({})
+        viewModel.actions.test {
+            viewModel.acceptCall()
 
-        coVerify(inverse = true) { arrangement.acceptCall(conversationId = any()) }
+            coVerify(inverse = true) { arrangement.acceptCall(conversationId = any()) }
+            assertEquals(IncomingCallViewActions.AppLocked, awaitItem())
+        }
     }
 
     @Test
@@ -160,7 +170,7 @@ class IncomingCallViewModelTest {
             .withAppNotLocked()
             .arrange()
 
-        viewModel.acceptCall({})
+        viewModel.acceptCall()
         advanceUntilIdle()
 
         coVerify(exactly = 1) { arrangement.acceptCall(conversationId = any()) }
@@ -176,7 +186,7 @@ class IncomingCallViewModelTest {
             .withEstablishedCalls(flowOf(listOf(provideCall(ConversationId("value", "Domain")))))
             .arrange()
 
-        viewModel.acceptCall({})
+        viewModel.acceptCall()
 
         assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.Default }
         assertEquals(true, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
@@ -194,7 +204,7 @@ class IncomingCallViewModelTest {
                 .withEndCall { establishedCallsChannel.send(listOf()) }
                 .arrange()
 
-            viewModel.acceptCallAnyway({})
+            viewModel.acceptCallAnyway()
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.endCall(any()) }
@@ -209,7 +219,7 @@ class IncomingCallViewModelTest {
             .withEstablishedCalls(flowOf(listOf(provideCall())))
             .arrange()
 
-        viewModel.acceptCall({})
+        viewModel.acceptCall()
 
         viewModel.dismissJoinCallAnywayDialog()
 
@@ -222,7 +232,7 @@ class IncomingCallViewModelTest {
             .withLockStateLockedAndThenUnlocked()
             .arrange()
 
-        viewModel.acceptCall({})
+        viewModel.acceptCall()
 
         coVerify { arrangement.acceptCall(conversationId = any()) }
     }
@@ -233,7 +243,7 @@ class IncomingCallViewModelTest {
             .withLockStateLockedAndThenUnlocked()
             .arrange()
 
-        viewModel.acceptCallAnyway({})
+        viewModel.acceptCallAnyway()
 
         coVerify { arrangement.acceptCall(conversationId = any()) }
     }
@@ -244,7 +254,7 @@ class IncomingCallViewModelTest {
             .withLockStateLockedAndThenUnlocked()
             .arrange()
 
-        viewModel.declineCall({}, {})
+        viewModel.declineCall()
 
         coVerify { arrangement.rejectCall(conversationId = any()) }
     }

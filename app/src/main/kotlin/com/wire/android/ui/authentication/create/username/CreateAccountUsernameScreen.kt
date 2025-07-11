@@ -32,26 +32,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.handle.UsernameTextField
+import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.newauthentication.login.NewAuthContainer
+import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@RootNavGraph
-@WireDestination
+@WireDestination(
+    style = AuthPopUpNavigationAnimation::class
+)
 @Composable
 fun CreateAccountUsernameScreen(
     navigator: Navigator,
@@ -65,7 +68,14 @@ fun CreateAccountUsernameScreen(
     )
 
     LaunchedEffect(viewModel.state.success) {
-        if (viewModel.state.success) navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
+        if (viewModel.state.success) {
+            navigator.navigate(
+                NavigationCommand(
+                    InitialSyncScreenDestination,
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
+        }
     }
 }
 
@@ -76,54 +86,63 @@ private fun UsernameContent(
     onContinuePressed: () -> Unit,
     onErrorDismiss: () -> Unit,
 ) {
-    WireScaffold(
-        topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = dimensions().spacing0x,
-                title = stringResource(id = R.string.create_account_username_title),
-                navigationIconType = null
+    NewAuthContainer(
+        header = {
+            NewAuthHeader(
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.create_account_set_username_title),
+                        style = MaterialTheme.wireTypography.title01,
+                    )
+                },
+                canNavigateBack = false
             )
         },
-    ) { internalPadding ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
-            modifier = Modifier.padding(internalPadding)
-        ) {
-            Text(
-                text = stringResource(id = R.string.create_account_username_text),
-                style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = MaterialTheme.wireDimensions.spacing16x,
-                        vertical = MaterialTheme.wireDimensions.spacing24x
-                    )
-            )
+        contentPadding = dimensions().spacing16x,
+        content = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top,
+            ) {
+                Text(
+                    text = stringResource(id = R.string.create_account_username_text),
+                    style = MaterialTheme.wireTypography.body01,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = MaterialTheme.wireDimensions.spacing16x,
+                            vertical = MaterialTheme.wireDimensions.spacing24x
+                        )
+                )
 
-            UsernameTextField(
-                username = textState,
-                errorState = state.error,
-                onErrorDismiss = onErrorDismiss,
-            )
+                UsernameTextField(
+                    username = textState,
+                    errorState = state.error,
+                    onErrorDismiss = onErrorDismiss,
+                )
 
-            Spacer(modifier = Modifier.weight(1f))
-            WirePrimaryButton(
-                text = stringResource(R.string.label_confirm),
-                onClick = onContinuePressed,
-                fillMaxWidth = true,
-                loading = state.loading,
-                state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(MaterialTheme.wireDimensions.spacing16x)
-            )
+                Spacer(modifier = Modifier.weight(1f))
+                WirePrimaryButton(
+                    text = stringResource(R.string.label_confirm),
+                    onClick = onContinuePressed,
+                    fillMaxWidth = true,
+                    loading = state.loading,
+                    state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(MaterialTheme.wireDimensions.spacing16x)
+                )
+            }
         }
-    }
+    )
 }
 
 @Composable
 @PreviewMultipleThemes
 private fun PreviewCreateAccountUsernameScreen() = WireTheme {
-    UsernameContent(TextFieldState(), CreateAccountUsernameViewState(), {}, {})
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout {
+            UsernameContent(TextFieldState(), CreateAccountUsernameViewState(), {}, {})
+        }
+    }
 }

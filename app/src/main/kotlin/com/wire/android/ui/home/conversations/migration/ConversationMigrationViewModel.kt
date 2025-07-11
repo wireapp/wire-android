@@ -21,8 +21,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -38,9 +38,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConversationMigrationViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     /**
      * Represents the target conversation, after a conversation migration.

@@ -214,7 +214,7 @@ fun PreviewImportedMediaAssetMessageContent() {
             onAssetClick = Clickable(enabled = false),
             assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
             assetDataPath = null,
-            )
+        )
     }
 }
 
@@ -228,8 +228,8 @@ fun PreviewLoadingAssetMessage() {
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
             assetTransferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
-                    assetDataPath = null,
-            )
+            assetDataPath = null,
+        )
     }
 }
 
@@ -244,7 +244,7 @@ fun PreviewFailedDownloadAssetMessage() {
             onAssetClick = Clickable(enabled = false),
             assetTransferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
             assetDataPath = null,
-            )
+        )
     }
 }
 

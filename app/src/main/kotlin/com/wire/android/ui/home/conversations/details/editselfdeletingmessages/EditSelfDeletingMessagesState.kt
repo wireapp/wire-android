@@ -25,6 +25,7 @@ data class EditSelfDeletingMessagesState(
     val isLoading: Boolean = true,
     val locallySelected: SelfDeletionDuration? = null,
     val remotelySelected: SelfDeletionDuration? = null,
+    val isCompleted: Boolean = false,
 ) {
     fun didDurationChange() = locallySelected != remotelySelected
 }

@@ -22,6 +22,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -34,17 +37,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
+import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
-import com.wire.android.feature.cells.ui.dialog.CellsNewActionsBottomSheet
+import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
+import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
+import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
+import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -60,8 +69,8 @@ import kotlinx.coroutines.flow.StateFlow
  * Show files in one conversation.
  * Conversation id is passed to view model via navigation parameters [CellFilesNavArgs].
  */
-@Destination(
-    style = SlideNavigationAnimation::class,
+@WireDestination(
+    style = PopUpNavigationAnimation::class,
     navArgsDelegate = CellFilesNavArgs::class,
 )
 @Composable
@@ -73,10 +82,12 @@ fun ConversationFilesScreen(
     ConversationFilesScreenContent(
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
+        isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
+        breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = { viewModel.sendIntent(it) },
     )
 }
@@ -92,34 +103,73 @@ fun ConversationFilesScreenContent(
     sendIntent: (CellViewIntent) -> Unit,
     modifier: Modifier = Modifier,
     screenTitle: String? = null,
+    isRecycleBin: Boolean? = false,
+    breadcrumbs: Array<String>? = emptyArray(),
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
-    val sheetState = rememberWireModalSheetState<Unit>()
+    val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
+    val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
 
     val isFabVisible = when {
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
+        isRecycleBin == true -> false
         else -> true
     }
 
-    CellsNewActionsBottomSheet(
-        sheetState = sheetState,
+    CellsNewActionBottomSheet(
+        sheetState = newActionBottomSheetState,
         onDismiss = {
-            sheetState.hide()
+            newActionBottomSheetState.hide()
         },
         onCreateFolder = {
             navigator.navigate(NavigationCommand(CreateFolderScreenDestination(currentNodeUuid)))
         }
     )
+
+    CellsOptionsBottomSheet(
+        sheetState = optionsBottomSheetState,
+        onDismiss = {
+            optionsBottomSheetState.hide()
+        },
+        showRecycleBin = {
+            navigator.navigate(
+                NavigationCommand(
+                    RecycleBinScreenDestination(
+                        conversationId = currentNodeUuid?.substringBefore("/"),
+                        isRecycleBin = true
+                    )
+                )
+            )
+            optionsBottomSheetState.hide()
+        }
+    )
+
     WireScaffold(
         modifier = modifier,
         topBar = {
-            WireCenterAlignedTopAppBar(
-                onNavigationPressed = { navigator.navigateBack() },
-                title = screenTitle ?: stringResource(R.string.conversation_files_title),
-                navigationIconType = navigationIconType,
-                elevation = dimensions().spacing0x
-            )
+            Column {
+                WireCenterAlignedTopAppBar(
+                    onNavigationPressed = { navigator.navigateBack() },
+                    title = screenTitle ?: stringResource(R.string.conversation_files_title),
+                    navigationIconType = navigationIconType,
+                    elevation = dimensions().spacing0x,
+                    actions = {
+                        MoreOptionIcon(
+                            contentDescription = R.string.content_description_conversation_files_more_button,
+                            onButtonClicked = { optionsBottomSheetState.show() }
+                        )
+                    }
+                )
+                breadcrumbs?.let {
+                    Breadcrumbs(
+                        modifier = Modifier
+                            .height(dimensions().spacing40x)
+                            .fillMaxWidth(),
+                        pathSegments = it
+                    )
+                }
+            }
         },
         floatingActionButton = {
             if (isFabVisible) {
@@ -144,7 +194,7 @@ fun ConversationFilesScreenContent(
                                     .size(dimensions().fabIconSize)
                             )
                         },
-                        onClick = { sheetState.show() }
+                        onClick = { newActionBottomSheetState.show() }
                     )
                 }
             }
@@ -164,8 +214,9 @@ fun ConversationFilesScreenContent(
                     navigator.navigate(
                         NavigationCommand(
                             ConversationFilesWithSlideInTransitionScreenDestination(
-                                folderPath,
-                                it.name
+                                conversationId = folderPath,
+                                screenTitle = it.name,
+                                breadcrumbs = it.name?.let { name -> (breadcrumbs ?: emptyArray()) + name }
                             ),
                             BackStackMode.NONE,
                             launchSingleTop = false
@@ -184,6 +235,29 @@ fun ConversationFilesScreenContent(
                         )
                     )
                 },
+                showMoveToFolderScreen = { currentPath, nodePath, uuid ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            MoveToFolderScreenDestination(
+                                currentPath = currentPath,
+                                nodeToMovePath = nodePath,
+                                uuid = uuid
+                            )
+                        )
+                    )
+                },
+                showRenameScreen = { cellNodeUi ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            RenameNodeScreenDestination(
+                                uuid = cellNodeUi.uuid,
+                                currentPath = cellNodeUi.remotePath,
+                                isFolder = cellNodeUi is CellNodeUi.Folder,
+                                nodeName = cellNodeUi.name,
+                            )
+                        )
+                    )
+                }
             )
         }
     }

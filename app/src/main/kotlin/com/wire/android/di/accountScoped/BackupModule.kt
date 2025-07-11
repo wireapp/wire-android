@@ -17,8 +17,10 @@
  */
 package com.wire.android.di.accountScoped
 
+import com.wire.android.BuildConfig
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.home.settings.backup.MPBackupSettings
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.backup.BackupScope
@@ -52,6 +54,13 @@ class BackupModule {
     @Provides
     fun provideRestoreBackupUseCase(backupScope: BackupScope) =
         backupScope.restore
+
+    @Provides
+    fun provideMpBackupSettings() = if (BuildConfig.ENABLE_CROSSPLATFORM_BACKUP) {
+        MPBackupSettings.Enabled
+    } else {
+        MPBackupSettings.Disabled
+    }
 
     @OptIn(DelicateKaliumApi::class)
     @ViewModelScoped

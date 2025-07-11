@@ -5,13 +5,13 @@ gradle = "8.8"
 
 # Kotlin
 grgitCore = "5.2.2"
-kotlin = "1.9.23"
+kotlin = "2.1.0"
 
 # KotlinX
 coroutines = "1.9.0"
 ktx-dateTime = "0.5.0"
 ktx-immutableCollections = "0.3.8"
-ktx-serialization = "1.6.3"
+ktx-serialization = "1.8.1"
 koin = "3.5.3"
 datafaker = "2.4.2"
 
@@ -19,7 +19,7 @@ datafaker = "2.4.2"
 detekt = "1.23.6"
 google-gms = "4.4.2"
 gms-location = "21.3.0"
-android-gradlePlugin = "8.5.2"
+android-gradlePlugin = "8.6.0"
 desugaring = "2.1.3"
 firebaseBOM = "33.6.0"
 fragment = "1.5.6"
@@ -46,7 +46,7 @@ androidx-biometric = "1.1.0"
 androidx-startup = "1.2.0"
 androidx-compose-runtime = "1.7.2"
 compose-qr = "1.0.1"
-amplituda = "2.3.0"
+amplituda = "2.2.2"
 
 # Compose
 composeBom = "2024.12.01"
@@ -54,21 +54,21 @@ compose-activity = "1.9.3"
 compose-compiler = "1.5.13"
 compose-constraint = "1.1.0"
 compose-navigation = "2.7.7" # adjusted to work with compose-destinations "1.9.54"
-compose-destinations = "1.10.2"
+compose-destinations = "1.11.9"
 screenshot = "0.0.1-alpha08"
 
 # Compose Preview
 compose-edgetoedge-preview = "0.3.0" # update after changing target sdk to 35 and androidx-core to 1.15.0
 
 # Hilt
-hilt = "2.51.1"
+hilt = "2.53"
 hilt-composeNavigation = "1.2.0"
 hilt-work = "1.2.0"
 
 # Android UI
 accompanist = "0.32.0" # adjusted to work with compose-destinations "1.9.54"
 material = "1.12.0"
-material3 = "1.3.1"
+material3 = "1.3.2"
 coil = "2.7.0"
 commonmark = "0.24.0"
 
@@ -90,7 +90,7 @@ openIdAppAuth = "0.11.1"
 # Other Tools
 aboutLibraries = "11.1.4"
 leakCanary = "2.14"
-ksp = "1.9.23-1.0.20"
+ksp = "2.1.0-1.0.28"
 
 # Benchmark
 benchmark-macro-junit4 = "1.3.3"
@@ -123,11 +123,13 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 # Home-made convention plugins defined in build-logic
 wire-android-application = { id = "com.wire.android.application" }
 wire-android-library = { id = "com.wire.android.library" }
 wire-android-test-library = { id = "com.wire.android.test.library" }
+wire-android-navigation = { id = "com.wire.android.navigation" }
 wire-hilt = { id = "com.wire.android.hilt" }
 wire-kover = { id = "com.wire.android.kover" }
 wire-versionizer = { id = "com.wire.android.versionizer" }
@@ -151,6 +153,7 @@ ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref 
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
 
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+ksp-symbol-processing-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
 
 # android dependencies
 

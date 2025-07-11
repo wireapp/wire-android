@@ -45,13 +45,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.feature.sketch.model.DrawingState
+import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.navigation.WaitUntilTransitionEndsWrapper
+import com.wire.android.navigation.annotation.features.sketch.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
@@ -68,11 +68,9 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 import kotlinx.coroutines.launch
 
-@Destination(
-    wrappers = [WaitUntilTransitionEndsWrapper::class],
+@WireDestination(
     style = PopUpNavigationAnimation::class,
     navArgsDelegate = DrawingCanvasNavArgs::class,
 )

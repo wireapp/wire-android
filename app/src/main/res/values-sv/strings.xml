@@ -119,7 +119,6 @@
     <string name="content_description_calling_turn_camera_off">Stäng utav kameran</string>
     <string name="content_description_calling_turn_speaker_on">Sätt igång högtalaren</string>
     <string name="content_description_calling_turn_speaker_off">Stäng av högtalaren</string>
-    <string name="content_description_show_more_options">Visa fler alternativ</string>
     <string name="content_description_reply_to_messge">Svara på meddelandet</string>
     <string name="content_description_edit">Redigera</string>
     <string name="content_description_record_audio_button_send">Skicka ljudmeddelande</string>
@@ -226,7 +225,6 @@
     <string name="label_delete_for_everyone">Radera för alla</string>
     <!-- Replies/Quotes to other messages -->
     <!-- Create Account -->
-    <string name="create_personal_account_title">Skapa ett personligt konto</string>
     <string name="create_account_email_label">E-POSTADRESS</string>
     <string name="create_account_email_footer_text">Har du redan ett konto? </string>
     <string name="create_account_email_terms_dialog_title">Användarvillkor</string>

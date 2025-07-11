@@ -31,7 +31,6 @@ import com.wire.android.framework.TestUser
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -49,7 +48,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -57,6 +55,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -147,13 +146,18 @@ class ConnectionActionButtonViewModelTest {
                 .withIgnoreConnectionRequest(IgnoreConnectionRequestUseCaseResult.Success)
                 .arrange()
 
-            // when
-            viewModel.onIgnoreConnectionRequest(arrangement.onIgnoreSuccess)
+            viewModel.actions.test {
 
-            // then
-            coVerify(exactly = 1) { arrangement.ignoreConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            verify { arrangement.onIgnoreSuccess(any()) }
-            assertEquals(false, viewModel.actionableState().isPerformingAction)
+                // when
+                viewModel.onIgnoreConnectionRequest()
+
+                val action = expectMostRecentItem()
+
+                // then
+                coVerify(exactly = 1) { arrangement.ignoreConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+                assertTrue(action is ConnectionRequestIgnored)
+                assertEquals(false, viewModel.actionableState().isPerformingAction)
+            }
         }
 
     @Test
@@ -166,7 +170,7 @@ class ConnectionActionButtonViewModelTest {
 
             viewModel.infoMessage.test {
                 // when
-                viewModel.onIgnoreConnectionRequest(arrangement.onIgnoreSuccess)
+                viewModel.onIgnoreConnectionRequest()
 
                 // then
                 val result = awaitItem()
@@ -264,16 +268,21 @@ class ConnectionActionButtonViewModelTest {
                 .withGetOneToOneConversation(CreateConversationResult.Success(TestConversation.CONVERSATION))
                 .arrange()
 
-            // when
-            viewModel.onOpenConversation(arrangement.onOpenConversation, arrangement.onMissingKeyPackages)
+            viewModel.actions.test {
 
-            // then
-            coVerify {
-                arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
+                // when
+                viewModel.onOpenConversation()
+
+                val action = expectMostRecentItem()
+
+                // then
+                coVerify {
+                    arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
+                }
+
+                assertTrue(action is OpenConversation)
+                assertEquals(false, viewModel.actionableState().isPerformingAction)
             }
-            verify { arrangement.onOpenConversation(any()) }
-            verify(exactly = 0) { arrangement.onMissingKeyPackages.invoke() }
-            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
     @Test
@@ -284,16 +293,19 @@ class ConnectionActionButtonViewModelTest {
                 .withGetOneToOneConversation(CreateConversationResult.Failure(failure))
                 .arrange()
 
-            // when
-            viewModel.onOpenConversation(arrangement.onOpenConversation, arrangement.onMissingKeyPackages)
+            viewModel.actions.test {
 
-            // then
-            coVerify {
-                arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
+                // when
+                viewModel.onOpenConversation()
+
+                // then
+                coVerify {
+                    arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
+                }
+                assertEquals(false, viewModel.actionableState().isPerformingAction)
+
+                expectNoEvents()
             }
-            verify(exactly = 0) { arrangement.onOpenConversation.invoke(any()) }
-            verify(exactly = 0) { arrangement.onMissingKeyPackages() }
-            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
     @Test
@@ -304,16 +316,22 @@ class ConnectionActionButtonViewModelTest {
                 .withGetOneToOneConversation(CreateConversationResult.Failure(CoreFailure.MissingKeyPackages(setOf())))
                 .arrange()
 
-            // when
-            viewModel.onOpenConversation(arrangement.onOpenConversation, arrangement.onMissingKeyPackages)
+            viewModel.actions.test {
 
-            // then
-            coVerify {
-                arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
+                // when
+                viewModel.onOpenConversation()
+
+                val action = expectMostRecentItem()
+
+                // then
+                coVerify {
+                    arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
+                }
+
+                assertTrue(action is MissingKeyPackages)
+
+                assertEquals(false, viewModel.actionableState().isPerformingAction)
             }
-            verify(exactly = 0) { arrangement.onOpenConversation.invoke(any()) }
-            verify { arrangement.onMissingKeyPackages() }
-            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
     companion object {
@@ -346,15 +364,6 @@ internal class ConnectionActionButtonHiltArrangement {
 
     @MockK
     lateinit var observeSelfUser: ObserveSelfUserUseCase
-
-    @MockK(relaxed = true)
-    lateinit var onIgnoreSuccess: (userName: String) -> Unit
-
-    @MockK(relaxed = true)
-    lateinit var onOpenConversation: (conversationId: ConversationId) -> Unit
-
-    @MockK(relaxed = true)
-    lateinit var onMissingKeyPackages: () -> Unit
 
     private val viewModel by lazy {
         ConnectionActionButtonViewModelImpl(

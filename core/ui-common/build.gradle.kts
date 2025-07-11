@@ -3,6 +3,7 @@ plugins {
     id(libs.plugins.wire.kover.get().pluginId)
     alias(libs.plugins.kotlin.serialization)
     id(BuildPlugins.junit5)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {

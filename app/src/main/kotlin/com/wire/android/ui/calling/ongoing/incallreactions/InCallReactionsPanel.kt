@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -47,8 +46,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions.reactionDelayMs
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions.defaultReactions
+import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions.reactionDelayMs
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
@@ -70,7 +69,6 @@ fun InCallReactionsPanel(
 
     Row(
         modifier = modifier
-            .fillMaxWidth()
             .padding(vertical = dimensions().spacing8x)
             .horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,

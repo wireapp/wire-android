@@ -155,7 +155,6 @@
     <string name="content_description_calling_turn_speaker_off">Desligar o alto-falante</string>
     <string name="content_description_calling_in_call_reactions_show">Mostrar no painel de reações de chamada</string>
     <string name="content_description_calling_in_call_reactions_hide">Ocultar painel de reações em chamadas</string>
-    <string name="content_description_show_more_options">Mostrar mais opções</string>
     <string name="content_description_reply_to_messge">Responder a mensagem</string>
     <string name="content_description_reply_cancel">Cancelar resposta da mensagem</string>
     <string name="content_description_ping_message">Pingar a mensagem</string>
@@ -335,7 +334,6 @@ URL do Backend:
     <string name="enterprise_login_user_identifier_label_placeholder">Digite o e-mail ou código SSO</string>
     <string name="enterprise_login_error_invalid_user_identifier">Por favor, insira um e-mail ou código SSO válido</string>
     <string name="enterprise_login_create_account_label">Não tem uma conta Wire?</string>
-    <string name="enterprise_login_create_account_text_button">Criar conta</string>
     <string name="enterprise_login_on_prem_welcome_title">Bem-vindo ao Wire Enterprise para %s!</string>
     <string name="enterprise_login_verification_code_title">Você tem um e-mail</string>
     <!-- Login -->
@@ -418,13 +416,11 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="label_quote_original_message_is_a_picture">Imagem</string>
     <string name="label_quote_original_message_date">Mensagem original de %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Criar uma Conta Pessoal</string>
     <string name="create_personal_account_summary_title">Conta Pessoal Criada</string>
     <string name="create_personal_account_text">Converse com segurança com amigos e familiares usando o servidor de nuvem público do Wire.</string>
     <string name="create_personal_account_email_text">Digite seu e-mail para começar a usar a plataforma de colaboração mais segura.</string>
     <string name="create_personal_account_details_text">Digite seus detalhes pessoais:</string>
     <string name="create_personal_account_summary_text">Você criou sua conta pessoal com sucesso. Comece a se comunicar com segurança - onde quer que esteja!</string>
-    <string name="create_team_title">Criar uma Equipe</string>
     <string name="create_team_summary_title">Equipe Criada</string>
     <string name="create_team_content_title">Wire Grátis</string>
     <string name="create_team_text">Mensagens para pequenas organizações ou empresas de consultoria de uma pessoa.</string>
@@ -1205,7 +1201,6 @@ Em conversas de grupo, o administrador do grupo pode substituir essa configuraç
     <string name="backup_label_conversation_restored">Conversas foram restauradas</string>
     <string name="backup_label_loading_conversations">Carregando conversas</string>
     <string name="backup_dialog_restore_backup_title">Restaurar a partir do backup</string>
-    <string name="backup_dialog_restore_backup_message">O conteúdo do backup substituirá o histórico de conversas neste dispositivo. Você só pode restaurar o histórico de um backup da mesma plataforma.</string>
     <string name="backup_dialog_choose_backup_file_option">Escolha o arquivo de backup</string>
     <string name="backup_label_enter_password">Insira a senha</string>
     <string name="backup_dialog_restore_backup_password_message">Este backup está protegido por senha.</string>

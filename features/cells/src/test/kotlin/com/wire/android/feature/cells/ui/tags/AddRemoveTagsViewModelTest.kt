@@ -121,7 +121,6 @@ class AddRemoveTagsViewModelTest {
         assertFalse(suggestions.contains(tagInSuggestions))
     }
 
-
     @Test
     fun `given a tag in addedTags, when removeTag is called, then tag is removed`() = runTest {
         val (_, viewModel) = Arrangement()
@@ -155,7 +154,6 @@ class AddRemoveTagsViewModelTest {
         assertEquals(initialTags, currentTags)
     }
 
-
     @Test
     fun `given empty tag list, when updateTags is called, then removeNodeTagsUseCase is invoked and success is sent`() = runTest {
 
@@ -163,7 +161,6 @@ class AddRemoveTagsViewModelTest {
             .withGetAllTagsUseCaseReturning(Either.Right(listOf()))
             .withRemoveNodeTagsUseCaseReturning(Either.Right(Unit))
             .arrange()
-
 
         viewModel.actions.test {
             viewModel.updateTags()

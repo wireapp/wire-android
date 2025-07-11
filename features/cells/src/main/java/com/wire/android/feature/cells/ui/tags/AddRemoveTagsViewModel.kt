@@ -97,4 +97,3 @@ sealed interface AddRemoveTagsViewModelAction {
     data object Success : AddRemoveTagsViewModelAction
     data object Failure : AddRemoveTagsViewModelAction
 }
-

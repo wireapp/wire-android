@@ -1,7 +1,7 @@
-import java.util.Properties
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import java.io.ByteArrayOutputStream
+import java.util.Properties
 
 // Apply your test library plugin
 plugins {
@@ -13,7 +13,7 @@ plugins {
 val env = Properties()
 
 // File where secrets will be saved/generated
-val secretsJson =  rootProject.file("secrets.json")
+val secretsJson = rootProject.file("secrets.json")
 
 // Function to sanitize keys by replacing spaces and dashes with underscores, and making uppercase
 fun sanitize(text: String): String {
@@ -81,10 +81,10 @@ dependencies {
 // Register a custom Gradle task 'fetchSecrets' to fetch secrets from 1Password CLI and generate secrets.json
 tasks.register("fetchSecrets") {
     // Only run if secrets.json doesn't exist or needs updating
-  outputs.file(rootProject.file("secrets.json"))
+    outputs.file(rootProject.file("secrets.json"))
 
     doLast {
-      val secretsFile = rootProject.file("secrets.json")
+        val secretsFile = rootProject.file("secrets.json")
         if (!secretsFile.exists()) {
             val vaultName = "Test Automation"
 
@@ -145,7 +145,11 @@ tasks.register("fetchSecrets") {
 
 }
 
-// Make sure fetchSecrets runs automatically before building
-tasks.named("preBuild") {
-    dependsOn("fetchSecrets")
+// workaround for now, we should configure the action https://github.com/1Password/install-cli-action when running tests on CI
+val isGitHubActions = System.getenv("GITHUB_ACTIONS") == "true"
+if (!isGitHubActions) {
+    // Make sure fetchSecrets runs automatically before building
+    tasks.named("preBuild") {
+        dependsOn("fetchSecrets")
+    }
 }

@@ -18,12 +18,9 @@
 
 package com.wire.android.ui.home.gallery
 
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
-
 data class MediaGalleryViewState(
     val screenTitle: String? = null,
     val isEphemeral: Boolean = false,
-    val deleteMessageDialogState: DeleteMessageDialogState = DeleteMessageDialogState.Hidden,
     val messageBottomSheetOptionsEnabled: Boolean,
     val messageDeleted: Boolean = false,
 )

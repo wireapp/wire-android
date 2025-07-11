@@ -19,49 +19,36 @@
 package com.wire.android.ui.home.conversations.delete
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.util.dialogErrorStrings
+import com.wire.android.ui.common.visbility.VisibilityState
 
 @Composable
-internal fun DeleteMessageDialog(state: DeleteMessageDialogState, actions: DeleteMessageDialogHelper) {
-    if (state is DeleteMessageDialogState.Visible) {
+internal fun DeleteMessageDialog(
+    dialogState: VisibilityState<DeleteMessageDialogState>,
+    deleteMessage: (messageId: String, deleteForEveryone: Boolean) -> Unit,
+) {
+    VisibilityState(dialogState) { state ->
         when (state.type) {
             DeleteMessageDialogType.ForEveryone -> {
                 DeleteMessageDialog(
                     state = state,
-                    onDialogDismiss = actions::onDeleteDialogDismissed,
-                    onDeleteForMe = actions::showDeleteMessageForYourselfDialog,
-                    onDeleteForEveryone = { messageId: String ->
-                        actions.onDeleteMessage(
-                            messageId = messageId,
-                            deleteForEveryone = true,
-                        )
-                    },
+                    onDialogDismiss = dialogState::dismiss,
+                    onDeleteForMe = { dialogState.update { it.copy(type = DeleteMessageDialogType.ForYourself) } },
+                    onDeleteForEveryone = { messageId: String -> deleteMessage(messageId, true) },
                 )
-                if (state.error is DeleteMessageError.GenericError) {
-                    DeleteMessageErrorDialog(state.error, actions::clearDeleteMessageError)
-                }
             }
             DeleteMessageDialogType.ForYourself -> {
                 DeleteMessageForYourselfDialog(
                     state = state,
-                    onDialogDismiss = actions::onDeleteDialogDismissed,
-                    onDeleteForMe = { messageId: String ->
-                        actions.onDeleteMessage(
-                            messageId = messageId,
-                            deleteForEveryone = false,
-                        )
-                    },
+                    onDialogDismiss = dialogState::dismiss,
+                    onDeleteForMe = { messageId: String -> deleteMessage(messageId, false) },
                 )
-                if (state.error is DeleteMessageError.GenericError) {
-                    DeleteMessageErrorDialog(state.error, actions::clearDeleteMessageError)
-                }
             }
         }
     }
@@ -69,7 +56,7 @@ internal fun DeleteMessageDialog(state: DeleteMessageDialogState, actions: Delet
 
 @Composable
 private fun DeleteMessageDialog(
-    state: DeleteMessageDialogState.Visible,
+    state: DeleteMessageDialogState,
     onDialogDismiss: () -> Unit,
     onDeleteForMe: (String) -> Unit,
     onDeleteForEveryone: (String) -> Unit,
@@ -102,7 +89,7 @@ private fun DeleteMessageDialog(
 
 @Composable
 private fun DeleteMessageForYourselfDialog(
-    state: DeleteMessageDialogState.Visible,
+    state: DeleteMessageDialogState,
     onDialogDismiss: () -> Unit,
     onDeleteForMe: (String) -> Unit,
 ) {
@@ -121,23 +108,6 @@ private fun DeleteMessageForYourselfDialog(
             type = WireDialogButtonType.Primary,
             state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
             loading = state.loading
-        )
-    )
-}
-
-@Composable
-private fun DeleteMessageErrorDialog(error: DeleteMessageError.GenericError, onDialogDismiss: () -> Unit) {
-    val (title, message) = error.coreFailure.dialogErrorStrings(
-        LocalContext.current.resources
-    )
-    WireDialog(
-        title = title,
-        text = message,
-        onDismiss = onDialogDismiss,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = onDialogDismiss,
-            text = stringResource(id = R.string.label_ok),
-            type = WireDialogButtonType.Primary,
         )
     )
 }

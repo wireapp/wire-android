@@ -50,7 +50,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.FullScreenLoading
+import com.wire.android.feature.cells.ui.common.FullScreenLoading
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination

@@ -19,7 +19,6 @@ package com.wire.android.feature.cells.ui.filter
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -87,15 +86,6 @@ private fun SheetContent(
     onClearAll: () -> Unit = {},
 ) {
     var isExpanded by remember { mutableStateOf(true) }
-
-    val transition = updateTransition(targetState = isExpanded)
-    val height by transition.animateDp { state ->
-        if (state) {
-            dimensions().spacing120x
-        } else {
-            dimensions().spacing52x
-        }
-    }
 
     val interactionSource = remember { MutableInteractionSource() }
 

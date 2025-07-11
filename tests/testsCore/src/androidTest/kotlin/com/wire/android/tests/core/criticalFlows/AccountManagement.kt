@@ -17,13 +17,15 @@
  */
 package com.wire.android.tests.core.criticalFlows
 
+import InbucketClient
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import backendConnections.team.TeamHelper
 import com.wire.android.testSupport.backendConnections.BackendClient
 import com.wire.android.testSupport.backendConnections.team.TeamRoles
-import com.wire.android.testSupport.backendConnections.team.getTeamByName
+import com.wire.android.testSupport.backendConnections.team.deleteTeam
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
@@ -53,15 +55,15 @@ class AccountManagement : KoinTest {
     lateinit var context: Context
     var registeredUser: ClientUser? = null
     var backendClient: BackendClient? = null
-    var usersManager: ClientUserManager? = null
+    var teamHelper: TeamHelper? = null
 
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
-        backendClient = BackendClient.Companion.loadBackend("STAGING")
-        usersManager = ClientUserManager.Companion.getInstance()
+        backendClient = BackendClient.loadBackend("STAGING")
+        teamHelper = TeamHelper()
     }
 
     @After
@@ -70,61 +72,25 @@ class AccountManagement : KoinTest {
         // To delete team member
         // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
         // To delete team
-        // registeredUser?.deleteTeam(backendClient!!)
+         registeredUser?.deleteTeam(backendClient!!)
     }
 
-    fun userXAddsUsersToTeam(
-        ownerNameAlias: String,
-        userNameAliases: String,
-        teamName: String,
-        role: TeamRoles,
-        membersHaveHandles: Boolean
-    ) {
-        val admin = toClientUser(ownerNameAlias)
-        val dstTeam = runBlocking { backendClient!!.getTeamByName(admin, teamName) }
-
-        val membersToBeAdded = mutableListOf<ClientUser>()
-        val aliases = usersManager!!.splitAliases(userNameAliases)
-
-        for (userNameAlias in aliases) {
-            val user = toClientUser(userNameAlias)
-            if (usersManager!!.isUserCreated(user)) {
-                throw Exception(
-                    "Cannot add user with alias $userNameAlias to team because user is already created"
-                )
-            }
-            membersToBeAdded.add(user)
-        }
-
-        usersManager!!.createTeamMembers(
-            teamOwner = admin,
-            teamId = dstTeam.id,
-            members = membersToBeAdded,
-            membersHaveHandles = membersHaveHandles,
-            role = role,
-            backend = backendClient!!,
-            context = context
-        )
-    }
-
-    private fun toClientUser(nameAlias: String): ClientUser {
-        return usersManager!!.findUserByNameOrNameAlias(nameAlias)
-    }
 
     @Test
     fun accountManagementFeature() {
         val userInfo = UserClient.generateUniqueUserInfo()
-        usersManager!!.createTeamOwnerByAlias("user1Name", "AccountManagement", "en_US", true, backendClient!!, context)
-        registeredUser = usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-        userXAddsUsersToTeam(
+        teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "AccountManagement", "en_US", true, backendClient!!, context)
+        registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+        teamHelper?.userXAddsUsersToTeam(
             "user1Name",
             "user2Name,user3Name",
             "AccountManagement",
             TeamRoles.Member,
+            backendClient!!,context,
             true
         )
-        val teamMember = usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
-        val newEmail = usersManager!!.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
+        val teamMember = teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+        val newEmail = teamHelper?.usersManager!!.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
 
         TestServiceHelper().userHasGroupConversationInTeam("user1Name", "MyTeam", "user2Name", "AccountManagement")
 
@@ -158,7 +124,6 @@ class AccountManagement : KoinTest {
                 assertAppLockDescriptionText()
                 enterPasscode(userInfo.password)
                 tapSetPasscodeButton()
-                //Thread.sleep(3000)
                 assertLockWithPasswordToggleIsOn()
                 tapAccountDetailsButton()
                 verifyDisplayedEmailAddress(teamMember.email ?: "")
@@ -167,10 +132,45 @@ class AccountManagement : KoinTest {
                 changeToNewEmailAddress(newEmail.email ?: "")
                 clickSaveButton()
                 assertNotificationWithNewEmail(newEmail.email ?: "")
+                val activationLink = runBlocking {
+                    InbucketClient.getVerificationLink(
+                        newEmail.email.orEmpty(),
+                        backendClient!!.inbucketUrl,
+                        backendClient!!.inbucketPassword,
+                        backendClient!!.inbucketUsername
+                    )
+                }
+                clickEmailVerificationLink(activationLink)
+                assertEmailVerifiedMessageVisibleOnChrome()
+                // Brings the Wire staging app to the foreground using the monkey tool
+                device.executeShellCommand("monkey -p ${UiAutomatorSetup.APP_STAGING} -c android.intent.category.LAUNCHER 1")
                 clickBackButtonOnSettingsPage()
-
-
+                Thread.sleep(2000)
+                assertDisplayedEmailAddressIsNewEmail(newEmail.email ?: "")
+                assertResetPasswordButtonIsDisplayed()
+             //   tapResetPasswordButton()
+              //  Thread.sleep(2000)
+                //    assertUrlContains("wire-account-staging.zinfra.io")
             }
         }
     }
+//    fun assertUrlContains(expectedUrl: String)  {
+//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+//
+//        // Wait for the URL field (typically EditText) to appear in Chrome
+//        val urlField = device.wait(
+//            Until.findObject(By.clazz("android.widget.EditText")),
+//            5_000
+//        ) ?: throw AssertionError("URL field not found in Chrome browser")
+//
+//        val currentUrl = urlField.text
+//        println("Detected URL: $currentUrl")
+//
+//        // Assert the expected part is in the actual URL
+//        assertTrue(
+//            "Expected URL to contain '$expectedUrl', but got '$currentUrl'",
+//            currentUrl.contains(expectedUrl, ignoreCase = true)
+//        )
+//
+//        //return this
 }

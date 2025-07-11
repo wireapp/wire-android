@@ -17,10 +17,14 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.content.Intent
+import android.net.Uri
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
+import androidx.test.uiautomator.Until
 import junit.framework.TestCase.assertFalse
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert
@@ -44,13 +48,20 @@ data class SettingsPage(private val device: UiDevice) {
     private val analyticsTrackingLabel = UiSelector().text("Analytics Tracking Identifier")
     private val anonymousUsageDataText = UiSelector().text("Send anonymous usage data")
 
-    private val setAppLockInfoText = UiSelectorParams(textContains = "The app will lock itself after 1 minute of inactivity")
+    private val setAppLockInfoText = UiSelectorParams(
+        textContains = "The app will lock itself after 1 minute of inactivity"
+    )
 
+    private val resetPasswordButton = UiSelectorParams(text = "Reset Password")
     private val passcodeField = UiSelectorParams(resourceId = "password")
 
     private val displayedEmail = UiSelectorParams(textContains = "@wire.engineering")
 
     private val displayedDomain = UiSelectorParams(textContains = "staging.zinfra")
+
+    private val emailVerificationNotification = UiSelectorParams(
+        textContains = "A verification email has been sent to your email"
+    )
 
     private val editTextClass = By.clazz("android.widget.EditText")
     private val toggleOn = UiSelector()
@@ -64,7 +75,6 @@ data class SettingsPage(private val device: UiDevice) {
         .checked(false)
 
     private val saveButton = UiSelectorParams(text = "Save")
-    private val emailInputField = UiSelector().description( "EMAIL")
     fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
         val container = device.findObject(
             UiSelector().className("android.view.View").childSelector(anonymousUsageDataText)
@@ -115,35 +125,17 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
-//    fun assertToggleIsOff(): SettingsPage {
-//        val toggle = device.findObject(
-//            UiSelector().className("android.view.View").clickable(true).checked(false)
-//        )
-//        assertFalse("Toggle should be OFF", toggle.isChecked)
-//        return this
-//    }
-
     fun assertLoggingToggleIsOff(): SettingsPage {
         val toggle = device.findObject(toggleOff)
         assertFalse("Toggle should be OFF", toggle.isChecked)
         return this
     }
 
-
-//    fun assertToggleIsOn(): SettingsPage {
-//        val toggle = device.findObject(
-//            UiSelector().className("android.view.View").clickable(true).checked(true)
-//        )
-//        assertTrue("Toggle should be ON", toggle.isChecked)
-//        return this
-//    }
-
     fun assertLoggingToggleIsOn(): SettingsPage {
         val toggle = device.findObject(toggleOn)
         assertTrue("Toggle should be ON", toggle.isChecked)
         return this
     }
-
 
     fun assertLockWithPasswordToggleIsOff(): SettingsPage {
         val toggle = device.findObject(toggleOff)
@@ -163,7 +155,6 @@ data class SettingsPage(private val device: UiDevice) {
         Assert.assertTrue("Username help text is not visible", !appLockInfo.visibleBounds.isEmpty)
         return this
     }
-
 
     fun enterPasscode(passcode: String): SettingsPage {
         val parent = UiWaitUtils.waitElement(passcodeField)
@@ -214,7 +205,7 @@ data class SettingsPage(private val device: UiDevice) {
     fun changeToNewEmailAddress(newEmail: String): SettingsPage {
         val emailElement = UiWaitUtils.waitElement(displayedEmail)
         emailElement.click()
-        emailElement.text = ""  // Clear the input field
+        emailElement.text = "" // Clear the input field
         emailElement.text = newEmail
         return this
     }
@@ -225,34 +216,10 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
-//    private val emailVerificationNotification = UiSelectorParams(
-//        textContains = "A verification email has been sent to your email"
-//    )
-//
-//    fun assertNotificationWithNewEmail(expectedEmail: String): SettingsPage {
-//        val expectedText = "A verification email has been sent to your email $expectedEmail"
-//
-//        val emailNotificationTextView = UiWaitUtils.waitElement(emailVerificationNotification)
-//        val actualText = emailNotificationTextView.text ?: ""
-//
-//        assertTrue(
-//            "Expected verification message to contain: $expectedText\nBut got: $actualText",
-//            actualText.contains(expectedText)
-//        )
-//
-//        return this
-//    }
-
-
-
-
     fun assertNotificationWithNewEmail(expectedEmail: String): SettingsPage {
         val expectedText = "A verification email has been sent to your email $expectedEmail"
 
-        val emailNotificationTextView = UiWaitUtils.waitElement(
-            UiSelectorParams(textContains = "A verification email has been sent to your email")
-        )
-
+        val emailNotificationTextView = UiWaitUtils.waitElement(emailVerificationNotification)
         val actualText = emailNotificationTextView.text ?: ""
 
         assertTrue(
@@ -262,6 +229,43 @@ data class SettingsPage(private val device: UiDevice) {
 
         return this
     }
+
+    fun assertResetPasswordButtonIsDisplayed(): SettingsPage {
+        val resetPasswordButton = UiWaitUtils.waitElement(resetPasswordButton)
+        Assert.assertTrue("Reset password button is not visible", !resetPasswordButton.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapResetPasswordButton(): SettingsPage {
+        UiWaitUtils.waitElement(resetPasswordButton).click()
+        return this
+    }
+
+    fun clickEmailVerificationLink(deepLinkUrl: String) {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse(deepLinkUrl)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
+
+    fun assertEmailVerifiedMessageVisibleOnChrome(timeoutMillis: Long = 15_000): SettingsPage {
+        val emailVerifiedText = device.wait(
+            Until.findObject(By.textContains("Email verified")),
+            timeoutMillis
+        )
+
+        if (emailVerifiedText == null) {
+            throw AssertionError("Email Verified text not found in Chrome after 15 seconds.")
+        }
+        return this
+    }
+
+    fun assertDisplayedEmailAddressIsNewEmail(expectedEmail: String): SettingsPage {
+        val emailElement = UiWaitUtils.waitElement(displayedEmail)
+        val actualEmail = emailElement.text
+        assertThat("Displayed email does not match expected", actualEmail, `is`(expectedEmail))
+        return this
+    }
 }
-
-

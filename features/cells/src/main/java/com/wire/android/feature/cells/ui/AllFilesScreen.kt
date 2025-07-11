@@ -86,6 +86,7 @@ fun AllFilesScreen(
             )
         },
         showMoveToFolderScreen = { _, _, _ -> },
+        showRenameScreen = {},
         showAddRemoveTagsScreen = { node ->
             navigator.navigate(
                 NavigationCommand(

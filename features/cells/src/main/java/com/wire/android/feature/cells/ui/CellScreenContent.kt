@@ -42,6 +42,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
 import com.wire.android.feature.cells.ui.dialog.RestoreConfirmationDialog
@@ -64,6 +65,7 @@ internal fun CellScreenContent(
     downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
+    showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
     showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
     isAllFiles: Boolean,
@@ -165,7 +167,7 @@ internal fun CellScreenContent(
                     isFolder = action.cellNode is CellNodeUi.Folder
                 )
             )
-
+            is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
             is RefreshData -> pagingListItems.refresh()

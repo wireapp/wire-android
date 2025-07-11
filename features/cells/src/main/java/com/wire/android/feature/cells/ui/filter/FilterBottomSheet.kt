@@ -17,7 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.filter
 
-import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.clickable
@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -119,7 +118,7 @@ private fun SheetContent(
                 textAlign = TextAlign.Center,
             )
         }
-        Column(modifier = Modifier.height(height)) {
+        Column(modifier = Modifier.animateContentSize()) {
             Row(
                 modifier = Modifier
                     .padding(top = dimensions().spacing16x, bottom = dimensions().spacing16x)
@@ -145,34 +144,35 @@ private fun SheetContent(
                 )
             }
 
-            Text(
-                text = stringResource(R.string.select_tags_label).uppercase(),
-                style = MaterialTheme.wireTypography.label01,
-                color = colorsScheme().secondaryText,
-            )
-
-            LazyRow(
-                modifier = Modifier.padding(
-                    top = dimensions().spacing16x,
-                    bottom = dimensions().spacing16x
+            if (isExpanded) {
+                Text(
+                    text = stringResource(R.string.select_tags_label).uppercase(),
+                    style = MaterialTheme.wireTypography.label01,
+                    color = colorsScheme().secondaryText,
                 )
-            ) {
-                selectableTags.value.forEach { tag ->
-                    val isSelected = selectedChips.value.contains(tag)
+                LazyRow(
+                    modifier = Modifier.padding(
+                        top = dimensions().spacing16x,
+                        bottom = dimensions().spacing16x
+                    )
+                ) {
+                    selectableTags.value.forEach { tag ->
+                        val isSelected = selectedChips.value.contains(tag)
 
-                    item {
-                        WireFilterChip(
-                            label = tag,
-                            isSelected = isSelected,
-                            modifier = Modifier.padding(end = dimensions().spacing16x),
-                            onSelectChip = { label ->
-                                selectedChips.value = if (isSelected) {
-                                    selectedChips.value - label
-                                } else {
-                                    selectedChips.value + label
+                        item {
+                            WireFilterChip(
+                                label = tag,
+                                isSelected = isSelected,
+                                modifier = Modifier.padding(end = dimensions().spacing16x),
+                                onSelectChip = { label ->
+                                    selectedChips.value = if (isSelected) {
+                                        selectedChips.value - label
+                                    } else {
+                                        selectedChips.value + label
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
@@ -188,7 +188,7 @@ private fun SheetContent(
             horizontalArrangement = Arrangement.Center,
         ) {
             WireSecondaryButton(
-                modifier = Modifier.width(dimensions().spacing156x),
+                modifier = Modifier.weight(1f),
                 text = stringResource(R.string.clear_all_label),
                 onClick = {
                     selectedChips.value = emptyList()
@@ -199,7 +199,7 @@ private fun SheetContent(
             Spacer(modifier = Modifier.width(dimensions().spacing16x))
 
             WirePrimaryButton(
-                modifier = Modifier.width(dimensions().spacing156x),
+                modifier = Modifier.weight(1f),
                 text = stringResource(R.string.apply_label),
                 onClick = { onApply(selectedChips.value) },
                 state = WireButtonState.Default,
@@ -217,6 +217,7 @@ fun PreviewFilterBottomSheet() {
             MutableStateFlow(emptyList()),
             onApply = {},
             onClearAll = {},
-            onDismiss = {})
+            onDismiss = {}
+        )
     }
 }

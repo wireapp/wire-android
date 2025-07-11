@@ -38,4 +38,15 @@
     <string name="loading_files">Dateien werden geladen…</string>
     <string name="open_recycle_bin">Papierkorb öffnen</string>
     <string name="dialog_restore_button_label">Wiederherstellen</string>
+    <string name="rename_file_label">Datei umbenennen</string>
+    <string name="rename_folder_label">Ordner umbenennen</string>
+    <string name="rename_label">Umbenennen</string>
+    <string name="rename_file_name_label">Dateiname</string>
+    <string name="rename_folder_name_label">Ordnername</string>
+    <string name="rename_long_file_name_error">Verwenden Sie einen kürzeren Namen (max. 64 Zeichen)</string>
+    <string name="rename_long_folder_name_error">Verwenden Sie einen kürzeren Namen (max. 64 Zeichen)</string>
+    <string name="rename_enter_file_name">Dateinamen eingeben</string>
+    <string name="rename_enter_folder_name">Ordnernamen eingeben</string>
+    <string name="rename_file_renamed">Datei wurde umbenannt</string>
+    <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
 </resources>

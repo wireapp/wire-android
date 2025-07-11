@@ -1,9 +1,13 @@
 New
- - Swipe left to add reactions to a message
-Improvement
-- Using QR codes with federation
+- Flows for account and team creation
+- Access team management from the main navigation
+- Landscape support for tablets (Android 16)
+
+Improvements
+- Notifications
+- Display MLS thumbprint in the device list
+
 Fixes
-- Resolved a security issue when sharing files, pictures, or audio and video messages
-- Fixed an issue when people couldn't open conversations from a notification
-- Resolved a syncing issue on slow internet
-- Fix issue where app stuck processing commits
+- Replying from a notification
+- Calling related issues
+- Login issue

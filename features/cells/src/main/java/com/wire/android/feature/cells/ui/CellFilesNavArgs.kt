@@ -20,5 +20,32 @@ package com.wire.android.feature.cells.ui
 data class CellFilesNavArgs(
     val conversationId: String? = null,
     val screenTitle: String? = null,
-    val isRecycleBin: Boolean? = false
-)
+    val isRecycleBin: Boolean? = false,
+    val breadcrumbs: Array<String>? = null
+) {
+
+    override fun hashCode(): Int {
+        var result = isRecycleBin?.hashCode() ?: 0
+        result = 31 * result + (conversationId?.hashCode() ?: 0)
+        result = 31 * result + (screenTitle?.hashCode() ?: 0)
+        result = 31 * result + breadcrumbs.contentHashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CellFilesNavArgs
+
+        if (isRecycleBin != other.isRecycleBin) return false
+        if (conversationId != other.conversationId) return false
+        if (screenTitle != other.screenTitle) return false
+        if (breadcrumbs != null) {
+            if (other.breadcrumbs == null) return false
+            if (!breadcrumbs.contentEquals(other.breadcrumbs)) return false
+        } else if (other.breadcrumbs != null) return false
+
+        return true
+    }
+}

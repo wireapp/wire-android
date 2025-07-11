@@ -20,6 +20,7 @@ package com.wire.android.ui.common.chip
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -34,7 +35,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.R
-import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.button.wireChipColors
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
@@ -53,38 +55,22 @@ fun WireFilterChip(
     )
 
     FilterChip(
-        modifier = modifier
-            .height(25.dp)
-            .wrapContentWidth(),
+        modifier = modifier.wrapContentSize(),
         onClick = { onSelectChip(label) },
         label = {
             Text(
                 text = label,
-                style = MaterialTheme.wireTypography.button03,
+                style = MaterialTheme.wireTypography.button02,
                 maxLines = 1
             )
         },
         enabled = isEnabled,
         selected = isSelected,
-        colors = SelectableChipColors(
-            containerColor = Color.Transparent,
-            labelColor = colorsScheme().onBackground,
-            leadingIconColor = colorsScheme().onBackground,
-            trailingIconColor = colorsScheme().onBackground,
-            disabledContainerColor = Color.Transparent.copy(alpha = 0.5f),
-            disabledLabelColor = colorsScheme().onPrimaryVariant.copy(alpha = 0.5f),
-            disabledLeadingIconColor = colorsScheme().onPrimaryVariant.copy(alpha = 0.5f),
-            disabledTrailingIconColor = colorsScheme().onPrimaryVariant.copy(alpha = 0.5f),
-            disabledSelectedContainerColor = colorsScheme().primary.copy(alpha = 0.5f),
-            selectedContainerColor = colorsScheme().primaryVariant,
-            selectedLabelColor = colorsScheme().primary,
-            selectedLeadingIconColor = colorsScheme().primary,
-            selectedTrailingIconColor = colorsScheme().primary,
-        ),
+        colors = wireChipColors(),
         trailingIcon = {
             Icon(
                 modifier = Modifier
-                    .size(13.dp)
+                    .size(dimensions().spacing12x)
                     .rotate(rotationAngle),
                 painter = painterResource(id = R.drawable.ic_close),
                 contentDescription = null,

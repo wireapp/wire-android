@@ -23,9 +23,9 @@
     <string name="conversation_file_list_empty_message">В этой беседе нет файлов.</string>
     <string name="file_list_search_empty_message">Файлы не найдены.</string>
     <string name="save_label">Сохранить</string>
-    <string name="share_label">Поделиться</string>
-    <string name="public_link">Скопировать публичную ссылку</string>
+    <string name="share_label">Поделится</string>
     <string name="delete_label">Удалить</string>
+    <string name="public_link">Скопировать публичную ссылку</string>
     <string name="delete_permanently">Удалить навсегда</string>
     <string name="restore_label">Восстановить</string>
     <string name="move_label">Переместить</string>
@@ -47,8 +47,8 @@
     <string name="confirm_delete_file_title">Удалить файл</string>
     <string name="confirm_delete_folder_title">Удалить папку</string>
     <string name="confirm_delete_file_text">Файл %1$s будет перемещен в корзину этой беседы.</string>
-    <string name="confirm_permanent_delete_file_text">Это навсегда удалит файл %1$s для всех участников.</string>
     <string name="confirm_delete_folder_text">Папка %1$s будет перемещена в корзину этой беседы.</string>
+    <string name="confirm_permanent_delete_file_text">Это навсегда удалит файл %1$s для всех участников.</string>
     <string name="confirm_permanent_delete_folder_text">Это навсегда удалит папку %1$s для всех участников.</string>
     <string name="reload">Перезагрузить</string>
     <string name="error_delete_public_link">Не удалось удалить публичную ссылку.</string>
@@ -92,4 +92,9 @@
     <string name="rename_file_renamed">Файл переименован</string>
     <string name="rename_folder_renamed">Папка переименована</string>
     <string name="rename_failure">Не удалось переименовать</string>
+    <string name="filter_label">Фильтр</string>
+    <string name="tags_label">Теги</string>
+    <string name="select_tags_label">выбрать теги</string>
+    <string name="clear_all_label">Очистить все</string>
+    <string name="apply_label">Применить</string>
 </resources>

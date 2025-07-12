@@ -15,11 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.support.suite
+package com.wire.android.testSupport.backendConnections.team
 
-/**
- * Suite for running scoped tests for release candidate.
- */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class RC(vararg val value: String)
+import org.json.JSONObject
+
+data class Team(
+    var id: String = "",
+    var name: String = ""
+) {
+    companion object {
+        fun fromJSON(team: JSONObject): Team {
+            return Team(
+                id = team.getString("id"),
+                name = team.getString("name")
+            )
+        }
+    }
+}

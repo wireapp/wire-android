@@ -15,11 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.support.suite
+package user.utils
 
-/**
- * Suite for running scoped tests for release candidate.
- */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class RC(vararg val value: String)
+import java.net.HttpCookie
+import java.util.Date
+
+class AccessCookie(
+    val name: String,
+    private val expirationDate: Date,
+    val value: String
+) {
+
+    fun isExpired(): Boolean = Date().after(expirationDate)
+
+    @Suppress("MagicNumber")
+    constructor(cookieName: String, cookies: List<HttpCookie>) : this(
+        cookieName,
+        Date(Date().time + (cookies.first { it.name == cookieName }.maxAge * 1000)),
+        cookies.first { it.name == cookieName }.value
+    )
+}

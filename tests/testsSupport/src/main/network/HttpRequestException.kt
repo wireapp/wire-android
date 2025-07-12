@@ -15,11 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.support.suite
+package network
 
 /**
- * Suite for running scoped tests for release candidate.
+ * For api/network errors
  */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class RC(vararg val value: String)
+class HttpRequestException(override val message: String, val returnCode: Int) : RuntimeException()

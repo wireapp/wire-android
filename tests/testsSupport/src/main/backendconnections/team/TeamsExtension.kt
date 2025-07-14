@@ -516,46 +516,6 @@ private fun BackendClient.access(credentials: AccessCredentials): AccessCredenti
     return connection.accessCredentials(connection.response())
 }
 
-private fun toClientUser(nameAlias: String): ClientUser {
-    return usersManager!!.findUserByNameOrNameAlias(nameAlias)
-}
-
-fun userXAddsUsersToTeam(
-    ownerNameAlias: String,
-    userNameAliases: String,
-    teamName: String,
-    role: TeamRoles,
-    membersHaveHandles: Boolean
-) {
-    val admin = toClientUser(ownerNameAlias)
-    val dstTeam = runBlocking { backendClient!!.getTeamByName(admin, teamName) }
-
-    val membersToBeAdded = mutableListOf<ClientUser>()
-    val aliases = usersManager!!.splitAliases(userNameAliases)
-
-    for (userNameAlias in aliases) {
-        val user = toClientUser(userNameAlias)
-        if (usersManager!!.isUserCreated(user)) {
-            throw Exception(
-                "Cannot add user with alias $userNameAlias to team because user is already created"
-            )
-        }
-        membersToBeAdded.add(user)
-    }
-
-    usersManager!!.createTeamMembers(
-        teamOwner = admin,
-        teamId = dstTeam.id,
-        members = membersToBeAdded,
-        membersHaveHandles = membersHaveHandles,
-        role = role,
-        backend = backendClient!!,
-        context = context
-    )
-}
-
-
-
 @Suppress("TooGenericExceptionCaught", "MagicNumber")
 private suspend fun <T> retryOnBackendFailure(action: () -> T): T {
     var ntry = 1

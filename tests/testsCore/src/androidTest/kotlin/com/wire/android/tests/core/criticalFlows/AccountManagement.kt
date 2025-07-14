@@ -22,7 +22,7 @@ import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import backendConnections.team.TeamHelper
+import backendconnections.team.TeamHelper
 import com.wire.android.testSupport.backendConnections.BackendClient
 import com.wire.android.testSupport.backendConnections.team.TeamRoles
 import com.wire.android.testSupport.backendConnections.team.deleteTeam
@@ -72,10 +72,10 @@ class AccountManagement : KoinTest {
         // To delete team member
         // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
         // To delete team
-         registeredUser?.deleteTeam(backendClient!!)
+        registeredUser?.deleteTeam(backendClient!!)
     }
 
-
+    @Suppress("LongMethod")
     @Test
     fun accountManagementFeature() {
         val userInfo = UserClient.generateUniqueUserInfo()
@@ -86,7 +86,8 @@ class AccountManagement : KoinTest {
             "user2Name,user3Name",
             "AccountManagement",
             TeamRoles.Member,
-            backendClient!!,context,
+            backendClient!!,
+            context,
             true
         )
         val teamMember = teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
@@ -145,32 +146,12 @@ class AccountManagement : KoinTest {
                 // Brings the Wire staging app to the foreground using the monkey tool
                 device.executeShellCommand("monkey -p ${UiAutomatorSetup.APP_STAGING} -c android.intent.category.LAUNCHER 1")
                 clickBackButtonOnSettingsPage()
-                Thread.sleep(2000)
+                waitUntilNewEmailIsVisible(newEmail.email ?: "")
                 assertDisplayedEmailAddressIsNewEmail(newEmail.email ?: "")
                 assertResetPasswordButtonIsDisplayed()
-             //   tapResetPasswordButton()
-              //  Thread.sleep(2000)
-                //    assertUrlContains("wire-account-staging.zinfra.io")
+                tapResetPasswordButton()
+                assertChromeUrlIsDisplayed("wire-account-staging.zinfra.io")
             }
         }
     }
-//    fun assertUrlContains(expectedUrl: String)  {
-//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//
-//        // Wait for the URL field (typically EditText) to appear in Chrome
-//        val urlField = device.wait(
-//            Until.findObject(By.clazz("android.widget.EditText")),
-//            5_000
-//        ) ?: throw AssertionError("URL field not found in Chrome browser")
-//
-//        val currentUrl = urlField.text
-//        println("Detected URL: $currentUrl")
-//
-//        // Assert the expected part is in the actual URL
-//        assertTrue(
-//            "Expected URL to contain '$expectedUrl', but got '$currentUrl'",
-//            currentUrl.contains(expectedUrl, ignoreCase = true)
-//        )
-//
-//        //return this
 }

@@ -204,7 +204,6 @@ data class SettingsPage(private val device: UiDevice) {
 
     fun changeToNewEmailAddress(newEmail: String): SettingsPage {
         val emailElement = UiWaitUtils.waitElement(displayedEmail)
-        emailElement.click()
         emailElement.text = "" // Clear the input field
         emailElement.text = newEmail
         return this
@@ -266,6 +265,22 @@ data class SettingsPage(private val device: UiDevice) {
         val emailElement = UiWaitUtils.waitElement(displayedEmail)
         val actualEmail = emailElement.text
         assertThat("Displayed email does not match expected", actualEmail, `is`(expectedEmail))
+        return this
+    }
+
+    fun waitUntilNewEmailIsVisible(expectedEmail: String): SettingsPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = expectedEmail))
+        return this
+    }
+
+    fun assertChromeUrlIsDisplayed(expectedUrl: String): SettingsPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        // Wait and find the URL element in the address bar by partial text
+        val urlElement = device.wait(
+            Until.findObject(By.textContains(expectedUrl)),
+            5_000
+        )
+        assertTrue("Expected URL '$expectedUrl' was not found in Chrome", urlElement != null)
         return this
     }
 }

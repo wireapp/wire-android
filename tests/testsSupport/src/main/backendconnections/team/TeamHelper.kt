@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package backendConnections.team
+package backendconnections.team
 
 import android.content.Context
 import com.wire.android.testSupport.backendConnections.BackendClient
@@ -31,6 +31,7 @@ class TeamHelper {
         ClientUserManager.getInstance()
     }
 
+    @Suppress("LongParameterList")
     fun userXAddsUsersToTeam(
         ownerNameAlias: String,
         userNameAliases: String,

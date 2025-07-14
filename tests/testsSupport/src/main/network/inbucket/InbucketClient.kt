@@ -113,7 +113,6 @@ object InbucketClient {
         return verificationLink
     }
 
-
     suspend fun BackendClient.getInbucketVerificationCode(email: String): String {
         if (inbucketUrl.isBlank()) {
             throw IOException("Received 403 for 2FA but no inbucket url present - check your backend settings")

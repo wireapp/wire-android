@@ -29,41 +29,38 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.util.dialogErrorStrings
 
 @Composable
-internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: DeleteMessageDialogHelper, onDeleted: () -> Unit = {}) {
-    if (state is DeleteMessageDialogsState.States) {
-        when {
-            state.forEveryone is DeleteMessageDialogActiveState.Visible -> {
+internal fun DeleteMessageDialog(state: DeleteMessageDialogState, actions: DeleteMessageDialogHelper) {
+    if (state is DeleteMessageDialogState.Visible) {
+        when (state.type) {
+            DeleteMessageDialogType.ForEveryone -> {
                 DeleteMessageDialog(
-                    state = state.forEveryone,
+                    state = state,
                     onDialogDismiss = actions::onDeleteDialogDismissed,
                     onDeleteForMe = actions::showDeleteMessageForYourselfDialog,
                     onDeleteForEveryone = { messageId: String ->
                         actions.onDeleteMessage(
                             messageId = messageId,
                             deleteForEveryone = true,
-                            onDeleted = onDeleted,
                         )
                     },
                 )
-                if (state.forEveryone.error is DeleteMessageError.GenericError) {
-                    DeleteMessageErrorDialog(state.forEveryone.error, actions::clearDeleteMessageError)
+                if (state.error is DeleteMessageError.GenericError) {
+                    DeleteMessageErrorDialog(state.error, actions::clearDeleteMessageError)
                 }
             }
-            state.forYourself is DeleteMessageDialogActiveState.Visible -> {
-                if (state.forYourself.error is DeleteMessageError.GenericError) {
-                    DeleteMessageErrorDialog(state.forYourself.error, actions::clearDeleteMessageError)
-                } else {
-                    DeleteMessageForYourselfDialog(
-                        state = state.forYourself,
-                        onDialogDismiss = actions::onDeleteDialogDismissed,
-                        onDeleteForMe = { messageId: String ->
-                            actions.onDeleteMessage(
-                                messageId = messageId,
-                                deleteForEveryone = false,
-                                onDeleted = onDeleted,
-                            )
-                        },
-                    )
+            DeleteMessageDialogType.ForYourself -> {
+                DeleteMessageForYourselfDialog(
+                    state = state,
+                    onDialogDismiss = actions::onDeleteDialogDismissed,
+                    onDeleteForMe = { messageId: String ->
+                        actions.onDeleteMessage(
+                            messageId = messageId,
+                            deleteForEveryone = false,
+                        )
+                    },
+                )
+                if (state.error is DeleteMessageError.GenericError) {
+                    DeleteMessageErrorDialog(state.error, actions::clearDeleteMessageError)
                 }
             }
         }
@@ -72,7 +69,7 @@ internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: Dele
 
 @Composable
 private fun DeleteMessageDialog(
-    state: DeleteMessageDialogActiveState.Visible,
+    state: DeleteMessageDialogState.Visible,
     onDialogDismiss: () -> Unit,
     onDeleteForMe: (String) -> Unit,
     onDeleteForEveryone: (String) -> Unit,
@@ -105,7 +102,7 @@ private fun DeleteMessageDialog(
 
 @Composable
 private fun DeleteMessageForYourselfDialog(
-    state: DeleteMessageDialogActiveState.Visible,
+    state: DeleteMessageDialogState.Visible,
     onDialogDismiss: () -> Unit,
     onDeleteForMe: (String) -> Unit,
 ) {

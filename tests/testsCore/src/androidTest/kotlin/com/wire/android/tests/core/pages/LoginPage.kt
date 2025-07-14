@@ -23,6 +23,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import com.wire.android.testSupport.backendConnections.BackendClient
+import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.test.DefaultAsserter.assertTrue

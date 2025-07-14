@@ -24,9 +24,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.toUiModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -63,7 +63,7 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class MessageAttachmentsViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,
     private val addAttachment: AddAttachmentDraftUseCase,
@@ -71,7 +71,7 @@ class MessageAttachmentsViewModel @Inject constructor(
     private val retryUpload: RetryAttachmentUploadUseCase,
     private val uploadManager: CellUploadManager,
     private val fileManager: FileManager,
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = conversationNavArgs.conversationId

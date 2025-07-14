@@ -22,11 +22,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.newauthentication.login.NewLoginFlowState
 import com.wire.android.ui.newauthentication.login.toLoginStateDialogError
 import com.wire.android.util.dialogErrorStrings
@@ -43,10 +43,9 @@ fun LoginErrorDialog(dialogErrorData: LoginDialogErrorData, onDialogDismiss: () 
             onClick = dialogErrorData.onAction ?: onDialogDismiss,
             type = WireDialogButtonType.Primary
         ),
-        properties = DialogProperties(
+        properties = wireDialogPropertiesBuilder(
             dismissOnBackPress = true,
             dismissOnClickOutside = dialogErrorData.dismissOnClickOutside,
-            usePlatformDefaultWidth = false
         )
     )
 }

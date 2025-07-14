@@ -70,7 +70,11 @@ class StartingCallActivity : CallActivity() {
     private fun handleNewIntent(intent: Intent) {
         conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
         userId = intent.extras?.getString(EXTRA_USER_ID)
-        screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)?.let { StartingCallScreenType.byName(it) }
+        intent.extras?.getString(EXTRA_SCREEN_TYPE)?.let { StartingCallScreenType.byName(it) }?.let {
+            screenType = it
+        } ?: run {
+            appLogger.e("$TAG No screen type provided in intent extras")
+        }
         switchAccountIfNeeded(userId)
     }
 

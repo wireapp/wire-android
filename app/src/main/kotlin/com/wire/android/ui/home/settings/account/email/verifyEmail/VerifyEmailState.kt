@@ -18,5 +18,6 @@
 package com.wire.android.ui.home.settings.account.email.verifyEmail
 
 data class VerifyEmailState(
-    val isResendEmailEnabled: Boolean = true
+    val isResendEmailEnabled: Boolean = true,
+    val noChange: Boolean = false,
 )

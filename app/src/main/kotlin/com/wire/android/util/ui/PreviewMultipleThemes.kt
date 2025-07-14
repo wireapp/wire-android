@@ -24,18 +24,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireTheme
 
+const val LIGHT_BG_COLOR = 0xFFEDEFF0
+const val DARK_BG_COLOR = 0xFF17181A
+
 @SuppressLint("ComposePreviewNaming")
 @Preview(
     name = "Dark theme",
     showBackground = true,
-    backgroundColor = 0xFF17181A,
-    uiMode = UI_MODE_NIGHT_YES
+    backgroundColor = DARK_BG_COLOR,
+    uiMode = UI_MODE_NIGHT_YES,
 )
 @Preview(
     name = "Light theme",
     showBackground = true,
-    backgroundColor = 0xFFEDEFF0,
-    uiMode = UI_MODE_NIGHT_NO
+    backgroundColor = LIGHT_BG_COLOR,
+    uiMode = UI_MODE_NIGHT_NO,
 )
 /**
  * Helper annotation that adds a preview for Light and Dark theme previews, _i.e._
@@ -51,3 +54,66 @@ import com.wire.android.ui.theme.WireTheme
  * There's a problem with lint handling custom preview annotations in other modules, so for now it's added to each module.
  */
 internal annotation class PreviewMultipleThemes
+
+@SuppressLint("ComposePreviewNaming")
+@Preview(
+    name = "Portrait Dark theme",
+    group = "Portrait",
+    showBackground = true,
+    backgroundColor = DARK_BG_COLOR,
+    uiMode = UI_MODE_NIGHT_YES,
+    widthDp = 450,
+    heightDp = 800,
+)
+@Preview(
+    name = "Portrait Light",
+    group = "Portrait",
+    showBackground = true,
+    backgroundColor = LIGHT_BG_COLOR,
+    uiMode = UI_MODE_NIGHT_NO,
+    widthDp = 450,
+    heightDp = 800,
+)
+internal annotation class PreviewMultipleThemesForPortrait
+
+@SuppressLint("ComposePreviewNaming")
+@Preview(
+    name = "Landscape Dark theme",
+    group = "Landscape",
+    showBackground = true,
+    backgroundColor = DARK_BG_COLOR,
+    uiMode = UI_MODE_NIGHT_YES,
+    widthDp = 800,
+    heightDp = 450,
+)
+@Preview(
+    name = "Landscape Light theme",
+    group = "Landscape",
+    showBackground = true,
+    backgroundColor = LIGHT_BG_COLOR,
+    uiMode = UI_MODE_NIGHT_NO,
+    widthDp = 800,
+    heightDp = 450,
+)
+internal annotation class PreviewMultipleThemesForLandscape
+
+@SuppressLint("ComposePreviewNaming")
+@Preview(
+    name = "Square Dark theme",
+    group = "Square",
+    showBackground = true,
+    backgroundColor = DARK_BG_COLOR,
+    uiMode = UI_MODE_NIGHT_YES,
+    widthDp = 600,
+    heightDp = 600,
+)
+@Preview(
+    name = "Square Light theme",
+    group = "Square",
+    showBackground = true,
+    backgroundColor = LIGHT_BG_COLOR,
+    uiMode = UI_MODE_NIGHT_NO,
+    widthDp = 600,
+    heightDp = 600,
+)
+internal annotation class PreviewMultipleThemesForSquare

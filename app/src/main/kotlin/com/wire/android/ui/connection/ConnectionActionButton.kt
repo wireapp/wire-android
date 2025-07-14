@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -110,11 +111,7 @@ fun ConnectionActionButton(
             ConnectionState.ACCEPTED -> WirePrimaryButton(
                 text = stringResource(if (isConversationStarted) R.string.label_open_conversation else R.string.label_start_conversation),
                 loading = viewModel.actionableState().isPerformingAction,
-                onClick = {
-                    viewModel.onOpenConversation(onOpenConversation) {
-                        unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
-                    }
-                },
+                onClick = viewModel::onOpenConversation,
                 modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
 
@@ -153,11 +150,7 @@ fun ConnectionActionButton(
                     text = stringResource(R.string.connection_label_ignore),
                     loading = viewModel.actionableState().isPerformingAction,
                     state = WireButtonState.Error,
-                    onClick = {
-                        viewModel.onIgnoreConnectionRequest {
-                            onConnectionRequestIgnored(it)
-                        }
-                    },
+                    onClick = viewModel::onIgnoreConnectionRequest,
                     clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                     leadingIcon = {
                         Icon(
@@ -203,6 +196,13 @@ fun ConnectionActionButton(
                 },
                 modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
+        }
+    }
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is OpenConversation -> onOpenConversation(action.conversationId)
+            is ConnectionRequestIgnored -> onConnectionRequestIgnored(action.userName)
+            is MissingKeyPackages -> unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
         }
     }
 }

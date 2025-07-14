@@ -38,6 +38,7 @@ jobs:
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
+                  token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
 
             - name: Cherry pick to `develop`
               uses: wireapp/action-auto-cherry-pick@v1.0.2

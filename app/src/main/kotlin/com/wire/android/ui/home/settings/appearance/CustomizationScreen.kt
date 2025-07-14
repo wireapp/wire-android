@@ -41,10 +41,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.selectableBackground
@@ -60,7 +59,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@RootNavGraph
 @WireDestination
 @Composable
 fun CustomizationScreen(

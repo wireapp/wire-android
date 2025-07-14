@@ -32,10 +32,10 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -60,20 +60,18 @@ class TeamMigrationViewModelTest {
         }
 
     @Test
-    fun `given team name, when migrateFromPersonalToTeamAccount return success, then call use case and onSuccess`() =
+    fun `given team name, when migrateFromPersonalToTeamAccount return success, then call use case and set state to completed`() =
         runTest {
             val (arrangement, viewModel) = Arrangement()
                 .withMigrateFromPersonalToTeamSuccess()
                 .arrange()
 
-            val onSuccess = mockk<() -> Unit>(relaxed = true)
-
-            viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+            viewModel.migrateFromPersonalToTeamAccount()
 
             coVerify(exactly = 1) {
                 arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)
             }
-            verify(exactly = 1) { onSuccess() }
+            assertEquals(true, viewModel.teamMigrationState.migrationCompleted)
         }
 
     @Test
@@ -83,9 +81,7 @@ class TeamMigrationViewModelTest {
                 .withMigrateFromPersonalToTeamErrorUnknown()
                 .arrange()
 
-            val onSuccess = {}
-
-            viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+            viewModel.migrateFromPersonalToTeamAccount()
 
             coVerify(exactly = 1) {
                 arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)
@@ -102,9 +98,7 @@ class TeamMigrationViewModelTest {
                 .withMigrateFromPersonalToTeamErrorAlreadyInTeam()
                 .arrange()
 
-            val onSuccess = {}
-
-            viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+            viewModel.migrateFromPersonalToTeamAccount()
 
             coVerify(exactly = 1) {
                 arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)
@@ -121,9 +115,7 @@ class TeamMigrationViewModelTest {
                 .withMigrateFromPersonalToTeamErrorNoNetwork()
                 .arrange()
 
-            val onSuccess = {}
-
-            viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+            viewModel.migrateFromPersonalToTeamAccount()
 
             coVerify(exactly = 1) {
                 arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)
@@ -139,10 +131,9 @@ class TeamMigrationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withMigrateFromPersonalToTeamSuccess()
             .arrange()
-        val onSuccess = {}
         viewModel.teamMigrationState.teamNameTextState.setTextAndPlaceCursorAtEnd(" ${Arrangement.TEAM_NAME} ")
         // when
-        viewModel.migrateFromPersonalToTeamAccount(onSuccess)
+        viewModel.migrateFromPersonalToTeamAccount()
         // then
         coVerify(exactly = 1) {
             arrangement.migrateFromPersonalToTeam(Arrangement.TEAM_NAME)

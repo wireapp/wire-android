@@ -21,6 +21,7 @@ package com.wire.android.ui.userprofile.image
 import android.content.Context
 import android.net.Uri
 import app.cash.turbine.test
+import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
@@ -45,7 +46,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -72,7 +72,7 @@ class AvatarPickerViewModelTest {
 
             avatarPickerViewModel.infoMessage.test {
                 // When
-                avatarPickerViewModel.uploadNewPickedAvatar(arrangement.onSuccess)
+                avatarPickerViewModel.uploadNewPickedAvatar()
 
                 // Then
                 with(arrangement) {
@@ -80,7 +80,7 @@ class AvatarPickerViewModelTest {
                         uploadUserAvatarUseCase(any(), any())
                         userDataStore.updateUserAvatarAssetId(uploadedAssetId.toString())
                     }
-                    verify(exactly = 1) { onSuccess(any()) }
+                    assertIs<AvatarPickerViewModel.PictureState.Completed>(avatarPickerViewModel.pictureState)
                 }
 
                 expectNoEvents()
@@ -97,7 +97,7 @@ class AvatarPickerViewModelTest {
 
         avatarPickerViewModel.infoMessage.test {
             // When
-            avatarPickerViewModel.uploadNewPickedAvatar(arrangement.onSuccess)
+            avatarPickerViewModel.uploadNewPickedAvatar()
 
             // Then
             with(arrangement) {
@@ -107,7 +107,7 @@ class AvatarPickerViewModelTest {
                 coVerify(exactly = 1) {
                     avatarImageManager.getWritableAvatarUri(any())
                 }
-                verify(exactly = 0) { onSuccess(any()) }
+                assertIs<AvatarPickerViewModel.PictureState.Initial>(avatarPickerViewModel.pictureState) // not PictureState.Completed
             }
 
             assertEquals(AvatarPickerViewModel.InfoMessageType.UploadAvatarError.uiText, awaitItem())
@@ -122,7 +122,7 @@ class AvatarPickerViewModelTest {
             .withErrorUploadResponse()
             .arrange()
         // When
-        avatarPickerViewModel.uploadNewPickedAvatar(arrangement.onSuccess)
+        avatarPickerViewModel.uploadNewPickedAvatar()
         // Then
         assertInstanceOf(AvatarPickerViewModel.PictureState.Empty::class.java, avatarPickerViewModel.pictureState)
     }
@@ -135,7 +135,7 @@ class AvatarPickerViewModelTest {
             .withErrorUploadResponse()
             .arrange()
         // When
-        avatarPickerViewModel.uploadNewPickedAvatar(arrangement.onSuccess)
+        avatarPickerViewModel.uploadNewPickedAvatar()
         // Then
         assertInstanceOf(AvatarPickerViewModel.PictureState.Initial::class.java, avatarPickerViewModel.pictureState)
     }
@@ -175,8 +175,6 @@ class AvatarPickerViewModelTest {
         val avatarImageManager = mockk<AvatarImageManager>()
 
         val context = mockk<Context>()
-
-        val onSuccess = mockk<(String?) -> Unit>(relaxed = true)
 
         @MockK
         private lateinit var qualifiedIdMapper: QualifiedIdMapper

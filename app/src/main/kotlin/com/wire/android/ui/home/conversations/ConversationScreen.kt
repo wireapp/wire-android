@@ -73,12 +73,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
 import com.ramcosta.composedestinations.result.OpenResultRecipient
@@ -97,9 +97,11 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.PageLoadingIndicator
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
@@ -136,8 +138,9 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFil
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
+import com.wire.android.ui.home.conversations.call.ConversationCallViewActions
+import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
-import com.wire.android.ui.home.conversations.call.ConversationListCallViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
@@ -220,7 +223,6 @@ private const val MAX_GROUP_SIZE_FOR_PING = 3
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Suppress("ComplexMethod")
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = ConversationNavArgs::class
 )
@@ -234,7 +236,7 @@ fun ConversationScreen(
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
     conversationBannerViewModel: ConversationBannerViewModel = hiltViewModel(),
-    conversationListCallViewModel: ConversationListCallViewModel = hiltViewModel(),
+    conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
     messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
     sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
@@ -289,8 +291,11 @@ fun ConversationScreen(
 
     LaunchedEffect(alreadyDeletedByUser) {
         if (!alreadyDeletedByUser) {
-            conversationInfoViewModel.observeConversationDetails(navigator::navigateBack)
+            conversationInfoViewModel.observeConversationDetails()
         }
+    }
+    LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.notFound) {
+        if (conversationInfoViewModel.conversationInfoViewState.notFound) navigator.navigateBack()
     }
 
     // set message composer input to edit mode when editMessage is not null from MessageDraft
@@ -315,8 +320,22 @@ fun ConversationScreen(
     }
 
     LaunchedEffect(Unit) {
-        conversationListCallViewModel.callingEnabled.collect {
+        conversationCallViewModel.callingEnabled.collect {
             showDialog.value = ConversationScreenDialogType.CALLING_FEATURE_ACTIVATED
+        }
+    }
+
+    HandleActions(conversationCallViewModel.actions) { action ->
+        when (action) {
+            is ConversationCallViewActions.InitiatedCall -> {
+                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString()))
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
+            }
+
+            is ConversationCallViewActions.JoinedCall -> {
+                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString()))
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
+            }
         }
     }
 
@@ -329,36 +348,27 @@ fun ConversationScreen(
         )
     }
 
-    with(conversationListCallViewModel) {
+    with(conversationCallViewModel) {
         if (conversationCallViewState.shouldShowJoinAnywayDialog) {
             appLogger.i("showing showJoinAnywayDialog..")
             JoinAnywayDialog(
                 onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = {
-                    joinAnyway {
-                        getOngoingCallIntent(context, it.toString()).run {
-                            context.startActivity(this)
-                        }
-                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                    }
-                }
+                onConfirm = ::joinAnyway,
             )
         }
     }
 
     when (showDialog.value) {
         ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
-            OngoingActiveCallDialog(onJoinAnyways = {
-                conversationListCallViewModel.endEstablishedCallIfAny {
-                    getOutgoingCallIntent(context, conversationListCallViewModel.conversationId.toString()).run {
-                        context.startActivity(this)
-                    }
-                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
+            OngoingActiveCallDialog(
+                onInitiateCallAnyway = {
+                    conversationCallViewModel.initiateCall()
+                    showDialog.value = ConversationScreenDialogType.NONE
+                },
+                onDialogDismiss = {
+                    showDialog.value = ConversationScreenDialogType.NONE
                 }
-                showDialog.value = ConversationScreenDialogType.NONE
-            }, onDialogDismiss = {
-                showDialog.value = ConversationScreenDialogType.NONE
-            })
+            )
         }
 
         ConversationScreenDialogType.NO_CONNECTIVITY -> {
@@ -369,18 +379,13 @@ fun ConversationScreen(
 
         ConversationScreenDialogType.CALL_CONFIRMATION -> {
             ConfirmStartCallDialog(
-                participantsCount = conversationListCallViewModel.conversationCallViewState.participantsCount,
+                participantsCount = conversationCallViewModel.conversationCallViewState.participantsCount,
                 onConfirm = {
                     startCallIfPossible(
-                        conversationListCallViewModel,
+                        conversationCallViewModel,
                         showDialog,
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenOutgoingCallScreen = {
-                            getOutgoingCallIntent(context, it.toString()).run {
-                                context.startActivity(this)
-                            }
-                        },
                         onOpenOngoingCallScreen = {
                             getOngoingCallIntent(context, it.toString()).run {
                                 context.startActivity(this)
@@ -396,7 +401,7 @@ fun ConversationScreen(
 
         ConversationScreenDialogType.PING_CONFIRMATION -> {
             ConfirmSendingPingDialog(
-                participantsCount = conversationListCallViewModel.conversationCallViewState.participantsCount,
+                participantsCount = conversationCallViewModel.conversationCallViewState.participantsCount,
                 onConfirm = {
                     showDialog.value = ConversationScreenDialogType.NONE
                     sendMessageViewModel.trySendMessage(Ping(conversationMessagesViewModel.conversationId))
@@ -437,17 +442,12 @@ fun ConversationScreen(
         ConversationScreenDialogType.VERIFICATION_DEGRADED -> {
             SureAboutCallingInDegradedConversationDialog(
                 callAnyway = {
-                    conversationListCallViewModel.onApplyConversationDegradation()
+                    conversationCallViewModel.onApplyConversationDegradation()
                     startCallIfPossible(
-                        conversationListCallViewModel,
+                        conversationCallViewModel,
                         showDialog,
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenOutgoingCallScreen = {
-                            getOutgoingCallIntent(context, it.toString()).run {
-                                context.startActivity(this)
-                            }
-                        },
                         onOpenOngoingCallScreen = {
                             getOngoingCallIntent(context, it.toString()).run {
                                 context.startActivity(this)
@@ -466,7 +466,7 @@ fun ConversationScreen(
         bannerMessage = conversationBannerViewModel.bannerState,
         messageComposerViewState = messageComposerViewState.value,
         bottomSheetVisible = conversationScreenState.isAnySheetVisible,
-        conversationCallViewState = conversationListCallViewModel.conversationCallViewState,
+        conversationCallViewState = conversationCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
         attachments = messageAttachmentsViewModel.attachments,
@@ -487,7 +487,7 @@ fun ConversationScreen(
         },
         onSendMessage = { sendMessageViewModel.trySendMessage(it) },
         onPingOptionClicked = {
-            if (conversationListCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
+            if (conversationCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
                 showDialog.value = ConversationScreenDialogType.PING_CONFIRMATION
             } else {
                 showDialog.value = ConversationScreenDialogType.NONE
@@ -546,15 +546,10 @@ fun ConversationScreen(
         },
         onStartCall = {
             startCallIfPossible(
-                conversationListCallViewModel,
+                conversationCallViewModel,
                 showDialog,
                 coroutineScope,
                 conversationInfoViewModel.conversationInfoViewState.conversationType,
-                onOpenOutgoingCallScreen = {
-                    getOutgoingCallIntent(context, it.toString()).run {
-                        context.startActivity(this)
-                    }
-                },
                 onOpenOngoingCallScreen = {
                     getOngoingCallIntent(context, it.toString()).run {
                         context.startActivity(this)
@@ -562,14 +557,7 @@ fun ConversationScreen(
                 }
             )
         },
-        onJoinCall = {
-            conversationListCallViewModel.joinOngoingCall {
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                getOngoingCallIntent(context, it.toString()).run {
-                    context.startActivity(this)
-                }
-            }
-        },
+        onJoinCall = conversationCallViewModel::joinOngoingCall,
         onReactionClick = { messageId, emoji ->
             conversationMessagesViewModel.toggleReaction(messageId, emoji)
         },
@@ -653,7 +641,7 @@ fun ConversationScreen(
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
     DeleteMessageDialog(
-        state = conversationMessagesViewModel.deleteMessageDialogsState,
+        state = conversationMessagesViewModel.deleteMessageDialogState,
         actions = conversationMessagesViewModel.deleteMessageHelper
     )
     DownloadedAssetDialog(
@@ -810,44 +798,40 @@ private fun conversationScreenOnBackButtonClick(
 
 @Suppress("LongParameterList")
 private fun startCallIfPossible(
-    conversationListCallViewModel: ConversationListCallViewModel,
+    conversationCallViewModel: ConversationCallViewModel,
     showDialog: MutableState<ConversationScreenDialogType>,
     coroutineScope: CoroutineScope,
     conversationType: Conversation.Type,
-    onOpenOutgoingCallScreen: (ConversationId) -> Unit,
     onOpenOngoingCallScreen: (ConversationId) -> Unit
 ) {
     coroutineScope.launch {
-        if (!conversationListCallViewModel.hasStableConnectivity()) {
+        if (!conversationCallViewModel.hasStableConnectivity()) {
             showDialog.value = ConversationScreenDialogType.NO_CONNECTIVITY
-        } else if (conversationListCallViewModel.shouldInformAboutVerification.value) {
+        } else if (conversationCallViewModel.shouldInformAboutVerification.value) {
             showDialog.value = ConversationScreenDialogType.VERIFICATION_DEGRADED
         } else {
-            val dialogValue = when (conversationListCallViewModel.isConferenceCallingEnabled(conversationType)) {
+            val dialogValue = when (conversationCallViewModel.isConferenceCallingEnabled(conversationType)) {
                 ConferenceCallingResult.Enabled -> {
                     if (
                         showDialog.value != ConversationScreenDialogType.CALL_CONFIRMATION &&
-                        conversationListCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT
+                        conversationCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT
                     ) {
                         ConversationScreenDialogType.CALL_CONFIRMATION
                     } else {
-                        conversationListCallViewModel.endEstablishedCallIfAny {
-                            onOpenOutgoingCallScreen(conversationListCallViewModel.conversationId)
-                            AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
-                        }
+                        conversationCallViewModel.initiateCall()
                         ConversationScreenDialogType.NONE
                     }
                 }
 
                 ConferenceCallingResult.Disabled.Established -> {
-                    onOpenOngoingCallScreen(conversationListCallViewModel.conversationId)
+                    onOpenOngoingCallScreen(conversationCallViewModel.conversationId)
                     AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                     ConversationScreenDialogType.NONE
                 }
 
                 ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
                 ConferenceCallingResult.Disabled.Unavailable -> {
-                    when (conversationListCallViewModel.selfTeamRole.value) {
+                    when (conversationCallViewModel.selfTeamRole.value) {
                         UserType.INTERNAL -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER
                         UserType.OWNER,
                         UserType.ADMIN -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN
@@ -1001,6 +985,7 @@ private fun ConversationScreen(
                         openDrawingCanvas = openDrawingCanvas,
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
+                        showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
                     )
                 }
             }
@@ -1082,6 +1067,7 @@ private fun ConversationScreenContent(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
+    showHistoryLoadingIndicator: Boolean = false,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -1089,7 +1075,7 @@ private fun ConversationScreenContent(
         LazyListState(unreadEventCount)
     }
 
-    var showEmojiPickerForMessage by remember { mutableStateOf<String?>(null) }
+    val emojiPickerState = rememberWireModalSheetState<String>(skipPartiallyExpanded = false)
 
     MessageComposer(
         conversationId = conversationId,
@@ -1119,12 +1105,13 @@ private fun ConversationScreenContent(
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                 onSwipedToReply = onSwipedToReply,
                 onSwipedToReact = { message ->
-                    showEmojiPickerForMessage = message.header.messageId
+                    emojiPickerState.show(message.header.messageId)
                 },
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
-                currentTimeInMillisFlow = currentTimeInMillisFlow
+                currentTimeInMillisFlow = currentTimeInMillisFlow,
+                showHistoryLoadingIndicator = showHistoryLoadingIndicator,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1143,18 +1130,13 @@ private fun ConversationScreenContent(
         onAudioRecorded = onAudioRecorded,
     )
 
-    showEmojiPickerForMessage?.let { messageId ->
-        EmojiPickerBottomSheet(
-            isVisible = true,
-            onEmojiSelected = { emoji ->
-                onReactionClicked(messageId, emoji)
-                showEmojiPickerForMessage = null
-            },
-            onDismiss = {
-                showEmojiPickerForMessage = null
-            },
-        )
-    }
+    EmojiPickerBottomSheet(
+        sheetState = emojiPickerState,
+        onEmojiSelected = { emoji, messageId ->
+            emojiPickerState.hide()
+            onReactionClicked(messageId, emoji)
+        },
+    )
 }
 
 @Composable
@@ -1208,7 +1190,8 @@ fun MessageList(
     interactionAvailability: InteractionAvailability,
     clickActions: MessageClickActions.Content,
     modifier: Modifier = Modifier,
-    currentTimeInMillisFlow: Flow<Long> = flow { }
+    currentTimeInMillisFlow: Flow<Long> = flow { },
+    showHistoryLoadingIndicator: Boolean = false,
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1338,6 +1321,41 @@ fun MessageList(
                             )
                         }
                     }
+                }
+                // reverse layout, so prepend needs to be added after all messages to be displayed at the top of the list
+                if (showHistoryLoadingIndicator && lazyPagingMessages.itemCount > 0) {
+                    item(
+                        key = "prepend_loading_indicator",
+                        contentType = "prepend_loading_indicator",
+                        content = {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensions().spacing16x),
+                            ) {
+                                var allMessagesPrepended by remember { mutableStateOf(false) }
+                                LaunchedEffect(lazyPagingMessages.loadState) {
+                                    // When the list is being refreshed, the load state for prepend is cleared so the app doesn't know if
+                                    // the end of pagination is reached or not for prepend until the refresh is done, so we don't want to
+                                    // update the allMessagesPrepended state while refreshing and in that case keep the last updated state,
+                                    // otherwise the indicator will flicker while refreshing.
+                                    if (lazyPagingMessages.loadState.refresh is LoadState.NotLoading) {
+                                        allMessagesPrepended = lazyPagingMessages.loadState.prepend.endOfPaginationReached
+                                    }
+                                }
+
+                                val (text, prefixIconResId) = when (allMessagesPrepended) {
+                                    true -> stringResource(R.string.conversation_history_loaded) to null
+                                    false -> stringResource(R.string.conversation_history_loading) to R.drawable.ic_undo
+                                }
+                                PageLoadingIndicator(
+                                    text = text,
+                                    prefixIconResId = prefixIconResId,
+                                )
+                            }
+                        }
+                    )
                 }
             }
             JumpToPlayingAudioButton(

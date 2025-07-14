@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Wire
+  ~ Copyright (C) 2025 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<resources>
+    <string name="retry">Retry</string>
+    <string name="file_list_load_error">There was an error loading the files list. Please try again</string>
+    <string name="file_list_empty_message">There are no files yet You\'ll find all files shared across your conversations here.</string>
+    <string name="conversation_file_list_empty_message">There are no files in this conversation.</string>
+    <string name="file_list_search_empty_message">No files found.</string>
+    <string name="save_label">Save</string>
+    <string name="share_label">Share</string>
+    <string name="public_link">Copy public link</string>
+    <string name="delete_label">Delete</string>
+    <string name="delete_permanently">Delete permanently</string>
+    <string name="restore_label">Restore</string>
+    <string name="move_label">Move</string>
+    <string name="download_label">Download folder</string>
+    <string name="copy_link">Copy link</string>
+    <string name="share_link">Share link</string>
+    <string name="copied_to_clipboard_message">Link copied to clipboard</string>
+    <string name="file_subtitle">%1$s in %2$s</string>
+    <string name="file_subtitle_modified">%1$s by %2$s</string>
+    <string name="public_link_message_file">Your file will be shared via a public link. Only those with the link can view it—ensure you trust your recipients.</string>
+    <string name="public_link_message_folder">Your folder will be shared via a public link. Only those with the link can view it—ensure you trust your recipients.</string>
+    <string name="create_public_link">Enable public link</string>
+    <string name="share_file_via_link">Share file via link</string>
+    <string name="share_folder_via_link">Share folder via link</string>
+    <string name="no_app_found">No application found to open the file.</string>
+    <string name="cell_files_load_failure_message">Failed to load. Please try again later.</string>
+    <string name="action_failed">Action failed.</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm_delete_file_title">Delete file</string>
+    <string name="confirm_delete_file_text">Please confirm deleting file from cell.</string>
+    <string name="reload">Reload</string>
+    <string name="error_delete_public_link">Failed to remove public link.</string>
+    <string name="error_load_public_link">Failed to load public link.</string>
+    <string name="error_create_public_link">Failed to create public link.</string>
+    <string name="cell_files_download_failure_message">Download failed.</string>
+    <string name="download_file_message">This file is not downloaded yet. Do you want to download it now?</string>
+    <string name="download">Download</string>
+    <string name="downloading_file_message">This file is being downloaded…</string>
+    <string name="error_share_link">Failed to share link.</string>
+    <string name="conversation_files_title">Files</string>
+    <string name="creating_link">Creating public link…</string>
+    <string name="cells_new_label">New</string>
+    <string name="cells_new_label_content_description">New</string>
+    <string name="cells_create_folder">Create Folder</string>
+    <string name="cells_folder_name">Folder Name</string>
+    <string name="loading_files">Loading files…</string>
+    <string name="create_folder_error">There was an error while creating a new folder. Please try again</string>
+    <string name="move_to_folder">Move to Folder</string>
+    <string name="move_here">Move Here</string>
+    <string name="no_subfolders_message">There are no subfolders in this folder.</string>
+    <string name="item_move_success">Item was moved to folder.</string>
+    <string name="item_move_failure">Failed to move the Item.</string>
+</resources>

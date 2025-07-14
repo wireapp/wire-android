@@ -19,8 +19,10 @@
 package com.wire.android.notification
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.app.Notification
 import android.content.Context
+import android.os.Build
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.CallStyle
@@ -63,6 +65,7 @@ class CallNotificationManager @Inject constructor(
 ) {
 
     private val notificationManager = NotificationManagerCompat.from(context)
+    private val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val incomingCallsForUsers = MutableStateFlow<Map<UserId, IncomingCallsForUser>>(mapOf())
 
@@ -158,6 +161,23 @@ class CallNotificationManager @Inject constructor(
         notificationManager.notify(tag, id, notification)
     }
 
+    fun areServiceNotificationsEnabled(): Boolean {
+
+        val isBackgroundRestricted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            activityManager.isBackgroundRestricted
+        } else {
+            false
+        }
+
+        return notificationManager.areNotificationsEnabled() && !isBackgroundRestricted
+    }
+
+    fun showNotification(id: NotificationIds, notification: Notification) {
+        if (notificationManager.areNotificationsEnabled()) {
+            notificationManager.notify(id.ordinal, notification)
+        }
+    }
+
     companion object {
         private const val TAG = "CallNotificationManager"
 
@@ -175,7 +195,7 @@ class CallNotificationBuilder @Inject constructor(
         val userIdString = data.userId.toString()
         val conversationIdString = data.conversationId.toString()
         val channelId = NotificationConstants.getOutgoingChannelId(data.userId)
-        val person = Person.Builder().setName(data.conversationName).build()
+        val person = Person.Builder().setName(data.conversationName ?: "").build()
 
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
         return notificationBuilder

@@ -41,7 +41,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
@@ -74,22 +74,15 @@ fun TeamMigrationConfirmationStepScreen(
 ) {
     val state = teamMigrationViewModel.teamMigrationState
 
+    LaunchedEffect(state.migrationCompleted) {
+        if (state.migrationCompleted) {
+            navigator.navigate(NavigationCommand(TeamMigrationDoneStepScreenDestination, BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
+        }
+    }
+
     TeamMigrationConfirmationStepScreenContent(
         isMigrating = state.isMigrating,
-        onContinueButtonClicked = {
-            teamMigrationViewModel.setIsMigratingState(true)
-            teamMigrationViewModel.migrateFromPersonalToTeamAccount(
-                onSuccess = {
-                    teamMigrationViewModel.setIsMigratingState(false)
-                    navigator.navigate(
-                        NavigationCommand(
-                            TeamMigrationDoneStepScreenDestination,
-                            BackStackMode.REMOVE_CURRENT_NESTED_GRAPH
-                        )
-                    )
-                }
-            )
-        },
+        onContinueButtonClicked = teamMigrationViewModel::migrateFromPersonalToTeamAccount,
         onBackButtonClicked = navigator::navigateBack,
     )
 

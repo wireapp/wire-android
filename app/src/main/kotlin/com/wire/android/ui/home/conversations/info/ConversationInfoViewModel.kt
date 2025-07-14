@@ -22,13 +22,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.UIText
@@ -50,12 +50,12 @@ import javax.inject.Inject
 @HiltViewModel
 class ConversationInfoViewModel @Inject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val globalDataStore: GlobalDataStore,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     @CurrentAccount private val selfUserId: UserId,
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
@@ -78,16 +78,17 @@ class ConversationInfoViewModel @Inject constructor(
         is removed without back params indicating that the user actually have just done that. The info about the group being removed
         could appear before the back navigation params. That's why it's being observed in the `LaunchedEffect` in the Composable.
     */
-    suspend fun observeConversationDetails(onNotFound: () -> Unit) {
+    suspend fun observeConversationDetails() {
         observeConversationDetails(conversationId)
-            .collect { it.handleConversationDetailsResult(onNotFound) }
+            .collect { it.handleConversationDetailsResult() }
     }
 
-    private suspend fun ObserveConversationDetailsUseCase.Result.handleConversationDetailsResult(onNotFound: () -> Unit) {
+    private suspend fun ObserveConversationDetailsUseCase.Result.handleConversationDetailsResult() {
         when (this) {
             is ObserveConversationDetailsUseCase.Result.Failure -> {
                 when (val failure = this.storageFailure) {
-                    is StorageFailure.DataNotFound -> onNotFound()
+                    is StorageFailure.DataNotFound ->
+                        conversationInfoViewState = conversationInfoViewState.copy(notFound = true)
 
                     is StorageFailure.Generic ->
                         appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)

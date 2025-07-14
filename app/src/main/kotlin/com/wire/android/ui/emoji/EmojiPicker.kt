@@ -17,42 +17,84 @@
  */
 package com.wire.android.ui.emoji
 
-import android.view.View
+import android.content.Context
+import android.view.ContextThemeWrapper
+import android.view.MotionEvent
+import android.widget.FrameLayout
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.emoji2.emojipicker.EmojiPickerView
-import com.google.android.material.bottomsheet.BottomSheetDragHandleView
 import com.wire.android.R
+import com.wire.android.ui.common.ArrowLeftIcon
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
+import com.wire.android.ui.common.bottomsheet.ModalSheetHeaderItem
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 
 @Composable
-fun EmojiPickerBottomSheet(
-    isVisible: Boolean,
-    onDismiss: () -> Unit = {},
-    onEmojiSelected: (emoji: String) -> Unit
+fun <T : Any> EmojiPickerBottomSheet(
+    sheetState: WireModalSheetState<T>,
+    onEmojiSelected: (emoji: String, stateParameter: T) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-    val dialog = remember {
-        HandleDraggableBottomSheetDialog(context).apply {
-            setContentView(R.layout.view_emoji_picker).run {
-                findViewById<View>(R.id.emoji_picker_back_button)?.setOnClickListener {
-                    dismiss()
-                    onDismiss.invoke()
-                }
-                findViewById<EmojiPickerView>(R.id.emoji_picker)?.setOnEmojiPickedListener { emojiViewItem ->
-                    dismiss()
-                    onEmojiSelected(emojiViewItem.emoji)
-                }
-                findViewById<BottomSheetDragHandleView>(R.id.handle)?.let { handle ->
-                    getBehavior().dragHandle = handle
-                }
+    WireModalSheetLayout(
+        sheetState = sheetState,
+        containerColor = colorsScheme().surface
+    ) { stateParameter: T ->
+        Column(modifier = modifier.fillMaxSize()) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                ModalSheetHeaderItem(
+                    header = MenuModalSheetHeader.Visible(
+                        title = stringResource(R.string.emoji_picker_select_reaction),
+                        customVerticalPadding = dimensions().spacing8x,
+                        leadingIcon = {
+                            IconButton(onClick = { sheetState.hide() }) {
+                                ArrowLeftIcon()
+                            }
+                        },
+                        includeDivider = false,
+                    )
+                )
             }
-            setOnCancelListener { onDismiss.invoke() }
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(colorsScheme().surfaceContainer)
+            ) {
+                val emojiSize = dimensions().inCallReactionButtonSize
+                AndroidView(
+                    modifier = Modifier.fillMaxSize(),
+                    factory = {
+                        TouchWrappingLayout(it).apply {
+                            addView(
+                                EmojiPickerView(ContextThemeWrapper(it, R.style.EmojiPickerViewStyle)).apply {
+                                    emojiGridColumns = (maxWidth / emojiSize).toInt()
+                                    setOnEmojiPickedListener { emojiViewItem -> onEmojiSelected(emojiViewItem.emoji, stateParameter) }
+                                }
+                            )
+                        }
+                    }
+                )
+            }
         }
     }
-    if (isVisible) {
-        dialog.show()
-    } else {
-        dialog.hide()
+}
+
+private class TouchWrappingLayout(context: Context) : FrameLayout(context) {
+    override fun onInterceptTouchEvent(e: MotionEvent): Boolean {
+        parent.requestDisallowInterceptTouchEvent(true)
+        return super.onInterceptTouchEvent(e)
     }
 }

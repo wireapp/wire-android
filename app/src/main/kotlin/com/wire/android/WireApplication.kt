@@ -230,6 +230,7 @@ class WireApplication : BaseApp() {
                 coreLogic.get().getSessionScope(userId).analyticsIdentifierManager
             },
             userDataStoreProvider = userDataStoreProvider.get(),
+            globalDataStore = globalDataStore.get(),
             currentBackend = { userId ->
                 coreLogic.get().getSessionScope(userId).users.serverLinks()
             }

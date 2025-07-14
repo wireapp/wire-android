@@ -39,14 +39,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
@@ -74,7 +73,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@RootNavGraph
 @WireDestination(
     style = PopUpNavigationAnimation::class,
 )

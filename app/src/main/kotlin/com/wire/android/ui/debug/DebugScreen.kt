@@ -40,20 +40,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
@@ -63,10 +59,8 @@ import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
-import com.wire.kalium.logic.data.user.UserId
 import java.io.File
 
-@RootNavGraph
 @WireDestination
 @Composable
 fun DebugScreen(
@@ -75,14 +69,6 @@ fun DebugScreen(
 ) {
     UserDebugContent(
         onNavigationPressed = navigator::navigateBack,
-        onManualMigrationPressed = {
-            navigator.navigate(
-                NavigationCommand(
-                    MigrationScreenDestination(it),
-                    BackStackMode.CLEAR_WHOLE
-                )
-            )
-        },
         state = userDebugViewModel.state,
         onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
         onDeleteLogs = userDebugViewModel::deleteLogs,
@@ -95,7 +81,6 @@ fun DebugScreen(
 internal fun UserDebugContent(
     state: UserDebugState,
     onNavigationPressed: () -> Unit,
-    onManualMigrationPressed: (currentAccount: UserId) -> Unit,
     onLoggingEnabledChange: (Boolean) -> Unit,
     onDatabaseLoggerEnabledChanged: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
@@ -133,7 +118,6 @@ internal fun UserDebugContent(
                     appVersion = AppNameUtil.createAppName(),
                     buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
                     onCopyText = debugContentState::copyToClipboard,
-                    onManualMigrationPressed = onManualMigrationPressed
                 )
                 DebugWireCellOptions(
                     isCellFeatureEnabled = isWireCellFeatureEnabled,
@@ -246,7 +230,6 @@ internal fun PreviewUserDebugContent() = WireTheme {
             logPath = "/data/user/0/com.wire.android/files/logs"
         ),
         onNavigationPressed = {},
-        onManualMigrationPressed = {},
         onLoggingEnabledChange = {},
         onDeleteLogs = {},
         onDatabaseLoggerEnabledChanged = {},

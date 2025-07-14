@@ -47,11 +47,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
+import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
@@ -83,15 +84,16 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.CreateAccountSelectorScreenDestination
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
-import com.wire.android.ui.newauthentication.login.NewLoginContainer
-import com.wire.android.ui.newauthentication.login.NewLoginHeader
-import com.wire.android.ui.newauthentication.login.NewLoginSubtitle
+import com.wire.android.ui.newauthentication.login.NewAuthContainer
+import com.wire.android.ui.newauthentication.login.NewAuthHeader
+import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -129,7 +131,18 @@ fun NewLoginPasswordScreen(
         passwordTextState = loginEmailViewModel.passwordTextState,
         onLoginButtonClick = loginEmailViewModel::login,
         onCreateAccount = {
-            navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
+            if (ENABLE_NEW_REGISTRATION) {
+                navigator.navigate(
+                    NavigationCommand(
+                        CreateAccountSelectorScreenDestination(
+                            customServerConfig = loginEmailViewModel.serverConfig,
+                            email = loginEmailViewModel.userIdentifierTextState.text.toString()
+                        )
+                    )
+                )
+            } else {
+                navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
+            }
         },
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = loginEmailViewModel::cancelLogin,
@@ -156,9 +169,9 @@ internal fun LoginPasswordContent(
     navigateBack: () -> Unit,
     isCloudAccountCreationPossible: Boolean,
 ) {
-    NewLoginContainer(
+    NewAuthContainer(
         header = {
-            NewLoginHeader(
+            NewAuthHeader(
                 title = {
                     if (serverConfig.isOnPremises) {
                         ServerTitle(
@@ -169,7 +182,7 @@ internal fun LoginPasswordContent(
                             modifier = Modifier.padding(bottom = dimensions().spacing24x),
                         )
                     }
-                    NewLoginSubtitle(
+                    NewAuthSubtitle(
                         title = stringResource(id = R.string.enterprise_login_password_title),
                     )
                 },

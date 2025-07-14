@@ -20,12 +20,12 @@ package com.wire.android.feature.cells.ui
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 
-@Destination(
+@WireDestination(
     style = SlideNavigationAnimation::class,
     navArgsDelegate = CellFilesNavArgs::class,
 )
@@ -40,10 +40,12 @@ fun ConversationFilesWithSlideInTransitionScreen(
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
         screenTitle = cellFilesNavArgs.screenTitle,
+        isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
+        breadcrumbs = cellFilesNavArgs.breadcrumbs,
         sendIntent = { viewModel.sendIntent(it) },
         navigationIconType = NavigationIconType.Back()
     )

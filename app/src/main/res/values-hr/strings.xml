@@ -139,7 +139,6 @@
     <string name="content_description_calling_turn_camera_off">Isključi kameru</string>
     <string name="content_description_calling_turn_speaker_on">Uključi zvučnik</string>
     <string name="content_description_calling_turn_speaker_off">Isključi zvučnik</string>
-    <string name="content_description_show_more_options">Pokaži više mogućnosti</string>
     <string name="content_description_reply_to_messge">Odgovori na poruku</string>
     <string name="content_description_reply_cancel">Otkaži odgovor na poruku</string>
     <string name="content_description_ping_message">Ping poruka</string>
@@ -293,13 +292,11 @@
     <string name="label_quote_original_message_is_a_picture">Slika</string>
     <string name="label_quote_original_message_date">Originalna poruka od %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Stvorite osobni račun</string>
     <string name="create_personal_account_summary_title">Osobni račun kreiran</string>
     <string name="create_personal_account_text">Sigurno razgovarajte s prijateljima i obitelji koristeći Wireov javni poslužitelj.</string>
     <string name="create_personal_account_email_text">Unesite svoj email kako biste počeli koristiti najsigurniju platformu za suradnju.</string>
     <string name="create_personal_account_details_text">Unesite osobne podatke:</string>
     <string name="create_personal_account_summary_text">Uspješno ste kreirali svoj timski račun. Počnite komunicirati sigurno – gdje god bili!</string>
-    <string name="create_team_title">Stvorite tim</string>
     <string name="create_team_summary_title">Tim Kreiran</string>
     <string name="create_team_text">Slanje poruka za male organizacije ili konzultantske tvrtke za jednu osobu.\n</string>
     <string name="create_team_learn_more">Saznajte više o planovima i cijenama</string>

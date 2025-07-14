@@ -19,7 +19,6 @@
 package com.wire.android.util.lifecycle
 
 import com.wire.android.framework.fake.FakeSyncExecutor
-import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -113,13 +112,10 @@ class SyncLifecycleManagerTest {
         @MockK
         lateinit var sessionRepository: SessionRepository
 
-        @MockK
-        lateinit var migrationManager: MigrationManager
-
         var syncExecutor = FakeSyncExecutor()
 
         private val syncLifecycleManager by lazy {
-            SyncLifecycleManager(currentScreenManager, coreLogic, migrationManager)
+            SyncLifecycleManager(currentScreenManager, coreLogic)
         }
 
         init {
@@ -127,7 +123,6 @@ class SyncLifecycleManagerTest {
 
             every { coreLogic.getGlobalScope().sessionRepository } returns sessionRepository
             every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
-            every { migrationManager.isMigrationCompletedFlow() } returns flowOf(true)
             coEvery { sessionRepository.allValidSessionsFlow() } returns flowOf(
                 Either.Right(listOf(AccountInfo.Valid(userId = USER_ID)))
             )

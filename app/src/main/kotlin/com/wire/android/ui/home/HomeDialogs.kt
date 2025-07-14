@@ -33,32 +33,6 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun WelcomeNewUserDialog(
-    dismissDialog: () -> Unit,
-    context: Context = LocalContext.current
-) {
-    val welcomeToNewAndroidUrl = stringResource(id = R.string.url_welcome_to_new_android)
-    WireDialog(
-        title = stringResource(id = R.string.welcome_migration_dialog_title),
-        text = stringResource(id = R.string.welcome_migration_dialog_content),
-        onDismiss = dismissDialog,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = {
-                dismissDialog.invoke()
-                CustomTabsHelper.launchUrl(context, welcomeToNewAndroidUrl)
-            },
-            text = stringResource(id = R.string.label_learn_more),
-            type = WireDialogButtonType.Primary,
-        ),
-        optionButton2Properties = WireDialogButtonProperties(
-            onClick = dismissDialog,
-            text = stringResource(id = R.string.welcome_migration_dialog_continue),
-            type = WireDialogButtonType.Primary,
-        )
-    )
-}
-
-@Composable
 fun AnalyticsUsageDialog(
     agreeOption: () -> Unit = {},
     declineOption: () -> Unit = {},
@@ -88,14 +62,6 @@ fun AnalyticsUsageDialog(
         buttonsHorizontalAlignment = false,
         onDismiss = {}
     )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewWelcomeNewUserDialog() {
-    WireTheme {
-        WelcomeNewUserDialog({})
-    }
 }
 
 @PreviewMultipleThemes

@@ -114,7 +114,6 @@
     <string name="content_description_calling_turn_camera_off">Wy&#322;&#261;cz kamer&#281;</string>
     <string name="content_description_calling_turn_speaker_on">W&#322;&#261;cz g&#322;o&#347;nik</string>
     <string name="content_description_calling_turn_speaker_off">Wy&#322;&#261;cz g&#322;o&#347;nik</string>
-    <string name="content_description_show_more_options">Poka&#380; wi&#281;cej opcji</string>
     <string name="content_description_reply_to_messge">Odpowiedz na wiadomo&#347;&#263;</string>
     <string name="content_description_reply_cancel">Anuluj odpowied&#378; na wiadomo&#347;&#263;</string>
     <string name="content_description_ping_message">Zaczepka</string>
@@ -243,13 +242,11 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="label_quote_original_message_is_a_picture">Zdj&#281;cie</string>
     <string name="label_quote_original_message_date">Oryginalna wiadomo&#347;&#263; z %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Utw&#243;rz Konto Osobiste</string>
     <string name="create_personal_account_summary_title">Utworzono Konto Osobiste</string>
     <string name="create_personal_account_text">Bezpieczne rozmowy z przyjaci&#243;&#322;mi i rodzin&#261; przy u&#380;yciu publicznej chmury Wire.</string>
     <string name="create_personal_account_email_text">Wpisz sw&#243;j adres e-mail, aby zacz&#261;&#263; korzysta&#263; z najbezpieczniejszej platformy do wsp&#243;&#322;pracy.</string>
     <string name="create_personal_account_details_text">Wprowad&#378; swoje dane osobowe:</string>
     <string name="create_personal_account_summary_text">Utworzy&#322;e&#347; swoje konto osobiste. Zacznij komunikowa&#263; si&#281; bezpiecznie - gdziekolwiek jeste&#347;!</string>
-    <string name="create_team_title">Utw&#243;rz Zesp&#243;&#322;</string>
     <string name="create_team_summary_title">Utworzono Zesp&#243;&#322;</string>
     <string name="create_team_content_title">Wire za darmo</string>
     <string name="create_team_text">Wymiana wiadomo&#347;ci dla ma&#322;ych organizacji lub firm konsultingowych jednoosobowych.</string>
@@ -764,7 +761,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="backup_label_conversation_restored">Rozmowy zosta&#322;y przywr&#243;cone</string>
     <string name="backup_label_loading_conversations">&#321;adowanie rozm&#243;w</string>
     <string name="backup_dialog_restore_backup_title">Przywr&#243;&#263; z kopii zapasowej</string>
-    <string name="backup_dialog_restore_backup_message">Zast&#261;pi to histori&#281; rozm&#243;w na tym urz&#261;dzeniu. Mo&#380;na przywr&#243;ci&#263; tylko histori&#281; z kopii zapasowej utworzonej na tej samej platformie.</string>
     <string name="backup_dialog_choose_backup_file_option">Wybierz plik kopii zapasowej</string>
     <string name="backup_label_enter_password">Wprowad&#378; has&#322;o</string>
     <string name="backup_dialog_restore_backup_password_message">Ta kopia zapasowa jest chroniona has&#322;em.</string>

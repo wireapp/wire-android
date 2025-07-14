@@ -18,6 +18,9 @@
 
 package com.wire.android.navigation.style
 
+import androidx.compose.ui.window.DialogProperties
+import com.ramcosta.composedestinations.spec.DestinationStyle
+
 typealias DefaultNavigationAnimation = SlideNavigationAnimation
 
 object SlideNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
@@ -41,4 +44,14 @@ object AuthPopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundSt
 object AuthNoNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.NONE
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
+}
+
+object DialogNavigation : DestinationStyle.Dialog {
+    override val properties: DialogProperties
+        get() = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+            usePlatformDefaultWidth = true,
+            decorFitsSystemWindows = false,
+        )
 }

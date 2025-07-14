@@ -158,7 +158,6 @@
     <string name="content_description_calling_turn_speaker_off">Hangszóró kikapcsolása</string>
     <string name="content_description_calling_in_call_reactions_show">Mutassa a hívásreakciók panelen</string>
     <string name="content_description_calling_in_call_reactions_hide">Rejtse el a hívásreakciók panelen</string>
-    <string name="content_description_show_more_options">További lehetőségek megjelenítése</string>
     <string name="content_description_reply_to_messge">Válasz az üzenetre</string>
     <string name="content_description_reply_cancel">Mégsem válaszol az üzenetre</string>
     <string name="content_description_ping_message">Kopogás üzenet</string>
@@ -335,7 +334,6 @@
     <string name="enterprise_login_user_identifier_label_placeholder">Adja meg e-mail-címét vagy SSO-kódját</string>
     <string name="enterprise_login_error_invalid_user_identifier">Kérjük, adjon meg érvényes e-mail-címet vagy SSO-kódot</string>
     <string name="enterprise_login_create_account_label">Nincsen Wire-fiókja?</string>
-    <string name="enterprise_login_create_account_text_button">Fiók létrehozása</string>
     <string name="enterprise_login_on_prem_welcome_title">Üdvözöljük a(z) %s számára nyújtott Wire Vállalati szolgáltatásban!</string>
     <string name="enterprise_login_verification_code_title">E-mailje érkezett</string>
     <!-- Login -->
@@ -427,13 +425,11 @@
     <string name="label_quote_original_message_is_a_picture">Kép</string>
     <string name="label_quote_original_message_date">%s eredeti üzenete</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Készítsen személyes fiókot</string>
     <string name="create_personal_account_summary_title">Személyes fiók elkészítve</string>
     <string name="create_personal_account_text">Biztonságos csevegés barátokkal és családtagokkal a Wire nyilvános kiszolgálóját használva.</string>
     <string name="create_personal_account_email_text">Adja meg e-mail címét a legbiztonságosabb együttműködési felület használatához.</string>
     <string name="create_personal_account_details_text">Adja meg személyes adatait:</string>
     <string name="create_personal_account_summary_text">Sikeresen létrehozta személyes fiókját. Kezdjen biztonságosan kommunikálni – bárhol is legyen!</string>
-    <string name="create_team_title">Csapat létrehozása</string>
     <string name="create_team_summary_title">Csapat létrehozva</string>
     <string name="create_team_content_title">Ingyenes Wire</string>
     <string name="create_team_text">Üzenetküldés kis szervezetek vagy egyszemélyes tanácsadó cégek számára.\n</string>
@@ -1273,7 +1269,6 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="backup_label_conversation_restored">Beszélgetések visszaállítva</string>
     <string name="backup_label_loading_conversations">Beszélgetések betöltése</string>
     <string name="backup_dialog_restore_backup_title">Visszaállítás biztonsági másolatból </string>
-    <string name="backup_dialog_restore_backup_message">A mentés tartalma felülírja a beszélgetések előzményeit ezen az eszközön. Csak olyan mentést tud visszaállítani, ami ugyanazon a rendszeren (platformon) készült.</string>
     <string name="backup_dialog_choose_backup_file_option">Válasszon biztonsági másolatot</string>
     <string name="backup_label_enter_password">Adja meg a jelszót</string>
     <string name="backup_dialog_restore_backup_password_message">Ez a biztonsági másolat jelszóvédett.</string>

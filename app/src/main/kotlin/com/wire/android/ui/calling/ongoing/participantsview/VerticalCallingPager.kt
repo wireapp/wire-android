@@ -22,9 +22,8 @@ import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -45,15 +44,11 @@ import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid
-import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.CallingHorizontalView
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
-
-private const val MAX_TILES_PER_PAGE = 8
-private const val MAX_ITEMS_FOR_HORIZONTAL_VIEW = 3
 
 @Composable
 fun VerticalCallingPager(
@@ -63,18 +58,19 @@ fun VerticalCallingPager(
     isInPictureInPictureMode: Boolean,
     isOnFrontCamera: Boolean,
     contentHeight: Dp,
+    contentWidth: Dp,
     recentReactions: Map<UserId, String>,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
     flipCamera: () -> Unit,
+    gridParams: CallingGridParams = CallingGridParams.fromScreenDimensions(width = contentWidth, height = contentHeight),
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .height(contentHeight)
+            .size(width = contentWidth, height = contentHeight)
     ) {
         // if PiP is enabled and more than one participant is present,
         // we need to remove the first participant(self user) from the list
@@ -84,8 +80,8 @@ fun VerticalCallingPager(
             } else {
                 participants
             }
-        val participantsPages = remember(participantsWithoutPip) {
-            participantsWithoutPip.chunked(MAX_TILES_PER_PAGE)
+        val participantsPages = remember(participantsWithoutPip, gridParams.maxItemsPerPage) {
+            participantsWithoutPip.chunked(gridParams.maxItemsPerPage)
         }
 
         val pagerState = rememberPagerState(pageCount = { participantsPages.size })
@@ -98,36 +94,21 @@ fun VerticalCallingPager(
                 if (participants.isNotEmpty()) {
                     val participantsWithCameraOn by rememberUpdatedState(participantsWithoutPip.count { it.isCameraOn })
                     val participantsWithScreenShareOn by rememberUpdatedState(participantsWithoutPip.count { it.isSharingScreen })
-
-                    if (participantsPages[pageIndex].size <= MAX_ITEMS_FOR_HORIZONTAL_VIEW) {
-                        CallingHorizontalView(
-                            participants = participantsPages[pageIndex],
-                            isSelfUserMuted = isSelfUserMuted,
-                            isSelfUserCameraOn = isSelfUserCameraOn,
-                            contentHeight = contentHeight,
-                            onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
-                            onSelfClearVideoPreview = onSelfClearVideoPreview,
-                            onDoubleTap = onDoubleTap,
-                            recentReactions = recentReactions,
-                            isOnFrontCamera = isOnFrontCamera,
-                            flipCamera = flipCamera,
-                        )
-                    } else {
-                        GroupCallGrid(
-                            participants = participantsPages[pageIndex],
-                            pageIndex = pageIndex,
-                            isSelfUserMuted = isSelfUserMuted,
-                            isSelfUserCameraOn = isSelfUserCameraOn,
-                            contentHeight = contentHeight,
-                            onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
-                            onSelfClearVideoPreview = onSelfClearVideoPreview,
-                            onDoubleTap = onDoubleTap,
-                            isInPictureInPictureMode = isInPictureInPictureMode,
-                            recentReactions = recentReactions,
-                            isOnFrontCamera = isOnFrontCamera,
-                            flipCamera = flipCamera,
-                        )
-                    }
+                    GroupCallGrid(
+                        gridParams = gridParams,
+                        participants = participantsPages[pageIndex],
+                        pageIndex = pageIndex,
+                        isSelfUserMuted = isSelfUserMuted,
+                        isSelfUserCameraOn = isSelfUserCameraOn,
+                        contentHeight = contentHeight,
+                        onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
+                        onSelfClearVideoPreview = onSelfClearVideoPreview,
+                        onDoubleTap = onDoubleTap,
+                        isInPictureInPictureMode = isInPictureInPictureMode,
+                        recentReactions = recentReactions,
+                        isOnFrontCamera = isOnFrontCamera,
+                        flipCamera = flipCamera,
+                    )
 
                     LaunchedEffect(
                         participantsWithCameraOn, // Request video stream when someone turns camera on/off
@@ -167,6 +148,7 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         isSelfUserMuted = false,
         isSelfUserCameraOn = false,
         contentHeight = 800.dp,
+        contentWidth = 480.dp,
         onSelfVideoPreviewCreated = {},
         onSelfClearVideoPreview = {},
         requestVideoStreams = {},
@@ -182,14 +164,14 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
 @Composable
 fun PreviewVerticalCallingPagerHorizontalView() = WireTheme {
     PreviewVerticalCallingPager(
-        participants = buildPreviewParticipantsList(
-            MAX_ITEMS_FOR_HORIZONTAL_VIEW
-        )
+        participants = buildPreviewParticipantsList(CallingGridParams.Portrait.maxItemsPerPage)
     )
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewVerticalCallingPagerGrid() = WireTheme {
-    PreviewVerticalCallingPager(participants = buildPreviewParticipantsList(MAX_TILES_PER_PAGE + 1))
+    PreviewVerticalCallingPager(
+        participants = buildPreviewParticipantsList(CallingGridParams.Portrait.maxItemsPerPage + 1)
+    )
 }

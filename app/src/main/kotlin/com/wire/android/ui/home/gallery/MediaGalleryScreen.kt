@@ -24,18 +24,18 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -50,8 +50,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.edit.assetMessageOptionsMenuItems
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
@@ -61,7 +60,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.openDownloadFolder
 
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = MediaGalleryNavArgs::class,
     style = PopUpNavigationAnimation::class,
@@ -100,10 +98,13 @@ fun MediaGalleryScreen(
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 
+    LaunchedEffect(viewModelState.messageDeleted) {
+        if (viewModelState.messageDeleted) navigator.navigateBack()
+    }
+
     DeleteMessageDialog(
-        state = viewModelState.deleteMessageDialogsState,
+        state = viewModelState.deleteMessageDialogState,
         actions = mediaGalleryViewModel.deleteMessageHelper,
-        onDeleted = navigator::navigateBack
     )
 
     MediaGalleryContent(
@@ -250,10 +251,7 @@ fun PreviewMediaGalleryScreen() = WireTheme {
         state = MediaGalleryViewState(
             screenTitle = "Media Gallery",
             messageBottomSheetOptionsEnabled = true,
-            deleteMessageDialogsState = DeleteMessageDialogsState.States(
-                forYourself = DeleteMessageDialogActiveState.Hidden,
-                forEveryone = DeleteMessageDialogActiveState.Hidden
-            )
+            deleteMessageDialogState = DeleteMessageDialogState.Hidden,
         ),
         imageAsset = mockedPrivateAsset(),
         onCloseClick = {},

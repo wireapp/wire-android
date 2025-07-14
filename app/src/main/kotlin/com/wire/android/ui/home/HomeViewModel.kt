@@ -24,13 +24,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
@@ -38,40 +36,29 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserU
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
-    private val globalDataStore: GlobalDataStore,
+    val savedStateHandle: SavedStateHandle,
     private val dataStore: UserDataStore,
     private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
-) : SavedStateViewModel(savedStateHandle) {
+) : ActionsViewModel<HomeRequirement>() {
 
     @VisibleForTesting
     var homeState by mutableStateOf(HomeState())
         private set
 
     private val selfUserFlow = MutableSharedFlow<SelfUser?>(replay = 1)
-
-    private val _actions = Channel<HomeRequirement>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    internal val actions = _actions.receiveAsFlow()
 
     init {
         observeSelfUser()
@@ -127,32 +114,15 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
             when {
-                shouldTriggerMigrationForUser(selfUser.id) -> // check if the user needs to be migrated from scala app
-                    _actions.send(HomeRequirement.Migration(selfUser.id))
-
                 needsToRegisterClient() -> // check if the client needs to be registered
-                    _actions.send(HomeRequirement.RegisterDevice)
+                    sendAction(HomeRequirement.RegisterDevice)
 
                 !dataStore.initialSyncCompleted.first() -> // check if the initial sync needs to be completed
-                    _actions.send(HomeRequirement.InitialSync)
+                    sendAction(HomeRequirement.InitialSync)
 
                 selfUser.handle.isNullOrEmpty() -> // check if the user handle needs to be set
-                    _actions.send(HomeRequirement.CreateAccountUsername)
-
-                // check if the "welcome to the new app" screen needs to be displayed
-                shouldDisplayWelcomeToARScreen() ->
-                    homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
+                    sendAction(HomeRequirement.CreateAccountUsername)
             }
-        }
-    }
-
-    private suspend fun shouldDisplayWelcomeToARScreen() =
-        globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
-
-    fun dismissWelcomeMessage() {
-        viewModelScope.launch {
-            globalDataStore.setWelcomeScreenPresented()
-            homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
         }
     }
 }

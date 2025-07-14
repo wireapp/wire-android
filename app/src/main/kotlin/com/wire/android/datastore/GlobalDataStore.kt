@@ -28,7 +28,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
 import com.wire.android.feature.AppLockSource
-import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.sha256
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,6 +36,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -50,27 +50,22 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         // keys
         private val SHOW_CALLING_DOUBLE_TAP_TOAST =
             booleanPreferencesKey("show_calling_double_tap_toast_")
-        private val MIGRATION_COMPLETED = booleanPreferencesKey("migration_completed")
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
         private val APP_LOCK_SOURCE = intPreferencesKey("app_lock_source")
         private val ENTER_TO_SENT = booleanPreferencesKey("enter_to_sent")
         private val WIRE_CELLS = booleanPreferencesKey("wire_cells")
+        private val ANONYMOUS_REGISTRATION_TRACK_ID = stringPreferencesKey("anonymous_registration_track_id")
+        private val IS_ANONYMOUS_REGISTRATION_ENABLED = booleanPreferencesKey("is_anonymous_registration_enabled")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
 
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 
-        private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> =
-            intPreferencesKey("user_migration_status_$userId")
-
         private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
             booleanPreferencesKey("$SHOW_CALLING_DOUBLE_TAP_TOAST$userId")
-
-        private fun userLastMigrationAppVersion(userId: String): Preferences.Key<Int> =
-            intPreferencesKey("migration_app_version_$userId")
     }
 
     suspend fun clear() {
@@ -86,10 +81,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     ): Flow<String> =
         context.dataStore.data.map { it[key] ?: defaultValue }
 
-    fun isMigrationCompletedFlow(): Flow<Boolean> = getBooleanPreference(MIGRATION_COMPLETED, false)
-
-    suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
-
     fun isLoggingEnabled(): Flow<Boolean> =
         getBooleanPreference(IS_LOGGING_ENABLED, BuildConfig.LOGGING_ENABLED)
 
@@ -104,61 +95,44 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { it[RECORD_AUDIO_EFFECTS_CHECKBOX] = enabled }
     }
 
-    suspend fun setMigrationCompleted() {
-        context.dataStore.edit { it[MIGRATION_COMPLETED] = true }
-    }
-
     suspend fun isWelcomeScreenPresented(): Boolean =
         getBooleanPreference(WELCOME_SCREEN_PRESENTED, false).firstOrNull() ?: false
 
-    suspend fun setWelcomeScreenPresented() {
-        context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = true }
-    }
-
-    suspend fun setWelcomeScreenNotPresented() {
-        context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = false }
-    }
-
-    suspend fun setUserMigrationStatus(userId: String, status: UserMigrationStatus) {
-        context.dataStore.edit { it[userMigrationStatusKey(userId)] = status.value }
-        when (status) {
-            UserMigrationStatus.Completed,
-            UserMigrationStatus.CompletedWithErrors,
-            UserMigrationStatus.Successfully -> setUserMigrationAppVersion(
-                userId,
-                BuildConfig.VERSION_CODE
-            )
-
-            UserMigrationStatus.NoNeed,
-            UserMigrationStatus.NotStarted -> {
-                /* no-op */
-            }
-        }
-    }
-
-    /**
-     * Returns the migration status of the user with the given [userId].
-     * If there is no status stored, the status will be [UserMigrationStatus.NoNeed]
-     * meaning that the user does not need to be migrated.
-     */
-    fun getUserMigrationStatus(userId: String): Flow<UserMigrationStatus?> =
-        context.dataStore.data.map {
-            it[userMigrationStatusKey(userId)]?.let { status ->
-                UserMigrationStatus.fromInt(
-                    status
-                )
-            }
-        }
-
-    suspend fun setUserMigrationAppVersion(userId: String, version: Int) {
-        context.dataStore.edit { it[userLastMigrationAppVersion(userId)] = version }
-    }
-
-    suspend fun getUserMigrationAppVersion(userId: String): Int? =
-        context.dataStore.data.map { it[userLastMigrationAppVersion(userId)] }.firstOrNull()
-
     suspend fun setShouldShowDoubleTapToastStatus(userId: String, shouldShow: Boolean) {
         context.dataStore.edit { it[userDoubleTapToastStatusKey(userId)] = shouldShow }
+    }
+
+    fun isAnonymousRegistrationEnabled(): Flow<Boolean> =
+        getBooleanPreference(IS_ANONYMOUS_REGISTRATION_ENABLED, false)
+
+    suspend fun setAnonymousRegistrationEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[IS_ANONYMOUS_REGISTRATION_ENABLED] = enabled }
+    }
+
+    suspend fun clearAnonymousRegistrationTrackId() {
+        context.dataStore.edit {
+            it.remove(ANONYMOUS_REGISTRATION_TRACK_ID)
+        }
+    }
+
+    private suspend fun setAnonymousRegistrationTrackId(trackId: String) {
+        context.dataStore.edit {
+            it[ANONYMOUS_REGISTRATION_TRACK_ID] = trackId
+        }
+    }
+
+    suspend fun getAnonymousRegistrationTrackId(): String? {
+        return context.dataStore.data.firstOrNull()?.get(ANONYMOUS_REGISTRATION_TRACK_ID)
+    }
+
+    suspend fun getOrCreateAnonymousRegistrationTrackId(): String {
+        val trackId = context.dataStore.data.first()[ANONYMOUS_REGISTRATION_TRACK_ID]
+        if (trackId.isNullOrBlank()) {
+            val newTrackId = UUID.randomUUID().toString()
+            setAnonymousRegistrationTrackId(newTrackId)
+            return newTrackId
+        }
+        return trackId
     }
 
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =

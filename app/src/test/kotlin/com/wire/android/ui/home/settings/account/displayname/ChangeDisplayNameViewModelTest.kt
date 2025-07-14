@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestUser
+import com.wire.android.model.DisplayNameState
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -44,37 +45,25 @@ class ChangeDisplayNameViewModelTest {
     @Test
     fun `given useCase runs successfully, when saveDisplayName is invoked, then onSuccess callback is invoked`() =
         runTest {
-            var isSuccess = false
-            var isFailed = false
             val (_, viewModel) = Arrangement()
                 .withUserSaveNameResult(DisplayNameUpdateResult.Success)
                 .arrange()
 
-            viewModel.saveDisplayName(
-                onFailure = { isFailed = true },
-                onSuccess = { isSuccess = true }
-            )
+            viewModel.saveDisplayName()
 
-            assertEquals(false, isFailed)
-            assertEquals(true, isSuccess)
+            assertEquals(DisplayNameState.Completed.Success, viewModel.displayNameState.completed)
         }
 
     @Test
     fun `given useCase fails, when saveDisplayName is invoked, then onFailure callback is invoked`() =
         runTest {
-            var isSuccess = false
-            var isFailed = false
             val (_, viewModel) = Arrangement()
                 .withUserSaveNameResult(DisplayNameUpdateResult.Failure(CoreFailure.Unknown(Error())))
                 .arrange()
 
-            viewModel.saveDisplayName(
-                onFailure = { isFailed = true },
-                onSuccess = { isSuccess = true }
-            )
+            viewModel.saveDisplayName()
 
-            assertEquals(true, isFailed)
-            assertEquals(false, isSuccess)
+            assertEquals(DisplayNameState.Completed.Failure, viewModel.displayNameState.completed)
         }
 
     @Test
@@ -131,7 +120,7 @@ class ChangeDisplayNameViewModelTest {
         viewModel.textState.setTextAndPlaceCursorAtEnd(newValue)
         advanceUntilIdle()
 
-        viewModel.saveDisplayName(onFailure = {}, onSuccess = {})
+        viewModel.saveDisplayName()
 
         coVerify(exactly = 1) { arrangement.updateDisplayNameUseCase(newValue) }
     }

@@ -27,9 +27,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -85,14 +85,18 @@ class MediaGalleryViewModel @Inject constructor(
         viewModelScope,
         conversationId,
         ::updateDeleteDialogState
-    ) { messageId: String, deleteForEveryone: Boolean, onDeleted: () -> Unit ->
+    ) { messageId: String, deleteForEveryone: Boolean ->
         deleteMessage(
             conversationId = conversationId,
             messageId = messageId,
             deleteForEveryone = deleteForEveryone,
         )
-            .onFailure { onSnackbarMessage(MediaGallerySnackbarMessages.DeletingMessageError) }
-            .onSuccess { onDeleted() }
+            .onFailure {
+                onSnackbarMessage(MediaGallerySnackbarMessages.DeletingMessageError)
+            }
+            .onSuccess {
+                mediaGalleryViewState = mediaGalleryViewState.copy(messageDeleted = true)
+            }
     }
 
     private val _snackbarMessage = MutableSharedFlow<MediaGallerySnackbarMessages>()
@@ -174,30 +178,18 @@ class MediaGalleryViewModel @Inject constructor(
     }
 
     fun deleteCurrentImage() {
-        if (imageAsset.isSelfAsset) {
-            updateDeleteDialogState {
-                it.copy(
-                    forEveryone = DeleteMessageDialogActiveState.Visible(
-                        messageId = imageAsset.messageId,
-                        conversationId = imageAsset.conversationId
-                    )
-                )
-            }
-        } else {
-            updateDeleteDialogState {
-                it.copy(
-                    forYourself = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId
-                    )
-                )
-            }
+        updateDeleteDialogState {
+            DeleteMessageDialogState.Visible(
+                type = if (imageAsset.isSelfAsset) DeleteMessageDialogType.ForEveryone else DeleteMessageDialogType.ForYourself,
+                messageId = messageId,
+                conversationId = conversationId,
+            )
         }
     }
 
-    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) {
-        (mediaGalleryViewState.deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let {
-            mediaGalleryViewState = mediaGalleryViewState.copy(deleteMessageDialogsState = newValue(it))
+    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogState) -> DeleteMessageDialogState) {
+        newValue(mediaGalleryViewState.deleteMessageDialogState).also {
+            mediaGalleryViewState = mediaGalleryViewState.copy(deleteMessageDialogState = newValue(it))
         }
     }
 }

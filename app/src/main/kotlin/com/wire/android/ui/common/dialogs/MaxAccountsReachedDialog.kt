@@ -60,7 +60,7 @@ fun MaxAccountAllowedDialogContent(
     maxAccountsAllowed: Int = BuildConfig.MAX_ACCOUNTS,
     @PluralsRes title: Int = R.plurals.max_account_reached_dialog_title,
     @PluralsRes message: Int = R.plurals.max_account_reached_dialog_message,
-    dialogProperties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    dialogProperties: DialogProperties = wireDialogPropertiesBuilder(),
     onDismiss: () -> Unit
 ) {
     WireDialog(

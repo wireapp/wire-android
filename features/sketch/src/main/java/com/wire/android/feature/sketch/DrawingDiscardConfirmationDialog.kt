@@ -19,13 +19,13 @@ package com.wire.android.feature.sketch
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.DialogProperties
+import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 
 @Composable
 internal fun DrawingDiscardConfirmationDialog(
@@ -46,7 +46,7 @@ internal fun DrawingDiscardConfirmationDialog(
             text = stringResource(id = R.string.confirm_changes_confirm),
             onClick = onHideConfirmationDialog
         ),
-        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = false, dismissOnClickOutside = false)
+        properties = wireDialogPropertiesBuilder(dismissOnBackPress = false, dismissOnClickOutside = false)
     )
 }
 

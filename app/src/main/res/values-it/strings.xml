@@ -144,7 +144,6 @@
     <string name="content_description_calling_turn_camera_off">Spegni la fotocamera</string>
     <string name="content_description_calling_turn_speaker_on">Accendi il vivavoce</string>
     <string name="content_description_calling_turn_speaker_off">Spegni il vivavoce</string>
-    <string name="content_description_show_more_options">Mostra altre opzioni</string>
     <string name="content_description_reply_to_messge">Rispondi al messaggio</string>
     <string name="content_description_reply_cancel">Annulla la risposta al messaggio</string>
     <string name="content_description_ping_message">Evidenzia il messaggio</string>
@@ -305,13 +304,11 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="label_quote_original_message_is_a_picture">Immagine</string>
     <string name="label_quote_original_message_date">Messaggio originale del %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Crea un account personale</string>
     <string name="create_personal_account_summary_title">Account personale creato</string>
     <string name="create_personal_account_text">Chatta in modo sicuro con amici e familiari utilizzando il server cloud pubblico di Wire.</string>
     <string name="create_personal_account_email_text">Inserisci la tua email per iniziare ad usare la piattaforma di collaborazione pi&#249; sicura.</string>
     <string name="create_personal_account_details_text">Inserisci i tuoi dati personali:</string>
     <string name="create_personal_account_summary_text">Hai creato il tuo account personale con successo. Inizia a comunicare in modo sicuro, ovunque ti trovi!</string>
-    <string name="create_team_title">Crea un team</string>
     <string name="create_team_summary_title">Team creato</string>
     <string name="create_team_content_title">Wire gratuito</string>
     <string name="create_team_text">Messaggistica per piccole organizzazioni o per liberi professionisti.</string>
@@ -960,7 +957,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="backup_label_conversation_restored">Conversazioni ripristinate</string>
     <string name="backup_label_loading_conversations">Caricamento conversazioni</string>
     <string name="backup_dialog_restore_backup_title">Ripristina da backup</string>
-    <string name="backup_dialog_restore_backup_message">Il contenuto del backup sostituir&#224; la cronologia delle conversazioni su questo dispositivo. Puoi ripristinare solo la cronologia da un backup della stessa piattaforma.</string>
     <string name="backup_dialog_choose_backup_file_option">Scegli file di backup</string>
     <string name="backup_label_enter_password">Inserisci la password</string>
     <string name="backup_dialog_restore_backup_password_message">Questo backup &#232; protetto da password.</string>

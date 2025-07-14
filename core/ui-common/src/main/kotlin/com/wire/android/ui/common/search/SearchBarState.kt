@@ -40,6 +40,7 @@ fun rememberSearchbarState(
 class SearchBarState(
     isSearchActive: Boolean = false,
     isSearchVisible: Boolean = true,
+    isFilterActive: Boolean = false,
     val searchQueryTextState: TextFieldState
 ) {
 
@@ -49,12 +50,19 @@ class SearchBarState(
     var isSearchVisible by mutableStateOf(isSearchVisible)
         private set
 
+    var isFilterActive by mutableStateOf(isFilterActive)
+        private set
+
     fun closeSearch() {
         isSearchActive = false
     }
 
     fun openSearch() {
         isSearchActive = true
+    }
+
+    fun onFilterActiveChanged(isFilterActive: Boolean) {
+        this.isFilterActive = isFilterActive
     }
 
     fun searchActiveChanged(isSearchActive: Boolean) {

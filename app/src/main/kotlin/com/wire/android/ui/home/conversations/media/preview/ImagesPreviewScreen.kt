@@ -49,11 +49,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -70,6 +69,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
+import com.wire.android.ui.home.conversations.media.RestrictionCheckState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.ui.theme.WireTheme
@@ -81,7 +81,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = ImagesPreviewNavArgs::class,
     style = PopUpNavigationAnimation::class
@@ -93,24 +92,26 @@ fun ImagesPreviewScreen(
     imagesPreviewViewModel: ImagesPreviewViewModel = hiltViewModel(),
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(checkAssetRestrictionsViewModel.state) {
+        with(checkAssetRestrictionsViewModel.state) {
+            if (this is RestrictionCheckState.Success) {
+                resultNavigator.setResult(ImagesPreviewNavBackArgs(this.assetBundleList))
+                resultNavigator.navigateBack()
+            }
+        }
+    }
     Content(
         previewState = imagesPreviewViewModel.viewState,
-        onNavigationPressed = { navigator.navigateBack() },
+        onNavigationPressed = navigator::navigateBack,
         onSendMessages = { mediaAssets ->
-            checkAssetRestrictionsViewModel.checkRestrictions(
-                importedMediaList = mediaAssets,
-                onSuccess = {
-                    resultNavigator.setResult(ImagesPreviewNavBackArgs(it))
-                    resultNavigator.navigateBack()
-                }
-            )
+            checkAssetRestrictionsViewModel.checkRestrictions(importedMediaList = mediaAssets)
         },
         onSelected = imagesPreviewViewModel::onSelected,
         onRemoveAsset = imagesPreviewViewModel::onRemove
     )
 
     AssetTooLargeDialog(
-        dialogState = checkAssetRestrictionsViewModel.assetTooLargeDialogState,
+        dialogState = checkAssetRestrictionsViewModel.state.assetTooLargeDialogState,
         hideDialog = checkAssetRestrictionsViewModel::hideDialog
     )
 }

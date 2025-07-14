@@ -36,7 +36,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -45,6 +44,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.legalhold.dialog.common.LearnMoreAboutLegalHoldButton
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -65,7 +65,7 @@ fun LegalHoldRequestedDialog(
     WireDialog(
         modifier = modifier,
         title = stringResource(R.string.legal_hold_requested_dialog_title),
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
+        properties = wireDialogPropertiesBuilder(dismissOnBackPress = false, dismissOnClickOutside = false),
         onDismiss = { keyboardController?.hide() },
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = notNowClicked,

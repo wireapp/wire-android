@@ -7,7 +7,66 @@ import java.util.Properties
 // Apply your test library plugin
 plugins {
     id(libs.plugins.wire.android.test.library.get().pluginId)
+    alias(libs.plugins.compose.compiler)
 }
+
+// Map to store environment variables (secrets)
+val env = Properties()
+
+// File where secrets will be saved/generated
+val secretsJson = rootProject.file("secrets.json")
+
+// Function to sanitize keys by replacing spaces and dashes with underscores, and making uppercase
+fun sanitize(text: String): String {
+    return text.replace("[-\\s]+".toRegex(), "_").uppercase()
+}
+
+// Function to escape special characters for BuildConfig string fields
+fun escapeForBuildConfig(value: String): String {
+    return value
+        .replace("\\", "\\\\")  // Escape backslash
+        .replace("\"", "\\\"")  // Escape quotes
+        .replace("\n", "\\n")   // Escape new lines
+        .replace("\r", "")      // Remove carriage returns (optional)
+}
+
+// If secrets.json exists, parse and load values into env map
+if (secretsJson.exists()) {
+    // Parse secrets JSON as a map of item title -> item details
+    val parsed = JsonSlurper().parse(secretsJson) as Map<String, Map<String, Any>>
+
+    parsed.forEach { (title, item) ->
+        val sectionName = sanitize(title)  // Sanitize the section/item title
+
+        // Get the fields as a map of label -> field details
+        val fields = item["fields"] as? Map<String, Map<String, Any>> ?: emptyMap()
+
+        // For each field, create env variable with sanitized key and store value
+        for ((label, field) in fields) {
+            val key = "${sectionName}_${sanitize(label)}"
+            val value = field["value"]?.toString() ?: ""
+            env[key] = value
+        }
+    }
+}
+
+android {
+    namespace = "com.wire.android.testSupport"
+
+    defaultConfig {
+        // Inject environment variables as BuildConfig fields
+        env.forEach { (key, value) ->
+            buildConfigField("String", key.toString(), "\"${escapeForBuildConfig(value.toString())}\"")
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true  // Enable generation of BuildConfig class
+    }
+}
+
+// Just in case, enforce BuildConfig enabled flag (redundant but explicit)
+android.buildFeatures.buildConfig = true
 
 // Map to store environment variables (secrets)
 val env = Properties()
@@ -144,8 +203,11 @@ tasks.register("fetchSecrets") {
     }
 
 }
-
-// Make sure fetchSecrets runs automatically before building
-tasks.named("preBuild") {
-    dependsOn("fetchSecrets")
+// workaround for now, we should configure the action https://github.com/1Password/install-cli-action when running tests on CI
+val isGitHubActions = System.getenv("GITHUB_ACTIONS") == "true"
+if (!isGitHubActions) {
+    // Make sure fetchSecrets runs automatically before building
+    tasks.named("preBuild") {
+        dependsOn("fetchSecrets")
+    }
 }

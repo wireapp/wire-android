@@ -34,6 +34,8 @@ import com.wire.android.notification.NotificationIds
 import com.wire.android.services.CallService.Action
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.logIfEmptyUserName
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -41,8 +43,6 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.CallsScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.coroutines.CoroutineScope
@@ -145,7 +145,7 @@ class CallService : Service() {
                                 stopSelf()
                             },
                             { data ->
-                                generateForegroundNotification(data)
+                                updateForegroundNotification(data)
                             }
                         )
                     }
@@ -161,21 +161,19 @@ class CallService : Service() {
         scope.cancel()
     }
 
-    private fun generateForegroundNotification(data: CallNotificationData) {
-        appLogger.i("$TAG: generating foregroundNotification...")
-        val notification = if (data.callStatus == CallStatus.STARTED) {
-            callNotificationManager.builder.getOutgoingCallNotification(data)
-        } else {
-            callNotificationManager.builder.getOngoingCallNotification(data)
-        }
-        ServiceCompat.startForeground(
-            this,
-            NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID.ordinal,
-            notification,
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-        )
+    private fun updateForegroundNotification(data: CallNotificationData) {
+        // Updating service notification when notifications are disabled (or background work restricted)
+        // causes app crash when putting app in background
+        if (callNotificationManager.areServiceNotificationsEnabled()) {
 
-        appLogger.i("$TAG: started foreground with proper notification")
+            val notification = if (data.callStatus == CallStatus.STARTED) {
+                callNotificationManager.builder.getOutgoingCallNotification(data)
+            } else {
+                callNotificationManager.builder.getOngoingCallNotification(data)
+            }
+
+            callNotificationManager.showNotification(NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID, notification)
+        }
     }
 
     private fun generatePlaceholderForegroundNotification() {

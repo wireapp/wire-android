@@ -29,16 +29,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolean, modifier: Modifier = Modifier) {
     Text(
         text = stringResource(R.string.create_account_code_resend),
-        style = MaterialTheme.wireTypography.body02.copy(
-            textDecoration = TextDecoration.Underline,
-            color = MaterialTheme.colorScheme.primary
-        ),
+        style = MaterialTheme.wireTypography.body02.copy(textDecoration = TextDecoration.Underline),
         textAlign = TextAlign.Center,
         modifier = modifier
             .clickable(
@@ -48,4 +47,10 @@ fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolean, modif
                 onClick = onResendCodePressed
             )
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewResendCodeText() = WireTheme {
+    ResendCodeText(onResendCodePressed = {}, clickEnabled = true)
 }

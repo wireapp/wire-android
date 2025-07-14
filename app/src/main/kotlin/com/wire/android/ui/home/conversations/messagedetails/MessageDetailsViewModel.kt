@@ -22,8 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
 import com.wire.android.ui.navArgs
@@ -35,10 +35,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MessageDetailsViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,
     private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     private val messageDetailsNavArgs: MessageDetailsNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = messageDetailsNavArgs.conversationId

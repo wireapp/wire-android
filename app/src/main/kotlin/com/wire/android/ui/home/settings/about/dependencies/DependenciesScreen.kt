@@ -29,10 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -45,7 +44,6 @@ import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
 @WireDestination
-@RootNavGraph
 fun DependenciesScreen(
     navigator: Navigator,
     viewModel: DependenciesViewModel = hiltViewModel()

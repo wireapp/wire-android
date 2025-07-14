@@ -167,7 +167,6 @@
     <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
     <string name="content_description_calling_in_call_reactions_show">Show in call reactions panel</string>
     <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
-    <string name="content_description_show_more_options">Show more options</string>
     <string name="content_description_reply_to_messge">Reply to the message</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
     <string name="content_description_ping_message">Ping message</string>
@@ -238,6 +237,10 @@
     <string name="content_description_new_group_name_field">Type group name</string>
     <string name="content_description_new_channel_name_field">Type channel name</string>
     <string name="content_description_new_conversation_options_heading">Conversation options</string>
+    <string name="content_description_new_conversation_history_heading">Conversation history options</string>
+    <string name="content_description_new_conversation_history_custom_heading">Conversation history custom</string>
+    <string name="content_description_new_conversation_history_back_btn">Go back to conversation history options</string>
+    <string name="content_description_new_conversation_history_custom_change_time">Change time option</string>
     <string name="content_description_new_group_options_back_btn">Go back to new group creation</string>
     <string name="content_description_new_channel_options_back_btn">Go back to new channel creation</string>
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
@@ -319,6 +322,7 @@
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
+    <string name="team_management_screen_title">Team Management</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">What\'s new</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire\'s New Android App!</string>
@@ -378,7 +382,7 @@
     <string name="enterprise_login_user_identifier_label_placeholder">Enter Email or SSO Code</string>
     <string name="enterprise_login_error_invalid_user_identifier">Please enter a valid email or SSO code</string>
     <string name="enterprise_login_create_account_label">Don\'t have a Wire account?</string>
-    <string name="enterprise_login_create_account_text_button">Create account</string>
+    <string name="enterprise_login_create_account_text_button">Create account or team</string>
     <string name="enterprise_login_on_prem_welcome_title">Welcome to Wire Enterprise for %s!</string>
     <string name="enterprise_login_verification_code_title">You have mail</string>
     <!-- Login -->
@@ -470,13 +474,22 @@
     <string name="label_quote_original_message_is_a_picture">Picture</string>
     <string name="label_quote_original_message_date">Original message from %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Create a Personal Account</string>
+    <string name="create_account_selector_title">How will you use Wire?</string>
+    <string name="create_account_selector_team_title">For collaboration</string>
+    <string name="create_account_selector_team_subtitle">Work securely with your team.</string>
+    <string name="create_account_selector_team_highlight_one">Communicate with your colleagues and share documents via a single app</string>
+    <string name="create_account_selector_team_highlight_two">Start for free, upgrade anytime</string>
+    <string name="create_account_selector_personal_title">For private use</string>
+    <string name="create_account_selector_personal_subtitle">Chat with friends and family.</string>
+    <string name="create_account_selector_personal_highlight_one">Send messages and share pictures</string>
+    <string name="create_account_selector_personal_highlight_two">Always free</string>
+    <string name="create_personal_account_title">Create Personal Account</string>
     <string name="create_personal_account_summary_title">Personal Account Created</string>
     <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
     <string name="create_personal_account_email_text">Enter your email to start using the most secure collaboration platform.</string>
     <string name="create_personal_account_details_text">Enter your personal details:</string>
     <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
-    <string name="create_team_title">Create a Team</string>
+    <string name="create_team_title">Create Team</string>
     <string name="create_team_summary_title">Team Created</string>
     <string name="create_team_content_title">Wire for Free</string>
     <string name="create_team_text">Messaging for small organizations or single person consulting firms.\n</string>
@@ -489,12 +502,21 @@
     <string name="create_account_email_footer_text">Already have an account? </string>
     <string name="create_account_email_terms_dialog_title">Terms of Use</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
+    <string name="create_account_email_share_anonymous_data_label">I agree to share anonymous usage data. Find all details in our</string>
+    <string name="create_account_email_share_anonymous_data_link_label">Privacy Policy</string>
+    <string name="create_account_email_share_anonymous_data_optional_label">(Optional)</string>
+    <string name="create_account_email_backlink_to_team_label">Looking for team collaboration?</string>
+    <string name="create_account_email_backlink_to_team_suffix_url" translatable="false">/signup/account?origin=android</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
     <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
     <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>
     <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
     <string name="create_account_email_domain_blocked_error">You can\'t create this account as your email domain is intentionally blocked.</string>
     <string name="create_account_details_first_name_placeholder">Jane</string>
+    <string name="create_account_details_name_placeholder">Enter your name</string>
+    <string name="create_account_details_password_placeholder">Enter password</string>
+    <string name="create_account_details_password_confirm_placeholder">Confirm password</string>
+    <string name="create_account_details_name_label">NAME</string>
     <string name="create_account_details_first_name_label">FIRST NAME</string>
     <string name="create_account_details_last_name_placeholder">Doe</string>
     <string name="create_account_details_last_name_label">LAST NAME</string>
@@ -514,6 +536,7 @@
     <string name="create_account_username_title">Your Username</string>
     <string name="create_account_username_placeholder">jane.doe</string>
     <string name="create_account_username_label">USERNAME</string>
+    <string name="create_account_set_username_title">Set username</string>
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
     <string name="create_account_username_description">At least 2 characters, a-z, 0-9, “_”, “-” and “.”</string>
@@ -543,6 +566,19 @@
     <string name="channel_add_permission_description">Select who can add participants to a private channel</string>
     <string name="channel_add_permission_admin_label">Admins</string>
     <string name="channel_add_permission_admin_members_label">Admins and members</string>
+    <string name="channel_history_label">Conversation history</string>
+    <string name="channel_history_description">Select a period. When participants join this channel, they can follow the history for this time frame.</string>
+    <string name="channel_history_freemium_upgrade_title">Show older messages?</string>
+    <string name="channel_history_freemium_upgrade_description">Upgrade to a paid plan to offer channel members the whole history.</string>
+    <string name="channel_history_freemium_upgrade_now">Upgrade now</string>
+    <string name="channel_history_off">Off</string>
+    <string name="channel_history_unlimited">Unlimited</string>
+    <string name="channel_history_custom">Custom</string>
+    <string name="channel_history_days">days</string>
+    <string name="channel_history_weeks">weeks</string>
+    <string name="channel_history_months">months</string>
+    <string name="channel_history_custom_amount_label">AMOUNT</string>
+    <string name="channel_history_custom_time_label">TIME</string>
     <string name="create_regular_group_button_label">Create Group</string>
     <string name="create_channel_button_label">Create Channel</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
@@ -772,6 +808,8 @@
     <string name="conversation_banner_guests_present">Guests are present</string>
     <string name="conversation_banner_externals_present">Externals are present</string>
     <string name="conversation_banner_services_active">Services are active</string>
+    <string name="conversation_history_loading">Loading conversation history...</string>
+    <string name="conversation_history_loaded">You made it to the top 🥳\nYou see all available messages.</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>
@@ -1295,6 +1333,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
     <string name="label_debug_tools_title" translatable="false">Debug Tools</string>
     <string name="label_disable_event_processing" translatable="false">Disable event processing</string>
+    <string name="label_enable_async_notifications" translatable="false">Enable async notifications</string>
     <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
@@ -1344,7 +1383,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="backup_label_conversation_restored">Conversations have been restored</string>
     <string name="backup_label_loading_conversations">Loading conversations</string>
     <string name="backup_dialog_restore_backup_title">Restore from backup </string>
-    <string name="backup_dialog_restore_backup_message">The backup contents will replace the conversation history on this device. You can only restore history from a backup of the same platform.</string>
+    <string name="backup_dialog_restore_backup_message">The existing history on this device remains and will be completed by the new backup. You can restore history from all your devices and different platforms but not from another account.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
     <string name="backup_label_enter_password">Enter password</string>
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
@@ -1515,6 +1554,10 @@ In group conversations, the group admin can overwrite this setting.</string>
         <item quantity="one">1 week</item>
         <item quantity="other">%1$d weeks</item>
     </plurals>
+    <plurals name="months_long_label">
+        <item quantity="one">1 month</item>
+        <item quantity="other">%1$d months</item>
+    </plurals>
     <plurals name="days_long_label">
         <item quantity="one">1 day</item>
         <item quantity="other">%1$d days</item>
@@ -1530,6 +1573,18 @@ In group conversations, the group admin can overwrite this setting.</string>
     <plurals name="seconds_long_label">
         <item quantity="one">1 second</item>
         <item quantity="other">%1$d seconds</item>
+    </plurals>
+    <plurals name="days_label">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+    <plurals name="weeks_label">
+        <item quantity="one">week</item>
+        <item quantity="other">weeks</item>
+    </plurals>
+    <plurals name="months_label">
+        <item quantity="one">month</item>
+        <item quantity="other">months</item>
     </plurals>
     <string name="four_weeks_short_label">4w</string>
     <string name="one_week_short_label">1w</string>
@@ -1795,4 +1850,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="enable_wire_cell_switch_description">All files in this conversation will be uploaded in Wire Cell storage.</string>
     <string name="failed_attachment_retry_upload">Retry upload</string>
     <string name="failed_attachment_remove">Remove</string>
+    <string name="content_description_apply_filter">Apply Filter</string>
+    <string name="content_description_filter_files">Filter files</string>
 </resources>

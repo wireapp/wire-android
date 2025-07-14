@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Wire
+  ~ Copyright (C) 2025 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<resources>
+    <string name="retry">Повторить</string>
+    <string name="file_list_load_error">Произошла ошибка при загрузке списка файлов. Пожалуйста, попробуйте еще раз</string>
+    <string name="file_list_empty_message">Пока нет файлов Здесь вы найдете все файлы, которыми обмениваются собеседники.</string>
+    <string name="conversation_file_list_empty_message">В этой беседе нет файлов.</string>
+    <string name="file_list_search_empty_message">Файлы не найдены.</string>
+    <string name="save_label">Сохранить</string>
+    <string name="share_label">Поделиться</string>
+    <string name="public_link">Скопировать публичную ссылку</string>
+    <string name="delete_label">Удалить</string>
+    <string name="delete_permanently">Удалить навсегда</string>
+    <string name="restore_label">Восстановить</string>
+    <string name="move_label">Переместить</string>
+    <string name="download_label">Скачать</string>
+    <string name="copy_link">Скопировать ссылку</string>
+    <string name="share_link">Поделиться ссылкой</string>
+    <string name="copied_to_clipboard_message">Ссылка скопирована в буфер обмена</string>
+    <string name="file_subtitle">%1$s в %2$s</string>
+    <string name="file_subtitle_modified">%1$s от %2$s</string>
+    <string name="public_link_message_file">Загрузите файл и поделитесь им с помощью общедоступной ссылки. Все получатели смогут просмотреть и скачать его.</string>
+    <string name="public_link_message_folder">Загрузите папку и поделитесь ею с помощью общедоступной ссылки. Все получатели смогут просмотреть и скачать ее.</string>
+    <string name="create_public_link">Создать публичную ссылку</string>
+    <string name="share_file_via_link">Поделиться файлом по ссылке</string>
+    <string name="share_folder_via_link">Поделиться папкой по ссылке</string>
+    <string name="no_app_found">Не найдено приложение для открытия файла.</string>
+    <string name="cell_files_load_failure_message">Не удалось загрузить. Пожалуйста, повторите попытку позже.</string>
+    <string name="action_failed">Действие не удалось.</string>
+    <string name="cancel">Отмена</string>
+    <string name="confirm_delete_file_title">Удалить файл</string>
+    <string name="confirm_delete_folder_title">Удалить папку</string>
+    <string name="confirm_delete_file_text">Файл %1$s будет перемещен в корзину этой беседы.</string>
+    <string name="confirm_permanent_delete_file_text">Это навсегда удалит файл %1$s для всех участников.</string>
+    <string name="confirm_delete_folder_text">Папка %1$s будет перемещена в корзину этой беседы.</string>
+    <string name="confirm_permanent_delete_folder_text">Это навсегда удалит папку %1$s для всех участников.</string>
+    <string name="reload">Перезагрузить</string>
+    <string name="error_delete_public_link">Не удалось удалить публичную ссылку.</string>
+    <string name="error_load_public_link">Не удалось загрузить публичную ссылку.</string>
+    <string name="error_create_public_link">Не удалось создать публичную ссылку.</string>
+    <string name="cell_files_download_failure_message">Загрузка не удалась.</string>
+    <string name="download_file_message">Этот файл еще не скачан. Скачать сейчас?</string>
+    <string name="download">Скачать</string>
+    <string name="downloading_file_message">Этот файл скачивается…</string>
+    <string name="error_share_link">Не удалось поделиться ссылкой.</string>
+    <string name="conversation_files_title">Файлы</string>
+    <string name="creating_link">Создание публичной ссылки…</string>
+    <string name="cells_new_label">Новая</string>
+    <string name="cells_new_label_content_description">Новая</string>
+    <string name="cells_create_folder">Создать папку</string>
+    <string name="cells_folder_name">Название папки</string>
+    <string name="loading_files">Загрузка файлов…</string>
+    <string name="create_folder_error">При создании новой папки произошла ошибка. Пожалуйста, попробуйте еще раз</string>
+    <string name="move_to_folder">Переместить в папку</string>
+    <string name="move_here">Переместить сюда</string>
+    <string name="no_subfolders_message">В этой папке нет подпапок.</string>
+    <string name="item_move_success">Элемент был перемещен в папку.</string>
+    <string name="item_move_failure">Не удалось переместить элемент.</string>
+    <string name="content_description_conversation_files_more_button">Открыть параметры файлов</string>
+    <string name="recycle_bin">Корзина</string>
+    <string name="open_recycle_bin">Открыть корзину</string>
+    <string name="dialog_restore_file_title">Восстановить файл?</string>
+    <string name="dialog_restore_folder_title">Восстановить папку?</string>
+    <string name="dialog_restore_file_description">Файл %1$s будет восстановлен и снова доступен для всех в этой беседе.</string>
+    <string name="dialog_restore_folder_description">Папка %1$s будет восстановлена и снова доступна для всех в этой беседе.</string>
+    <string name="dialog_restore_button_label">Восстановить</string>
+    <string name="rename_file_label">Переименовать файл</string>
+    <string name="rename_folder_label">Переименовать папку</string>
+    <string name="rename_label">Переименовать</string>
+    <string name="rename_file_name_label">Имя файла</string>
+    <string name="rename_folder_name_label">Название папки</string>
+    <string name="rename_long_file_name_error">Используйте более короткое название файла (максимум 64 символа)</string>
+    <string name="rename_long_folder_name_error">Используйте более короткое название папки (максимум 64 символа)</string>
+    <string name="rename_enter_file_name">Введите название файла</string>
+    <string name="rename_enter_folder_name">Введите название папки</string>
+    <string name="rename_file_renamed">Файл переименован</string>
+    <string name="rename_folder_renamed">Папка переименована</string>
+    <string name="rename_failure">Не удалось переименовать</string>
+</resources>

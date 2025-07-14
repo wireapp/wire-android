@@ -18,12 +18,13 @@
 package com.wire.android.ui.authentication.create.common
 
 import android.os.Parcelable
-import com.wire.android.ui.authentication.create.overview.ServerConfigLinksParceler
+import com.wire.android.ui.registration.selector.ServerConfigLinksParceler
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 
+@Deprecated("This nav arg belongs to the old registration flow, please use the new one [CreateAccountDataNavArgs]")
 @Parcelize
 @TypeParceler<ServerConfig.Links?, ServerConfigLinksParceler>()
 data class CreateAccountNavArgs(
@@ -33,8 +34,16 @@ data class CreateAccountNavArgs(
 ) : Parcelable
 
 @Parcelize
+@TypeParceler<ServerConfig.Links?, ServerConfigLinksParceler>()
+data class CreateAccountDataNavArgs(
+    val userRegistrationInfo: UserRegistrationInfo = UserRegistrationInfo(),
+    val customServerConfig: ServerConfig.Links? = null,
+) : Parcelable
+
+@Parcelize
 data class UserRegistrationInfo(
     val email: String = String.EMPTY,
+    val name: String = String.EMPTY,
     val firstName: String = String.EMPTY,
     val lastName: String = String.EMPTY,
     val password: String = String.EMPTY,

@@ -130,6 +130,8 @@ class AccountManagement : KoinTest {
                 verifyDisplayedEmailAddress(teamMember.email ?: "")
                 verifyDisplayedDomain("staging.zinfra.io")
                 clickDisplayedEmailAddress()
+                //Sleep will be removed after finding a way around stale exception I'm facing
+                Thread.sleep(2000)
                 changeToNewEmailAddress(newEmail.email ?: "")
                 clickSaveButton()
                 assertNotificationWithNewEmail(newEmail.email ?: "")

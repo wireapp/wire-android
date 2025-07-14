@@ -21,14 +21,13 @@ import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import backendconnections.team.TeamHelper
 import com.wire.android.testSupport.backendConnections.BackendClient
 import com.wire.android.testSupport.backendConnections.team.TeamRoles
 import com.wire.android.testSupport.backendConnections.team.deleteTeam
-import com.wire.android.testSupport.backendConnections.team.getTeamByName
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -52,8 +51,7 @@ class ApplockTest : KoinTest {
     lateinit var context: Context
     var registeredUser: ClientUser? = null
     var backendClient: BackendClient? = null
-    var teamMember: ClientUser? = null
-    var usersManager: ClientUserManager? = null
+    var teamHelper: TeamHelper? = null
 
     @Before
     fun setUp() {
@@ -61,7 +59,7 @@ class ApplockTest : KoinTest {
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
         backendClient = BackendClient.loadBackend("STAGING")
-        usersManager = ClientUserManager(true)
+        teamHelper = TeamHelper()
     }
 
     @After
@@ -73,50 +71,21 @@ class ApplockTest : KoinTest {
         registeredUser?.deleteTeam(backendClient!!)
     }
 
-    fun userXAddsUsersToTeam(
-        ownerNameAlias: String,
-        userNameAliases: String,
-        teamName: String,
-        role: TeamRoles,
-        membersHaveHandles: Boolean
-    ) {
-        val admin = toClientUser(ownerNameAlias)
-        val dstTeam = runBlocking { backendClient!!.getTeamByName(admin, teamName) }
-
-        val membersToBeAdded = mutableListOf<ClientUser>()
-        val aliases = usersManager!!.splitAliases(userNameAliases)
-
-        for (userNameAlias in aliases) {
-            val user = toClientUser(userNameAlias)
-            if (usersManager!!.isUserCreated(user)) {
-                throw Exception(
-                    "Cannot add user with alias $userNameAlias to team because user is already created"
-                )
-            }
-            membersToBeAdded.add(user)
-        }
-
-        usersManager!!.createTeamMembers(
-            teamOwner = admin,
-            teamId = dstTeam.id,
-            members = membersToBeAdded,
-            membersHaveHandles = membersHaveHandles,
-            role = role,
-            backend = backendClient!!,
-            context = context
-        )
-    }
-
-    private fun toClientUser(nameAlias: String): ClientUser {
-        return usersManager!!.findUserByNameOrNameAlias(nameAlias)
-    }
-
     @Test
     fun setAppLockForAppAndVerifyAppIsLockedAfter1MinuteInTheBackground() {
 
-        usersManager!!.createTeamOwnerByAlias("user1Name", "AppLock", "en_US", true, backendClient!!, context)
-        registeredUser = usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-        userXAddsUsersToTeam("user1Name", "user2Name,user3Name,user4Name,user5Name", "AppLock", TeamRoles.Member, true)
+        teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "AppLock", "en_US", true, backendClient!!, context)
+        registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+        teamHelper?.userXAddsUsersToTeam(
+            "user1Name",
+            "user2Name,user3Name,user4Name,user5Name",
+            "AppLock",
+            TeamRoles.Member,
+            backendClient!!,
+            context,
+            true
+        )
+
         pages.registrationPage.apply {
             assertEmailWelcomePage()
         }

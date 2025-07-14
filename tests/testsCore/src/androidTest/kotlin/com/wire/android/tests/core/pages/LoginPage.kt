@@ -26,7 +26,6 @@ import com.wire.android.testSupport.backendConnections.BackendClient
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-import kotlin.test.DefaultAsserter.assertTrue
 
 data class LoginPage(private val device: UiDevice) {
     val backendClient = BackendClient.loadBackend("STAGING")

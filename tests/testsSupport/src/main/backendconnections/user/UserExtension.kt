@@ -32,7 +32,7 @@ suspend fun ClientUser.deleteUser(backend: BackendClient) {
     val token = runBlocking {
         backend.getAuthToken(this@deleteUser)
     }
-    val connection = NetworkBackendClient.sendJsonRequest(
+    NetworkBackendClient.sendJsonRequest(
         url = with(backend) { URL("self".composeCompleteUrl()) },
         method = "DELETE",
         body = JSONObject().apply {

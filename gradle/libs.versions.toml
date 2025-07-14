@@ -14,8 +14,6 @@ ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
 koin = "3.5.3"
 datafaker = "2.4.2"
-koin = "3.5.3"
-datafaker = "2.4.2"
 
 # Android Core / Architecture
 detekt = "1.23.6"

@@ -476,6 +476,13 @@ class ClientUserManager {
     val createdUsers: List<ClientUser>
         get() = fetchCreatedUsers()
 
+    private fun fetchUnCreatedUsers(): List<ClientUser> {
+        return Collections.unmodifiableList(this.usersMap[UserState.NotCreated])
+    }
+
+    val uncreatedUsers: List<ClientUser>
+        get() = fetchUnCreatedUsers()
+
     private fun verifyUsersCountSatisfiesConstraints(countOfUsersToBeCreated: Int) {
         if (countOfUsersToBeCreated + createdUsers.size > MAX_USERS_IN_TEAM) {
             throw TooManyUsersToCreateException(

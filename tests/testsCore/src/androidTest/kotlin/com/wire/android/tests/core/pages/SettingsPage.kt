@@ -88,16 +88,6 @@ data class SettingsPage(private val device: UiDevice) {
         device.pressBack()
     }
 
-    fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
-        UiWaitUtils.waitElement(privacySettingsButton).click()
-        return this
-    }
-
-    fun clickDebugSettingsButton(): SettingsPage {
-        UiWaitUtils.waitElement(debugSettingsButton).click()
-        return this
-    }
-
     fun assertAnalyticsInitializedIsSetToTrue(): SettingsPage {
         val label = UiWaitUtils.waitElement(analyticsInitializedLabel)
         val parent = label.parent
@@ -105,7 +95,18 @@ data class SettingsPage(private val device: UiDevice) {
         assertTrue("'Analytics Initialized' is not set to true", value != null && value.visibleBounds.width() > 0)
         return this
     }
-
+    fun clickBackButtonOnPrivacySettingsPage() {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        device.pressBack()
+    }
+    fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
+        UiWaitUtils.waitElement(privacySettingsButton).click()
+        return this
+    }
+    fun clickDebugSettingsButton(): SettingsPage {
+        UiWaitUtils.waitElement(debugSettingsButton).click()
+        return this
+    }
     fun assertAnalyticsTrackingIdentifierIsDispayed(): SettingsPage {
         val container = device.findObject(
             UiSelector().className("android.view.View").childSelector(analyticsTrackingLabel)

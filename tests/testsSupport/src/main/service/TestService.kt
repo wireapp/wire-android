@@ -29,7 +29,17 @@ import service.HttpStatus
 import service.enums.TypingStatus
 import service.models.Mentions
 import user.utils.ClientUser
-import java.io.*
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.io.OutputStream
+import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
@@ -383,7 +393,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/sendTyping", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            put("status", status.name.toLowerCase())
+            put("status", status.name.lowercase())
         }
         sendHttpRequest(connection, requestBody)
     }
@@ -629,7 +639,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         type: String
     ) {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        when (type.toLowerCase()) {
+        when (type.lowercase()) {
             "png" -> bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
             "jpg", "jpeg" -> bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
             else -> throw IllegalArgumentException("Unsupported image type: $type")

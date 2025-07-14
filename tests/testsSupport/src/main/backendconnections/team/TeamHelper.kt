@@ -31,7 +31,7 @@ class TeamHelper {
         ClientUserManager.getInstance()
     }
 
-    @Suppress("LongParameterList")
+    @Suppress("LongParameterList", "TooGenericExceptionThrown")
     fun userXAddsUsersToTeam(
         ownerNameAlias: String,
         userNameAliases: String,

@@ -54,11 +54,9 @@ import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -67,7 +65,7 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.adjustDestinationStylesForTablets
+import com.wire.android.navigation.AdjustDestinationStylesForTablets
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
@@ -106,7 +104,6 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 
-@RootNavGraph
 @WireDestination
 @Composable
 fun HomeScreen(
@@ -262,7 +259,7 @@ fun HomeScreen(
     )
 }
 
-@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeContent(
     homeState: HomeState,
@@ -343,6 +340,9 @@ fun HomeContent(
                                             folders = folders
                                         )
                                     )
+                                },
+                                onOpenFilesFilter = {
+                                    searchBarState.onFilterActiveChanged(true)
                                 }
                             )
                         }
@@ -379,7 +379,7 @@ fun HomeContent(
                                 rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
                             )
 
-                            adjustDestinationStylesForTablets()
+                            AdjustDestinationStylesForTablets()
                             DestinationsNavHost(
                                 navGraph = NavGraphs.home,
                                 engine = navHostEngine,

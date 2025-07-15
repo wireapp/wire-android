@@ -25,8 +25,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.navigation.HomeDestination
+import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
+import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,33 +42,83 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeDrawerViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
-    private val observeArchivedUnreadConversationsCountUseCase: ObserveArchivedUnreadConversationsCountUseCase,
+    private val observeArchivedUnreadConversationsCount: ObserveArchivedUnreadConversationsCountUseCase,
+    private val observeSelfUser: ObserveSelfUserUseCase,
+    private val getTeamUrl: GetTeamUrlUseCase,
     private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
 
-    var drawerState by mutableStateOf(
-        HomeDrawerState(
-            unreadArchiveConversationsCount = 0,
-            showFilesOption = false,
-        )
-    )
+    var drawerState by mutableStateOf(HomeDrawerState())
         private set
 
     init {
-        observeUnreadArchiveConversationsCount()
-        observeWireCellsFeatureState()
+        buildDrawerItems()
     }
 
-    private fun observeWireCellsFeatureState() = viewModelScope.launch {
-        globalDataStore.wireCellsEnabled().collect {
-            drawerState = drawerState.copy(showFilesOption = it)
+    private suspend fun observeTeamManagementUrlForUser(): Flow<String> {
+        return observeSelfUser().map {
+            when (it.userType) {
+                UserType.ADMIN,
+                UserType.OWNER -> {
+                    getTeamUrl()
+                }
+
+                UserType.INTERNAL,
+                UserType.EXTERNAL,
+                UserType.FEDERATED,
+                UserType.GUEST,
+                UserType.SERVICE,
+                UserType.NONE -> {
+                    String.EMPTY
+                }
+            }
         }
     }
 
-    private fun observeUnreadArchiveConversationsCount() {
+    private fun buildDrawerItems() {
         viewModelScope.launch {
-            observeArchivedUnreadConversationsCountUseCase()
-                .collect { drawerState = drawerState.copy(unreadArchiveConversationsCount = it.toInt()) }
+            combine(
+                globalDataStore.wireCellsEnabled(),
+                observeArchivedUnreadConversationsCount(),
+                observeTeamManagementUrlForUser()
+            ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
+                buildList {
+                    add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
+                    if (wireCellsEnabled) {
+                        add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
+                    }
+                    add(
+                        DrawerUiItem.UnreadCounterItem(
+                            destination = HomeDestination.Archive,
+                            unreadCount = unreadArchiveConversationsCount
+                        )
+                    )
+                } to buildList {
+                    add(DrawerUiItem.RegularItem(destination = HomeDestination.WhatsNew))
+                    add(DrawerUiItem.RegularItem(destination = HomeDestination.Settings))
+                    if (teamManagementUrl.isNotBlank()) {
+                        add(
+                            DrawerUiItem.DynamicExternalNavigationItem(
+                                destination = HomeDestination.TeamManagement,
+                                url = teamManagementUrl
+                            )
+                        )
+                    }
+                    add(DrawerUiItem.RegularItem(destination = HomeDestination.Support))
+                }
+            }.collect {
+                drawerState = drawerState.copy(items = it)
+            }
         }
     }
+}
+
+/**
+ * The type of the main navigation item.
+ * Regular, with counter or with external navigation.
+ */
+sealed class DrawerUiItem(open val destination: HomeDestination) {
+    data class RegularItem(override val destination: HomeDestination) : DrawerUiItem(destination)
+    data class UnreadCounterItem(override val destination: HomeDestination, val unreadCount: Long) : DrawerUiItem(destination)
+    data class DynamicExternalNavigationItem(override val destination: HomeDestination, val url: String) : DrawerUiItem(destination)
 }

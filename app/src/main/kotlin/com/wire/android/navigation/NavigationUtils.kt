@@ -23,14 +23,14 @@ import android.content.Context
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.NavOptionsBuilder
-import com.ramcosta.composedestinations.navigation.navigate
+import com.ramcosta.composedestinations.navigation.DestinationsNavOptionsBuilder
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.ramcosta.composedestinations.utils.findDestination
 import com.ramcosta.composedestinations.utils.navGraph
 import com.ramcosta.composedestinations.utils.route
+import com.ramcosta.composedestinations.utils.toDestinationsNavigator
 import com.wire.android.appLogger
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logger.obfuscateId
@@ -47,7 +47,7 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
     fun lastDestinationFromOtherGraph(graph: NavGraphSpec) = currentBackStack.value.lastOrNull { it.navGraph() != graph }
 
     appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()} backStackMode:${command.backStackMode}")
-    navigate(command.destination) {
+    toDestinationsNavigator().navigate(command.destination) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
                 val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
@@ -82,18 +82,18 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
     }
 }
 
-private fun NavOptionsBuilder.popUpTo(
+private fun DestinationsNavOptionsBuilder.popUpTo(
     inclusive: Boolean,
     getNavBackStackEntry: () -> NavBackStackEntry?,
 ) = popUpTo({ inclusive }, getNavBackStackEntry)
 
-private fun NavOptionsBuilder.popUpTo(
+private fun DestinationsNavOptionsBuilder.popUpTo(
     getInclusive: (NavBackStackEntry) -> Boolean,
     getNavBackStackEntry: () -> NavBackStackEntry?,
 ) {
     getNavBackStackEntry()?.let { entry ->
         appLogger.d("[$TAG] -> popUpTo:${entry.destination.route?.obfuscateId()} inclusive:${getInclusive(entry)}")
-        popUpTo(entry.destination.id) {
+        popUpTo(entry.route()) {
             this.inclusive = getInclusive(entry)
         }
     }

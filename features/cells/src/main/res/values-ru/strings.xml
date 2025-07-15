@@ -47,8 +47,8 @@
     <string name="confirm_delete_file_title">Удалить файл</string>
     <string name="confirm_delete_folder_title">Удалить папку</string>
     <string name="confirm_delete_file_text">Файл %1$s будет перемещен в корзину этой беседы.</string>
-    <string name="confirm_permanent_delete_file_text">Это навсегда удалит файл %1$s для всех участников.</string>
     <string name="confirm_delete_folder_text">Папка %1$s будет перемещена в корзину этой беседы.</string>
+    <string name="confirm_permanent_delete_file_text">Это навсегда удалит файл %1$s для всех участников.</string>
     <string name="confirm_permanent_delete_folder_text">Это навсегда удалит папку %1$s для всех участников.</string>
     <string name="reload">Перезагрузить</string>
     <string name="error_delete_public_link">Не удалось удалить публичную ссылку.</string>
@@ -80,4 +80,21 @@
     <string name="dialog_restore_file_description">Файл %1$s будет восстановлен и снова доступен для всех в этой беседе.</string>
     <string name="dialog_restore_folder_description">Папка %1$s будет восстановлена и снова доступна для всех в этой беседе.</string>
     <string name="dialog_restore_button_label">Восстановить</string>
+    <string name="rename_file_label">Переименовать файл</string>
+    <string name="rename_folder_label">Переименовать папку</string>
+    <string name="rename_label">Переименовать</string>
+    <string name="rename_file_name_label">Имя файла</string>
+    <string name="rename_folder_name_label">Название папки</string>
+    <string name="rename_long_file_name_error">Используйте более короткое название файла (максимум 64 символа)</string>
+    <string name="rename_long_folder_name_error">Используйте более короткое название папки (максимум 64 символа)</string>
+    <string name="rename_enter_file_name">Введите название файла</string>
+    <string name="rename_enter_folder_name">Введите название папки</string>
+    <string name="rename_file_renamed">Файл переименован</string>
+    <string name="rename_folder_renamed">Папка переименована</string>
+    <string name="rename_failure">Не удалось переименовать</string>
+    <string name="filter_label">Фильтр</string>
+    <string name="tags_label">Теги</string>
+    <string name="select_tags_label">выбрать теги</string>
+    <string name="clear_all_label">Очистить все</string>
+    <string name="apply_label">Применить</string>
 </resources>

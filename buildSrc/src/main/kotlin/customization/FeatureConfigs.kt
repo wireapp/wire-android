@@ -51,6 +51,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     TEAM_APP_LOCK_TIMEOUT("team_app_lock_timeout", ConfigType.INT),
     ENABLE_CROSSPLATFORM_BACKUP("enable_crossplatform_backup", ConfigType.BOOLEAN),
     ENABLE_NEW_REGISTRATION("enable_new_registration", ConfigType.BOOLEAN),
+    MLS_READ_RECEIPTS_ENABLED("mls_read_receipts_enabled", ConfigType.BOOLEAN),
 
     /**
      * Security/Cryptography stuff
@@ -109,6 +110,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     PAGINATED_CONVERSATION_LIST_ENABLED("paginated_conversation_list_enabled", ConfigType.BOOLEAN),
 
     PUBLIC_CHANNELS_ENABLED("public_channels_enabled", ConfigType.BOOLEAN),
+    CHANNELS_HISTORY_OPTIONS_ENABLED("channels_history_options_enabled", ConfigType.BOOLEAN),
 
     USE_NEW_LOGIN_FOR_DEFAULT_BACKEND("use_new_login_for_default_backend", ConfigType.BOOLEAN),
     /**

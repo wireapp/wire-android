@@ -301,13 +301,11 @@
     <string name="label_quote_original_message_is_a_picture">Image</string>
     <string name="label_quote_original_message_date">Message original de %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Créer un compte personnel</string>
     <string name="create_personal_account_summary_title">Compte personnel créé</string>
     <string name="create_personal_account_text">Discutez en toute sécurité avec vos amis et votre famille en utilisant le serveur cloud public de Wire.</string>
     <string name="create_personal_account_email_text">Entrez votre adresse e-mail pour commencer à utiliser la plateforme de collaboration la plus sécurisée.</string>
     <string name="create_personal_account_details_text">Saisissez vos informations personnelles:</string>
     <string name="create_personal_account_summary_text">Vous avez créé votre compte personnel. Commencez à communiquer en toute sécurité – où que vous soyez !</string>
-    <string name="create_team_title">Créer une équipe</string>
     <string name="create_team_summary_title">Équipe créée</string>
     <string name="create_team_content_title">Wire gratuit</string>
     <string name="create_team_text">Messagerie pour les petites organisations ou les cabinets de consultation individuels.\n</string>

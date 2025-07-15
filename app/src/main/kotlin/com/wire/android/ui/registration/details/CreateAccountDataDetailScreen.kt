@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.registration.details
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,14 +64,13 @@ import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.DefaultEmailDone
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
@@ -86,6 +85,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.EMPTY
+import com.wire.android.util.isHostValidForAnalytics
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
@@ -116,7 +116,10 @@ fun CreateAccountDataDetailScreen(
         )
 
         LaunchedEffect(createAccountDataDetailViewModel.detailsState.success) {
-            if (createAccountDataDetailViewModel.detailsState.success) navigateToCodeScreen()
+            if (createAccountDataDetailViewModel.detailsState.success) {
+                createAccountDataDetailViewModel.onCodeSentHandled()
+                navigateToCodeScreen()
+            }
         }
 
         AccountDetailsContent(
@@ -177,7 +180,7 @@ private fun AccountDetailsContent(
         contentPadding = dimensions().spacing16x,
         content = {
             val keyboardController = LocalSoftwareKeyboardController.current
-            val emailFocusRequester = remember { FocusRequester() }
+            val nameFocusRequester = remember { FocusRequester() }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
@@ -196,16 +199,15 @@ private fun AccountDetailsContent(
                     keyboardOptions = KeyboardOptions.DefaultEmailDone,
                     onKeyboardAction = { keyboardController?.hide() },
                     modifier = Modifier
-                        .padding(
-                            start = MaterialTheme.wireDimensions.spacing16x,
-                            end = MaterialTheme.wireDimensions.spacing16x,
-                            bottom = MaterialTheme.wireDimensions.spacing16x
-                        )
+                        .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                         .testTag("emailField")
-                        .focusRequester(emailFocusRequester)
                 )
-                AnimatedVisibility(visible = state.error.isEmailError()) {
-                    EmailErrorDetailText(state.error)
+
+                AnimatedContent(state.error.isEmailError()) { isEmailError ->
+                    when (isEmailError) {
+                        true -> EmailErrorDetailText(state.error)
+                        false -> VerticalSpace.x16()
+                    }
                 }
 
                 WireTextField(
@@ -226,7 +228,8 @@ private fun AccountDetailsContent(
                             end = MaterialTheme.wireDimensions.spacing16x,
                             bottom = MaterialTheme.wireDimensions.spacing16x
                         )
-                        .testTag("firstName"),
+                        .focusRequester(nameFocusRequester)
+                        .testTag("name"),
                 )
 
                 WirePasswordTextField(
@@ -273,17 +276,19 @@ private fun AccountDetailsContent(
                     autoFill = false,
                 )
 
-                Row(modifier = Modifier.padding(end = MaterialTheme.wireDimensions.spacing16x)) {
-                    WireCheckbox(
-                        checked = state.privacyPolicyAccepted,
-                        onCheckedChange = onPrivacyPolicyAccepted,
-                    )
-                    WirePrivacyPolicyLink()
+                if (serverConfig.isHostValidForAnalytics()) {
+                    Row(modifier = Modifier.padding(end = MaterialTheme.wireDimensions.spacing16x)) {
+                        WireCheckbox(
+                            checked = state.privacyPolicyAccepted,
+                            onCheckedChange = onPrivacyPolicyAccepted,
+                        )
+                        WirePrivacyPolicyLink()
+                    }
                 }
             }
 
             LaunchedEffect(Unit) {
-                emailFocusRequester.requestFocus()
+                nameFocusRequester.requestFocus()
                 keyboardController?.show()
             }
 
@@ -384,12 +389,7 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
     WireDialog(
         title = stringResource(R.string.create_account_email_terms_dialog_title),
         text = stringResource(R.string.create_account_email_terms_dialog_text),
-        onDismiss = onDialogDismiss,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = onContinuePressed,
-            text = stringResource(id = R.string.label_continue),
-            type = WireDialogButtonType.Primary,
-        )
+        onDismiss = onDialogDismiss
     ) {
         Column {
             WireSecondaryButton(
@@ -407,7 +407,15 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
                 fillMaxWidth = true,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
                     .testTag("viewTC")
+            )
+            WirePrimaryButton(
+                text = stringResource(id = R.string.label_continue),
+                onClick = onContinuePressed,
+                fillMaxWidth = true,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
         }
     }
@@ -491,6 +499,16 @@ fun PreviewCreateAccountDetailsScreen() = WireTheme {
                 onErrorDismiss = {},
                 serverConfig = ServerConfig.DEFAULT
             )
+        }
+    }
+}
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewTosDialogsScreen() = WireTheme {
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout {
+            TermsConditionsDialog({}, {}, {})
         }
     }
 }

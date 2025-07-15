@@ -58,7 +58,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -145,7 +144,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
 @Suppress("CyclomaticComplexMethod")
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = GroupConversationDetailsNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation

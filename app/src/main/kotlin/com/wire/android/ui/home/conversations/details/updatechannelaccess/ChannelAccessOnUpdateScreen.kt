@@ -21,8 +21,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
@@ -31,8 +31,10 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessScreenContent
 
-@RootNavGraph
-@WireDestination(navArgsDelegate = UpdateChannelAccessArgs::class)
+@WireDestination(
+    navArgsDelegate = UpdateChannelAccessArgs::class,
+    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+)
 @Composable
 fun ChannelAccessOnUpdateScreen(
     resultNavigator: ResultBackNavigator<UpdateChannelAccessArgs>,

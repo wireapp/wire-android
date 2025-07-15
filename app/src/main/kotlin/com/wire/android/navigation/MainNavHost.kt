@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
@@ -45,7 +44,7 @@ import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 
-@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainNavHost(
     navigator: Navigator,
@@ -62,7 +61,7 @@ fun MainNavHost(
         )
     )
 
-    adjustDestinationStylesForTablets()
+    AdjustDestinationStylesForTablets()
     DestinationsNavHost(
         modifier = modifier,
         navGraph = WireMainNavGraph,

@@ -32,7 +32,7 @@ import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
@@ -125,12 +125,12 @@ class NewConversationViewModelTest {
             arrangement.createRegularGroup(
                 viewModel.newGroupNameTextState.text.toString(),
                 viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
-                ConversationOptions(
+                CreateConversationParam(
                     access = Conversation.defaultGroupAccess,
                     accessRole = Conversation.defaultGroupAccessRoles,
                     readReceiptsEnabled = false,
                     wireCellEnabled = false,
-                    protocol = ConversationOptions.Protocol.PROTEUS,
+                    protocol = CreateConversationParam.Protocol.PROTEUS,
                     creatorClientId = null
                 )
             )
@@ -155,7 +155,7 @@ class NewConversationViewModelTest {
                 arrangement.createRegularGroup(
                     viewModel.newGroupNameTextState.text.toString(),
                     viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
-                    ConversationOptions(
+                    CreateConversationParam(
                         access = setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
                         accessRole = setOf(
                             Conversation.AccessRole.TEAM_MEMBER,
@@ -164,7 +164,7 @@ class NewConversationViewModelTest {
                         ),
                         readReceiptsEnabled = true,
                         wireCellEnabled = false,
-                        protocol = ConversationOptions.Protocol.PROTEUS,
+                        protocol = CreateConversationParam.Protocol.PROTEUS,
                         creatorClientId = null
                     )
                 )
@@ -184,7 +184,7 @@ class NewConversationViewModelTest {
         val result2 = viewModel.groupOptionsState
 
         // then
-        assertEquals(ConversationOptions.Protocol.MLS, result)
+        assertEquals(CreateConversationParam.Protocol.MLS, result)
         assertEquals(false, result2.isAllowServicesEnabled)
         assertEquals(false, result2.isAllowServicesPossible)
     }

@@ -22,5 +22,14 @@
     <string name="content_description_reveal_password">Показать пароль</string>
     <string name="content_description_hide_password">Скрыть пароль</string>
     <string name="label_wait_until_synchronised">Пожалуйста, подождите, пока приложение синхронизируется</string>
+    <string name="label_wait_until_connected">Пожалуйста, подождите, пока будет восстановлено подключение к интернету</string>
+    <string name="content_description_back_button">Кнопка назад</string>
+    <string name="content_description_left_arrow">Назад</string>
+    <string name="content_description_close_button">Кнопка закрыть</string>
+    <string name="content_description_close">Закрыть</string>
+    <string name="content_description_menu_button">Основное меню</string>
+    <string name="content_description_drop_down_icon">Курсор вниз</string>
+    <string name="content_description_pending_connection_badge">ожидание подтверждения запроса</string>
+    <string name="content_description_alert">Оповещение</string>
     <string name="content_description_show_more_options">Показать больше вариантов</string>
 </resources>

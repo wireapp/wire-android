@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -42,10 +43,10 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeDrawerViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
-    private val observeArchivedUnreadConversationsCount: ObserveArchivedUnreadConversationsCountUseCase,
+    private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase,
-    private val globalDataStore: GlobalDataStore,
+    private val globalDataStore: Lazy<GlobalDataStore>,
 ) : ViewModel() {
 
     var drawerState by mutableStateOf(HomeDrawerState())
@@ -78,8 +79,8 @@ class HomeDrawerViewModel @Inject constructor(
     private fun buildDrawerItems() {
         viewModelScope.launch {
             combine(
-                globalDataStore.wireCellsEnabled(),
-                observeArchivedUnreadConversationsCount(),
+                globalDataStore.get().wireCellsEnabled(),
+                observeArchivedUnreadConversationsCount.get().invoke(),
                 observeTeamManagementUrlForUser()
             ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
                 buildList {

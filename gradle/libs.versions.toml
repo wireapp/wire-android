@@ -12,6 +12,8 @@ coroutines = "1.9.0"
 ktx-dateTime = "0.5.0"
 ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
+koin = "3.5.3"
+datafaker = "2.4.2"
 
 # Android Core / Architecture
 detekt = "1.23.6"
@@ -296,3 +298,7 @@ okio-fakeFileSystem = { module = "com.squareup.okio:okio-fakefilesystem", versio
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
+koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
+datafaker = { module = "net.datafaker:datafaker", version.ref = "datafaker" }

@@ -27,7 +27,6 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversationslist.model.DeleteGroupDialogState
-import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 
 @Composable
 internal fun DeleteConversationGroupLocallyDialog(

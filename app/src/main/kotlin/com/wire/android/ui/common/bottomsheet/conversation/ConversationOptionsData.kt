@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.common.bottomsheet.conversation
 
-import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.model.BlockState

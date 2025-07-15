@@ -32,7 +32,6 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
-import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun UnblockUserDialogContent(

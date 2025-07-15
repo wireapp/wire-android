@@ -44,7 +44,7 @@ val detektAll by tasks.registering(Detekt::class) {
     parallel = true
     buildUponDefaultConfig = true
 
-    val outputFile = "$buildDir/staticAnalysis/index.html"
+    val outputFile = "${layout.buildDirectory}/staticAnalysis/index.html"
 
     setSource(files(rootDir))
     config.setFrom("$rootDir/config/detekt/detekt.yml")

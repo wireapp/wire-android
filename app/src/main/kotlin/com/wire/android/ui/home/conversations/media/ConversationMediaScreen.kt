@@ -67,6 +67,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.theme.WireTheme
@@ -118,14 +119,17 @@ fun ConversationMediaScreen(
 
     AssetOptionsModalSheetLayout(
         sheetState = sheetState,
-        deleteAsset = conversationMessagesViewModel::showDeleteMessageDialog,
+        deleteAsset = { messageId, deleteForEveryone ->
+            conversationMessagesViewModel.deleteMessageDialogState
+                .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
+        },
         shareAsset = remember { { conversationMessagesViewModel.shareAsset(context, it) } },
         downloadAsset = conversationMessagesViewModel::openOrFetchAsset,
     )
 
     DeleteMessageDialog(
-        state = conversationMessagesViewModel.deleteMessageDialogState,
-        actions = conversationMessagesViewModel.deleteMessageHelper,
+        dialogState = conversationMessagesViewModel.deleteMessageDialogState,
+        deleteMessage = conversationMessagesViewModel::deleteMessage,
     )
 
     DownloadedAssetDialog(

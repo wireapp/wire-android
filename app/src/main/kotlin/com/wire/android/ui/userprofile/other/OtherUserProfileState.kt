@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
 data class OtherUserProfileState(
     val userId: UserId,
@@ -46,7 +47,6 @@ data class OtherUserProfileState(
     val membership: Membership = Membership.None,
     val groupState: OtherUserProfileGroupState? = null,
     val botService: BotService? = null,
-    val conversationSheetContent: ConversationSheetContent? = null,
     val otherUserDevices: List<Device>? = null,
     val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED,
     val isProteusVerified: Boolean = false,
@@ -59,13 +59,6 @@ data class OtherUserProfileState(
     val isDeletedUser: Boolean = false,
     val isE2EIEnabled: Boolean = true,
 ) {
-    fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
-        return conversationSheetContent?.let {
-            val newConversationSheetContent = conversationSheetContent.copy(mutingConversationState = status)
-            copy(conversationSheetContent = newConversationSheetContent)
-        } ?: this
-    }
-
     companion object {
         val PREVIEW = OtherUserProfileState(
             userId = UserId("some_user", "domain.com"),
@@ -73,9 +66,7 @@ data class OtherUserProfileState(
             userName = "username",
             teamName = "team",
             email = "email",
-            groupState = OtherUserProfileGroupState(
-                "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
-            )
+            groupState = OtherUserProfileGroupState.PREVIEW
         )
     }
 
@@ -93,12 +84,17 @@ data class OtherUserProfileState(
     ))
 }
 
+@Serializable
 data class OtherUserProfileGroupState(
     val groupName: String,
     val role: Member.Role,
     val isSelfAdmin: Boolean,
-    val conversationId: ConversationId
-)
+    val conversationId: ConversationId,
+) {
+    companion object {
+        val PREVIEW = OtherUserProfileGroupState("group name", Member.Role.Member, true, ConversationId("some_user", "domain.com"))
+    }
+}
 
 enum class ErrorLoadingUser {
     UNKNOWN, // We might want to expand other errors here as dialogs, ie: federation fallback.

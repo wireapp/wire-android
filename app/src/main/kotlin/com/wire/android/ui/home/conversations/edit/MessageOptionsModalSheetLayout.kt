@@ -91,7 +91,7 @@ fun MessageOptionsModalSheetLayout(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                MessageOptionsMenuState.NotAvailable -> sheetState.hide { // message not found - hide the sheet and show a message
+                MessageOptionsMenuState.NotAvailable -> sheetState.hide { // message not found - hide the sheet and show info
                     snackbarHostState.showSnackbar(context.getString(R.string.deleted_message_options_closed))
                 }
             }

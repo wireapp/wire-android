@@ -45,6 +45,7 @@ import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.ui.home.conversationslist.model.DeleteGroupDialogState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
@@ -60,28 +61,28 @@ import com.wire.kalium.logic.data.user.ConnectionState
 @Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun ConversationMainSheetContent(
-    conversationSheetContent: ConversationSheetContent,
-    changeFavoriteState: (dialogState: GroupDialogState, addToFavorite: Boolean) -> Unit,
+    data: ConversationOptionsData,
+    changeFavoriteState: (ChangeFavoriteStateData) -> Unit,
     moveConversationToFolder: ((ConversationFoldersNavArgs) -> Unit)?,
-    removeFromFolder: (conversationId: ConversationId, conversationName: String, folder: ConversationFolder) -> Unit,
+    removeFromFolder: (RemoveFromFolderData) -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
     unblockUserClick: (UnblockUserDialogState) -> Unit,
     leaveGroup: (LeaveGroupDialogState) -> Unit,
-    deleteGroup: (GroupDialogState) -> Unit,
-    deleteGroupLocally: (GroupDialogState) -> Unit,
-    navigateToNotification: () -> Unit,
-    onItemClick: () -> Unit,
+    deleteGroup: (DeleteGroupDialogState) -> Unit,
+    deleteGroupLocally: (DeleteGroupDialogState) -> Unit,
+    openMutingOptions: () -> Unit,
 ) {
+    val conversationTitle = data.title.asString()
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
-            title = conversationSheetContent.title,
-            leadingIcon = { ConversationLeadingIcon(conversationSheetContent) },
+            title = conversationTitle,
+            leadingIcon = { ConversationLeadingIcon(data) },
             customVerticalPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
-            if (conversationSheetContent.canEditNotifications() && !conversationSheetContent.isArchived) {
+            if (data.canEditNotifications() && !data.isArchived) {
                 add {
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
@@ -91,15 +92,15 @@ internal fun ConversationMainSheetContent(
                                 contentDescription = null,
                             )
                         },
-                        trailing = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
-                        onItemClick = navigateToNotification,
+                        trailing = { NotificationsOptionsItemAction(data.mutingConversationState) },
+                        onItemClick = openMutingOptions,
                         onItemClickDescription = stringResource(id = R.string.content_description_open_notification_settings_label)
                     )
                 }
             }
 
-            if (conversationSheetContent.canAddToFavourite() && !conversationSheetContent.isArchived) {
-                conversationSheetContent.isFavorite?.let { isFavorite ->
+            if (data.canAddToFavourite() && !data.isArchived) {
+                data.isFavorite?.let { isFavorite ->
                     add {
                         MenuBottomSheetItem(
                             title = stringResource(
@@ -116,20 +117,13 @@ internal fun ConversationMainSheetContent(
                                 )
                             },
                             onItemClick = {
-                                onItemClick()
-                                changeFavoriteState(
-                                    GroupDialogState(
-                                        conversationSheetContent.conversationId,
-                                        conversationSheetContent.title
-                                    ),
-                                    !isFavorite
-                                )
+                                changeFavoriteState(ChangeFavoriteStateData(data.conversationId, conversationTitle, !isFavorite))
                             }
                         )
                     }
                 }
             }
-            if (moveConversationToFolder != null && !conversationSheetContent.isArchived) {
+            if (moveConversationToFolder != null && !data.isArchived) {
                 add {
                     MenuBottomSheetItem(
                         leading = {
@@ -140,19 +134,12 @@ internal fun ConversationMainSheetContent(
                         },
                         title = stringResource(R.string.label_move_to_folder),
                         onItemClick = {
-                            onItemClick()
-                            moveConversationToFolder(
-                                ConversationFoldersNavArgs(
-                                    conversationId = conversationSheetContent.conversationId,
-                                    conversationName = conversationSheetContent.title,
-                                    currentFolderId = conversationSheetContent.folder?.id
-                                )
-                            )
+                            moveConversationToFolder(ConversationFoldersNavArgs(data.conversationId, conversationTitle, data.folder?.id))
                         }
                     )
                 }
             }
-            if (conversationSheetContent.folder != null && !conversationSheetContent.isArchived) {
+            if (data.folder != null && !data.isArchived) {
                 add {
                     MenuBottomSheetItem(
                         leading = {
@@ -161,14 +148,9 @@ internal fun ConversationMainSheetContent(
                                 contentDescription = null,
                             )
                         },
-                        title = stringResource(R.string.label_remove_from_folder, conversationSheetContent.folder.name),
+                        title = stringResource(R.string.label_remove_from_folder, data.folder.name),
                         onItemClick = {
-                            onItemClick()
-                            removeFromFolder(
-                                conversationSheetContent.conversationId,
-                                conversationSheetContent.title,
-                                conversationSheetContent.folder
-                            )
+                            removeFromFolder(RemoveFromFolderData(data.conversationId, conversationTitle, data.folder))
                         }
                     )
                 }
@@ -182,19 +164,18 @@ internal fun ConversationMainSheetContent(
                         )
                     },
                     title = stringResource(
-                        if (!conversationSheetContent.isArchived) R.string.label_move_to_archive
+                        if (!data.isArchived) R.string.label_move_to_archive
                         else R.string.label_unarchive
                     ),
                     onItemClick = {
-                        onItemClick()
-                        with(conversationSheetContent) {
+                        with(data) {
                             updateConversationArchiveStatus(
                                 DialogState(
                                     conversationId = conversationId,
-                                    conversationName = title,
+                                    conversationName = conversationTitle,
                                     conversationTypeDetail = conversationTypeDetail,
                                     isArchived = isArchived,
-                                    isMember = conversationSheetContent.selfRole != null
+                                    isMember = data.selfRole != null
                                 )
                             )
                         }
@@ -211,20 +192,19 @@ internal fun ConversationMainSheetContent(
                     },
                     title = stringResource(R.string.label_clear_content),
                     onItemClick = {
-                        onItemClick()
                         clearConversationContent(
                             DialogState(
-                                conversationId = conversationSheetContent.conversationId,
-                                conversationName = conversationSheetContent.title,
-                                conversationTypeDetail = conversationSheetContent.conversationTypeDetail,
-                                isArchived = conversationSheetContent.isArchived,
-                                isMember = conversationSheetContent.selfRole != null
+                                conversationId = data.conversationId,
+                                conversationName = conversationTitle,
+                                conversationTypeDetail = data.conversationTypeDetail,
+                                isArchived = data.isArchived,
+                                isMember = data.selfRole != null
                             )
                         )
                     }
                 )
             }
-            if (conversationSheetContent.canBlockUser()) {
+            if (data.canBlockUser()) {
                 add {
                     MenuBottomSheetItem(
                         leading = {
@@ -237,18 +217,17 @@ internal fun ConversationMainSheetContent(
                         title = stringResource(R.string.label_block),
                         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                         onItemClick = {
-                            onItemClick()
                             blockUserClick(
                                 BlockUserDialogState(
-                                    userName = conversationSheetContent.title,
-                                    userId = (conversationSheetContent.conversationTypeDetail as ConversationTypeDetail.Private).userId
+                                    userName = conversationTitle,
+                                    userId = (data.conversationTypeDetail as ConversationTypeDetail.Private).userId
                                 )
                             )
                         }
                     )
                 }
             }
-            if (conversationSheetContent.canUnblockUser()) {
+            if (data.canUnblockUser()) {
                 add {
                     MenuBottomSheetItem(
                         leading = {
@@ -260,18 +239,17 @@ internal fun ConversationMainSheetContent(
                         itemProvidedColor = MaterialTheme.colorScheme.onBackground,
                         title = stringResource(R.string.label_unblock),
                         onItemClick = {
-                            onItemClick()
                             unblockUserClick(
                                 UnblockUserDialogState(
-                                    userName = conversationSheetContent.title,
-                                    userId = (conversationSheetContent.conversationTypeDetail as ConversationTypeDetail.Private).userId
+                                    userName = conversationTitle,
+                                    userId = (data.conversationTypeDetail as ConversationTypeDetail.Private).userId
                                 )
                             )
                         }
                     )
                 }
             }
-            if (conversationSheetContent.canLeaveTheGroup()) {
+            if (data.canLeaveTheGroup()) {
                 add {
                     MenuBottomSheetItem(
                         leading = {
@@ -283,18 +261,17 @@ internal fun ConversationMainSheetContent(
                         itemProvidedColor = MaterialTheme.colorScheme.error,
                         title = stringResource(R.string.label_leave_conversation),
                         onItemClick = {
-                            onItemClick()
                             leaveGroup(
                                 LeaveGroupDialogState(
-                                    conversationSheetContent.conversationId,
-                                    conversationSheetContent.title
+                                    conversationId = data.conversationId,
+                                    conversationName = conversationTitle
                                 )
                             )
                         }
                     )
                 }
             }
-            if (conversationSheetContent.canDeleteGroupLocally()) {
+            if (data.canDeleteGroupLocally()) {
                 add {
                     MenuBottomSheetItem(
                         leading = {
@@ -306,18 +283,17 @@ internal fun ConversationMainSheetContent(
                         title = stringResource(R.string.label_delete_conversation_locally),
                         itemProvidedColor = MaterialTheme.colorScheme.error,
                         onItemClick = {
-                            onItemClick()
                             deleteGroupLocally(
-                                GroupDialogState(
-                                    conversationSheetContent.conversationId,
-                                    conversationSheetContent.title
+                                DeleteGroupDialogState(
+                                    conversationId = data.conversationId,
+                                    conversationName = conversationTitle
                                 )
                             )
                         }
                     )
                 }
             }
-            if (conversationSheetContent.canDeleteGroup()) {
+            if (data.canDeleteGroup()) {
                 add {
                     MenuBottomSheetItem(
                         leading = {
@@ -329,11 +305,10 @@ internal fun ConversationMainSheetContent(
                         title = stringResource(R.string.label_delete_conversation),
                         itemProvidedColor = MaterialTheme.colorScheme.error,
                         onItemClick = {
-                            onItemClick()
                             deleteGroup(
-                                GroupDialogState(
-                                    conversationSheetContent.conversationId,
-                                    conversationSheetContent.title
+                                DeleteGroupDialogState(
+                                    conversationId = data.conversationId,
+                                    conversationName = conversationTitle
                                 )
                             )
                         }
@@ -346,9 +321,9 @@ internal fun ConversationMainSheetContent(
 
 @Composable
 private fun ConversationLeadingIcon(
-    conversationSheetContent: ConversationSheetContent,
+    conversationOptionsData: ConversationOptionsData,
 ) {
-    when (val typeDetail = conversationSheetContent.conversationTypeDetail) {
+    when (val typeDetail = conversationOptionsData.conversationTypeDetail) {
         is ConversationTypeDetail.Group.Channel ->
             ChannelConversationAvatar(typeDetail.conversationId, isPrivateChannel = typeDetail.isPrivate)
 
@@ -367,7 +342,7 @@ private fun ConversationLeadingIcon(
                 avatarData = UserAvatarData(
                     asset = typeDetail.avatarAsset,
                     connectionState = connectionState,
-                    nameBasedAvatar = NameBasedAvatar(conversationSheetContent.title, accentColor = -1)
+                    nameBasedAvatar = NameBasedAvatar(conversationOptionsData.title.asString(), accentColor = -1)
                 )
             )
         }
@@ -392,3 +367,6 @@ fun NotificationsOptionsItemAction(
         ArrowRightIcon(contentDescription = R.string.content_description_empty)
     }
 }
+
+data class RemoveFromFolderData(val conversationId: ConversationId, val conversationName: String, val folder: ConversationFolder)
+data class ChangeFavoriteStateData(val conversationId: ConversationId, val conversationName: String, val addToFavorite: Boolean)

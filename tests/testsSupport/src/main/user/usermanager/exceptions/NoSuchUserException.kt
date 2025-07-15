@@ -15,11 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.support.suite
+package user.usermanager.exceptions
 
-/**
- * Suite for running scoped tests for release candidate.
- */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class RC(vararg val value: String)
+class NoSuchUserException(val messagePayload: String) : RuntimeException() {
+    companion object {
+       const val serialVersionUID = 8400419658588574129L
+    }
+
+    override val message: String?
+        get() = messagePayload
+}

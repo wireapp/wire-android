@@ -55,13 +55,6 @@ class AndroidTestLibraryConventionPlugin : Plugin<Project> {
                 }
                 sourceSets["test"].includeCommonTestSourceDir()
                 sourceSets["androidTest"].includeCommonTestSourceDir()
-
-                testOptions {
-                    execution = "ANDROIDX_TEST_ORCHESTRATOR"
-                    animationsDisabled = true
-                    unitTests.isReturnDefaultValues = true
-                    unitTests.isIncludeAndroidResources = true
-                }
             }
 
             buildTypes {

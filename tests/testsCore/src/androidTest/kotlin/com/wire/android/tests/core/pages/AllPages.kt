@@ -15,11 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.support.suite
+package com.wire.android.tests.core.pages
 
-/**
- * Suite for running scoped tests for release candidate.
- */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class RC(vararg val value: String)
+import androidx.test.uiautomator.UiDevice
+
+class AllPages(val device: UiDevice) {
+    val registrationPage = RegistrationPage(device)
+    val loginPage = LoginPage(device)
+    val settingsPage = SettingsPage(device)
+    val conversationPage = ConversationPage(device)
+}

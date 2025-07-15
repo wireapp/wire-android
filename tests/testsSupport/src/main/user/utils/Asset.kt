@@ -15,11 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.support.suite
+package user.utils
 
-/**
- * Suite for running scoped tests for release candidate.
- */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class RC(vararg val value: String)
+import org.json.JSONObject
+
+data class Asset(val key: String, val type: String, val size: String) {
+    fun toJson() = JSONObject().apply {
+        put("key", key)
+        put("type", type)
+        put("size", size)
+    }
+}

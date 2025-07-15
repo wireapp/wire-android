@@ -103,6 +103,7 @@ interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsM
     fun moveToArchive(conversationId: ConversationId, shouldArchive: Boolean, isSelfAMember: Boolean) {}
 }
 
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationOptionsMenuViewModelImpl @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -297,7 +298,6 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
                         sendAction(ConversationOptionsMenuViewAction.Deleted(conversationId, conversationName))
                         onMessage(HomeSnackBarMessage.DeletedConversationGroupSuccess(conversationName))
                     }
-
                 }
             }
             deleteGroupDialogState.dismiss()

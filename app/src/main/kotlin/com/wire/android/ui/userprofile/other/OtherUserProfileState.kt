@@ -22,6 +22,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.allowsRoleEdition
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
@@ -80,6 +81,8 @@ data class OtherUserProfileState(
         ConnectionState.BLOCKED,
         ConnectionState.MISSING_LEGALHOLD_CONSENT
     ))
+
+    fun isRoleEditable() = membership.allowsRoleEdition() && !isMetadataEmpty() && !isTemporaryUser()
 }
 
 @Serializable

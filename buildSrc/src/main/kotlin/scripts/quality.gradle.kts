@@ -44,7 +44,7 @@ val detektAll by tasks.registering(Detekt::class) {
     parallel = true
     buildUponDefaultConfig = true
 
-    val outputFile = "${layout.buildDirectory}/staticAnalysis/index.html"
+    val outputFile = layout.buildDirectory.file("staticAnalysis/index.html")
 
     setSource(files(rootDir))
     config.setFrom("$rootDir/config/detekt/detekt.yml")
@@ -57,7 +57,7 @@ val detektAll by tasks.registering(Detekt::class) {
     reports {
         xml.required.set(true)
         html.required.set(true)
-        html.outputLocation.set(file(outputFile))
+        html.outputLocation.set(outputFile.get())
         txt.required.set(false)
     }
 

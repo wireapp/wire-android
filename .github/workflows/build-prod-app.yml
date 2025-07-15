@@ -45,10 +45,10 @@ jobs:
             echo "Current tag ($current_tag) is equal or higher than $latest_tag. Continuing the workflow."
           fi
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: buildjet/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
           cache: gradle
       - name: Decode Keystore

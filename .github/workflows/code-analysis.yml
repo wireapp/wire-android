@@ -20,10 +20,10 @@ jobs:
           with:
               submodules: recursive # Needed in order to fetch Kalium sources for building
               fetch-depth: 0
-        - name: Set up JDK 21
+        - name: Set up JDK 17
           uses: buildjet/setup-java@v4
           with:
-              java-version: '21'
+              java-version: '17'
               distribution: 'temurin'
               cache: gradle
         - name: Validate Gradle wrapper
@@ -47,10 +47,10 @@ jobs:
         with:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: buildjet/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
           cache: gradle
       - name: Validate Gradle wrapper

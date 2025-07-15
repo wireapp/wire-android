@@ -845,7 +845,7 @@ class WireActivityViewModelTest {
 
         private val viewModel by lazy {
             WireActivityViewModel(
-                coreLogic = coreLogic,
+                coreLogic = { coreLogic },
                 dispatchers = TestDispatcherProvider(),
                 currentSessionFlow = { currentSessionFlow },
                 doesValidSessionExist = { doesValidSessionExist },

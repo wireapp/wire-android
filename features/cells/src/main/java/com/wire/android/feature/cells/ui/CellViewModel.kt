@@ -36,8 +36,10 @@ import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.common.functional.getOrElse
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -46,6 +48,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -66,6 +69,7 @@ import javax.inject.Inject
 class CellViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
+    private val getAllTagsUseCase: GetAllTagsUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val download: DownloadCellFileUseCase,
@@ -92,13 +96,33 @@ class CellViewModel @Inject constructor(
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
-    internal val nodesFlow = searchQueryFlow
-        .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
-        .onStart { emit("") }
-        .distinctUntilChanged()
-        .flatMapLatest { query ->
+    private val _selectedTags = MutableStateFlow<List<String>>(emptyList())
+    val selectedTags: StateFlow<List<String>> = _selectedTags.asStateFlow()
+
+    private val _tags = MutableStateFlow<List<String>>(emptyList())
+    val tags: StateFlow<List<String>> = _tags.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _tags.value = getAllTagsUseCase().getOrElse(emptyList())
+        }
+    }
+
+    internal val nodesFlow = combine(
+        searchQueryFlow
+            .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
+            .onStart { emit("") }
+            .distinctUntilChanged(),
+        selectedTags
+    ) { query, currentTags -> query to currentTags }
+        .flatMapLatest { (query, currentTags) ->
             combine(
-                getCellFilesPaged(navArgs.conversationId, query, navArgs.isRecycleBin ?: false).cachedIn(viewModelScope),
+                getCellFilesPaged(
+                    conversationId = navArgs.conversationId,
+                    query = query,
+                    onlyDeleted = navArgs.isRecycleBin ?: false,
+                    tags = currentTags
+                ).cachedIn(viewModelScope),
                 removedItemsFlow,
                 downloadDataFlow
             ) { pagingData, removedItems, downloadData ->
@@ -122,6 +146,10 @@ class CellViewModel @Inject constructor(
                     }
             }
         }
+
+    fun updateSelectedTags(tags: List<String>) {
+        _selectedTags.value = tags
+    }
 
     internal fun onSearchQueryUpdated(text: String) = viewModelScope.launch {
         searchQueryFlow.emit(text)

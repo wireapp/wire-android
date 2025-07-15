@@ -41,7 +41,9 @@ class ObserveMessageForConversationUseCase @Inject constructor(
                 if (result is ObserveMessageByIdUseCase.Result.Success && result.message is Message.Standalone) {
                     val usersForMessage = getUsersForMessage(result.message)
                     messageMapper.toUIMessage(usersForMessage, result.message as Message.Standalone)
-                } else null
+                } else {
+                    null
+                }
             }
             .flowOn(dispatchers.io())
 }

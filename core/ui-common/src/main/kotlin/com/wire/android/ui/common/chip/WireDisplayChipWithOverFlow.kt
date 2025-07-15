@@ -79,7 +79,7 @@ fun WireDisplayChipWithOverFlow(
 
 @MultipleThemePreviews
 @Composable
-fun PreviewDisplayChip() {
+fun PreviewWireDisplayChipWithOverFlow() {
     WireTheme {
         WireDisplayChipWithOverFlow(
             label = "Marketing",

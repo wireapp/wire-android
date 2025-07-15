@@ -1853,4 +1853,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="enable_wire_cell_switch_description">All files in this conversation will be uploaded in Wire Cell storage.</string>
     <string name="failed_attachment_retry_upload">Retry upload</string>
     <string name="failed_attachment_remove">Remove</string>
+    <string name="content_description_apply_filter">Apply Filter</string>
+    <string name="content_description_filter_files">Filter files</string>
 </resources>

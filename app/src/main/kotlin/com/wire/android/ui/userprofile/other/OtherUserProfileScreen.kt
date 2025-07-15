@@ -90,7 +90,6 @@ import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.conversationslist.model.allowsRoleEdition
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileDialog
 import com.wire.android.ui.theme.WireTheme
@@ -457,7 +456,6 @@ private fun Content(
                 OtherUserConnectionStatusInfo(state.connectionState, state.membership)
                 OtherUserConnectionUnverifiedWarning(state.fullName, state.connectionState)
             }
-            val isRoleEditable = state.membership.allowsRoleEdition() && !state.isMetadataEmpty() && !state.isTemporaryUser()
             when {
                 state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
                 state.connectionState == ConnectionState.ACCEPTED -> {
@@ -477,7 +475,7 @@ private fun Content(
                                 OtherUserProfileTabItem.GROUP ->
                                     OtherUserProfileGroup(
                                         state = state.groupState!!, // groupState is guaranteed to be non-null here
-                                        isRoleEditable = isRoleEditable,
+                                        isRoleEditable = state.isRoleEditable(),
                                         onRemoveFromConversation = {
                                             openRemoveConversationMemberDialog(
                                                 RemoveConversationMemberState(it, state.fullName, state.userName, state.userId)
@@ -503,7 +501,7 @@ private fun Content(
                 state.groupState != null -> {
                     OtherUserProfileGroup(
                         state = state.groupState,
-                        isRoleEditable = isRoleEditable,
+                        isRoleEditable = state.isRoleEditable(),
                         onRemoveFromConversation = {
                             openRemoveConversationMemberDialog(
                                 RemoveConversationMemberState(it, state.fullName, state.userName, state.userId)

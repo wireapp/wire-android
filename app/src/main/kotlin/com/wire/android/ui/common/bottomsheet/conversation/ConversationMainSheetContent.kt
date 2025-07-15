@@ -162,10 +162,7 @@ internal fun ConversationMainSheetContent(
                             contentDescription = null,
                         )
                     },
-                    title = stringResource(
-                        if (!data.isArchived) R.string.label_move_to_archive
-                        else R.string.label_unarchive
-                    ),
+                    title = stringResource(if (!data.isArchived) R.string.label_move_to_archive else R.string.label_unarchive),
                     onItemClick = {
                         with(data) {
                             updateConversationArchiveStatus(

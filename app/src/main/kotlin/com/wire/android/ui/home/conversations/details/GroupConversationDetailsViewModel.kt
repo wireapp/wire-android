@@ -136,7 +136,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         groupName = groupDetails.conversation.name.orEmpty(),
                         protocolInfo = groupDetails.conversation.protocol,
                         proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
-                        mlsVerificationStatus =  groupDetails.conversation.mlsVerificationStatus,
+                        mlsVerificationStatus = groupDetails.conversation.mlsVerificationStatus,
                         legalHoldStatus = groupDetails.conversation.legalHoldStatus,
                         areAccessOptionsAvailable = groupDetails.conversation.isTeamGroup(),
                         isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed(),

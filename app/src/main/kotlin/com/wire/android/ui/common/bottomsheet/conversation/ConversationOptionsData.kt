@@ -50,11 +50,15 @@ data class ConversationOptionsData(
 
     private val isSelfUserMember: Boolean get() = selfRole != null
 
-    fun canEditNotifications(): Boolean = isSelfUserMember
-            && ((conversationTypeDetail is ConversationTypeDetail.Private
-            && (conversationTypeDetail.blockingState != BlockingState.BLOCKED)
-            && !conversationTypeDetail.isUserDeleted)
-            || conversationTypeDetail is ConversationTypeDetail.Group)
+    private val isPrivateOtherThanBlocked: Boolean
+        get() = conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED
+
+    private val isPrivateWithNonDeletedUser: Boolean
+        get() = conversationTypeDetail is ConversationTypeDetail.Private && !conversationTypeDetail.isUserDeleted
+
+    private val isGroup: Boolean get() = conversationTypeDetail is ConversationTypeDetail.Group
+
+    fun canEditNotifications(): Boolean = isSelfUserMember && ((isPrivateOtherThanBlocked && isPrivateWithNonDeletedUser) || isGroup)
 
     /**
      * TODO(refactor): All of this logic to figure out permissions should live in Kalium/Logic module, instead of in the presentation layer
@@ -84,11 +88,10 @@ data class ConversationOptionsData(
     fun canUnblockUser(): Boolean =
         conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.BLOCKED
 
-    fun canAddToFavourite(): Boolean = isFavorite != null &&
-            ((conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
-                    || conversationTypeDetail is ConversationTypeDetail.Group)
+    fun canAddToFavourite(): Boolean = isFavorite != null && (isPrivateOtherThanBlocked || isGroup)
 }
 
+@Suppress("LongMethod")
 fun ConversationDetails.toConversationOptionsData(
     selfUser: SelfUser,
     isDeletingConversationLocallyRunning: Boolean

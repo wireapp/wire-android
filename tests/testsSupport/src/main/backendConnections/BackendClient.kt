@@ -7,6 +7,7 @@ import android.net.Uri
 import com.wire.android.testSupport.BuildConfig
 import com.wire.android.testSupport.backendConnections.team.defaultheaders
 import com.wire.android.testSupport.backendConnections.team.getAuthToken
+import com.wire.android.testSupport.backendConnections.team.getTeamId
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
@@ -468,6 +469,43 @@ class BackendClient(
             attempts++
         }
     }
+
+    fun getSelfDeletingMessagesSettings(teamMember: ClientUser): JSONObject {
+        val teamId = Uri.encode(getTeamId(teamMember))
+        val url = "i/teams/$teamId/features/selfDeletingMessages".composeCompleteUrl()
+        
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${basicAuth.getEncoded()}")
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = URL(url),
+            method = "GET",
+            headers = headers,
+            options = RequestOptions()
+        )
+
+        return JSONObject(response.body)
+    }
+
+    fun getUserNameByID(domain: String, id: String, user: ClientUser): String {
+        val token = runBlocking { getAuthToken(user) }
+
+        val url = "users/$domain/$id/".composeCompleteUrl()
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = URL(url),
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(accessToken = token)
+        )
+
+        return JSONObject(response.body).getString("name")
+    }
+
 
     private suspend fun updateSelfHandle(user: ClientUser, handle: String) {
         val token = getAuthToken(user)

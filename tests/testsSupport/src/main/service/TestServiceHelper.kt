@@ -19,14 +19,70 @@ package service
 
 import com.wire.android.testSupport.backendConnections.BackendClient
 import com.wire.android.testSupport.backendConnections.team.getTeamByName
+import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
+import network.HttpRequestException
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import java.util.concurrent.TimeUnit
 
 class TestServiceHelper {
 
     val usersManager by lazy {
         ClientUserManager.getInstance()!!
+    }
+
+    val testServiceClient by lazy {
+        TestService("","TestService")
+    }
+
+    suspend fun usersSetUniqueUsername(userNameAliases: String) {
+        usersManager.splitAliases(userNameAliases).forEach { userNameAlias ->
+            val user = toClientUser(userNameAlias)
+            val backend = BackendClient.loadBackend(user.backendName.orEmpty())
+            backend.updateUniqueUsername(user, user.uniqueUsername.orEmpty())
+        }
+    }
+
+    fun connectionRequestIsSentTo(userFromNameAlias: String, usersToNameAliases: String) {
+        val userFrom = toClientUser(userFromNameAlias);
+        val backend = BackendClient.loadBackend(userFrom.backendName.orEmpty());
+        val usersTo = usersManager
+            .splitAliases(usersToNameAliases)
+            .map(this::toClientUser)
+        runBlocking {
+            usersTo.forEach {
+                backend.sendConnectionRequest(userFrom, it)
+            }
+        }
+    }
+    fun addDevice(
+        ownerAlias: String,
+        verificationCode: String? = null,
+        deviceName: String? = null,
+        label: String? = "",
+        developmentApiEnabled: Boolean = false
+    ) {
+        try {
+            testServiceClient.login(
+                toClientUser(ownerAlias),
+                verificationCode,
+                deviceName,
+                developmentApiEnabled
+            )
+        } catch (e: HttpRequestException) {
+            try {
+                TimeUnit.SECONDS.sleep(300)
+                testServiceClient.login(
+                    toClientUser(ownerAlias),
+                    verificationCode,
+                    deviceName,
+                    developmentApiEnabled
+                )
+            } catch (ei: Exception) {
+                throw RuntimeException("Wait and retry failed")
+            }
+        }
     }
 
     fun userHasGroupConversationInTeam(

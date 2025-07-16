@@ -3,9 +3,17 @@
 package com.wire.android.testSupport.backendConnections
 
 import CredentialsManager
+import android.net.Uri
 import com.wire.android.testSupport.BuildConfig
+import com.wire.android.testSupport.backendConnections.team.defaultheaders
+import com.wire.android.testSupport.backendConnections.team.getAuthToken
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
+import network.HttpRequestException
 import network.NetworkBackendClient
+import network.NumberSequence
+import network.RequestOptions
 import org.json.JSONObject
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
@@ -132,8 +140,16 @@ class BackendClient(
                 backendUrl = secrets.backendUrl,
                 webappUrl = secrets.webappUrl,
                 backendWebsocket = secrets.backendWebsocket,
-                basicAuth = buildBasicAuth(secrets.basicAuthUsername, secrets.basicAuthPassword, secrets.basicAuthGeneral),
-                inbucketAuth = buildBasicAuth(secrets.inbucketUsername, secrets.inbucketPassword, secrets.basicAuthGeneral),
+                basicAuth = buildBasicAuth(
+                    secrets.basicAuthUsername,
+                    secrets.basicAuthPassword,
+                    secrets.basicAuthGeneral
+                ),
+                inbucketAuth = buildBasicAuth(
+                    secrets.inbucketUsername,
+                    secrets.inbucketPassword,
+                    secrets.basicAuthGeneral
+                ),
                 domain = secrets.domain,
                 deeplink = secrets.deeplink,
                 inbucketUrl = secrets.inbucketUrl,
@@ -154,6 +170,7 @@ class BackendClient(
                 override fun checkClientTrusted(certs: Array<java.security.cert.X509Certificate>, authType: String) {
                     true
                 }
+
                 override fun checkServerTrusted(certs: Array<java.security.cert.X509Certificate>, authType: String) {
                     true
                 }
@@ -296,6 +313,33 @@ class BackendClient(
         }
     }
 
+    @Suppress("TooGenericExceptionThrown")
+    fun getVerificationCode(user: ClientUser): String {
+        trigger2FA(user.email.orEmpty())
+
+        val encodedUserId = Uri.encode(user.id)
+        val url = URL("${backendUrl}i/users/$encodedUserId/verification-code/login")
+
+        val headers = mapOf(
+            "Authorization" to basicAuth.getEncoded(),
+            "Accept" to "application/json"
+        )
+
+        return try {
+            val response = NetworkBackendClient.sendJsonRequest(
+                url = url,
+                method = "GET",
+                headers = headers,
+                options = RequestOptions(
+                    expectedResponseCodes = NumberSequence.Range(200..299)
+                )
+            )
+            response.replace("\"", "")
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to get verification code: ${e.message}", e)
+        }
+    }
+
     // Used to active a register user email
     fun activateRegisteredEmailByBackendCode(email: String, code: String): String {
 
@@ -320,9 +364,135 @@ class BackendClient(
             headers = headers
         )
 
-        WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("JsonBody response is $requestBody")
+        WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null")
+            .info("JsonBody response is $requestBody")
 
         return "Email Registered"
+    }
+
+    private fun getFeatureConfig(feature: String, user: ClientUser): JSONObject {
+        val token = runBlocking {
+            getAuthToken(user)
+        }
+        val url = URL(String.format("feature-configs/%s", feature).composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(
+                accessToken = token
+            )
+        )
+
+        val objectResponse = JSONObject(response.body)
+        return objectResponse
+    }
+
+    suspend fun sendConnectionRequest(fromUser: ClientUser, toUser: ClientUser) {
+        val token = getAuthToken(fromUser)
+        val url =
+            URL("connections/${BackendClient.loadBackend(toUser.backendName.orEmpty()).domain}/${toUser.id}".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+        }
+
+        // First try the new endpoint
+        val response = try {
+            NetworkBackendClient.sendJsonRequestWithCookies(
+                url = url,
+                method = "POST",
+                headers = headers,
+                options = RequestOptions(accessToken = token)
+            )
+        } catch (e: Exception) {
+            if (e.message?.contains("404") == true) {
+                // Fallback to old endpoint
+                val fallbackUrl = URL("connections".composeCompleteUrl())
+                val requestBody = JSONObject().apply {
+                    put("user", toUser.id)
+                    put("name", toUser.name)
+                    put("message", "This message is not shown anywhere anymore")
+                }
+
+                NetworkBackendClient.sendJsonRequestWithCookies(
+                    url = fallbackUrl,
+                    method = "POST",
+                    headers = headers,
+                    body = requestBody.toString(),
+                    options = RequestOptions(accessToken = token)
+                )
+            } else {
+                // Retry after delay for other errors
+                delay(1500)
+                try {
+                    val retryResponse = NetworkBackendClient.sendJsonRequestWithCookies(
+                        url = url,
+                        method = "POST",
+                        headers = headers,
+                        options = RequestOptions(accessToken = token)
+                    )
+                } catch (e: Exception) {
+                    throw RuntimeException("Connection request failed with status code ${e.message}")
+
+                }
+            }
+        }
+        throw IllegalStateException("HTTP 422 Invalid body - likely domains are not federated")
+
+    }
+
+    suspend fun updateUniqueUsername(user: ClientUser, newUniqueUsername: String) {
+        val USERNAME_ALREADY_REGISTERED_ERROR = 409
+        val tryAvoidDuplicates = newUniqueUsername.equals(user.uniqueUsername, ignoreCase = true)
+        var currentUsername = newUniqueUsername
+        var attempts = 0
+
+        while (true) {
+            try {
+                updateSelfHandle(user, currentUsername)
+                user.uniqueUsername = currentUsername
+                return
+            } catch (e: HttpRequestException) {
+                if (tryAvoidDuplicates && e.returnCode == USERNAME_ALREADY_REGISTERED_ERROR && attempts < 5) {
+                    currentUsername = ClientUser.sanitizedRandomizedHandle(user.firstName)
+                } else {
+                    throw e
+                }
+            }
+            attempts++
+        }
+    }
+
+    private suspend fun updateSelfHandle(user: ClientUser, handle: String) {
+        val token = getAuthToken(user)
+        val url = URL("self/handle".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+        }
+
+        val requestBody = JSONObject().apply {
+            put("handle", handle)
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(accessToken = token)
+        )
+    }
+
+    fun isDevelopmentApiEnabled(user: ClientUser): Boolean {
+
+        return getFeatureConfig("mls", user).get("status").equals("enabled")
     }
 
     fun String.composeCompleteUrl(): String {

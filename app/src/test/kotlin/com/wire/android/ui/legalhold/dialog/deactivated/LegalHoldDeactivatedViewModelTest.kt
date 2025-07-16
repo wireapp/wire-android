@@ -107,7 +107,7 @@ class LegalHoldDeactivatedViewModelTest {
 
         @MockK
         lateinit var coreLogic: CoreLogic
-        val viewModel by lazy { LegalHoldDeactivatedViewModel(coreLogic = coreLogic) }
+        val viewModel by lazy { LegalHoldDeactivatedViewModel(coreLogic = { coreLogic }) }
 
         init { MockKAnnotations.init(this) }
         fun withNotCurrentSession() = apply {

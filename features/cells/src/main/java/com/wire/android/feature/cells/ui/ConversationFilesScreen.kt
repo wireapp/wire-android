@@ -39,6 +39,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
+import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
@@ -255,6 +256,13 @@ fun ConversationFilesScreenContent(
                                 isFolder = cellNodeUi is CellNodeUi.Folder,
                                 nodeName = cellNodeUi.name,
                             )
+                        )
+                    )
+                },
+                showAddRemoveTagsScreen = { node ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
                         )
                     )
                 }

@@ -22,8 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.AssistedViewModelFactory
-import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
@@ -50,8 +48,8 @@ class ConversationFoldersVMImpl @AssistedInject constructor(
 ) : ConversationFoldersVM, ViewModel() {
 
     @AssistedFactory
-    interface Factory : AssistedViewModelFactory<ConversationFoldersVMImpl, ConversationFoldersStateArgs> {
-        override fun create(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl
+    interface Factory {
+        fun create(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl
     }
 
     private var state by mutableStateOf(ConversationFoldersState(persistentListOf(), args.selectedFolderId))
@@ -77,11 +75,4 @@ class ConversationFoldersVMImpl @AssistedInject constructor(
 data class ConversationFoldersState(val folders: PersistentList<ConversationFolder>, val selectedFolderId: String? = null)
 
 @Serializable
-data class ConversationFoldersStateArgs(val selectedFolderId: String?) : ScopedArgs {
-
-    override val key = "$ARGS_KEY:$selectedFolderId"
-
-    companion object {
-        const val ARGS_KEY = "ConversationFoldersStateArgsKey"
-    }
-}
+data class ConversationFoldersStateArgs(val selectedFolderId: String?)

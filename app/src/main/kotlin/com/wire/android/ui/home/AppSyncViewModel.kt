@@ -21,17 +21,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.feature.client.MLSClientManager
-import com.wire.kalium.logic.feature.conversation.keyingmaterials.KeyingMaterialsManager
-import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
-import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
-import com.wire.kalium.logic.feature.mlsmigration.MLSMigrationManager
-import com.wire.kalium.logic.feature.mls.MLSPublicKeysSyncWorker
-import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
+import com.wire.kalium.logic.sync.ForegroundActionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -41,14 +33,7 @@ import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class AppSyncViewModel @Inject constructor(
-    private val syncCertificateRevocationListUseCase: SyncCertificateRevocationListUseCase,
-    private val observeCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase,
-    private val featureFlagsSyncWorker: FeatureFlagsSyncWorker,
-    private val mlsPublicKeysSyncWorker: MLSPublicKeysSyncWorker,
-    private val updateApiVersions: UpdateApiVersionsUseCase,
-    private val mLSMigrationManager: MLSMigrationManager,
-    private val keyingMaterialsManager: KeyingMaterialsManager,
-    private val mLSClientManager: MLSClientManager,
+    private val foregroundActionsUseCase: ForegroundActionsUseCase,
     private val dispatcher: DispatcherProvider,
 ) : ViewModel() {
 
@@ -82,16 +67,7 @@ class AppSyncViewModel @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     private suspend fun runSyncTasks() {
         try {
-            listOf(
-                viewModelScope.launch(dispatcher.io()) { syncCertificateRevocationListUseCase() },
-                viewModelScope.launch(dispatcher.io()) { featureFlagsSyncWorker.execute() },
-                viewModelScope.launch(dispatcher.io()) { mlsPublicKeysSyncWorker.executeImmediately() },
-                viewModelScope.launch(dispatcher.io()) { observeCertificateRevocationForSelfClient.invoke() },
-                viewModelScope.launch(dispatcher.io()) { updateApiVersions() },
-                viewModelScope.launch(dispatcher.io()) { mLSClientManager() },
-                viewModelScope.launch(dispatcher.io()) { mLSMigrationManager() },
-                viewModelScope.launch(dispatcher.io()) { keyingMaterialsManager() },
-            ).joinAll()
+            viewModelScope.launch(dispatcher.io()) { foregroundActionsUseCase() }
         } catch (e: Exception) {
             appLogger.e("Error while syncing app config", e)
         }

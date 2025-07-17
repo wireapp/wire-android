@@ -103,8 +103,8 @@ fun MediaGalleryScreen(
     }
 
     DeleteMessageDialog(
-        state = viewModelState.deleteMessageDialogState,
-        actions = mediaGalleryViewModel.deleteMessageHelper,
+        dialogState = mediaGalleryViewModel.deleteMessageDialogState,
+        deleteMessage = mediaGalleryViewModel::deleteMessage,
     )
 
     MediaGalleryContent(
@@ -119,7 +119,11 @@ fun MediaGalleryScreen(
         sheetState = bottomSheetState,
         isEphemeral = mediaGalleryViewModel.mediaGalleryViewState.isEphemeral,
         messageBottomSheetOptionsEnabled = viewModelState.messageBottomSheetOptionsEnabled,
-        deleteAsset = mediaGalleryViewModel::deleteCurrentImage,
+        deleteAsset = {
+            with(mediaGalleryViewModel.imageAsset) {
+                mediaGalleryViewModel.deleteMessageDialogState.show(DeleteMessageDialogState(isSelfAsset, messageId, conversationId))
+            }
+        },
         showDetails = {
             resultNavigator.setResult(
                 MediaGalleryNavBackArgs(
@@ -251,7 +255,6 @@ fun PreviewMediaGalleryScreen() = WireTheme {
         state = MediaGalleryViewState(
             screenTitle = "Media Gallery",
             messageBottomSheetOptionsEnabled = true,
-            deleteMessageDialogState = DeleteMessageDialogState.Hidden,
         ),
         imageAsset = mockedPrivateAsset(),
         onCloseClick = {},

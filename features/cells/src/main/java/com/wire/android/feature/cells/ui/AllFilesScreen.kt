@@ -21,9 +21,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
+import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.search.SearchBarState
 import kotlinx.coroutines.delay
 
@@ -37,6 +42,7 @@ fun AllFilesScreen(
     searchBarState: SearchBarState,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
+    val sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
 
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
 
@@ -80,6 +86,33 @@ fun AllFilesScreen(
             )
         },
         showMoveToFolderScreen = { _, _, _ -> },
-        showRenameScreen = {}
+        showRenameScreen = {},
+        showAddRemoveTagsScreen = { node ->
+            navigator.navigate(
+                NavigationCommand(
+                    AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
+                )
+            )
+        },
+    )
+
+    if (searchBarState.isFilterActive) {
+        sheetState.show()
+    } else {
+        sheetState.hide()
+    }
+
+    FilterBottomSheet(
+        selectableTags = viewModel.tags,
+        selectedTags = viewModel.selectedTags,
+        onApply = {
+            searchBarState.onFilterActiveChanged(false)
+            viewModel.updateSelectedTags(it)
+        },
+        onClearAll = {
+            viewModel.updateSelectedTags(emptyList())
+        },
+        onDismiss = { searchBarState.onFilterActiveChanged(false) },
+        sheetState = sheetState
     )
 }

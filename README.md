@@ -32,7 +32,7 @@ These differences are:
 
 In order to build Wire for Android locally, it is necessary to have the following tools installed:
 
-- JDK 17
+- JDK 21
 - Android SDK
 - Android NDK
 

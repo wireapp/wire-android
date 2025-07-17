@@ -27,6 +27,7 @@
     <string name="public_link">Copy public link</string>
     <string name="delete_permanently">Delete permanently</string>
     <string name="restore_label">Restore</string>
+    <string name="add_remove_tags_label">Add or remove tags</string>
     <string name="move_label">Move</string>
     <string name="download_label">Download</string>
     <string name="copy_link">Copy Link</string>
@@ -45,9 +46,9 @@
     <string name="cancel">Cancel</string>
     <string name="confirm_delete_file_title">Delete file</string>
     <string name="confirm_delete_folder_title">Delete folder</string>
-    <string name="confirm_delete_file_text">The file %1$s will move to this conversation\'s recycling bin.</string>
+    <string name="confirm_delete_file_text">The file %1$s will move to this conversation\'s recycle bin.</string>
+    <string name="confirm_delete_folder_text">The folder %1$s will move to this conversation\'s recycle bin.</string>
     <string name="confirm_permanent_delete_file_text">This will permanently delete the file %1$s for all participants.</string>
-    <string name="confirm_delete_folder_text">The folder %1$s will move to this conversation\'s recycling bin.</string>
     <string name="confirm_permanent_delete_folder_text">This will permanently delete the folder %1$s for all participants.</string>
     <string name="reload">Reload</string>
     <string name="error_delete_public_link">Failed to remove public link.</string>
@@ -91,4 +92,18 @@
     <string name="rename_file_renamed">File was renamed</string>
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Failed to rename</string>
+    <string name="filter_label">Filter</string>
+    <string name="tags_label">Tags</string>
+    <string name="select_tags_label">select tags</string>
+    <string name="clear_all_label">Clear All</string>
+    <string name="apply_label">Apply</string>
+    <string name="add_or_remove_tags_title">Add or remove tags</string>
+    <string name="tags_description">All members of your team can see and use the tags you create.</string>
+    <string name="suggested_tags_label">Suggested tags</string>
+    <string name="added_tags_label">Added tags</string>
+    <string name="add_tag_label">Add tag</string>
+    <string name="enter_name_label">Enter tag name</string>
+    <string name="no_tags_message">No tags has been added this file.</string>
+    <string name="tags_edited">Tags were edited</string>
+    <string name="failed_edit_tags">Failed to edit tags</string>
 </resources>

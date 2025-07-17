@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.FullScreenLoading
+import com.wire.android.feature.cells.ui.common.FullScreenLoading
 import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel.Companion.NAME_MAX_COUNT
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.DisplayNameState

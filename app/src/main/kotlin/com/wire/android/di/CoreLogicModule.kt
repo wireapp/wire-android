@@ -343,7 +343,7 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.updateApiVersionsScheduler
+        coreLogic.getGlobalScope().updateApiVersionsScheduler
 
     @ViewModelScoped
     @Provides

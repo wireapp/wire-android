@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - release/candidate
-      - yamil/try-internal-asyncnotif
   merge_group:
     types: [ checks_requested ]
     branches: [ release/candidate ]
@@ -83,7 +82,7 @@ jobs:
   build-app-internal:
     needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref_name == 'yamil/try-internal-asyncnotif'
+    if: github.event_name == 'push' && github.ref_name == 'release/candidate'
     steps:
       - name: Checkout
         uses: actions/checkout@v4

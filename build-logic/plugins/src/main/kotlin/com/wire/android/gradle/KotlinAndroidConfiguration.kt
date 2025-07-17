@@ -29,6 +29,7 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import versionCatalog
 import findLibrary
+import org.gradle.api.tasks.JavaExec
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 
@@ -103,6 +104,13 @@ private fun CommonExtension<*, *, *, *, *, *>.configureLint(project: Project) {
         disable.add("MissingTranslation") // We don't want to hardcode translations in English for other languages.
         disable.add("ImpliedQuantity") // In some translations we just have one as words
         baseline = project.file("lint-baseline.xml")
+    }
+    
+    // Configure lint heap size for CI environments
+    project.tasks.withType(JavaExec::class.java).configureEach {
+        if (name.contains("lint", ignoreCase = true)) {
+            jvmArgs("-Xmx6g", "-XX:+UseParallelGC", "-XX:MaxMetaspaceSize=1g")
+        }
     }
 
     with(project) {

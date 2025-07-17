@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,11 +16,11 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.gallery
-
-data class MediaGalleryViewState(
-    val screenTitle: String? = null,
-    val isEphemeral: Boolean = false,
-    val messageBottomSheetOptionsEnabled: Boolean,
-    val messageDeleted: Boolean = false,
-)
+// DO NOT USE CAPITAL LETTER FOR THE BUILD TYPE NAME OR JENKINS WILL BE MAD
+object BuildTypes {
+    const val DEBUG = "debug"
+    const val RELEASE = "release"
+    const val COMPAT = "compat"
+    const val COMPAT_RELEASE = "compatrelease"
+    const val BENCHMARK = "benchmark"
+}

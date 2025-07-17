@@ -35,6 +35,7 @@ import com.wire.kalium.logic.feature.legalhold.ApproveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -50,7 +51,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LegalHoldRequestedViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
-    @KaliumCoreLogic private val coreLogic: CoreLogic
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>
 ) : ViewModel() {
 
     val passwordTextState: TextFieldState = TextFieldState()
@@ -91,7 +92,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, LegalHoldRequestData.None)
 
     private fun <T> currentSessionFlow(noSession: T, session: UserSessionScope.(UserId) -> Flow<T>): Flow<T> =
-        coreLogic.getGlobalScope().session.currentSessionFlow()
+        coreLogic.get().getGlobalScope().session.currentSessionFlow()
             .flatMapLatest { currentSessionResult ->
                 when (currentSessionResult) {
                     is CurrentSessionResult.Failure.Generic -> {
@@ -101,7 +102,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
 
                     CurrentSessionResult.Failure.SessionNotFound -> flowOf(noSession)
                     is CurrentSessionResult.Success ->
-                        currentSessionResult.accountInfo.userId.let { coreLogic.getSessionScope(it).session(it) }
+                        currentSessionResult.accountInfo.userId.let { coreLogic.get().getSessionScope(it).session(it) }
                 }
             }
 
@@ -154,7 +155,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
             } else {
                 val password = if (it.requiresPassword) passwordTextState.text.toString() else null
                 viewModelScope.launch {
-                    coreLogic.sessionScope(it.userId) {
+                    coreLogic.get().sessionScope(it.userId) {
                         approveLegalHoldRequest(password).let { approveLegalHoldResult ->
                             state = when (approveLegalHoldResult) {
                                 is ApproveLegalHoldRequestUseCase.Result.Success ->

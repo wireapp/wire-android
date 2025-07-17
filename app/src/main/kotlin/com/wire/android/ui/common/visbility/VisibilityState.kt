@@ -53,6 +53,12 @@ class VisibilityState<Saveable: Any>(isVisible: Boolean = false, saveable: Savea
         isVisible = true
     }
 
+    fun update(update: (Saveable) -> Saveable) {
+        savedState?.let {
+            savedState = update(it)
+        }
+    }
+
     companion object {
         fun <Saveable: Any> saver(saveable: Saveable?): Saver<VisibilityState<Saveable>, *> = Saver(
             save = {

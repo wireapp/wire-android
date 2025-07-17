@@ -22,6 +22,8 @@ import com.wire.android.gradle.configureKotlinAndroid
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -34,7 +36,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             namespace = "com.wire.android.feature.${target.name.replace("-", "_")}"
 
             // TODO: Handle flavors. Currently implemented in `variants.gradle.kts` script
-            configureKotlinAndroid(this)
+            configureKotlinAndroid(this, extensions.getByType<KotlinBaseExtension>())
             defaultConfig.targetSdk = AndroidSdk.target
 
             configureCompose(this)

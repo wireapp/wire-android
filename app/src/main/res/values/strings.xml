@@ -322,7 +322,7 @@
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
-    <string name="team_management_screen_title">Team Management</string>
+    <string name="team_management_screen_title">Manage Team</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">What\'s new</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire\'s New Android App!</string>
@@ -469,6 +469,7 @@
     <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
     <string name="deleted_message_text">Deleted message</string>
+    <string name="deleted_message_options_closed">The options have been closed as this message is no longer available.</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">You can not see this message</string>
     <string name="label_quote_original_message_is_a_picture">Picture</string>

@@ -27,6 +27,7 @@ enum class NodeBottomSheetAction(
     SAVE(R.string.save_label, R.drawable.ic_save),
     SHARE(R.string.share_label, R.drawable.ic_share),
     PUBLIC_LINK(R.string.public_link, R.drawable.ic_file_link),
+    ADD_REMOVE_TAGS(R.string.add_remove_tags_label, R.drawable.ic_tags),
     MOVE(R.string.move_label, R.drawable.ic_folder),
     RENAME(R.string.rename_label, R.drawable.ic_rename),
     DOWNLOAD(R.string.download_label, R.drawable.ic_save),

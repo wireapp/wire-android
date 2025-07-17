@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+import java.util.Locale.getDefault
 
-package com.wire.android.ui.home.gallery
-
-data class MediaGalleryViewState(
-    val screenTitle: String? = null,
-    val isEphemeral: Boolean = false,
-    val messageBottomSheetOptionsEnabled: Boolean,
-    val messageDeleted: Boolean = false,
-)
+fun String.uppercaseFirstChar() = replaceFirstChar {
+    if (it.isLowerCase()) it.titlecase(getDefault()) else it.toString()
+}

@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.sync.SyncState.Waiting
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.network.NetworkState
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -52,7 +53,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CommonTopAppBarViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
-    @KaliumCoreLogic private val coreLogic: CoreLogic
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
 ) : ViewModel() {
 
     var state by mutableStateOf(CommonTopAppBarState())
@@ -62,8 +63,8 @@ class CommonTopAppBarViewModel @Inject constructor(
         currentScreenManager.observeCurrentScreen(viewModelScope)
 
     private fun connectivityFlow(userId: UserId): Flow<Connectivity> =
-        coreLogic.sessionScope(userId) {
-            combine(observeSyncState(), coreLogic.networkStateObserver.observeNetworkState()) { syncState, networkState ->
+        coreLogic.get().sessionScope(userId) {
+            combine(observeSyncState(), coreLogic.get().networkStateObserver.observeNetworkState()) { syncState, networkState ->
                 when (syncState) {
                     is Waiting -> Connectivity.WaitingConnection(null, null)
                     is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
@@ -82,7 +83,7 @@ class CommonTopAppBarViewModel @Inject constructor(
 
     @VisibleForTesting
     internal suspend fun activeCallsFlow(userId: UserId): Flow<List<Call>> =
-        coreLogic.sessionScope(userId) {
+        coreLogic.get().sessionScope(userId) {
             combine(
                 calls.establishedCall(),
                 calls.getIncomingCalls(),
@@ -94,7 +95,7 @@ class CommonTopAppBarViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            coreLogic.globalScope {
+            coreLogic.get().globalScope {
                 session.currentSessionFlow()
                     .flatMapLatest {
                         when (it) {
@@ -134,7 +135,7 @@ class CommonTopAppBarViewModel @Inject constructor(
                         state = state.copy(connectivityState = connectivityUIState)
                     }
             }
-            coreLogic.networkStateObserver.observeNetworkState().collectLatest {
+            coreLogic.get().networkStateObserver.observeNetworkState().collectLatest {
                 state = state.copy(networkState = it)
             }
         }

@@ -125,10 +125,10 @@ class HomeDrawerViewModelTest {
 
         fun arrange() = this to HomeDrawerViewModel(
             savedStateHandle = savedStateHandle,
-            observeArchivedUnreadConversationsCount = observeArchivedUnreadConversationsCount,
-            globalDataStore = globalDataStore,
+            observeArchivedUnreadConversationsCount = { observeArchivedUnreadConversationsCount },
+            globalDataStore = { globalDataStore },
             observeSelfUser = observeSelfUserUseCase,
-            getTeamUrl = getTeamUrlUseCase
+            getTeamUrl = getTeamUrlUseCase,
         )
 
         companion object {

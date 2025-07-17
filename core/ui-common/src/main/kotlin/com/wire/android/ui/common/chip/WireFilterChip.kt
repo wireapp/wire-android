@@ -55,7 +55,8 @@ fun WireFilterChip(
         label = {
             Text(
                 text = label,
-                style = MaterialTheme.wireTypography.button02
+                style = MaterialTheme.wireTypography.button02,
+                maxLines = 1
             )
         },
         enabled = isEnabled,

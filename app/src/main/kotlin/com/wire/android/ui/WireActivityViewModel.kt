@@ -104,7 +104,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val dispatchers: DispatcherProvider,
     currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
@@ -288,11 +288,11 @@ class WireActivityViewModel @Inject constructor(
         data: InputStream
     ) {
         viewModelScope.launch(dispatchers.io()) {
-            when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+            when (val currentSession = coreLogic.get().getGlobalScope().session.currentSession()) {
                 is CurrentSessionResult.Failure.Generic -> null
                 CurrentSessionResult.Failure.SessionNotFound -> null
                 is CurrentSessionResult.Success -> {
-                    coreLogic.sessionScope(currentSession.accountInfo.userId) {
+                    coreLogic.get().sessionScope(currentSession.accountInfo.userId) {
                         when (val result = debug.synchronizeExternalData(InputStreamReader(data).readText())) {
                             is SynchronizeExternalDataResult.Success -> {
                                 appLogger.d("Synchronized external data")
@@ -358,11 +358,11 @@ class WireActivityViewModel @Inject constructor(
         switchAccountActions: SwitchAccountActions
     ) {
         viewModelScope.launch {
-            coreLogic.getGlobalScope().session.currentSession().takeIf {
+            coreLogic.get().getGlobalScope().session.currentSession().takeIf {
                 it is CurrentSessionResult.Success
             }?.let {
                 val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
-                coreLogic.getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
+                coreLogic.get().getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
                 clearUserData(currentUserId)
             }
             accountSwitch.get().invoke(SwitchAccountParam.TryToSwitchToNextAccount).also {
@@ -439,11 +439,11 @@ class WireActivityViewModel @Inject constructor(
         key: String,
         domain: String?,
         onSuccess: (ConversationId) -> Unit
-    ) = when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+    ) = when (val currentSession = coreLogic.get().getGlobalScope().session.currentSession()) {
         is CurrentSessionResult.Failure.Generic -> null
         CurrentSessionResult.Failure.SessionNotFound -> null
         is CurrentSessionResult.Success -> {
-            coreLogic.sessionScope(currentSession.accountInfo.userId) {
+            coreLogic.get().sessionScope(currentSession.accountInfo.userId) {
                 when (val result = conversations.checkIConversationInviteCode(code, key, domain)) {
                     is CheckConversationInviteCodeUseCase.Result.Success -> {
                         if (result.isSelfMember) {
@@ -485,7 +485,7 @@ class WireActivityViewModel @Inject constructor(
 
     fun observePersistentConnectionStatus() {
         viewModelScope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus()
+            coreLogic.get().getGlobalScope().observePersistentWebSocketConnectionStatus()
                 .let { result ->
                     when (result) {
                         is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {

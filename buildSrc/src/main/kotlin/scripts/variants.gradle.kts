@@ -30,29 +30,6 @@ import flavor.FlavorDimensions
 import flavor.ProductFlavors
 
 plugins { id("com.android.application") apply false }
-// DO NOT USE CAPITAL LETTER FOR THE BUILD TYPE NAME OR JENKINS WILL BE MAD
-object BuildTypes {
-    const val DEBUG = "debug"
-    const val RELEASE = "release"
-    const val COMPAT = "compat"
-    const val COMPAT_RELEASE = "compatrelease"
-    const val BENCHMARK = "benchmark"
-}
-
-object Default {
-    fun explicitBuildFlavor(): String? = System.getenv("flavor")
-        ?: System.getenv("FLAVOR")
-        ?: System.getenv("CUSTOM_FLAVOR")
-
-    fun resolvedBuildFlavor(): String = explicitBuildFlavor() ?: ProductFlavors.Dev.buildName
-
-    fun explicitBuildType(): String? = System.getenv("buildType")
-        ?: System.getenv("BUILD_TYPE")
-
-    fun resolvedBuildType(): String = explicitBuildType() ?: BuildTypes.DEBUG
-
-    val BUILD_VARIANT = "${resolvedBuildFlavor().capitalize()}${resolvedBuildType().capitalize()}"
-}
 
 fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(
     flavorApplicationId: String,
@@ -156,7 +133,7 @@ android {
         }
     }
 
-    flavorDimensions(FlavorDimensions.DEFAULT)
+    flavorDimensions.add(FlavorDimensions.DEFAULT)
 
     val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir)
     val flavorMap = buildtimeConfiguration.flavorSettings.flavorMap

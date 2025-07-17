@@ -1856,4 +1856,6 @@
     <string name="enable_wire_cell_switch_description">Все файлы в этой беседе будут загружены в хранилище Wire Cell.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
+    <string name="content_description_apply_filter">Применить фильтр</string>
+    <string name="content_description_filter_files">Фильтр файлов</string>
 </resources>

@@ -105,7 +105,7 @@ private fun CommonExtension<*, *, *, *, *, *>.configureLint(project: Project) {
         disable.add("ImpliedQuantity") // In some translations we just have one as words
         baseline = project.file("lint-baseline.xml")
     }
-    
+
     // Configure lint heap size for CI environments
     project.tasks.withType(JavaExec::class.java).configureEach {
         if (name.contains("lint", ignoreCase = true)) {

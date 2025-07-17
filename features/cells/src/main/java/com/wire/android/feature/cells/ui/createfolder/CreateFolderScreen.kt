@@ -37,6 +37,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
+import com.wire.android.model.DisplayNameState
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.PreviewResultBackNavigator
 import com.wire.android.navigation.WireNavigator
@@ -45,11 +46,13 @@ import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
@@ -128,7 +131,8 @@ fun CreateFolderScreen(
                                 createFolderViewModel.createFolder(
                                     folderName = createFolderViewModel.fileNameTextFieldState.text.toString()
                                 )
-                            }
+                            },
+                            state = if (createFolderViewModel.displayNameState.saveEnabled) WireButtonState.Default else WireButtonState.Disabled,
                         )
                     }
                 }
@@ -145,8 +149,32 @@ fun CreateFolderScreen(
                     top = dimensions().spacing32x,
                     start = dimensions().spacing16x,
                     end = dimensions().spacing16x
-                )
+                ),
+            state = computeNameErrorState(createFolderViewModel.displayNameState.error),
         )
+    }
+}
+
+@Composable
+private fun computeNameErrorState(
+    error: DisplayNameState.NameError
+): WireTextFieldState {
+    return when (error) {
+        is DisplayNameState.NameError.TextFieldError -> {
+            val messageRes = when (error) {
+                DisplayNameState.NameError.TextFieldError.NameEmptyError ->
+                    R.string.cells_folder_name
+
+                DisplayNameState.NameError.TextFieldError.NameExceedLimitError ->
+                    R.string.rename_long_folder_name_error
+
+                DisplayNameState.NameError.TextFieldError.InvalidNameError ->
+                    R.string.create_folder_invalid_name
+            }
+            WireTextFieldState.Error(stringResource(id = messageRes))
+        }
+
+        else -> WireTextFieldState.Default
     }
 }
 

@@ -59,8 +59,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -173,7 +172,7 @@ class SharedCallingViewModelTest {
 
             sharedCallingViewModel.toggleMute()
 
-            sharedCallingViewModel.callState.isMuted shouldBeEqualTo null
+            assertEquals(null, sharedCallingViewModel.callState.isMuted)
         }
 
     @Test
@@ -185,7 +184,7 @@ class SharedCallingViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) { muteCall(any()) }
-        sharedCallingViewModel.callState.isMuted shouldBeEqualTo true
+        assertEquals(true, sharedCallingViewModel.callState.isMuted)
     }
 
     @Test
@@ -197,7 +196,7 @@ class SharedCallingViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) { unMuteCall(any()) }
-        sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
+        assertEquals(false, sharedCallingViewModel.callState.isMuted)
     }
 
     @Test
@@ -211,7 +210,7 @@ class SharedCallingViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { muteCall(any(), false) }
-            sharedCallingViewModel.callState.isMuted shouldBeEqualTo true
+            assertEquals(true, sharedCallingViewModel.callState.isMuted)
         }
 
     @Test
@@ -224,7 +223,7 @@ class SharedCallingViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { unMuteCall(any(), false) }
-            sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
+            assertEquals(false, sharedCallingViewModel.callState.isMuted)
         }
 
     @Test
@@ -237,7 +236,7 @@ class SharedCallingViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) { flipToBackCamera(any()) }
-        sharedCallingViewModel.callState.isOnFrontCamera shouldBeEqualTo false
+        assertEquals(false, sharedCallingViewModel.callState.isOnFrontCamera)
     }
 
     @Test
@@ -250,7 +249,7 @@ class SharedCallingViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) { flipToFrontCamera(any()) }
-        sharedCallingViewModel.callState.isOnFrontCamera shouldBeEqualTo true
+        assertEquals(true, sharedCallingViewModel.callState.isOnFrontCamera)
     }
 
     @Test
@@ -261,7 +260,7 @@ class SharedCallingViewModelTest {
         sharedCallingViewModel.toggleVideo()
         advanceUntilIdle()
 
-        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
+        assertEquals(false, sharedCallingViewModel.callState.isCameraOn)
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.STOPPED) }
     }
 
@@ -273,7 +272,7 @@ class SharedCallingViewModelTest {
         sharedCallingViewModel.toggleVideo()
         advanceUntilIdle()
 
-        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo true
+        assertEquals(true, sharedCallingViewModel.callState.isCameraOn)
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.STARTED) }
     }
 

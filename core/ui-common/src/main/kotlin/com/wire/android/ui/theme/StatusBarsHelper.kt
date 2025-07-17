@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 @Composable
-fun updateSystemBarIconsAppearance(useDarkSystemBarIcons: Boolean) {
+fun UpdateSystemBarIconsAppearance(useDarkSystemBarIcons: Boolean) {
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

@@ -41,7 +41,54 @@ enum class AttachmentFileType(val extensions: List<String>) {
             entries.firstOrNull { it.extensions.contains(ext.lowercase()) } ?: OTHER
 
         fun fromMimeType(mimeType: String): AttachmentFileType {
-            return AttachmentFileType.fromExtension(mimeType.substringAfterLast("/"))
+            val lowerMime = mimeType.lowercase()
+            return when {
+                lowerMime.startsWith("image/") -> IMAGE
+                lowerMime.startsWith("video/") -> VIDEO
+                lowerMime.startsWith("audio/") -> AUDIO
+                lowerMime == "application/pdf" -> PDF
+                lowerMime in listOf(
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "application/vnd.oasis.opendocument.text",
+                    "application/rtf"
+                ) -> DOC
+
+                lowerMime in listOf(
+                    "application/vnd.ms-excel",
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "text/csv",
+                    "application/vnd.oasis.opendocument.spreadsheet"
+                ) -> SPREADSHEET
+
+                lowerMime in listOf(
+                    "application/vnd.ms-powerpoint",
+                    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                    "application/vnd.oasis.opendocument.presentation"
+                ) -> PRESENTATION
+
+                lowerMime in listOf(
+                    "application/zip",
+                    "application/x-rar-compressed",
+                    "application/x-7z-compressed",
+                    "application/x-tar",
+                    "application/gzip",
+                    "application/x-bzip2",
+                    "application/x-xz"
+                ) -> ARCHIVE
+
+                lowerMime in listOf(
+                    "application/json",
+                    "application/javascript",
+                    "text/html",
+                    "application/xml",
+                    "text/css",
+                    "text/x-python",
+                    "text/x-c",
+                    "text/x-java-source"
+                ) -> CODE
+                else -> OTHER
+            }
         }
     }
 }

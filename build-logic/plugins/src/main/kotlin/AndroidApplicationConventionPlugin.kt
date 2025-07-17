@@ -22,6 +22,8 @@ import com.wire.android.gradle.configureKotlinAndroid
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -34,7 +36,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             // TODO: Handle flavors. Currently implemented in `variants.gradle.kts` script
 
             namespace = AndroidApp.id
-            configureKotlinAndroid(this)
+            configureKotlinAndroid(this, extensions.getByType<KotlinBaseExtension>())
 
             val isFDroidRelease = (project.properties["isFDroidRelease"] as? String)?.toBoolean() ?: false
 

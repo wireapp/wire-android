@@ -78,6 +78,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 @WireDestination(
     navArgsDelegate = ConversationMediaNavArgs::class,
@@ -263,6 +264,7 @@ enum class ConversationMediaScreenTabItem(@StringRes val titleResId: Int) : TabI
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
+@Serializable
 data class AssetOptionsData(val messageId: String, val isMyMessage: Boolean, val isMultipart: Boolean)
 
 @PreviewMultipleThemes

@@ -259,7 +259,6 @@
     <string name="backup_and_restore_screen_title">Konuşmaları Yedekle &amp; Geri yükle</string>
     <string name="search_bar_conversations_hint">Konuşmalarda ara</string>
     <string name="search_no_results">Eşleşme bulunamadı</string>
-    <string name="team_management_screen_title">Ekip yönetimi</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neler yeni</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Wire\'ın yeni Android uygulamasına hoşgeldin!</string>

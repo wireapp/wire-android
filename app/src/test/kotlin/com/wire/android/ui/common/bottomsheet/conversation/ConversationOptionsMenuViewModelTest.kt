@@ -263,7 +263,9 @@ class ConversationOptionsMenuViewModelTest {
         viewModel.actions.test {
             viewModel.changeMutedState(conversationId, MutedConversationStatus.AllMuted)
 
-            coVerify(exactly = 1) { arrangement.updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any()) }
+            coVerify(exactly = 1) {
+                arrangement.updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any())
+            }
             expectNoEvents() // No message expected for muting success
             cancelAndIgnoreRemainingEvents()
         }
@@ -278,7 +280,9 @@ class ConversationOptionsMenuViewModelTest {
         viewModel.actions.test {
             viewModel.changeMutedState(conversationId, MutedConversationStatus.AllMuted)
 
-            coVerify(exactly = 1) { arrangement.updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any()) }
+            coVerify(exactly = 1) {
+                arrangement.updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any())
+            }
             assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
                 assertIs<HomeSnackBarMessage.MutingOperationError>(it.message)
             }
@@ -637,4 +641,3 @@ class ConversationOptionsMenuViewModelTest {
         private val userId: UserId = UserId("someUser", "some_domain")
     }
 }
-

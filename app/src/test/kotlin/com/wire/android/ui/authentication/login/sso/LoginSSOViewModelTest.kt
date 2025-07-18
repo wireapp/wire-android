@@ -21,6 +21,9 @@ package com.wire.android.ui.authentication.login.sso
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.assertions.shouldBeInstanceOf
+import com.wire.android.assertions.shouldNotBeInstanceOf
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -68,11 +71,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldNotBeInstanceOf
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.IOException
@@ -257,7 +256,7 @@ class LoginSSOViewModelTest {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
         onSSOInitiateFailureSlot.captured.invoke(SSOInitiateLoginResult.Failure.Generic(networkFailure))
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
-            it.coreFailure shouldBe networkFailure
+            it.coreFailure shouldBeEqualTo networkFailure
         }
     }
 
@@ -288,8 +287,8 @@ class LoginSSOViewModelTest {
 
         onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
-            it.initialSyncCompleted shouldBe false
-            it.isE2EIRequired shouldBe false
+            it.initialSyncCompleted shouldBeEqualTo false
+            it.isE2EIRequired shouldBeEqualTo false
         }
     }
 
@@ -321,8 +320,8 @@ class LoginSSOViewModelTest {
 
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
             loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
-                it.initialSyncCompleted shouldBe true
-                it.isE2EIRequired shouldBe false
+                it.initialSyncCompleted shouldBeEqualTo true
+                it.isE2EIRequired shouldBeEqualTo false
             }
         }
 
@@ -373,7 +372,7 @@ class LoginSSOViewModelTest {
             loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown))
             advanceUntilIdle()
             loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.SSOResultError>().let {
-                it.result shouldBe SSOFailureCodes.Unknown
+                it.result shouldBeEqualTo SSOFailureCodes.Unknown
             }
         }
 
@@ -522,9 +521,9 @@ class LoginSSOViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) { arrangement.authenticationScope.domainLookup(expectedEmail) }
-        loginViewModel.loginState.customServerDialogState shouldBe null
+        loginViewModel.loginState.customServerDialogState shouldBeEqualTo null
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
-            it.coreFailure shouldBe expected
+            it.coreFailure shouldBeEqualTo expected
         }
     }
 

@@ -1,0 +1,125 @@
+name: 'Setup Keystore'
+description: 'Decode and setup keystore for signing Android builds'
+
+inputs:
+  keystore-type:
+    description: 'Type of keystore to setup (debug|prerelease|internal|public)'
+    required: true
+  keystore-path:
+    description: 'Path where keystore should be placed'
+    required: false
+    default: '${{ runner.temp }}/keystore'
+
+outputs:
+  keystore-file-path:
+    description: 'Full path to the decoded keystore file'
+    value: ${{ steps.setup.outputs.keystore-file-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Validate keystore type
+      shell: bash
+      run: |
+        case "${{ inputs.keystore-type }}" in
+          debug|prerelease|internal|public)
+            echo "Valid keystore type: ${{ inputs.keystore-type }}"
+            ;;
+          *)
+            echo "Error: Invalid keystore type '${{ inputs.keystore-type }}'. Must be one of: debug, prerelease, internal, public"
+            exit 1
+            ;;
+        esac
+
+    - name: Setup keystore directory
+      shell: bash
+      run: |
+        mkdir -p "${{ inputs.keystore-path }}"
+
+    - name: Decode keystore
+      id: setup
+      shell: bash
+      env:
+        KEYSTORE_TYPE: ${{ inputs.keystore-type }}
+        KEYSTORE_PATH: ${{ inputs.keystore-path }}
+      run: |
+        # Map keystore type to secret name
+        case "${KEYSTORE_TYPE}" in
+          debug)
+            SECRET_NAME="ENCODED_KEYSTORE_DEBUG"
+            ;;
+          prerelease)
+            SECRET_NAME="ENCODED_KEYSTORE_PRE_RELEASE"
+            ;;
+          internal)
+            SECRET_NAME="ENCODED_KEYSTORE_INTERNAL_RELEASE"
+            ;;
+          public)
+            SECRET_NAME="ENCODED_KEYSTORE_PUBLIC_RELEASE"
+            ;;
+        esac
+        
+        # Get the encoded keystore from environment
+        ENCODED_KEYSTORE=$(printenv "${SECRET_NAME}" || echo "")
+        
+        if [ -z "${ENCODED_KEYSTORE}" ]; then
+          echo "Error: Secret ${SECRET_NAME} not found or empty"
+          exit 1
+        fi
+        
+        # Mask the encoded keystore value
+        echo "::add-mask::${ENCODED_KEYSTORE}"
+        
+        # Decode keystore to file with secure permissions
+        KEYSTORE_FILE="${KEYSTORE_PATH}/the.keystore"
+        echo "${ENCODED_KEYSTORE}" | base64 -d > "${KEYSTORE_FILE}"
+        
+        # Set secure file permissions (owner read/write only)
+        chmod 600 "${KEYSTORE_FILE}"
+        
+        # Verify file was created and has correct permissions
+        if [ ! -f "${KEYSTORE_FILE}" ]; then
+          echo "Error: Failed to create keystore file"
+          exit 1
+        fi
+        
+        # Verify file permissions
+        PERMS=$(stat -c "%a" "${KEYSTORE_FILE}" 2>/dev/null || stat -f "%A" "${KEYSTORE_FILE}" 2>/dev/null || echo "unknown")
+        if [ "$PERMS" != "600" ]; then
+          echo "Warning: Keystore file permissions are not 600 (got: $PERMS)"
+        fi
+        
+        echo "Keystore decoded successfully to: ${KEYSTORE_FILE}"
+        echo "keystore-file-path=${KEYSTORE_FILE}" >> $GITHUB_OUTPUT
+
+    - name: Set keystore environment variables
+      shell: bash
+      env:
+        KEYSTORE_TYPE: ${{ inputs.keystore-type }}
+        KEYSTORE_FILE_PATH: ${{ steps.setup.outputs.keystore-file-path }}
+      run: |
+        # Set common environment variables
+        echo "KEYSTORE_FILE_PATH_DEBUG=${KEYSTORE_FILE_PATH}" >> $GITHUB_ENV
+        echo "KEYSTORE_FILE_PATH_RELEASE=${KEYSTORE_FILE_PATH}" >> $GITHUB_ENV
+        echo "KEYSTORE_FILE_PATH_COMPAT=${KEYSTORE_FILE_PATH}" >> $GITHUB_ENV
+        echo "KEYSTORE_FILE_PATH_COMPAT_RELEASE=${KEYSTORE_FILE_PATH}" >> $GITHUB_ENV
+        
+        # Set type-specific alias and password environment variables
+        case "${KEYSTORE_TYPE}" in
+          debug)
+            echo "Using debug keystore configuration"
+            # Debug keystore env vars will be set by secrets in calling workflow
+            ;;
+          prerelease)
+            echo "Using pre-release keystore configuration"
+            # Pre-release keystore env vars will be set by secrets in calling workflow
+            ;;
+          internal)
+            echo "Using internal release keystore configuration"
+            # Internal keystore env vars will be set by secrets in calling workflow
+            ;;
+          public)
+            echo "Using public release keystore configuration"
+            # Public keystore env vars will be set by secrets in calling workflow
+            ;;
+        esac

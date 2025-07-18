@@ -23,6 +23,10 @@ package com.wire.android.ui.authentication.login.email
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.assertions.shouldBeInstanceOf
+import com.wire.android.assertions.shouldNotBeEqualTo
+import com.wire.android.assertions.shouldNotBeInstanceOf
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -81,12 +85,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldNotBe
-import org.amshove.kluent.shouldNotBeInstanceOf
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -155,8 +154,8 @@ class LoginEmailViewModelTest {
         coVerify(exactly = 1) { arrangement.persistSelfUserEmailUseCase(any()) }
         coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
-            it.initialSyncCompleted shouldBe true
-            it.isE2EIRequired shouldBe false
+            it.initialSyncCompleted shouldBeEqualTo true
+            it.isE2EIRequired shouldBeEqualTo false
         }
     }
 
@@ -181,8 +180,8 @@ class LoginEmailViewModelTest {
             coVerify(exactly = 1) { arrangement.persistSelfUserEmailUseCase(any()) }
             coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
             loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
-                it.initialSyncCompleted shouldBe false
-                it.isE2EIRequired shouldBe false
+                it.initialSyncCompleted shouldBeEqualTo false
+                it.isE2EIRequired shouldBeEqualTo false
             }
         }
 
@@ -219,7 +218,7 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
 
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
-            it.coreFailure shouldBe networkFailure
+            it.coreFailure shouldBeEqualTo networkFailure
         }
     }
 
@@ -281,7 +280,7 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
 
         loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Loading>()
-        loginViewModel.loginState.loginEnabled shouldBe true
+        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
     }
 
     @Test
@@ -297,7 +296,7 @@ class LoginEmailViewModelTest {
         loginViewModel.login()
         advanceUntilIdle()
 
-        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
+        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBeEqualTo true
         coVerify(exactly = 1) {
             arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
         }
@@ -319,7 +318,7 @@ class LoginEmailViewModelTest {
             loginViewModel.login()
             advanceUntilIdle()
 
-            loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
+            loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBeEqualTo false
             coVerify(exactly = 1) {
                 arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
             }
@@ -338,7 +337,7 @@ class LoginEmailViewModelTest {
         loginViewModel.login()
         advanceUntilIdle()
 
-        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
+        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBeEqualTo true
         coVerify(exactly = 1) {
             arrangement.requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION)
         }
@@ -355,7 +354,7 @@ class LoginEmailViewModelTest {
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.login()
         advanceUntilIdle()
-        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
+        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBeEqualTo true
     }
 
     @Test
@@ -367,7 +366,7 @@ class LoginEmailViewModelTest {
 
         loginViewModel.login()
         advanceUntilIdle()
-        loginViewModel.secondFactorVerificationCodeState.isCurrentCodeInvalid shouldBe true
+        loginViewModel.secondFactorVerificationCodeState.isCurrentCodeInvalid shouldBeEqualTo true
     }
 
     @Test
@@ -411,7 +410,7 @@ class LoginEmailViewModelTest {
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
-        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
+        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBeEqualTo false
     }
 
     @Test
@@ -504,7 +503,7 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
 
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
-            it.coreFailure shouldBe failure
+            it.coreFailure shouldBeEqualTo failure
         }
     }
 
@@ -524,24 +523,24 @@ class LoginEmailViewModelTest {
 
         loginViewModel.loginJobData.test {
             // initial value
-            awaitItem() shouldBe null
+            awaitItem() shouldBeEqualTo null
             // start the login process
             loginViewModel.login()
             advanceUntilIdle()
             // after starting login, first is previous session user id
             awaitItem()?.let {
-                it.job shouldNotBe null
-                it.previousSessionUserId shouldBe previousUserId
-                it.newSessionUserId shouldBe null
+                it.job shouldNotBeEqualTo null
+                it.previousSessionUserId shouldBeEqualTo previousUserId
+                it.newSessionUserId shouldBeEqualTo null
             }
             // then after login success, new session user id is set
             awaitItem()?.let {
-                it.job shouldNotBe null
-                it.previousSessionUserId shouldBe previousUserId
-                it.newSessionUserId shouldBe newUserId
+                it.job shouldNotBeEqualTo null
+                it.previousSessionUserId shouldBeEqualTo previousUserId
+                it.newSessionUserId shouldBeEqualTo newUserId
             }
             // after completion, it should be null
-            awaitItem() shouldBe null
+            awaitItem() shouldBeEqualTo null
         }
     }
 

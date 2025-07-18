@@ -322,7 +322,7 @@
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
-    <string name="team_management_screen_title">Team Management</string>
+    <string name="team_management_screen_title">Manage Team</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">What\'s new</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire\'s New Android App!</string>

@@ -60,8 +60,8 @@ import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveE2EIRequiredUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
@@ -86,7 +86,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
 
@@ -1004,7 +1004,7 @@ class WireNotificationManagerTest {
             // when
             val result = manager.newUsersWithValidSessionAndWithoutActiveJobs(listOf(userId), hasActiveJobs)
             // then
-            assertEquals(listOf(), result)
+            assertEquals(listOf<UserId>(), result)
         }
 
     @Test
@@ -1019,7 +1019,7 @@ class WireNotificationManagerTest {
             // when
             val result = manager.newUsersWithValidSessionAndWithoutActiveJobs(listOf(userId), hasActiveJobs)
             // then
-            assertEquals(listOf(), result)
+            assertEquals(listOf<UserId>(), result)
         }
 
     private inner class Arrangement {
@@ -1194,6 +1194,7 @@ class WireNotificationManagerTest {
             coEvery { getIncomingCallsUseCase() } returns flowOf(calls)
             return this
         }
+
         fun withOutgoingCalls(calls: List<Call>): Arrangement {
             coEvery { observeOutgoingCall() } returns flowOf(calls)
             return this

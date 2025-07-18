@@ -18,14 +18,14 @@
 
 package customization
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContainAll
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class ConfigurationFileImporterTest {
@@ -58,7 +58,7 @@ class ConfigurationFileImporterTest {
 
         val result = importer.loadConfigsFromFile(configFile)
 
-        result.flavorMap["banana"]!![keyName] shouldBeEqualTo overwrittenValue
+        assertEquals(overwrittenValue, result.flavorMap["banana"]!![keyName])
     }
 
     @Test
@@ -82,8 +82,8 @@ class ConfigurationFileImporterTest {
 
         val result = importer.loadConfigsFromFile(configFile)
 
-        result.flavorMap["strawberry"]!![keyName] shouldBeEqualTo defaultValue
-        result.flavorMap["apple"]!![keyName] shouldBeEqualTo defaultValue
+        assertEquals(defaultValue, result.flavorMap["strawberry"]!![keyName])
+        assertEquals(defaultValue, result.flavorMap["apple"]!![keyName])
     }
 
     @Test
@@ -104,9 +104,6 @@ class ConfigurationFileImporterTest {
         )
 
         val result = importer.loadConfigsFromFile(configFile)
-
-        result.flavorMap.keys.shouldContainAll(
-            setOf("strawberry", "apple", "banana")
-        )
+        assertTrue(result.flavorMap.keys.containsAll(setOf("strawberry", "apple", "banana")))
     }
 }

@@ -196,6 +196,7 @@ private fun computeNameErrorState(error: DisplayNameState.NameError) =
             DisplayNameState.NameError.TextFieldError.NameExceedLimitError -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error)
             )
+            else -> WireTextFieldState.Default
         }
     } else {
         WireTextFieldState.Default

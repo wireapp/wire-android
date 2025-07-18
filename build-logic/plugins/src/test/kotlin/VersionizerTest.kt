@@ -17,15 +17,13 @@
  */
 
 import com.wire.android.gradle.version.Versionizer
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeLessThan
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
 import java.time.LocalDateTime
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class VersionizerTest {
@@ -34,7 +32,7 @@ class VersionizerTest {
     fun `given version generator when I generate two versions AT THE SAME TIME I should get the same version number`() {
         val dateTime = LocalDateTime.now()
         val projectRoot = File("")
-        Versionizer(projectRoot, dateTime).versionCode shouldBeEqualTo Versionizer(projectRoot, dateTime).versionCode
+        assertEquals(Versionizer(projectRoot, dateTime).versionCode, Versionizer(projectRoot, dateTime).versionCode)
     }
 
 
@@ -43,7 +41,7 @@ class VersionizerTest {
         val dateTime = LocalDateTime.of(2021, 6, 23, 13, 54, 28)
         val projectRoot = File("")
 
-        Versionizer(projectRoot, dateTime).versionCode shouldBeEqualTo 548966
+        assertEquals(548966, Versionizer(projectRoot, dateTime).versionCode)
     }
 
     @Test
@@ -114,13 +112,16 @@ class VersionizerTest {
         val projectRoot = File("src/test/resources")
         val versionCode = Versionizer(projectRoot).versionCode
 
-        versionCode shouldBeEqualTo 100018802
+        assertEquals(100018802, versionCode)
     }
 
     private fun assertVersionCodeAreProperlyIncremented(oldVersionCode: Int, newVersionCode: Int) {
-        oldVersionCode shouldBeGreaterThan 0
-        newVersionCode shouldBeGreaterThan 0
-        oldVersionCode shouldBeLessThan newVersionCode
-        oldVersionCode shouldBeLessThan Versionizer.MAX_VERSION_CODE_ALLOWED
+        assertTrue(oldVersionCode > 0, "Old version code should be greater than 0")
+        assertTrue(newVersionCode > 0, "New version code should be greater than 0")
+        assertTrue(oldVersionCode < newVersionCode, "Old version code should be less than new version code")
+        assertTrue(
+            oldVersionCode < Versionizer.MAX_VERSION_CODE_ALLOWED,
+            "Old version code should be less than ${Versionizer.MAX_VERSION_CODE_ALLOWED}"
+        )
     }
 }

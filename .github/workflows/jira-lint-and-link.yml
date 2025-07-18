@@ -3,6 +3,10 @@ on:
   merge_group:
   pull_request:
     types: [opened, edited, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
 jobs:
   add-jira-description:
     runs-on: ubuntu-latest

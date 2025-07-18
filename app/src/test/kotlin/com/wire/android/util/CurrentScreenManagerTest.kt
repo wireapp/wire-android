@@ -18,6 +18,7 @@
 package com.wire.android.util
 
 import app.cash.turbine.test
+import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -25,7 +26,6 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -39,7 +39,7 @@ class CurrentScreenManagerTest {
             .arrange()
 
         currentScreenManager.isAppVisibleFlow().test {
-            awaitItem() shouldBe false
+            awaitItem() shouldBeEqualTo false
             expectNoEvents()
             cancel()
         }
@@ -52,9 +52,9 @@ class CurrentScreenManagerTest {
             .arrange()
 
         currentScreenManager.isAppVisibleFlow().test {
-            awaitItem() shouldBe false
+            awaitItem() shouldBeEqualTo false
             currentScreenManager.onStart(StubLifecycleOwner())
-            awaitItem() shouldBe true
+            awaitItem() shouldBeEqualTo true
             expectNoEvents()
             cancel()
         }
@@ -72,7 +72,7 @@ class CurrentScreenManagerTest {
         currentScreenManager.onStop(StubLifecycleOwner())
 
         currentScreenManager.isAppVisibleFlow().test {
-            awaitItem() shouldBe true
+            awaitItem() shouldBeEqualTo true
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -90,7 +90,7 @@ class CurrentScreenManagerTest {
         currentScreenManager.onStop(StubLifecycleOwner())
 
         currentScreenManager.isAppVisibleFlow().test {
-            awaitItem() shouldBe false
+            awaitItem() shouldBeEqualTo false
             cancelAndIgnoreRemainingEvents()
         }
     }

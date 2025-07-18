@@ -34,8 +34,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
+import com.wire.android.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -55,7 +54,7 @@ class ConversationMigrationViewModelTest {
             )
         }
 
-        conversationMigrationViewModel.migratedConversationId shouldBe null
+        conversationMigrationViewModel.migratedConversationId shouldBeEqualTo null
     }
 
     @Test

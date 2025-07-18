@@ -27,6 +27,8 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.util.EMPTY
+import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.assertions.shouldBeInstanceOf
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.user.SelfUser
@@ -44,10 +46,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.ExtendWith
@@ -130,7 +129,7 @@ class RegisterDeviceViewModelTest {
 
         registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Error.GenericError::class
         val error = registerDeviceViewModel.state.flowState as RegisterDeviceFlowState.Error.GenericError
-        error.coreFailure shouldBe networkFailure
+        error.coreFailure shouldBeEqualTo networkFailure
     }
 
     @Test
@@ -145,7 +144,7 @@ class RegisterDeviceViewModelTest {
 
         registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Error.GenericError::class
         registerDeviceViewModel.onErrorDismiss()
-        registerDeviceViewModel.state.flowState shouldBe RegisterDeviceFlowState.Default
+        registerDeviceViewModel.state.flowState shouldBeEqualTo RegisterDeviceFlowState.Default
     }
 
     @Test

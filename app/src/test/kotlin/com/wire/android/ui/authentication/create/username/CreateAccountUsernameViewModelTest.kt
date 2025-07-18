@@ -41,10 +41,9 @@ import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
+import org.junit.jupiter.api.Assertions.assertEquals
+import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -155,7 +154,7 @@ class CreateAccountUsernameViewModelTest {
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.DialogError.GenericError::class
         val error = createAccountUsernameViewModel.state.error as HandleUpdateErrorState.DialogError.GenericError
-        error.coreFailure shouldBe networkFailure
+        error.coreFailure shouldBeEqualTo networkFailure
         createAccountUsernameViewModel.state.success shouldBeEqualTo false
     }
 
@@ -172,7 +171,7 @@ class CreateAccountUsernameViewModelTest {
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.DialogError.GenericError::class
         createAccountUsernameViewModel.onErrorDismiss()
-        createAccountUsernameViewModel.state.error shouldBe HandleUpdateErrorState.None
+        createAccountUsernameViewModel.state.error shouldBeEqualTo HandleUpdateErrorState.None
     }
 
     @Test

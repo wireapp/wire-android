@@ -21,18 +21,6 @@ jobs:
       build-config: |
         [
           {
-            "flavor": "Dev",
-            "variant": "Debug",
-            "keystore-type": "debug",
-            "build-type": "apk",
-            "generate-version-file": false,
-            "deployment-targets": [
-              {
-                "type": "s3"
-              }
-            ]
-          },
-          {
             "flavor": "Internal",
             "variant": "Compat",
             "keystore-type": "internal",

@@ -45,8 +45,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertEquals
+import com.wire.android.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

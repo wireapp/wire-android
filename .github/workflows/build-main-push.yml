@@ -1,0 +1,42 @@
+name: "Main Push"
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  # Build for direct pushes to main (includes beta deployment)
+  build-beta:
+    uses: ./.github/workflows/build-unified.yml
+    with:
+      build-config: |
+        [
+          {
+            "flavor": "Beta",
+            "variant": "Release",
+            "keystore-type": "prerelease",
+            "build-type": "both",
+            "generate-version-file": false,
+            "deployment-targets": [
+              {
+                "type": "s3"
+              },
+              {
+                "type": "google-play",
+                "package-name": "com.wire.android.internal",
+                "track": "internal"
+              }
+            ]
+          }
+        ]
+      enable-deployment: true
+    secrets: inherit

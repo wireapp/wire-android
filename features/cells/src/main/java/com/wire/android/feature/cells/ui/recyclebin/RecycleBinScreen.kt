@@ -119,7 +119,8 @@ fun RecycleBinScreen(
                             )
                         )
                     },
-                    showRenameScreen = { }
+                    showRenameScreen = { },
+                    showAddRemoveTagsScreen = {}
                 )
             }
         }

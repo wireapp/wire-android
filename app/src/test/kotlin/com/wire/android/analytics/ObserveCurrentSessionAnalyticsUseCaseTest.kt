@@ -42,7 +42,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.Test
 
 class ObserveCurrentSessionAnalyticsUseCaseTest {

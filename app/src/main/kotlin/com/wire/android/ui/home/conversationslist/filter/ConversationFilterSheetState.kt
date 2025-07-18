@@ -22,14 +22,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationFolder
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.Serializable
 
 class ConversationFilterSheetState(
     conversationFilterSheetData: ConversationFilterSheetData = ConversationFilterSheetData(
         currentFilter = ConversationFilter.All,
-        folders = persistentListOf()
+        folders = listOf()
     )
 ) {
     var currentData: ConversationFilterSheetData by mutableStateOf(conversationFilterSheetData)
@@ -47,9 +45,10 @@ class ConversationFilterSheetState(
 data class ConversationFilterSheetData(
     val tab: FilterTab = FilterTab.FILTERS,
     val currentFilter: ConversationFilter,
-    val folders: PersistentList<ConversationFolder>
+    val folders: List<ConversationFolder>
 )
 
+@Serializable
 enum class FilterTab {
     FILTERS,
     FOLDERS

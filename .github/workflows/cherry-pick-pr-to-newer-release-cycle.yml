@@ -25,6 +25,10 @@ on:
         types:
             - closed
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
     cherry-pick:
         runs-on: ubuntu-latest

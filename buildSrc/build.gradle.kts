@@ -36,7 +36,7 @@ dependencies {
     implementation(libs.android.junit5)
 
     testImplementation("junit:junit:${libs.versions.junit4.get()}")
-    testImplementation("org.amshove.kluent:kluent:${libs.versions.kluent.get()}")
+    testImplementation(kotlin("test"))
     implementation(libs.grgit.core)
     implementation(libs.squareup.javapoet) // https://github.com/google/dagger/issues/3068
 }

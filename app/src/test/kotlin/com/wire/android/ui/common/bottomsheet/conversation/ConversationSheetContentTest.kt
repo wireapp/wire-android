@@ -23,7 +23,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.TeamId
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

@@ -28,6 +28,7 @@
     <string name="public_link">Скопировать публичную ссылку</string>
     <string name="delete_permanently">Удалить навсегда</string>
     <string name="restore_label">Восстановить</string>
+    <string name="add_remove_tags_label">Добавить или удалить теги</string>
     <string name="move_label">Переместить</string>
     <string name="download_label">Скачать</string>
     <string name="copy_link">Скопировать ссылку</string>
@@ -97,4 +98,13 @@
     <string name="select_tags_label">выбрать теги</string>
     <string name="clear_all_label">Очистить все</string>
     <string name="apply_label">Применить</string>
+    <string name="add_or_remove_tags_title">Добавить или удалить теги</string>
+    <string name="tags_description">Все члены вашей команды могут видеть и использовать теги, которые вы создаете.</string>
+    <string name="suggested_tags_label">Предлагаемые теги</string>
+    <string name="added_tags_label">Теги добавлены</string>
+    <string name="add_tag_label">Добавить тег</string>
+    <string name="enter_name_label">Введите название тега</string>
+    <string name="no_tags_message">В этот файл не было добавлено никаких тегов.</string>
+    <string name="tags_edited">Теги были изменены</string>
+    <string name="failed_edit_tags">Не удалось изменить теги</string>
 </resources>

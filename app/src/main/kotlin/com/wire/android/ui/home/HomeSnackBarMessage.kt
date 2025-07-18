@@ -39,6 +39,8 @@ sealed class HomeSnackBarMessage(override val uiText: UIText) : SnackBarMessage 
     data object BlockingUserOperationError : HomeSnackBarMessage(UIText.StringResource(R.string.error_blocking_user))
     data class BlockingUserOperationSuccess(val userName: String) :
         HomeSnackBarMessage(UIText.StringResource(R.string.blocking_user_success, userName))
+    data class UnblockingUserOperationSuccess(val userName: String) :
+        HomeSnackBarMessage(UIText.StringResource(R.string.unblocking_user_success, userName))
 
     data object UnblockingUserOperationError : HomeSnackBarMessage(UIText.StringResource(R.string.error_unblocking_user))
     data class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackBarMessage(
@@ -72,8 +74,21 @@ sealed class HomeSnackBarMessage(override val uiText: UIText) : SnackBarMessage 
             if (isArchiving) {
                 R.string.error_archiving_conversation
             } else {
-                R.string.error_archiving_conversation
+                R.string.error_unarchiving_conversation
             }
         )
+    )
+
+    data class UpdateFavoriteStatusSuccess(val name: String, val addingToFavorite: Boolean) : HomeSnackBarMessage(
+        UIText.StringResource(if (addingToFavorite) R.string.success_adding_to_favorite else R.string.success_removing_from_favorite, name)
+    )
+    data class UpdateFavoriteStatusError(val name: String, val addingToFavorite: Boolean) : HomeSnackBarMessage(
+        UIText.StringResource(if (addingToFavorite) R.string.error_adding_to_favorite else R.string.error_removing_from_favorite, name)
+    )
+    data class RemoveFromFolderSuccess(val name: String, val folder: String) : HomeSnackBarMessage(
+        UIText.StringResource(R.string.remove_from_folder_success, name, folder)
+    )
+    data class RemoveFromFolderError(val name: String) : HomeSnackBarMessage(
+        UIText.StringResource(R.string.remove_from_folder_failed, name)
     )
 }

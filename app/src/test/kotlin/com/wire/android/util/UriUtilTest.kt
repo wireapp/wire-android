@@ -18,7 +18,7 @@
 package com.wire.android.util
 
 import com.wire.android.string
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.net.URI
 import kotlin.random.Random

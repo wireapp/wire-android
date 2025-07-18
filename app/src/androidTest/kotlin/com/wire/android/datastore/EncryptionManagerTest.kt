@@ -17,9 +17,9 @@
  */
 package com.wire.android.datastore
 
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.internal.assertFails
-import org.amshove.kluent.internal.assertNotEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class EncryptionManagerTest {
@@ -43,6 +43,6 @@ class EncryptionManagerTest {
         val keyAlias2 = "key_alias2"
 
         val encryptedData = EncryptionManager.encrypt(keyAlias1, data)
-        assertFails { EncryptionManager.decrypt(keyAlias2, encryptedData) }
+        assertThrows(Exception::class.java) { EncryptionManager.decrypt(keyAlias2, encryptedData) }
     }
 }

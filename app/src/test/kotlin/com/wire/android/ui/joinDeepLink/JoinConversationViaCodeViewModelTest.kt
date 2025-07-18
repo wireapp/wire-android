@@ -22,6 +22,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
 import com.wire.android.ui.joinConversation.JoinViaDeepLinkDialogState
+import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
@@ -31,8 +32,7 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.`should be equal to`
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -59,7 +59,7 @@ class JoinConversationViaCodeViewModelTest {
                 password = null
             )
         }
-        viewModel.state `should be equal to` JoinViaDeepLinkDialogState.Success(conversationId)
+        viewModel.state shouldBeEqualTo JoinViaDeepLinkDialogState.Success(conversationId)
     }
 
     @Test
@@ -75,7 +75,7 @@ class JoinConversationViaCodeViewModelTest {
         viewModel.joinConversationViaCode(code, key, domain)
         advanceUntilIdle()
 
-        viewModel.state `should be equal to` JoinViaDeepLinkDialogState.Success(conversationId)
+        viewModel.state shouldBeEqualTo JoinViaDeepLinkDialogState.Success(conversationId)
     }
 
     @Test
@@ -103,7 +103,7 @@ class JoinConversationViaCodeViewModelTest {
             )
         }
 
-        viewModel.state `should be equal to` JoinViaDeepLinkDialogState.UnknownError
+        viewModel.state shouldBeEqualTo JoinViaDeepLinkDialogState.UnknownError
     }
 
     @Test
@@ -162,7 +162,7 @@ class JoinConversationViaCodeViewModelTest {
 
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password123")
 
-        viewModel.state `should be equal to` JoinViaDeepLinkDialogState.Idle
+        viewModel.state shouldBeEqualTo JoinViaDeepLinkDialogState.Idle
     }
 
     private class Arrangement {

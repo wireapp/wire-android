@@ -1,0 +1,38 @@
+name: "Main"
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_call:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Validation for PRs to main (no deployment)
+  build-validation:
+    uses: ./.github/workflows/build-unified.yml
+    with:
+      build-config: |
+        [
+          {
+            "flavor": "Beta",
+            "variant": "Debug",
+            "keystore-type": "debug",
+            "build-type": "apk",
+            "generate-version-file": false,
+            "deployment-targets": [
+              {
+                "type": "s3"
+              }
+            ]
+          }
+        ]
+      enable-deployment: true
+    secrets: inherit

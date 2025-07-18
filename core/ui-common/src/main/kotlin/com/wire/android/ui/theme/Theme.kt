@@ -55,8 +55,24 @@ fun WireTheme(
             typography = wireTypography.toTypography()
         ) {
             if (!isPreview) {
-                updateSystemBarIconsAppearance(wireColorScheme.useDarkSystemBarIcons)
+                UpdateSystemBarIconsAppearance(wireColorScheme.useDarkSystemBarIcons)
             }
+            content()
+        }
+    }
+}
+
+@Composable
+fun WireColorScheme(
+    wireColorScheme: WireColorScheme = WireColorSchemeTypes.currentTheme,
+    content: @Composable () -> Unit
+) {
+    CompositionLocalProvider(
+        LocalWireColors provides wireColorScheme
+    ) {
+        MaterialTheme(
+            colorScheme = wireColorScheme.toColorScheme()
+        ) {
             content()
         }
     }

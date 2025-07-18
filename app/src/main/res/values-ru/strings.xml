@@ -230,6 +230,10 @@
     <string name="content_description_new_group_name_field">Введите имя группы</string>
     <string name="content_description_new_channel_name_field">Введите название канала</string>
     <string name="content_description_new_conversation_options_heading">Настройки беседы</string>
+    <string name="content_description_new_conversation_history_heading">Настройки истории бесед</string>
+    <string name="content_description_new_conversation_history_custom_heading">Пользовательская история бесед</string>
+    <string name="content_description_new_conversation_history_back_btn">Вернуться к настройкам истории бесед</string>
+    <string name="content_description_new_conversation_history_custom_change_time">Изменить временные опции</string>
     <string name="content_description_new_group_options_back_btn">Вернуться к созданию новой группы</string>
     <string name="content_description_new_channel_options_back_btn">Вернуться к созданию нового канала</string>
     <string name="content_description_pending_connection_badge">ожидание подтверждения запроса</string>
@@ -277,6 +281,7 @@
     <string name="backup_and_restore_screen_title">Резервное копирование и восстановление бесед</string>
     <string name="search_bar_conversations_hint">Поиск бесед</string>
     <string name="search_no_results">Совпадений не найдено</string>
+    <string name="team_management_screen_title">Управлять командой</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Что нового</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Добро пожаловать в новое приложение Wire для Android!</string>
@@ -336,7 +341,7 @@
     <string name="enterprise_login_user_identifier_label_placeholder">Введите email или код SSO</string>
     <string name="enterprise_login_error_invalid_user_identifier">Пожалуйста, введите действительный email или код доступа SSO</string>
     <string name="enterprise_login_create_account_label">У вас нет аккаунта Wire?</string>
-    <string name="enterprise_login_create_account_text_button">Создать аккаунт</string>
+    <string name="enterprise_login_create_account_text_button">Создать аккаунт или команду</string>
     <string name="enterprise_login_on_prem_welcome_title">Приветствуем вас в Wire Enterprise для %s!</string>
     <string name="enterprise_login_verification_code_title">Вам пришло письмо</string>
     <!-- Login -->
@@ -423,6 +428,7 @@
     <string name="delete_message_for_yourself_dialog_title">Удалить это сообщение у себя?</string>
     <string name="delete_message_for_yourself_dialog_message">После удаления сообщения у себя, оно останется видимым только у других участников.\n\nУдаленное сообщение не может быть восстановлено.</string>
     <string name="deleted_message_text">Удаленное сообщение</string>
+    <string name="deleted_message_options_closed">Опции были закрыты, поскольку это сообщение больше не доступно.</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Вы не можете видеть это сообщение</string>
     <string name="label_quote_original_message_is_a_picture">Изображение</string>
@@ -488,6 +494,7 @@
     <string name="create_account_username_title">Ваш псевдоним</string>
     <string name="create_account_username_placeholder">maria.ivanova</string>
     <string name="create_account_username_label">ПСЕВДОНИМ</string>
+    <string name="create_account_set_username_title">Задать псевдоним</string>
     <string name="create_account_username_text">Введите свой псевдоним. Это поможет другим найти вас в Wire и связаться.</string>
     <string name="create_account_username_taken_error">Этот псевдоним уже занят. Пожалуйста, выберите другой.</string>
     <string name="create_account_username_description">Минимум 2 символа. Только a-z, 0-9, “_”, “-” и “.”</string>
@@ -517,6 +524,19 @@
     <string name="channel_add_permission_description">Выберите, кто может добавлять участников в приватный канал</string>
     <string name="channel_add_permission_admin_label">Администраторы</string>
     <string name="channel_add_permission_admin_members_label">Администраторы и члены</string>
+    <string name="channel_history_label">История беседы</string>
+    <string name="channel_history_description">Выберите период. Когда участники присоединяются к этому каналу, они могут просматривать историю за этот период времени.</string>
+    <string name="channel_history_freemium_upgrade_title">Показывать старые сообщения?</string>
+    <string name="channel_history_freemium_upgrade_description">Перейдите на платный план, чтобы открыть участникам канала всю историю.</string>
+    <string name="channel_history_freemium_upgrade_now">Перейти сейчас</string>
+    <string name="channel_history_off">Выкл.</string>
+    <string name="channel_history_unlimited">Неограничено</string>
+    <string name="channel_history_custom">Пользовательская</string>
+    <string name="channel_history_days">дн.</string>
+    <string name="channel_history_weeks">нед.</string>
+    <string name="channel_history_months">мес.</string>
+    <string name="channel_history_custom_amount_label">СУММА</string>
+    <string name="channel_history_custom_time_label">ВРЕМЯ</string>
     <string name="create_regular_group_button_label">Создать группу</string>
     <string name="create_channel_button_label">Создать канал</string>
     <string name="new_group_description">К групповой беседе могут присоединиться до 500 участников.</string>
@@ -747,6 +767,8 @@
     <string name="conversation_banner_guests_present">Присутствуют гости</string>
     <string name="conversation_banner_externals_present">Присутствуют внешние участники</string>
     <string name="conversation_banner_services_active">Сервисы активны</string>
+    <string name="conversation_history_loading">Загрузка истории бесед...</string>
+    <string name="conversation_history_loaded">Вы попали в топ 🥳\nВы видите все доступные сообщения.</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s добавил(-а) в беседу %2$s</string>
     <string name="label_system_message_removed_by_self">%1$s удалил(-а) %2$s из беседы</string>
@@ -1541,6 +1563,12 @@
         <item quantity="many">%1$d недель</item>
         <item quantity="other">%1$d недели</item>
     </plurals>
+    <plurals name="months_long_label">
+        <item quantity="one">1 мес.</item>
+        <item quantity="few">%1$d мес.</item>
+        <item quantity="many">%1$d мес.</item>
+        <item quantity="other">%1$d мес.</item>
+    </plurals>
     <plurals name="days_long_label">
         <item quantity="one">1 день</item>
         <item quantity="few">%1$d дня</item>
@@ -1564,6 +1592,24 @@
         <item quantity="few">%1$d секунды</item>
         <item quantity="many">%1$d секунд</item>
         <item quantity="other">%1$d секунды</item>
+    </plurals>
+    <plurals name="days_label">
+        <item quantity="one">день</item>
+        <item quantity="few">дн.</item>
+        <item quantity="many">дн.</item>
+        <item quantity="other">дн.</item>
+    </plurals>
+    <plurals name="weeks_label">
+        <item quantity="one">неделя</item>
+        <item quantity="few">нед.</item>
+        <item quantity="many">нед.</item>
+        <item quantity="other">нед.</item>
+    </plurals>
+    <plurals name="months_label">
+        <item quantity="one">месяц</item>
+        <item quantity="few">мес.</item>
+        <item quantity="many">мес.</item>
+        <item quantity="other">мес.</item>
     </plurals>
     <string name="four_weeks_short_label">4 нед</string>
     <string name="one_week_short_label">1 нед.</string>
@@ -1811,4 +1857,6 @@
     <string name="enable_wire_cell_switch_description">Все файлы в этой беседе будут загружены в хранилище Wire Cell.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
+    <string name="content_description_apply_filter">Применить фильтр</string>
+    <string name="content_description_filter_files">Фильтр файлов</string>
 </resources>

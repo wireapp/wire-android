@@ -58,7 +58,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -120,7 +119,6 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
-import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
 import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
@@ -145,7 +143,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
 @Suppress("CyclomaticComplexMethod")
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = GroupConversationDetailsNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
@@ -338,9 +335,7 @@ private fun GroupConversationDetailsContent(
             ChangeConversationFavoriteStateArgs
         ),
     removeConversationFromFolderVM: RemoveConversationFromFolderVM =
-        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
-            RemoveConversationFromFolderArgs
-        ),
+        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM>(),
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }

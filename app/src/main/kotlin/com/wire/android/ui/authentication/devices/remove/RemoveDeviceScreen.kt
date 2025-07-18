@@ -19,7 +19,10 @@
 package com.wire.android.ui.authentication.devices.remove
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,7 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -43,6 +45,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
@@ -68,7 +71,6 @@ import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ClientId
 
-@RootNavGraph
 @WireDestination(
     style = PopUpNavigationAnimation::class,
 )
@@ -89,22 +91,35 @@ fun RemoveDeviceScreen(
     )
 
     clearAutofillTree()
-    RemoveDeviceContent(
-        state = viewModel.state,
-        passwordTextState = viewModel.passwordTextState,
-        clearSessionState = clearSessionViewModel.state,
-        onItemClicked = { viewModel.onItemClicked(it) },
-        onRemoveConfirm = { viewModel.onRemoveConfirmed() },
-        onDialogDismiss = viewModel::onDialogDismissed,
-        onErrorDialogDismiss = viewModel::clearDeleteClientError,
-        onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
-        onCancelLoginClicked = {
-            clearSessionViewModel.onCancelLoginClicked(
-                NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
-            )
+
+    AnimatedContent(
+        targetState = viewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
+        transitionSpec = {
+            TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
         },
-        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
-    )
+        modifier = Modifier.fillMaxSize()
+    ) { isCodeNecessary ->
+        if (isCodeNecessary) {
+            RemoveDeviceVerificationCodeScreen(viewModel)
+        } else {
+            RemoveDeviceContent(
+                state = viewModel.state,
+                passwordTextState = viewModel.passwordTextState,
+                clearSessionState = clearSessionViewModel.state,
+                onItemClicked = { viewModel.onItemClicked(it) },
+                onRemoveConfirm = { viewModel.onRemoveConfirmed() },
+                onDialogDismiss = viewModel::onDialogDismissed,
+                onErrorDialogDismiss = viewModel::clearDeleteClientError,
+                onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
+                onCancelLoginClicked = {
+                    clearSessionViewModel.onCancelLoginClicked(
+                        NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
+                    )
+                },
+                onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
+            )
+        }
+    }
 
     if (viewModel.state.error is RemoveDeviceError.InitError) {
         WireDialog(

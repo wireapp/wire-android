@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
@@ -61,7 +60,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.openDownloadFolder
 
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = MediaGalleryNavArgs::class,
     style = PopUpNavigationAnimation::class,
@@ -105,8 +103,8 @@ fun MediaGalleryScreen(
     }
 
     DeleteMessageDialog(
-        state = viewModelState.deleteMessageDialogState,
-        actions = mediaGalleryViewModel.deleteMessageHelper,
+        dialogState = mediaGalleryViewModel.deleteMessageDialogState,
+        deleteMessage = mediaGalleryViewModel::deleteMessage,
     )
 
     MediaGalleryContent(
@@ -121,7 +119,11 @@ fun MediaGalleryScreen(
         sheetState = bottomSheetState,
         isEphemeral = mediaGalleryViewModel.mediaGalleryViewState.isEphemeral,
         messageBottomSheetOptionsEnabled = viewModelState.messageBottomSheetOptionsEnabled,
-        deleteAsset = mediaGalleryViewModel::deleteCurrentImage,
+        deleteAsset = {
+            with(mediaGalleryViewModel.imageAsset) {
+                mediaGalleryViewModel.deleteMessageDialogState.show(DeleteMessageDialogState(isSelfAsset, messageId, conversationId))
+            }
+        },
         showDetails = {
             resultNavigator.setResult(
                 MediaGalleryNavBackArgs(
@@ -253,7 +255,6 @@ fun PreviewMediaGalleryScreen() = WireTheme {
         state = MediaGalleryViewState(
             screenTitle = "Media Gallery",
             messageBottomSheetOptionsEnabled = true,
-            deleteMessageDialogState = DeleteMessageDialogState.Hidden,
         ),
         imageAsset = mockedPrivateAsset(),
         onCloseClick = {},

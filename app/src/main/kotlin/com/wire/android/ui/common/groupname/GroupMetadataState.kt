@@ -20,6 +20,7 @@ package com.wire.android.ui.common.groupname
 
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryType
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import kotlinx.collections.immutable.ImmutableSet
@@ -40,6 +41,7 @@ data class GroupMetadataState(
     val isServicesAllowed: Boolean = false,
     val channelAccessType: ChannelAccessType = ChannelAccessType.PRIVATE,
     val channelAddPermissionType: ChannelAddPermissionType = ChannelAddPermissionType.ADMINS,
+    val channelHistoryType: ChannelHistoryType = ChannelHistoryType.Off,
     val completed: Completed = Completed.None,
 ) {
     enum class Completed {

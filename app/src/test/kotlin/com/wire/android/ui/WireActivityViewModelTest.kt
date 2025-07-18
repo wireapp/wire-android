@@ -372,6 +372,16 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun `given app started, then should  clean any unfinished analytics state`() = runTest {
+        val (arrangement, _) = Arrangement()
+            .withSomeCurrentSession()
+            .withAppUpdateRequired(false)
+            .arrange()
+
+        coEvery { arrangement.globalDataStore.setAnonymousRegistrationEnabled(eq(false)) }
+    }
+
+    @Test
     fun `given appUpdate is required, then should show the appUpdate dialog`() = runTest {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
@@ -835,7 +845,7 @@ class WireActivityViewModelTest {
 
         private val viewModel by lazy {
             WireActivityViewModel(
-                coreLogic = coreLogic,
+                coreLogic = { coreLogic },
                 dispatchers = TestDispatcherProvider(),
                 currentSessionFlow = { currentSessionFlow },
                 doesValidSessionExist = { doesValidSessionExist },

@@ -20,7 +20,6 @@ package com.wire.android.ui.home.gallery
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -60,6 +59,7 @@ import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
 import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -138,13 +138,14 @@ class MediaGalleryViewModelTest {
             .arrange()
 
         // When
-        viewModel.deleteCurrentImage()
+        viewModel.deleteMessageDialogState.show(
+            DeleteMessageDialogState(true, viewModel.imageAsset.messageId, viewModel.imageAsset.conversationId)
+        )
 
         // Then
-        val deleteMessageDialogsState = viewModel.mediaGalleryViewState.deleteMessageDialogState
-        assertIs<DeleteMessageDialogState.Visible>(deleteMessageDialogsState).let {
-            assertEquals(DeleteMessageDialogType.ForEveryone, it.type)
-        }
+        assertEquals(true, viewModel.deleteMessageDialogState.isVisible)
+        assertNotNull(viewModel.deleteMessageDialogState.savedState)
+        assertEquals(DeleteMessageDialogType.ForEveryone, viewModel.deleteMessageDialogState.savedState!!.type)
     }
 
     @Test
@@ -160,7 +161,7 @@ class MediaGalleryViewModelTest {
             .arrange()
 
         // When
-        viewModel.deleteMessageHelper.onDeleteMessage("", true)
+        viewModel.deleteMessage("", true)
 
         // Then
         assertEquals(true, viewModel.mediaGalleryViewState.messageDeleted)
@@ -181,7 +182,7 @@ class MediaGalleryViewModelTest {
 
         viewModel.snackbarMessage.test {
             // When
-            viewModel.deleteMessageHelper.onDeleteMessage("", true)
+            viewModel.deleteMessage("", true)
 
             // Then
             assertEquals(false, viewModel.mediaGalleryViewState.messageDeleted)

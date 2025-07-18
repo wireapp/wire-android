@@ -334,7 +334,6 @@
     <string name="enterprise_login_user_identifier_label_placeholder">Adja meg e-mail-címét vagy SSO-kódját</string>
     <string name="enterprise_login_error_invalid_user_identifier">Kérjük, adjon meg érvényes e-mail-címet vagy SSO-kódot</string>
     <string name="enterprise_login_create_account_label">Nincsen Wire-fiókja?</string>
-    <string name="enterprise_login_create_account_text_button">Fiók létrehozása</string>
     <string name="enterprise_login_on_prem_welcome_title">Üdvözöljük a(z) %s számára nyújtott Wire Vállalati szolgáltatásban!</string>
     <string name="enterprise_login_verification_code_title">E-mailje érkezett</string>
     <!-- Login -->

@@ -9,9 +9,8 @@
             "paginated_conversation_list_enabled": true,
             "analytics_enabled": true,
             "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
-            "analytics_server_url": "https://countly.wire.com/",
-            "enable_crossplatform_backup": false,
-            "enable_new_registration": false
+            "analytics_server_url": "https://wire.count.ly/",
+            "enable_new_registration": true
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
@@ -33,9 +32,9 @@
             "default_backend_title": "wire-anta",
             "analytics_enabled": false,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
-            "analytics_server_url": "https://countly.wire.com/",
-            "enable_crossplatform_backup": true,
+            "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
+            "channels_history_options_enabled": true,
             "use_async_flush_logging" : true
         },
         "staging": {
@@ -57,8 +56,7 @@
             "default_backend_title": "wire-staging",
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
-            "analytics_server_url": "https://countly.wire.com/",
-            "enable_crossplatform_backup": true,
+            "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true
         },
         "beta": {
@@ -69,9 +67,8 @@
             "development_api_enabled": false,
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
-            "analytics_server_url": "https://countly.wire.com/",
-            "enable_crossplatform_backup": true,
-            "enable_new_registration": false
+            "analytics_server_url": "https://wire.count.ly/",
+            "enable_new_registration": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -81,9 +78,8 @@
             "development_api_enabled": false,
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
-            "analytics_server_url": "https://countly.wire.com/",
+            "analytics_server_url": "https://wire.count.ly/",
             "paginated_conversation_list_enabled": true,
-            "enable_crossplatform_backup": true,
             "enable_new_registration": true,
             "use_async_flush_logging" : true
         },
@@ -96,8 +92,7 @@
             "analytics_enabled": false,
             "analytics_app_key": "",
             "analytics_server_url": "",
-            "enable_crossplatform_backup": false,
-            "enable_new_registration": false
+            "enable_new_registration": true
         }
     },
     "application_name": "Wire",
@@ -150,5 +145,9 @@
     "should_display_release_notes": true,
     "public_channels_enabled": false,
     "use_new_login_for_default_backend": true,
-    "use_async_flush_logging" : false
+    "use_async_flush_logging" : false,
+    "channels_history_options_enabled": false,
+    "use_new_login_for_default_backend": true,
+    "enable_crossplatform_backup": true,
+    "mls_read_receipts_enabled": false
 }

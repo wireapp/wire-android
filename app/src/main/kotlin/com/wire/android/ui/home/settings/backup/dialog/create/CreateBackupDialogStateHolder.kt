@@ -18,17 +18,27 @@
 
 package com.wire.android.ui.home.settings.backup.dialog.create
 
+import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.parcelize.Parcelize
 
 @Stable
 class CreateBackupDialogStateHolder {
     companion object {
         val INITIAL_STEP = BackUpDialogStep.SetPassword
+
+        fun saver(): Saver<CreateBackupDialogStateHolder, *> {
+            return Saver(
+                save = { it.currentBackupDialogStep },
+                restore = { CreateBackupDialogStateHolder().apply { currentBackupDialogStep = it } }
+            )
+        }
     }
 
     var currentBackupDialogStep: BackUpDialogStep by mutableStateOf(INITIAL_STEP)
@@ -62,12 +72,15 @@ class CreateBackupDialogStateHolder {
 
 @Composable
 fun rememberBackUpDialogState(): CreateBackupDialogStateHolder {
-    return remember("someData") { CreateBackupDialogStateHolder() }
+    return rememberSaveable(saver = CreateBackupDialogStateHolder.saver()) { CreateBackupDialogStateHolder() }
 }
 
-sealed interface BackUpDialogStep {
-    object SetPassword : BackUpDialogStep
-    data class CreatingBackup(val progress: Float) : BackUpDialogStep
-    data class Finished(val fileName: String) : BackUpDialogStep
-    object Failure : BackUpDialogStep
+sealed interface BackUpDialogStep : Parcelable {
+    @Parcelize data object SetPassword : BackUpDialogStep
+
+    @Parcelize data class CreatingBackup(val progress: Float) : BackUpDialogStep
+
+    @Parcelize data class Finished(val fileName: String) : BackUpDialogStep
+
+    @Parcelize data object Failure : BackUpDialogStep
 }

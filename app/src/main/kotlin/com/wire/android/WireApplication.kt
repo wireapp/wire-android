@@ -124,10 +124,6 @@ class WireApplication : BaseApp() {
                 syncLifecycleManager.get().observeAppLifecycle()
             }
 
-            appLogger.i("$TAG api version update")
-            // TODO: Can be handled in one of Sync steps
-            coreLogic.get().updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
-
             appLogger.i("$TAG global observers")
             globalObserversManager.get().observe()
 
@@ -310,6 +306,7 @@ class WireApplication : BaseApp() {
                 coreLogic.get().getSessionScope(userId).analyticsIdentifierManager
             },
             userDataStoreProvider = userDataStoreProvider.get(),
+            globalDataStore = globalDataStore.get(),
             currentBackend = { userId ->
                 coreLogic.get().getSessionScope(userId).users.serverLinks()
             }

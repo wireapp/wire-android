@@ -33,6 +33,14 @@ import com.wire.android.util.logging.LogFileWriter
 import com.wire.android.util.multipleFileSharingIntent
 import com.wire.android.util.sha256
 
+/**
+ * The route is not that relevant as won't be used for navigation, it will be overridden by a direct custom tab launch.
+ */
+interface ExternalDirectionLess : Direction {
+    override val route: String
+        get() = this::class.qualifiedName.orEmpty()
+}
+
 interface ExternalUriDirection : Direction {
     val uri: Uri
     override val route: String
@@ -56,6 +64,8 @@ object SupportScreenDestination : ExternalUriStringResDirection {
     override val uriStringRes: Int
         get() = R.string.url_support
 }
+
+data object TeamManagementScreenDestination : ExternalDirectionLess
 
 object PrivacyPolicyScreenDestination : ExternalUriStringResDirection {
     override val uriStringRes: Int

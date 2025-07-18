@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
 data class OtherUserProfileState(
     val userId: UserId,
@@ -93,6 +94,7 @@ data class OtherUserProfileState(
     ))
 }
 
+@Serializable
 data class OtherUserProfileGroupState(
     val groupName: String,
     val role: Member.Role,

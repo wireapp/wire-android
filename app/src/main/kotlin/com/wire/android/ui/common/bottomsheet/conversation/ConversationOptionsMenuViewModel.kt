@@ -112,7 +112,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
-    private val markConversationAsDeletedLocallyUseCase: MarkConversationAsDeletedLocallyUseCase,
+    private val markConversationAsDeletedLocally: MarkConversationAsDeletedLocallyUseCase,
     private val leaveConversation: LeaveConversationUseCase,
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
@@ -279,7 +279,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     }
 
     private suspend fun markAsDeletedLocallyAndEnqueueWorkerToDeleteCompletely(conversationId: ConversationId): Boolean {
-        return when (markConversationAsDeletedLocallyUseCase(conversationId)) {
+        return when (markConversationAsDeletedLocally(conversationId)) {
             is MarkConversationAsDeletedLocallyUseCase.Result.Failure -> {
                 appLogger.e("Failed to mark conversation $conversationId as deleted locally")
                 false

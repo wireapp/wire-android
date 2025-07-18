@@ -30,7 +30,6 @@ import com.wire.android.workmanager.worker.DeleteConversationLocallyWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.sync.WrapperWorker
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import javax.inject.Inject

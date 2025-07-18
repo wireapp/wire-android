@@ -418,10 +418,6 @@ class ConversationListViewModelTest {
             coEvery { observeLegalHoldStateForSelfUserUseCase() } returns legalHoldStateForSelfUserFlow
         }
 
-        fun withMarkConversationAsDeletedLocallyUseCase(result: MarkConversationAsDeletedLocallyUseCase.Result) = apply {
-            coEvery { markConversationAsDeletedLocallyUseCase(any()) } returns result
-        }
-
         fun arrange() = this to ConversationListViewModelImpl(
             conversationsSource = conversationsSource,
             dispatcher = dispatcherProvider,

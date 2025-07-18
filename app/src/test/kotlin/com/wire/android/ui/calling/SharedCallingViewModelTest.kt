@@ -21,6 +21,7 @@ package com.wire.android.ui.calling
 import android.view.View
 import app.cash.turbine.test
 import com.wire.android.assertIs
+import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -60,7 +61,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import com.wire.android.assertions.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -142,6 +143,7 @@ class SharedCallingViewModelTest {
 
         sharedCallingViewModel = SharedCallingViewModel(
             conversationId = conversationId,
+            selfUserId = TestUser.SELF_USER_ID,
             conversationDetails = observeConversationDetails,
             observeEstablishedCallWithSortedParticipants = observeEstablishedCall,
             hangUpCall = hangUpCall,
@@ -384,6 +386,23 @@ class SharedCallingViewModelTest {
             assertIs<ReactionSender.You>(reaction.sender)
         }
     }
+
+    @Test
+    fun givenAnOngoingCall_WhenInCallReactionIsSent_ThenReactionMessageIsSentAndAddedToRecentReactions() =
+        runTest(dispatcherProvider.main()) {
+
+            // given
+            coEvery { sendInCallReactionUseCase(conversationId, any()) } returns Either.Right(Unit)
+
+            // when
+            sharedCallingViewModel.onReactionClick("👌")
+
+            // then
+            coVerify(exactly = 1) {
+                sendInCallReactionUseCase(OngoingCallViewModelTest.conversationId, "👌")
+            }
+            assertTrue(sharedCallingViewModel.recentReactions.containsValue("👌"))
+        }
 
     @Test
     fun givenAnOngoingCall_WhenInCallReactionSentFails_ThenNoEmojiIsEmitted() = runTest(dispatcherProvider.main()) {

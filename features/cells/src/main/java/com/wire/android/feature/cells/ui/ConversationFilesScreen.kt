@@ -22,6 +22,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +38,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.Breadcrumbs
+import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
@@ -83,6 +88,7 @@ fun ConversationFilesScreen(
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
+        breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = { viewModel.sendIntent(it) },
     )
 }
@@ -99,6 +105,7 @@ fun ConversationFilesScreenContent(
     modifier: Modifier = Modifier,
     screenTitle: String? = null,
     isRecycleBin: Boolean? = false,
+    breadcrumbs: Array<String>? = emptyArray(),
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
@@ -142,18 +149,28 @@ fun ConversationFilesScreenContent(
     WireScaffold(
         modifier = modifier,
         topBar = {
-            WireCenterAlignedTopAppBar(
-                onNavigationPressed = { navigator.navigateBack() },
-                title = screenTitle ?: stringResource(R.string.conversation_files_title),
-                navigationIconType = navigationIconType,
-                elevation = dimensions().spacing0x,
-                actions = {
-                    MoreOptionIcon(
-                        contentDescription = R.string.content_description_conversation_files_more_button,
-                        onButtonClicked = { optionsBottomSheetState.show() }
+            Column {
+                WireCenterAlignedTopAppBar(
+                    onNavigationPressed = { navigator.navigateBack() },
+                    title = screenTitle ?: stringResource(R.string.conversation_files_title),
+                    navigationIconType = navigationIconType,
+                    elevation = dimensions().spacing0x,
+                    actions = {
+                        MoreOptionIcon(
+                            contentDescription = R.string.content_description_conversation_files_more_button,
+                            onButtonClicked = { optionsBottomSheetState.show() }
+                        )
+                    }
+                )
+                breadcrumbs?.let {
+                    Breadcrumbs(
+                        modifier = Modifier
+                            .height(dimensions().spacing40x)
+                            .fillMaxWidth(),
+                        pathSegments = it
                     )
                 }
-            )
+            }
         },
         floatingActionButton = {
             if (isFabVisible) {
@@ -198,8 +215,9 @@ fun ConversationFilesScreenContent(
                     navigator.navigate(
                         NavigationCommand(
                             ConversationFilesWithSlideInTransitionScreenDestination(
-                                folderPath,
-                                it.name
+                                conversationId = folderPath,
+                                screenTitle = it.name,
+                                breadcrumbs = it.name?.let { name -> (breadcrumbs ?: emptyArray()) + name }
                             ),
                             BackStackMode.NONE,
                             launchSingleTop = false
@@ -224,7 +242,7 @@ fun ConversationFilesScreenContent(
                             MoveToFolderScreenDestination(
                                 currentPath = currentPath,
                                 nodeToMovePath = nodePath,
-                                uuid = uuid,
+                                uuid = uuid
                             )
                         )
                     )
@@ -238,6 +256,13 @@ fun ConversationFilesScreenContent(
                                 isFolder = cellNodeUi is CellNodeUi.Folder,
                                 nodeName = cellNodeUi.name,
                             )
+                        )
+                    )
+                },
+                showAddRemoveTagsScreen = { node ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
                         )
                     )
                 }

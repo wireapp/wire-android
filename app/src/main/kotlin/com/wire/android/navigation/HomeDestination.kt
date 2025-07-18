@@ -36,6 +36,7 @@ sealed class HomeDestination(
     @DrawableRes val icon: Int,
     val withNewConversationFab: Boolean = false,
     val withUserAvatar: Boolean = true,
+    val withFilesFilterIcon: Boolean = false,
     val direction: Direction,
     val searchBar: SearchBarOptions? = null,
 ) {
@@ -89,6 +90,7 @@ sealed class HomeDestination(
         title = UIText.StringResource(R.string.cells_screen_title),
         icon = R.drawable.ic_files,
         searchBar = SearchBarOptions(R.string.cells_screen_search_hint),
+        withFilesFilterIcon = true,
         direction = GlobalCellsScreenDestination
     )
 

@@ -26,22 +26,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
+import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.common.functional.onFailure
-import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -81,23 +80,8 @@ class MediaGalleryViewModel @Inject constructor(
     )
         private set
 
-    val deleteMessageHelper = DeleteMessageDialogHelper(
-        viewModelScope,
-        conversationId,
-        ::updateDeleteDialogState
-    ) { messageId: String, deleteForEveryone: Boolean ->
-        deleteMessage(
-            conversationId = conversationId,
-            messageId = messageId,
-            deleteForEveryone = deleteForEveryone,
-        )
-            .onFailure {
-                onSnackbarMessage(MediaGallerySnackbarMessages.DeletingMessageError)
-            }
-            .onSuccess {
-                mediaGalleryViewState = mediaGalleryViewState.copy(messageDeleted = true)
-            }
-    }
+    var deleteMessageDialogState: VisibilityState<DeleteMessageDialogState> by mutableStateOf(VisibilityState())
+        private set
 
     private val _snackbarMessage = MutableSharedFlow<MediaGallerySnackbarMessages>()
     val snackbarMessage = _snackbarMessage.asSharedFlow()
@@ -177,19 +161,16 @@ class MediaGalleryViewModel @Inject constructor(
         onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloadError)
     }
 
-    fun deleteCurrentImage() {
-        updateDeleteDialogState {
-            DeleteMessageDialogState.Visible(
-                type = if (imageAsset.isSelfAsset) DeleteMessageDialogType.ForEveryone else DeleteMessageDialogType.ForYourself,
-                messageId = messageId,
-                conversationId = conversationId,
-            )
-        }
-    }
-
-    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogState) -> DeleteMessageDialogState) {
-        newValue(mediaGalleryViewState.deleteMessageDialogState).also {
-            mediaGalleryViewState = mediaGalleryViewState.copy(deleteMessageDialogState = newValue(it))
+    fun deleteMessage(messageId: String, deleteForEveryone: Boolean) {
+        viewModelScope.launch {
+            deleteMessageDialogState.update { it.copy(loading = true) }
+            deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+                .onFailure {
+                    onSnackbarMessage(MediaGallerySnackbarMessages.DeletingMessageError)
+                }.onSuccess {
+                    mediaGalleryViewState = mediaGalleryViewState.copy(messageDeleted = true)
+                }
+            deleteMessageDialogState.dismiss()
         }
     }
 }

@@ -21,10 +21,10 @@ package com.wire.android.ui.authentication.create.username
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
+import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
-import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.android.util.EMPTY
@@ -36,7 +36,6 @@ import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -106,8 +105,8 @@ class CreateAccountUsernameViewModelTest {
         verify(exactly = 1) { arrangement.validateUserHandleUseCase.invoke(username) }
         coVerify(exactly = 1) { arrangement.setUserHandleUseCase.invoke(username) }
         coVerify(exactly = 1) { arrangement.finalizeRegistrationAnalyticsMetadataUseCase.invoke() }
-        verify(exactly = 1) {
-            arrangement.anonymousAnalyticsManager.sendEvent(eq(AnalyticsEvent.RegistrationPersonalAccount.CreationCompleted))
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.CreationCompleted))
         }
         createAccountUsernameViewModel.state.success shouldBeEqualTo true
     }
@@ -204,7 +203,7 @@ class CreateAccountUsernameViewModelTest {
         lateinit var setUserHandleUseCase: SetUserHandleUseCase
 
         @MockK
-        lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
+        lateinit var anonymousAnalyticsManager: RegistrationAnalyticsManagerUseCase
 
         @MockK
         lateinit var finalizeRegistrationAnalyticsMetadataUseCase: FinalizeRegistrationAnalyticsMetadataUseCase
@@ -213,8 +212,8 @@ class CreateAccountUsernameViewModelTest {
             CreateAccountUsernameViewModel(
                 validateUserHandleUseCase,
                 setUserHandleUseCase,
-                anonymousAnalyticsManager,
-                finalizeRegistrationAnalyticsMetadataUseCase
+                finalizeRegistrationAnalyticsMetadataUseCase,
+                anonymousAnalyticsManager
             )
         }
 
@@ -222,7 +221,7 @@ class CreateAccountUsernameViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
             coEvery { finalizeRegistrationAnalyticsMetadataUseCase() } returns Unit
-            every { anonymousAnalyticsManager.sendEvent(any()) } returns Unit
+            coEvery { anonymousAnalyticsManager.sendEventIfEnabled(any()) } returns Unit
         }
 
         fun withValidateHandleResult(result: ValidateUserHandleResult, forSpecificHandle: String? = null) = apply {

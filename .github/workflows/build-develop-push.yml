@@ -24,7 +24,7 @@ jobs:
             "flavor": "Internal",
             "variant": "Compat",
             "keystore-type": "internal",
-            "build-type": "bundle",
+            "build-type": "both",
             "generate-version-file": false,
             "deployment-targets": [
               {

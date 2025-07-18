@@ -132,7 +132,11 @@ fun CreateFolderScreen(
                                     folderName = createFolderViewModel.fileNameTextFieldState.text.toString()
                                 )
                             },
-                            state = if (createFolderViewModel.displayNameState.saveEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                            state = if (createFolderViewModel.displayNameState.saveEnabled) {
+                                WireButtonState.Default
+                            } else {
+                                WireButtonState.Disabled
+                            },
                         )
                     }
                 }

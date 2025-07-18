@@ -43,6 +43,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.folder.AddConversationToFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFolderUseCase
@@ -300,7 +301,8 @@ class ConversationOptionsMenuViewModelTest {
             viewModel.leaveGroup(conversationId, "name", false)
 
             coVerify(exactly = 1) { arrangement.leaveConversation(conversationId) }
-            coVerify(exactly = 0) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId) }
+            coVerify(exactly = 0) { arrangement.markConversationAsDeletedLocally(conversationId) }
+            coVerify(exactly = 0) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId, any()) }
             assertIs<ConversationOptionsMenuViewAction.Left>(awaitItem())
             assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
                 assertIs<HomeSnackBarMessage.LeftConversationSuccess>(it.message)
@@ -319,7 +321,8 @@ class ConversationOptionsMenuViewModelTest {
             viewModel.leaveGroup(conversationId, "name", false)
 
             coVerify(exactly = 1) { arrangement.leaveConversation(conversationId) }
-            coVerify(exactly = 0) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId) }
+            coVerify(exactly = 0) { arrangement.markConversationAsDeletedLocally(conversationId) }
+            coVerify(exactly = 0) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId, any()) }
             assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
                 assertIs<HomeSnackBarMessage.LeaveConversationError>(it.message)
             }
@@ -331,6 +334,7 @@ class ConversationOptionsMenuViewModelTest {
     fun `given success, when leaving group with deleting, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
             .withLeaveConversation(RemoveMemberFromConversationUseCase.Result.Success)
+            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedLocallyUseCase.Result.Success)
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.SUCCEEDED)
             .arrange()
 
@@ -338,7 +342,8 @@ class ConversationOptionsMenuViewModelTest {
             viewModel.leaveGroup(conversationId, "name", true)
 
             coVerify(exactly = 1) { arrangement.leaveConversation(conversationId) }
-            coVerify(exactly = 1) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId) }
+            coVerify(exactly = 1) { arrangement.markConversationAsDeletedLocally(conversationId) }
+            coVerify(exactly = 1) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId, any()) }
             assertIs<ConversationOptionsMenuViewAction.Left>(awaitItem())
             assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
                 assertIs<HomeSnackBarMessage.LeftConversationSuccess>(it.message)
@@ -351,6 +356,7 @@ class ConversationOptionsMenuViewModelTest {
     fun `given failure, when leaving group with deleting, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
             .withLeaveConversation(RemoveMemberFromConversationUseCase.Result.Success)
+            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedLocallyUseCase.Result.Failure(CoreFailure.Unknown(null)))
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.FAILED)
             .arrange()
 
@@ -358,7 +364,8 @@ class ConversationOptionsMenuViewModelTest {
             viewModel.leaveGroup(conversationId, "name", true)
 
             coVerify(exactly = 1) { arrangement.leaveConversation(conversationId) }
-            coVerify(exactly = 1) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId) }
+            coVerify(exactly = 1) { arrangement.markConversationAsDeletedLocally(conversationId) }
+            coVerify(exactly = 0) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId, any()) }
             assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
                 assertIs<HomeSnackBarMessage.LeaveConversationError>(it.message)
             }
@@ -369,13 +376,15 @@ class ConversationOptionsMenuViewModelTest {
     @Test
     fun `given success, when deleting group locally, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
+            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedLocallyUseCase.Result.Success)
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.SUCCEEDED)
             .arrange()
 
         viewModel.actions.test {
             viewModel.deleteGroupLocally(conversationId, "name")
 
-            coVerify(exactly = 1) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId) }
+            coVerify(exactly = 1) { arrangement.markConversationAsDeletedLocally(conversationId) }
+            coVerify(exactly = 1) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId, any()) }
             assertIs<ConversationOptionsMenuViewAction.DeletedLocally>(awaitItem())
             assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
                 assertIs<HomeSnackBarMessage.DeleteConversationGroupLocallySuccess>(it.message)
@@ -387,13 +396,15 @@ class ConversationOptionsMenuViewModelTest {
     @Test
     fun `given failure, when deleting group locally, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
+            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedLocallyUseCase.Result.Failure(CoreFailure.Unknown(null)))
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.FAILED)
             .arrange()
 
         viewModel.actions.test {
             viewModel.deleteGroupLocally(conversationId, "name")
 
-            coVerify(exactly = 1) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId) }
+            coVerify(exactly = 1) { arrangement.markConversationAsDeletedLocally(conversationId) }
+            coVerify(exactly = 0) { arrangement.workManager.enqueueConversationDeletionLocally(conversationId, any()) }
             assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
                 assertIs<HomeSnackBarMessage.DeleteConversationGroupError>(it.message)
             }
@@ -564,6 +575,9 @@ class ConversationOptionsMenuViewModelTest {
         lateinit var deleteTeamConversation: DeleteTeamConversationUseCase
 
         @MockK
+        lateinit var markConversationAsDeletedLocally: MarkConversationAsDeletedLocallyUseCase
+
+        @MockK
         lateinit var leaveConversation: LeaveConversationUseCase
 
         @MockK
@@ -584,6 +598,7 @@ class ConversationOptionsMenuViewModelTest {
         }
 
         fun arrange() = this to ConversationOptionsMenuViewModelImpl(
+            currentAccount = selfUserId,
             observeConversationDetails = observeConversationDetails,
             observeSelfUser = observeSelfUser,
             addConversationToFavorites = addConversationToFavorites,
@@ -592,6 +607,7 @@ class ConversationOptionsMenuViewModelTest {
             updateConversationArchivedStatus = updateConversationArchivedStatus,
             updateConversationMutedStatus = updateConversationMutedStatus,
             deleteTeamConversation = deleteTeamConversation,
+            markConversationAsDeletedLocally = markConversationAsDeletedLocally,
             leaveConversation = leaveConversation,
             blockUser = blockUser,
             unblockUser = unblockUser,
@@ -624,8 +640,11 @@ class ConversationOptionsMenuViewModelTest {
         fun withLeaveConversation(result: RemoveMemberFromConversationUseCase.Result) = apply {
             coEvery { leaveConversation(any()) } returns result
         }
+        fun withMarkConversationAsDeletedLocally(result: MarkConversationAsDeletedLocallyUseCase.Result) = apply {
+            coEvery { markConversationAsDeletedLocally(any()) } returns result
+        }
         fun withEnqueueConversationDeletionLocally(result: ConversationDeletionLocallyStatus) = apply {
-            coEvery { workManager.enqueueConversationDeletionLocally(any()) } returns flowOf(result)
+            coEvery { workManager.enqueueConversationDeletionLocally(any(), any()) } returns flowOf(result)
         }
         fun withUpdateArchivedStatus(result: ArchiveStatusUpdateResult) = apply {
             coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns result
@@ -639,5 +658,6 @@ class ConversationOptionsMenuViewModelTest {
     companion object {
         private val conversationId = ConversationId("some_id", "some_domain")
         private val userId: UserId = UserId("someUser", "some_domain")
+        private val selfUserId: UserId = UserId("selfUser", "some_domain")
     }
 }

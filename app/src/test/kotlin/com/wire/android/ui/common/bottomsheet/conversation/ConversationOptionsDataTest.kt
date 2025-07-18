@@ -150,18 +150,6 @@ class ConversationOptionsDataTest {
         assertTrue(canDeleteGroupLocally)
     }
 
-    @Test
-    fun givenGroupConversation_whenNotMemberOfTheConversationAndDeletionRunning_thenDeleteConversationLocallyIsNotVisible() = runTest {
-        // given
-        val conversationSheetContent = createDataGroup(title = "Title", selfRole = null, conversationDeletionLocallyRunning = true)
-
-        // when
-        val canDeleteGroupLocally = conversationSheetContent.canDeleteGroupLocally()
-
-        // then
-        assertFalse(canDeleteGroupLocally)
-    }
-
     private fun createDataPrivate(
         blockingState: BlockingState = BlockingState.NOT_BLOCKED,
         isUserDeleted: Boolean = false,
@@ -185,7 +173,6 @@ class ConversationOptionsDataTest {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isUnderLegalHold = false,
             isFavorite = false,
-            isDeletingConversationLocallyRunning = false,
             folder = null
         )
     }
@@ -193,7 +180,6 @@ class ConversationOptionsDataTest {
     private fun createDataGroup(
         title: String = "Conversation Name",
         selfRole: Conversation.Member.Role? = Conversation.Member.Role.Member,
-        conversationDeletionLocallyRunning: Boolean = false,
     ): ConversationOptionsData {
         val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
         return ConversationOptionsData(
@@ -209,7 +195,6 @@ class ConversationOptionsDataTest {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isUnderLegalHold = false,
             isFavorite = false,
-            isDeletingConversationLocallyRunning = conversationDeletionLocallyRunning,
             folder = null
         )
     }

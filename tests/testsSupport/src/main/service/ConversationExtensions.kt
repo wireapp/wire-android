@@ -147,7 +147,7 @@ fun BackendClient.getConversations(user: ClientUser): List<Conversation> {
 }
 
 fun BackendClient.getConversationByName(user: ClientUser, name: String): Conversation {
-    getConversations(user).firstOrNull { conv ->
+    return getConversations(user).firstOrNull { conv ->
         when {
             conv.name == null && conv.otherIds.size == 1 && conv.protocol == "mls" -> {
                 try {
@@ -169,6 +169,7 @@ fun BackendClient.getConversationByName(user: ClientUser, name: String): Convers
         }
     } ?: throw NoSuchElementException("Conversation '$name' does not exist for user '${user.name}'")
 }
+
 
 fun BackendClient.getConversationIDs(token: AccessToken, pagingState: String? = null): JSONObject {
     val url = "conversations/list-ids".composeCompleteUrl()

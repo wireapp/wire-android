@@ -28,6 +28,7 @@ import com.wire.android.testSupport.backendConnections.team.TeamRoles
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -36,7 +37,7 @@ import org.junit.runner.RunWith
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
-import user.UserClient
+import service.TestServiceHelper
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 
@@ -50,9 +51,13 @@ class FileSharing : KoinTest {
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
     lateinit var context: Context
-    var registeredUser: ClientUser? = null
+    var teamOwner2: ClientUser? = null
+    var teamOwner1: ClientUser? = null
     var backendClient: BackendClient? = null
     var teamHelper: TeamHelper? = null
+    val testServiceHelper by lazy {
+        TestServiceHelper()
+    }
 
     @Before
     fun setUp() {
@@ -69,51 +74,121 @@ class FileSharing : KoinTest {
         // To delete team member
         // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
         // To delete team
-       // registeredUser?.deleteTeam(backendClient!!)
+       // teamOwner2?.deleteTeam(backendClient!!)
+       // teamOwner1?.deleteTeam(backendClient!!)
     }
 
     @Suppress("LongMethod")
     @Test
     fun fileSharingFeature() {
-        val userInfo = UserClient.generateUniqueUserInfo()
-        teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "TeamToSend", "en_US", true, backendClient!!, context)
-        teamHelper?.usersManager!!.createTeamOwnerByAlias("user2Name", "TeamToReceive", "en_US", true, backendClient!!, context)
-        registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+
+        teamHelper?.usersManager!!.createTeamOwnerByAlias(
+            "user3Name",
+            "receiveTeam",
+            "en_US",
+            true,
+            backendClient!!,
+            context
+        )
+
+        teamHelper?.usersManager!!.createTeamOwnerByAlias(
+            "user1Name",
+            "sendTeam",
+            "en_US",
+            true,
+            backendClient!!,
+            context
+        )
+
+        teamOwner2 = teamHelper?.usersManager!!.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
+
+        teamHelper?.userXAddsUsersToTeam(
+            "user3Name",
+            "user4Name",
+            "receiveTeam",
+            TeamRoles.Member,
+            backendClient!!,
+            context,
+            true
+        )
+
+        teamOwner1 = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+
         teamHelper?.userXAddsUsersToTeam(
             "user1Name",
-            "user3Name",
-            "TeamToSend",
-            TeamRoles.Member,
-            backendClient!!,
-            context,
-            true
-        )
-        registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-        teamHelper?.userXAddsUsersToTeam(
             "user2Name",
-            "user4Name",
-            "TeamToReceive",
+            "sendTeam",
             TeamRoles.Member,
             backendClient!!,
             context,
             true
         )
-        val teamToSendMember1 = teamHelper?.usersManager!!.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
-      //  TestServiceHelper().userHasGroupConversationInTeam("user1Name", "MyTeam", "user2Name", "AccountManagement")
+
+        val connectionSenderFromSendTeam = teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+        val connectionReceiverFromReceiveTeam = teamHelper?.usersManager!!.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
 
         pages.registrationPage.apply {
             assertEmailWelcomePage()
         }
         pages.loginPage.apply {
-            enterPersonalUserLoggingEmail(teamToSendMember1.email ?: "")
+            enterPersonalUserLoggingEmail(connectionReceiverFromReceiveTeam.email ?: "")
             clickLoginButton()
-            enterPersonalUserLoginPassword(teamToSendMember1.password ?: "")
+            enterPersonalUserLoginPassword(connectionReceiverFromReceiveTeam.password ?: "")
             clickLoginButton()
         }
         pages.registrationPage.apply {
+
             waitUntilLoginFlowIsComplete()
             clickAllowNotificationButton()
+
+            testServiceHelper.apply {
+                addDevice("user2Name", null, "Device1")
+                connectionRequestIsSentTo("user2Name", "user4Name")
+                runBlocking { usersSetUniqueUsername("user4Name") }
+            }
+
             clickDeclineShareDataAlert()
+
+            pages.conversationPage.apply {
+                assertConnectionRequestNameIs(connectionSenderFromSendTeam.name ?: "")
+                clickConnectionRequestOfUser(connectionSenderFromSendTeam.name ?: "")
+            }
+            pages.unconnectedUserProfilePage.apply {
+                assertConnectionRequestNotificationTextIsDisplayed()
+                assertAcceptButtonIsDisplayed()
+                assertIgnoreButtonIsDisplayed()
+                clickAcceptButton()
+            }
+            pages.connectedUserProfilePage.apply {
+                assertToastMessageIsDisplayed("Connection request accepted")
+                //Thread.sleep(5000)
+                clickStartConversationButton()
+                pages.conversationPage.apply {
+
+                    assertConversationIsVisibleWithTeamMember(connectionSenderFromSendTeam.name ?: "")
+                    testServiceHelper.contactSendsLocalAudioPersonalMLSConversation(context,"FileName","user2Name","Device1","user4Name")
+                    testServiceHelper.deleteFile(context,"FileName")
+
+                    //send image
+                    testServiceHelper.contactSendsLocalImagePersonalMLSConversation(context,"FileName2","user2Name","Device1","user4Name")
+                    testServiceHelper.deleteFile(context,"FileName2")
+
+                    //send video
+                    testServiceHelper.contactSendsLocalVideoPersonalMLSConversation(context,"FileName4","user2Name","Device1","user4Name")
+                    testServiceHelper.deleteFile(context,"FileName4")
+
+                    //send text
+                    testServiceHelper.contactSendsLocalTextPersonalMLSConversation(context,"FileName3","user2Name","Device1","user4Name")
+                    testServiceHelper.deleteFile(context,"FileName3")
+
+                    assertAudioMessageIsVisible()
+
+
+                    pages.connectedUserProfilePage.apply {
+                       // assertToastMessageIsDisplayed("The file test.m4a was saved successfully to the Downloads folder")
+                    }
+                }
+            }
         }
     }
 }

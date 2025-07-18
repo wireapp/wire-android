@@ -19,12 +19,12 @@ package service
 
 import android.content.Context
 import androidx.annotation.RawRes
+import com.wire.android.testSupport.R
 import com.wire.android.testSupport.backendConnections.BackendClient
 import com.wire.android.testSupport.backendConnections.team.getTeamByName
 import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
-import com.wire.android.testSupport.R
 import service.models.Conversation
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -32,7 +32,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.time.Duration
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class TestServiceHelper {
@@ -42,7 +41,7 @@ class TestServiceHelper {
     }
 
     val testServiceClient by lazy {
-        TestService("","TestService")
+        TestService("http://192.168.2.18:8080","TestService")
     }
 
 
@@ -101,17 +100,25 @@ class TestServiceHelper {
         return Duration.ofSeconds(Long.MAX_VALUE)
     }
 
+    fun deleteFile(context:Context, fileName:String){
+        val cacheDir = context.cacheDir
+        val outputFile = File(cacheDir, fileName)
+        outputFile.delete()
+    }
+
 
     fun contactSendsLocalAudioPersonalMLSConversation(
         context:Context,
+        fileName: String,
         senderAlias: String,
         deviceName: String,
         dstConvoName: String
     ) {
-        val audio = getRawResourceAsFile(context,R.raw.test.m4a, UUID.randomUUID().toString())
+
+        val audio = getRawResourceAsFile(context,R.raw.test, fileName)
         val  conversation = toConvoObjPersonal(senderAlias, dstConvoName)
 
-        if(audio?.exists()!=true || audio == null){
+        if(audio?.exists()!=true){
             throw Exception("Audio file not found")
         }
 
@@ -119,19 +126,98 @@ class TestServiceHelper {
 
         val convoDomain = conversation.qualifiedID.domain
 
+        testServiceClient.sendFile(toClientUser(senderAlias), deviceName,
+            convoId, convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias,dstConvoName),
+            audio.absolutePath.orEmpty(),
+            "audio/mp4")
+    }
+
+    fun contactSendsLocalTextPersonalMLSConversation(
+        context:Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+
+        val textFile = getRawResourceAsFile(context,R.raw.gistfile1, fileName)
+        val  conversation = toConvoObjPersonal(senderAlias, dstConvoName)
+
+        if(textFile?.exists()!=true){
+            throw Exception("Text file not found")
+        }
+
+        val convoId = conversation.qualifiedID.id
+
+        val convoDomain = conversation.qualifiedID.domain
+
         testServiceClient.sendFile(toClientUser(senderAlias), deviceName, convoId, convoDomain,
-            getSelfDeletingMessageTimeout(senderAlias,dstConvoName), audio.absolutePath.orEmpty(), "audio/mp4")
+            getSelfDeletingMessageTimeout(senderAlias,dstConvoName), textFile.absolutePath.orEmpty(), "text/plain")
 
     }
 
+
+    fun contactSendsLocalVideoPersonalMLSConversation(
+        context:Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+
+        val videoFile = getRawResourceAsFile(context,R.raw.testing, fileName)
+        val  conversation = toConvoObjPersonal(senderAlias, dstConvoName)
+
+        if(videoFile?.exists()!=true){
+            throw Exception("Video file not found")
+        }
+
+        val convoId = conversation.qualifiedID.id
+
+        val convoDomain = conversation.qualifiedID.domain
+
+        testServiceClient.sendFile(toClientUser(senderAlias), deviceName, convoId, convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias,dstConvoName), videoFile?.absolutePath.orEmpty(),
+            "video/mp4")
+
+    }
+
+    fun contactSendsLocalImagePersonalMLSConversation(
+        context:Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+
+        val imageFile = getRawResourceAsFile(context,R.raw.testing, fileName)
+        val  conversation = toConvoObjPersonal(senderAlias, dstConvoName)
+
+        if(imageFile?.exists()!=true){
+            throw Exception("Video file not found")
+        }
+
+        val convoId = conversation.qualifiedID.id
+
+        val convoDomain = conversation.qualifiedID.domain
+
+        testServiceClient.sendFile(toClientUser(senderAlias), deviceName, convoId, convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias,dstConvoName), imageFile?.absolutePath.orEmpty(),
+            "image/jpeg")
+
+    }
+
+
+
     private fun toConvoObjPersonal( ownerAlias:String,  convoName:String) : Conversation{
-        return toConvoObjPersonal(toClientUser(ownerAlias), convoName);
+        return toConvoObjPersonal(toClientUser(ownerAlias), convoName)
     }
 
     private fun toConvoObjPersonal( owner:ClientUser,  convoName:String):Conversation {
        val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS);
         val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
-        return backend.getPersonalConversationByName(owner, convoName);
+        return backend.getPersonalConversationByName(owner, convoName)
     }
 
     suspend fun usersSetUniqueUsername(userNameAliases: String) {
@@ -158,9 +244,8 @@ class TestServiceHelper {
         ownerAlias: String,
         verificationCode: String? = null,
         deviceName: String? = null,
-        label: String? = "",
-        developmentApiEnabled: Boolean = false
     ) {
+        val developmentApiEnabled = BackendClient.loadBackend(toClientUser(ownerAlias).backendName.orEmpty()).isDevelopmentApiEnabled(toClientUser(ownerAlias))
         try {
             testServiceClient.login(
                 toClientUser(ownerAlias),

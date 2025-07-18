@@ -18,11 +18,39 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
+import org.junit.Assert
+import uiautomatorutils.UiSelectorParams
+import uiautomatorutils.UiWaitUtils
 
 
 data class ConnectedUserProfilePage(private val device: UiDevice) {
 
+    private val startConversationButton = UiSelector().text("Start Conversation")
+
+    fun clickStartConversationButton(): ConnectedUserProfilePage {
+        device.findObject(startConversationButton).click()
+        return this
+
+    }
+
+
+    fun assertConnectionRequestAcceptedToastMessageIsDisplayed(): ConnectedUserProfilePage {
+        val toast = UiWaitUtils.waitElement(UiSelectorParams(text = "Connection request accepted"))
+     //   val toast = UiWaitUtils.waitElement(UiSelectorParams(text = "WHAT IS YOUR NAME"))
+
+        Assert.assertTrue("Connection request accepted toast message is not displayed.", !toast.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertToastMessageIsDisplayed(expectedMessage: String): ConnectedUserProfilePage {
+        val toast = UiWaitUtils.waitElement(UiSelectorParams(text = expectedMessage))
+        Assert.assertTrue("Toast message '$expectedMessage' is not displayed.", !toast.visibleBounds.isEmpty)
+        return this
+    }
+
 }
+
 
 
 

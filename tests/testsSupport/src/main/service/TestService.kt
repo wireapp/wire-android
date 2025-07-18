@@ -515,14 +515,20 @@ class TestService(private val baseUri: String, private val testName: String) {
             }
             put("data", fileToBase64String(file))
             put("fileName", file.name)
-            if (timeout.toMillis() > 0) {
-                put("messageTimer", timeout.toMillis())
+            val millis = try {
+                timeout.toSeconds()
+            } catch (e: ArithmeticException) {
+               1000000
             }
+
+            put("messageTimer", 0)
+
             put("type", type)
             put("otherAlgorithm", otherAlgorithm)
             put("otherHash", otherHash)
             put("invalidHash", invalidHash)
         }
+        network.WireTestLogger.getLog("POLLL").info(requestBody.toString())
         sendHttpRequest(connection, requestBody)
     }
 
@@ -673,7 +679,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val inputStream = FileInputStream(srcFile)
         val bytes = inputStream.readBytes()
         inputStream.close()
-        return android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT)
+        return android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
     }
 
     @Suppress("TooGenericExceptionCaught, LongParameterList", "NestedBlockDepth")

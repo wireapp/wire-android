@@ -17,7 +17,12 @@
  */
 package com.wire.android.tests.core.pages
 
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
+import androidx.test.uiautomator.Until
+import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.test.DefaultAsserter.assertTrue
@@ -26,6 +31,33 @@ data class ConversationPage(private val device: UiDevice) {
 
     private val mainMenuButton = UiSelectorParams(description = "Main navigation")
     private val settingsButton = UiSelectorParams(text = "Settings")
+    private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
+    private val audioSeekBar = UiSelectorParams(className = "android.widget.SeekBar")
+    private val audioInitialTime = UiSelectorParams(text = "00:00")
+
+    private val playButtonParent = UiSelectorParams(className = "android.view.View")
+
+    private val pauseButtonParent = UiSelectorParams(className = "android.view.View")
+
+    private val reactionsTitle = UiSelectorParams(text = "Reactions")
+
+    private val messageDetailsButton = UiSelectorParams(text = "Message Details")
+
+    private val replyButton = UiSelectorParams(text = "Reply")
+
+    private val downloadButton = UiSelectorParams(text = "Download")
+
+    private val shareButton = UiSelectorParams(text = "Share")
+
+    private val openButton = UiSelectorParams(text = "Open")
+
+    private val deleteButton = UiSelectorParams(text = "Delete")
+
+    private val modalTextLocator = UiSelectorParams(textContains = "save it to your device")
+
+    private val saveButtonLocator = UiSelectorParams(text = "Save")
+
+
 
     fun clickMainMenuButtonOnConversationViewPage(): ConversationPage {
         UiWaitUtils.waitElement(mainMenuButton).click()
@@ -42,4 +74,108 @@ data class ConversationPage(private val device: UiDevice) {
         assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
         return this
     }
+
+    fun clickConnectionRequestOfUser(userName: String): ConversationPage {
+        val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
+        teamMemberName.click()
+        return this
+    }
+
+    fun assertConnectionRequestNameIs(userName: String): ConversationPage {
+        val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
+        assertTrue("Team member name '$userName' is not visible", !teamMemberName.visibleBounds.isEmpty)
+        return this
+    }
+    fun assertConversationIsVisibleWithTeamMember(userName: String): ConversationPage {
+        val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
+        assertTrue("Team member name '$userName' is not visible in conversation view", !teamMemberName.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertAudioMessageIsVisible(): ConversationPage {
+        val seekBar = UiWaitUtils.waitElement(audioSeekBar)
+        Assert.assertTrue("Audio file is not visible", !seekBar.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertAudioTimeStartsAtZero(): ConversationPage {
+        val timeAtZero = UiWaitUtils.waitElement(audioInitialTime)
+        assertTrue("Expected audio to start at 00:00", !timeAtZero.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertAudioTimeIsNotZeroAnymore(): ConversationPage {
+        val gone = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .wait(Until.gone(By.text("00:00")), 5000)
+        assertTrue("Audio time is still at 00:00, expected it to have changed", gone)
+        return this
+    }
+
+
+    fun clickPlayButtonOnAudioMessage(): ConversationPage {
+        val parent = UiWaitUtils.waitElement(playButtonParent)
+        val playButton = parent.findObject(By.clazz("android.widget.ImageView"))
+        playButton.click()
+        return this
+    }
+
+    fun clickPauseButtonOnAudioMessage(): ConversationPage {
+        val parent = UiWaitUtils.waitElement(pauseButtonParent)
+        val playButton = parent.findObject(By.clazz("android.widget.ImageView"))
+        playButton.click()
+        return this
+    }
+
+    fun longPressOnAudioSeekBar(): ConversationPage {
+        val seekBar = UiWaitUtils.waitElement(audioSeekBar)
+        val center = seekBar.visibleCenter
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .swipe(center.x, center.y, center.x, center.y, 120)
+
+        return this
+    }
+
+    fun assertBottomSheetIsVisible(): ConversationPage {
+        val bottomSheet = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .findObject(UiSelector().className("android.view.View").instance(4))
+        assertTrue("Bottom sheet is not visible", !bottomSheet.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertBottomSheetButtonsVisible_ReactionsDetailsReplyDownloadShareOpenDelete(): ConversationPage {
+        val buttons = listOf(
+            reactionsTitle to "Reactions",
+            messageDetailsButton to "Message Details",
+            replyButton to "Reply",
+            downloadButton to "Download",
+            shareButton to "Share",
+            openButton to "Open",
+            deleteButton to "Delete"
+        )
+
+        buttons.forEach { (selector, label) ->
+            val element = UiWaitUtils.waitElement(selector)
+            assertTrue("Button '$label' is not visible", !element.visibleBounds.isEmpty)
+        }
+
+        return this
+    }
+
+    fun tapDownloadButton(): ConversationPage {
+        UiWaitUtils.waitElement(downloadButton).click()
+        return this
+    }
+
+    fun assertFileActionModalIsVisible(): ConversationPage {
+        val modalText = UiWaitUtils.waitElement(modalTextLocator)
+        assertTrue("The file action modal is not visible.", !modalText.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapSaveButtonOnModal(): ConversationPage {
+        UiWaitUtils.waitElement(saveButtonLocator).click()
+        return this
+    }
+
+
 }

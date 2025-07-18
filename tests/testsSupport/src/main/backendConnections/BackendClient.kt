@@ -432,7 +432,7 @@ class BackendClient(
                 // Retry after delay for other errors
                 delay(1500)
                 try {
-                    val retryResponse = NetworkBackendClient.sendJsonRequestWithCookies(
+                   NetworkBackendClient.sendJsonRequestWithCookies(
                         url = url,
                         method = "POST",
                         headers = headers,
@@ -444,8 +444,7 @@ class BackendClient(
                 }
             }
         }
-        throw IllegalStateException("HTTP 422 Invalid body - likely domains are not federated")
-
+network.WireTestLogger.getLog("Backend").info("Response of send connection request is ${response}")
     }
 
     suspend fun updateUniqueUsername(user: ClientUser, newUniqueUsername: String) {

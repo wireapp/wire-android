@@ -18,12 +18,42 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import org.junit.Assert
+import uiautomatorutils.UiSelectorParams
+import uiautomatorutils.UiWaitUtils
 
 
 data class UnconnectedUserProfilePage(private val device: UiDevice) {
 
+    private val acceptButton = UiSelectorParams(text = "Accept")
+
+    private val ignoreButton = UiSelectorParams(text = "Ignore")
+
+    private val connectionNotificationText = UiSelectorParams(
+        textContains = "This user wants to connect with you."
+    )
 
 
+    fun assertAcceptButtonIsDisplayed(): UnconnectedUserProfilePage {
+        val acceptButtonElement = UiWaitUtils.waitElement(acceptButton)
+        Assert.assertTrue("Accept button is not visible", !acceptButtonElement.visibleBounds.isEmpty)
+        return this
     }
 
+    fun assertIgnoreButtonIsDisplayed(): UnconnectedUserProfilePage {
+        val ignoreButtonElement = UiWaitUtils.waitElement(ignoreButton)
+        Assert.assertTrue("Ignore button is not visible", !ignoreButtonElement.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun clickAcceptButton(): UnconnectedUserProfilePage {
+        UiWaitUtils.waitElement(acceptButton).click()
+        return this
+    }
+
+    fun assertConnectionRequestNotificationTextIsDisplayed(): UnconnectedUserProfilePage {
+        val connectionRequestNotificationText = UiWaitUtils.waitElement(connectionNotificationText)
+        Assert.assertTrue("This user wants to connect with you text is not visible.", !connectionRequestNotificationText.visibleBounds.isEmpty)
+        return this
+    }
 }

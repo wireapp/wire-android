@@ -10,7 +10,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -20,18 +20,6 @@ jobs:
     with:
       build-config: |
         [
-          {
-            "flavor": "Dev",
-            "variant": "Debug",
-            "keystore-type": "debug",
-            "build-type": "apk",
-            "generate-version-file": false,
-            "deployment-targets": [
-              {
-                "type": "s3"
-              }
-            ]
-          },
           {
             "flavor": "Internal",
             "variant": "Compat",

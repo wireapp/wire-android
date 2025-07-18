@@ -54,6 +54,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetails
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
@@ -353,7 +354,10 @@ class ConversationListViewModelTest {
         private lateinit var getSelfUser: GetSelfUserUseCase
 
         @MockK
-        private lateinit var workManager: WorkManager
+        lateinit var markConversationAsDeletedLocallyUseCase: MarkConversationAsDeletedLocallyUseCase
+
+        @MockK
+        lateinit var workManager: WorkManager
 
         @MockK
         lateinit var audioMessagePlayer: ConversationAudioMessagePlayer
@@ -414,6 +418,10 @@ class ConversationListViewModelTest {
             coEvery { observeLegalHoldStateForSelfUserUseCase() } returns legalHoldStateForSelfUserFlow
         }
 
+        fun withMarkConversationAsDeletedLocallyUseCase(result: MarkConversationAsDeletedLocallyUseCase.Result) = apply {
+            coEvery { markConversationAsDeletedLocallyUseCase(any()) } returns result
+        }
+
         fun arrange() = this to ConversationListViewModelImpl(
             conversationsSource = conversationsSource,
             dispatcher = dispatcherProvider,
@@ -427,13 +435,14 @@ class ConversationListViewModelTest {
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
             updateConversationArchivedStatus = updateConversationArchivedStatus,
-            currentAccount = TestUser.SELF_USER_ID,
+            currentAccount = selfUserId,
             observeConversationListDetailsWithEvents = observeConversationListDetailsWithEventsUseCase,
             observeLegalHoldStateForSelfUser = observeLegalHoldStateForSelfUserUseCase,
             userTypeMapper = UserTypeMapper(),
             getSelfUser = getSelfUser,
             usePagination = true,
             audioMessagePlayer = audioMessagePlayer,
+            markConversationAsDeletedLocallyUseCase = markConversationAsDeletedLocallyUseCase,
             workManager = workManager
         )
     }
@@ -441,5 +450,6 @@ class ConversationListViewModelTest {
     companion object {
         private val conversationId = ConversationId("some_id", "some_domain")
         private val userId: UserId = UserId("someUser", "some_domain")
+        private val selfUserId: UserId = TestUser.SELF_USER_ID
     }
 }

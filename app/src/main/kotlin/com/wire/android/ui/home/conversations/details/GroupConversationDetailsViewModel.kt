@@ -27,6 +27,7 @@ import androidx.work.WorkManager
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsManagerImpl
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
@@ -57,6 +58,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.SupportedProtocol
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
@@ -68,6 +70,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -115,6 +118,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val workManager: WorkManager,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val enableCell: SetWireCellForConversationUseCase,
+    private val markConversationAsDeletedLocallyUseCase: MarkConversationAsDeletedLocallyUseCase,
+    @CurrentAccount val currentAccount: UserId,
     private val globalDataStore: GlobalDataStore,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
     GroupConversationDetailsBottomSheetEventsHandler,
@@ -296,21 +301,32 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     private fun deleteGroupLocally(groupDialogState: GroupDialogState) {
         viewModelScope.launch {
-            workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
-                .collect { status ->
-                    when (status) {
-                        ConversationDeletionLocallyStatus.SUCCEEDED ->
-                            sendAction(GroupConversationDetailsViewAction.Left(groupDialogState))
+            when (markConversationAsDeletedLocallyUseCase(conversationId)) {
+                is MarkConversationAsDeletedLocallyUseCase.Result.Failure -> {
+                    onMessage(UIText.StringResource(R.string.delete_conversation_conversation_error))
+                }
 
-                        ConversationDeletionLocallyStatus.FAILED ->
-                            onMessage(UIText.StringResource(R.string.delete_conversation_conversation_error))
+                MarkConversationAsDeletedLocallyUseCase.Result.Success -> {
+                    appLogger.d("Conversation $conversationId marked as deleted locally, starting worker to complete deletion")
+                    workManager.enqueueConversationDeletionLocally(conversationId, currentAccount).collect { status ->
+                        when (status) {
+                            ConversationDeletionLocallyStatus.SUCCEEDED -> {
+                                sendAction(GroupConversationDetailsViewAction.Left(groupDialogState))
+                            }
 
-                        ConversationDeletionLocallyStatus.RUNNING,
-                        ConversationDeletionLocallyStatus.IDLE -> {
-                            // nop
+                            ConversationDeletionLocallyStatus.FAILED -> {
+                                onMessage(UIText.StringResource(R.string.delete_conversation_conversation_error))
+                            }
+
+                            ConversationDeletionLocallyStatus.RUNNING,
+                            ConversationDeletionLocallyStatus.IDLE -> {
+                                // nop
+                            }
                         }
                     }
+                    appLogger.d("Worker for conversation $conversationId completed")
                 }
+            }
         }
     }
 

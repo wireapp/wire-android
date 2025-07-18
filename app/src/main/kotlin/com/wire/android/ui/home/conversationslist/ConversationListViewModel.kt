@@ -71,6 +71,7 @@ import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMet
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
@@ -92,6 +93,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -120,7 +122,6 @@ interface ConversationListViewModel {
     fun leaveGroup(leaveGroupState: LeaveGroupDialogState) {}
     fun clearConversationContent(dialogState: DialogState) {}
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
-    fun moveConversationToFolder() {}
     fun searchQueryChanged(searchQuery: String) {}
     fun playPauseCurrentAudio() {}
     fun stopCurrentAudio() {}
@@ -156,6 +157,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
     private val getSelfUser: GetSelfUserUseCase,
+    private val markConversationAsDeletedLocallyUseCase: MarkConversationAsDeletedLocallyUseCase,
     private val workManager: WorkManager
 ) : ConversationListViewModel, ViewModel() {
 
@@ -407,36 +409,35 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     }
 
     override fun deleteGroupLocally(groupDialogState: GroupDialogState) {
-        viewModelScope.launch {
-            workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
-                .collect { status ->
-                    when (status) {
-                        ConversationDeletionLocallyStatus.SUCCEEDED -> {
-                            _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupLocallySuccess(groupDialogState.conversationName))
-                        }
+        with(groupDialogState) {
+            viewModelScope.launch {
+                when (markConversationAsDeletedLocallyUseCase(conversationId)) {
+                    is MarkConversationAsDeletedLocallyUseCase.Result.Failure -> {
+                        _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
+                    }
 
-                        ConversationDeletionLocallyStatus.FAILED -> {
-                            _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
-                        }
-
-                        ConversationDeletionLocallyStatus.RUNNING,
-                        ConversationDeletionLocallyStatus.IDLE -> {
-                            // nop
-                        }
+                    MarkConversationAsDeletedLocallyUseCase.Result.Success -> {
+                        appLogger.d("Conversation $conversationId marked as deleted locally, starting worker to complete deletion")
+                        workManager.enqueueConversationDeletionLocally(conversationId, currentAccount)
+                            .first { it == ConversationDeletionLocallyStatus.SUCCEEDED || it == ConversationDeletionLocallyStatus.FAILED }
+                            .let { status ->
+                                if (status == ConversationDeletionLocallyStatus.SUCCEEDED) {
+                                    _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupLocallySuccess(conversationName))
+                                } else {
+                                    _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
+                                }
+                            }
+                        appLogger.d("Worker for conversation $conversationId completed")
                     }
                 }
+            }
         }
     }
 
     override fun observeIsDeletingConversationLocally(conversationId: ConversationId): Flow<Boolean> {
-        return workManager.observeConversationDeletionStatusLocally(conversationId)
+        return workManager.observeConversationDeletionStatusLocally(conversationId, currentAccount)
             .map { status -> status == ConversationDeletionLocallyStatus.RUNNING }
             .distinctUntilChanged()
-    }
-
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    override fun moveConversationToFolder() {
     }
 
     override fun moveConversationToArchive(dialogState: DialogState, timestamp: Long) {

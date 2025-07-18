@@ -24,20 +24,26 @@ import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 
 @Composable
-fun ArchiveConversationDialog(onArchiveButtonClicked: (DialogState) -> Unit, dialogState: VisibilityState<DialogState>) {
-    VisibilityState(dialogState) {
+fun ArchiveConversationDialog(
+    dialogState: VisibilityState<DialogState>,
+    onArchiveButtonClicked: (DialogState) -> Unit
+) {
+    VisibilityState(dialogState) { state ->
         WireDialog(
             title = stringResource(R.string.dialog_archive_conversation_title),
             text = stringResource(R.string.dialog_archive_conversation_description),
             onDismiss = dialogState::dismiss,
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onArchiveButtonClicked(it) },
+                onClick = { onArchiveButtonClicked(state) },
                 text = stringResource(R.string.dialog_archive_conversation_option),
                 type = WireDialogButtonType.Primary,
+                state = if (state.loading) WireButtonState.Disabled else WireButtonState.Default,
+                loading = state.loading
             ),
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = dialogState::dismiss,

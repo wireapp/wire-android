@@ -20,45 +20,20 @@ package com.wire.android.ui.common.bottomsheet.conversation
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.GroupDetailsViewModelTest.Companion.testGroup
 import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.TeamId
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-class ConversationSheetContentTest {
-
-    @Test
-    fun givenTitleIsEmptyAndTheGroupSizeIsOne_whenCallingIsTheGroupAbandoned_returnsTrue() = runTest {
-        val givenConversationSheetContent = createGroupSheetContent("")
-        val givenParticipantsCount = 1
-
-        assertEquals(true, givenConversationSheetContent.isAbandonedOneOnOneConversation(givenParticipantsCount))
-    }
-
-    @Test
-    fun givenTitleIsEmptyAndTheGroupSizeIsGtOne_whenCallingIsTheGroupAbandoned_returnsFalse() = runTest {
-        val givenConversationSheetContent = createGroupSheetContent("")
-        val givenParticipantsCount = 3
-
-        assertEquals(false, givenConversationSheetContent.isAbandonedOneOnOneConversation(givenParticipantsCount))
-    }
-
-    @Test
-    fun givenTitleIsNotEmptyAndTheGroupSizeIsOne_whenCallingIsTheGroupAbandoned_returnsFalse() = runTest {
-        val givenConversationSheetContent = createGroupSheetContent("notEmpty")
-        val givenParticipantsCount = 3
-
-        assertEquals(false, givenConversationSheetContent.isAbandonedOneOnOneConversation(givenParticipantsCount))
-    }
+class ConversationOptionsDataTest {
 
     @Test
     fun givenPrivateConversationWithoutBlockedAndNotDeletedUser_whenCanDeleteUserIsInvoked_thenReturnsTrue() = runTest {
         // given
-        val conversationSheetContent =
-            createPrivateSheetContent(blockingState = BlockingState.NOT_BLOCKED, isUserDeleted = false)
+        val conversationSheetContent = createDataPrivate(blockingState = BlockingState.NOT_BLOCKED, isUserDeleted = false)
 
         // when
         val canBlockUser = conversationSheetContent.canBlockUser()
@@ -70,7 +45,7 @@ class ConversationSheetContentTest {
     @Test
     fun givenGroupConversation_whenCanDeleteUserIsInvoked_thenReturnsFalse() = runTest {
         // given
-        val conversationSheetContent = createGroupSheetContent("")
+        val conversationSheetContent = createDataGroup("")
 
         // when
         val canBlockUser = conversationSheetContent.canBlockUser()
@@ -82,8 +57,7 @@ class ConversationSheetContentTest {
     @Test
     fun givenPrivateConversationWithBlockedAndNotDeletedUser_whenCanDeleteUserIsInvoked_thenReturnsFalse() = runTest {
         // given
-        val conversationSheetContent =
-            createPrivateSheetContent(blockingState = BlockingState.BLOCKED, isUserDeleted = false)
+        val conversationSheetContent = createDataPrivate(blockingState = BlockingState.BLOCKED, isUserDeleted = false)
 
         // when
         val canBlockUser = conversationSheetContent.canBlockUser()
@@ -95,8 +69,7 @@ class ConversationSheetContentTest {
     @Test
     fun givenPrivateConversationWithoutBlockedAndDeletedUser_whenCanDeleteUserIsInvoked_thenReturnsFalse() = runTest {
         // given
-        val conversationSheetContent =
-            createPrivateSheetContent(blockingState = BlockingState.NOT_BLOCKED, isUserDeleted = true)
+        val conversationSheetContent = createDataPrivate(blockingState = BlockingState.NOT_BLOCKED, isUserDeleted = true)
 
         // when
         val canBlockUser = conversationSheetContent.canBlockUser()
@@ -108,8 +81,7 @@ class ConversationSheetContentTest {
     @Test
     fun givenPrivateConversationWithoutBlockedAndNotDeletedUser_whenCanEditNotificationsIsInvoked_thenReturnsTrue() = runTest {
         // given
-        val conversationSheetContent =
-            createPrivateSheetContent(blockingState = BlockingState.NOT_BLOCKED, isUserDeleted = false)
+        val conversationSheetContent = createDataPrivate(blockingState = BlockingState.NOT_BLOCKED, isUserDeleted = false)
 
         // when
         val canEditNotifications = conversationSheetContent.canEditNotifications()
@@ -121,7 +93,7 @@ class ConversationSheetContentTest {
     @Test
     fun givenGroupConversation_whenCanEditNotificationsIsInvoked_thenReturnsTrue() = runTest {
         // given
-        val conversationSheetContent = createGroupSheetContent("")
+        val conversationSheetContent = createDataGroup("")
 
         // when
         val canEditNotifications = conversationSheetContent.canEditNotifications()
@@ -133,8 +105,7 @@ class ConversationSheetContentTest {
     @Test
     fun givenPrivateConversationWithBlockedAndNotDeletedUser_whenCanEditNotificationsIsInvoked_thenReturnsFalse() = runTest {
         // given
-        val conversationSheetContent =
-            createPrivateSheetContent(blockingState = BlockingState.BLOCKED, isUserDeleted = false)
+        val conversationSheetContent = createDataPrivate(blockingState = BlockingState.BLOCKED, isUserDeleted = false)
 
         // when
         val canEditNotifications = conversationSheetContent.canEditNotifications()
@@ -146,8 +117,7 @@ class ConversationSheetContentTest {
     @Test
     fun givenPrivateConversationWithoutBlockedAndDeletedUser_whenCanEditNotificationsIsInvoked_thenReturnsFalse() = runTest {
         // given
-        val conversationSheetContent =
-            createPrivateSheetContent(blockingState = BlockingState.BLOCKED, isUserDeleted = false)
+        val conversationSheetContent = createDataPrivate(blockingState = BlockingState.BLOCKED, isUserDeleted = false)
 
         // when
         val canEditNotifications = conversationSheetContent.canEditNotifications()
@@ -159,7 +129,7 @@ class ConversationSheetContentTest {
     @Test
     fun givenGroupConversation_whenMemberOfTheConversation_thenDeleteConversationLocallyIsNotVisible() = runTest {
         // given
-        val conversationSheetContent = createGroupSheetContent("Title")
+        val conversationSheetContent = createDataGroup("Title")
 
         // when
         val canDeleteGroupLocally = conversationSheetContent.canDeleteGroupLocally()
@@ -171,7 +141,7 @@ class ConversationSheetContentTest {
     @Test
     fun givenGroupConversation_whenNotMemberOfTheConversation_thenDeleteConversationLocallyIsVisible() = runTest {
         // given
-        val conversationSheetContent = createGroupSheetContent(title = "Title", selfRole = null)
+        val conversationSheetContent = createDataGroup(title = "Title", selfRole = null)
 
         // when
         val canDeleteGroupLocally = conversationSheetContent.canDeleteGroupLocally()
@@ -183,8 +153,7 @@ class ConversationSheetContentTest {
     @Test
     fun givenGroupConversation_whenNotMemberOfTheConversationAndDeletionRunning_thenDeleteConversationLocallyIsNotVisible() = runTest {
         // given
-        val conversationSheetContent =
-            createGroupSheetContent(title = "Title", selfRole = null, conversationDeletionLocallyRunning = true)
+        val conversationSheetContent = createDataGroup(title = "Title", selfRole = null, conversationDeletionLocallyRunning = true)
 
         // when
         val canDeleteGroupLocally = conversationSheetContent.canDeleteGroupLocally()
@@ -193,13 +162,13 @@ class ConversationSheetContentTest {
         assertFalse(canDeleteGroupLocally)
     }
 
-    private fun createPrivateSheetContent(
-        blockingState: BlockingState,
-        isUserDeleted: Boolean
-    ): ConversationSheetContent {
+    private fun createDataPrivate(
+        blockingState: BlockingState = BlockingState.NOT_BLOCKED,
+        isUserDeleted: Boolean = false,
+    ): ConversationOptionsData {
         val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
-        return ConversationSheetContent(
-            title = "notEmpty",
+        return ConversationOptionsData(
+            title = UIText.DynamicString("notEmpty"),
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
             conversationTypeDetail = ConversationTypeDetail.Private(
@@ -221,15 +190,14 @@ class ConversationSheetContentTest {
         )
     }
 
-    private fun createGroupSheetContent(
-        title: String,
+    private fun createDataGroup(
+        title: String = "Conversation Name",
         selfRole: Conversation.Member.Role? = Conversation.Member.Role.Member,
         conversationDeletionLocallyRunning: Boolean = false,
-    ): ConversationSheetContent {
+    ): ConversationOptionsData {
         val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
-
-        return ConversationSheetContent(
-            title = title,
+        return ConversationOptionsData(
+            title = UIText.DynamicString(title),
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
             conversationTypeDetail = ConversationTypeDetail.Group.Regular(details.conversation.id, false),

@@ -20,11 +20,10 @@ package com.wire.android.ui.userprofile.other
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.authentication.devices.model.Device
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.allowsRoleEdition
 import com.wire.kalium.logic.data.conversation.Conversation.Member
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -47,7 +46,6 @@ data class OtherUserProfileState(
     val membership: Membership = Membership.None,
     val groupState: OtherUserProfileGroupState? = null,
     val botService: BotService? = null,
-    val conversationSheetContent: ConversationSheetContent? = null,
     val otherUserDevices: List<Device>? = null,
     val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED,
     val isProteusVerified: Boolean = false,
@@ -60,13 +58,6 @@ data class OtherUserProfileState(
     val isDeletedUser: Boolean = false,
     val isE2EIEnabled: Boolean = true,
 ) {
-    fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
-        return conversationSheetContent?.let {
-            val newConversationSheetContent = conversationSheetContent.copy(mutingConversationState = status)
-            copy(conversationSheetContent = newConversationSheetContent)
-        } ?: this
-    }
-
     companion object {
         val PREVIEW = OtherUserProfileState(
             userId = UserId("some_user", "domain.com"),
@@ -74,9 +65,7 @@ data class OtherUserProfileState(
             userName = "username",
             teamName = "team",
             email = "email",
-            groupState = OtherUserProfileGroupState(
-                "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
-            )
+            groupState = OtherUserProfileGroupState.PREVIEW
         )
     }
 
@@ -92,6 +81,8 @@ data class OtherUserProfileState(
         ConnectionState.BLOCKED,
         ConnectionState.MISSING_LEGALHOLD_CONSENT
     ))
+
+    fun isRoleEditable() = membership.allowsRoleEdition() && !isMetadataEmpty() && !isTemporaryUser()
 }
 
 @Serializable
@@ -99,8 +90,12 @@ data class OtherUserProfileGroupState(
     val groupName: String,
     val role: Member.Role,
     val isSelfAdmin: Boolean,
-    val conversationId: ConversationId
-)
+    val conversationId: ConversationId,
+) {
+    companion object {
+        val PREVIEW = OtherUserProfileGroupState("group name", Member.Role.Member, true, ConversationId("some_user", "domain.com"))
+    }
+}
 
 enum class ErrorLoadingUser {
     UNKNOWN, // We might want to expand other errors here as dialogs, ie: federation fallback.

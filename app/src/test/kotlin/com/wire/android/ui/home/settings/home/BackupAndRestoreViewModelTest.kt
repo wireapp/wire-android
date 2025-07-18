@@ -69,9 +69,9 @@ import kotlinx.datetime.Instant
 import okio.IOException
 import okio.Path.Companion.toPath
 import okio.buffer
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.internal.assertFalse
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach

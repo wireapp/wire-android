@@ -24,18 +24,8 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.reflect.KClass
 
-/**
- * Asserts that the receiver object is an instance of the specified class [T]
- * using JUnit Jupiter's `assertInstanceOf` and returns it cast to [T].
- *
- * This provides the conciseness of a Kluent-style `shouldBeInstanceOf<T>()`
- * while using JUnit Jupiter's assertion mechanism.
- *
- * @param T The expected type.
- * @return The receiver object cast to type [T] if the assertion passes.
- * @throws AssertionError if the object is `null` or not an instance of [T]
- *         (as thrown by JUnit's `assertInstanceOf`).
- */
+// Migrated and similar DSL from kluent to use with JUnit assertions.
+
 inline fun <reified T> Any?.assertInstanceOf(): T {
     return assertInstanceOf(T::class.java, this)
 }

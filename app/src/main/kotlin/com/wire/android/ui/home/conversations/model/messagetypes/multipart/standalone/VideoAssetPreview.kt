@@ -97,7 +97,10 @@ internal fun VideoAssetPreview(
     ) {
 
         FileHeaderView(
-            modifier = Modifier.padding(dimensions().spacing8x),
+            modifier = Modifier.padding(
+                top = dimensions().spacing8x,
+                bottom = dimensions().spacing8x,
+            ),
             extension = item.mimeType.substringAfter("/"),
             size = item.assetSize,
         )

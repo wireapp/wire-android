@@ -283,17 +283,17 @@ class CellViewModel @Inject constructor(
                         add(NodeBottomSheetAction.RESTORE)
                         add(NodeBottomSheetAction.DELETE_PERMANENTLY)
                     } else {
-                        if (!cellNode.localFileAvailable()) {
-                            add(NodeBottomSheetAction.PUBLIC_LINK)
-                            add(NodeBottomSheetAction.SAVE)
-                        } else {
+                        if (cellNode.localFileAvailable()) {
                             add(NodeBottomSheetAction.SHARE)
-                            add(NodeBottomSheetAction.PUBLIC_LINK)
                         }
-                        add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                        add(NodeBottomSheetAction.MOVE)
-                        add(NodeBottomSheetAction.RENAME)
-                        add(NodeBottomSheetAction.DELETE)
+                        add(NodeBottomSheetAction.PUBLIC_LINK)
+                        add(NodeBottomSheetAction.SAVE)
+                        if (searchQueryFlow.value.isEmpty()) {
+                            add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
+                            add(NodeBottomSheetAction.MOVE)
+                            add(NodeBottomSheetAction.RENAME)
+                            add(NodeBottomSheetAction.DELETE)
+                        }
                     }
                 }
                 MenuOptions(
@@ -310,10 +310,12 @@ class CellViewModel @Inject constructor(
                     } else {
                         add(NodeBottomSheetAction.SHARE)
                         add(NodeBottomSheetAction.DOWNLOAD)
-                        add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                        add(NodeBottomSheetAction.MOVE)
-                        add(NodeBottomSheetAction.RENAME)
-                        add(NodeBottomSheetAction.DELETE)
+                        if (searchQueryFlow.value.isEmpty()) {
+                            add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
+                            add(NodeBottomSheetAction.MOVE)
+                            add(NodeBottomSheetAction.RENAME)
+                            add(NodeBottomSheetAction.DELETE)
+                        }
                     }
                 }
                 MenuOptions(

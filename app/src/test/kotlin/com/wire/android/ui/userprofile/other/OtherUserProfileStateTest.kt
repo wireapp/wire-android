@@ -23,7 +23,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.Test
 
 class OtherUserProfileStateTest {

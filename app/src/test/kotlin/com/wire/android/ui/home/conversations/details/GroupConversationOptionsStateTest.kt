@@ -20,7 +20,7 @@ package com.wire.android.ui.home.conversations.details
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class GroupConversationOptionsStateTest {

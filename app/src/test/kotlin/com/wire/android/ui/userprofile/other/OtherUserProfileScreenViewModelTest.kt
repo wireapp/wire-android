@@ -19,12 +19,10 @@
 package com.wire.android.ui.userprofile.other
 
 import app.cash.turbine.test
+import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
-import com.wire.android.util.ui.UIText
-import com.wire.kalium.common.error.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -38,7 +36,6 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -46,7 +43,7 @@ import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -101,7 +98,7 @@ class OtherUserProfileScreenViewModelTest {
                 .withUpdateConversationMemberRole(UpdateConversationMemberRoleResult.Success)
                 .arrange()
             val newRole = Member.Role.Admin
-            viewModel.infoMessage.test {
+            viewModel.actions.test {
 
                 // when
                 expectNoEvents()
@@ -123,7 +120,7 @@ class OtherUserProfileScreenViewModelTest {
                 .withUpdateConversationMemberRole(UpdateConversationMemberRoleResult.Failure)
                 .arrange()
             val newRole = Member.Role.Admin
-            viewModel.infoMessage.test {
+            viewModel.actions.test {
 
                 // when
                 expectNoEvents()
@@ -133,76 +130,11 @@ class OtherUserProfileScreenViewModelTest {
                 coVerify {
                     arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
                 }
-                assertEquals(OtherUserProfileInfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
+                assertIs<OtherUserProfileViewAction.Message>(awaitItem()).also {
+                    assertIs<OtherUserProfileInfoMessageType.ChangeGroupRoleError>(it.message)
+                }
             }
         }
-
-    @Test
-    fun `given a userId, when blocking user fails, then show error message and dismiss BlockDialog`() =
-        runTest {
-            // given
-            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-                .withBlockUserResult(BlockUserResult.Failure(Unknown(RuntimeException("some error"))))
-                .arrange()
-            viewModel.infoMessage.test {
-
-                // when
-                expectNoEvents()
-                viewModel.onBlockUser(
-                    BlockUserDialogState(
-                        userName = "some name",
-                        userId = USER_ID
-                    )
-                )
-                // then
-                coVerify { arrangement.blockUser(eq(USER_ID)) }
-                assertEquals(OtherUserProfileInfoMessageType.BlockingUserOperationError.uiText, awaitItem())
-                assertEquals(false, viewModel.requestInProgress)
-            }
-        }
-
-    @Test
-    fun `given a userId, when blocking user is succeed, then show Success message and dismiss BlockDialog`() =
-        runTest {
-            // given
-            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-                .withBlockUserResult(BlockUserResult.Success)
-                .arrange()
-            viewModel.infoMessage.test {
-                val userName = "some name"
-
-                // when
-                expectNoEvents()
-                viewModel.onBlockUser(
-                    BlockUserDialogState(
-                        userName = userName,
-                        userId = USER_ID
-                    )
-                )
-
-                // then
-                coVerify { arrangement.blockUser(eq(USER_ID)) }
-                assertEquals(
-                    (awaitItem() as UIText.StringResource).resId,
-                    (OtherUserProfileInfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
-                )
-                assertEquals(false, viewModel.requestInProgress)
-            }
-        }
-
-    @Test
-    fun `given not connected user, then direct conversation is not found`() = runTest {
-        // given
-        val (_, viewModel) = OtherUserProfileViewModelArrangement()
-            .withUserInfo(
-                GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.NOT_CONNECTED), TEAM)
-            )
-            .withGetOneToOneConversation(GetOneToOneConversationDetailsUseCase.Result.Failure)
-            .arrange()
-
-        // then
-        assertEquals(null, viewModel.state.conversationSheetContent)
-    }
 
     @Test
     fun `given legal hold enabled, then isUnderLegalHold is true`() = runTest {

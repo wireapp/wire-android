@@ -31,7 +31,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockkStatic
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.text.SimpleDateFormat
@@ -66,7 +66,7 @@ class WhatsNewViewModelTest {
 
         advanceUntilIdle()
 
-        assertEquals(emptyList(), viewModel.state.releaseNotesItems)
+        assertEquals(emptyList<ReleaseNotesItem>(), viewModel.state.releaseNotesItems)
         assertEquals(false, viewModel.state.isLoading)
         coVerify(exactly = 0) {
             arrangement.rssParser.getRssChannel(url)

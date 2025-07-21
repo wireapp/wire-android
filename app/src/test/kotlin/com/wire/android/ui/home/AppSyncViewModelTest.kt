@@ -19,13 +19,7 @@ package com.wire.android.ui.home
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.kalium.logic.feature.client.MLSClientManager
-import com.wire.kalium.logic.feature.conversation.keyingmaterials.KeyingMaterialsManager
-import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
-import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
-import com.wire.kalium.logic.feature.mlsmigration.MLSMigrationManager
-import com.wire.kalium.logic.feature.server.UpdateApiVersionsUseCase
+import com.wire.kalium.logic.sync.ForegroundActionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -43,37 +37,19 @@ class AppSyncViewModelTest {
     @Test
     fun `when startSyncingAppConfig is called then it should call the use case`() = runTest(testDispatcher.io()) {
         val (arrangement, viewModel) = Arrangement().arrange(testDispatcher) {
-            withObserveCertificateRevocationForSelfClient()
-            withFeatureFlagsSyncWorker()
-            withSyncCertificateRevocationListUseCase()
-            withUpdateApiVersions()
-            withMlsClientManager()
-            withMlsMigrationManager()
-            withKeyingMaterialsManager()
+            withForegroundActionsUseCase()
         }
 
         viewModel.startSyncingAppConfig()
         advanceUntilIdle()
 
-        coVerify { arrangement.observeCertificateRevocationForSelfClient.invoke() }
-        coVerify { arrangement.syncCertificateRevocationListUseCase.invoke() }
-        coVerify { arrangement.featureFlagsSyncWorker.execute() }
-        coVerify { arrangement.updateApiVersions() }
-        coVerify { arrangement.mlsClientManager() }
-        coVerify { arrangement.mlsMigrationManager() }
-        coVerify { arrangement.keyingMaterialsManager() }
+        coVerify { arrangement.foregroundActionsUseCase.invoke() }
     }
 
     @Test
     fun `when startSyncingAppConfig is called multiple times then it should call the use case with delay`() = runTest(testDispatcher.io()) {
         val (arrangement, viewModel) = Arrangement().arrange(testDispatcher) {
-            withObserveCertificateRevocationForSelfClient(1000)
-            withFeatureFlagsSyncWorker(1000)
-            withSyncCertificateRevocationListUseCase(1000)
-            withUpdateApiVersions(1000)
-            withMlsClientManager(1000)
-            withMlsMigrationManager(1000)
-            withKeyingMaterialsManager(1000)
+            withForegroundActionsUseCase(1000)
         }
 
         viewModel.startSyncingAppConfig()
@@ -81,93 +57,27 @@ class AppSyncViewModelTest {
         viewModel.startSyncingAppConfig()
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { arrangement.observeCertificateRevocationForSelfClient.invoke() }
-        coVerify(exactly = 1) { arrangement.syncCertificateRevocationListUseCase.invoke() }
-        coVerify(exactly = 1) { arrangement.featureFlagsSyncWorker.execute() }
-        coVerify(exactly = 1) { arrangement.updateApiVersions() }
-        coVerify(exactly = 1) { arrangement.mlsClientManager() }
-        coVerify(exactly = 1) { arrangement.mlsMigrationManager() }
-        coVerify(exactly = 1) { arrangement.keyingMaterialsManager() }
+        coVerify(exactly = 1) { arrangement.foregroundActionsUseCase.invoke() }
     }
 
     private class Arrangement {
 
         @MockK
-        lateinit var syncCertificateRevocationListUseCase: SyncCertificateRevocationListUseCase
-
-        @MockK
-        lateinit var observeCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase
-
-        @MockK
-        lateinit var featureFlagsSyncWorker: FeatureFlagsSyncWorker
-
-        @MockK
-        lateinit var updateApiVersions: UpdateApiVersionsUseCase
-
-        @MockK
-        lateinit var mlsClientManager: MLSClientManager
-
-        @MockK
-        lateinit var mlsMigrationManager: MLSMigrationManager
-
-        @MockK
-        lateinit var keyingMaterialsManager: KeyingMaterialsManager
+        lateinit var foregroundActionsUseCase: ForegroundActionsUseCase
 
         init {
             MockKAnnotations.init(this)
         }
 
-        fun withObserveCertificateRevocationForSelfClient(delayMs: Long = 0) {
-            coEvery { observeCertificateRevocationForSelfClient.invoke() } coAnswers {
-                delay(delayMs)
-            }
-        }
-
-        fun withSyncCertificateRevocationListUseCase(delayMs: Long = 0) {
-            coEvery { syncCertificateRevocationListUseCase.invoke() } coAnswers {
-                delay(delayMs)
-            }
-        }
-
-        fun withFeatureFlagsSyncWorker(delayMs: Long = 0) {
-            coEvery { featureFlagsSyncWorker.execute() } coAnswers {
-                delay(delayMs)
-            }
-        }
-
-        fun withUpdateApiVersions(delayMs: Long = 0) {
-            coEvery { updateApiVersions() } coAnswers {
-                delay(delayMs)
-            }
-        }
-
-        fun withMlsClientManager(delayMs: Long = 0) {
-            coEvery { mlsClientManager() } coAnswers {
-                delay(delayMs)
-            }
-        }
-
-        fun withMlsMigrationManager(delayMs: Long = 0) {
-            coEvery { mlsMigrationManager() } coAnswers {
-                delay(delayMs)
-            }
-        }
-
-        fun withKeyingMaterialsManager(delayMs: Long = 0) {
-            coEvery { keyingMaterialsManager() } coAnswers {
+        fun withForegroundActionsUseCase(delayMs: Long = 0) {
+            coEvery { foregroundActionsUseCase.invoke() } coAnswers {
                 delay(delayMs)
             }
         }
 
         fun arrange(testDispatcher: TestDispatcherProvider, block: Arrangement.() -> Unit) = apply(block).let {
             this to AppSyncViewModel(
-                syncCertificateRevocationListUseCase,
-                observeCertificateRevocationForSelfClient,
-                featureFlagsSyncWorker,
-                updateApiVersions,
-                mLSClientManager = mlsClientManager,
-                mLSMigrationManager = mlsMigrationManager,
-                keyingMaterialsManager = keyingMaterialsManager,
+                foregroundActionsUseCase = foregroundActionsUseCase,
                 dispatcher = testDispatcher
             )
         }

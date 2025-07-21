@@ -29,7 +29,7 @@ jobs:
     # Reduce a bit the memory allocation pool, as the 8GB set in gradle.properties is too much for CI
     # AboutLibraries seems to go crazy when running lint checks. So we explicitly don't run it.
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xmx4G"'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=512m -Xmx3G -XX:+UseParallelGC" -Dorg.gradle.parallel=true'
       DISABLE_ABOUT_LIBRARIES: TRUE
     steps:
       - name: Checkout
@@ -57,6 +57,8 @@ jobs:
 
   style:
     runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=512m -Xmx3G -XX:+UseParallelGC" -Dorg.gradle.parallel=true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -97,7 +99,7 @@ jobs:
     needs: [ lint, style, ui-tests, unit-tests ]
     runs-on: buildjet-4vcpu-ubuntu-2204
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx5g -XX:+UseParallelGC -XX:MaxMetaspaceSize=1024m -XX:-UseGCOverheadLimit"'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx8g -XX:+UseParallelGC -XX:MaxMetaspaceSize=1024m"'
     strategy:
       fail-fast: false  # Continue building other flavors even if one fails
       matrix:

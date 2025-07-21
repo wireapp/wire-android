@@ -40,6 +40,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             val isFDroidRelease = (project.properties["isFDroidRelease"] as? String)?.toBoolean() ?: false
 
+            buildToolsVersion = AndroidSdk.buildTools
+
             defaultConfig {
                 AndroidApp.setRootDir(project.projectDir)
 

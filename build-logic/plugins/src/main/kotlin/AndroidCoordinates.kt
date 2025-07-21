@@ -22,6 +22,7 @@ object AndroidSdk {
     const val min = 26
     const val compile = 34
     const val target = compile
+    const val buildTools = "34.0.0"
 }
 
 object AndroidApp {

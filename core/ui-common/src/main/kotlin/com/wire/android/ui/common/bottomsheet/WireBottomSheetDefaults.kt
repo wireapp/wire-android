@@ -41,9 +41,9 @@ object WireBottomSheetDefaults {
     val WireSheetTonalElevation: Dp @Composable get() = 0.dp
 
     @Composable
-    fun WireDragHandle(modifier: Modifier = Modifier) {
+    fun WireDragHandle() {
         Box(
-            modifier
+            Modifier
                 .padding(vertical = dimensions().spacing12x)
                 .size(width = dimensions().modalBottomSheetDividerWidth, height = dimensions().spacing4x)
                 .background(color = colorsScheme().secondaryText, shape = RoundedCornerShape(size = dimensions().spacing2x))

@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,7 +38,6 @@ object WaitUntilTransitionEndsWrapper : DestinationWrapper {
 
     @Composable
     override fun <T> DestinationScope<T>.Wrap(screenContent: @Composable () -> Unit) {
-        val movableContent = remember(screenContent) { movableContentOf(screenContent) }
         if (this is AnimatedDestinationScope<T>) {
             var transitionComplete by remember { mutableStateOf(false) }
             LaunchedEffect(transition.isRunning, transition.currentState, transition.targetState) {
@@ -47,7 +45,7 @@ object WaitUntilTransitionEndsWrapper : DestinationWrapper {
                     transitionComplete = !isRunning && currentState == targetState && currentState == EnterExitState.Visible
                 }
             }
-            movableContent()
+            screenContent()
             if (!transitionComplete) {
                 Box(
                     modifier = Modifier
@@ -58,7 +56,7 @@ object WaitUntilTransitionEndsWrapper : DestinationWrapper {
                 )
             }
         } else {
-            movableContent()
+            screenContent()
         }
     }
 }

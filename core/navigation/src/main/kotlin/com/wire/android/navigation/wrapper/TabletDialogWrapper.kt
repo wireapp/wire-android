@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.movableContentOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.ramcosta.composedestinations.scope.DestinationScope
@@ -34,17 +32,16 @@ object TabletDialogWrapper : DestinationWrapper {
 
     @Composable
     override fun <T> DestinationScope<T>.Wrap(screenContent: @Composable () -> Unit) {
-        val movableContent = remember(screenContent) { movableContentOf(screenContent) }
         if (this.destination.style is DestinationStyle.Dialog) {
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(dimensions().spacing20x))
                     .imePadding()
             ) {
-                movableContent()
+                screenContent()
             }
         } else {
-            movableContent()
+            screenContent()
         }
     }
 }

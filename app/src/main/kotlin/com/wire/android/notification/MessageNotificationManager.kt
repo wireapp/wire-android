@@ -18,7 +18,6 @@
 
 package com.wire.android.notification
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
@@ -138,8 +137,6 @@ class MessageNotificationManager
         }
     }
 
-    @SuppressLint("MissingPermission")
-    // TODO(permissions): Check for permission before calling notificationManagerCompat.notify
     private fun showConversationNotification(
         localConversation: LocalNotification.Conversation,
         userId: QualifiedID,
@@ -153,8 +150,6 @@ class MessageNotificationManager
         }
     }
 
-    // TODO(permissions): Check for permission before calling notificationManagerCompat.notify
-    @SuppressLint("MissingPermission")
     private fun updateConversationNotification(
         conversationId: ConversationId,
         updateMessages: List<LocalNotification.UpdateMessage>,
@@ -467,7 +462,6 @@ class MessageNotificationManager
          * @param replyText String text the user replied to the conversation.
          * If it's null then just update the notification to remove send reply loading.
          */
-        @SuppressLint("MissingPermission")
         fun updateNotificationAfterQuickReply(
             context: Context,
             conversationId: String,
@@ -504,7 +498,6 @@ class MessageNotificationManager
                 setStyle(messagesStyle)
             }.build()
 
-            // TODO(permissions): Check for permission before calling notificationManagerCompat.notify
             NotificationManagerCompat.from(context).notify(conversationNotificationId, notification)
         }
 

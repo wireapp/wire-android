@@ -55,7 +55,7 @@ fun WireTheme(
             typography = wireTypography.toTypography()
         ) {
             if (!isPreview) {
-                UpdateSystemBarIconsAppearance(wireColorScheme.useDarkSystemBarIcons)
+                updateSystemBarIconsAppearance(wireColorScheme.useDarkSystemBarIcons)
             }
             content()
         }

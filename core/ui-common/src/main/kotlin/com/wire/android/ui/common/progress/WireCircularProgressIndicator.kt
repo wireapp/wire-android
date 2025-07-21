@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun WireCircularProgressIndicator(
-    progressColor: Color,
     modifier: Modifier = Modifier,
+    progressColor: Color,
     strokeWidth: Dp = 2.dp,
     size: Dp = 16.dp
 ) {

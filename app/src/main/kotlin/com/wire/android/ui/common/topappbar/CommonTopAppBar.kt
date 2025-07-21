@@ -54,7 +54,7 @@ import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.UpdateSystemBarIconsAppearance
+import com.wire.android.ui.theme.updateSystemBarIconsAppearance
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -82,7 +82,7 @@ fun CommonTopAppBar(
         if (colorScheme.getStatusBarUseDarkIcons(colorType)) 1f else 0f
     }
 
-    UpdateSystemBarIconsAppearance(systemBarUseDarkIcons.value > 0.5f)
+    updateSystemBarIconsAppearance(systemBarUseDarkIcons.value > 0.5f)
 
     Column(
         modifier = modifier

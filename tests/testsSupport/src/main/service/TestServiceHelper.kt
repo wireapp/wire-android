@@ -100,13 +100,6 @@ class TestServiceHelper {
         return Duration.ofSeconds(Long.MAX_VALUE)
     }
 
-    fun deleteFile(context:Context, fileName:String){
-        val cacheDir = context.cacheDir
-        val outputFile = File(cacheDir, fileName)
-        outputFile.delete()
-    }
-
-
     fun contactSendsLocalAudioPersonalMLSConversation(
         context:Context,
         fileName: String,
@@ -156,7 +149,6 @@ class TestServiceHelper {
             getSelfDeletingMessageTimeout(senderAlias,dstConvoName), textFile.absolutePath.orEmpty(), "text/plain")
 
     }
-
 
     fun contactSendsLocalVideoPersonalMLSConversation(
         context:Context,

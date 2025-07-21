@@ -28,6 +28,7 @@ import com.wire.android.testSupport.backendConnections.team.TeamRoles
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
+import deleteDownloadedFilesByBaseName
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -40,6 +41,7 @@ import org.koin.test.inject
 import service.TestServiceHelper
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+
 
 @RunWith(AndroidJUnit4::class)
 class FileSharing : KoinTest {
@@ -74,8 +76,11 @@ class FileSharing : KoinTest {
         // To delete team member
         // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
         // To delete team
-       // teamOwner2?.deleteTeam(backendClient!!)
-       // teamOwner1?.deleteTeam(backendClient!!)
+        // teamOwner2?.deleteTeam(backendClient!!)
+        // teamOwner1?.deleteTeam(backendClient!!)
+        deleteDownloadedFilesByBaseName("FileName")
+
+
     }
 
     @Suppress("LongMethod")
@@ -148,7 +153,6 @@ class FileSharing : KoinTest {
             }
 
             clickDeclineShareDataAlert()
-
             pages.conversationPage.apply {
                 assertConnectionRequestNameIs(connectionSenderFromSendTeam.name ?: "")
                 clickConnectionRequestOfUser(connectionSenderFromSendTeam.name ?: "")
@@ -160,32 +164,101 @@ class FileSharing : KoinTest {
                 clickAcceptButton()
             }
             pages.connectedUserProfilePage.apply {
+                Thread.sleep(1000)
                 assertToastMessageIsDisplayed("Connection request accepted")
                 //Thread.sleep(5000)
                 clickStartConversationButton()
                 pages.conversationPage.apply {
-
                     assertConversationIsVisibleWithTeamMember(connectionSenderFromSendTeam.name ?: "")
-                    testServiceHelper.contactSendsLocalAudioPersonalMLSConversation(context,"FileName","user2Name","Device1","user4Name")
-                    testServiceHelper.deleteFile(context,"FileName")
 
-                    //send image
-                    testServiceHelper.contactSendsLocalImagePersonalMLSConversation(context,"FileName2","user2Name","Device1","user4Name")
-                    testServiceHelper.deleteFile(context,"FileName2")
-
-                    //send video
-                    testServiceHelper.contactSendsLocalVideoPersonalMLSConversation(context,"FileName4","user2Name","Device1","user4Name")
-                    testServiceHelper.deleteFile(context,"FileName4")
-
-                    //send text
-                    testServiceHelper.contactSendsLocalTextPersonalMLSConversation(context,"FileName3","user2Name","Device1","user4Name")
-                    testServiceHelper.deleteFile(context,"FileName3")
+                    //send Audio
+                    testServiceHelper.contactSendsLocalAudioPersonalMLSConversation(
+                        context,
+                        "FileName",
+                        "user2Name",
+                        "Device1",
+                        "user4Name"
+                    )
+                    //Thread.sleep(20000)
 
                     assertAudioMessageIsVisible()
+                    assertAudioTimeStartsAtZero()
+                    clickPlayButtonOnAudioMessage()
+                    Thread.sleep(16000)
+                    clickPauseButtonOnAudioMessage()
+
+                    assertAudioTimeIsNotZeroAnymore()
+
+                    longPressOnAudioSeekBar()
+                    assertBottomSheetIsVisible()
+                    assertBottomSheetButtonsVisible_ReactionsDetailsReplyDownloadShareOpenDelete()
+                    tapDownloadButton()
+                    assertFileActionModalIsVisible()
+                    tapSaveButtonOnModal()
+                    assertFileSavedToastContain("The file FileName.mp3 was saved successfully to the Downloads folder")
 
 
-                    pages.connectedUserProfilePage.apply {
-                       // assertToastMessageIsDisplayed("The file test.m4a was saved successfully to the Downloads folder")
+                    pages.conversationPage.apply {
+
+
+                        //send image
+                        testServiceHelper.contactSendsLocalImagePersonalMLSConversation(
+                            context,
+                            "FileName2",
+                            "user2Name",
+                            "Device1",
+                            "user4Name"
+                        )
+
+                        assertImageFileWithNameIsVisible("FileName2")
+                        clickFileWithName("FileName2")
+                        assertFileActionModalIsVisible()
+                        assertDownloadModalButtonsAreVisible_Open_Save_Cancel()
+                        clickSaveButtonOnDownloadModal()
+                        assertFileSavedToastContain("The file FileName2.jpg was saved successfully to the Downloads folder")
+
+
+                        // testServiceHelper.deleteFile(context, "FileName2")
+                        //send text
+                        testServiceHelper.contactSendsLocalTextPersonalMLSConversation(
+                            context,
+                            "FileName3",
+                            "user2Name",
+                            "Device1",
+                            "user4Name"
+                        )
+
+                        assertTextFileWithNameIsVisible("FileName3")
+                        clickTextFileWithName("FileName3")
+                        assertFileActionModalIsVisible()
+                        assertDownloadModalButtonsAreVisible_Open_Save_Cancel()
+                        clickSaveButtonOnDownloadModal()
+                        assertFileSavedToastContain("The file FileName3.txt was saved successfully to the Downloads folder")
+
+
+
+
+
+                        pages.connectedUserProfilePage.apply {
+
+
+                            //send video
+                            testServiceHelper.contactSendsLocalVideoPersonalMLSConversation(
+                                context,
+                                "FileName4",
+                                "user2Name",
+                                "Device1",
+                                "user4Name"
+                            )
+                            //      testServiceHelper.deleteFile(context, "FileName4")
+
+
+                            pages.unconnectedUserProfilePage.apply {
+
+                                clickAcceptButton()
+
+                            }
+                        }
                     }
                 }
             }

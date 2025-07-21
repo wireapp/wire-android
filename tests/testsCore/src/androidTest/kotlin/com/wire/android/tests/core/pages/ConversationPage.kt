@@ -26,6 +26,7 @@ import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.test.DefaultAsserter.assertTrue
+import kotlin.test.assertEquals
 
 data class ConversationPage(private val device: UiDevice) {
 
@@ -35,11 +36,11 @@ data class ConversationPage(private val device: UiDevice) {
     private val audioSeekBar = UiSelectorParams(className = "android.widget.SeekBar")
     private val audioInitialTime = UiSelectorParams(text = "00:00")
 
-    private val playButtonParent = UiSelectorParams(className = "android.view.View")
+    private val playAudioButton = UiSelectorParams(description = "Play audio")
 
-    private val pauseButtonParent = UiSelectorParams(className = "android.view.View")
+    private val pauseAudioButton = UiSelectorParams(description = "Pause audio")
 
-    private val reactionsTitle = UiSelectorParams(text = "Reactions")
+    private val reactionsLabel = UiSelectorParams(text = "REACTIONS")
 
     private val messageDetailsButton = UiSelectorParams(text = "Message Details")
 
@@ -57,6 +58,14 @@ data class ConversationPage(private val device: UiDevice) {
 
     private val saveButtonLocator = UiSelectorParams(text = "Save")
 
+    private val saveButton = UiSelectorParams(text = "Save")
+
+    private val cancelButton = UiSelectorParams(text = "Cancel")
+
+
+    private fun fileWithName(name: String): UiSelectorParams {
+        return UiSelectorParams(text = name)
+    }
 
 
     fun clickMainMenuButtonOnConversationViewPage(): ConversationPage {
@@ -111,18 +120,17 @@ data class ConversationPage(private val device: UiDevice) {
         return this
     }
 
-
     fun clickPlayButtonOnAudioMessage(): ConversationPage {
-        val parent = UiWaitUtils.waitElement(playButtonParent)
-        val playButton = parent.findObject(By.clazz("android.widget.ImageView"))
-        playButton.click()
+        val button = UiWaitUtils.waitElement(playAudioButton)
+        requireNotNull(button) { "❌ Play button with description 'Play audio' not found" }
+        button.click()
         return this
     }
 
     fun clickPauseButtonOnAudioMessage(): ConversationPage {
-        val parent = UiWaitUtils.waitElement(pauseButtonParent)
-        val playButton = parent.findObject(By.clazz("android.widget.ImageView"))
-        playButton.click()
+        val button = UiWaitUtils.waitElement(pauseAudioButton)
+        requireNotNull(button) { "❌ Pause button with description 'Play audio' not found" }
+        button.click()
         return this
     }
 
@@ -143,25 +151,26 @@ data class ConversationPage(private val device: UiDevice) {
     }
 
     fun assertBottomSheetButtonsVisible_ReactionsDetailsReplyDownloadShareOpenDelete(): ConversationPage {
-        val buttons = listOf(
-            reactionsTitle to "Reactions",
-            messageDetailsButton to "Message Details",
-            replyButton to "Reply",
-            downloadButton to "Download",
-            shareButton to "Share",
-            openButton to "Open",
-            deleteButton to "Delete"
+        val expectedButtons = listOf(
+            "REACTIONS",
+            "Message Details",
+            "Reply",
+            "Download",
+            "Share",
+            "Open",
+            "Delete"
         )
 
-        buttons.forEach { (selector, label) ->
-            val element = UiWaitUtils.waitElement(selector)
-            assertTrue("Button '$label' is not visible", !element.visibleBounds.isEmpty)
+        expectedButtons.forEach { expectedText ->
+            val element = UiWaitUtils.waitElement(UiSelectorParams(text = expectedText))
+            assertTrue("Button with text '$expectedText' is not visible", !element.visibleBounds.isEmpty)
+            assertEquals(expectedText, element.text, "Button text does not match expected")
         }
 
         return this
     }
 
-    fun tapDownloadButton(): ConversationPage {
+        fun tapDownloadButton(): ConversationPage {
         UiWaitUtils.waitElement(downloadButton).click()
         return this
     }
@@ -176,6 +185,66 @@ data class ConversationPage(private val device: UiDevice) {
         UiWaitUtils.waitElement(saveButtonLocator).click()
         return this
     }
+
+    fun assertImageFileWithNameIsVisible(fileName: String): ConversationPage {
+        val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName))
+        Assert.assertTrue("File with name '$fileName' is not visible", !fileNameElement.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertTextFileWithNameIsVisible(fileName3: String): ConversationPage {
+        val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName3))
+        Assert.assertTrue("File with name '$fileName3' is not visible", !fileNameElement.visibleBounds.isEmpty)
+        return this
+    }
+
+
+    fun clickFileWithName(fileName: String): ConversationPage {
+        val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName))
+        fileNameElement.click()
+        return this
+    }
+
+    fun clickTextFileWithName(fileName3: String): ConversationPage {
+        val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName3))
+        fileNameElement.click()
+        return this
+    }
+
+    fun assertDownloadModalButtonsAreVisible_Open_Save_Cancel(): ConversationPage {
+        val expectedButtons = listOf(
+            "Open",
+            "Save",
+            "Cancel"
+        )
+
+        expectedButtons.forEach { expectedText ->
+            val element = UiWaitUtils.waitElement(UiSelectorParams(text = expectedText))
+            assertTrue("Button with text '$expectedText' is not visible on the modal", !element.visibleBounds.isEmpty)
+            assertEquals(expectedText, element.text, "Button text does not match expected")
+        }
+
+        return this
+    }
+
+
+    fun clickSaveButtonOnDownloadModal(): ConversationPage {
+        UiWaitUtils.waitElement(saveButton).click()
+        return this
+    }
+
+    fun assertFileSavedToastContain(partialText: String): ConversationPage {
+        val toast = UiWaitUtils.waitElement(UiSelectorParams(textContains = partialText))
+
+        Assert.assertTrue(
+            "Toast message containing '$partialText' is not displayed.",
+            !toast.visibleBounds.isEmpty
+        )
+
+        return this
+    }
+
+
 
 
 }

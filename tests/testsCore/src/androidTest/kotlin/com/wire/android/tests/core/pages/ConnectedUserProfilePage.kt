@@ -48,7 +48,6 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         Assert.assertTrue("Toast message '$expectedMessage' is not displayed.", !toast.visibleBounds.isEmpty)
         return this
     }
-
 }
 
 

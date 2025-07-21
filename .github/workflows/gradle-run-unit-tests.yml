@@ -11,8 +11,9 @@ env:
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    # Optimized for GitHub Actions 2-core runners
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1024m -Xmx4G -XX:+UseParallelGC"'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx3G -XX:MaxMetaspaceSize=1024m"'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,11 +32,11 @@ jobs:
 
       - name: Test Build Logic
         run: |
-          ./gradlew -p buildSrc test
-          ./gradlew -p build-logic :plugins:test
+          ./gradlew -p buildSrc test --parallel --max-workers=2
+          ./gradlew -p build-logic :plugins:test --parallel --max-workers=2
 
       - name: Test with coverage
-        run: ./gradlew testCoverage
+        run: ./gradlew testCoverage --parallel --build-cache --max-workers=2
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -29,7 +29,7 @@ jobs:
     # Reduce a bit the memory allocation pool, as the 8GB set in gradle.properties is too much for CI
     # AboutLibraries seems to go crazy when running lint checks. So we explicitly don't run it.
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1024m -Xmx4G -XX:+UseParallelGC"'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx3G -XX:MaxMetaspaceSize=§014m"'
       DISABLE_ABOUT_LIBRARIES: TRUE
     steps:
       - name: Checkout
@@ -47,7 +47,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v4
       - name: Run Linter
         run: |
-          ./gradlew lint
+          ./gradlew lint --parallel --max-workers=2
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.
@@ -58,7 +58,7 @@ jobs:
   style:
     runs-on: ubuntu-latest
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1024m -Xmx4G -XX:+UseParallelGC"'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx3G -XX:MaxMetaspaceSize=§014m"'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -75,7 +75,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v4
       - name: Run Detekt
         run: |
-          ./gradlew detektAll
+          ./gradlew detektAll --parallel --max-workers=2
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.

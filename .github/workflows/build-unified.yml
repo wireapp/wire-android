@@ -29,7 +29,7 @@ jobs:
     # Reduce a bit the memory allocation pool, as the 8GB set in gradle.properties is too much for CI
     # AboutLibraries seems to go crazy when running lint checks. So we explicitly don't run it.
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx3G -XX:MaxMetaspaceSize=§014m"'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx3G -XX:MaxMetaspaceSize=1024m"'
       DISABLE_ABOUT_LIBRARIES: TRUE
     steps:
       - name: Checkout
@@ -42,7 +42,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
       - name: Run Linter
@@ -58,7 +57,7 @@ jobs:
   style:
     runs-on: ubuntu-latest
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx3G -XX:MaxMetaspaceSize=§014m"'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx3G -XX:MaxMetaspaceSize=1024m"'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -70,7 +69,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
       - name: Run Detekt
@@ -123,7 +121,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
       - name: Setup Keystore
         uses: ./.github/actions/setup-keystore

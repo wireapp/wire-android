@@ -26,7 +26,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
 
@@ -36,7 +35,7 @@ jobs:
           ./gradlew -p build-logic :plugins:test --parallel --max-workers=2
 
       - name: Test with coverage
-        run: ./gradlew testCoverage --parallel --build-cache --max-workers=2
+        run: ./gradlew testCoverage --parallel --max-workers=2
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

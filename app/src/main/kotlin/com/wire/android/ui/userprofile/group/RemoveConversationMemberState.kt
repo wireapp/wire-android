@@ -25,5 +25,6 @@ data class RemoveConversationMemberState(
     val conversationId: ConversationId,
     val fullName: String,
     val userName: String,
-    val userId: UserId
+    val userId: UserId,
+    val loading: Boolean = false,
 )

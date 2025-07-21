@@ -23,7 +23,6 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
-import androidx.work.WorkManager
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -34,30 +33,17 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.PlayingAudioMessage
-import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.connection.BlockUserResult
-import com.wire.kalium.logic.feature.connection.BlockUserUseCase
-import com.wire.kalium.logic.feature.connection.UnblockUserResult
-import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
-import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
-import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
-import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -194,53 +180,6 @@ class ConversationListViewModelTest {
         }
 
     @Test
-    fun `given a valid conversation muting state, when calling muteConversation, then should call with call the UseCase`() =
-        runTest(dispatcherProvider.main()) {
-            // Given
-            val (arrangement, conversationListViewModel) = Arrangement()
-                .updateConversationMutedStatusSuccess()
-                .arrange()
-
-            // When
-            conversationListViewModel.muteConversation(conversationId, MutedConversationStatus.AllMuted)
-
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any())
-            }
-        }
-
-    @Test
-    fun `given a valid conversation muting state, when calling block user, then should call BlockUserUseCase`() =
-        runTest(dispatcherProvider.main()) {
-            // Given
-            val (arrangement, conversationListViewModel) = Arrangement()
-                .blockUserSuccess()
-                .arrange()
-
-            // When
-            conversationListViewModel.blockUser(BlockUserDialogState(userName = "someName", userId = userId))
-
-            // Then
-            coVerify(exactly = 1) { arrangement.blockUser(userId) }
-        }
-
-    @Test
-    fun `given a valid conversation muting state, when calling unblock user, then should call BlockUserUseCase`() =
-        runTest(dispatcherProvider.main()) {
-            // Given
-            val (arrangement, conversationListViewModel) = Arrangement()
-                .unblockUserSuccess()
-                .arrange()
-
-            // When
-            conversationListViewModel.unblockUser(userId)
-
-            // Then
-            coVerify(exactly = 1) { arrangement.unblockUser(userId) }
-        }
-
-    @Test
     fun `given cached PagingData, when self user legal hold changes, then should call paginated use case again`() =
         runTest(dispatcherProvider.main()) {
             // given
@@ -313,34 +252,13 @@ class ConversationListViewModelTest {
 
     inner class Arrangement(val conversationsSource: ConversationsSource = ConversationsSource.MAIN) {
         @MockK
-        lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
-
-        @MockK
         lateinit var getConversationsPaginated: GetConversationsFromSearchUseCase
-
-        @MockK
-        lateinit var leaveConversation: LeaveConversationUseCase
-
-        @MockK
-        lateinit var deleteTeamConversationUseCase: DeleteTeamConversationUseCase
-
-        @MockK
-        lateinit var blockUser: BlockUserUseCase
-
-        @MockK
-        lateinit var unblockUser: UnblockUserUseCase
-
-        @MockK
-        lateinit var clearConversationContent: ClearConversationContentUseCase
 
         @MockK
         private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
 
         @MockK
         private lateinit var refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
-
-        @MockK
-        private lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
 
         @MockK
         private lateinit var observeConversationListDetailsWithEventsUseCase:
@@ -351,9 +269,6 @@ class ConversationListViewModelTest {
 
         @MockK
         private lateinit var getSelfUser: GetSelfUserUseCase
-
-        @MockK
-        private lateinit var workManager: WorkManager
 
         @MockK
         lateinit var audioMessagePlayer: ConversationAudioMessagePlayer
@@ -375,20 +290,6 @@ class ConversationListViewModelTest {
             )
             every { audioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
             mockUri()
-        }
-
-        fun updateConversationMutedStatusSuccess() = apply {
-            coEvery {
-                updateConversationMutedStatus(any(), any(), any())
-            } returns ConversationUpdateStatusResult.Success
-        }
-
-        fun blockUserSuccess() = apply {
-            coEvery { blockUser(any()) } returns BlockUserResult.Success
-        }
-
-        fun unblockUserSuccess() = apply {
-            coEvery { unblockUser(any()) } returns UnblockUserResult.Success
         }
 
         fun withConversationsPaginated(items: List<ConversationItem>) = apply {
@@ -417,16 +318,9 @@ class ConversationListViewModelTest {
         fun arrange() = this to ConversationListViewModelImpl(
             conversationsSource = conversationsSource,
             dispatcher = dispatcherProvider,
-            updateConversationMutedStatus = updateConversationMutedStatus,
             getConversationsPaginated = getConversationsPaginated,
-            leaveConversation = leaveConversation,
-            deleteTeamConversation = deleteTeamConversationUseCase,
-            blockUserUseCase = blockUser,
-            unblockUserUseCase = unblockUser,
-            clearConversationContentUseCase = clearConversationContent,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
-            updateConversationArchivedStatus = updateConversationArchivedStatus,
             currentAccount = TestUser.SELF_USER_ID,
             observeConversationListDetailsWithEvents = observeConversationListDetailsWithEventsUseCase,
             observeLegalHoldStateForSelfUser = observeLegalHoldStateForSelfUserUseCase,
@@ -434,12 +328,6 @@ class ConversationListViewModelTest {
             getSelfUser = getSelfUser,
             usePagination = true,
             audioMessagePlayer = audioMessagePlayer,
-            workManager = workManager
         )
-    }
-
-    companion object {
-        private val conversationId = ConversationId("some_id", "some_domain")
-        private val userId: UserId = UserId("someUser", "some_domain")
     }
 }

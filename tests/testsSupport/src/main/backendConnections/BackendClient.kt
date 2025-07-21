@@ -1,3 +1,20 @@
+/*
+ * Wire
+ * Copyright (C) 2025 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
 @file:Suppress("TooGenericExceptionCaught")
 
 package com.wire.android.testSupport.backendConnections
@@ -7,7 +24,6 @@ import android.net.Uri
 import com.wire.android.testSupport.BuildConfig
 import com.wire.android.testSupport.backendConnections.team.defaultheaders
 import com.wire.android.testSupport.backendConnections.team.getAuthToken
-import com.wire.android.testSupport.backendConnections.team.getTeamId
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
@@ -20,14 +36,7 @@ import user.utils.AccessCookie
 import user.utils.AccessCredentials
 import user.utils.BasicAuth
 import user.utils.ClientUser
-import java.net.Authenticator
-import java.net.HttpCookie
-import java.net.HttpURLConnection
-import java.net.InetSocketAddress
-import java.net.PasswordAuthentication
-import java.net.Proxy
-import java.net.URL
-import java.net.URLEncoder
+import java.net.*
 import java.util.logging.Logger
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
@@ -469,23 +478,23 @@ network.WireTestLogger.getLog("Backend").info("Response of send connection reque
         }
     }
 
-    fun getSelfDeletingMessagesSettings(teamMember: ClientUser): JSONObject {
-        val teamId = Uri.encode(getTeamId(teamMember))
-        val url = "i/teams/$teamId/features/selfDeletingMessages".composeCompleteUrl()
-        
-        val headers = defaultheaders.toMutableMap().apply {
-            put("Authorization", "${basicAuth.getEncoded()}")
-        }
-
-        val response = NetworkBackendClient.sendJsonRequestWithCookies(
-            url = URL(url),
-            method = "GET",
-            headers = headers,
-            options = RequestOptions()
-        )
-
-        return JSONObject(response.body)
-    }
+//    fun getSelfDeletingMessagesSettings(teamMember: ClientUser): JSONObject {
+//        val teamId = Uri.encode(getTeamId(teamMember))
+//        val url = "i/teams/$teamId/features/selfDeletingMessages".composeCompleteUrl()
+//
+//        val headers = defaultheaders.toMutableMap().apply {
+//            put("Authorization", "${basicAuth.getEncoded()}")
+//        }
+//
+//        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+//            url = URL(url),
+//            method = "GET",
+//            headers = headers,
+//            options = RequestOptions()
+//        )
+//
+//        return JSONObject(response.body)
+//    }
 
     fun getUserNameByID(domain: String, id: String, user: ClientUser): String {
         val token = runBlocking { getAuthToken(user) }

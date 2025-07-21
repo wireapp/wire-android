@@ -94,6 +94,7 @@ jobs:
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
+    needs: [ lint, style, ui-tests, unit-tests ]
     runs-on: buildjet-4vcpu-ubuntu-2204
     env:
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx5g -XX:+UseParallelGC -XX:MaxMetaspaceSize=1024m -XX:-UseGCOverheadLimit"'

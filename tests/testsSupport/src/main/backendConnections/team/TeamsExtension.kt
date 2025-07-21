@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
 import network.HttpRequestException
+import network.HttpResponseWithCookies
 import network.NetworkBackendClient
 import network.NetworkBackendClient.accessCredentials
 import network.NetworkBackendClient.response
@@ -29,20 +30,55 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 
-private fun BackendClient.bookEmail(email: String): String {
-    val url = URL(TeamRoutes.BookEmail.route.composeCompleteUrl())
+// Helper extensions
+private fun jsonOf(vararg pairs: Pair<String, Any?>): JSONObject {
+    return JSONObject().apply {
+        pairs.forEach { (key, value) -> value?.let { put(key, it) } }
+    }
+}
 
-    val requestBody = JSONObject().apply {
-        put("email", email)
+private fun ClientUser.updateFromResponse(response: HttpResponseWithCookies, teamId: String? = null) {
+    val json = JSONObject(response.body)
+    id = json.getString("id")
+    this.teamId = teamId ?: json.optString("team")
+    accessCredentials = AccessCredentials(
+        accessToken = accessCredentials?.accessToken,
+        accessCookie = AccessCookie("zuid", response.cookies)
+    )
+}
+
+private  fun BackendClient.sendTeamRequest(
+    route: String,
+    method: String,
+    user: ClientUser? = null,
+    body: String? = null,
+    additionalHeaders: Map<String, String> = emptyMap()
+): HttpResponseWithCookies {
+    val headers = defaultheaders.toMutableMap().apply {
+        putAll(additionalHeaders)
+        user?.let {
+            runBlocking {  getAuthToken(it)?.let { token ->
+                put("Authorization", "Bearer ${token.value}")
+            }
+                }
+        }
     }
 
-    val response = NetworkBackendClient.sendJsonRequest(
-        url = url,
-        method = "POST",
-        body = requestBody.toString(),
-        headers = defaultheaders
+    return NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(route.composeCompleteUrl()),
+        method = method,
+        body = body,
+        headers = headers
     )
+}
 
+// Original functions refactored
+private fun BackendClient.bookEmail(email: String): String {
+    sendTeamRequest(
+        route = TeamRoutes.BookEmail.route,
+        method = "POST",
+        body = jsonOf("email" to email).toString()
+    )
     return "Sent activation email"
 }
 
@@ -81,51 +117,32 @@ suspend fun BackendClient.createTeamOwnerViaBackend(
     updateHandle: Boolean,
     context: Context,
 ): ClientUser {
-    /**
-     * Send a code to the team owner
-     */
     bookEmail(user.email.orEmpty())
-
     val activationCode = getActivationCodeForEmail(user.email.orEmpty())
 
-    val url = URL(TeamRoutes.Register.route.composeCompleteUrl()) // Replace with actual endpoint
-    val requestBody = JSONObject().apply {
-        put("email", user.email)
-        put("name", user.name)
-        put("locale", locale)
-        put("password", user.password)
-        put("email_code", activationCode)
-
-        val team = JSONObject().apply {
-            put("name", teamName)
-            put("icon", "default")
-            put("binding", true)
-        }
-        put("team", team)
-    }
-    val response = NetworkBackendClient.sendJsonRequestWithCookies(
-        url = url,
+    val response = sendTeamRequest(
+        route = TeamRoutes.Register.route,
         method = "POST",
-        body = requestBody.toString(),
-        headers = defaultheaders
+        body = jsonOf(
+            "email" to user.email,
+            "name" to user.name,
+            "locale" to locale,
+            "password" to user.password,
+            "email_code" to activationCode,
+            "team" to jsonOf(
+                "name" to teamName,
+                "icon" to "default",
+                "binding" to true
+            )
+        ).toString()
     )
 
-    val responseJson = JSONObject(response.body)
-
-    println("\nResponse: ${response.cookies}")
-
-    user.id = responseJson.getString("id")
-    user.teamId = responseJson.getString("team")
-
-    val cookie = AccessCookie("zuid", response.cookies)
-    user.accessCredentials = AccessCredentials(null, cookie)
-
+    user.updateFromResponse(response)
     updateUserPicture(user, context)
 
     if (updateHandle) {
         updateUniqueUsername(user, user.uniqueUsername.orEmpty())
     }
-
     return user
 }
 
@@ -148,114 +165,61 @@ fun BackendClient.createTeamUserViaBackend(
     role: TeamRoles,
     context: Context,
 ): ClientUser {
-    val token = runBlocking {
-        getAuthToken(teamOwner)
+    runBlocking {
+        val token = getAuthToken(teamOwner)
+        val invitationId = inviteNewUserToTeam(
+            token?.value.orEmpty(),
+            teamId,
+            member.email ?: "",
+            teamOwner.name ?: "",
+            role
+        )
+
+        val invitationCode = getTeamCode(teamId, invitationId)
+        val response = sendTeamRequest(
+            route = TeamRoutes.Register.route,
+            method = "POST",
+            body = jsonOf(
+                "email" to member.email,
+                "name" to member.name,
+                "password" to member.password,
+                "team_code" to invitationCode
+            ).toString()
+        )
+
+        member.updateFromResponse(response, teamId)
+
+        if (uploadPicture) updateUserPicture(member, context)
+        if (hasHandle) updateUniqueUsername(member, member.uniqueUsername.orEmpty())
     }
-
-    /**
-     * send an invite email to the team member
-     */
-    val invitationId = inviteNewUserToTeam(
-        token?.value.orEmpty(),
-        teamId,
-        member.email ?: "",
-        teamOwner.name ?: "",
-        role
-    )
-
-    /**
-     * get the invite code from the mail we sent
-     */
-    val invitationCode = getTeamCode(teamId, invitationId)
-
-    val url = URL(TeamRoutes.Register.route.composeCompleteUrl())
-    val requestBody = JSONObject().apply {
-        put("email", member.email)
-        put("name", member.name)
-        put("password", member.password)
-        put("team_code", invitationCode)
-    }
-
-    val headers = defaultheaders
-
-    val response = NetworkBackendClient.sendJsonRequestWithCookies(
-        url = url,
-        method = "POST",
-        body = requestBody.toString(),
-        headers = headers
-    )
-
-    val jsonResponse = JSONObject(response.body)
-
-    member.id = jsonResponse.getString("id")
-    member.teamId = teamId
-
-    val accessCookie = AccessCookie("zuid", response.cookies)
-    member.accessCredentials = AccessCredentials(null, accessCookie)
-
-    if (uploadPicture) {
-        runBlocking {
-            updateUserPicture(member, context)
-        }
-    }
-
-    if (hasHandle) {
-        runBlocking {
-            updateUniqueUsername(member, member?.uniqueUsername.orEmpty())
-        }
-    }
-
     return member
 }
 
 fun BackendClient.acceptInvite(teamId: String, member: ClientUser): ClientUser {
     val invitationCode = getTeamCode(teamId, member.id.orEmpty())
-
-    val url = URL(TeamRoutes.Register.route.composeCompleteUrl())
-    val requestBody = JSONObject().apply {
-        put("email", member.email)
-        put("name", member.name)
-        put("password", member.password)
-        put("team_code", invitationCode)
-    }
-
-    val headers = defaultheaders
-
-    val response = NetworkBackendClient.sendJsonRequestWithCookies(
-        url = url,
+    val response = sendTeamRequest(
+        route = TeamRoutes.Register.route,
         method = "POST",
-        body = requestBody.toString(),
-        headers = headers
+        body = jsonOf(
+            "email" to member.email,
+            "name" to member.name,
+            "password" to member.password,
+            "team_code" to invitationCode
+        ).toString()
     )
-
-    val jsonResponse = JSONObject(response.body)
-
-    member.id = jsonResponse.getString("id")
-    member.teamId = teamId
-
-    val accessCookie = AccessCookie("zuid", response.cookies)
-    member.accessCredentials = AccessCredentials(null, accessCookie)
-
+    member.updateFromResponse(response, teamId)
     return member
 }
 
 fun BackendClient.getTeamCode(teamId: String, invitationId: String): String {
     val encodedTeamId = URLEncoder.encode(teamId, "UTF-8")
     val encodedInvitationId = URLEncoder.encode(invitationId, "UTF-8")
-    val url = URL("i/teams/invitation-code?team=$encodedTeamId&invitation_id=$encodedInvitationId".composeCompleteUrl())
-
-    val headers = defaultheaders.toMutableMap().apply {
-        put("Authorization", basicAuth.getEncoded())
-    }
-
-    val response = NetworkBackendClient.sendJsonRequest(
-        url = url,
+    val response = sendTeamRequest(
+        route = "i/teams/invitation-code?team=$encodedTeamId&invitation_id=$encodedInvitationId",
         method = "GET",
-        body = null,
-        headers = headers
+        additionalHeaders = mapOf("Authorization" to basicAuth.getEncoded())
     )
-
-    return JSONObject(response).getString("code")
+    return JSONObject(response.body).getString("code")
 }
 
 fun BackendClient.inviteNewUserToTeam(
@@ -265,28 +229,17 @@ fun BackendClient.inviteNewUserToTeam(
     inviterName: String,
     role: TeamRoles
 ): String {
-
-    val url = URL("teams/$teamId/invitations".composeCompleteUrl())
-
-    val requestBody = JSONObject().apply {
-        put("email", dstEmail)
-        put("role", role.role)
-        put("inviter_name", inviterName)
-    }
-
-    val headers = defaultheaders.toMutableMap().apply {
-        put("Authorization", "Bearer $token")
-    }
-
-    val response = NetworkBackendClient.sendJsonRequest(
-        url = url,
+    val response = sendTeamRequest(
+        route = "teams/$teamId/invitations",
         method = "POST",
-        body = requestBody.toString(),
-        headers = headers
+        body = jsonOf(
+            "email" to dstEmail,
+            "role" to role.role,
+            "inviter_name" to inviterName
+        ).toString(),
+        additionalHeaders = mapOf("Authorization" to "Bearer $token")
     )
-
-    val objectResponse = JSONObject(response)
-    return objectResponse.getString("id")
+    return JSONObject(response.body).getString("id")
 }
 
 @Suppress("MagicNumber")
@@ -326,13 +279,11 @@ private fun BackendClient.updateSelfAssets(token: AccessToken?, assets: Set<Asse
     NetworkBackendClient.sendJsonRequest(
         url = URL(TeamRoutes.SelfAssets.route.composeCompleteUrl()),
         method = "PUT",
-        body = JSONObject().apply {
-            val array = JSONArray()
-            assets.forEach {
-                array.put(it.toJson())
+        body = jsonOf(
+            "assets" to JSONArray().apply {
+                assets.forEach { put(it.toJson()) }
             }
-            put("assets", array)
-        }.toString(),
+        ).toString(),
         headers = defaultheaders,
         options = RequestOptions(accessToken = token),
     )
@@ -350,7 +301,6 @@ private suspend fun BackendClient.updateUniqueUsername(user: ClientUser, newUniq
             return
         } catch (e: HttpRequestException) {
             if (tryAvoidDuplicates && e.returnCode == 409 && ntry < 5) {
-                // Try to generate another handle if this one already exists
                 username = ClientUser.sanitizedRandomizedHandle(user.firstName)
             } else {
                 throw e
@@ -364,9 +314,7 @@ private fun BackendClient.updateSelfHandle(token: AccessToken?, handle: String) 
     NetworkBackendClient.sendJsonRequest(
         url = URL(TeamRoutes.SelfHandle.route.composeCompleteUrl()),
         method = "PUT",
-        body = JSONObject().apply {
-            put("handle", handle)
-        }.toString(),
+        body = jsonOf("handle" to handle).toString(),
         headers = defaultheaders,
         options = RequestOptions(accessToken = token),
     )
@@ -382,12 +330,10 @@ private suspend fun BackendClient.getAuthCredentials(user: ClientUser): AccessCr
         credentials == null -> login(user).also {
             user.accessCredentials = it
         }
-
         credentials.accessToken == null || credentials.accessToken.isInvalid() || credentials.accessToken.isExpired() ->
             access(credentials).also {
-            user.accessCredentials = it
-        }
-
+                user.accessCredentials = it
+            }
         else -> credentials
     }
 }
@@ -397,11 +343,11 @@ private suspend fun BackendClient.login(user: ClientUser): AccessCredentials {
     val connection = NetworkBackendClient.makeRequest(
         url = URL("login".composeCompleteUrl()),
         method = "POST",
-        body = JSONObject().apply {
-            put("email", user.email)
-            put("password", user.password)
-            put("label", "")
-        }.toString(),
+        body = jsonOf(
+            "email" to user.email,
+            "password" to user.password,
+            "label" to ""
+        ).toString(),
         options = RequestOptions(expectedResponseCodes = NumberSequence.Array(intArrayOf(200, 403))),
         headers = defaultheaders,
     )
@@ -417,70 +363,59 @@ private suspend fun BackendClient.login(user: ClientUser): AccessCredentials {
             val connection2fa = NetworkBackendClient.makeRequest(
                 url = URL("login".composeCompleteUrl()),
                 method = "POST",
-                body = JSONObject().apply {
-                    put("email", user.email)
-                    put("password", user.password)
-                    put("verification_code", verificationCode)
-                }.toString(),
+                body = jsonOf(
+                    "email" to user.email,
+                    "password" to user.password,
+                    "verification_code" to verificationCode
+                ).toString(),
                 headers = defaultheaders,
             )
             connection2fa.accessCredentials(connection2fa.response())
         }
-
-        else -> {
-            connection.accessCredentials(connection.response())
-        }
+        else -> connection.accessCredentials(connection.response())
     }
 }
 
 fun ClientUser.deleteTeam(backend: BackendClient) {
-    val connection = NetworkBackendClient.makeRequest(
+    NetworkBackendClient.makeRequest(
         url = with(backend) { URL("teams/$teamId".composeCompleteUrl()) },
         method = "DELETE",
-        body = JSONObject().apply {
-            put("password", password)
-        }.toString(),
+        body = jsonOf("password" to password).toString(),
         options = RequestOptions(
             accessToken = accessCredentials?.accessToken,
             cookie = accessCredentials?.accessCookie
         ),
         headers = defaultheaders,
-    )
-    WireTestLogger.getLog("UserClient").info(connection.responseMessage)
+    ).also { connection ->
+        WireTestLogger.getLog("UserClient").info(connection.responseMessage)
+    }
 }
 
 fun ClientUser.deleteTeamMember(
     backend: BackendClient,
     userIdOfMemberToDelete: String
 ) {
-    val connection = NetworkBackendClient.makeRequest(
+    NetworkBackendClient.makeRequest(
         url = with(backend) { URL("teams/$teamId/members/$userIdOfMemberToDelete".composeCompleteUrl()) },
         method = "DELETE",
-        body = JSONObject().apply {
-            put("password", password)
-        }.toString(),
+        body = jsonOf("password" to password).toString(),
         options = RequestOptions(
             accessToken = accessCredentials?.accessToken,
             cookie = accessCredentials?.accessCookie
         ),
         headers = defaultheaders
-    )
-
-    if (connection.responseCode !in listOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_ACCEPTED)) {
-        throw IOException("Delete team member failed with status ${connection.responseCode}")
+    ).also { connection ->
+        if (connection.responseCode !in listOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_ACCEPTED)) {
+            throw IOException("Delete team member failed with status ${connection.responseCode}")
+        }
+        WireTestLogger.getLog("TeamClient").info(connection.responseMessage)
     }
-
-    WireTestLogger.getLog("TeamClient").info(connection.responseMessage)
 }
 
 fun ClientUser.suspendTeam(backend: BackendClient) {
     val encodedTeamId = URLEncoder.encode(teamId, "UTF-8")
-    val url = with(backend) {
-        URL("i/teams/$encodedTeamId/suspend".composeCompleteUrl())
-    }
-
     NetworkBackendClient.makeRequest(
-        url = url,
+        url = with(backend) { URL("i/teams/$encodedTeamId/suspend".composeCompleteUrl()) },
         method = "POST",
         body = "",
         headers = defaultheaders.toMutableMap().apply {
@@ -490,8 +425,7 @@ fun ClientUser.suspendTeam(backend: BackendClient) {
             accessToken = accessCredentials?.accessToken,
             cookie = accessCredentials?.accessCookie
         ),
-
-        ).also { connection ->
+    ).also { connection ->
         if (connection.responseCode != HttpURLConnection.HTTP_OK) {
             throw IOException("Suspend team failed with status ${connection.responseCode}")
         }
@@ -503,16 +437,14 @@ private fun BackendClient.access(credentials: AccessCredentials): AccessCredenti
     val connection = NetworkBackendClient.makeRequest(
         url = URL("access".composeCompleteUrl()),
         method = "POST",
-        body = JSONObject().apply {
-            put("withCredentials", true)
-        }.toString(),
+        body = jsonOf("withCredentials" to true).toString(),
         headers = defaultheaders,
         options = RequestOptions(
             accessToken = credentials.accessToken,
             cookie = credentials.accessCookie
         ),
-        )
-    return connection.accessCredentials(connection.response())
+    )
+        return  connection.accessCredentials(connection.response())
 }
 
 @Suppress("TooGenericExceptionCaught", "MagicNumber")

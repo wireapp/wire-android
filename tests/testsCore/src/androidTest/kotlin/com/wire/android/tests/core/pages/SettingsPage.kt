@@ -218,15 +218,12 @@ data class SettingsPage(private val device: UiDevice) {
 
     fun assertNotificationWithNewEmail(expectedEmail: String): SettingsPage {
         val expectedText = "A verification email has been sent to your email $expectedEmail"
-
         val emailNotificationTextView = UiWaitUtils.waitElement(emailVerificationNotification)
         val actualText = emailNotificationTextView.text ?: ""
-
         assertTrue(
             "Expected verification message to contain: $expectedText\nBut got: $actualText",
             actualText.contains(expectedText)
         )
-
         return this
     }
 

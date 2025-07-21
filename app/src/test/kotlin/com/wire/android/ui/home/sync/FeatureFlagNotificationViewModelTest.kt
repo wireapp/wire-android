@@ -50,7 +50,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -69,8 +69,8 @@ class FeatureFlagNotificationViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            expected = FeatureFlagState.FileSharingState.NoUser,
-            actual = viewModel.featureFlagState.isFileSharingState
+            FeatureFlagState.FileSharingState.NoUser,
+            viewModel.featureFlagState.isFileSharingState
         )
     }
 
@@ -83,8 +83,8 @@ class FeatureFlagNotificationViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            expected = FeatureFlagState.FileSharingState.DisabledByTeam,
-            actual = viewModel.featureFlagState.isFileSharingState
+            FeatureFlagState.FileSharingState.DisabledByTeam,
+            viewModel.featureFlagState.isFileSharingState
         )
     }
 
@@ -100,8 +100,8 @@ class FeatureFlagNotificationViewModelTest {
 
         verify(exactly = 1) { arrangement.markGuestLinkFeatureFlagAsNotChanged() }
         assertEquals(
-            expected = false,
-            actual = viewModel.featureFlagState.shouldShowGuestRoomLinkDialog
+            false,
+            viewModel.featureFlagState.shouldShowGuestRoomLinkDialog
         )
     }
 
@@ -114,8 +114,8 @@ class FeatureFlagNotificationViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            expected = FeatureFlagState.FileSharingState.AllowAll,
-            actual = viewModel.featureFlagState.isFileSharingState
+            FeatureFlagState.FileSharingState.AllowAll,
+            viewModel.featureFlagState.isFileSharingState
         )
     }
 

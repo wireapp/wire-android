@@ -1,0 +1,93 @@
+name: "Production"
+
+on:
+  release:
+    types: [ published ]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
+  cancel-in-progress: true
+
+jobs:
+  validate-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest release tag
+        id: get_latest_release
+        run: |
+          latest_tag=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')
+          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        run: |
+          current_tag="${{ github.event.release.tag_name }}"
+          latest_tag="${{ steps.get_latest_release.outputs.latest_tag }}"
+          cur_ver="${current_tag#v}"
+          lat_ver="${latest_tag#v}"
+          highest="$(printf '%s\n%s' "$cur_ver" "$lat_ver" | sort -V | tail -n1)"
+          if [[ "$cur_ver" != "$lat_ver" && "$highest" != "$cur_ver" ]]; then
+            echo "Current tag ($current_tag) is lower than latest tag ($latest_tag). Failing the workflow."
+            exit 1
+          else
+            echo "Current tag ($current_tag) is equal or higher than $latest_tag. Continuing the workflow."
+          fi
+
+  build-production:
+    needs: validate-release
+    uses: ./.github/workflows/build-unified.yml
+    with:
+      build-config: |
+        [
+          {
+            "flavor": "Prod",
+            "variant": "Compatrelease",
+            "keystore-type": "public",
+            "build-type": "both",
+            "generate-version-file": true,
+            "deployment-targets": [
+              {
+                "type": "s3"
+              },
+              {
+                "type": "google-play",
+                "package-name": "com.wire",
+                "track": "alpha"
+              },
+              {
+                "type": "github-release",
+                "additional-files": "app/version.txt"
+              }
+            ]
+          }
+        ]
+      enable-deployment: true
+    secrets: inherit
+
+  build-fdroid:
+    needs: validate-release
+    uses: ./.github/workflows/build-unified.yml
+    with:
+      build-config: |
+        [
+          {
+            "flavor": "Fdroid",
+            "variant": "Compatrelease",
+            "keystore-type": "public",
+            "build-type": "apk",
+            "generate-version-file": false,
+            "deployment-targets": [
+              {
+                "type": "s3"
+              },
+              {
+                "type": "github-release"
+              }
+            ]
+          }
+        ]
+      enable-deployment: true
+    secrets: inherit

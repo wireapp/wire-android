@@ -29,7 +29,7 @@ jobs:
     # Reduce a bit the memory allocation pool, as the 8GB set in gradle.properties is too much for CI
     # AboutLibraries seems to go crazy when running lint checks. So we explicitly don't run it.
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=512m -Xmx3G -XX:+UseParallelGC" -Dorg.gradle.parallel=true'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1024m -Xmx4G -XX:+UseParallelGC"'
       DISABLE_ABOUT_LIBRARIES: TRUE
     steps:
       - name: Checkout
@@ -58,7 +58,7 @@ jobs:
   style:
     runs-on: ubuntu-latest
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=512m -Xmx3G -XX:+UseParallelGC" -Dorg.gradle.parallel=true'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1024m -Xmx4G -XX:+UseParallelGC"'
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -12,7 +12,7 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx4G -XX:+UseParallelGC" -Dorg.gradle.parallel=true'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1024m -Xmx4G -XX:+UseParallelGC"'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
